@@ -34,7 +34,7 @@ local L = ns.L
 -- holders let the durable network outlive the two original players' sessions.
 --
 -- Anti-entropy. About RELAYS clients of the army (as the signed authority's answers draw:
--- King.AddonsOnline), every DIGEST_EVERY, send for each type a digest of what they hold: each
+-- Shogun.AddonsOnline), every DIGEST_EVERY, send for each type a digest of what they hold: each
 -- day's count and the sum of its ids' short hashes, the newest days plus rotating older days,
 -- and rotating sealed months' totals hashes. A client whose day differs asks for it (RA, with the PREFIX-character
 -- prefixes of the ids it holds of that day), ASK_DAYS days a digest at most, the newest first; a
@@ -723,7 +723,7 @@ function R.RecheckPending() Unpend(nil) end
 ---------------------------------------------------------------------------
 
 local function Users()
-	local C, K = ns.Comm, ns.King
+	local C, K = ns.Comm, ns.Shogun
 	local users = 1
 	if type(C) == "table" and type(C.PeerCount) == "function" then
 		local ok, n = pcall(C.PeerCount, true)

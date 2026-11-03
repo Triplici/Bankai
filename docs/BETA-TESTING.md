@@ -214,14 +214,14 @@ Do not claim the enabled/disabled comparison passed from a Lua fixture or a shor
    All cross frames are larger; other-honour size normalization is not claimed complete. A
    local red-cross choice is labelled local and other clients see the ordinary chosen honour.
 5. Check a newly earned eligible honour, reload, lose/regain it and change place. First eligible
-   letters should not repeat; subsequent movement uses quiet notices. The King gets no letter
+   letters should not repeat; subsequent movement uses quiet notices. The Shogun gets no letter
    from himself. The completed-month koi/Bones charm and a retained cornucopia choice need
    their own checks; do not create fake saved achievements to mark them passed.
 6. Click native `[Bankai Guild]` in chat: its input targets Bankai Guild when writing is permitted. Test
    the native chat UI and any chat replacement separately. With mouse input and a free guild
    shortcut, an authorized High Councillor's Shift + guild key opens The Watch; existing saved
    or override bindings are not replaced. Hotkey opt-out and gamepad mode remain respected.
-7. As the real King, enable location sharing in the Throne, reload, enter/leave an instance,
+7. As the real Shogun, enable location sharing in the Throne, reload, enter/leave an instance,
    and wait for the map to load. The status distinguishes configured opt-in from effective
    location availability and resumes without an off/on workaround. Games live-table settings
    remain independent. Compare the visible crown/layer on another client.
@@ -250,15 +250,15 @@ Do not claim the enabled/disabled comparison passed from a Lua fixture or a shor
 - **Guild authority:** an ordinary sister-guild master cannot send a global Crown decree,
   muster, agenda or moderation action. Their own authorized guild actions stay available.
   Verify Heraldry correspondent revocation while a message is queued. Explicitly appoint a
-  member of the King's guild as Legate; an unnamed High Councillor must not gain a group merely
+  member of the Shogun's guild as Legate; an unnamed High Councillor must not gain a group merely
   from that title. Check the 25-leader cap, the group's 40-total cap and Legate self-management
   without access to another leader's group. Nomination and its quiet local notice must explain
   attendance at events, raids and wars without repeating on unrelated appointments or reload.
   Review a retained oversized legacy group: cancel changes nothing; confirm retains the complete
   old membership privately before replacing it. Check the same actions with another client and
   gamepad mode. No automatic invitations, removals or native promotions may happen. Lottery
-  draws remain King/author/HC-only, with no public Lottery ranking and no paid tickets.
-- **Private Justice requests:** as the actual King/HC, open The Watch > Justice requests and
+  draws remain Shogun/author/HC-only, with no public Lottery ranking and no paid tickets.
+- **Private Justice requests:** as the actual Shogun/HC, open The Watch > Justice requests and
   issue a deliberate request to the verified correspondent's full name and own guild. Keep the
   assignee offline initially: no received time or speed should be invented. Overlap online and
   compare the first receipt; repeat it without resetting the timer. Review the existing native
@@ -325,12 +325,12 @@ Do not claim the enabled/disabled comparison passed from a Lua fixture or a shor
    during a queued transfer; every piece must stop, and the authenticated withdrawal hides the
    retained aggregate. Unknown-guild income and ambiguous returned mail remain unknown, not
    guessed refunds or guild balances. No auto bank, mail, Trade or AcceptTrade is called.
-3. As the actual King, start a voluntary campaign through its Treasury controls. Check purpose,
+3. As the actual Shogun, start a voluntary campaign through its Treasury controls. Check purpose,
    gold/material goals and the 14-day window. As a real keeper, explicitly assign an eligible
    newly received voluntary gift. Current-week dues remain reserved; old/manual money, sales,
    transfers and custody cannot be assigned as fresh campaign gifts. Cancel confirmation, then
    accept once, retry and reload: the same receipt cannot be counted twice. Public clients see
-   only aggregates. Closing needs the King's purchases note and removes the bar; it moves no
+   only aggregates. Closing needs the Shogun's purchases note and removes the bar; it moves no
    gold or items and awards no privilege. Do not manufacture receipts to exercise these checks.
 4. For a deliberately arranged same-character guild move, retain source records and run:
 
@@ -353,7 +353,7 @@ Do not claim the enabled/disabled comparison passed from a Lua fixture or a shor
    alt and replacement master grant no inherited copy. Offline withdrawal delivery is not
    guaranteed. See [history-carry.md](history-carry.md) for bounds and remaining limitations.
 
-   Test the named-heir route separately before release: the actual King and both current guild
+   Test the named-heir route separately before release: the actual Shogun and both current guild
    masters must approve the same frozen index before any character is asked to consent. Confirm
    that only consenting characters' historical records appear for the exact approving heir
    master, that private Loot moves only keeper-to-keeper, and that no rank, key, payment, pardon
@@ -396,7 +396,7 @@ offline tests stub Battle.net (`BNGetInfo`, `BNConnected`), which proves nothing
    moderator is already online is reached at the moderator's next ask, up to about 35 minutes
    later. The digits show as `#****` until the page's **Show**, and hide again after ten seconds.
    Two alts of one account are grouped, and the person page says "Same BattleTag". An ordinary
-   member's client never shows one. The King's client shows no part of a tag, even after the eye
+   member's client never shows one. The Shogun's client shows no part of a tag, even after the eye
    button. Answers that arrive after a `/reload` of the moderator (within about 70 minutes of his
    ask) are still kept.
 7. The moderator logs off within a minute of his ask: the player's chat shows no "No player named"
@@ -439,7 +439,7 @@ that holds S's BattleTag (step 6), plus a named moderator's client (M) for the t
     free within a minute while S stays off, and the page drops the red line.
 18. Steps 14 and 17 with the gamepad UI on A and C: the pop-up and the stop dialog are Bankai Guild's own
     windows, the controller answers them, no taint message and no game popup.
-19. On the King's client (or the author's King preview) with the BattleTags page open: the follow's
+19. On the Shogun's client (or the author's Shogun preview) with the BattleTags page open: the follow's
     line and the mark show, the names masked, no part of any BattleTag.
 20. A client on the CurseForge version before this release, on the same channel during steps 13-17:
     no Lua error; it hides S by name and never A.
@@ -450,5 +450,5 @@ that holds S's BattleTag (step 6), plus a named moderator's client (M) for the t
     goes out; a moment later A's own pop-up comes (C's addon sent the follow again for that line),
     the next `/bg hi` is refused, and C's `/bk status` still counts `derived 0`. A typing in the
     game's own guild chat (`/g hi`) never changes that count.
-23. A character of the King's game account (once the King's own character logged in on it) and a
+23. A character of the Shogun's game account (once the Shogun's own character logged in on it) and a
     councillor's client C that asks for BattleTags: C's BattleTags page never lists that character.

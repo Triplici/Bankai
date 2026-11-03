@@ -1,9 +1,9 @@
 -- 1.2.1, the Census's search (BankaiGuild/Views.lua's CensusLines): a guild's name may mix letters
 -- that look alike ("Bankai Guild XIlI", a small L among capital i's; a one or a zero for I or O), and
 -- the player types what he sees. The Census's search reads l, I and 1 as one letter and 0 and O
--- as another, in what is typed and in the guilds, Lords, players and zones it reads; any other
+-- as another, in what is typed and in the guilds, Council, players and zones it reads; any other
 -- letter as ever. CR-08 (the author's ask): the Realm's search (RealmLines) reads the same
--- guilds, Lords, Captains and members seen the same way. On the harness's namespace, its census
+-- guilds, Council, Captains and members seen the same way. On the harness's namespace, its census
 -- swapped for a few invented guilds.
 local H = ...
 local test, eq = H.test, H.eq
@@ -66,8 +66,8 @@ test("1.2.1 Census search: l, I and 1 read alike, 0 and O too, so XIII finds Ban
 		eq(Guilds(Find(V, "house")), "Bankai Guild H0use")
 		eq(Guilds(Find(V, "h0use")), "Bankai Guild H0use")
 		eq(Guilds(Find(V, "iron")), "Bankai Guild 1ron")
-		-- Lords and Captains read the same way.
-		eq(Guilds(Find(V, "marrek dunhoit")), "Bankai Guild XIlI", "a Lord, an l typed as I")
+		-- Council and Captains read the same way.
+		eq(Guilds(Find(V, "marrek dunhoit")), "Bankai Guild XIlI", "a Council member, an l typed as I")
 		local lines = Find(V, "ysoide")
 		eq(Guilds(lines), "Bankai Guild II"); eq(People(lines), "Ysolde Imrie", "a Captain found under his guild")
 		-- Every other letter as ever: no false friends beyond these.
@@ -112,7 +112,7 @@ local function Says(lines, text)
 	return false
 end
 
-test("CR-08 Realm search: l, I and 1 read alike, 0 and O too, as in the Census: XIII finds Bankai Guild XIlI, its Lord, Captains and members seen", function()
+test("CR-08 Realm search: l, I and 1 read alike, 0 and O too, as in the Census: XIII finds Bankai Guild XIlI, its Council, Captains and members seen", function()
 	WithCensus(function(V)
 		local who, savedSweep = ns.Who, ns.Who and ns.Who.sweep
 		-- A member of Bankai Guild Amber Hollow the /who round saw online.
@@ -125,9 +125,9 @@ test("CR-08 Realm search: l, I and 1 read alike, 0 and O too, as in the Census: 
 			eq(RealmGuilds(FindRealm(V, "bankaiguild xili")), "Bankai Guild XIlI", "as written")
 			eq(RealmGuilds(FindRealm(V, "house")), "Bankai Guild H0use", "a zero for an O")
 			eq(RealmGuilds(FindRealm(V, "h0use")), "Bankai Guild H0use")
-			-- Its Lord, a Captain and a member seen online, opened under their guild.
+			-- Its Council, a Captain and a member seen online, opened under their guild.
 			local lines = FindRealm(V, "marrek dunhoit")
-			eq(RealmGuilds(lines), "Bankai Guild XIlI", "a Lord, an l typed as I"); eq(People(lines), "Marrek Dunholt")
+			eq(RealmGuilds(lines), "Bankai Guild XIlI", "a Council member, an l typed as I"); eq(People(lines), "Marrek Dunholt")
 			lines = FindRealm(V, "ysoide")
 			eq(RealmGuilds(lines), "Bankai Guild II"); eq(People(lines), "Ysolde Imrie", "a Captain")
 			lines = FindRealm(V, "llvara")
@@ -175,7 +175,7 @@ test("CR-08 Realm's classes, races and professions: their search reads l, I and 
 		end
 		local ok, err = pcall(function()
 			-- A guild's people by its name, typed as it looks.
-			eq(People(FindIn(V, "classes", "bankaiguild xiii")), "Marrek Dunholt-Realm", "XIlI's Lord, by his guild")
+			eq(People(FindIn(V, "classes", "bankaiguild xiii")), "Marrek Dunholt-Realm", "XIlI's Council, by his guild")
 			eq(People(FindIn(V, "races", "XIII")), "Marrek Dunholt-Realm", "the races' search too")
 			-- A name, his capital i typed as a small L or a one, under his group.
 			local lines = FindIn(V, "classes", "llvara")

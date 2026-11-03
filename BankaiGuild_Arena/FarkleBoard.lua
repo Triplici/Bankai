@@ -2054,7 +2054,7 @@ function Board.CreateRefresh()
 	create.arbName:SetShown(withArb); create.arbNext:SetShown(withArb); create.wallet:SetShown(withArb and Call("Compliance", "Wallet") == true)
 	if withArb then
 		create.arbName:SetText(C.arbiter and Name(C.arbiter) or L.FARKLE_B_C_NO_ARBITER)
-		if C.arbiter and Call("ArenaRoles", "IsKing", C.arbiter) then C.src = "w" end
+		if C.arbiter and Call("ArenaRoles", "IsShogun", C.arbiter) then C.src = "w" end
 		create.wallet:SetOn((C.src or "t") == "w")
 	end
 	create.secs:SetText(T("FARKLE_B_C_SECS", C.secs))

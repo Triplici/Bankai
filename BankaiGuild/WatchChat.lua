@@ -15,17 +15,17 @@ local L = ns.L
 -- (Moderation.lua, exile included) is on a player, for the same window his own client and every
 -- 1.1.6 client that knows it bar him (WatchChat.Barred) from the powers Bankai Guild gives him (The
 -- Watch, net-off words, pins, the Throne's calls, the shared block terms), the Bankai Guild games, the
--- map's positions with the King's position and whether the King is online, and the Crafting tab;
+-- map's positions with the Shogun's position and whether the Shogun is online, and the Crafting tab;
 -- during a hold his wallet is frozen too (no bet, no withdrawal).
 --
 -- Who may act, worked out on every client from the name the server stamps (never from a message):
 --   a Watcher (his guild's officers, the people its guild master names, a signed moderator:
 --     Watch.IsAuthorized) on a member of his own guild below him (Watch.TargetAllowed), over GUILD;
---   the author (7), the King (6), a High Councillor (4) or an Bankai Guild moderator one of them named
+--   the author (7), the Shogun (6), a High Councillor (4) or an Bankai Guild moderator one of them named
 --     (3) on anyone in Bankai Guild whose level is lower (WatchChat.ProtectLevel: a Steward 5, a Hand 4,
---     the King's guild's master 3; since 1.2.3 any other guild master 0, as his members: his own
+--     the Shogun's guild's master 3; since 1.2.3 any other guild master 0, as his members: his own
 --     guild's Watchers still never act on him, by its rank order), on the Bankai Guild channel.
--- Nobody acts on himself, on the pinned King, or through a linked alt on someone he may not reach.
+-- Nobody acts on himself, on the pinned Shogun, or through a linked alt on someone he may not reach.
 --
 --   MD~1~<D|P|T|U>~<G|O>~<seq>~<at>~<guild>~<Name-Realm>~<arg>~<refs>~<by>~<reason>   an action
 --       D: delete lines (refs: up to 3 "<chat>.<id|->.<hash>"), P: delete his recent lines (arg: the
@@ -41,7 +41,7 @@ local L = ns.L
 --   MD~1~A~<at>~<actor>~<seq>~<T|D|P>~<text>  the punished player's appeal to the High Council
 --   MD~1~R~<at>~<Name-Realm>~<actor>~<seq>~<K|L>~<reason>   a councillor's answer to an appeal (L on
 --       a timeout comes with his lift, U, sent first)
---   MD~1~J~<at>~<guild>~<Name-Realm>~<jid>~<U|D>   the King's word on a case, told to the player
+--   MD~1~J~<at>~<guild>~<Name-Realm>~<jid>~<U|D>   the Shogun's word on a case, told to the player
 -- Every one is logged (the server keeps it), at most 255 bytes, rate-limited per sender. Clients
 -- before 1.1.6 know no MD and leave it alone; they keep showing a deleted line and a timed-out
 -- player's lines (the README says so).
@@ -93,12 +93,12 @@ WC.APPLIED_MAX = 1000
 WC.APPLIED_EACH = 200          -- one actor's floors kept; past it his oldest goes, under a watermark
 WC.SELF_APPLIED_MAX = 1000
 WC.LISTS_MAX = 40             -- namers' lists kept
-WC.LIST_EVERY = 300           -- a list is repeated this often (King.HANDS_EVERY)...
-WC.LIST_FRESH = 20 * 60       -- ...and an Bankai Guild moderators' list lapses this long after its last (King.HANDS_FRESH)
+WC.LIST_EVERY = 300           -- a list is repeated this often (Shogun.HANDS_EVERY)...
+WC.LIST_FRESH = 20 * 60       -- ...and an Bankai Guild moderators' list lapses this long after its last (Shogun.HANDS_FRESH)
 -- A guild master's Watchers lapse on another client this long after it last heard his list (he
 -- repeats it every LIST_EVERY while on): a removal that client missed counts no longer than this.
 WC.WATCHERS_FRESH = 3 * 86400
-WC.VERDICTS_MAX = 30          -- the King's words on this guild's cases a Watcher's client keeps
+WC.VERDICTS_MAX = 30          -- the Shogun's words on this guild's cases a Watcher's client keeps
 WC.HELD_MAX = 20              -- guild actions waiting for a fresh roster
 WC.HELD_KEEP = 600
 WC.PRINTED_MAX = 300          -- lines this session printed in the game's chat windows
@@ -123,7 +123,7 @@ local LADDER = ns.Watch and not ns.Watch.missing and ns.Watch.TIMEOUTS or { 0, 3
 WC.DURATIONS = { 300, 1800, LADDER[2], LADDER[3], LADDER[4], 0 }
 WC.MAX_TIMEOUT = LADDER[#LADDER]
 
-WC.LEVEL = { self = 1, guild = 2, mod = 3, council = 4, steward = 5, king = 6, author = 7 }
+WC.LEVEL = { self = 1, guild = 2, mod = 3, council = 4, steward = 5, shogun = 6, author = 7 }
 local LEVEL = WC.LEVEL
 
 WC.random = math.random -- (tests)
@@ -332,23 +332,23 @@ local function IsAuthor(name)
 	local Wk = Live(ns.Workshop)
 	return type(name) == "string" and Wk ~= nil and type(Wk.IsAuthorName) == "function" and Wk.IsAuthorName(name) == true
 end
-local function IsKing(name)
+local function IsShogun(name)
 	if type(name) ~= "string" or name == "" then return false end
-	if type(ns.IsKingCharacter) == "function" and ns.IsKingCharacter(name) == true then return true end
+	if type(ns.IsShogunCharacter) == "function" and ns.IsShogunCharacter(name) == true then return true end
 	local M = Mod()
-	return M ~= nil and type(M.IsKing) == "function" and M.IsKing(name) == true
+	return M ~= nil and type(M.IsShogun) == "function" and M.IsShogun(name) == true
 end
 local function IsCouncillor(name) return type(name) == "string" and type(ns.IsHighCouncillor) == "function" and ns.IsHighCouncillor(name) == true end
 local function IsSteward(name) return type(name) == "string" and type(ns.IsSteward) == "function" and ns.IsSteward(name) == true end
 local function IsHand(name)
-	local K = Live(ns.King)
+	local K = Live(ns.Shogun)
 	return K ~= nil and type(K.IsHandName) == "function" and K.IsHandName(name) == true
 end
 
--- Who names Bankai Guild moderators: the author, the King, a councillor (the author always).
+-- Who names Bankai Guild moderators: the author, the Shogun, a councillor (the author always).
 local function NamerLevel(name)
 	if IsAuthor(name) then return LEVEL.author end
-	if IsKing(name) then return LEVEL.king end
+	if IsShogun(name) then return LEVEL.shogun end
 	if IsCouncillor(name) then return LEVEL.council end
 	return 0
 end
@@ -360,13 +360,13 @@ local function Named(list, key)
 end
 
 -- The sanction this client knows on `name` (nil: this character): a timeout, a hold, or a net-off
--- word (the exile included). Never on the pinned King.
+-- word (the exile included). Never on the pinned Shogun.
 local function TimeoutOf(name, now) return WC.TimeoutOf(name, now) end
 
 function WC.Sanction(name)
 	local me = name == nil
 	name = me and ns.me or name
-	if type(name) ~= "string" or name == "" or IsKing(name) then return nil end
+	if type(name) ~= "string" or name == "" or IsShogun(name) then return nil end
 	local t = TimeoutOf(name)
 	if t then return { kind = (tonumber(t.untilAt) or 0) == 0 and "hold" or "timeout", entry = t, ends = WC.EndOf(t) } end
 	local M = Mod()
@@ -401,7 +401,7 @@ function WC.PowersBarred(name)
 	return WC.Barred("powers", Same(name, ns.me) and nil or name)
 end
 
--- Is `name` on a namer's list that counts here: its namer still the author, the King or on the
+-- Is `name` on a namer's list that counts here: its namer still the author, the Shogun or on the
 -- signed council list, not sanctioned himself, and (another client's list) repeated lately.
 function WC.IsMod(name)
 	if type(name) ~= "string" or name == "" then return false end
@@ -417,7 +417,7 @@ function WC.IsMod(name)
 	return false
 end
 
--- The level an actor acts with in Bankai Guild scope: 7 the author, 6 the King, 4 a councillor, 3 an
+-- The level an actor acts with in Bankai Guild scope: 7 the author, 6 the Shogun, 4 a councillor, 3 an
 -- Bankai Guild moderator, 0 anyone else (or anyone sanctioned: a net-off'd or timed-out moderator gives
 -- nothing). Stewards and Hands are protected, not actors.
 function WC.ActorLevel(name)
@@ -430,28 +430,28 @@ function WC.ActorLevel(name)
 	return WC.IsMod(name) and LEVEL.mod or 0
 end
 
--- The King's guild's own master: our roster's rank 0 when ours is the King's guild, or rank 0 of
--- the King's guild as this client can verify it (its census master is the pinned King himself).
+-- The Shogun's guild's own master: our roster's rank 0 when ours is the Shogun's guild, or rank 0 of
+-- the Shogun's guild as this client can verify it (its census master is the pinned Shogun himself).
 -- (1.2.3, Daniel: a guild master has nothing at the level of the whole army.) Every guild master
 -- stood with the Bankai Guild moderators here, so no moderator could delete his lines or time him out
 -- anywhere, and two cooperating characters made one of theirs a census guild master of an invented
 -- guild for it. Another guild's master is protected as his members are now; his own guild's
 -- Watchers still never act on him (Watch.TargetAllowed: its rank order).
-local function KingsGuildMaster(name)
+local function ShogunsGuildMaster(name)
 	local W = TheWatch()
-	if ns.IsKingGuild(OwnGuild()) and W and W.RosterRank and W.RosterRank(name) == 0 then return true end
+	if ns.IsShogunGuild(OwnGuild()) and W and W.RosterRank and W.RosterRank(name) == 0 then return true end
 	local M = Mod()
 	local guild = M and M.GuildOf and M.GuildOf(name)
-	return guild ~= nil and ns.IsKingGuild(guild) and ns.Data ~= nil and type(ns.Data.AuthorizedRank) == "function"
+	return guild ~= nil and ns.IsShogunGuild(guild) and ns.Data ~= nil and type(ns.Data.AuthorizedRank) == "function"
 		and ns.Data.AuthorizedRank(name, guild) == 0
 end
 
 local function OwnProtect(name)
 	if IsAuthor(name) then return LEVEL.author end
-	if IsKing(name) then return LEVEL.king end
+	if IsShogun(name) then return LEVEL.shogun end
 	if IsSteward(name) then return LEVEL.steward end
 	if IsCouncillor(name) or IsHand(name) then return LEVEL.council end
-	if WC.IsMod(name) or KingsGuildMaster(name) then return LEVEL.mod end
+	if WC.IsMod(name) or ShogunsGuildMaster(name) then return LEVEL.mod end
 	return 0
 end
 
@@ -510,7 +510,7 @@ local function GuildAllowed(actor, target)
 	if not OwnGuild() then return false, "guild" end
 	if not (W.FreshRoster and W.FreshRoster()) then return false, "roster" end
 	if SamePerson(actor, target) or SamePerson(target, actor) then return false, "self" end
-	if IsKing(target) then return false, "rank" end
+	if IsShogun(target) then return false, "rank" end
 	if not W.IsAuthorized(actor) then return false, "actor" end
 	if not (W.RosterRank and W.RosterRank(target) ~= nil) then return false, "member" end
 	if W.TargetAllowed then
@@ -526,7 +526,7 @@ local function BankaiGuildAllowed(actor, target)
 	if SamePerson(actor, target) or SamePerson(target, actor) then return false, "self" end
 	local a = WC.ActorLevel(actor)
 	if a < LEVEL.mod then return false, "actor" end
-	if IsKing(target) and not IsAuthor(actor) then return false, "rank" end
+	if IsShogun(target) and not IsAuthor(actor) then return false, "rank" end
 	if WC.ProtectLevel(target) >= a then return false, "rank" end
 	return true, nil, a
 end
@@ -607,7 +607,7 @@ end
 -- another character of his BattleTag a follow points at: then a second value, that character, and
 -- a third, the weight it reaches him with (the lower of its own and the follow's).
 function WC.TimeoutOf(name, now, direct)
-	if type(name) ~= "string" or name == "" or IsKing(name) then return nil end
+	if type(name) ~= "string" or name == "" or IsShogun(name) then return nil end
 	now = tonumber(now) or Clock()
 	local guild = OwnGuild()
 	local best = ActiveOn(Key(ns.FullName(name)), now, guild)
@@ -639,13 +639,13 @@ end
 -- (TagFollow.lua) The timeout a follow of `name`'s BattleTag points at, while it stands, and whose
 -- it is: that other character's own timeout or hold in Bankai Guild or guild scope (a guild's only on a
 -- member of that guild here), at the lower of its weight and the follow's, above his protection
--- (and, on his own client, his account's: the King's account never), unless a lift on his own name
+-- (and, on his own client, his account's: the Shogun's account never), unless a lift on his own name
 -- from as high came after that timeout (the council's answer to his appeal, a moderator's lift):
 -- it frees him until that character's timeout changes, whatever follow of it comes later. Nil
 -- otherwise. Only through TagFollow.Guarded (TimeoutOf).
 function WC.ByTag(name, now, guild)
 	local TF = Live(ns.TagFollow)
-	if not TF or type(name) ~= "string" or name == "" or IsKing(name) then return nil end
+	if not TF or type(name) ~= "string" or name == "" or IsShogun(name) then return nil end
 	now = tonumber(now) or Clock()
 	if guild == nil then guild = OwnGuild() end
 	local full = ns.FullName(ns.Normal(name))
@@ -1069,7 +1069,7 @@ function WC.ReplacePrinted(chat, sender, id, hash)
 end
 
 ---------------------------------------------------------------------------
--- Records: The Watch's audit (that guild's Watch), the council's (the High Council, the King and
+-- Records: The Watch's audit (that guild's Watch), the council's (the High Council, the Shogun and
 -- the author), the punished player's own ("Your record": roles only)
 ---------------------------------------------------------------------------
 
@@ -1108,7 +1108,7 @@ local function Record(a, words)
 		W.ApplyChat({ op = op, name = a.target, by = a.by, via = a.relay, at = a.at, seq = a.seq, untilAt = a.untilAt or 0,
 			reason = a.reason or "", text = words and words[1] or nil, scope = a.scope })
 	end
-	-- The High Council, the King and the author: every Bankai Guild action, every guild one a target's
+	-- The High Council, the Shogun and the author: every Bankai Guild action, every guild one a target's
 	-- own client confirmed.
 	if CouncilSide() and (a.scope == "O" or a.scope == "S") then
 		-- (1.2.0: a player's own words, a few each: his flood never pushes anyone else's out.)
@@ -1434,9 +1434,9 @@ function WC.Act(op, target, opts)
 	if op ~= "D" and op ~= "P" and op ~= "T" and op ~= "U" then return false, "op" end
 	target = CharName(target, true)
 	if not target then return false, "name" end
-	-- The pinned King is never timed out (no client would hold it: WC.TimeoutOf): the author may
+	-- The pinned Shogun is never timed out (no client would hold it: WC.TimeoutOf): the author may
 	-- delete his lines, nobody gives him a timeout.
-	if (op == "T" or op == "U") and IsKing(target) then return false, "king" end
+	if (op == "T" or op == "U") and IsShogun(target) then return false, "shogun" end
 	local scope, weight = WC.CanModerate(target)
 	if not scope then return false, weight end
 	local s = Store()
@@ -1564,7 +1564,7 @@ local function TakeAction(dist, sender, f, retry)
 	if at > now + WC.DATE_AHEAD or now - at > WC.KEEP then return Refuse("time", sender) end
 	local target = CharName(f[8])
 	if not target or target ~= f[8] then return Refuse("name", sender) end
-	if (op == "T" or op == "U") and IsKing(target) then return Refuse("king", sender) end
+	if (op == "T" or op == "U") and IsShogun(target) then return Refuse("shogun", sender) end
 	local reason = f[12]
 	if CleanReason(reason) ~= reason then return Refuse("reason", sender) end
 	local by = f[11]
@@ -1600,7 +1600,7 @@ local function TakeAction(dist, sender, f, retry)
 		a.guild = f[7] ~= "-" and f[7] or nil
 	end
 	-- Who may: from this client's own facts, the actor and (passed on) whoever passed it both. A
-	-- relay carries only a word no higher than his own (a moderator never the King's, a councillor
+	-- relay carries only a word no higher than his own (a moderator never the Shogun's, a councillor
 	-- never the author's): it then weighs its actor's, the same on every client however it came,
 	-- and no word above the relay's can be made up, shortened or replaced in its actor's name.
 	local ok, why, weight = WC.Authority(actor, target, scope)
@@ -1904,8 +1904,8 @@ local function TakeDecision(dist, sender, f)
 	if not (W and W.IsAuthorized and W.IsAuthorized(sender)) then return Refuse("sender", sender) end
 	if not Shared() then return false, "rate" end
 	local s = Store()
-	-- This guild's Watch (its Justice correspondent, its guild master, every Watcher): the King's
-	-- word on the case, so whoever applies it finds "Apply the King's judgment" on the case's page
+	-- This guild's Watch (its Justice correspondent, its guild master, every Watcher): the Shogun's
+	-- word on the case, so whoever applies it finds "Apply the Shogun's judgment" on the case's page
 	-- for any authorized Watcher, not only the officer who sent the case. Kept for the case's 30 days at most.
 	if ns.me and not Same(target, ns.me) and W.IsAuthorized(ns.me) then
 		local vk = Key(guild) .. "#" .. jid
@@ -2059,7 +2059,7 @@ function WC.SetWatcher(input, on, justice)
 	return true
 end
 
--- The author, the King or a councillor names (or removes) an Bankai Guild moderator in his own list.
+-- The author, the Shogun or a councillor names (or removes) an Bankai Guild moderator in his own list.
 function WC.SetMod(input, on)
 	local s = Store()
 	if not s or not ns.me or NamerLevel(ns.me) < LEVEL.council then return false, "namer" end
@@ -2105,7 +2105,7 @@ end
 -- the decision of a case in a pop-up.
 ---------------------------------------------------------------------------
 
--- An Bankai Guild pop-up with a decision (an appeal's answer, the King's word on a case; and, later,
+-- An Bankai Guild pop-up with a decision (an appeal's answer, the Shogun's word on a case; and, later,
 -- Hold Court's petitions: the seam).
 function WC.TellDecision(text)
 	ns.ShowDialog("BANKAIGUILD_WATCHCHAT_DECISION", text)
@@ -2199,7 +2199,7 @@ function WC.Answer(key, verdict, reason)
 	return true
 end
 
--- Judgment.lua: the King's final word on a case reached the officer's client that sent it. The
+-- Judgment.lua: the Shogun's final word on a case reached the officer's client that sent it. The
 -- player is told over GUILD (his own client checks the sender in its roster), repeated for
 -- DECISION_FOR while he may be away.
 function WC.TellCase(target, jid, verdict)
@@ -2209,7 +2209,7 @@ function WC.TellCase(target, jid, verdict)
 	local key = Key(guild) .. "#" .. tostring(jid)
 	if s.decisions[key] then return true end
 	s.decisions[key] = { target = target, jid = tonumber(jid), verdict = verdict, guild = guild, at = math.floor(Clock()), sent = -math.huge }
-	-- (This client's own copy of the King's word, as the guild's Watchers keep it from the message.)
+	-- (This client's own copy of the Shogun's word, as the guild's Watchers keep it from the message.)
 	if not s.verdicts[key] then s.verdicts[key] = { target = target, jid = tonumber(jid), verdict = verdict, at = math.floor(Clock()), guild = guild } end
 	if Count(s.decisions) > WC.DECISIONS_MAX then
 		local oldest, t
@@ -2353,7 +2353,7 @@ local function PassOn(budget)
 	for key, list in pairs(s.timeouts) do
 		for _, e in ipairs(list) do
 			if budget <= 0 then return budget end
-			-- (Only a word no higher than this client's own: a moderator never carries the King's.)
+			-- (Only a word no higher than this client's own: a moderator never carries the Shogun's.)
 			local may, _, mine = false, nil, nil
 			if e.scope ~= "S" and not Same(e.by, ns.me) and mono - (tonumber(e.heard) or 0) >= WC.PASS_ON_AFTER + 2 * (jitter or 0) and WC.EndOf(e) > now
 				and (e.scope ~= "G" or OwnGuild() == e.guild) then
@@ -2700,7 +2700,7 @@ local function ShownBy(name)
 	local W = TheWatch()
 	if W and W.ShownBy then return W.ShownBy(name) end
 	local shown = ns.DisplayName(name) or "?"
-	if ns.CouncilMasked and ns.CouncilMasked() and not IsKing(name) then return ns.MaskName(shown) end
+	if ns.CouncilMasked and ns.CouncilMasked() and not IsShogun(name) then return ns.MaskName(shown) end
 	return shown
 end
 local function Masked() return ns.CouncilMasked and ns.CouncilMasked() == true end
@@ -2858,7 +2858,7 @@ local function AuditRows(lines)
 				if e.via then tt:AddLine(L.WATCH_RECOVERED_VIA:format(ShownBy(e.via)), 0.7, 0.7, 0.7) end
 				if e.op == "T" then tt:AddLine((tonumber(e.untilAt) or 0) == 0 and L.WATCHCHAT_D_HOLD or L.WATCHCHAT_UNTIL:format(Stamp(e.untilAt)), 1, 0.35, 0.35) end
 				tt:AddLine(L.WATCH_REASON:format(Masked() and L.NETOFF_REASON_HIDDEN or ((e.reason or "") ~= "" and e.reason or "-")), 1, 1, 1, true)
-				-- The words deleted, as this client kept them: never on the King's stream, through the block terms.
+				-- The words deleted, as this client kept them: never on the Shogun's stream, through the block terms.
 				if e.text and e.text ~= "" and not Masked() then
 					local shown = W and W.FilterText and W.FilterText(e.text) or e.text
 					tt:AddLine(L.WATCHCHAT_REC_WORDS:format(shown), 0.7, 0.7, 0.7, true)
@@ -2894,7 +2894,7 @@ function WC.PageLines()
 end
 
 -- A case page's action lines (The Watch's CaseLines): delete the reported lines, his recent lines,
--- a timeout, a lift; and, on a case the King upheld, the Justice correspondent's "apply".
+-- a timeout, a lift; and, on a case the Shogun upheld, the Justice correspondent's "apply".
 function WC.CaseLines(c)
 	local out = {}
 	if type(c) ~= "table" or not c.target then return out end
@@ -2909,16 +2909,16 @@ function WC.CaseLines(c)
 			onClick = function() Why({ name = target, lines = reported }, "D") end }
 	end
 	out[#out + 1] = { indent = 1, text = Gold(L.WATCHCHAT_PURGE_BTN), onClick = function() Why({ name = target }, "P") end }
-	if IsKing(target) then return out end -- (never a timeout on the King: WC.Act)
+	if IsShogun(target) then return out end -- (never a timeout on the Shogun: WC.Act)
 	out[#out + 1] = { indent = 1, text = Gold(L.WATCHCHAT_TIMEOUT_BTN), onClick = function() WC.AskName(target, "timeout") end }
 	if WC.TimeoutOf(target) then out[#out + 1] = { indent = 1, text = Gold(L.WATCHCHAT_LIFT_BTN), onClick = function() Why({ name = target }, "U") end } end
 	return out
 end
 
--- The King's upheld word on a case about `target` in this guild, as this client heard it (its own
+-- The Shogun's upheld word on a case about `target` in this guild, as this client heard it (its own
 -- case's escalation, Judgment.lua, or the officer's word to the player over GUILD, MD~1~J), not
 -- applied yet: { jid, at } or nil.
-function WC.KingUpheld(target)
+function WC.ShogunUpheld(target)
 	local s, guild = Store(), OwnGuild()
 	if not s or not guild or type(target) ~= "string" then return nil end
 	local best
@@ -2929,7 +2929,7 @@ function WC.KingUpheld(target)
 	return best
 end
 
--- The King's judgment on `target` applied (Watch.lua: a warning given on him after it): the line
+-- The Shogun's judgment on `target` applied (Watch.lua: a warning given on him after it): the line
 -- goes from the case's page on this client.
 function WC.JudgmentApplied(target)
 	local s = Store()
@@ -2937,7 +2937,7 @@ function WC.JudgmentApplied(target)
 	for _, v in pairs(s.verdicts) do if type(v) == "table" and Same(v.target, target) then v.applied = true end end
 end
 
--- May this client apply the King's upheld judgment on a case (the guild's Justice
+-- May this client apply the Shogun's upheld judgment on a case (the guild's Justice
 -- correspondent; with none named, its guild master; the author always)?
 function WC.MayApplyJudgment()
 	if not ns.me then return false end
@@ -3015,7 +3015,7 @@ WC.RegisterSurface({
 -- 1.2.4 (the author: "Precisam de uma sala para as pessoas que estão na The Watch ... Teria que serem
 -- as pessoas nomeadas, mais o High Council ali que está na The Watch, para os moderadores poderem
 -- conversar entre si"): The Watch's room on the Chat tab. Its members are those who act in Bankai Guild
--- scope (WC.ActorLevel at an Bankai Guild moderator's level or above): the author, the King, every signed
+-- scope (WC.ActorLevel at an Bankai Guild moderator's level or above): the author, the Shogun, every signed
 -- councillor and the Bankai Guild moderators their lists name here (a list heard lately, its namer not
 -- sanctioned); nobody sanctioned. A guild's own Watchers act on their own guild alone and are not in
 -- it (the author's rule: a guild's officers have no power over the whole army).
@@ -3031,14 +3031,14 @@ function WC.ModeratorNames()
 end
 function WC.InRoom(name) return WC.ActorLevel(name or ns.me) >= LEVEL.mod end
 -- Whom a line of the room may go to (ChatRooms checks each again, WC.InRoom): the author while his
--- presence is heard, the King, the High Council's signed names, the moderators named.
+-- presence is heard, the Shogun, the High Council's signed names, the moderators named.
 function WC.RoomRecipients()
 	local out = {}
 	local Wk = Live(ns.Workshop)
 	if Wk and type(Wk.AuthorOnline) == "function" and Wk.AuthorOnline() == true and type(Wk.AuthorName) == "function" then
 		out[#out + 1] = Wk.AuthorName()
 	end
-	if type(ns.KingCharacter) == "function" then out[#out + 1] = ns.KingCharacter() end
+	if type(ns.ShogunCharacter) == "function" then out[#out + 1] = ns.ShogunCharacter() end
 	local c = ns.rdb and ns.rdb.council
 	for key, display in pairs(type(c) == "table" and type(c.names) == "table" and c.names or {}) do
 		out[#out + 1] = type(display) == "string" and display or key
@@ -3051,7 +3051,7 @@ do
 	if R and type(R.RegisterAudience) == "function" then
 		R.RegisterAudience("watch", {
 			label = function() return L.TAB_WATCH end, -- (its tab's name, The Watch, in both languages)
-			preview = { king = true, councillor = true },
+			preview = { shogun = true, councillor = true },
 			CanAccess = function(name) return WC.InRoom(name) end,
 			Recipients = function() return WC.RoomRecipients() end,
 		})

@@ -43,7 +43,7 @@ local L = ns.L
 --     S.Model() -> m         { subject, bankaiguild, own, fight = { fid, bo, round, a, b, state, w, m } | nil,
 --                            result = { w = side, m = "K" | "R", t } | nil, sides = { A = side, B = side } }
 --       side = { name, short, gk, guid, token, inSight, seenAt, class (file), className, classID,
---         race (file), raceName, level, sex, faction, guild (an Bankai Guild guild's, King.CleanGuild),
+--         race (file), raceName, level, sex, faction, guild (an Bankai Guild guild's, Shogun.CleanGuild),
 --         powerType, powerToken, own, inspect = { status, at, tries }, gear = { [slot] = item string },
 --         gearN, stats = { [key] = n }, resist = { [key] = n }, statsPending, statsKnown,
 --         talents = { source ("traits" | "talents" | "spec"), grid (bool), total, trees = { { name,
@@ -331,7 +331,7 @@ local function Facts(s, token)
 	s.sex = Num(Plain(UnitSex, token)) or s.sex
 	s.faction = Str(Plain(UnitFactionGroup, token)) or s.faction
 	local guild = Str(Plain(GetGuildInfo, token))
-	local K = ns.King
+	local K = ns.Shogun
 	s.guild = guild and K and K.CleanGuild and K.CleanGuild(guild) or nil
 	local powerType, powerToken = Read(UnitPowerType, token)
 	if Num(powerType) then s.powerType, s.powerToken = powerType, Str(powerToken) end

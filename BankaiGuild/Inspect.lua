@@ -22,7 +22,7 @@ local patrol = false
 local queue, queued = {}, {}
 -- { guid, unit, at, patrol (recorded as the patrol's), gear (an officer's click), want (a want's: read) }
 local pending
--- During a Royal Inspection: at most one request every `pace` seconds (King.INSPECT_PACE).
+-- During a Royal Inspection: at most one request every `pace` seconds (Shogun.INSPECT_PACE).
 local pace, lastRequest = nil, -math.huge
 function Inspect.SetPace(seconds) pace = seconds end
 Inspect.stats = { requests = 0, ready = 0, timeouts = 0 }
@@ -190,7 +190,7 @@ function Inspect.IsPatrolling() return patrol end
 -- Everyone inspected on this realm group (the Throne's Royal Inspection reads it).
 function Inspect.Players() return Store().players end
 
--- A player another addon reported during a Royal Inspection (King.lua): kept like
+-- A player another addon reported during a Royal Inspection (Shogun.lua): kept like
 -- our own inspections, so the usual Wall of Shame can publish them.
 -- One key per player in the store: "Name" for our realm, "Name-Realm" for another, whatever
 -- the name came from (a unit, a report, what 0.8.1 saved). On Forever, "First Surname".
@@ -647,11 +647,11 @@ end
 -- below: our roster, the server's word) send them and keep them, each receiver checking the
 -- sender's rank in its own roster. What another officer found shows on the Tabards page like our
 -- own, with his name in the tooltip, for SHARE_KEEP; our own later inspection of that player
--- replaces it, and nothing is passed on second hand. The King's untabarded list stays his: it is
+-- replaces it, and nothing is passed on second hand. The Shogun's untabarded list stays his: it is
 -- made from his own patrol and the Royal Inspection's reports, as before. Another officer's word
--- never joins it (Inspect.ShameList), never rides in a Royal Inspection's report (King.lua) and
--- never replaces what the King himself holds, nor what our patrol saw while a Royal Inspection
--- runs here (the 1.1 review: an officer of the King's guild could put any name on the army's
+-- never joins it (Inspect.ShameList), never rides in a Royal Inspection's report (Shogun.lua) and
+-- never replaces what the Shogun himself holds, nor what our patrol saw while a Royal Inspection
+-- runs here (the 1.1 review: an officer of the Shogun's guild could put any name on the army's
 -- list, or have a sampled officer report it as his own).
 --   U1~<name>:<guild>:<N|O|G>:<seconds ago, base36>;...   an officer's own findings (GUILD)
 --   U0~                                                   an officer's addon after login, or at his
@@ -769,13 +769,13 @@ local function CleanShared(s)
 	return s
 end
 
--- What another officer's word never replaces: the King's own (his patrol's and the reports'), and
+-- What another officer's word never replaces: the Shogun's own (his patrol's and the reports'), and
 -- what our patrol saw while a Royal Inspection runs here (its report is ours alone).
 local function OwnKept(p)
 	if not p or p.shared then return false end
 	if p.reported then return true end
-	local K = ns.King
-	if K and K.IsKing and K.IsKing() then return true end
+	local K = ns.Shogun
+	if K and K.IsShogun and K.IsShogun() then return true end
 	local state = K and K.State and K.State()
 	return state ~= nil and state.inspecting ~= nil
 end
@@ -894,8 +894,8 @@ end
 
 ---------------------------------------------------------------------------
 -- Untabarded (0.9.2; the "Wall of Shame" before): the players the Royal Inspection found
--- without the colors. The King's alone: his page lists them, and only he can let the army see
--- the list (King.lua, a switch like the Treasury's), in The Watch's Tabards and nowhere else. No
+-- without the colors. The Shogun's alone: his page lists them, and only he can let the army see
+-- the list (Shogun.lua, a switch like the Treasury's), in The Watch's Tabards and nowhere else. No
 -- raid warning, no chat line, no sound, for anyone; turned off, it leaves every screen.
 -- Nobody else publishes one any more: walls from older versions (S1) are ignored.
 -- Closed until the tabard rule is in force, midnight in Texas (where Shobek is) between
@@ -907,15 +907,15 @@ local function ServerNow() return (GetServerTime and GetServerTime()) or time() 
 function Inspect.ShameOpen() return ServerNow() >= Inspect.SHAME_FROM end
 function Inspect.ShameOpensIn() return math.max(0, Inspect.SHAME_FROM - ServerNow()) end
 
--- Pardoned by the King (Acts.lua): off every list for a week, his and the one he shares.
+-- Pardoned by the Shogun (Acts.lua): off every list for a week, his and the one he shares.
 local function Pardoned(name) return ns.Acts and ns.Acts.Pardoned and ns.Acts.Pardoned(name) == true end
 
--- The King's list: what his own patrol and the Royal Inspection's reports found, and whom he
+-- The Shogun's list: what his own patrol and the Royal Inspection's reports found, and whom he
 -- marked by hand. Never another officer's word (1.1: an officer's shared findings stay on the
 -- Tabards page).
 function Inspect.ShameList()
 	-- 1.2: a negative v2 conclusion is publishable only after the collector's provenance rule
-	-- (the King's direct observation, or two independent fresh direct observers). Legacy Royal
+	-- (the Shogun's direct observation, or two independent fresh direct observers). Legacy Royal
 	-- Inspection totals and officer-sharing rows remain visible locally but cannot bypass it.
 	if ns.TabardsV2 and ns.TabardsV2.Active and ns.TabardsV2.Active() and ns.TabardsV2.PublicationList then
 		return ns.TabardsV2.PublicationList()
@@ -929,10 +929,10 @@ function Inspect.ShameList()
 	return out
 end
 
--- A list the King shares lasts while he keeps repeating it (King.UNTABARDED_EVERY).
+-- A list the Shogun shares lasts while he keeps repeating it (Shogun.UNTABARDED_EVERY).
 Inspect.SHARED_FRESH = 10 * 60
 
--- The list the King lets the army see, or nil to take it off. Quietly: The Watch's Tabards only.
+-- The list the Shogun lets the army see, or nil to take it off. Quietly: The Watch's Tabards only.
 -- false when it names the same players as the one shown (nothing to redraw).
 local function SameList(a, b)
 	if not a or not b or #a.list ~= #b.list then return false end
@@ -969,9 +969,9 @@ function Inspect.Shame()
 	return s
 end
 
--- Walls from versions before 0.9.2 (any Lord could publish one, with a raid warning): ignored.
+-- Walls from versions before 0.9.2 (any Council could publish one, with a raid warning): ignored.
 function Inspect.HandleShame(dist, sender, text)
-	ns.Log("ignored a wall of shame from %s (0.9.2: only the King's list, quietly)", tostring(sender))
+	ns.Log("ignored a wall of shame from %s (0.9.2: only the Shogun's list, quietly)", tostring(sender))
 end
 ns.Comm.Handle("S1", function(...) Inspect.HandleShame(...) end)
 
@@ -1012,8 +1012,8 @@ end
 -- 1.1.5 (the High Council's ask): a High Councillor's tooltip says so, as their person card does
 -- (UI.lua): their mark and own icon after the name on the tooltip's first line, then High
 -- Councillor, the department and the title the signed titles list gives them. For an Bankai Guild member
--- who may see the council there (ns.CouncilVisible: the list made public, a councillor, the King,
--- the author), never on the King's screen while the names are hidden, nor for a councillor the
+-- who may see the council there (ns.CouncilVisible: the list made public, a councillor, the Shogun,
+-- the author), never on the Shogun's screen while the names are hidden, nor for a councillor the
 -- moderators took off (net-off), as their chat mark. The first line is the game's: left as it
 -- is when the client hides its text (a secret value) or with the gamepad UI, where Bankai Guild writes
 -- nothing into the game's frames; the lines below are added as the Treasurer's is.

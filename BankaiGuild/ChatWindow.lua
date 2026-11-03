@@ -2,15 +2,15 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- The Bankai Guild chats in the Bankai Guild window (1.1.1): its Chat tab, right after the Realm (UI.lua's
--- TABS). The three chats ([Bankai Guild], [Captains], [Lords]) like the chat pane of the Guild &
+-- TABS). The three chats ([Bankai Guild], [Captains], [Council]) like the chat pane of the Guild &
 -- Communities window: the tabs' search box where the other tabs show the army's counts, and on
 -- that row, right of it, a small switch of the channels (only for a rank that reads more than
 -- one: most players read [Bankai Guild] alone, and a row of its own for one lone channel took the
 -- lines' room) and the settings' gear; each line whole in a bubble that wraps (nothing to hover to
 -- read it) from under that row over the list's and the detail box's room, the 100 lines Channels
 -- keeps per channel to scroll back through, a box to write in across the bottom where they have
--- their buttons (no Send button: Enter sends), and Bankai Guild's marks by each name (the King's crown,
--- the High Council's mark, the Lords' and Captains' elite marks, Raiders and Veterans bronze, the
+-- their buttons (no Send button: Enter sends), and Bankai Guild's marks by each name (the Shogun's crown,
+-- the High Council's mark, the Council's and Captains' elite marks, Raiders and Veterans bronze, the
 -- members' star, the Treasurer's coin, Stewards and Hands).
 --
 -- The first 1.1.1 build had it in a window of its own; the author wanted it inside the Bankai Guild
@@ -145,7 +145,7 @@ ChatWindow.requestMinute = nil
 -- destinations offer (ChatWindow.NavItems) and the rooms' own descriptions (ChatWindow.Logical).
 -- A new era starts with every change the tab hears of but a line come or a note (a setting, the
 -- block terms, a moderator's word, the council's names masked or shown, a room picked, opened or
--- gone, a click, the opening), with the census's own redraw (DATA_CHANGED, which the King's lists,
+-- gone, a click, the opening), with the census's own redraw (DATA_CHANGED, which the Shogun's lists,
 -- the council's, the Treasurer's and the alts fire too: as before, at most every DATA_GAP), and
 -- whenever ERA_MAX seconds went by: nothing drawn rests on anything older. A redraw for lines
 -- that came (the throttled one, OnUpdate) keeps the era it is in; any other starts one.
@@ -618,10 +618,10 @@ local function NameText(e)
 		local c = file and RAID_CLASS_COLORS and RAID_CLASS_COLORS[file]
 		if c and c.colorStr then name = "|c" .. c.colorStr .. name .. "|r" end
 	end
-	-- The King's Stewards and Hands, by the rule the channels read them with (his guild's lines).
+	-- The Shogun's Stewards and Hands, by the rule the channels read them with (his guild's lines).
 	local tag = ""
-	local K = ns.King
-	if not covered and ns.IsKingGuild(guild) and type(K) == "table" then
+	local K = ns.Shogun
+	if not covered and ns.IsShogunGuild(guild) and type(K) == "table" then
 		if type(K.IsStewardName) == "function" and K.IsStewardName(who) then
 			tag = " " .. Gold(L.CHATWIN_TAG_STEWARD)
 		elseif type(K.IsHandName) == "function" and K.IsHandName(who) then
@@ -1093,7 +1093,7 @@ function ChatWindow.Mod()
 	return type(WC) == "table" and not WC.missing and WC or nil
 end
 
--- Does this client moderate anyone at all (a Watcher, the author, the King, a councillor, an
+-- Does this client moderate anyone at all (a Watcher, the author, the Shogun, a councillor, an
 -- Bankai Guild moderator)? The headers keep room for the button then.
 function ChatWindow.ModRoom()
 	local WC = ChatWindow.Mod()
@@ -1913,7 +1913,7 @@ end
 -- The box to write in, across the bottom row; 1.1.2: the Answers button (the author, the High
 -- Council and the Stewards) at that row's end while it shows, the box ending before it. Never on
 -- the top row (1.1.2's review: next to the switch, the search box there shrank to nothing for a
--- Lord of the High Council in the default window), and by the box it fills.
+-- Council of the High Council in the default window), and by the box it fills.
 local function PlaceInput(p)
 	local input = p.places and p.places.input
 	if not input then return end
@@ -2513,7 +2513,7 @@ function ChatWindow.SettingsLines()
 		end
 		out[#out].gap = true
 	end
-	-- The pinned line, for whoever may pin (Channels.CanPin: the King, his Stewards and Hands for
+	-- The pinned line, for whoever may pin (Channels.CanPin: the Shogun, his Stewards and Hands for
 	-- the army, a guild master for his guild), typed in an Bankai Guild dialog (ns.ShowDialog: the
 	-- gamepad UI's own window there). Only while the chats are on, where a pin can be set.
 	if on and type(C.CanPin) == "function" and C.CanPin() then

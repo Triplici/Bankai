@@ -124,11 +124,11 @@ end)
 
 print("The screens' contracts: the stream delay, the newest fight, the Events groups, the right-click lines")
 
--- The stream-delay line is the King's (his screen may be streamed): nil on a member's screen, on
--- the fight card and in the arbiter's console alike; set on the King's, with the delay he set.
-test("1.2 the stream-delay line: nil on a member's screen and card, the King's own delay on his", function()
+-- The stream-delay line is the Shogun's (his screen may be streamed): nil on a member's screen, on
+-- the fight card and in the arbiter's console alike; set on the Shogun's, with the delay he set.
+test("1.2 the stream-delay line: nil on a member's screen and card, the Shogun's own delay on his", function()
 	local w = World.New()
-	local king, lida = w:Role("king"), w:Client("Lida Fenn")
+	local shogun, lida = w:Role("shogun"), w:Client("Lida Fenn")
 	local public = { id = "Fpub1", kind = "fight", A = "Parric Stowe", B = "Wenna Crale", public = true, state = "O", mode = "L" }
 	local function Ev(id) return id == "Fpub1" and public or nil end
 	local mine = Companion(w, lida)
@@ -141,15 +141,15 @@ test("1.2 the stream-delay line: nil on a member's screen and card, the King's o
 			eq(m.delay, nil, "nor on his card of a public fight")
 		end)
 	end)
-	local kings = Companion(w, king)
-	w:As(king, function()
-		eq(king.ns.Arena.SetDelay(30), true)
-		local line = kings.ArenaUI.DelayLine()
-		assert(type(line) == "string" and line:find("30", 1, true), "the King's view: " .. tostring(line))
-		With(kings.ArenaUI.Data, { Event = Ev, Markets = function() return nil end }, function()
-			eq(kings.ArenaUI.Card.Model("Fpub1").delay, line, "and on his card of a public fight")
+	local shoguns = Companion(w, shogun)
+	w:As(shogun, function()
+		eq(shogun.ns.Arena.SetDelay(30), true)
+		local line = shoguns.ArenaUI.DelayLine()
+		assert(type(line) == "string" and line:find("30", 1, true), "the Shogun's view: " .. tostring(line))
+		With(shoguns.ArenaUI.Data, { Event = Ev, Markets = function() return nil end }, function()
+			eq(shoguns.ArenaUI.Card.Model("Fpub1").delay, line, "and on his card of a public fight")
 			public.public = false
-			eq(kings.ArenaUI.Card.Model("Fpub1").delay, nil, "never on a private one")
+			eq(shoguns.ArenaUI.Card.Model("Fpub1").delay, nil, "never on a private one")
 			public.public = true
 		end)
 	end)

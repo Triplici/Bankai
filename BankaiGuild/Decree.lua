@@ -4,27 +4,27 @@ local L = ns.L
 -- Royal decrees sent to every Bankai Guild guild over BankaiGuildNet:
 --   ARMS   "Call to Arms!"  (Horde attacking here) - raid warning + sound, marker for 5 min
 --   MUSTER "Muster here"    (gather point)          - softer alert, marker for 30 min
--- Only Captains (rank <= ns.CAPTAIN_RANK) can send, and the King's Steward (1.0.0). Receivers
+-- Only Captains (rank <= ns.CAPTAIN_RANK) can send, and the Shogun's Steward (1.0.0). Receivers
 -- rate-limit per sender and, for senders only the census vouches for, the whole army (the
 -- flood guard). A decree's words are its sender's own text: sent with the logged API (1.0.0),
 -- like a chat line.
 -- The Royal decree and the Tabard inspection (CROWN_ONLY) reach the whole army from the Crown
 -- alone (1.2.3: a guild master of another Bankai Guild guild sent the whole realm "ROYAL DECREE
 -- Ironforge - Summon me", as every guild master could since the Crown counted them all): the
--- King (his pinned name), his Steward and his Hands, as before; the High Council (the author's
--- signed list, ns.IsHighCouncillor); and the King's guild's own Crown, as before (ns.IsCrownRank
+-- Shogun (his pinned name), his Steward and his Hands, as before; the High Council (the author's
+-- signed list, ns.IsHighCouncillor); and the Shogun's guild's own Crown, as before (ns.IsCrownRank
 -- for his guild: its master, and its officers on its own members' clients). The master of any
 -- other Bankai Guild guild decrees for his guild alone: over GUILD, which the server carries between
 -- its members only, shown by his guildmates' clients alone (their roster names him: the
 -- server's word), as a guild decree, never a royal one. On the channel every client refuses
 -- those two from anyone else, whatever the message says (a 1.2.2 guild master's among them).
 -- The Call to Arms and the Muster the same way (1.2.3, Daniel: a guild master has nothing at the
--- level of the whole army, and the King's Crown's other actions were checked for it): any officer
+-- level of the whole army, and the Shogun's Crown's other actions were checked for it): any officer
 -- of any Bankai Guild guild sounded his raid warning, sound and map marker on every Bankai Guild client.
--- For the whole army they are the King's guild's alone now: the King, his Steward and his Hands,
+-- For the whole army they are the Shogun's guild's alone now: the Shogun, his Steward and his Hands,
 -- and its own officers, as its members' roster or the signed list has them (never a census rank,
 -- anyone's word: one report named anyone an officer of <Elfcore>; on every other guild's client,
--- until the signed list counts, the officers of <Elfcore> the King's list or a Steward's names
+-- until the signed list counts, the officers of <Elfcore> the Shogun's list or a Steward's names
 -- Hands). The master or an officer of any other Bankai Guild guild calls his guild alone, over GUILD,
 -- as a guild call to arms or a guild muster, shown by his guildmates' clients alone (their roster
 -- names him one of its officers); on the channel every client refuses his, a 1.2.2 officer's
@@ -161,10 +161,10 @@ function Decree.RefreshPins()
 	ns.SafeCall("decree pins", RefreshPinsNow)
 end
 
--- The King's Steward (1.0.0, King.IsSteward: the signed titles list marks him) sends the Crown's
--- decrees for the King's guild, whatever his own rank or guild; every client takes them by his
--- name, as the King's (below).
-local function Steward() return ns.King ~= nil and ns.King.IsSteward ~= nil and ns.King.IsSteward() end
+-- The Shogun's Steward (1.0.0, Shogun.IsSteward: the signed titles list marks him) sends the Crown's
+-- decrees for the Shogun's guild, whatever his own rank or guild; every client takes them by his
+-- name, as the Shogun's (below).
+local function Steward() return ns.Shogun ~= nil and ns.Shogun.IsSteward ~= nil and ns.Shogun.IsSteward() end
 local function GuildHeraldry(name, guild)
 	local N = ns.Nominees
 	return N and not N.missing and N.IsCorrespondent and N.IsCorrespondent(name, guild, "Department of Heraldry") == true or false
@@ -172,35 +172,35 @@ end
 
 -- Where this player's decree of `kind` goes (1.2.3): "army" (the channel: every Bankai Guild
 -- member), "guild" (GUILD: his own guild alone) or nil (a local preview only), and why:
---   steward  the King's Steward: every kind, for the King's guild
---   captain  a Call to Arms or a Muster from an officer of the King's guild (rank <=
+--   steward  the Shogun's Steward: every kind, for the Shogun's guild
+--   captain  a Call to Arms or a Muster from an officer of the Shogun's guild (rank <=
 --            ns.CAPTAIN_RANK: its master, its officers), as before
 --   officer  the same from the master or an officer of any other Bankai Guild guild: his guild's alone
 --   council  a Royal decree or a Tabard inspection from the High Council (the signed list)
---   crown    the same from the King's guild's own Crown (ns.IsCrown in his guild: the King, its
+--   crown    the same from the Shogun's guild's own Crown (ns.IsCrown in his guild: the Shogun, its
 --            master, its officers on their own client), as before
---   lord     the same from the master of any other Bankai Guild guild: his guild's alone
+--   council     the same from the master of any other Bankai Guild guild: his guild's alone
 --   heraldry every kind from the verified correspondent of our own guild: that guild alone
--- (A Hand sends from his own client as one of the King's guild's officers, as before; the
--- receivers know him by the King's list or a Steward's, King.IsHandName. A councillor's Call to
+-- (A Hand sends from his own client as one of the Shogun's guild's officers, as before; the
+-- receivers know him by the Shogun's list or a Steward's, Shogun.IsHandName. A councillor's Call to
 -- Arms is his officer rank's, as before: one who is an officer of another guild calls that guild.)
 function Decree.Scope(kind)
 	if Steward() then return "army", "steward" end
 	if not CROWN_ONLY[kind] then
-		-- (1.2.3, the author's yes) The High Council (the signed list) and the King's Hands (his
+		-- (1.2.3, the author's yes) The High Council (the signed list) and the Shogun's Hands (his
 		-- list or a Steward's) call the whole army to arms and muster it, as the Crown does.
 		if ns.IsMember() and ns.IsHighCouncillor(ns.me) == true then return "army", "council" end
-		local K = ns.King
+		local K = ns.Shogun
 		if ns.IsMember() and K ~= nil and type(K.IsHandName) == "function" and K.IsHandName(ns.me) == true then return "army", "hand" end
 		if ns.IsMember() and GuildHeraldry(ns.me, GetGuildInfo("player")) then return "guild", "heraldry" end
 		if not ns.Roster.IsOfficer() then return nil end
-		if ns.IsKingGuild(GetGuildInfo("player")) then return "army", "captain" end
+		if ns.IsShogunGuild(GetGuildInfo("player")) then return "army", "captain" end
 		return "guild", "officer"
 	end
 	if not ns.IsMember() then return nil end
 	if ns.IsHighCouncillor(ns.me) == true then return "army", "council" end
-	if ns.IsKingGuild(GetGuildInfo("player")) and ns.IsCrown() then return "army", "crown" end
-	if ns.Roster.MyRank() == 0 then return "guild", "lord" end
+	if ns.IsShogunGuild(GetGuildInfo("player")) and ns.IsCrown() then return "army", "crown" end
+	if ns.Roster.MyRank() == 0 then return "guild", "leader" end
 	if GuildHeraldry(ns.me, GetGuildInfo("player")) then return "guild", "heraldry" end
 	return nil
 end
@@ -237,7 +237,7 @@ function Decree.Send(kind, text)
 		return
 	end
 	lastSent = now
-	local guild = steward and ns.KingGuildName() or GetGuildInfo("player") or ""
+	local guild = steward and ns.ShogunGuildName() or GetGuildInfo("player") or ""
 	local rank = steward and 0 or ns.Roster.MyRank()
 	-- Another guild's (1.2.3): its master's Royal decree or Tabard inspection, its master's or
 	-- officers' Call to Arms or Muster, over GUILD, to his guild alone.
@@ -288,7 +288,7 @@ function Decree.YouCan()
 	if royal ~= "army" and armsWhy == "hand" then return L.YOU_ARE_HAND_DECREES end
 	if royal == "army" then return L.YOU_ARE_CROWN end
 	if why == "heraldry" then return L.YOU_ARE_GUILD_HERALDRY:format(GetGuildInfo("player") or "?") end
-	if royal == "guild" then return L.YOU_ARE_GUILD_LORD:format(GetGuildInfo("player") or "?") end
+	if royal == "guild" then return L.YOU_ARE_GUILD_COUNCIL:format(GetGuildInfo("player") or "?") end
 	if arms == "guild" then return L.YOU_ARE_GUILD_OFFICER:format(GetGuildInfo("player") or "?") end
 	if arms then return L.YOU_ARE_OFFICER end
 	return L.YOU_ARE_SOLDIER
@@ -355,30 +355,30 @@ ns.Comm.Handle("D1", function(dist, sender, text)
 	if ns.Moderation.Hides and ns.Moderation.Hides(sender, d.guild) then
 		return ns.Log("decree from %s ignored: net-off", sender)
 	end
-	-- The King by his pinned name (the server stamps it), never by a vote: his decree needs no
-	-- census. So do his Hands' for his guild (his list or a Steward's, King.IsHandName), on every
+	-- The Shogun by his pinned name (the server stamps it), never by a vote: his decree needs no
+	-- census. So do his Hands' for his guild (his list or a Steward's, Shogun.IsHandName), on every
 	-- client outside it: there they are of his Crown on his word (1.0.0); on its own members'
 	-- clients its roster says who speaks for it. His Steward's (1.0.0: the signed titles list
-	-- names him, King.IsStewardName) on every client, as the King's. A High Councillor's Royal
+	-- names him, Shogun.IsStewardName) on every client, as the Shogun's. A High Councillor's Royal
 	-- decree and Tabard inspection (1.2.3: the author's signed list, by the name the server
 	-- stamps) on every client, whichever guild he is in. Everyone else: the rank we can verify,
 	-- never the rank written in the message.
-	local king, steward, hand, council, named, rank, source
+	local shogun, steward, hand, council, named, rank, source
 	if dist == "GUILD" then
 		rank, source = GuildDecree(sender, d)
 		if not rank then return end
 	else
 		local mine = GetGuildInfo("player")
-		local kings = ns.IsKingGuild(d.guild)
-		king = kings and ns.IsKingCharacter(sender)
-		steward = kings and not king and ns.King ~= nil and ns.King.IsStewardName(sender)
-		hand = kings and not king and not steward and not ns.IsKingGuild(mine) and ns.King ~= nil and ns.King.IsHandName(sender)
-		council = not (king or steward or hand) and ns.IsHighCouncillor(sender) == true
-		-- (1.2.3, the author's yes) A Hand of the King's by name, whatever guild he is in and
+		local shoguns = ns.IsShogunGuild(d.guild)
+		shogun = shoguns and ns.IsShogunCharacter(sender)
+		steward = shoguns and not shogun and ns.Shogun ~= nil and ns.Shogun.IsStewardName(sender)
+		hand = shoguns and not shogun and not steward and not ns.IsShogunGuild(mine) and ns.Shogun ~= nil and ns.Shogun.IsHandName(sender)
+		council = not (shogun or steward or hand) and ns.IsHighCouncillor(sender) == true
+		-- (1.2.3, the author's yes) A Hand of the Shogun's by name, whatever guild he is in and
 		-- whichever guild's client this is, for a Call to Arms or a Muster.
-		named = not (king or steward or hand or council) and not CROWN_ONLY[d.kind] and ns.King ~= nil
-			and type(ns.King.IsHandName) == "function" and ns.King.IsHandName(sender) == true
-		if king or steward or hand or council or named then
+		named = not (shogun or steward or hand or council) and not CROWN_ONLY[d.kind] and ns.Shogun ~= nil
+			and type(ns.Shogun.IsHandName) == "function" and ns.Shogun.IsHandName(sender) == true
+		if shogun or steward or hand or council or named then
 			rank, source = 0, "crown"
 		else
 			rank, source = ns.Data.AuthorizedRank(sender, d.guild)
@@ -388,47 +388,47 @@ ns.Comm.Handle("D1", function(dist, sender, text)
 			return
 		end
 		if CROWN_ONLY[d.kind] then
-			-- (1.2.3) For the whole army: the King's guild's own Crown (ns.IsCrownRank in his
+			-- (1.2.3) For the whole army: the Shogun's guild's own Crown (ns.IsCrownRank in his
 			-- guild, as before), never another guild's master: his goes to his guild over GUILD.
-			if not (king or steward or hand or council or (kings and ns.IsCrownRank(d.guild, rank))) then
+			if not (shogun or steward or hand or council or (shoguns and ns.IsCrownRank(d.guild, rank))) then
 				return ns.Log("%s from %s <%s> refused: for the whole army only the Crown and the High Council (a guild master decrees for his guild alone)",
 					d.kind, sender, d.guild)
 			end
 		elseif council or named then
-			-- (1.2.3, the author's yes) The High Council's and the King's Hands' Call to Arms and
+			-- (1.2.3, the author's yes) The High Council's and the Shogun's Hands' Call to Arms and
 			-- Muster reach the whole army, as the Crown's do.
 		elseif rank > ns.CAPTAIN_RANK then
 			return
-		elseif not kings then
-			-- (1.2.3) A Call to Arms or a Muster for the whole army: the King's guild's alone (the
-			-- King, his Steward and his Hands, who speak for it, and its officers, as before), never
+		elseif not shoguns then
+			-- (1.2.3) A Call to Arms or a Muster for the whole army: the Shogun's guild's alone (the
+			-- Shogun, his Steward and his Hands, who speak for it, and its officers, as before), never
 			-- another guild's master's or officers': theirs go to their own guild over GUILD.
 			return ns.Log("%s from %s <%s> refused: for the whole army only the Crown (a guild's officers call their own guild alone)",
 				d.kind, sender, d.guild)
 		elseif source == "census" then
-			-- (1.2.3) Nor on a census rank of the King's guild, which is anyone's word: one report
+			-- (1.2.3) Nor on a census rank of the Shogun's guild, which is anyone's word: one report
 			-- from a second character named anyone its officers on every client no member of it
 			-- reported to (three against its own reporter), the master or an officer of another
 			-- guild among them, and they sounded the whole army's raid warning, sound and marker,
-			-- six a minute to fill its flood guard. Its Call to Arms and Muster come from the King,
+			-- six a minute to fill its flood guard. Its Call to Arms and Muster come from the Shogun,
 			-- his Steward and his Hands by name (above), and from its officers as its own members'
 			-- roster has them (the server's word) or, once the author's signed enforcement is on, the
 			-- signed list (Data.AuthorizedRank), as the officer musters' (OfficerMuster.lua) and its
 			-- Royal decrees (ns.IsCrownRank) already did: on every other client an officer of the
-			-- King's guild is heard while the King's list or a Steward's names him a Hand.
-			return ns.Log("%s from %s <%s> refused: a census rank of the King's guild is no officer of it here (the King, his Steward, his Hands, its roster or the signed list)",
+			-- Shogun's guild is heard while the Shogun's list or a Steward's names him a Hand.
+			return ns.Log("%s from %s <%s> refused: a census rank of the Shogun's guild is no officer of it here (the Shogun, his Steward, his Hands, its roster or the signed list)",
 				d.kind, sender, d.guild)
 		end
 	end
 	d.rank = rank
-	-- The King, his Steward, his Hands, the High Council, signed identities and our own guild's
+	-- The Shogun, his Steward, his Hands, the High Council, signed identities and our own guild's
 	-- officers and master (our roster: the server's word) never wait behind the flood guard, which
 	-- legacy census ranks (anyone's votes) could fill. (1.2.3: no census rank calls the whole army
 	-- to arms or musters it, above; it reaches the guard only with a Royal decree or a Tabard
-	-- inspection from the census master of the King's guild where no King is pinned, KingCharacter.)
+	-- inspection from the census master of the Shogun's guild where no Shogun is pinned, ShogunCharacter.)
 	-- A legacy census sender still speaks for one guild only, exactly as before the dormant
 	-- signed-authority migration (Data.ClaimGuild).
-	local sure = king or steward or hand or council or named or source == "roster" or source == "signed" or source == "pinned"
+	local sure = shogun or steward or hand or council or named or source == "roster" or source == "signed" or source == "pinned"
 	if source == "census" and not ns.Data.ClaimGuild(sender, d.guild) then
 		ns.Log("decree from %s ignored: speaks for another guild than %s", sender, d.guild)
 		return

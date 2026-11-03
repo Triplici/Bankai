@@ -1655,7 +1655,7 @@ end
 -- A department's name may be empty (councillors outside any department: the council's own);
 -- its icon is what ns.CouncilIconValue takes, or nothing. "public" says whether the army sees
 -- the council in the census yet (ns.CouncilVisible).
--- The King's Steward (1.0.0, Core.lua: ns.ReadStewards, ns.IsSteward) rides the same list, in an
+-- The Shogun's Steward (1.0.0, Core.lua: ns.ReadStewards, ns.IsSteward) rides the same list, in an
 -- entry of its own among the departments with three "^" (a department has two, so 0.9.9 and
 -- ReadDepartments leave it out, and 0.9.9 still takes, shows and passes on the whole list):
 --   ^steward^<Alliance|Horde>^<First Surname-Realm>,...
@@ -2014,9 +2014,9 @@ function Workshop.TakeTitles(blob, sender, guild)
 		return false
 	end
 	local depts, n = ReadDepartments(list)
-	-- The King's Steward (1.0.0, ns.ReadStewards): an entry of its own among the departments,
+	-- The Shogun's Steward (1.0.0, ns.ReadStewards): an entry of its own among the departments,
 	-- which ReadDepartments (and 0.9.9) leave out. This client is told when it becomes his or ends.
-	local function Steward() return type(ns.King) == "table" and type(ns.King.IsSteward) == "function" and ns.King.IsSteward() end
+	local function Steward() return type(ns.Shogun) == "table" and type(ns.Shogun.IsSteward) == "function" and ns.Shogun.IsSteward() end
 	local was = Steward()
 	local stewards = ns.ReadStewards(list)
 	-- The approved guilds (1.1, Core.lua: ns.ReadApprovedGuilds): the list may make our guild Bankai Guild.
@@ -2036,14 +2036,14 @@ function Workshop.TakeTitles(blob, sender, guild)
 	ns.Log("High Council: a signed titles list of %d names in %d parts, %d Steward(s) (%s)", n, #depts, named, tostring(at))
 	local now = Steward()
 	if now and not was then
-		ns.Print(L.STEWARD_YOU:format(ns.KingName(ns.KingCharacter())))
+		ns.Print(L.STEWARD_YOU:format(ns.ShogunName(ns.ShogunCharacter())))
 		ns.PlayAlert("soft", "throne")
 	elseif was and not now then
 		ns.Print(L.STEWARD_NO_LONGER)
 	end
 	-- The list of Hands of each Steward it no longer names ends with him for good, heard or kept,
-	-- his own client's too (King.StewardsChanged).
-	if type(ns.King) == "table" and type(ns.King.StewardsChanged) == "function" then ns.King.StewardsChanged() end
+	-- his own client's too (Shogun.StewardsChanged).
+	if type(ns.Shogun) == "table" and type(ns.Shogun.StewardsChanged) == "function" then ns.Shogun.StewardsChanged() end
 	ns.Fire("DATA_CHANGED")
 	return true
 end
@@ -2159,7 +2159,7 @@ function Workshop.RelayCouncil(force)
 	if not force and now - lastCouncilSent < every then return end
 	lastCouncilSent = now
 	if not force and not mine then
-		local users = ns.King and ns.King.AddonsOnline and ns.King.AddonsOnline() or 1
+		local users = ns.Shogun and ns.Shogun.AddonsOnline and ns.Shogun.AddonsOnline() or 1
 		if Workshop.random() > math.min(1, Workshop.RELAYS / users) then return end
 	end
 	SendLists(names, titles)
@@ -2280,7 +2280,7 @@ function Workshop.AnswerAsk(names, titles, dist)
 	local turn = 0
 	if not mine then
 		-- A census that counts nobody but us is not in yet (whoever asked is online too).
-		local users = dist == "GUILD" and GuildUsers() or (ns.King and ns.King.AddonsOnline and ns.King.AddonsOnline() or 1)
+		local users = dist == "GUILD" and GuildUsers() or (ns.Shogun and ns.Shogun.AddonsOnline and ns.Shogun.AddonsOnline() or 1)
 		if users <= 1 then return false end
 		-- (The channel: our guild's addon users on our realm at least, Konig's review.)
 		if dist ~= "GUILD" then users = math.max(users, GuildUsers(true)) end
@@ -2366,7 +2366,7 @@ function Workshop.ResetListAsk()
 	passing, lastGuildSent = nil, -math.huge
 end
 
--- /bk council (list): the names in chat; on the King's screen while the councillors' names are
+-- /bk council (list): the names in chat; on the Shogun's screen while the councillors' names are
 -- hidden there (his stream, ns.CouncilMasked), each cut short as in the Realm (0.9.9).
 function Workshop.EditCouncil(verb)
 	local names = CouncilNames()

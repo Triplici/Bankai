@@ -1,5 +1,5 @@
 -- 1.2.3, the duels (the Arena's triple check of 1.2.2 and the owner's decisions of 2026-10-11): a
--- free duel counts without the King's live switch (the bets' alone), a direct duel reaches every
+-- free duel counts without the Shogun's live switch (the bets' alone), a direct duel reaches every
 -- client's rankings through its two signed halves (AX), and the triple check's bugs 3, 4, 5, 7, 8,
 -- 9, 10, 11, 12 and 13. Every name is invented; the account keys and signatures are real
 -- (Debts.lua's account key, Ed25519.lua).
@@ -35,7 +35,7 @@ local function Info(w, c)
 	end
 end
 
--- A world as 1.2.3 ships (no wager anywhere, the Wallet off) with the King's live switch OFF
+-- A world as 1.2.3 ships (no wager anywhere, the Wallet off) with the Shogun's live switch OFF
 -- unless opts.live; the two fighters target each other and read their own race (the weigh-in's
 -- facts). opts.more: more clients, as W3.New's. Every client, the ones made later too, has the
 -- game's GetPlayerInfoByGUID (Info) unless opts.info == false.
@@ -85,7 +85,7 @@ end
 
 print("1.2.3: a free duel counts without the live switch")
 
-test("1.2.3 duels count: with the King's live switch off a free challenge is L, both clients end it final, each fighter's history has it and the winner's qualification points", function()
+test("1.2.3 duels count: with the Shogun's live switch off a free challenge is L, both clients end it final, each fighter's history has it and the winner's qualification points", function()
 	local w, cast = World123()
 	eq(cast.A.Roles.Live(), false, "the switch stays off")
 	local oid = Agreed(w, cast)
@@ -453,7 +453,7 @@ end)
 
 test("1.2.3 bug 7: a member on the realm group's other realm: the challenge arrives where his realm's switch is off, and the winner earns his points", function()
 	for _, farLive in ipairs({ false, true }) do
-		-- (The King's word is our realm's: the other realm's switch is off, unless farLive, where
+		-- (The Shogun's word is our realm's: the other realm's switch is off, unless farLive, where
 		-- the challenge always arrived and the points alone were refused.)
 		local w, cast = World123({ live = true, more = { { "far", "Wenna Crale-" .. World.REALMS[2] } } })
 		local far = cast.far

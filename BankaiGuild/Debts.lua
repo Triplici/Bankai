@@ -1484,7 +1484,7 @@ function Debts.Waiting()
 	return false
 end
 ns.On("LOGIN", function()
-	-- (After the guild and the channel settle, as the King's words wait; only where something
+	-- (After the guild and the channel settle, as the Shogun's words wait; only where something
 	-- waits: an idle client runs no arena timer.)
 	if Debts.Waiting() then ns.Arena.After(45, "debts login", Debts.Resend) end
 	-- An auditor holding open marks repeats them (the loop stops by itself once none is open).
@@ -1683,7 +1683,7 @@ function Standing.Late(name, mode)
 end
 
 -- A cap in copper (0 with an open debt): kind "bet" (per market), "balance", "daily", "direct"
--- (from a bank-signed token only: his own, or the one he showed this client), "hold" (the King's
+-- (from a bank-signed token only: his own, or the one he showed this client), "hold" (the Shogun's
 -- T1~M cap).
 function Standing.Cap(kind, name, mode)
 	local M = ns.ArenaMath

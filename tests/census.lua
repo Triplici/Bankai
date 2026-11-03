@@ -428,7 +428,7 @@ test("census (1.2.3): a claim CLAIM_TTL old keeps only its guild: Data.ClaimedGu
 	eq(D.ClaimGuild("Mover-Realm", "Bankai Guild Beta"), true, "after CLAIM_TTL quiet")
 	eq(D.ClaimedGuild("Mover-Realm"), "Bankai Guild Beta")
 	eq(D.ClaimGuild("Mover-Realm", "Bankai Guild Alpha"), false, "and now bound to the new one")
-	-- The King's client on a stream hears thousands of senders (chat lines, census reports, board
+	-- The Shogun's client on a stream hears thousands of senders (chat lines, census reports, board
 	-- posts, listings). Every old claim still answers, as in 1.2.2, however many: the council copy of
 	-- a report from one quiet since (Watch.CouncilReporter) and the bronze mark of a guild master
 	-- quiet since (Borders.ChatGuilds) need it. One that binds still binds.

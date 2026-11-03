@@ -96,22 +96,22 @@ test("1.2 the markets: a public fight's winner market: opened by its arbiter, be
 	w:NoErrors()
 end)
 
-test("1.2 the markets: the King as arbiter holds no gold: the whole 6% to the guild (his sheet says so, a sheet of his that pays an arbiter is refused)", function()
+test("1.2 the markets: the Shogun as arbiter holds no gold: the whole 6% to the guild (his sheet says so, a sheet of his that pays an arbiter is refused)", function()
 	local w, t = MW.Standard()
-	local eid = PublicFight(w, t, nil, { by = t.king })
+	local eid = PublicFight(w, t, nil, { by = t.shogun })
 	eq(t.b1.M.Sheet(eid).fee.to, "g")
 	assert(t.b1.M.Bet(eid, 1, 1, 1000))
 	assert(t.b2.M.Bet(eid, 1, 2, 1000))
 	w:Run(301)
-	assert(t.king.M.Declare(eid, { winner = "A" }))
+	assert(t.shogun.M.Declare(eid, { winner = "A" }))
 	w:Run(301)
-	-- The same market, the King judging: Lida 194,000; the guild 6,000; the arbiter 0.
+	-- The same market, the Shogun judging: Lida 194,000; the guild 6,000; the arbiter 0.
 	eq(Bal(w, t, t.b1), 900000 + 194000)
-	eq(w:Ledger(t.bank).guild, 6000); eq(w:Ledger(t.bank).arbiter[N.king:lower()], 0)
+	eq(w:Ledger(t.bank).guild, 6000); eq(w:Ledger(t.bank).arbiter[N.shogun:lower()], 0)
 	-- A forged sheet of his paying an arbiter is refused by every client.
-	local eid2 = w:Fight{ opener = t.king, A = t.A, B = t.B }
-	w:As(t.king, function()
-		t.king.ns.Arena.Send("BM", "L", ("%s~1~%s~g~b4.5k.a~%s~-~-~1:MW:-:2:O"):format(eid2, N.bank, B36(w.clock + 600)))
+	local eid2 = w:Fight{ opener = t.shogun, A = t.A, B = t.B }
+	w:As(t.shogun, function()
+		t.shogun.ns.Arena.Send("BM", "L", ("%s~1~%s~g~b4.5k.a~%s~-~-~1:MW:-:2:O"):format(eid2, N.bank, B36(w.clock + 600)))
 	end)
 	w:Run(0)
 	eq(t.b1.M.Has(eid2), false)
@@ -196,7 +196,7 @@ test("1.2 the markets: every refusal code at the bank (U K E r C O M R W N D A X
 	Check(t.b1, 1, 3, 100, "O", "no such outcome")
 	Check(t.b1, 1, 1, 5, "M", "under minBet (10 s)")
 	Check(t.nobody, 1, 1, 100, "W", "no wallet at this bank")
-	Check(t.b1, 1, 1, 2001, "X", "over the King's 20 g")
+	Check(t.b1, 1, 1, 2001, "X", "over the Shogun's 20 g")
 	Check(t.poor, 1, 1, 200, "F", "2 g with 1 g 50 s in the wallet")
 	w.debtors[t.b3.name:lower()] = true
 	Check(t.b3, 1, 1, 100, "D", "an open debt")
@@ -221,11 +221,11 @@ test("1.2 the markets: every refusal code at the bank (U K E r C O M R W N D A X
 		Check(t.b2, 1, 1, 100, "E", "not eligible")
 		for k, v in pairs(saved) do a[k] = v end
 	end
-	-- The room: the King's maxPool (1 g for this check).
-	assert(t.king.Roles.SetSettings({ maxPool = G }))
+	-- The room: the Shogun's maxPool (1 g for this check).
+	assert(t.shogun.Roles.SetSettings({ maxPool = G }))
 	w:Run(0)
 	Check(t.hc, 1, 1, 200, "P", "the pool would pass maxPool")
-	assert(t.king.Roles.SetSettings({ maxPool = 1000 * G }))
+	assert(t.shogun.Roles.SetSettings({ maxPool = 1000 * G }))
 	w:Run(0)
 	-- Accepted: exactly its stake held; the same nonce again says K (once every 20 s: the bettor's
 	-- client sends it again no sooner) and holds nothing more.
@@ -292,7 +292,7 @@ test("watch: chat moderation: a sanctioned player bets on nothing (the bank refu
 	eq(t.b1.Roles.Leader(t.hc.name), true, "a leader where nobody knows it")
 	eq(t.b3.Roles.Leader(t.hc.name), false); eq(t.b3.Roles.Auditor(t.hc.name), false)
 	eq(t.b3.Roles.MayPromote(t.hc.name), false)
-	eq(t.b3.Roles.Leader(t.king.name), true, "never the King")
+	eq(t.b3.Roles.Leader(t.shogun.name), true, "never the Shogun")
 	-- No stake held for a sanctioned party, on the arbiter's client.
 	Knows(t.arbiter, { [t.A.name] = true })
 	local ok, why = w:As(t.arbiter, function()
@@ -581,7 +581,7 @@ test("1.2 the markets: holds: the arbiter against the game's duel line holds the
 	w:NoErrors()
 end)
 
-test("1.2 the markets: BV: the King's H stops the payout, a Steward's P does not undo it, the King's P pays; a hold from a word alone pays the declared result after 24 h", function()
+test("1.2 the markets: BV: the Shogun's H stops the payout, a Steward's P does not undo it, the Shogun's P pays; a hold from a word alone pays the declared result after 24 h", function()
 	local w, t = MW.Standard()
 	local eid = PublicFight(w, t)
 	assert(t.b1.M.Bet(eid, 1, 1, 500))
@@ -589,25 +589,25 @@ test("1.2 the markets: BV: the King's H stops the payout, a Steward's P does not
 	w:Run(300)
 	assert(t.arbiter.M.Declare(eid, { winner = "A" }))
 	w:Run(10)
-	eq(t.king.M.Overrule(eid, 1, "H"), true)
+	eq(t.shogun.M.Overrule(eid, 1, "H"), true)
 	w:Run(0)
-	eq(Last(w, { from = t.king, type = "BV" }).dist, "CHANNEL")
+	eq(Last(w, { from = t.shogun, type = "BV" }).dist, "CHANNEL")
 	w:Run(15)
 	eq(t.b3.M.View(eid).markets[1].state, "H")
 	eq(t.steward.M.Overrule(eid, 1, "P"), true)
 	w:Run(400)
-	eq(Bal(w, t, t.b1), 950000, "a Steward's word never undoes the King's")
-	eq(t.king.M.Overrule(eid, 1, "P"), true)
+	eq(Bal(w, t, t.b1), 950000, "a Steward's word never undoes the Shogun's")
+	eq(t.shogun.M.Overrule(eid, 1, "P"), true)
 	w:Run(1)
 	eq(Bal(w, t, t.b1), 950000 + 97000, "released: paid by the declared result")
-	-- The King's word repeats every 120 s until settled, then for 30 minutes.
-	local n = #w:Sent{ from = t.king, type = "BV" }
+	-- The Shogun's word repeats every 120 s until settled, then for 30 minutes.
+	local n = #w:Sent{ from = t.shogun, type = "BV" }
 	w:Run(125)
-	eq(#w:Sent{ from = t.king, type = "BV" } > n, true)
+	eq(#w:Sent{ from = t.shogun, type = "BV" } > n, true)
 	Wait(w, 3600)
-	n = #w:Sent{ from = t.king, type = "BV" }
+	n = #w:Sent{ from = t.shogun, type = "BV" }
 	w:Run(600)
-	eq(#w:Sent{ from = t.king, type = "BV" }, n, "stopped")
+	eq(#w:Sent{ from = t.shogun, type = "BV" }, n, "stopped")
 	-- A word's hold nobody rules on: after 24 h (600 s here) the declared result pays.
 	t.bank.ns.Markets.HOLD_MAX = 600
 	local eid2 = PublicFight(w, t)
@@ -719,7 +719,7 @@ test("1.2 the markets: KO and B3 run under smaller caps (5 g a bet, a tenth of t
 	w:Run(3)
 	eq(Slip(w, t.b1, t.bank, eid, 2, 1, 500, Nonce()), nil)
 	w:Run(3)
-	eq(Slip(w, t.b1, t.bank, eid, 1, 1, 2000, Nonce()), nil, "the winner market keeps the King's 20 g")
+	eq(Slip(w, t.b1, t.bank, eid, 1, 1, 2000, Nonce()), nil, "the winner market keeps the Shogun's 20 g")
 	eq(Slip(w, t.mate, t.bank, eid, 2, 1, 100, Nonce()), "A", "a fighter's guildmate on KO")
 	w:Run(3)
 	eq(Slip(w, t.mate, t.bank, eid, 3, 1, 100, Nonce()), "A", "and on B3")
@@ -727,7 +727,7 @@ test("1.2 the markets: KO and B3 run under smaller caps (5 g a bet, a tenth of t
 	eq(Slip(w, t.mate, t.bank, eid, 1, 1, 100, Nonce()), nil, "the winner market is open to him")
 	eq(select(2, t.mate.M.CanBet(eid, 2, 1, 100)), "conflict")
 	-- The pool cap at 50 g: 5 g on KO and B3 (one tenth), 50 g on the winner market.
-	assert(t.king.Roles.SetSettings({ maxPool = 50 * G }))
+	assert(t.shogun.Roles.SetSettings({ maxPool = 50 * G }))
 	w:Run(0)
 	eq(Slip(w, t.b2, t.bank, eid, 2, 2, 200, Nonce()), "P", "5 g + 2 g passes 5 g")
 	w:Run(3)
@@ -735,7 +735,7 @@ test("1.2 the markets: KO and B3 run under smaller caps (5 g a bet, a tenth of t
 	eq(Slip(w, t.b3, t.bank, eid, 3, 1, 300, Nonce()), "P", "3 g + 3 g on B3 passes 5 g")
 	w:Run(3)
 	eq(Slip(w, t.b2, t.bank, eid, 1, 2, 100, Nonce()), nil)
-	assert(t.king.Roles.SetSettings({ maxPool = 1000 * G }))
+	assert(t.shogun.Roles.SetSettings({ maxPool = 1000 * G }))
 	w:Run(3)
 	eq(Slip(w, t.b2, t.bank, eid, 2, 2, 400, Nonce()), nil)
 	w:Run(300)
@@ -798,7 +798,7 @@ end
 
 test("1.2 the markets: flags to auditors only, never the event's arbiter: an underdog spike (U) at its threshold and one silver under", function()
 	local w, t = MW.Standard({ money = 1000000 })
-	assert(t.king.Roles.SetSettings({ maxBet = 100 * G, maxDay = 500 * G }))
+	assert(t.shogun.Roles.SetSettings({ maxBet = 100 * G, maxDay = 500 * G }))
 	w:Run(0)
 	-- Before: A 40 g (20 + 20), B 10 g (5 + 5): T = 50 g, B 20% of it. The median stake is
 	-- (5 g + 20 g) / 2 = 12 g 50 s: the spike needs max(3 x 12.5 g, 10% of 50 g, 20 g) = 37 g 50 s.
@@ -821,12 +821,12 @@ test("1.2 the markets: flags to auditors only, never the event's arbiter: an und
 	eq(Has(f, "U", N.bettor3), true)
 	local to = {}
 	for _, x in ipairs(f) do to[x.to] = true end
-	eq(to[N.king], true); eq(to[N.councillor], true); eq(to[N.councillor2], true)
+	eq(to[N.shogun], true); eq(to[N.councillor], true); eq(to[N.councillor2], true)
 	eq(to[N.auditor], nil, "never the event's arbiter (she opened it)")
 	eq(to[N.bettor3], nil)
 	for _, s in ipairs(w:Sent{ type = "BF" }) do eq(s.dist, "WHISPER") end
 	-- An auditor keeps it; a non-auditor ignores one.
-	local a = t.king.ns.Arena.Store("L").audit[eid2]
+	local a = t.shogun.ns.Arena.Store("L").audit[eid2]
 	eq(a.flags[1].code, "U"); eq(a.flags[1].who, N.bettor3); eq(a.flags[1].silver, 3750)
 	eq(t.b1.ns.Arena.Store("L").audit, nil)
 	w:NoErrors()
@@ -858,7 +858,7 @@ test("1.2 the markets: flags: both sides by one owner (T), against a fighter's g
 		w:Run(400 - 3 - 100)
 		assert(t.steward.M.Bet(e, 1, 2, 2000)); assert(t.auditor.M.Bet(e, 1, 2, 2000))
 		w:Run(3)
-		assert(t.king.M.Bet(e, 1, 2, last))
+		assert(t.shogun.M.Bet(e, 1, 2, last))
 		w:Run(100)
 		return e
 	end
@@ -866,13 +866,13 @@ test("1.2 the markets: flags: both sides by one owner (T), against a fighter's g
 	eq(Has(Flags(w, t, e1), "L"), false, "49 g")
 	local e2 = Surge(1000)
 	local f = Flags(w, t, e2)
-	eq(Has(f, "L", N.steward), true); eq(Has(f, "L", N.king), true); eq(Has(f, "L", N.bettor3), false, "before the last 120 s")
+	eq(Has(f, "L", N.steward), true); eq(Has(f, "L", N.shogun), true); eq(Has(f, "L", N.bettor3), false, "before the last 120 s")
 	w:NoErrors()
 end)
 
 test("1.2 the markets: flags: a bettor flagged U in three settled markets of one fighter is flagged R", function()
 	local w, t = MW.Standard({ money = 3000000 })
-	assert(t.king.Roles.SetSettings({ maxBet = 100 * G, maxDay = 500 * G }))
+	assert(t.shogun.Roles.SetSettings({ maxBet = 100 * G, maxDay = 500 * G }))
 	w:Run(0)
 	for round = 1, 3 do
 		local eid = PublicFight(w, t)
@@ -948,9 +948,9 @@ test("1.2 the markets: rates: 20 slips an event from one sender; an ordinary boo
 	w:NoErrors()
 end)
 
-print("Markets: the lock and the King's delay, currencies, the sheet's and the book's checks")
+print("Markets: the lock and the Shogun's delay, currencies, the sheet's and the book's checks")
 
-test("1.2 the markets: the King's published delay sets the window (max(120, delay + 75)) and the Bell's last call (max(20, delay + 20)), to the second, whoever opens a public event", function()
+test("1.2 the markets: the Shogun's published delay sets the window (max(120, delay + 75)) and the Bell's last call (max(20, delay + 20)), to the second, whoever opens a public event", function()
 	local w, t = MW.Standard()
 	local function Try(by, ahead)
 		local eid = w:Fight{ opener = by, A = t.A, B = t.B }
@@ -959,8 +959,8 @@ test("1.2 the markets: the King's published delay sets the window (max(120, dela
 	end
 	-- (Every client has been online longer than a sheet's repeat and its slack: 90 s.)
 	w:Run(100)
-	-- No delay: 120 s at least; the Bell: 20 s. A non-King opener's own stored delay counts for
-	-- nothing (only the King's view keeps its own): 120 and 20 still.
+	-- No delay: 120 s at least; the Bell: 20 s. A non-Shogun opener's own stored delay counts for
+	-- nothing (only the Shogun's view keeps its own): 120 and 20 still.
 	t.arbiter.ns.db.arenaUI = { delay = 300 }
 	eq(select(2, Try(t.arbiter, 119)), "window")
 	local opened = w.clock
@@ -980,8 +980,8 @@ test("1.2 the markets: the King's published delay sets the window (max(120, dela
 	eq(t.arbiter.M.CloseBets(eid), true)
 	w:Run(0)
 	eq(t.b1.M.Sheet(eid).lockAt, w.clock + 20)
-	-- The King streams with 30 s: 120 and 50.
-	assert(t.king.Arena.SetDelay(30))
+	-- The Shogun streams with 30 s: 120 and 50.
+	assert(t.shogun.Arena.SetDelay(30))
 	w:Run(0)
 	eq(select(2, Try(t.hc, 119)), "window")
 	opened = w.clock
@@ -1002,7 +1002,7 @@ test("1.2 the markets: the King's published delay sets the window (max(120, dela
 	w:Run(0)
 	eq(t.b1.M.Sheet(eid).lockAt, w.clock + 50, "the Bell: lockAt = now + Arena.LastCall(), to the second")
 	-- 120 s: 195 and 140, for a High Councillor's event too.
-	assert(t.king.Arena.SetDelay(120))
+	assert(t.shogun.Arena.SetDelay(120))
 	w:Run(0)
 	eq(select(2, Try(t.hc, 194)), "window")
 	opened = w.clock
@@ -1044,7 +1044,7 @@ test("1.2 the markets: the King's published delay sets the window (max(120, dela
 	eq(t.bank.M.Sheet(eid4).lockAt, opened + 195)
 	-- Without a delay (120 and 20): one under the window from this client's first hearing, less
 	-- the 90 s a rev 1 may have been out before it (its 60 s repeats and the send's slack), refused.
-	assert(t.king.Arena.SetDelay(0))
+	assert(t.shogun.Arena.SetDelay(0))
 	w:Run(0)
 	local eid5 = w:Fight{ opener = t.arbiter, A = t.A, B = t.B }
 	opened = w.clock
@@ -1060,7 +1060,7 @@ test("1.2 the markets: the King's published delay sets the window (max(120, dela
 	local late = w:Player("Mira Dune")
 	-- Addon messages have no history: give the late client the bank and settings words before the
 	-- market sheet whose window this assertion is measuring.
-	t.king.Roles.Repeat()
+	t.shogun.Roles.Repeat()
 	w:Run(3)
 	local eid6 = w:Fight{ opener = t.arbiter, A = t.A, B = t.B }
 	opened = w.clock
@@ -1109,7 +1109,7 @@ test("1.2 the markets: the sheet's checks: only its event's opener, a public arb
 	RawSheet(w, t.arbiter, Body(eid, 1, w.clock + 15 * 86400))
 	eq(t.b2.M.Has(eid), false, "past 14 days")
 	RawSheet(w, t.arbiter, Body(eid, 1, nil, nil, "cw.5k.a"))
-	eq(t.b2.M.Has(eid), false, "another fee than the King's")
+	eq(t.b2.M.Has(eid), false, "another fee than the Shogun's")
 	local many = {}
 	for i = 1, 41 do many[i] = B36(i) .. ":MW:-:2:O" end
 	RawSheet(w, t.arbiter, Body(eid, 1, nil, table.concat(many, ";")))
@@ -1147,9 +1147,9 @@ test("1.2 the markets: the sheet's checks: only its event's opener, a public arb
 	local w2, t2 = MW.Standard({ live = false })
 	local eidL = w2:Fight{ opener = t2.arbiter, A = t2.A, B = t2.B }
 	eq(t2.arbiter.ns.Arena.NewMode(false), "T", "(new events are rehearsals)")
-	w2:As(t2.king, function() t2.king.ns.ArenaRoles.SetSettings({ live = 1 }) end)
+	w2:As(t2.shogun, function() t2.shogun.ns.ArenaRoles.SetSettings({ live = 1 }) end)
 	w2:Run(0)
-	w2:As(t2.king, function() t2.king.ns.ArenaRoles.SetSettings({ live = 0 }) end)
+	w2:As(t2.shogun, function() t2.shogun.ns.ArenaRoles.SetSettings({ live = 0 }) end)
 	w2:Run(0)
 	w2:As(t2.arbiter, function() t2.arbiter.ns.Comm.Send("CHANNEL", "BM~L1~" .. ("%s~1~%s~g~b4.5k.a~%s~-~-~1:MW:-:2:O"):format(eidL, N.bank, B36(w2.clock + 600))) end)
 	w2:Run(0)
@@ -1380,9 +1380,9 @@ test("1.2 the markets: a Farkle table's stakes (FK) settle only when the gate sa
 	w:Run(2)
 	w:Run(15)
 	eq(t.A.M.View(eid).markets[1].state, "H")
-	-- A King's P rules on it (the auditors' ruling, the design); the gate agrees now.
+	-- A Shogun's P rules on it (the auditors' ruling, the design); the gate agrees now.
 	verdict = true
-	assert(t.king.M.Overrule(eid, 1, "P"))
+	assert(t.shogun.M.Overrule(eid, 1, "P"))
 	w:Run(2)
 	eq(Bal(w, t, t.B), 950000 + 97000)
 	w:NoErrors()
@@ -1481,8 +1481,8 @@ test("1.2 the markets: the Menagerie Lottery settles five places, refunds once, 
 	eq(t.b1.M.BeastOf(1234), 9); eq(t.b1.M.BeastOf(1), 1); eq(t.b1.M.BeastOf(4), 1); eq(t.b1.M.BeastOf(5), 2)
 	eq(t.b1.M.BeastOf(0), 25); eq(t.b1.M.BeastOf(10000), 25); eq(t.b1.M.BeastOf(99), 25); eq(t.b1.M.BeastOf(97), 25)
 	local function Day(carry)
-		local eid = w:LotteryDay{ opener = t.king, drawAt = w.clock + 600 }
-		local ok, why = t.king.M.OpenLottery(eid, { drawAt = w.clock + 600, carry = carry })
+		local eid = w:LotteryDay{ opener = t.shogun, drawAt = w.clock + 600 }
+		local ok, why = t.shogun.M.OpenLottery(eid, { drawAt = w.clock + 600, carry = carry })
 		assert(ok, tostring(why))
 		w:Run(0)
 		return eid
@@ -1490,14 +1490,14 @@ test("1.2 the markets: the Menagerie Lottery settles five places, refunds once, 
 	-- Day 1: the Cobra is first and the Turtle fourth; both stakes return. A third, losing ticket
 	-- creates 10 g of profit: 5 g and 1 g are claimed, 4 g rolls over, and 6% of 6 g is the fee.
 	local d1 = Day(0)
-	eq(t.king.M.Sheet(d1).markets[1].param, "2", "the sheet names settlement contract v2")
-	eq(t.king.M.ParseParam(t.king.M.KINDS.LO, "-"), nil, "a versionless one-head sheet is rejected")
+	eq(t.shogun.M.Sheet(d1).markets[1].param, "2", "the sheet names settlement contract v2")
+	eq(t.shogun.M.ParseParam(t.shogun.M.KINDS.LO, "-"), nil, "a versionless one-head sheet is rejected")
 	eq(t.b3.M.View(d1).markets[1].outcomes[25].o, 25)
 	assert(t.b1.M.Bet(d1, 1, 9, 1000)); assert(t.b2.M.Bet(d1, 1, 3, 1000)); assert(t.b3.M.Bet(d1, 1, 2, 1000))
 	w:Run(600)
-	local old, oldWhy = t.king.M.Declare(d1, { [1] = { 9 }, draw = { 1234, 5555, 0, 1111, 2222 } })
+	local old, oldWhy = t.shogun.M.Declare(d1, { [1] = { 9 }, draw = { 1234, 5555, 0, 1111, 2222 } })
 	eq(old, false); eq(oldWhy, "version", "the old head-only declaration is rejected")
-	eq(t.king.M.DeclareDraw(d1, { 1234, 5555, 0, 1111, 2222 }), true)
+	eq(t.shogun.M.DeclareDraw(d1, { 1234, 5555, 0, 1111, 2222 }), true)
 	w:Run(301)
 	eq(Bal(w, t, t.b1), 1000000 + 47000); eq(Bal(w, t, t.b2), 1000000 + 9400)
 	eq(w:Ledger(t.bank).guild, 3600)
@@ -1506,7 +1506,7 @@ test("1.2 the markets: the Menagerie Lottery settles five places, refunds once, 
 	local d2 = Day(0)
 	assert(t.b1.M.Bet(d2, 1, 5, 1000)); assert(t.b2.M.Bet(d2, 1, 6, 1000))
 	w:Run(600)
-	assert(t.king.M.DeclareDraw(d2, { 99, 1, 2, 3, 4 }))
+	assert(t.shogun.M.DeclareDraw(d2, { 99, 1, 2, 3, 4 }))
 	w:Run(316)
 	eq(t.b1.M.Carry(d2), 200000); eq(t.b3.M.View(d2).markets[1].state, "S", "the day settles even while its carry waits")
 	eq(Bal(w, t, t.b2), 1000000 + 9400 - 100000)
@@ -1519,7 +1519,7 @@ test("1.2 the markets: the Menagerie Lottery settles five places, refunds once, 
 	eq(t.b3.M.View(d3).markets[1].carry, 200000)
 	assert(t.b3.M.Bet(d3, 1, 7, 1000)); assert(t.b1.M.Bet(d3, 1, 8, 1000))
 	w:Run(600)
-	assert(t.king.M.DeclareDraw(d3, { 25, 8000, 3131, 42, 7 }))
+	assert(t.shogun.M.DeclareDraw(d3, { 25, 8000, 3131, 42, 7 }))
 	w:Run(301)
 	eq(Bal(w, t, t.b3), 1000000 - 200000 + 194000)
 	eq(w:Ledger(t.bank).guild, 3600 + 7800)
@@ -1597,7 +1597,7 @@ test("1.2 the markets: every button through Arena.Can/Do: 'bet' says why not (th
 	w:Run(3)
 	eq(select(2, t.b1.Arena.Can("bet", eid, 1, 1, 1600)), "cap")
 	eq(select(2, t.b1.Arena.Can("overrule", eid, 1, "H")), "leader")
-	eq(t.king.Arena.Can("overrule", eid, 1, "H"), true)
+	eq(t.shogun.Arena.Can("overrule", eid, 1, "H"), true)
 	eq(select(2, t.b1.Arena.Can("closebets", eid)), "sheet")
 	eq(t.arbiter.Arena.Can("closebets", eid), true)
 	w:Run(300)
@@ -1643,15 +1643,15 @@ test("1.2 the markets: auditors hold a market whose ledger has more than its loc
 	w:Run(301)
 	-- A b entry the locked book never counted, dated after the lock (a modified bank's).
 	w:Deliver(t.bank.name, 900, { k = "b", eid = eid, idx = 1, o = "1", copper = 200000, nonce = "zz9zz9", t = w.clock, who = N.bettor3 })
-	local a = t.king.ns.Arena.Store("L").audit[eid]
+	local a = t.shogun.ns.Arena.Store("L").audit[eid]
 	eq(a.late, 1); eq(a.flags[#a.flags].code, "late")
 	assert(t.arbiter.M.Declare(eid, { winner = "A" }))
 	w:Run(2)
 	eq(Last(w, { from = t.auditor, type = "BV" }).msg:match("~(%a)~[^~]+$"), "H", "the signed auditor's client holds it")
 	eq(Last(w, { from = t.hc, type = "BV" }).msg:match("~(%a)~[^~]+$"), "H", "a High Councillor's too")
-	-- The King's own client shows it and holds nothing by itself (a hold of his only he could lift).
-	eq(Last(w, { from = t.king, type = "BV" }), nil)
-	eq(t.king.MB.AuditOf("L", eid).mismatch["1"].kind, "over")
+	-- The Shogun's own client shows it and holds nothing by itself (a hold of his only he could lift).
+	eq(Last(w, { from = t.shogun, type = "BV" }), nil)
+	eq(t.shogun.MB.AuditOf("L", eid).mismatch["1"].kind, "over")
 	w:Run(301)
 	eq(Bal(w, t, t.b1), 950000, "held: not paid")
 	-- An auditor who heard the market from its registration and finds it right says nothing.
@@ -1667,12 +1667,12 @@ test("1.2 the markets: auditors hold a market whose ledger has more than its loc
 	w:NoErrors()
 end)
 
-test("1.2 the markets: the fee a sheet freezes: the King's word, or the one before it within 10 minutes of a change; a later rev keeps its own", function()
+test("1.2 the markets: the fee a sheet freezes: the Shogun's word, or the one before it within 10 minutes of a change; a later rev keeps its own", function()
 	local w, t = MW.Standard()
 	local eid = PublicFight(w, t, nil, { lockAt = w.clock + 3600 })
 	assert(t.b1.M.Bet(eid, 1, 1, 500)); assert(t.b2.M.Bet(eid, 1, 2, 500))
 	w:Run(30)
-	assert(t.king.Roles.SetSettings({ feeBp = 500, arbBp = 200 }))
+	assert(t.shogun.Roles.SetSettings({ feeBp = 500, arbBp = 200 }))
 	w:Run(0)
 	-- A sheet opened under the old word reaches the others after the change: still taken.
 	local eid2 = w:Fight{ opener = t.arbiter, A = t.A, B = t.B }
@@ -1742,7 +1742,7 @@ test("1.2 the markets: a wallet that does not pay never shows a market settled: 
 	eq(t.b3.M.View(eid).markets[1].state, "H")
 	eq(t.bank.MB.View("L")[1].markets[1].hold, "wallet")
 	t.bank.ns.Wallet.Settle = settle
-	assert(t.king.M.Overrule(eid, 1, "P"))
+	assert(t.shogun.M.Overrule(eid, 1, "P"))
 	w:Run(2)
 	eq(Bal(w, t, t.b1), 950000 + 97000)
 	w:NoErrors()

@@ -5,7 +5,7 @@ local L = ns.L
 --
 -- The envelope. Every arena message is <type>~<mode><proto>~<body>: "AF~L1~...". The mode is L
 -- (live) or T (a rehearsal, a test build); the protocol is 1, and a client drops any other. The
--- King's arena words are not enveloped: they are kinds of the King's T1 (ArenaRoles.lua).
+-- Shogun's arena words are not enveloped: they are kinds of the Shogun's T1 (ArenaRoles.lua).
 --
 -- The weight rule (the design). Until something involves this client (Arena.Involve: a duty, a
 -- fight, a table, a ticket, a rehearsal, the open window), the arena creates no frame, registers
@@ -23,7 +23,7 @@ local L = ns.L
 -- receiving (Handle, Inject), the signature queue (Verify), parse helpers, involvement and its
 -- ticker (Involve, Every, After, Changed), actions (Action, Can, Do), the /bk arena router (Slash,
 -- RunSlash), the companion (LoadUI and its handoff), the test build, the kill switch, the sim switch,
--- the rules' yes, the persistence gate, the King's view and the stream delay, and the events
+-- the rules' yes, the persistence gate, the Shogun's view and the stream delay, and the events
 -- registry (Events.Register, EventOf). No arena file names the author (the design).
 
 local Arena = {}
@@ -45,7 +45,7 @@ Arena.RETRIES_MAX = 20        -- a must-deliver message given up after this many
 Arena.BACKLOG_MAX = 400       -- messages held here (lockdown, the urgent share) at most
 Arena.LOW_MAX = 400           -- messages waiting on the low lane at most
 Arena.CHANGED_GAP = 1         -- ARENA_CHANGED at most once a second
-Arena.DELAY_MAX = 900         -- the King's stream delay, seconds
+Arena.DELAY_MAX = 900         -- the Shogun's stream delay, seconds
 Arena.RULES_VERSION = 1
 Arena.TEST_DAYS_MAX = 60      -- a test build lives this long at most (the design)
 Arena.COMPANION = "BankaiGuild_Arena"
@@ -97,7 +97,7 @@ Arena.LIVE_EXEMPT = { AP = true, IL = true, ID = true, IO = true, AM = true, AU 
 -- 1.2.3 (the owner's decision, 2026-10-11): free games count. A game with no gold on it (a duel, a
 -- Bones game: the only kind while the Wallet is off, Compliance.WALLET_ENABLED) counts for the
 -- history, the points and the rankings on a release whatever the live switch says; the switch
--- (the King's T1~O live) is the bets' alone, for 2.0. A test build never counts (Arena.GameMode).
+-- (the Shogun's T1~O live) is the bets' alone, for 2.0. A test build never counts (Arena.GameMode).
 -- These are the types a free game and its rankings use: they go out and come in L with the switch
 -- off. A wager they may carry (a stake on a challenge or a table) is refused by its own handler in
 -- L while the switch is off; the types that carry nothing but a wager are the compliance gate's.
@@ -176,12 +176,12 @@ function Arena.Fields(body, n)
 	return unpack(out, 1, n)
 end
 
--- A character's name as another player sends it: through King.CleanName (a first name and a
+-- A character's name as another player sends it: through Shogun.CleanName (a first name and a
 -- surname, no free text), with its realm when it gives a plausible one: "Name-Realm", or nil.
 function Arena.Name(s)
 	if type(s) ~= "string" or s == "" or #s > 80 then return nil end
 	local name = ns.Normal and ns.Normal(s) or s
-	local K = ns.King
+	local K = ns.Shogun
 	local short = K and K.CleanName and K.CleanName(name)
 	if not short then return nil end
 	local realm = ns.RealmOf(name)
@@ -254,17 +254,17 @@ function Arena.RealmOf(sender)
 end
 
 -- A name as the arena shows it: whole (the owner's call, 2026-09-30), cut short only where the
--- King's stream view asks for it: on the King's own screen while the council's names are hidden
--- there, and in the sim while its King view is on (Arena.SimKingsView, the companion's Kit.lua).
--- The author's preview of the King's view (King.Preview) shows names whole.
+-- Shogun's stream view asks for it: on the Shogun's own screen while the council's names are hidden
+-- there, and in the sim while its Shogun view is on (Arena.SimShogunsView, the companion's Kit.lua).
+-- The author's preview of the Shogun's view (Shogun.Preview) shows names whole.
 function Arena.Mask(name)
 	if not ns.MaskName then return name end
 	local masked
 	if Arena.Sim and Arena.Sim() then
-		masked = type(Arena.SimKingsView) == "function" and Arena.SimKingsView() == true
+		masked = type(Arena.SimShogunsView) == "function" and Arena.SimShogunsView() == true
 			and not (ns.CouncilNamesShown and ns.CouncilNamesShown())
 	else
-		masked = ns.King and type(ns.King.IsKing) == "function" and ns.King.IsKing() == true
+		masked = ns.Shogun and type(ns.Shogun.IsShogun) == "function" and ns.Shogun.IsShogun() == true
 			and ns.CouncilMasked and ns.CouncilMasked() == true
 	end
 	if masked then return ns.MaskName(name) end
@@ -435,7 +435,7 @@ function Arena.Mode(obj)
 	return "L"
 end
 -- A new object's mode: T when it is a rehearsal, on a test build, or while this realm's live switch
--- is off (the King's T1~O).
+-- is off (the Shogun's T1~O).
 function Arena.NewMode(rehearsal)
 	if rehearsal or Arena.TestBuild() then return "T" end
 	local R = Roles()
@@ -679,7 +679,7 @@ local function Compliant(kind)
 	return type(C) == "table" and type(C.Wire) == "function" and C.Wire(kind) == true
 end
 
--- IL is launch-only, independent of the King's games-live switch. Missing HonorsNet is closed
+-- IL is launch-only, independent of the Shogun's games-live switch. Missing HonorsNet is closed
 -- too, so a raw sender or a mixed-version peer cannot bypass its collection boundary.
 local function LevelRaceWire(kind)
 	if kind ~= "IL" then return true end
@@ -1427,7 +1427,7 @@ function Arena.Handle(kind, fn)
 		if Arena.Sim() and not injecting then Count(stats.dropped, "sim") return end
 		if not Accepts(kind, mode, dist) then Count(stats.dropped, Arena.TestBuild() and "live-in-test" or "lane") return end
 		-- (L while this realm's live switch is off: refused here as Refusal refuses it going out, a
-		-- modified client's too; a free game's types never, 1.2.3. The switch itself is the King's
+		-- modified client's too; a free game's types never, 1.2.3. The switch itself is the Shogun's
 		-- T1, not an arena type. The pieces' envelope EP is never asked here (1.2.3, the review: a
 		-- free type's long message, a best of 3's signed half or a clerk's relay, goes as EP pieces
 		-- in L and was dropped before it was whole): OnPiece hands the whole payload to its own
@@ -1740,12 +1740,12 @@ function Arena.Toggle(tab)
 end
 
 ---------------------------------------------------------------------------
--- The King's view and the stream delay (the design)
+-- The Shogun's view and the stream delay (the design)
 ---------------------------------------------------------------------------
 
--- The King's own screen (or the author's preview of it, King.Preview), or the King's stand-in in a rehearsal.
-function Arena.KingsView(mode)
-	if ns.KingsScreen and ns.KingsScreen() then return true end
+-- The Shogun's own screen (or the author's preview of it, Shogun.Preview), or the Shogun's stand-in in a rehearsal.
+function Arena.ShogunsView(mode)
+	if ns.ShogunsScreen and ns.ShogunsScreen() then return true end
 	if mode == "T" then
 		local R = Roles()
 		return R ~= nil and type(R.standIn) == "function" and R.standIn(ns.me, "k", "T") == true
@@ -1757,28 +1757,28 @@ local function OwnDelay()
 	local d = type(ui) == "table" and tonumber(ui.delay) or 0
 	return math.max(0, math.min(Arena.DELAY_MAX, math.floor(d)))
 end
--- The delay a window keeps: the King's own in his view, and for a public event the delay his last
--- T1~L published (so a public event a High Councillor opens while the King streams keeps it too).
+-- The delay a window keeps: the Shogun's own in his view, and for a public event the delay his last
+-- T1~L published (so a public event a High Councillor opens while the Shogun streams keeps it too).
 function Arena.Delay(public)
-	local own = Arena.KingsView() and OwnDelay() or 0
-	local king = 0
+	local own = Arena.ShogunsView() and OwnDelay() or 0
+	local shogun = 0
 	local R = Roles()
-	if public and R and R.KingDelay then king = R.KingDelay() or 0 end
-	return math.max(own, king)
+	if public and R and R.ShogunDelay then shogun = R.ShogunDelay() or 0 end
+	return math.max(own, shogun)
 end
 function Arena.LastCall(public) return math.max(20, Arena.Delay(public) + 20) end
 function Arena.OpenMin(public) return math.max(120, Arena.Delay(public) + 75) end
--- The King (or the author's view) types it: kept, and the King's client publishes it (T1~L).
+-- The Shogun (or the author's view) types it: kept, and the Shogun's client publishes it (T1~L).
 function Arena.SetDelay(s)
 	if s == "off" then s = 0 end
 	s = tonumber(s)
 	if not s or s < 0 or s > Arena.DELAY_MAX or s ~= math.floor(s) then return false, "range" end
-	if not Arena.KingsView() then return false, "king" end
+	if not Arena.ShogunsView() then return false, "shogun" end
 	ns.db.arenaUI = type(ns.db.arenaUI) == "table" and ns.db.arenaUI or {}
 	ns.db.arenaUI.delay = s
 	local R = Roles()
-	local K = ns.King
-	if R and R.SendDelay and K and K.IsKing and K.IsKing() then R.SendDelay(s) end
+	local K = ns.Shogun
+	if R and R.SendDelay and K and K.IsShogun and K.IsShogun() then R.SendDelay(s) end
 	Arena.Changed()
 	return true
 end
@@ -1812,10 +1812,10 @@ function Arena.MayDirect(sender, word, current)
 		if ns.IsSignedArbiter(sender) or CoDirector() then return true end
 		return false, "director"
 	end
-	local lead = R and R.IsKing(sender) or (ns.King and ns.King.IsStewardName and ns.King.IsStewardName(sender))
+	local lead = R and R.IsShogun(sender) or (ns.Shogun and ns.Shogun.IsStewardName and ns.Shogun.IsStewardName(sender))
 		or ns.IsHighCouncillor(sender) or ns.IsSignedArbiter(sender)
 	if lead or CoDirector() then return true end
-	-- A listed arbiter may run a group rehearsal, without public-arbiter or King stand-ins.
+	-- A listed arbiter may run a group rehearsal, without public-arbiter or Shogun stand-ins.
 	if word.lane == "g" and R and R.IsArbiter(sender, "L") then
 		for _, letter in pairs(roles) do
 			if letter == "p" or letter == "k" then return false, "stand-in" end
@@ -1924,7 +1924,7 @@ end, L.ARENA_HELP_SIM)
 Arena.Slash("delay", function(args)
 	local ok, why = Arena.SetDelay(tostring(args):lower() == "off" and "off" or args)
 	if ok then ns.Print(L.ARENA_DELAY_SET:format(OwnDelay()))
-	elseif why == "king" then ns.Print(L.THRONE_ONLY_KING)
+	elseif why == "shogun" then ns.Print(L.THRONE_ONLY_SHOGUN)
 	else ns.Print(L.ARENA_DELAY_USAGE) end
 end, L.ARENA_HELP_DELAY)
 

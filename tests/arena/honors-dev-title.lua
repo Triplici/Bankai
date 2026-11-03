@@ -21,7 +21,7 @@ end
 
 print("HonorsNet: the author's title (1.2.3)")
 
-test("1.2.3 the author's title: his character holds The Royal Dev, a title alone (no frame, no mark, no King's letter), switched on for him; every other client shows it on him, and nobody else holds or can pick it", function()
+test("1.2.3 the author's title: his character holds The Royal Dev, a title alone (no frame, no mark, no Shogun's letter), switched on for him; every other client shows it on him, and nobody else holds or can pick it", function()
 	local w, cast = W3.New()
 	local author, viewer = cast.A, cast.spectator
 	-- (after the login: a login builds the client's namespace again)
@@ -43,7 +43,7 @@ test("1.2.3 the author's title: his character holds The Royal Dev, a title alone
 	eq(author.ns.HonorsNet.TitleText("the-dev"), "The Royal Dev")
 	eq(author.ns.ArenaProfile.Pick().title, "the-dev", "switched on the first time")
 	eq(author.ns.ArenaProfile.Pick().frame ~= "the-dev", true, "never a frame")
-	eq(#author.ns.HonorsNet.QueuedLetters(), 0, "no King's letter queued")
+	eq(#author.ns.HonorsNet.QueuedLetters(), 0, "no Shogun's letter queued")
 	eq(#author.ns.HonorsNet.Letters(), 0, "none kept to read again")
 	-- The frame picker offers it among his titles, never among his frames.
 	local vm = w:As(author, author.ns.ProfileEdit.ViewModel)

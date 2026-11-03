@@ -1,4 +1,4 @@
--- 1.2.1, the King's letter when an honour is earned (HonorsNet.lua): who gets it, how often, and
+-- 1.2.1, the Shogun's letter when an honour is earned (HonorsNet.lua): who gets it, how often, and
 -- its window. Every name is invented.
 local H = ...
 local test, eq = H.test, H.eq
@@ -42,7 +42,7 @@ local function PreviewFrames(c)
 	end
 end
 
-print("HonorsNet: the King's letter (1.2.1)")
+print("HonorsNet: the Shogun's letter (1.2.1)")
 
 test("1.2.4 honour letter previews: every family uses the real framed letter without awarding, consuming or transmitting anything", function()
 	-- All-family author samples stay available with the actual pre-launch race OFF.
@@ -100,7 +100,7 @@ test("1.2.4 honour letter previews: a real pending award is neither overwritten 
 	end)
 end)
 
--- The owner after the King's stream (1.2.1): the King got the King's letter about a frame he holds.
+-- The owner after the Shogun's stream (1.2.1): the Shogun got the Shogun's letter about a frame he holds.
 test("1.2.4 honour letter previews: an award arriving during a sample waits unread and opens only after the sample closes", function()
 	local w = W3.New({ levelRace = false })
 	local author = Kept(w, w:Client(N.author))
@@ -122,24 +122,24 @@ test("1.2.4 honour letter previews: an award arriving during a sample waits unre
 	end)
 end)
 
-test("1.2.1 the King's letter: never to the King himself: his honour switches on, no letter shows, none is kept or opens on a click; where no King is pinned, the guild master of the King's guild the same; everyone else gets his", function()
-	local w, cast = W3.New({ more = { { "gm", "Bryn Halloway", { guild = World.KING_GUILD, rank = 0 } } } })
-	local king, A, gm = Kept(w, cast.king), Kept(w, cast.A), Kept(w, cast.gm)
-	-- (gm's realm group has no King pinned by name: there the guild master of his guild is the King.)
-	rawset(gm.ns, "KingCharacter", function() return nil end)
-	eq(w:As(gm, gm.ns.King.IsKing), true, "gm is the King where no King is pinned")
-	eq(w:As(king, king.ns.IsKingCharacter, king.name), true)
-	for _, c in ipairs({ king, A, gm }) do Donors(w, c, w.clock, { king, A, gm }) end
+test("1.2.1 the Shogun's letter: never to the Shogun himself: his honour switches on, no letter shows, none is kept or opens on a click; where no Shogun is pinned, the guild master of the Shogun's guild the same; everyone else gets his", function()
+	local w, cast = W3.New({ more = { { "gm", "Bryn Halloway", { guild = World.SHOGUN_GUILD, rank = 0 } } } })
+	local shogun, A, gm = Kept(w, cast.shogun), Kept(w, cast.A), Kept(w, cast.gm)
+	-- (gm's realm group has no Shogun pinned by name: there the guild master of his guild is the Shogun.)
+	rawset(gm.ns, "ShogunCharacter", function() return nil end)
+	eq(w:As(gm, gm.ns.Shogun.IsShogun), true, "gm is the Shogun where no Shogun is pinned")
+	eq(w:As(shogun, shogun.ns.IsShogunCharacter, shogun.name), true)
+	for _, c in ipairs({ shogun, A, gm }) do Donors(w, c, w.clock, { shogun, A, gm }) end
 	w:Run(3)
-	-- The King: the cornucopia on, no letter from himself.
-	eq(king.ns.ArenaProfile.Pick().frame, "donor-top-1", "his honour switched on")
-	eq(Shown(king), false, "no letter from himself")
-	eq(#king.ns.HonorsNet.QueuedLetters(), 0); eq(#king.ns.HonorsNet.Letters(), 0, "none kept to read again")
-	eq(w:As(king, king.ns.HonorsNet.ShowLetter, "donor-top-1"), false, "nor on a click")
-	w:As(king, king.ns.HonorsNet.QueueLetter, "arena-champion")
-	eq(Shown(king), false); eq(#king.ns.HonorsNet.QueuedLetters(), 0, "whatever asks for one")
-	eq(w:As(king, king.ns.HonorsNet.WindowShown), false, "the Bankai Guild window opens none")
-	-- The guild master of the King's guild where none is pinned: the same.
+	-- The Shogun: the cornucopia on, no letter from himself.
+	eq(shogun.ns.ArenaProfile.Pick().frame, "donor-top-1", "his honour switched on")
+	eq(Shown(shogun), false, "no letter from himself")
+	eq(#shogun.ns.HonorsNet.QueuedLetters(), 0); eq(#shogun.ns.HonorsNet.Letters(), 0, "none kept to read again")
+	eq(w:As(shogun, shogun.ns.HonorsNet.ShowLetter, "donor-top-1"), false, "nor on a click")
+	w:As(shogun, shogun.ns.HonorsNet.QueueLetter, "arena-champion")
+	eq(Shown(shogun), false); eq(#shogun.ns.HonorsNet.QueuedLetters(), 0, "whatever asks for one")
+	eq(w:As(shogun, shogun.ns.HonorsNet.WindowShown), false, "the Bankai Guild window opens none")
+	-- The guild master of the Shogun's guild where none is pinned: the same.
 	eq(gm.ns.ArenaProfile.Pick().frame, "donor-top-3")
 	eq(Shown(gm), false); eq(#gm.ns.HonorsNet.Letters(), 0)
 	-- Anyone else: his letter.
@@ -151,7 +151,7 @@ end)
 
 -- The owner (1.2.1): the letter must not come back for anyone with every update. Each honour's
 -- letter shows once per character, kept in his saved profile.
-test("1.2.1 the King's letter: once per honour per character: never again when the honour comes back after a gap in its source, a place lost and won back, Escape, a relog; a new honour still gets its own, once", function()
+test("1.2.1 the Shogun's letter: once per honour per character: never again when the honour comes back after a gap in its source, a place lost and won back, Escape, a relog; a new honour still gets its own, once", function()
 	local w, cast = W3.New()
 	local A, B = Kept(w, cast.A), cast.B
 	local t = w.clock
@@ -211,7 +211,7 @@ local function Updated(w, c, profile)
 	W3.Rules(w, c)
 end
 
-test("1.2.1 the King's letter: after the update, a letter 1.2.0 gave (read or not) never shows again, nor one for an honour held at the first look; a new honour after it gets its letter; a profile 1.2.1 made is never taken for 1.2.0's", function()
+test("1.2.1 the Shogun's letter: after the update, a letter 1.2.0 gave (read or not) never shows again, nor one for an honour held at the first look; a new honour after it gets its letter; a profile 1.2.1 made is never taken for 1.2.0's", function()
 	local w, cast = W3.New({ more = { { "C", "Corin Ash" }, { "D", "Dovan Quell" }, { "E", "Elsa Brook" } } })
 	local C, D, E = cast.C, cast.D, cast.E
 	local now = w.clock
@@ -263,7 +263,7 @@ end)
 -- never comes back): nothing told is known there, and every honour held looks newly earned at each
 -- login. The letter waits in the Edit's list, unread, and never opens by itself (as the update
 -- letter, Letters.lua): it must not come back at every login.
-test("1.2.1 the King's letter: where the save does not come back (the Forever beta, a first session) it never opens by itself, at any login: kept unread in the Edit's list, opened there by a click", function()
+test("1.2.1 the Shogun's letter: where the save does not come back (the Forever beta, a first session) it never opens by itself, at any login: kept unread in the Edit's list, opened there by a click", function()
 	local w, cast = W3.New({ more = { { "P", "Parric Stowe", { persists = false } } } })
 	local P = cast.P
 	for session = 1, 2 do
@@ -294,7 +294,7 @@ end)
 -- The client hides every frame UIParent holds when the whole interface is hidden (Alt+Z, a
 -- cinematic): their OnHide runs, their own shown flag stays on, and they are back with it. That is
 -- no answer to the letter: only a hide of its own (Escape, the window sweep) counts as Later.
-test("1.2.1 the King's letter: the whole interface hidden and shown again (Alt+Z, a cinematic) leaves the letter open and unanswered; Escape is Later and the next letter shows", function()
+test("1.2.1 the Shogun's letter: the whole interface hidden and shown again (Alt+Z, a cinematic) leaves the letter open and unanswered; Escape is Later and the next letter shows", function()
 	local w, cast = W3.New()
 	local A = Kept(w, cast.A)
 	local HN = A.ns.HonorsNet
@@ -324,7 +324,7 @@ end)
 -- A month's honour (the month's donors' koi, the Oracle's ravens) is that month's award ("yours for
 -- the month ahead"): its key names only the place, so its letter is told for its month. A place
 -- lost and won back inside the month is no new letter; won again in a later month, it is.
-test("1.2.1 the King's letter: a month's honour is told for its month: a reorder within the month gives no letter; won again in a later month after a gap, its letter once", function()
+test("1.2.1 the Shogun's letter: a month's honour is told for its month: a reorder within the month gives no letter; won again in a later month after a gap, its letter once", function()
 	local w, cast = W3.New()
 	local A, B = Kept(w, cast.A), cast.B
 	local HN = A.ns.HonorsNet
@@ -366,14 +366,14 @@ test("1.2.1 the King's letter: a month's honour is told for its month: a reorder
 	W3.NoErrors(w)
 end)
 
--- The owner on the King's stream (1.2.1): the letter had no window round it, its words ran off the
+-- The owner on the Shogun's stream (1.2.1): the letter had no window round it, its words ran off the
 -- paper in a small font and its two buttons sat under it. On the harness's widget toolkit (its
 -- templates and anchors, a 1366 x 768 screen), every letter in English and pt-BR: the window is
 -- Bankai Guild's (ns.Window: the bronze metal, its plain corner, no portrait ring or logo), the head in
 -- its title bar, the parchment inside it; the words at the letter font's 15 px (the client's
 -- GetFont and SetFont, as it answers them) wrapped inside the paper, clear of the art; the seal,
 -- the signature and both buttons inside the window and apart.
-test("1.2.1 the King's letter: its window is Bankai Guild's own metal with the parchment inside; the words at 15 px wrapped inside the paper, the seal, signature and both buttons inside the window, every letter in English and pt-BR", function()
+test("1.2.1 the Shogun's letter: its window is Bankai Guild's own metal with the parchment inside; the words at 15 px wrapped inside the paper, the seal, signature and both buttons inside the window, every letter in English and pt-BR", function()
 	local w, cast = W3.New()
 	-- (One client a language: the letter's window is made once a session, in the game's language.)
 	local CLIENTS = { enUS = cast.A, ptBR = cast.B }
@@ -463,7 +463,7 @@ test("1.2.1 the King's letter: its window is Bankai Guild's own metal with the p
 					local signLeft = sign:GetLeft()
 					assert(sealLeft + sealW <= signLeft + 0.5 and signLeft - (sealLeft + sealW) <= 12, where .. ": the seal just before the signature")
 					assert(sealLeft >= (pl + pr) / 2, where .. ": on the right half of the paper")
-					-- (1.2.4, the author's ask: "use vermelho no selo de cera do rei") Red wax: the
+					-- (1.2.4, the author's ask: "use vermelho no selo de cera do xogum") Red wax: the
 					-- window's seal goes through H.TintSeal (below, on a texture that records it).
 					local wl, wb, wr, wt = Inside(f.wear, "Wear it")
 					local ll, lb, lr, lt = Inside(f.later, "Later")
@@ -484,10 +484,10 @@ test("1.2.1 the King's letter: its window is Bankai Guild's own metal with the p
 	W3.NoErrors(w)
 end)
 
--- 1.2.4, the author's ask: "use vermelho no selo de cera do rei". The letter's wax seal is the
+-- 1.2.4, the author's ask: "use vermelho no selo de cera do xogum". The letter's wax seal is the
 -- faction's own (the Alliance's is blue), greyed and tinted red, through H.TintSeal; the window
 -- made by H.ShowLetter tints its seal with it.
-test("1.2.4 the King's letter: its wax seal is red, the faction's seal greyed and tinted", function()
+test("1.2.4 the Shogun's letter: its wax seal is red, the faction's seal greyed and tinted", function()
 	local w, cast = W3.New()
 	local A = cast.A
 	local HN = A.ns.HonorsNet

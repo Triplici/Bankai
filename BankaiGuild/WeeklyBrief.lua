@@ -50,7 +50,7 @@ end
 
 local function PublicResult(s)
 	local V = ns.Vox
-	if not V or not V.State or (ns.King and ns.King.Preview and ns.King.Preview()) then return end
+	if not V or not V.State or (ns.Shogun and ns.Shogun.Preview and ns.Shogun.Preview()) then return end
 	local poll, history, shown = V.State()
 	local candidates = {}
 	for _, h in ipairs(history or {}) do candidates[#candidates + 1] = h end
@@ -197,7 +197,7 @@ function Brief.PersonalLink()
 end
 
 -- A member's reopenable Realm page in the main window, not a royal tool or a popup.
--- The same five held facts use the existing parchment fonts, without depending on the King.
+-- The same five held facts use the existing parchment fonts, without depending on the Shogun.
 function Brief.PersonalPage(q)
 	if not ns.IsMember() then return {} end
 	local lines = { PaperLine(L.BRIEF_PERSONAL_BACK, INK, { gapAfter = true,

@@ -15,10 +15,10 @@ local L = ns.L
 --     may also contribute one page to the Bankai Guild window; Bankai Guild still owns its lifecycle.
 --   - Only what this player already sees on Bankai Guild's own pages, at no more detail: the Wanted list
 --     and its bounties (the Wanted tab's rows), the public rankings (the Slayers boards of the Wanted
---     tab and the signed top three, the donors' top three while the King shows the army the
+--     tab and the signed top three, the donors' top three while the Shogun shows the army the
 --     Treasury's ranking (Donors below), the Church's public top three, and each game's ranking the
---     King made public: never a staff view), the player's own frame and title, his own Bankai Guild
---     guild, rank and role, and the leader's presence as the King's lines on the Census and the
+--     Shogun made public: never a staff view), the player's own frame and title, his own Bankai Guild
+--     guild, rank and role, and the leader's presence as the Shogun's lines on the Census and the
 --     Realm, his crown and the Realm tab's layer list show it (LeaderPresence below). Never the
 --     census, another player's private data, the Wanted page's victims or stored sightings, a
 --     movement history, a staff view or a secret (a key, sealed channel name, signature or private
@@ -48,7 +48,7 @@ local L = ns.L
 --     callbacks per event. A callback runs protected: its error is logged with the addon's name
 --     (never Bankai Guild's error report) and never stops Bankai Guild or the other callbacks; one that keeps
 --     failing (CALLBACK_FAILS) is dropped.
---   - Reserved (Daniel, 2026-10-19: no third-party addon may keep a log of where the King has been).
+--   - Reserved (Daniel, 2026-10-19: no third-party addon may keep a log of where the Shogun has been).
 --     The leader's presence, the sightings searches, the quiet presence and the profile presentation
 --     answer only the addons the Bankai Guild team authorized (API.AUTHORIZED: a digest of each one's
 --     folded name, so the list names nobody). Any other addon gets "unauthorized" from those methods
@@ -285,10 +285,10 @@ local function Names(list, max)
 end
 
 -- The donors' top three, only where every member's own screen shows them (review of 1.2.4: they
--- came back whatever the King's switch, names no page showed). The names the Treasurer's word gives
+-- came back whatever the Shogun's switch, names no page showed). The names the Treasurer's word gives
 -- every client (HonorsNet.Donors), names alone, as the word:
---   - nil unless the King shows the army the Treasury's ranking (Treasury.PublicShows("ranking"):
---     his own switch as every client keeps it, off by default; never the keepers' or the King's
+--   - nil unless the Shogun shows the army the Treasury's ranking (Treasury.PublicShows("ranking"):
+--     his own switch as every client keeps it, off by default; never the keepers' or the Shogun's
 --     own view, nor the author's preview, as the games are never a staff view). Off, no page lists
 --     the donors, and a portrait's frame tells of one donor at a time, to whoever looks at him.
 --   - all: the all-time top three, which head that ranking on the Treasury tab.
@@ -312,7 +312,7 @@ local function Church()
 	return { missionaries = Names(t.missionaries), apostles = Names(t.apostles) }
 end
 
--- Each game's ranking the King made public (ArenaHome.RankingsPublic: the one everybody's Games tab
+-- Each game's ranking the Shogun made public (ArenaHome.RankingsPublic: the one everybody's Games tab
 -- shows), as that tab shows it; a game kept to the staff is not there, whoever this player is.
 local function Games()
 	if not Has("ArenaHome", "RankingsPublic") then return nil end
@@ -357,11 +357,11 @@ function API.Rankings(kind)
 	return out
 end
 
--- The player's own role in Bankai Guild, the highest he holds: "king", "councillor" (the signed High
+-- The player's own role in Bankai Guild, the highest he holds: "shogun", "councillor" (the signed High
 -- Council), "steward", "treasurer" (his characters), "guildmaster", "officer" (his guild's officer
 -- ranks) or "member".
 local function Role(rankIndex)
-	if Call("King", "IsKing") == true then return "king" end
+	if Call("Shogun", "IsShogun") == true then return "shogun" end
 	local me = ns.me
 	if type(me) == "string" and me ~= "" then
 		if type(ns.IsHighCouncillor) == "function" and select(2, pcall(ns.IsHighCouncillor, me)) == true then return "councillor" end
@@ -405,14 +405,14 @@ end
 
 -- The leader's presence, as this player's own pages show it, field by field (review: nothing the
 -- lines do not say, nothing guessed):
---   - name, online: the King's lines on the Census and the Realm (Hop.KingLines: Hop.King, the name
---     those lines give him). Not online: { online = false } alone. The King himself: isYou.
---   - Barred from locations (WatchChat.Barred, as King.Location and Hop.KingLines): no field of
+--   - name, online: the Shogun's lines on the Census and the Realm (Hop.ShogunLines: Hop.Shogun, the name
+--     those lines give him). Not online: { online = false } alone. The Shogun himself: isYou.
+--   - Barred from locations (WatchChat.Barred, as Shogun.Location and Hop.ShogunLines): no field of
 --     where he is.
---   - otherRealm (and then realm): Hop.KingOtherRealm, which those lines say.
+--   - otherRealm (and then realm): Hop.ShogunOtherRealm, which those lines say.
 --   - mapID, mapName: the zone those lines name (his announced layer's), else his crown's.
---   - position: his crown on the map (King.Location: only while he shares it), in thousandths.
---   - onYourLayer: the line "on the King's layer" (Hop.OnKingLayer, strict as the line).
+--   - position: his crown on the map (Shogun.Location: only while he shares it), in thousandths.
+--   - onYourLayer: the line "on the Shogun's layer" (Hop.OnShogunLayer, strict as the line).
 --   - layers, layer: only while this player is in that zone, the Realm tab's list of its layers
 --     (Layers.ForMap, Layers.Name, its "~N with Bankai Guild" count, a sample), and the name of his.
 -- Never a population (the game gives none), the census, or a member's name beyond the layer
@@ -423,19 +423,19 @@ local function LeaderZone(mapID)
 end
 
 function API.LeaderPresence()
-	if not Has("Hop", "King") then return nil end
-	local k = Call("Hop", "King")
+	if not Has("Hop", "Shogun") then return nil end
+	local k = Call("Hop", "Shogun")
 	if type(k) ~= "table" then return { online = false } end
 	local out = { name = Plain(k.name, 72), online = true }
-	if Call("King", "IsKing") == true then out.isYou = true return out end
+	if Call("Shogun", "IsShogun") == true then out.isYou = true return out end
 	if Call("WatchChat", "Barred", "locations") then return out end
-	local away = Call("Hop", "KingOtherRealm", k) == true
+	local away = Call("Hop", "ShogunOtherRealm", k) == true
 	out.otherRealm = away
 	if away then out.realm = Plain(k.realm, 64) end
-	local zoneUID, kingMap = Num(k.zoneUID, true), Num(k.mapID, true)
-	local at = Call("King", "Location")
+	local zoneUID, shogunMap = Num(k.zoneUID, true), Num(k.mapID, true)
+	local at = Call("Shogun", "Location")
 	at = type(at) == "table" and at or nil
-	local mapID = (not away and zoneUID and kingMap) or (at and Num(at.mapID, true)) or nil
+	local mapID = (not away and zoneUID and shogunMap) or (at and Num(at.mapID, true)) or nil
 	if mapID and mapID > 0 then out.mapID, out.mapName = mapID, LeaderZone(mapID) end
 	if at then
 		local am, ax, ay, seenAt = Num(at.mapID, true), Num(at.x), Num(at.y), Num(at.t, true)
@@ -443,11 +443,11 @@ function API.LeaderPresence()
 			out.position = { mapID = am, x = math.floor(ax * 1000 + 0.5), y = math.floor(ay * 1000 + 0.5), seenAt = seenAt }
 		end
 	end
-	out.onYourLayer = not away and Call("Hop", "OnKingLayer", true) == true or false
+	out.onYourLayer = not away and Call("Hop", "OnShogunLayer", true) == true or false
 	local here = Num(Call("Layers", "CurrentMap"), true)
 	if not away and here and mapID == here then
 		local mine = Call("Layers", "Mine")
-		local his = (zoneUID and kingMap == here) and zoneUID
+		local his = (zoneUID and shogunMap == here) and zoneUID
 			or (out.onYourLayer and type(mine) == "table" and Num(mine.zoneUID, true)) or nil
 		out.layers = {}
 		for _, layer in ipairs(Call("Layers", "ForMap", here) or {}) do
@@ -788,14 +788,14 @@ end
 
 local Dispatch, Mark
 
--- The leader's crown leaves the map on its own (King.LOCATION_EXPIRE after his last word) with no
+-- The leader's crown leaves the map on its own (Shogun.LOCATION_EXPIRE after his last word) with no
 -- event of Bankai Guild's: while a built presence holds a position, one timer looks again just after it
 -- would expire. Never while nobody listens (only a built LEADER_CHANGED arms it), one at a time.
 local leaderTimer = false
 local function WatchLeaderExpiry(data)
 	if leaderTimer or not ns.After or type(data) ~= "table" or type(data.position) ~= "table" then return end
 	local seenAt = data.position.seenAt
-	local life = Has("King", "Location") and tonumber(ns.King.LOCATION_EXPIRE) or nil
+	local life = Has("Shogun", "Location") and tonumber(ns.Shogun.LOCATION_EXPIRE) or nil
 	if type(seenAt) ~= "number" or not life then return end
 	local now = ns.Now and ns.Now() or 0
 	leaderTimer = true
@@ -1169,7 +1169,7 @@ function METHODS.GetRankings(c, kind)
 end
 function METHODS.GetProfile(c) return Read(c, false, API.Profile) end
 function METHODS.GetLeaderPresence(c)
-	if not Has("Hop", "King") then return nil, "unavailable" end
+	if not Has("Hop", "Shogun") then return nil, "unavailable" end
 	return Read(c, true, API.LeaderPresence)
 end
 function METHODS.StartProfileSession(c, style)
@@ -1198,7 +1198,7 @@ function METHODS.GetProfileSession(c)
 	end)
 end
 -- 1.2.5.1: the quiet presence (Core.lua). Self only, for this session: on, this client sends
--- nothing that says the player is online or where he is; reads go on. Only the King, a High
+-- nothing that says the player is online or where he is; reads go on. Only the Shogun, a High
 -- Councillor (a current signed issuer) or the addon's author may turn it on ("authority"; "guild"
 -- outside an Bankai Guild guild). The handle that turned it on may always turn it off; another handle
 -- gets "owner". Never saved: a /reload or a logout ends it.
@@ -1458,7 +1458,7 @@ local function PinAlpha(row, now)
 end
 
 -- While Bankai Guild hides locations from this player (WatchChat.Barred "locations", as the guildmates'
--- dots, the King's crown and the Wanted pins), none of these dots either. A check that fails hides.
+-- dots, the Shogun's crown and the Wanted pins), none of these dots either. A check that fails hides.
 local function LocationsBarred()
 	if not Has("WatchChat", "Barred") then return false end
 	local ok, barred = pcall(ns.WatchChat.Barred, "locations")
@@ -1762,7 +1762,7 @@ local FEATURES = {
 	["rankings.church"] = function() return Has("HonorsNet", "ChurchTop") end,
 	["rankings.games"] = function() return Has("ArenaHome", "RankingsPublic") end,
 	profile = function() return true end,
-	leader = function() return Has("Hop", "King") and Has("King", "Location") and Has("Layers", "ForMap") end,
+	leader = function() return Has("Hop", "Shogun") and Has("Shogun", "Location") and Has("Layers", "ForMap") end,
 	callbacks = function() return true end,
 	["network.sightings"] = SightingsComplete,
 	["network.sightings.area-scope"] = function()
@@ -1817,7 +1817,7 @@ ns.On("HONORS_CHANGED", function() Mark("RANKINGS_CHANGED", "PROFILE_CHANGED") e
 -- The Church's top three, or its public ranking's switch.
 ns.On("CHURCH_TOP_CHANGED", function() Mark("RANKINGS_CHANGED") end)
 ns.On("CHURCH_PUBLIC_CHANGED", function() Mark("RANKINGS_CHANGED") end)
--- The King's switch of the Treasury's ranking, which the donors' top three follow (looked at only
+-- The Shogun's switch of the Treasury's ranking, which the donors' top three follow (looked at only
 -- when it turned: the treasury changes often, and nothing else of it is read here).
 local rankingShown
 ns.On("TREASURY_CHANGED", function()
@@ -1838,7 +1838,7 @@ ns.On("DATA_CHANGED", function() Mark("PROFILE_CHANGED", "LEADER_CHANGED") end)
 ns.On("ACCORD_CHANGED", function() Mark(unpack(API.DATA_EVENTS)) end)
 -- The leader's crown, the layers announced, a local layer sighting (HOP_CHANGED) and a sanction on
 -- locations (WATCHCHAT_CHANGED): what his lines and the Realm tab's layers show.
-for _, event in ipairs({ "KING_LOCATION_CHANGED", "LAYERS_CHANGED", "HOP_CHANGED", "WATCHCHAT_CHANGED" }) do
+for _, event in ipairs({ "SHOGUN_LOCATION_CHANGED", "LAYERS_CHANGED", "HOP_CHANGED", "WATCHCHAT_CHANGED" }) do
 	ns.On(event, function() Mark("LEADER_CHANGED") end)
 end
 -- Locations hidden from this player (a sanction: WATCHCHAT_CHANGED; a net-off word: NETOFF_CHANGED),

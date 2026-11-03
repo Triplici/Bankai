@@ -1,13 +1,13 @@
 local ns, test, eq, H = ...
 local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]officer%-muster%.lua$")) or "./"
 
--- (1.2.3) w.kingGuild: the King's guild. The world's guild is it unless a test says otherwise:
--- only the King's guild's master (with the King, his Steward and his Hands) posts for the whole
+-- (1.2.3) w.shogunGuild: the Shogun's guild. The world's guild is it unless a test says otherwise:
+-- only the Shogun's guild's master (with the Shogun, his Steward and his Hands) posts for the whole
 -- army; another guild's master posts for his own guild alone, over GUILD.
 local function World(fn)
-	local w = { clock = 1800000000, now = 1000, guild = "Bankai Guild Ember", kingGuild = "Bankai Guild Ember", map = 1429, member = true, logged = true,
-		roles = { ["Harbor Lord-Realm"] = "lord" }, sources = {}, links = {}, jobs = {}, handlers = {}, events = {}, hidden = {}, barred = {} }
-	local c = setmetatable({ me = "Harbor Lord-Realm", realm = "Realm", group = "Realm", faction = "Alliance", db = {},
+	local w = { clock = 1800000000, now = 1000, guild = "Bankai Guild Ember", shogunGuild = "Bankai Guild Ember", map = 1429, member = true, logged = true,
+		roles = { ["Harbor Council-Realm"] = "council" }, sources = {}, links = {}, jobs = {}, handlers = {}, events = {}, hidden = {}, barred = {} }
+	local c = setmetatable({ me = "Harbor Council-Realm", realm = "Realm", group = "Realm", faction = "Alliance", db = {},
 		rdb = { guilds = {} }, L = setmetatable({}, { __index = ns.L }), RealmPages = {}, DecreePages = {} }, { __index = ns })
 	w.c = c
 	c.Now = function() return w.now end
@@ -17,23 +17,23 @@ local function World(fn)
 	c.DisplayName = function(name) return name and name:gsub("%-Realm$", "") end
 	c.IsMember = function() return w.member end
 	c.IsFederation = function(guild) return type(guild) == "string" and guild:find("BankaiGuild", 1, true) ~= nil end
-	c.IsKingCharacter = function(name) return w.roles[c.FullName(name)] == "king" end
-	c.IsKingGuild = function(guild) return guild ~= nil and guild == w.kingGuild end
+	c.IsShogunCharacter = function(name) return w.roles[c.FullName(name)] == "shogun" end
+	c.IsShogunGuild = function(guild) return guild ~= nil and guild == w.shogunGuild end
 	c.ViewAs = { Previewing = function() return w.preview == true end }
-	c.King = { IsKing = function() return w.roles[c.me] == "king" end,
+	c.Shogun = { IsShogun = function() return w.roles[c.me] == "shogun" end,
 		SharingLocation = function() return w.crownSharing == true end,
 		IsStewardName = function(name) return w.roles[c.FullName(name)] == "steward" end,
 		IsHandName = function(name) return w.roles[c.FullName(name)] == "hand" end }
 	c.WatchChat = { Barred = function(_, name) return w.barred[name or c.me] == true end }
 	c.Moderation = { Hides = function(name) return w.hidden[name] and {} or nil end }
-	c.Roster = { MyRank = function() return w.roles[c.me] == "lord" and 0 or 3 end,
-		IsOfficer = function() return w.roles[c.me] == "lord" or w.roles[c.me] == "king" end,
-		RankOf = function(name) return w.roles[c.FullName(name)] == "lord" and 0 or nil end }
+	c.Roster = { MyRank = function() return w.roles[c.me] == "council" and 0 or 3 end,
+		IsOfficer = function() return w.roles[c.me] == "council" or w.roles[c.me] == "shogun" end,
+		RankOf = function(name) return w.roles[c.FullName(name)] == "council" and 0 or nil end }
 	c.Data = { ServerTime = function() return w.clock end, Summary = function() return { guilds = {} } end,
 		KnownRank = function() return nil end,
 		AuthorizedRank = function(name)
 			local role = w.roles[c.FullName(name)]
-			return role == "lord" and 0 or (role == "captain" and 1 or nil), w.sources[name] or "roster"
+			return role == "council" and 0 or (role == "captain" and 1 or nil), w.sources[name] or "roster"
 		end }
 	c.Zones = { NameForKey = function(key) return key == "m1429" and "Elwynn Forest" or "Westfall" end }
 	c.UI = { RefreshSoon = function() w.refreshes = (w.refreshes or 0) + 1 end }
@@ -68,7 +68,7 @@ local function World(fn)
 	end
 	function w.advance(seconds) w.clock, w.now = w.clock + seconds, w.now + seconds end
 	function w.word(by, seq, title, zone, at, group, faction)
-		w.roles[by] = w.roles[by] or "lord"
+		w.roles[by] = w.roles[by] or "council"
 		return ("OM~1~P~%s~%s~%d~%d~Bankai Guild Ember~%d~%s"):format(faction or "A", group or "Realm", seq or w.clock, at or w.clock, zone or 1429, title or "Gather")
 	end
 	function w.receive(by, msg, dist) return w.handlers.OM(dist or "CHANNEL", by, msg) end
@@ -100,15 +100,15 @@ test("Officer muster: zone observation count uses consent, fresh existing record
 		local sent = #w.jobs
 		w.advance(1261); eq(layers.CountSharedInZone(1436), 0, "expired observations count nowhere")
 		eq(#w.jobs, sent, "reading counts sends no additional census or per-player packet")
-		w.roles[c.me], w.crownSharing = "king", false
+		w.roles[c.me], w.crownSharing = "shogun", false
 		c.db.shareLocation = true; layers.Observe("target")
-		eq(layers.CountSharedInZone(1429), 0, "the King's sharing switch, not the ordinary preference, controls consent")
+		eq(layers.CountSharedInZone(1429), 0, "the Shogun's sharing switch, not the ordinary preference, controls consent")
 		w.crownSharing = true; eq(layers.CountSharedInZone(1429), 1)
 	end)
 end)
 
-test("Officer muster: current King, Steward, Hand and verified Lord may post; captain, census role, preview and sanctions may not", function()
-	for _, role in ipairs({ "king", "steward", "hand", "lord" }) do World(function(w, c)
+test("Officer muster: current Shogun, Steward, Hand and verified Council may post; captain, census role, preview and sanctions may not", function()
+	for _, role in ipairs({ "shogun", "steward", "hand", "council" }) do World(function(w, c)
 		w.roles[c.me] = role
 		eq(c.OfficerMuster.Post("Gather for patrol", 1429), true, role)
 		eq(#c.OfficerMuster.List(), 1); eq(#c.Chronicle.Entries(), 0, "one ending line, not a new beginning history")
@@ -120,7 +120,7 @@ test("Officer muster: current King, Steward, Hand and verified Lord may post; ca
 	end) end
 	World(function(w, c)
 		w.roles[c.me] = "captain"; eq(c.OfficerMuster.Post("Denied", 1429), false)
-		w.roles[c.me], w.sources[c.me] = "lord", "census"; eq(c.OfficerMuster.Post("Denied", 1429), false)
+		w.roles[c.me], w.sources[c.me] = "council", "census"; eq(c.OfficerMuster.Post("Denied", 1429), false)
 		w.sources[c.me], w.preview = "signed", true; eq(c.OfficerMuster.Post("Denied", 1429), false)
 		w.preview, w.barred[c.me] = false, true; eq(c.OfficerMuster.Post("Denied", 1429), false)
 		w.barred[c.me] = false; eq(c.OfficerMuster.Post("Allowed", 1429), true)
@@ -129,10 +129,10 @@ end)
 
 test("Officer muster: exact faction and linked realm group, logged channel, valid title and zone are required before budgets", function()
 	World(function(w, c)
-		local M, by = c.OfficerMuster, "River Lord-Realm"
+		local M, by = c.OfficerMuster, "River Council-Realm"
 		eq(select(2, w.receive(by, w.word(by, 1, "Gather", 1429, w.clock, "Other"))), "scope")
 		eq(select(2, w.receive(by, w.word(by, 1, "Gather", 1429, w.clock, "Realm", "H"))), "scope")
-		eq(select(2, w.receive("River Lord-Unlinked", w.word("River Lord-Unlinked", 1))), "realm")
+		eq(select(2, w.receive("River Council-Unlinked", w.word("River Council-Unlinked", 1))), "realm")
 		eq(select(2, w.receive(by, w.word(by, 1), "WHISPER")), "shape")
 		w.logged = false; eq(select(2, w.receive(by, w.word(by, 1))), "unlogged"); w.logged = true
 		for _, title in ipairs({ "bad|title", "bad~title", "", string.rep("x", M.TITLE_MAX + 1) }) do
@@ -155,13 +155,13 @@ end)
 
 test("Officer muster: repeat never renews expiry; withdrawal and reload preserve one attributed ending even after Chronicle eviction", function()
 	World(function(w, c)
-		local M, by = c.OfficerMuster, "River Lord-Realm"
+		local M, by = c.OfficerMuster, "River Council-Realm"
 		local msg = w.word(by, 1, "River patrol")
 		eq(w.receive(by, msg), true)
 		local row = M.List()[1]; w.advance(100)
 		eq(select(2, w.receive(by, msg)), "repeat"); eq(row.at + M.LIFE, 1800001200)
 		local ending = w.endWord(row.seq, row.at)
-		eq(w.receive("Another Lord-Realm", ending), false, "only the server-stamped poster can close that call")
+		eq(w.receive("Another Council-Realm", ending), false, "only the server-stamped poster can close that call")
 		eq(w.receive(by, ending), true); eq(#c.Chronicle.Entries(), 1)
 		local entry = c.Chronicle.Entries()[1]; eq(entry.by, by); eq(entry.words, "River patrol")
 		assert(loadfile(ROOT .. "BankaiGuild/OfficerMuster.lua"))("BankaiGuild", c)
@@ -242,8 +242,8 @@ test("Officer muster: queued post and ending guards reject membership, guild, ro
 		eq(guard(), true)
 		w.member = false; eq(guard(), false); w.member = true
 		w.guild = "Bankai Guild Willow"; eq(guard(), false); w.guild = "Bankai Guild Ember"
-		w.roles[c.me] = "captain"; eq(guard(), false); w.roles[c.me] = "lord"
-		local me = c.me; c.me = "Other Lord-Realm"; eq(guard(), false); c.me = me
+		w.roles[c.me] = "captain"; eq(guard(), false); w.roles[c.me] = "council"
+		local me = c.me; c.me = "Other Council-Realm"; eq(guard(), false); c.me = me
 		c.group = "Other"; M.List(); eq(guard(), false)
 		c.group = "Realm"; M.List(); eq(guard(), false, "returning to a scope cannot revive a job from its detached store")
 	end) end
@@ -332,7 +332,7 @@ test("Officer muster: a page of the Decrees tab under the royal decrees, not of 
 					-- The real Views over this client (its pages, its Decrees and Realm builders) and
 					-- the real window drawing them.
 					-- (This world's stand-ins first, the harness's own for the rest.)
-					for _, key in ipairs({ "Data", "King", "Moderation", "Roster", "Comm", "Zones" }) do
+					for _, key in ipairs({ "Data", "Shogun", "Moderation", "Roster", "Comm", "Zones" }) do
 						c[key] = setmetatable(c[key], { __index = ns[key] })
 					end
 					c.Data.Summary = function() return ns.Data.Summary() end
@@ -407,7 +407,7 @@ end)
 -- list would have reached every Bankai Guild client.
 test("Officer muster (1.2.3): another guild's master posts for his own guild alone, over GUILD, and is told so; on the channel nobody takes his, signed or not", function()
 	World(function(w, c)
-		w.kingGuild = "Bankai Guild"
+		w.shogunGuild = "Bankai Guild"
 		local M = c.OfficerMuster
 		local can, guild, dist = M.CanPost()
 		eq(can, true); eq(guild, "Bankai Guild Ember"); eq(dist, "GUILD", "his guild alone")
@@ -420,37 +420,37 @@ test("Officer muster (1.2.3): another guild's master posts for his own guild alo
 		for _, line in ipairs(M.Lines()) do texts[#texts + 1] = tostring(line.text) end
 		local all = table.concat(texts, "\n")
 		assert(all:find(c.L.OFFICER_MUSTER_GUILD_ONLY:format("Bankai Guild Ember"), 1, true), all)
-		assert(all:find(c.L.OFFICER_MUSTER_BY_GUILD:format("Harbor Lord", "Bankai Guild Ember"), 1, true), all)
+		assert(all:find(c.L.OFFICER_MUSTER_BY_GUILD:format("Harbor Council", "Bankai Guild Ember"), 1, true), all)
 		-- Its repeat and its ending go over GUILD too.
 		w.advance(M.REPEAT); M.Tick()
 		eq(w.jobs[#w.jobs].dist, "GUILD", "its repeat")
 		eq(M.Withdraw(), true); eq(w.jobs[#w.jobs].dist, "GUILD", "its ending")
 		-- Another guild's master on the channel: refused, whatever source names him rank 0 (the
-		-- signed list once enforcement is on, our roster, the pinned King's guild's).
+		-- signed list once enforcement is on, our roster, the pinned Shogun's guild's).
 		for _, source in ipairs({ "signed", "roster", "pinned" }) do
 			local by = "River " .. source .. "-Realm"
 			w.sources[by] = source
 			eq(select(2, w.receive(by, w.word(by, 1, "For the army"))), "role", source)
 		end
 		eq(#M.List(), 0, "none of them")
-		-- The Crown still posts for the whole army: the King, his Steward and Hands by name, and the
-		-- King's guild's own master.
-		for _, role in ipairs({ "king", "steward", "hand" }) do
+		-- The Crown still posts for the whole army: the Shogun, his Steward and Hands by name, and the
+		-- Shogun's guild's own master.
+		for _, role in ipairs({ "shogun", "steward", "hand" }) do
 			local by = "Crown " .. role .. "-Realm"
 			w.roles[by] = role
 			eq(w.receive(by, w.word(by, 1)), true, role)
 		end
-		local by = "Throne Lord-Realm"
-		w.roles[by] = "lord"
-		eq(w.receive(by, ("OM~1~P~A~Realm~%d~%d~Bankai Guild~1429~For the army"):format(w.clock, w.clock)), true, "the King's guild's master")
+		local by = "Throne Council-Realm"
+		w.roles[by] = "council"
+		eq(w.receive(by, ("OM~1~P~A~Realm~%d~%d~Bankai Guild~1429~For the army"):format(w.clock, w.clock)), true, "the Shogun's guild's master")
 		eq(#M.List(), 4)
 	end)
 end)
 
 test("Officer muster (1.2.3): over GUILD only our own guild's master naming our guild; an ending counts on its call's distribution", function()
 	World(function(w, c)
-		w.kingGuild = "Bankai Guild"
-		local M, by = c.OfficerMuster, "Ember Lord-Realm"
+		w.shogunGuild = "Bankai Guild"
+		local M, by = c.OfficerMuster, "Ember Council-Realm"
 		-- Our guild's master (our roster): his guild muster.
 		eq(w.receive(by, w.word(by, 1, "Guild gathering"), "GUILD"), true)
 		local row = M.List()[1]
@@ -470,8 +470,8 @@ test("Officer muster (1.2.3): over GUILD only our own guild's master naming our 
 			w.sources[other] = source
 			eq(select(2, w.receive(other, w.word(other, 1), "GUILD")), "role", source)
 		end
-		local stranger = "Willow Lord-Realm"
-		w.roles[stranger] = "lord"
+		local stranger = "Willow Council-Realm"
+		w.roles[stranger] = "council"
 		eq(select(2, w.receive(stranger, ("OM~1~P~A~Realm~%d~%d~Bankai Guild Willow~1429~Gather"):format(w.clock, w.clock), "GUILD")), "role",
 			"another guild's, over our GUILD")
 		-- A guild muster ends quietly once its poster is no longer our master.
@@ -503,7 +503,7 @@ test("Officer muster: while the quiet presence is on, his call is not repeated (
 	World(function(w, c)
 		local quiet = false
 		c.QuietPresence = function() return quiet end
-		w.roles[c.me] = "lord"
+		w.roles[c.me] = "council"
 		eq(c.OfficerMuster.Post("Gather for patrol", 1429), true)
 		eq(#w.jobs, 1)
 		quiet = true

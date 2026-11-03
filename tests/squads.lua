@@ -24,7 +24,7 @@ local function World(fn)
 		c.Now = function() return w.now end
 		c.IsMember = function() return w.member ~= false end
 		c.IsFederation = function(guild) return guild == "Bankai Guild II" or guild == "Bankai Guild" end
-		c.IsKingGuild = function(guild) return guild == "Bankai Guild" end
+		c.IsShogunGuild = function(guild) return guild == "Bankai Guild" end
 		c.IsHighCouncillor = function(name) return w.council[name] == true end
 		c.ChatLocked = function() return w.locked == true end
 		c.ViewAs.Previewing = function() return w.preview == true end
@@ -138,7 +138,7 @@ test("Legates: a group is its manually appointed leader and at most thirty-nine 
 	end)
 end)
 
-test("Legates: a King's guild High Councillor without a manual appointment has no group or implicit room", function()
+test("Legates: a Shogun's guild High Councillor without a manual appointment has no group or implicit room", function()
 	World(function(w, s)
 		w.guild = "Bankai Guild"; w.council["Leader-Realm"] = true
 		w.c.rdb.council = { blob = "HS1~1~Alliance~Leader~abcd" }
@@ -332,7 +332,7 @@ test("Squads: actual Realm tree inserts only own-guild hierarchy when that guild
 		c.Court, c.Hop, c.Board, c.Members, c.Treasury, c.Who = {}, {}, {}, {}, {}, {}
 		c.Hop.State = function() return nil end
 		c.Layers = { CurrentMap = function() return nil end }
-		c.King = { CanCommand = function() return false end, Preview = function() return false end }
+		c.Shogun = { CanCommand = function() return false end, Preview = function() return false end }
 		c.Acts = { Gates = function() return nil end }
 		c.FormatNumber = tostring
 		c.Roster.online = {}
@@ -586,7 +586,7 @@ end)
 -- 1.2.3 (the author's measure on his game: each redraw of the Chat tab made 2.5 MB of garbage, most of
 -- it here): ChatRooms asks every provider about every room id it is given, the Bankai Guild channels',
 -- the race, class, guild and role rooms' too, a few hundred times a redraw of the tab's destinations,
--- and each ask read the squads' leaders again (in the King's guild, the signed council list parsed
+-- and each ask read the squads' leaders again (in the Shogun's guild, the signed council list parsed
 -- and each councillor's name checked). An id that is not a squad's reads none; the Roles menu reads
 -- them once, and offers what each room's own checks (CanAccess, ChatInfo) say.
 test("Squads (1.2.3): a room id that is not a squad's reads no leaders; the Roles menu reads them once and offers what each room's own checks say", function()
@@ -632,7 +632,7 @@ end)
 -- 1.2.3, the review of the Chat tab's eras: the census tells DATA_CHANGED every second or so on a
 -- busy realm (Data.NOTIFY_GAP; 891 census redraws in the author's 50 minutes), and WarSquads told
 -- SQUADS_CHANGED and CHAT_ROOMS_CHANGED at each of them whatever they changed. The Chat tab starts a
--- new era at CHAT_ROOMS_CHANGED: on his game (the King's guild) it worked every line and room out
+-- new era at CHAT_ROOMS_CHANGED: on his game (the Shogun's guild) it worked every line and room out
 -- again 0.2 s after each notice, never waiting for its DATA_GAP. They are told when what the squads'
 -- rooms rest on changed: our guild, our own place (in the roster, a preview, the chats on), a
 -- leader, his place in the list (his room's label); whenever nothing is told, what the Chat tab

@@ -1,7 +1,7 @@
 -- Final-send permissions and transfer lifetimes, using the real communication queue.
 local ns, test, eq = ...
 local ROOT = (arg and arg[0] or ""):match("^(.*)tests[/\\]run%.lua$") or "./"
-local KING = ns.KING_CHARACTER.Alliance .. "-Realm"
+local SHOGUN = ns.SHOGUN_CHARACTER.Alliance .. "-Realm"
 local TREASURER = ns.TREASURER .. "-Realm"
 
 local function WithTransport(fn)
@@ -58,20 +58,20 @@ end
 
 test("privacy: consent withdrawal cancels queued and partly sent private books", function()
 	WithTransport(function(w, T)
-		assert(T.Private(KING, "TB", "TB~" .. string.rep("private", 100)))
+		assert(T.Private(SHOGUN, "TB", "TB~" .. string.rep("private", 100)))
 		w.step()
 		eq(w.count("TW~"), 1, "first fragment actually sent")
 		T.SetConsent(false)
 		w.step(100)
 		eq(w.count("TW~"), 1, "no queued fragment after withdrawal")
-		eq(T.PrivateState().sentTo[KING], nil, "an incomplete book is not marked delivered")
+		eq(T.PrivateState().sentTo[SHOGUN], nil, "an incomplete book is not marked delivered")
 		assert(w.count("TX~") >= 1, "withdrawal still sent")
 	end)
 end)
 test("privacy: a revoked timer cannot revive after consent is given again", function()
 	WithTransport(function(w, T)
-		for i = 1, 6 do ns.Comm.Whisper(KING, "Q1~busy" .. i) end
-		assert(T.Private(KING, "TB", "TB~old-private-snapshot"))
+		for i = 1, 6 do ns.Comm.Whisper(SHOGUN, "Q1~busy" .. i) end
+		assert(T.Private(SHOGUN, "TB", "TB~old-private-snapshot"))
 		T.SetConsent(false)
 		-- SetConsent(true) creates fresh snapshots; isolate the older timer's lifetime here.
 		ns.db.keeperShares[TREASURER:lower()] = true
@@ -83,10 +83,10 @@ end)
 test("privacy: keeper removal stops a queued transfer before its next fragment", function()
 	WithTransport(function(w, T)
 		local keeper = "Test Keeper-Realm"
-		ns.rdb.treasuryKeepers = { at = w.clock - 1, names = { keeper }, from = KING }
+		ns.rdb.treasuryKeepers = { at = w.clock - 1, names = { keeper }, from = SHOGUN }
 		assert(T.Private(keeper, "TB", "TB~" .. string.rep("private", 100)))
 		w.step()
-		T.TakeKeepers(w.clock, "", KING)
+		T.TakeKeepers(w.clock, "", SHOGUN)
 		w.step(100)
 		eq(w.count("TW~"), 1)
 		eq(T.PrivateState().sentTo[keeper], nil)
@@ -99,23 +99,23 @@ test("privacy: sister bank withdrawal cancels its independent transfer lifetime"
 		ns.me = "Sister Officer-Realm"
 		ns.Comm.CheckMembership()
 		B.SetSisterConsent(true)
-		assert(T.Private(KING, "TS", "TS~Bankai Guild II~" .. string.rep("private", 100)))
+		assert(T.Private(SHOGUN, "TS", "TS~Bankai Guild II~" .. string.rep("private", 100)))
 		w.step(2) -- the guild transition's Q1 uses the first slot
 		eq(w.count("TW~TS~"), 1, "a bank fragment is already in flight")
 		B.SetSisterConsent(false)
 		w.step(100)
 		eq(w.count("TW~TS~"), 1)
-		eq(T.PrivateState().sentTo[KING], nil)
+		eq(T.PrivateState().sentTo[SHOGUN], nil)
 	end)
 end)
 
 test("privacy: guild changes invalidate waiting private snapshots", function()
 	WithTransport(function(w, T)
-		assert(T.Private(KING, "TB", "TB~" .. string.rep("private", 100)))
+		assert(T.Private(SHOGUN, "TB", "TB~" .. string.rep("private", 100)))
 		w.guild = "Bankai Guild II"
 		w.step(100)
 		eq(w.count("TW~"), 0)
-		eq(T.PrivateState().sentTo[KING], nil)
+		eq(T.PrivateState().sentTo[SHOGUN], nil)
 	end)
 end)
 
@@ -139,7 +139,7 @@ test("privacy: queued public snapshots respect current consent and public switch
 		ns.rdb.treasuryFlags = { balance = false, ranking = false, book = false }
 		local before = #w.sent
 		w.step(100)
-		eq(#w.sent, before, "old public payload cannot outlive the King's switches")
+		eq(#w.sent, before, "old public payload cannot outlive the Shogun's switches")
 	end)
 end)
 
@@ -151,7 +151,7 @@ test("privacy: withdrawing treasury consent drops both dues queues", function()
 			local name = "Private Donor" .. string.char(65 + math.floor(i / 26), 65 + i % 26)
 			book.lines[i] = { name = name, money = 10000, t = w.clock, wk = D.Week(), guild = "Bankai Guild II", gv = true }
 		end
-		D.HandleAsk("WHISPER", KING, "FQ~" .. D.Week() .. "~Bankai Guild II~0")
+		D.HandleAsk("WHISPER", SHOGUN, "FQ~" .. D.Week() .. "~Bankai Guild II~0")
 		assert(#D.Outbox() > 0, "remaining answer pieces in the dues outbox")
 		assert(ns.Comm.QueueSize() > 0, "first answer piece already in Comm")
 		T.SetConsent(false)
@@ -181,17 +181,17 @@ end)
 test("privacy: a failed private transfer is not cached as delivered and can be sent again", function()
 	WithTransport(function(w, T)
 		local msg = "TB~" .. string.rep("private", 100)
-		assert(T.Private(KING, "TB", msg))
-		eq(T.PrivateState().sentTo[KING], nil, "queue admission is not delivery")
+		assert(T.Private(SHOGUN, "TB", msg))
+		eq(T.PrivateState().sentTo[SHOGUN], nil, "queue admission is not delivery")
 		w.fail = true
 		w.step()
-		eq(T.PrivateState().sentTo[KING], nil, "API failure never completes the book")
+		eq(T.PrivateState().sentTo[SHOGUN], nil, "API failure never completes the book")
 		w.fail = false
-		assert(T.Private(KING, "TB", msg), "the same book is eligible after failure")
+		assert(T.Private(SHOGUN, "TB", msg), "the same book is eligible after failure")
 		w.step(30)
-		local sent = T.PrivateState().sentTo[KING]
+		local sent = T.PrivateState().sentTo[SHOGUN]
 		assert(sent and sent.TB and sent.TB.msg == msg, "cached only after all send APIs succeed")
-		eq(T.Private(KING, "TB", msg), false, "a completed unchanged book is still deduplicated")
+		eq(T.Private(SHOGUN, "TB", msg), false, "a completed unchanged book is still deduplicated")
 	end)
 end)
 
@@ -200,10 +200,10 @@ test("privacy: long early-supporter lists retain every TE piece across bounded b
 		local pieces = {}
 		for i = 1, 65 do pieces[i] = ("TE~Bankai Guild~1799990000~%d~65~Early Friend"):format(i) end
 		local msg = table.concat(pieces, "\n")
-		assert(T.Private(KING, "TE", msg, "TE", pieces))
+		assert(T.Private(SHOGUN, "TE", msg, "TE", pieces))
 		w.step(30)
 		eq(w.count("TE~"), 30, "first bounded batch")
-		eq(T.PrivateState().sentTo[KING], nil, "not complete at the segment boundary")
+		eq(T.PrivateState().sentTo[SHOGUN], nil, "not complete at the segment boundary")
 		w.step(70)
 		eq(w.count("TE~"), #pieces)
 		local got = {}
@@ -211,13 +211,13 @@ test("privacy: long early-supporter lists retain every TE piece across bounded b
 			if entry.msg:sub(1, 3) == "TE~" then got[#got + 1] = entry.msg end
 		end
 		eq(table.concat(got, "\n"), msg, "wire bytes and order unchanged")
-		eq(T.PrivateState().sentTo[KING].TE.msg, msg)
+		eq(T.PrivateState().sentTo[SHOGUN].TE.msg, msg)
 	end)
 end)
 
 test("privacy: sharing again restores an unchanged book that withdrawal removed", function()
 	WithTransport(function(w, T)
-		T.HandleAsk("CHANNEL", KING, "TA~Bankai Guild~0")
+		T.HandleAsk("CHANNEL", SHOGUN, "TA~Bankai Guild~0")
 		w.step(20)
 		local before = w.count("TW~TB~")
 		assert(before > 0, "the first shared book completed")
@@ -231,12 +231,12 @@ end)
 
 test("privacy: a busy queue defers a whole private transfer instead of forcing admission", function()
 	WithTransport(function(w, T)
-		T.Heard(KING); T.MarkReader(KING)
-		for i = 1, 6 do ns.Comm.Whisper(KING, "Q1~busy" .. i) end
-		assert(T.Private(KING, "TB", T.Message()))
+		T.Heard(SHOGUN); T.MarkReader(SHOGUN)
+		for i = 1, 6 do ns.Comm.Whisper(SHOGUN, "Q1~busy" .. i) end
+		assert(T.Private(SHOGUN, "TB", T.Message()))
 		for i = 1, 260 do
 			w.step()
-			ns.Comm.Whisper(KING, "Q1~busy" .. i)
+			ns.Comm.Whisper(SHOGUN, "Q1~busy" .. i)
 		end
 		eq(w.count("TW~"), 0, "no forced batch after the admission deadline")
 		assert(T.PrivateState().held, "normal sharing retains the pending update")

@@ -72,7 +72,7 @@ end
 -- - each section's explanation (BankaiGuildArenaHelp): the first time the section opens, and again
 --   from the window's help button. Bones's is the Bones tables' own guide where the build has it, the
 --   Lottery's its board's own.
--- (1.2.4: the King's letters kept, to read again, and "as others see me" are sections of "My
+-- (1.2.4: the Shogun's letters kept, to read again, and "as others see me" are sections of "My
 -- profile" in the Bankai Guild window, ProfileEdit.lua: their windows here, BankaiGuildArenaLetters and
 -- BankaiGuildArenaPreview, are gone.)
 -- The alert window, the challenge window and the toasts are the core's (ArenaHome.lua): a
@@ -137,7 +137,7 @@ function ArenaUI.RulesFrame() return rules end
 ---------------------------------------------------------------------------
 -- How to play the Blood Arena (the owner's call, 2026-09-30): the games' How to play, as Bones'
 -- and the Lottery's (Games.Popup's frame, Games.InkTab's tabs, dark ink): How it works, Betting,
--- Fees & payouts, Tournaments, from the rules' words; the fee's numbers from the King's settings.
+-- Fees & payouts, Tournaments, from the rules' words; the fee's numbers from the Shogun's settings.
 ---------------------------------------------------------------------------
 
 local howto

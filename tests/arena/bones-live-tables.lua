@@ -6,7 +6,7 @@
 -- reloaded: gone from the member's list within three minutes), ignored a watcher's ask, and his
 -- Play again opened the next table closed to watchers for both players. Practice against the
 -- House is never announced, by design (nothing of it is sent), and the empty page says so.
--- On the release's gate (compliance "shipped": no wager, the King's live switch off as 1.2.x has
+-- On the release's gate (compliance "shipped": no wager, the Shogun's live switch off as 1.2.x has
 -- it), the test world (tests/arena/lib/world.lua) with the table's additions
 -- (tests/arena/lib/farkle-world.lua). Every name is invented.
 local H = ...

@@ -1,7 +1,7 @@
 local _, own = ...; local ns = own.host; if not ns then return end
 
 -- Bankai Guild Arena (the load-on-demand companion): Overlay.lua. A stub the arena's core created for the screens to
--- fill. The King's overlay and the stream-delay notice (open in combat).
+-- fill. The Shogun's overlay and the stream-delay notice (open in combat).
 -- Frames are named BankaiGuildArena... (so /bk photo keeps them); no OnUpdate, no game popup, no
 -- UISpecialFrames but through ns.EscapeCloses, no edit box focused but through ns.Focus.
 local ArenaUI = own.ArenaUI
@@ -12,15 +12,15 @@ local Data = ArenaUI.Data
 local Home = ns.ArenaHome
 
 -- "Show on screen" (the way the Vox Populi chart is): BankaiGuildArenaOverlay, 900 x 460 at scale 1
--- (0.6 to 1.6, kept), HIGH strata, movable, top centre by default. The King opens it (his own
+-- (0.6 to 1.6, kept), HIGH strata, movable, top centre by default. The Shogun opens it (his own
 -- view, or the author's view of it), and a councillor or a public arbiter too, without the delay
 -- line. It stays open in combat (an insecure frame, allowed there). Its mode follows the event
--- (the King may pin one): TAPE (the tale of the tape, the pool split by side, the odds, the
+-- (the Shogun may pin one): TAPE (the tale of the tape, the pool split by side, the odds, the
 -- bettors, "BETS CLOSE IN", a ticker of the last 8 bets as amount and side), LAST CALL, LIVE (bets
 -- closed, the final odds), RESULT, PAYOUTS (the bank or arbiter named, never a player), CARD (a
 -- Fight Night's bouts) and BRACKET. It never shows free text, a bettor's name or a chat line; a
 -- rehearsal carries a REHEARSAL watermark, the sim SAMPLE DATA, neither of which can be turned off.
--- The stream-delay line shows on the King's screen only. While the compliance gate allows no bet
+-- The stream-delay line shows on the Shogun's screen only. While the compliance gate allows no bet
 -- (1.1.6, ArenaUI.BetsShown), nothing of the bets shows: no "BETS CLOSE IN" nor "BETS CLOSED", no
 -- LAST CALL (the bets' last call: the tape until the fight goes live), no PAYOUTS (a result is
 -- RESULT), no pool or ticker (there are none).
@@ -31,20 +31,20 @@ Overlay.W, Overlay.H = 900, 460
 Overlay.MODES = { "TAPE", "LASTCALL", "LIVE", "RESULT", "PAYOUTS", "CARD", "BRACKET" }
 Overlay.TICKER = 8
 
--- The stream-delay line (the design): on the King's screen only, always there (the addon cannot
+-- The stream-delay line (the design): on the Shogun's screen only, always there (the addon cannot
 -- tell whether he streams).
 function ArenaUI.DelayLine(mode)
-	if not Kit.KingsView(mode) then return nil end
+	if not Kit.ShogunsView(mode) then return nil end
 	local d = ns.Arena.Sim() and (Kit.Settings().delay or 0) or ns.Arena.Delay(true)
 	return L.ARENA_DELAY_LINE:format(tonumber(d) or 0)
 end
--- The shortest betting window now (the King's delay counted): Arena.OpenMin.
+-- The shortest betting window now (the Shogun's delay counted): Arena.OpenMin.
 function Overlay.MinWindow(public) return ns.Arena.OpenMin(public ~= false) end
 
--- Who may open it: the King's view, a councillor, a public arbiter (the sim: anyone running it).
+-- Who may open it: the Shogun's view, a councillor, a public arbiter (the sim: anyone running it).
 function Overlay.Allowed()
 	if ns.Arena.Sim() then return true end
-	if Kit.KingsView("L") or Kit.KingsView("T") then return true end
+	if Kit.ShogunsView("L") or Kit.ShogunsView("T") then return true end
 	if ns.IsHighCouncillor and ns.IsHighCouncillor(ns.me) then return true end
 	local R = ns.ArenaRoles
 	return type(R) == "table" and type(R.IsPublicArbiter) == "function" and (R.IsPublicArbiter(ns.me, "L") or R.IsPublicArbiter(ns.me, "T")) or false
@@ -86,7 +86,7 @@ function Overlay.Model(id, pinned)
 	end
 	m.id = ev.id
 	local view = Data.Markets(ev.id)
-	-- (the King's pin on PAYOUTS or LAST CALL: the result or the tape instead while the gate allows no bet)
+	-- (the Shogun's pin on PAYOUTS or LAST CALL: the result or the tape instead while the gate allows no bet)
 	if type(ArenaUI.BetsShown) == "function" and not ArenaUI.BetsShown("fight") then
 		if pinned == "PAYOUTS" then pinned = "RESULT" elseif pinned == "LASTCALL" then pinned = "TAPE" end
 	end
@@ -261,7 +261,7 @@ local function Build()
 	f.close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
 	f.close:SetPoint("TOPRIGHT", -4, -4)
 	f.close:SetScript("OnClick", function() f:Hide() end)
-	-- The King's pins: one mode kept whatever the event does (Auto follows it again).
+	-- The Shogun's pins: one mode kept whatever the event does (Auto follows it again).
 	f.modes = {}
 	local prev
 	for i, mode in ipairs({ "AUTO", "TAPE", "LIVE", "RESULT", "PAYOUTS", "BRACKET" }) do
@@ -323,7 +323,7 @@ function Overlay.Show(id)
 	end
 	Build()
 	f.id = id
-	-- In the sim, a pop-up centred over the arena window (the King's own keeps its place).
+	-- In the sim, a pop-up centred over the arena window (the Shogun's own keeps its place).
 	local win = ArenaUI.frame
 	if ns.Arena.Sim() and win and win:IsShown() then
 		f:ClearAllPoints()

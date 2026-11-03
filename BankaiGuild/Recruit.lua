@@ -6,10 +6,10 @@ local L = ns.L
 -- members online, group them by guild, and whisper one of them a ready-made request. No answer?
 -- Try someone else. Rate limited so nobody gets spammed.
 --
--- Routing (1.1, Fern's #20): recruits whispered whoever /who returned, so the guild the King
+-- Routing (1.1, Fern's #20): recruits whispered whoever /who returned, so the guild the Shogun
 -- opened stayed empty while full ones got spammed. Now the Join screen asks one member's addon
 -- (J1, an addon whisper, one per search) where recruits should go: that member's census answers
--- (J2) with the King's gates, the guilds with the most free slots and a couple of their Lords
+-- (J2) with the Shogun's gates, the guilds with the most free slots and a couple of their Council
 -- and Captains online. The screen lists the gates' guild first, then the most room, and asks
 -- those officers. A member may flag himself do-not-contact (/bk nocontact on): his addon says so
 -- when asked (J2), and the screen never offers him. The request itself stays one whisper per
@@ -20,7 +20,7 @@ local L = ns.L
 --
 -- Whom a recruit whispers stays the server's word, as before 1.1: a J2 only orders. A member's
 -- census names a guild only when the census does not mark it (Data.Dispute: two senders or more
--- agree on it, or it is ours), and a Lord or Captain only when two senders name them
+-- agree on it, or it is ours), and a Council member or Captain only when two senders name them
 -- (Data.KnownRank). The screen asks an officer the answer names only once its own /who found him
 -- in that guild, lists a guild only once /who found one of its members, and shows the gates only
 -- when two members' answers agree on them. One forged report, or one modified member's J2,
@@ -424,9 +424,9 @@ function Recruit.OpenGuilds()
 	return out
 end
 
--- Up to ROUTE_CONTACTS Lords and Captains online of a guild with room, to name to a recruit:
+-- Up to ROUTE_CONTACTS Council and Captains online of a guild with room, to name to a recruit:
 -- our own guild's from our roster. Another keeps the old two-report census rule until signed
--- enforcement is explicitly activated, then comes only from that manifest. Never the King
+-- enforcement is explicitly activated, then comes only from that manifest. Never the Shogun
 -- (the most asked of all), and never ourselves while
 -- we ask not to be contacted.
 local function Contacts(o, own)
@@ -434,7 +434,7 @@ local function Contacts(o, own)
 	local function Add(name, realm)
 		if #out >= Recruit.ROUTE_CONTACTS or type(name) ~= "string" or name == "" then return end
 		local full = ns.FullName(name, realm)
-		if ns.IsKingCharacter and ns.IsKingCharacter(name) then return end
+		if ns.IsShogunCharacter and ns.IsShogunCharacter(name) then return end
 		if full == ns.me and Recruit.NoContactMe() then return end
 		out[#out + 1] = Field(ns.DisplayName(full))
 	end
@@ -592,7 +592,7 @@ local function AcceptRequest(req, confirmed)
 		local data = { req = req, name = req.name, guild = req.guild,
 			on = word.name, at = word.at, by = word.by, reason = word.reason }
 		-- Keep this contextual choice in Bankai Guild's own window in either input mode. The existing
-		-- moderation formatter also preserves the King's stream privacy for free-text reasons.
+		-- moderation formatter also preserves the Shogun's stream privacy for free-text reasons.
 		ns.Dialog.Show("BANKAIGUILD_RECRUIT_NETOFF", L.JOIN_NETOFF_PROMPT:format(ns.DisplayName(req.name) or req.name,
 			M.When(word), M.ReasonShown(word)), nil, data)
 		return "warning"
@@ -622,7 +622,7 @@ StaticPopupDialogs["BANKAIGUILD_RECRUIT_NETOFF"] = {
 	preferredIndex = 3,
 }
 
--- Where to send one we can't take: the gates' guild while the King's gates are open, else only
+-- Where to send one we can't take: the gates' guild while the Shogun's gates are open, else only
 -- ours (the Join screen shows who has room). Never a guild named for its free slots (Konig's
 -- review of 1.1: the top "most room" guild is one two characters can fake, and this whisper goes
 -- from the officer's own chat).

@@ -53,7 +53,7 @@ local function Live(w, cast, fid, opts)
 	w:Run(math.max(0, f.lockAt - w.clock))
 	eq(State(w, cast.arbiter, fid), "L")
 end
--- A world with a bank the King listed: a public fight's writer opens its real markets sheet
+-- A world with a bank the Shogun listed: a public fight's writer opens its real markets sheet
 -- (Markets.Open through ArenaFights, as market-reachability.lua's routes do).
 local function WithBank(opts)
 	opts = opts or {}
@@ -61,7 +61,7 @@ local function WithBank(opts)
 	for _, e in ipairs(opts.more or {}) do more[#more + 1] = e end
 	opts.more = more
 	local w, cast = W3.New(opts)
-	assert(cast.king.Roles.SetBanks({ N.bank }))
+	assert(cast.shogun.Roles.SetBanks({ N.bank }))
 	w:Run(0)
 	return w, cast
 end
@@ -201,7 +201,7 @@ end)
 test("1.2 the fights part review: the currency, the live switch and the caps (the design): the opponent refuses a stake in another currency; an answer keeps the challenge's mode; an arbiter with no cap, a Judge without the money side: refused", function()
 	local w, cast = W3.New()
 	for _, c in ipairs({ cast.A, cast.B, cast.arbiter }) do W3.Money(w, c) end
-	-- The opponent's realm says glory points (its King's word, as he holds it): a gold stake is no.
+	-- The opponent's realm says glory points (its Shogun's word, as he holds it): a gold stake is no.
 	local oid = assert(Fights(w, cast.A).Challenge(cast.B.name, { stake = 10000, how = "d", cur = "g" }))
 	local cur = cast.B.ns.ArenaRoles.Currency
 	cast.B.ns.ArenaRoles.Currency = function() return "p" end
@@ -505,7 +505,7 @@ print("the fights part review: the ledger")
 test("1.2 the fights part review: an AE only from the fight's own arbiter: a listed arbiter's forged entry for a fight held here is refused, and the real one kept; for a fight not held here an arbiter whose id it is not, refused; the real arbiter's replaces a first-come", function()
 	local w, cast = W3.New({ more = { { "x", "Parric Stowe" } } })
 	local x = cast.x
-	assert(w:As(cast.king, function() return cast.king.ns.ArenaRoles.SetArbiters({ { name = x.name, cap = 100 } }) end))
+	assert(w:As(cast.shogun, function() return cast.shogun.ns.ArenaRoles.SetArbiters({ { name = x.name, cap = 100 } }) end))
 	w:Run(0)
 	for _, c in ipairs({ cast.arbiter, cast.spectator, x }) do W3.Companion(w, c) end
 	local sp = cast.spectator
@@ -534,7 +534,7 @@ test("1.2 the fights part review: an AE only from the fight's own arbiter: a lis
 	local forged = {}
 	for k, v in pairs(other) do forged[k] = v end
 	forged.fid, forged.w, forged.sc = fid2, "B", "0:1"
-	w:As(sp, function() sp.ns.Arena.Inject("CHANNEL", N.king, "AE~L1~" .. LG.Encode(forged)) end)
+	w:As(sp, function() sp.ns.Arena.Inject("CHANNEL", N.shogun, "AE~L1~" .. LG.Encode(forged)) end)
 	eq(book.list[fid2] and book.list[fid2].w, "B", "first come")
 	assert(Fights(w, cast.arbiter).Announce(fid2))
 	w:Run(0)
@@ -559,7 +559,7 @@ test("1.2 the fights part review: the launch season (no season word ever said) g
 	w:As(sp, LG.Keep, { season = 1, fid = "F1aa", t = w.clock - 50, cat = "A", bo = 1, gkA = "3e8.00000001", A = "Ab Cd-Emberfall", gkB = "3e8.00000002",
 		B = "Ef Gh-Emberfall", sc = "1:0", w = "A", m = "K", dur = 40, gkArb = "3e8.00000009", fl = "rp" }, "L", "clerk")
 	w.clock = s1.stop - 86400
-	w:As(sp, function() sp.ns.Arena.Inject("CHANNEL", N.king, "AH~L1~" .. table.concat({ B(2), B(s1.stop), B(s1.stop + 8 * 7 * 86400), B(6), B(4), B(0), B(w.clock) }, "~")) end)
+	w:As(sp, function() sp.ns.Arena.Inject("CHANNEL", N.shogun, "AH~L1~" .. table.concat({ B(2), B(s1.stop), B(s1.stop + 8 * 7 * 86400), B(6), B(4), B(0), B(w.clock) }, "~")) end)
 	eq(w:As(sp, LG.Season).n, 2)
 	local hall = w:As(sp, LG.Hall, 1)
 	eq(hall ~= nil, true, "season 1 in the Hall")
@@ -659,7 +659,7 @@ test("1.2 the fights part review: the history view model lists this character's 
 	W3.NoErrors(w)
 end)
 
-print("the fights part review: tournaments, cards, the King")
+print("the fights part review: tournaments, cards, the Shogun")
 
 test("1.2 the fights part review: a Steward's tournament (the design) makes its bouts with the public arbiters he names (T.New's arbiters, T.SetArbiter), each arbiter taking his bout over; none named: the bout waits and the promoter is told", function()
 	local more = { { "stew", N.steward } }
@@ -728,8 +728,8 @@ test("1.2 the fights part review: a Steward's tournament (the design) makes its 
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part review: a tournament's bout handed to a public arbiter gets its markets from that arbiter, whoever promotes it (a Steward, the King): the sheet's opener rings, settles and voids it; a bout with its markets open keeps its arbiter", function()
-	for _, who in ipairs({ "stew", "king" }) do
+test("1.2 the fights part review: a tournament's bout handed to a public arbiter gets its markets from that arbiter, whoever promotes it (a Steward, the Shogun): the sheet's opener rings, settles and voids it; a bout with its markets open keeps its arbiter", function()
+	for _, who in ipairs({ "stew", "shogun" }) do
 		local more = { { "stew", N.steward } }
 		for i, n in ipairs({ "Aric", "Bram", "Cael", "Dorn" }) do more[#more + 1] = { "e" .. i, n .. " Stone" } end
 		local w, cast = WithBank({ more = more })
@@ -765,7 +765,7 @@ test("1.2 the fights part review: a tournament's bout handed to a public arbiter
 		eq(AF.Has(f.fl, "m"), true, who .. ": his own sheet")
 		eq(w:As(pr, pr.ns.Markets.CloseBets, fid), false, who .. " opened none of his bouts' sheets")
 		-- A bout with its markets open keeps its arbiter (another could neither close nor settle them).
-		local ok, why = T.SetArbiter(tid, keys[2], cast.king.name)
+		local ok, why = T.SetArbiter(tid, keys[2], cast.shogun.name)
 		eq(ok, false); eq(why, "markets", who)
 		-- The arbiter rings it (his sheet closes), and it settles on his sheet.
 		local function Client(name) for i = 1, 4 do if cast["e" .. i].name == name then return cast["e" .. i] end end end
@@ -798,12 +798,12 @@ test("1.2 the fights part review: the events list counts a tournament's entrants
 	local more = {}
 	for i, n in ipairs({ "Aric", "Bram", "Cael" }) do more[#more + 1] = { "e" .. i, n .. " Stone" } end
 	local w, cast = W3.New({ more = more })
-	local T = W3.M(w, cast.king, "ArenaTourney")
+	local T = W3.M(w, cast.shogun, "ArenaTourney")
 	local tid = assert(T.New({ title = "Cup", size = 4, tStart = w.clock + 7200, tReg = w.clock + 3000, bo = "1" }))
 	w:Run(0)
 	for i = 1, 3 do W3.M(w, cast["e" .. i], "ArenaTourney").Sign(tid) w:Run(4) end
 	local function Count(c) for _, e in ipairs(w:As(c, c.ns.ArenaFights.Events, {})) do if e.id == tid then return e.count end end end
-	eq(Count(cast.king), 3); eq(Count(cast.spectator), 3)
+	eq(Count(cast.shogun), 3); eq(Count(cast.spectator), 3)
 	W3.NoErrors(w)
 end)
 
@@ -811,23 +811,23 @@ test("1.2 the fights part review: a tournament's sign-up needs the fighter's own
 	local more = {}
 	for i, n in ipairs({ "Aric", "Bram" }) do more[#more + 1] = { "e" .. i, n .. " Stone" } end
 	local w, cast = W3.New({ more = more })
-	local king = cast.king
-	local tid = assert(W3.M(w, king, "ArenaTourney").New({ title = "Cup", size = 4, tStart = w.clock + 7200, tReg = w.clock + 3000, bo = "1" }))
+	local shogun = cast.shogun
+	local tid = assert(W3.M(w, shogun, "ArenaTourney").New({ title = "Cup", size = 4, tStart = w.clock + 7200, tReg = w.clock + 3000, bo = "1" }))
 	w:Run(0)
 	local gk1 = w:As(cast.e1, function() return cast.e1.ns.ArenaProfile.MyGk() end)
-	local function Sign(c, gk) w:As(c, function() c.ns.Arena.Send("AS", "L", table.concat({ tid, "J", gk, "60", "WA", "1" }, "~"), { to = king.name }) end) w:Run(4) end
+	local function Sign(c, gk) w:As(c, function() c.ns.Arena.Send("AS", "L", table.concat({ tid, "J", gk, "60", "WA", "1" }, "~"), { to = shogun.name }) end) w:Run(4) end
 	Sign(cast.e1, "-")
-	local t = king.ns.ArenaTourney.Find(tid)
+	local t = shogun.ns.ArenaTourney.Find(tid)
 	eq(#t.entrants, 0, "no gk: refused")
 	Sign(cast.e1, gk1)
 	eq(#t.entrants, 1)
 	Sign(cast.e2, gk1)
 	eq(#t.entrants, 1, "another's gk: refused")
 	-- The promoter keeps saying it; another public arbiter's AT after 30 minutes changes nothing here.
-	w:Run(king.ns.ArenaTourney.TAKE_OVER + 60)
-	local body = king.ns.ArenaTourney.Encode(t)
-	w:As(king, function() king.ns.Arena.Inject("CHANNEL", cast.arbiter.name, "AT~L1~" .. body) end)
-	eq(t.promoter, king.name)
+	w:Run(shogun.ns.ArenaTourney.TAKE_OVER + 60)
+	local body = shogun.ns.ArenaTourney.Encode(t)
+	w:As(shogun, function() shogun.ns.Arena.Inject("CHANNEL", cast.arbiter.name, "AT~L1~" .. body) end)
+	eq(t.promoter, shogun.name)
 	W3.NoErrors(w)
 end)
 
@@ -844,27 +844,27 @@ test("1.2 the fights part review: AN and AT from a wrong sender are ignored (the
 	end
 	AN(N.bettor2, "N1ab" .. sp.ns.Arena.Hash36(N.bettor2:lower(), 2), "Mine")
 	eq(AF.Card.Get("N1ab" .. sp.ns.Arena.Hash36(N.bettor2:lower(), 2)), nil, "a plain member")
-	AN(N.king, cid, "Stolen")
+	AN(N.shogun, cid, "Stolen")
 	eq(AF.Card.Get(cid).title, "Night", "another promoter's word for a card held")
 	local tid = assert(W3.M(w, cast.arbiter, "ArenaTourney").New({ title = "Cup", size = 4, tStart = w.clock + 7200, tReg = w.clock + 3000 }))
 	w:Run(0)
 	local t = sp.ns.ArenaTourney.Find(tid)
 	local body = cast.arbiter.ns.ArenaTourney.Encode(cast.arbiter.ns.ArenaTourney.Find(tid)):gsub("~Cup$", "~Stolen")
 	w:As(sp, function() sp.ns.Arena.Inject("CHANNEL", N.bettor2, "AT~L1~" .. body) end)
-	w:As(sp, function() sp.ns.Arena.Inject("CHANNEL", N.king, "AT~L1~" .. body) end)
+	w:As(sp, function() sp.ns.Arena.Inject("CHANNEL", N.shogun, "AT~L1~" .. body) end)
 	eq(t.title, "Cup"); eq(t.promoter, cast.arbiter.name)
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part review: the King's void of a set fight reaches every client (his AR), and its writer voids its markets", function()
+test("1.2 the fights part review: the Shogun's void of a set fight reaches every client (his AR), and its writer voids its markets", function()
 	local w, cast = WithBank()
 	local fid = Booked(w, cast)
 	local f = cast.arbiter.ns.ArenaFights.Find("fights", fid)
 	eq(cast.arbiter.ns.ArenaFights.Has(f.fl, "m"), true, "the writer opened its sheet")
-	local ok = w:As(cast.king, cast.king.ns.ArenaFights.Void, fid, "arb")
+	local ok = w:As(cast.shogun, cast.shogun.ns.ArenaFights.Void, fid, "arb")
 	eq(ok, true)
 	w:Run(0)
-	for _, c in ipairs({ cast.king, cast.arbiter, cast.A, cast.B, cast.spectator }) do eq(State(w, c, fid), "V", c.short) end
+	for _, c in ipairs({ cast.shogun, cast.arbiter, cast.A, cast.B, cast.spectator }) do eq(State(w, c, fid), "V", c.short) end
 	local sheet = cast.arbiter.ns.Markets.Sheet(fid, "L")
 	eq(sheet.markets[1].state .. sheet.markets[1].result, "VX", "the writer voided its markets")
 	eq(f.marketDone, true)
@@ -1034,7 +1034,7 @@ test("1.2 the fights part review: the level race's claims are each sender's own:
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part review: under the gamepad UI the King's letter never opens by itself: it waits (said once in chat) until the player opens his profile's Edit", function()
+test("1.2 the fights part review: under the gamepad UI the Shogun's letter never opens by itself: it waits (said once in chat) until the player opens his profile's Edit", function()
 	local w, cast = W3.New()
 	local A = cast.A
 	-- (The release client: its save came back, Arena.Persists. Where it did not, the letter only
@@ -1088,7 +1088,7 @@ test("1.2 the fights part review: in the chat icon picker an honour's mark picks
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part review: the weigh-in's guild text goes through King.CleanGuild on receipt (the design)", function()
+test("1.2 the fights part review: the weigh-in's guild text goes through Shogun.CleanGuild on receipt (the design)", function()
 	local w, cast = W3.New()
 	local fid = Booked(w, cast)
 	local sp = cast.spectator
@@ -1192,7 +1192,7 @@ end)
 
 print("the fights part review (the port's review): voids after a decided round, a bout kept out of betting, a creature's unit, a later duel, the letter's window")
 
-test("1.2 the fights part review: the King's void of a fight in its grace or between the rounds of a best of 3 is a void on every client, never the decided round's final win: its writer refunds the stakes and voids the sheet", function()
+test("1.2 the fights part review: the Shogun's void of a fight in its grace or between the rounds of a best of 3 is a void on every client, never the decided round's final win: its writer refunds the stakes and voids the sheet", function()
 	local w, cast = WithBank()
 	local money = W3.Money(w, cast.arbiter)
 	local results = {}
@@ -1207,9 +1207,9 @@ test("1.2 the fights part review: the King's void of a fight in its grace or bet
 	W3.Duel(w, { cast.arbiter, cast.A, cast.B }, cast.A, cast.B)
 	w:Run(0)
 	eq(f.st, "R")
-	eq(w:As(cast.king, cast.king.ns.ArenaFights.Void, fid, "arb"), true)
+	eq(w:As(cast.shogun, cast.shogun.ns.ArenaFights.Void, fid, "arb"), true)
 	w:Run(0)
-	for _, c in ipairs({ cast.king, cast.arbiter, cast.A, cast.B, cast.spectator }) do eq(State(w, c, fid), "V", c.short) end
+	for _, c in ipairs({ cast.shogun, cast.arbiter, cast.A, cast.B, cast.spectator }) do eq(State(w, c, fid), "V", c.short) end
 	eq(#results, 0, "no final result anywhere")
 	eq(#money.result, 1); eq(money.result[1].side, "V", "the stakes refunded, never paid out")
 	local sheet = cast.arbiter.ns.Markets.Sheet(fid, "L")
@@ -1223,9 +1223,9 @@ test("1.2 the fights part review: the King's void of a fight in its grace or bet
 	W3.Duel(w, { cast.arbiter, cast.A, cast.B }, cast.A, cast.B)
 	w:Run(0)
 	eq(State(w, cast.arbiter, fid2), "B")
-	eq(w:As(cast.king, cast.king.ns.ArenaFights.Void, fid2, "arb"), true)
+	eq(w:As(cast.shogun, cast.shogun.ns.ArenaFights.Void, fid2, "arb"), true)
 	w:Run(0)
-	for _, c in ipairs({ cast.king, cast.arbiter, cast.A, cast.B, cast.spectator }) do eq(State(w, c, fid2), "V", c.short) end
+	for _, c in ipairs({ cast.shogun, cast.arbiter, cast.A, cast.B, cast.spectator }) do eq(State(w, c, fid2), "V", c.short) end
 	eq(#results, 0)
 	W3.NoErrors(w)
 end)
@@ -1263,13 +1263,13 @@ end)
 test("1.2 the fights part review: a card's bout its promoter kept out of betting (markets = false) gets no sheet from the arbiter who takes it over (flag x); a list of markets of its own is never cut down on the way to another arbiter (F.New, Card.SetArbiter: markets)", function()
 	local w, cast = WithBank()
 	for _, c in ipairs({ cast.arbiter, cast.spectator }) do W3.Companion(w, c) end
-	local king = cast.king
-	local C = king.ns.ArenaFights.Card
+	local shogun = cast.shogun
+	local C = shogun.ns.ArenaFights.Card
 	local AF = cast.arbiter.ns.ArenaFights
-	local cid = assert(w:As(king, C.New, "Night of Blades", w.clock + 3600))
+	local cid = assert(w:As(shogun, C.New, "Night of Blades", w.clock + 3600))
 	-- Kept out of betting, handed to the public arbiter.
-	local fid = assert(w:As(king, C.AddBout, cid, { A = cast.A.name, B = cast.B.name, bo = 1, markets = false, arb = cast.arbiter.name }))
-	assert(w:As(king, king.ns.ArenaFights.Announce, fid))
+	local fid = assert(w:As(shogun, C.AddBout, cid, { A = cast.A.name, B = cast.B.name, bo = 1, markets = false, arb = cast.arbiter.name }))
+	assert(w:As(shogun, shogun.ns.ArenaFights.Announce, fid))
 	w:Run(0)
 	local f = AF.Find("fights", fid)
 	eq(f.writer, cast.arbiter.name, "taken over")
@@ -1280,17 +1280,17 @@ test("1.2 the fights part review: a card's bout its promoter kept out of betting
 	eq(cast.arbiter.ns.Markets.Sheet(fid, "L"), nil, "nor after the ticker's retry")
 	eq(AF.Has(cast.spectator.ns.ArenaFights.Find("fights", fid).fl, "x"), true, "on every client")
 	-- The default: its winner market, from its arbiter.
-	local fid2 = assert(w:As(king, C.AddBout, cid, { A = cast.A.name, B = cast.B.name, bo = 1, arb = cast.arbiter.name }))
-	assert(w:As(king, king.ns.ArenaFights.Announce, fid2))
+	local fid2 = assert(w:As(shogun, C.AddBout, cid, { A = cast.A.name, B = cast.B.name, bo = 1, arb = cast.arbiter.name }))
+	assert(w:As(shogun, shogun.ns.ArenaFights.Announce, fid2))
 	w:Run(0)
 	local f2 = AF.Find("fights", fid2)
 	eq(AF.Has(f2.fl, "m"), true, "the default opens"); eq(AF.Has(f2.fl, "x"), false)
 	-- A list of its own can't travel: refused for another arbiter, and its bout keeps its arbiter.
 	local custom = { { type = "MW" }, { type = "DU", param = 90 } }
-	local none, why = w:As(king, C.AddBout, cid, { A = cast.A.name, B = cast.B.name, bo = 1, markets = custom, arb = cast.arbiter.name })
+	local none, why = w:As(shogun, C.AddBout, cid, { A = cast.A.name, B = cast.B.name, bo = 1, markets = custom, arb = cast.arbiter.name })
 	eq(none, nil); eq(why, "markets")
-	local own = assert(w:As(king, C.AddBout, cid, { A = cast.A.name, B = cast.B.name, bo = 1, markets = custom }))
-	local ok, why2 = w:As(king, C.SetArbiter, cid, own, cast.arbiter.name)
+	local own = assert(w:As(shogun, C.AddBout, cid, { A = cast.A.name, B = cast.B.name, bo = 1, markets = custom }))
+	local ok, why2 = w:As(shogun, C.SetArbiter, cid, own, cast.arbiter.name)
 	eq(ok, false); eq(why2, "markets")
 	-- The bout kept out of betting, fought and rated: its entry goes without the flag (the ledger's
 	-- flags refuse it), so every client's ledger takes it.

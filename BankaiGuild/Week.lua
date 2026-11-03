@@ -1,10 +1,10 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- The King's week (1.1, Fern's #26): the King's Agenda holds dated entries for the next 7 days
+-- The Shogun's week (1.1, Fern's #26): the Shogun's Agenda holds dated entries for the next 7 days
 -- beside its one current event, and the Board shows them as a week, by day, with the player's
 -- own guild's events from the game's calendar among them: raid night, PvP night and court on one
--- page, so nobody books the army twice. The King, his Steward and his Hands set an entry with
+-- page, so nobody books the army twice. The Shogun, his Steward and his Hands set an entry with
 -- the Agenda button, a day and an hour then what ("Sat 20:00 Raid night"); their client repeats
 -- it for late logins, the way it repeats the Agenda. Every client keeps the week it heard across
 -- a /reload or a login (its setter may be offline), until each entry is over or taken off.
@@ -13,12 +13,12 @@ local L = ns.L
 -- the saved entry keeps that audience. No ordinary guild master gains a royal command.
 --   T1~D~<id>~<guild>~<seconds>~<fresh>~<zone>~<title>   an entry, <seconds> from now (1 minute
 --       to 7 days); fresh 1 on its first sending (a chat line where it arrives), 0 on repeats;
---       seconds 0: taken off the week (by its setter, the King, his Steward or a Hand)
+--       seconds 0: taken off the week (by its setter, the Shogun, his Steward or a Hand)
 -- Bankai Guild can't write into the game's calendar: C_Calendar.AddEvent is the game's alone
 -- (HasRestrictions). An officer's click on an entry opens the game's calendar (its own opener,
 -- as the minimap clock's) and says which day to pick: he creates the guild event there, with
 -- the game's own button. With the gamepad UI, or in combat, it only says how to open it.
--- Clients before 1.1 leave the kind D out (King.HandleCommand), as any kind they don't know.
+-- Clients before 1.1 leave the kind D out (Shogun.HandleCommand), as any kind they don't know.
 -- A setter or a signer the moderators took off (net-off, Moderation.lua; 1.1, Konig's review)
 -- shows nowhere: every client drops their D, R and Y2 and hides what it heard of them before,
 -- and their own client sends none, but a setter taking his own entry down: that cancel still
@@ -30,9 +30,9 @@ ns.Week = Week
 
 Week.MAX_AHEAD = 7 * 86400   -- an entry is at most a week ahead
 Week.MIN_AHEAD = 60
-Week.MAX_MINE = 10           -- entries the King or his Steward holds
+Week.MAX_MINE = 10           -- entries the Shogun or his Steward holds
 Week.MAX_HAND = 5            -- entries a Hand holds
-Week.MAX_KEPT = 30           -- entries kept here in all: the King's and his Steward's always find a place
+Week.MAX_KEPT = 30           -- entries kept here in all: the Shogun's and his Steward's always find a place
 Week.RESEND = 600            -- the setter's client repeats each entry this often...
 Week.RESEND_FAR = 1800       -- ...and this often while it is more than FAR away
 Week.FAR = 86400
@@ -44,11 +44,11 @@ Week.GUILD_EVENTS = 10       -- the guild's calendar events shown at most
 Week.CALENDAR_ASK = 300      -- the game's calendar asked for its data this often at most
 Week.NEW_LINE_GAP = 30       -- a chat line for a new entry at most this often
 
--- The King's tools that lend the week (King.lua): the King's own; his Steward's and his Hands'.
-ns.King.HAND_MAY.D = true
-ns.King.STEWARD_MAY.D = true
+-- The Shogun's tools that lend the week (Shogun.lua): the Shogun's own; his Steward's and his Hands'.
+ns.Shogun.HAND_MAY.D = true
+ns.Shogun.STEWARD_MAY.D = true
 
-local entries = {}           -- [id] = { id, title, zone, at, by, mine, crown (the King's or his Steward's), sentAt, heardAt,
+local entries = {}           -- [id] = { id, title, zone, at, by, mine, crown (the Shogun's or his Steward's), sentAt, heardAt,
                              --   setterGuild (the guild his messages named, for the net-off: kept with it) }
 local heardFrom = {}         -- [setter] = { first, last }: when we heard him, this stretch online
 local lastSet, lastNewLine, lastCalendarAsk = -math.huge, -math.huge, -math.huge
@@ -71,7 +71,7 @@ Week.after = function(seconds, where, fn) ns.After(seconds, where, fn) end
 local function Clean(s, n) return ns.Cut((tostring(s or ""):gsub("[~|%c]", " "):gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")), n) end
 
 -- 1.1 (Konig's review): a name the moderators took off (net-off, Moderation.lua), in the name of
--- `guild` when known: its entries, sheets and signups show nowhere (King.HIDDEN_CALLS drops its D
+-- `guild` when known: its entries, sheets and signups show nowhere (Shogun.HIDDEN_CALLS drops its D
 -- and R as they come; these are the ones heard before the word). Never our own.
 local function Off(name, guild)
 	local M = ns.Moderation
@@ -88,10 +88,10 @@ end
 -- Guild entries never turn into army entries after a guild change or a reload. Every use
 -- rechecks the same current authority that admitted the setter's original word.
 function Week.Visible(e)
-	return e ~= nil and (e.preview or ns.King.AgendaAuthorized(e.by, e.setterGuild, e.guildOnly == true)) and not Off(e.by, e.setterGuild)
+	return e ~= nil and (e.preview or ns.Shogun.AgendaAuthorized(e.by, e.setterGuild, e.guildOnly == true)) and not Off(e.by, e.setterGuild)
 end
 function Week.MayEdit(e)
-	return e ~= nil and (not e.guildOnly or e.setterGuild == GetGuildInfo("player")) and ns.King.CanAgenda(e.guildOnly and "guild" or "army")
+	return e ~= nil and (not e.guildOnly or e.setterGuild == GetGuildInfo("player")) and ns.Shogun.CanAgenda(e.guildOnly and "guild" or "army")
 end
 -- A setter can still take back his own exact entry after a sanction or lost duty. This only
 -- removes an admitted word: it never posts, changes its audience, or cancels anyone else's.
@@ -181,7 +181,7 @@ function Week.InLabel(at)
 end
 
 ---------------------------------------------------------------------------
--- Setting an entry: the Agenda's box takes a day and an hour, then what (King.SetAgenda)
+-- Setting an entry: the Agenda's box takes a day and an hour, then what (Shogun.SetAgenda)
 ---------------------------------------------------------------------------
 
 -- Day words in English and Portuguese (folded: ns.Fold), by weekday (1 Sunday); today, tomorrow.
@@ -241,7 +241,7 @@ function Week.Parse(input)
 end
 
 -- Whether the text begins as an entry of the week does (a day and an hour, or an hour), right
--- or not: the Agenda's box never takes it as minutes (King.SetAgenda).
+-- or not: the Agenda's box never takes it as minutes (Shogun.SetAgenda).
 function Week.LooksLikeEntry(text)
 	local first, second = tostring(text or ""):match("^%s*(%S+)%s*(%S*)")
 	if not first then return false end
@@ -257,16 +257,16 @@ local function MineCount()
 	return n
 end
 
--- How many entries a setter holds: the King and his Steward MAX_MINE, a Hand MAX_HAND.
+-- How many entries a setter holds: the Shogun and his Steward MAX_MINE, a Hand MAX_HAND.
 local function Cap(crown) return crown and Week.MAX_MINE or Week.MAX_HAND end
 function Week.MyCap()
-	local K = ns.King
+	local K = ns.Shogun
 	local W = ns.Workshop
-	return Cap(K.Preview() or K.IsKing() or K.IsSteward() or (W and W.IsAuthorName and W.IsAuthorName(ns.me)))
+	return Cap(K.Preview() or K.IsShogun() or K.IsSteward() or (W and W.IsAuthorName and W.IsAuthorName(ns.me)))
 end
 
 -- An entry heard from its setter goes on the week if there is room: its setter's own cap, and
--- MAX_KEPT in all, where the King's and his Steward's always find a place (the Hand's entry
+-- MAX_KEPT in all, where the Shogun's and his Steward's always find a place (the Hand's entry
 -- furthest ahead gives up its own). False: left out.
 local function Keep(e)
 	local his, n, gives = 0, 0, nil
@@ -323,7 +323,7 @@ function Week.Restore(now)
 	for _, e in ipairs(type(list) == "table" and list or {}) do
 		if type(e) == "table" and tonumber(e.id) and type(e.title) == "string" and tonumber(e.at) and e.at > now + 30 and not entries[e.id] then
 			local restored = { id = e.id, title = Clean(e.title, 60), zone = Clean(e.zone, 40), at = e.at, by = ns.me, mine = true,
-				setterGuild = type(e.guild) == "string" and ns.King.CleanGuild(e.guild) or nil, guildOnly = e.guildOnly == true or nil,
+				setterGuild = type(e.guild) == "string" and ns.Shogun.CleanGuild(e.guild) or nil, guildOnly = e.guildOnly == true or nil,
 				crown = e.crown == true or (Week.MyCap() == Week.MAX_MINE and true or nil) }
 			if not restored.guildOnly or restored.setterGuild == GetGuildInfo("player") then Keep(restored) end
 		end
@@ -334,7 +334,7 @@ function Week.Restore(now)
 		if type(e) == "table" and tonumber(e.id) and type(e.by) == "string" and e.by ~= ns.me and type(e.title) == "string" and tonumber(e.at)
 			and e.at + Week.KEEP_AFTER >= now and e.at <= now + Week.MAX_AHEAD + 60 and not entries[e.id] and Clean(e.title, 60) ~= "" then
 			local restored = { id = e.id, title = Clean(e.title, 60), zone = Clean(e.zone, 40), at = e.at, by = e.by, crown = e.crown == true or nil,
-				heardAt = tonumber(e.heardAt) or now, setterGuild = type(e.guild) == "string" and ns.King.CleanGuild(e.guild) or nil, guildOnly = e.guildOnly == true or nil }
+				heardAt = tonumber(e.heardAt) or now, setterGuild = type(e.guild) == "string" and ns.Shogun.CleanGuild(e.guild) or nil, guildOnly = e.guildOnly == true or nil }
 			-- The roster may still be loading. Keep the scoped saved word, but Week.Visible
 			-- exposes nothing and sends nothing until the current roster confirms its issuer.
 			if not restored.guildOnly or restored.setterGuild == GetGuildInfo("player") then Keep(restored) end
@@ -353,22 +353,22 @@ local function Send(e, fresh)
 		"week" .. e.id, nil, nil, nil, { owner = Week, guard = function() return entries[e.id] == e and Week.MayEdit(e) and Week.Visible(e) end })
 end
 
--- The King, his Steward or a Hand puts an entry on the week (Shobek's view: on his screen alone).
+-- The Shogun, his Steward or a Hand puts an entry on the week (Shobek's view: on his screen alone).
 function Week.SetEntry(input, scope)
-	scope = ns.King.AgendaScope(scope)
-	if not ns.King.Preview() and SelfOff() then return false end
-	if not scope or not ns.King.CanAgenda(scope) then return false end
+	scope = ns.Shogun.AgendaScope(scope)
+	if not ns.Shogun.Preview() and SelfOff() then return false end
+	if not scope or not ns.Shogun.CanAgenda(scope) then return false end
 	local seconds, title = Week.Parse(input)
 	if not seconds and scope == "guild" then
 		local minutes
-		minutes, title = ns.King.ParseAgenda(input)
+		minutes, title = ns.Shogun.ParseAgenda(input)
 		seconds = minutes and minutes * 60
 	end
 	if not seconds then
 		ns.Print(L.THRONE_AGENDA_USAGE)
 		return false
 	end
-	local K = ns.King
+	local K = ns.Shogun
 	local preview = K.Preview()
 	local now = ns.Now()
 	if now - lastSet < Week.SET_GAP then
@@ -383,7 +383,7 @@ function Week.SetEntry(input, scope)
 	local W = ns.Workshop
 	local e = { id = K.NewId(), title = title, zone = "", at = now + seconds, by = ns.me, mine = true, preview = preview or nil,
 		setterGuild = GetGuildInfo("player"), guildOnly = scope == "guild" or nil,
-		crown = (K.IsKing() or K.IsSteward() or (W and W.IsAuthorName and W.IsAuthorName(ns.me))) and true or nil }
+		crown = (K.IsShogun() or K.IsSteward() or (W and W.IsAuthorName and W.IsAuthorName(ns.me))) and true or nil }
 	if not Keep(e) then ns.Print(L.WEEK_FULL:format(Week.MAX_KEPT)); return false end
 	lastSet = now
 	if preview then
@@ -397,14 +397,14 @@ function Week.SetEntry(input, scope)
 	return true
 end
 
--- Taken off the week, for everyone (its setter, the King, his Steward or a Hand, as the Agenda).
+-- Taken off the week, for everyone (its setter, the Shogun, his Steward or a Hand, as the Agenda).
 -- 1.1 review: while the moderators have us off (net-off), our own entry still goes down for
 -- everyone (Moderation.Blocks lets its cancel out); anyone else's stays, the reason said (no
 -- client would take our cancel of it).
 function Week.Cancel(id)
 	local e = entries[id]
 	if not e then return false end
-	local K = ns.King
+	local K = ns.Shogun
 	if K.AgendaPreviewBlocked() then return false end
 	if not e.mine and not e.preview and not K.Preview() and SelfOff() then return false end
 	if not Week.MayEdit(e) and not (e.mine and Week.OwnCancel(ns.me, id, e.setterGuild, e.guildOnly == true)) then return false end
@@ -442,7 +442,7 @@ local function OnEntry(sender, id, rest, guild, guildOnly)
 	local e = entries[id]
 	if e and (e.guildOnly == true) ~= (guildOnly == true) then return end -- no cross-audience overwrite or cancel
 	-- 1.1 review: a setter the moderators took off (net-off) reaches here with a cancel alone
-	-- (King.HandleCommand): it takes his own entry down, nothing else (nor counts as hearing him).
+	-- (Shogun.HandleCommand): it takes his own entry down, nothing else (nor counts as hearing him).
 	if Off(sender, guild) then
 		if seconds ~= 0 or not e or e.by ~= sender then return end
 	else
@@ -466,13 +466,13 @@ local function OnEntry(sender, id, rest, guild, guildOnly)
 		if e.by ~= sender then return end
 		if math.abs((now + seconds) - e.at) > 60 then e.at = now + seconds end
 		e.title, e.zone, e.heardAt = title, Clean(zone, 40), now
-		e.setterGuild = ns.King.CleanGuild(guild) or e.setterGuild -- (the guild his latest message named, saved with it)
+		e.setterGuild = ns.Shogun.CleanGuild(guild) or e.setterGuild -- (the guild his latest message named, saved with it)
 		SaveHeard()
 		return Changed()
 	end
-	local K = ns.King
+	local K = ns.Shogun
 	e = { id = id, title = title, zone = Clean(zone, 40), at = now + seconds, by = sender, heardAt = now,
-		crown = (K.FromKing(sender, guild) or K.IsStewardName(sender) or (ns.Workshop and ns.Workshop.IsAuthorName and ns.Workshop.IsAuthorName(sender))) and true or nil,
+		crown = (K.FromShogun(sender, guild) or K.IsStewardName(sender) or (ns.Workshop and ns.Workshop.IsAuthorName and ns.Workshop.IsAuthorName(sender))) and true or nil,
 		setterGuild = K.CleanGuild(guild) or nil, guildOnly = guildOnly == true or nil }
 	if not Keep(e) then return end
 	SaveHeard()
@@ -483,12 +483,12 @@ local function OnEntry(sender, id, rest, guild, guildOnly)
 	end
 	Changed()
 end
-ns.King.Register("D", OnEntry)
+ns.Shogun.Register("D", OnEntry)
 
--- Who set it, as the army calls them: the King by his name for the army, anyone else by theirs.
+-- Who set it, as the army calls them: the Shogun by his name for the army, anyone else by theirs.
 function Week.Setter(e)
 	if e.by == ns.me then return L.WEEK_BY_YOU end
-	if ns.IsKingCharacter(e.by) then return ns.KingName(e.by) end
+	if ns.IsShogunCharacter(e.by) then return ns.ShogunName(e.by) end
 	return ns.DisplayName(e.by) or "?"
 end
 
@@ -496,8 +496,8 @@ end
 -- The week: the Agenda's current event and the dated entries, then the guild's own events
 ---------------------------------------------------------------------------
 
--- Every entry of the King's week still to come (or begun within KEEP_AFTER), soonest first:
--- { id, title, zone, at, by, mine, agenda (the current event, King.Agenda) }.
+-- Every entry of the Shogun's week still to come (or begun within KEEP_AFTER), soonest first:
+-- { id, title, zone, at, by, mine, agenda (the current event, Shogun.Agenda) }.
 function Week.Entries(now)
 	now = now or ns.Now()
 	local out = {}
@@ -508,7 +508,7 @@ function Week.Entries(now)
 			out[#out + 1] = e
 		end
 	end
-	local a = ns.King.Agenda and ns.King.Agenda()
+	local a = ns.Shogun.Agenda and ns.Shogun.Agenda()
 	if a and not entries[a.id] and (a.mine or not Off(ns.FullName(a.by))) then
 		out[#out + 1] = { id = a.id, title = a.title, zone = a.zone, at = a.at, by = ns.FullName(a.by), mine = a.mine, agenda = true,
 			setterGuild = a.guild } -- (its setter's guild, saved with a signup: the reminder's net-off check after a /reload)
@@ -534,7 +534,7 @@ function Week.CalendarAllowed()
 end
 
 -- The player's own guild's events of the next 7 days, from the game's calendar (read here, never
--- sent): { title, at, guild = true }. On the King's screen (his stream) no title, only
+-- sent): { title, at, guild = true }. On the Shogun's screen (his stream) no title, only
 -- "Guild event".
 function Week.GuildEvents(now)
 	now = now or ns.Now()
@@ -547,7 +547,7 @@ function Week.GuildEvents(now)
 		if fine and type(info) == "table" and tonumber(info.year) and tonumber(info.month) and tonumber(info.monthDay) then
 			local at = now + (RealmSeconds(info.year, info.month, info.monthDay, info.hour, info.minute, 0) - realmNow)
 			if at > now - Week.KEEP_AFTER and at <= now + Week.MAX_AHEAD then
-				local title = ns.KingsScreen() and L.WEEK_GUILD_EVENT or ns.Codec.Plain(info.title or "")
+				local title = ns.ShogunsScreen() and L.WEEK_GUILD_EVENT or ns.Codec.Plain(info.title or "")
 				out[#out + 1] = { title = title ~= "" and title or L.WEEK_GUILD_EVENT, at = at, guild = true }
 			end
 		end
@@ -593,7 +593,7 @@ end
 
 -- The week's lines on the Board and on top of the Decrees tab (1.1.5): by day, each entry at its
 -- realm hour; the guild's events among them (green); for officers, a click to take it to the
--- game's calendar; for the King and his Hands, a click to take it off. `q`: that page's search.
+-- game's calendar; for the Shogun and his Hands, a click to take it off. `q`: that page's search.
 local open = {} -- [entry id] = its actions shown
 -- 1.2: other files' dated rows on the week (the Blood Arena's fights, ArenaFights.lua): each
 -- fn(now) returns a list of { at, title, zone, tip }, read-only: no calendar, no cancel, no signup.
@@ -626,7 +626,7 @@ function Week.Section(lines, q)
 	lines[#lines + 1] = { header = true, text = L.WEEK_TITLE,
 		tooltip = function(tt) tt:AddLine(L.WEEK_TITLE, 1, 0.82, 0); tt:AddLine(L.WEEK_TIP, 1, 1, 1, true) end }
 	local shown, lastDay = 0, nil
-	local K = ns.King
+	local K = ns.Shogun
 	local mayCancel = K.CanAgenda("army") or K.CanAgenda("guild")
 	if not q then
 		for _, scope in ipairs({ "army", "guild" }) do
@@ -685,12 +685,12 @@ function Week.Section(lines, q)
 end
 
 ---------------------------------------------------------------------------
--- The signup sheet (1.1, Fern's #27): on any entry of the King's Agenda (its current event or
+-- The signup sheet (1.1, Fern's #27): on any entry of the Shogun's Agenda (its current event or
 -- one of the week's), a player clicks Sign up and picks the role he claims: Tank, Healer, DPS
 -- or Any. Nothing checks the claim (no aura, no spec, no gear), nothing invites anyone: the
 -- signup is a whisper to whoever set that entry, alone, and whoever runs the event invites by
 -- hand. The setter's client keeps one signup per character and repeats the counts to the army
--- every 5 minutes, and sooner after a change, so the King knows whether the raid is 4 or 40
+-- every 5 minutes, and sooner after a change, so the Shogun knows whether the raid is 4 or 40
 -- before anyone zones in; the names stay on the setter's own screen, behind a click. They are
 -- kept with his entries across a /reload or a login (the next sheet must not tell the army 0).
 --   Y2~<agendaId>~<role>~<guild>   role T|H|D|A, W withdraws; whispered to the entry's setter
@@ -713,8 +713,8 @@ Week.SHEET_LATE = 90         -- a sheet heard within its own time and this: its 
 Week.SHEET_FRESH = Week.SHEET_EVERY + Week.SHEET_LATE -- (a sheet that gives no time)
 Week.SIGN_GAP = 3            -- seconds between two of our signups
 Week.MAX_SIGNUPS = 2000      -- signups one entry keeps (the census-placed and the others)
-ns.King.HAND_MAY.R = true
-ns.King.STEWARD_MAY.R = true
+ns.Shogun.HAND_MAY.R = true
+ns.Shogun.STEWARD_MAY.R = true
 
 local sheets = {}            -- [agendaId] = { T, H, D, A = counts, at = when heard, fresh = for how long } (another's entries)
 local signups = {}           -- [agendaId] = { list = { [Name-Realm] = { role, guild, placed, t } }, byGuild = {}, others = n } (ours)
@@ -895,7 +895,7 @@ function Week.HandleSignup(dist, sender, text)
 	if not e or not e.mine or e.preview or e.at <= ns.Now() then return end
 	if not Week.MayEdit(e) then return end
 	sender = ns.FullName(sender)
-	guild = ns.King.CleanGuild(guild)
+	guild = ns.Shogun.CleanGuild(guild)
 	if e.guildOnly then
 		local R = ns.Roster
 		if guild ~= e.setterGuild or not R or not R.Fresh or not R.Fresh() or not R.RankOf or R.RankOf(sender) == nil then return end
@@ -936,7 +936,7 @@ ns.Comm.Handle("Y2", function(...) Week.HandleSignup(...) end)
 -- within SHEET_NEAR, every SHEET_IDLE otherwise. `soon`: a change's, sent whatever the time
 -- since the last one.
 function Week.SendSheet(soon)
-	local K = ns.King
+	local K = ns.Shogun
 	if K.Preview() then return false end
 	-- (1.1, Konig's review: every client drops the sheet of a setter the moderators took off, and
 	-- a long one goes in pieces, past Comm.Send's backstop.)
@@ -991,10 +991,10 @@ local function OnSheet(sender, _, rest, guild, guildOnly)
 	end
 	if any then Changed() end
 end
-ns.King.Register("R", OnSheet)
+ns.Shogun.Register("R", OnSheet)
 
 -- An entry's sheet on the week: its counts, our own role, the role rows once Sign up is
--- clicked; for its setter the names by role, behind a click (the King's stream: a councillor's
+-- clicked; for its setter the names by role, behind a click (the Shogun's stream: a councillor's
 -- name cut short while the council's names are hidden there).
 local function ShownName(name)
 	local shown = ns.DisplayName(name) or "?"
@@ -1067,7 +1067,7 @@ Week.REMIND = 5 * 60
 local function SetterOf(id, v)
 	local e = entries[id]
 	if e then return e.by, e.setterGuild end
-	local a = ns.King.Agenda and ns.King.Agenda()
+	local a = ns.Shogun.Agenda and ns.Shogun.Agenda()
 	if a and a.id == id then return ns.FullName(a.by), a.guild or (type(v.guild) == "string" and v.guild or nil) end
 	return v.by, type(v.guild) == "string" and v.guild or nil
 end
@@ -1077,7 +1077,7 @@ function Week.Remind(now)
 	if type(mine) ~= "table" then return end
 	local here = {}
 	for _, e in ipairs(Week.Entries(now)) do here[e.id] = e end
-	local agenda = ns.King.Agenda and ns.King.Agenda()
+	local agenda = ns.Shogun.Agenda and ns.Shogun.Agenda()
 	for id, v in pairs(mine) do
 		local e = here[id]
 		if type(v) ~= "table" then
@@ -1091,7 +1091,7 @@ function Week.Remind(now)
 		-- (1.1 review: nothing while its setter, or his guild, is off: net-off. Not marked reminded:
 		-- shown again before it begins, the nudge comes.)
 		if left and v.role and not v.reminded and type(v.title) == "string" and v.title ~= "" and left > 0 and left <= Week.REMIND
-			and (not v.guildOnly or ns.King.AgendaAuthorized(v.by, v.guild, true))
+			and (not v.guildOnly or ns.Shogun.AgendaAuthorized(v.by, v.guild, true))
 			and not Off(SetterOf(id, v)) then
 			v.reminded = true
 			local zone = type(v.zone) == "string" and v.zone or ""
@@ -1119,7 +1119,7 @@ end
 
 function Week.Tick(now)
 	now = now or ns.Now()
-	-- (Only while this character still may: a Hand the King's list no longer names stops.)
+	-- (Only while this character still may: a Hand the Shogun's list no longer names stops.)
 	local due = {}
 	for _, e in pairs(entries) do
 		if e.mine and not e.preview and e.at - now >= 30 and now - (e.sentAt or -math.huge) >= Week.Resend(e, now) and Week.MayEdit(e) then due[#due + 1] = e end

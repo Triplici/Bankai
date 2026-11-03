@@ -1,8 +1,8 @@
 -- 1.1.6, Bone Throw between players without stakes, and the games' ledger (ArenaLedger.lua's AY,
--- the owner's ask of 2026-10-05: "a ledger of every game, for me, the council and the King to see,
+-- the owner's ask of 2026-10-05: "a ledger of every game, for me, the council and the Shogun to see,
 -- besides each player seeing his own"). On the 1.1.6 package's TOC (without the files only the bets
 -- need, scripts/bets-only.txt) and the compliance gate as it ships: two players play a game for fun;
--- the auditors (the King's character, a High Councillor, and the author's own character: a signed
+-- the auditors (the Shogun's character, a High Councillor, and the author's own character: a signed
 -- arbiter with "+a" in the test council) get its record from both players and see it on the games'
 -- page (Every game), a member who is no auditor gets nothing; each player sees his own game under
 -- Bones' Your games and on the games' page (his own). The other kinds of games:
@@ -47,7 +47,7 @@ end
 
 -- The 1.1.6 world: two players with their companion's saved data (a table of their own, handed to
 -- the companion when a test opens its screens; o.arbiter: a signed arbiter at the table too, with
--- his), the King, a High Councillor, the author's own character and a member, every auditor's
+-- his), the Shogun, a High Councillor, the author's own character and a member, every auditor's
 -- hello heard (40 s after login; o.offline names one logged out before). o.open: the gate a build
 -- that allows wagers has (the test row: arbiters exist there, never in 1.1.6).
 local function Ledger116(o)
@@ -55,7 +55,7 @@ local function Ledger116(o)
 	local w = FW.New({ compliance = not o.open and "shipped" or nil, arenaFiles = Files116() })
 	local a = w:Player(N.fighterA, o.nativeUI and { companion = { state = o.coreOnly and "disabled" or nil } } or nil)
 	local b = w:Player(N.fighterB, o.whereB or (o.nativeUI and { companion = { state = o.coreOnly and "disabled" or nil } } or nil))
-	local king = w:Role("king", { companion = { state = "missing" } })
+	local shogun = w:Role("shogun", { companion = { state = "missing" } })
 	local councillor = w:Role("councillor", { companion = { state = "missing" } })
 	local author = w:Role("author", { companion = { state = "missing" } })
 	local member = w:Client(N.bettor1, { companion = { state = "missing" } })
@@ -74,9 +74,9 @@ local function Ledger116(o)
 	end
 	w:Group(players)
 	w:AtInn(a.name, b.name, arb and arb.name or nil)
-	if o.offline then w:Logout(o.offline(w, { king = king, councillor = councillor, author = author })) end
+	if o.offline then w:Logout(o.offline(w, { shogun = shogun, councillor = councillor, author = author })) end
 	w:Run(41)
-	return w, { a = a, b = b, arb = arb, king = king, councillor = councillor, author = author, member = member }
+	return w, { a = a, b = b, arb = arb, shogun = shogun, councillor = councillor, author = author, member = member }
 end
 
 -- A game without a stake (judged by arb when given): the opening (the host first), the host banks
@@ -145,7 +145,7 @@ local function Ledger(w, c) return M(w, c, "ArenaLedger").AllGames() end
 
 print("1.1.6: Bone Throw between players without stakes, and the games' ledger")
 
-test("1.1.6 Bones ledger: on the 1.1.6 package, a game for fun between two players reaches the King, a High Councillor and the author's own character from both players, agreed; a member gets nothing and sees only his own games", function()
+test("1.1.6 Bones ledger: on the 1.1.6 package, a game for fun between two players reaches the Shogun, a High Councillor and the author's own character from both players, agreed; a member gets nothing and sees only his own games", function()
 	local w, c = Ledger116()
 	local a, b = c.a, c.b
 	eq(a.ns.Markets, nil, "the 1.1.6 package: no markets")
@@ -153,14 +153,14 @@ test("1.1.6 Bones ledger: on the 1.1.6 package, a game for fun between two playe
 	local g = a.ns.FarkleTable.Get(id).game
 	eq(g.over, true); eq(g.winner, 1); eq(g.reason, "concede")
 	eq(a.ns.FarkleTable.Get(id).stake, 0, "no stake")
-	eq(a.ns.FarkleTable.Get(id).mode, "T", "the King's live switch is off: its messages travel in T, as in 1.1.6")
+	eq(a.ns.FarkleTable.Get(id).mode, "T", "the Shogun's live switch is off: its messages travel in T, as in 1.1.6")
 	eq(a.ns.FarkleTable.Counted(id), true, "1.2.3, decision 1: a free game counts whatever the live switch")
 	-- Both players told every auditor heard, and nobody else.
-	local auditors = Names(c.king, c.councillor, c.author)
+	local auditors = Names(c.shogun, c.councillor, c.author)
 	eq(Targets(w, a), auditors)
 	eq(Targets(w, b), auditors)
 	eq(#w:Sent({ type = "AY", dist = "CHANNEL" }), 0, "never on the channel")
-	for _, aud in ipairs({ c.king, c.councillor, c.author }) do
+	for _, aud in ipairs({ c.shogun, c.councillor, c.author }) do
 		local list = Ledger(w, aud)
 		eq(#list, 1, aud.name)
 		local e = list[1]
@@ -175,16 +175,16 @@ test("1.1.6 Bones ledger: on the 1.1.6 package, a game for fun between two playe
 	eq(#Ledger(w, c.member), 0, "a member is told nothing")
 	eq(c.member.rdb.arenaGames and c.member.rdb.arenaGames.gamesLedger, nil, "and keeps no ledger")
 	-- The auditor's screens: the games' page on Every game, its row; the Games tab's staff line.
-	local own = w:As(c.king, function() return H.LoadCompanion(c.king.ns) end)
-	local UI, L = own.ArenaUI, c.king.ns.L
-	w:As(c.king, function()
+	local own = w:As(c.shogun, function() return H.LoadCompanion(c.shogun.ns) end)
+	local UI, L = own.ArenaUI, c.shogun.ns.L
+	w:As(c.shogun, function()
 		eq(Keys(UI.SectionPanes("farkle")), "bone.play,bone.live,bone.history", "no Bones-only ledger pane: the games' page holds every game")
 		local lines = GamesLines(UI, "all")
 		local row = assert(Find(lines, L.ARENA_BONE_LEDGER_WON:format(UI.Kit.Name(a.name), UI.Kit.Name(b.name))), "who beat whom")
 		assert(row.text:find(L.ARENA_GAME_B, 1, true), row.text)
 		assert(row.right:find("150-0", 1, true), row.right)
 		assert(row.right:find(L.ARENA_BONE_LEDGER_AGREED, 1, true), row.right)
-		assert(Find(c.king.ns.ArenaHome.TabLines(), L.ARENA_GAMES_EVERY_GAME:format(1)), "the Games tab's staff link")
+		assert(Find(c.shogun.ns.ArenaHome.TabLines(), L.ARENA_GAMES_EVERY_GAME:format(1)), "the Games tab's staff link")
 	end)
 	local mown = w:As(c.member, function() return H.LoadCompanion(c.member.ns) end)
 	w:As(c.member, function()
@@ -219,12 +219,12 @@ test("1.2.3 Bones ledger: a release player's free game against a test build reac
 end)
 
 for _, mode in ipairs({ "T", "L" }) do
--- (1.2.3, the owner's decision 1: a free game between players counts whatever the King's live switch, so
+-- (1.2.3, the owner's decision 1: a free game between players counts whatever the Shogun's live switch, so
 -- its history is the live realm's in both modes the table is played in: T, the switch off, and L.)
 local rec = "L"
 test("Bones history persistence: actual " .. mode .. " peer target completion before the companion loads remains in both players' own history", function()
 	local w, c = Ledger116({ coreOnly = true, nativeUI = true })
-	if mode == "L" then assert(c.king.Roles.SetSettings({ live = 1 })); w:Run(0) end
+	if mode == "L" then assert(c.shogun.Roles.SetSettings({ live = 1 })); w:Run(0) end
 	local id = Play(w, c.a, c.b, nil, true)
 	for _, p in ipairs({ c.a, c.b }) do
 		local t = p.ns.FarkleTable.Get(id)
@@ -257,7 +257,7 @@ end)
 
 test("Bones history persistence: already loaded " .. mode .. " peer histories retain saved detail without ledger or practice duplicates", function()
 	local w, c = Ledger116({ nativeUI = true })
-	if mode == "L" then assert(c.king.Roles.SetSettings({ live = 1 })); w:Run(0) end
+	if mode == "L" then assert(c.shogun.Roles.SetSettings({ live = 1 })); w:Run(0) end
 	for _, p in ipairs({ c.a, c.b }) do assert(w:As(p, p.ns.Arena.LoadUI)) end
 	local id = Play(w, c.a, c.b, nil, true)
 	for _, p in ipairs({ c.a, c.b }) do
@@ -271,8 +271,8 @@ test("Bones history persistence: already loaded " .. mode .. " peer histories re
 	assert(M(w, c.a, "FarkleTable").Concede(practice)); w:Run(10)
 	local before = M(w, c.a, "FarkleTable").History(rec)
 	eq(#M(w, c.a, "FarkleTable").MyGames(), 2, "one peer game and one House game, no compact practice duplicate")
-	eq(#M(w, c.king, "ArenaLedger").AllGames(), 2, "the auditor holds their actual records")
-	eq(#M(w, c.king, "FarkleTable").MyGames(), 0, "audited games of others never enter the auditor's own Bones history")
+	eq(#M(w, c.shogun, "ArenaLedger").AllGames(), 2, "the auditor holds their actual records")
+	eq(#M(w, c.shogun, "FarkleTable").MyGames(), 0, "audited games of others never enter the auditor's own Bones history")
 	-- The game's actual logout/login saved-data path, not a fabricated history row.
 	w:Logout(c.a); w:Login(c.a)
 	assert(w:As(c.a, c.a.ns.Arena.LoadUI))
@@ -311,7 +311,7 @@ end)
 
 -- The Your games pane read fields the history never wrote (won, score) and listed the oldest
 -- first, and only the live realm's games (L): every game of a player read "Lost" with no score,
--- and in 1.1.6 (the King's live switch off: every game in T) the pane said "No games yet".
+-- and in 1.1.6 (the Shogun's live switch off: every game in T) the pane said "No games yet".
 -- (Practice against the House, never sent before, is a game of the ledger now: the owner's ask of
 -- 2026-10-05 names every game, the House's included.)
 test("1.1.6 Bones ledger: each player sees his own games under Your games, newest first: won or lost, against whom, the score from his side; the House's practice there too, and in the ledger as a game against the House", function()
@@ -325,7 +325,7 @@ test("1.1.6 Bones ledger: each player sees his own games under Your games, newes
 	assert(M(w, a, "FarkleTable").Concede(house))
 	w:Run(10)
 	eq(#w:Sent({ from = a, type = "AY" }), before + 3, "the House's game, to the three auditors")
-	local list = Ledger(w, c.king)
+	local list = Ledger(w, c.shogun)
 	eq(#list, 2)
 	eq(list[1].g, "h"); eq(list[1].p1:lower(), a.name:lower()); eq(list[1].p2, nil); eq(list[1].w, "2", "the House won (he conceded)")
 	eq(list[1].state, "one", "a game played alone: one word")
@@ -358,14 +358,14 @@ test("1.1.6 Bones ledger: an auditor offline at the game's end gets it from the 
 	local a, b = c.a, c.b
 	local id = Play(w, a, b)
 	eq(#w:Sent({ type = "AY", to = c.councillor.name }), 0, "offline: nothing reached him")
-	eq(#Ledger(w, c.king), 1, "the King, online, has it")
+	eq(#Ledger(w, c.shogun), 1, "the Shogun, online, has it")
 	w:Login(c.councillor)
 	w:Run(45)
 	eq(#w:Sent({ from = a, type = "AY", to = c.councillor.name }), 1, "the host told him at his hello")
 	eq(#w:Sent({ from = b, type = "AY", to = c.councillor.name }), 1, "and the guest")
-	-- (the games' clerk, the author here, passes on both words he holds; the King never relays)
+	-- (the games' clerk, the author here, passes on both words he holds; the Shogun never relays)
 	eq(#w:Sent({ from = c.author, type = "AY", to = c.councillor.name }), 2, "the games' clerk passed on both words")
-	eq(#w:Sent({ from = c.king, type = "AY", to = c.councillor.name }), 0)
+	eq(#w:Sent({ from = c.shogun, type = "AY", to = c.councillor.name }), 0)
 	local list = Ledger(w, c.councillor)
 	eq(#list, 1); eq(list[1].id, id); eq(list[1].state, "agreed")
 	-- His next hello (every 15 minutes): nothing again.
@@ -379,11 +379,11 @@ test("1.1.6 Bones ledger: the auditor takes a game's word only by whisper from a
 	local w, c = Ledger116()
 	local a, b = c.a, c.b
 	local id = Play(w, a, b)
-	local king, member = c.king, c.member
-	local LGk = M(w, king, "ArenaLedger")
+	local shogun, member = c.shogun, c.member
+	local LGk = M(w, shogun, "ArenaLedger")
 	-- (1.2.3, the owner's decision 1: the free game counts, so its record is the live realm's, L,
 	-- not a rehearsal's as before; every word below is said in that mode)
-	local mode, body = w:Sent({ from = a, type = "AY", to = king.name })[1].msg:match("^AY~(%a)%d+~(.*)$")
+	local mode, body = w:Sent({ from = a, type = "AY", to = shogun.name })[1].msg:match("^AY~(%a)%d+~(.*)$")
 	assert(body, "the host's record")
 	eq(mode, "L")
 	local f = {}
@@ -393,7 +393,7 @@ test("1.1.6 Bones ledger: the auditor takes a game's word only by whisper from a
 	-- the channel: dropped; a member told it: keeps nothing; passed on by a member as the guest's:
 	-- refused (only an auditor relays).
 	local claim = { unpack(f) }
-	claim[8], claim[9], claim[10] = "2", "0", king.ns.Arena.B36(2000)
+	claim[8], claim[9], claim[10] = "2", "0", shogun.ns.Arena.B36(2000)
 	claim = table.concat(claim, "~")
 	eq(select(2, LGk.TakeGame(member.name, mode, claim)), "sender")
 	assert(w:As(b, b.ns.Arena.Send, "AY", mode, claim, { dist = "CHANNEL" }))
@@ -410,21 +410,21 @@ test("1.1.6 Bones ledger: the auditor takes a game's word only by whisper from a
 	eq(select(2, LGk.TakeGame(a.name, mode, table.concat(bad, "~"))), "shape")
 	eq(select(2, LGk.TakeGame(a.name, mode, body .. "~-")), "shape", "a field too many")
 	local ahead = { unpack(f) }
-	ahead[3] = king.ns.Arena.B36(w:As(king, king.ns.Arena.Now) + 3600)
+	ahead[3] = shogun.ns.Arena.B36(w:As(shogun, shogun.ns.Arena.Now) + 3600)
 	eq(select(2, LGk.TakeGame(a.name, mode, table.concat(ahead, "~"))), "time")
 	-- The same id with other players: the first kept.
 	local other = { unpack(f) }
 	other[6] = member.short
 	eq(select(2, LGk.TakeGame(a.name, mode, table.concat(other, "~"))), "conflict")
-	-- The guest (a modified client) whispers he won: the King's ledger says the words differ.
-	assert(w:As(b, b.ns.Arena.Send, "AY", mode, claim, { to = king.name }))
+	-- The guest (a modified client) whispers he won: the Shogun's ledger says the words differ.
+	assert(w:As(b, b.ns.Arena.Send, "AY", mode, claim, { to = shogun.name }))
 	w:Run(5)
 	local e = LGk.AllGames()[1]
 	eq(e.id, id); eq(e.state, "differ"); eq(e.winner:lower(), a.name:lower(), "the host's word is the one shown")
-	local own = w:As(king, function() return H.LoadCompanion(king.ns) end)
-	w:As(king, function()
+	local own = w:As(shogun, function() return H.LoadCompanion(shogun.ns) end)
+	w:As(shogun, function()
 		local lines = GamesLines(own.ArenaUI, "all")
-		assert(Find(lines, king.ns.L.ARENA_BONE_LEDGER_DIFFER), "the row says the words differ")
+		assert(Find(lines, shogun.ns.L.ARENA_BONE_LEDGER_DIFFER), "the row says the words differ")
 	end)
 	NoErrors(w)
 end)
@@ -440,7 +440,7 @@ test("1.1.6 Bones ledger: a game an arbiter judges: refused as 1.1.6 ships; wher
 	eq(w:As(arb, arb.ns.ArenaRoles.Auditor, arb.name, "T"), false, "a signed arbiter without +a is no auditor")
 	local id = Play(w, a, b, arb)
 	eq(a.ns.FarkleTable.Get(id).kind, "a"); eq(a.ns.FarkleTable.Get(id).stake, 0)
-	eq(Targets(w, arb), Names(c.king, c.councillor, c.author), "the arbiter told every auditor too")
+	eq(Targets(w, arb), Names(c.shogun, c.councillor, c.author), "the arbiter told every auditor too")
 	local e = Ledger(w, c.author)[1]
 	eq(e.id, id); eq(e.arb:lower(), arb.name:lower()); eq(e.reports, 3); eq(e.state, "agreed")
 	eq(M(w, arb, "ArenaLedger").MyGames()[1].result, "J", "his own games: judged")

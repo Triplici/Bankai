@@ -1,15 +1,15 @@
 -- Newer 1.2.4 rule: manual Legates, not automatic council leaders. Legacy c= IDs stay compatible.
 local ns, test, eq = ...
-local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]king%-centurions%.lua$") or "./"
-local L, N, K = ns.L, ns.Nominees, ns.King
-local KING = ns.KING_CHARACTER.Alliance .. "-Realm"
+local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]shogun%-centurions%.lua$") or "./"
+local L, N, K = ns.L, ns.Nominees, ns.Shogun
+local SHOGUN = ns.SHOGUN_CHARACTER.Alliance .. "-Realm"
 local VERA, OLAF, PIP = "Vera Councillor-Realm", "Olaf Councillor-Realm", "Pip Officer-Realm"
 local function Msg(guild, rev, body) return ("NM~1~%s~%d~1~1~%s"):format(guild, rev, body) end
 local function Find(lines, text)
 	for i, l in ipairs(lines) do if type(l.text) == "string" and l.text:find(text, 1, true) then return l, i end end
 end
 
-test("King's Legates: final EN/PT locale assignments describe manual twenty-five appointments and forty-person agreed groups", function()
+test("Shogun's Legates: final EN/PT locale assignments describe manual twenty-five appointments and forty-person agreed groups", function()
 	local saved = GetLocale
 	local ok, why = pcall(function()
 		for _, language in ipairs({ "enUS", "ptBR" }) do
@@ -29,20 +29,20 @@ test("King's Legates: final EN/PT locale assignments describe manual twenty-five
 	if not ok then error(why, 0) end
 end)
 
--- The King's guild, its roster fresh (the server's word): the King, an officer, Vera (a councillor),
+-- The Shogun's guild, its roster fresh (the server's word): the Shogun, an officer, Vera (a councillor),
 -- two soldiers. Olaf, the other councillor, is of another guild. The signed list's order: Vera, Olaf.
 local function With(fn)
 	local R = ns.Roster
 	local saved = { me = ns.me, Now = ns.Now, Send = ns.Comm.Send, Guild = GetGuildInfo, Print = ns.Print, After = ns.After,
 		Log = ns.Log, council = ns.rdb.council, titles = ns.rdb.councilTitles, main = ns.rdb.mainNominees,
-		preview = ns.db.previewMainNominees, kingView = ns.db.devKingView, store = ns.rdb.warSquads, squads = rawget(ns, "WarSquads"),
+		preview = ns.db.previewMainNominees, shogunView = ns.db.devShogunView, store = ns.rdb.warSquads, squads = rawget(ns, "WarSquads"),
 		show = ns.War.Show, shown = ns.CouncilNamesShown(), vis = ns.Workshop.Visible, author = ns.Workshop.IsAuthor,
 		roster = { R.byName, R.guild, R.complete, R.generation, R.group, R.faction, R.snapshotAt, R.members },
 		popups = { StaticPopupDialogs.BANKAIGUILD_SQUAD_REVIEW, StaticPopupDialogs.BANKAIGUILD_SQUAD_REPLACE } }
 	local w = { sent = {}, printed = {}, timers = {}, logged = {}, clock = 1800000000 }
 	local ok, err = pcall(function()
 		N.Reset()
-		ns.rdb.mainNominees, ns.db.previewMainNominees, ns.db.devKingView, ns.rdb.warSquads = nil, nil, nil, nil
+		ns.rdb.mainNominees, ns.db.previewMainNominees, ns.db.devShogunView, ns.rdb.warSquads = nil, nil, nil, nil
 		ns.rdb.council = { names = { ["vera councillor"] = "Vera Councillor", ["olaf councillor"] = "Olaf Councillor" },
 			blob = "HS1~1~~Vera Councillor,Olaf Councillor~00" }
 		ns.rdb.councilTitles = nil
@@ -52,13 +52,13 @@ local function With(fn)
 		ns.Log = function(fmt, ...) w.logged[#w.logged + 1] = select("#", ...) > 0 and fmt:format(...) or fmt end
 		ns.After = function(_, _, f) w.timers[#w.timers + 1] = f end
 		ns.War.Show = function() w.warShown = (w.warShown or 0) + 1 end
-		R.byName = { [KING] = 0, [PIP] = 1, [VERA] = 3, ["Ada-Realm"] = 3, ["Bea-Realm"] = 3 }
+		R.byName = { [SHOGUN] = 0, [PIP] = 1, [VERA] = 3, ["Ada-Realm"] = 3, ["Bea-Realm"] = 3 }
 		R.guild, R.complete, R.generation, R.group, R.faction, R.snapshotAt, R.members = "Bankai Guild", true, 1, ns.group, ns.faction, w.clock, {}
 		w.as = function(me, guild, rank)
 			ns.me = me
-			GetGuildInfo = function() return guild, rank == 0 and "King" or "Member", rank end
+			GetGuildInfo = function() return guild, rank == 0 and "Shogun" or "Member", rank end
 		end
-		w.asKing = function() w.as(KING, "Bankai Guild", 0) end
+		w.asShogun = function() w.as(SHOGUN, "Bankai Guild", 0) end
 		w.flush = function() local due = w.timers; w.timers = {}; for _, f in ipairs(due) do f() end end
 		w.parts = function()
 			local out = {}
@@ -78,7 +78,7 @@ local function With(fn)
 	end)
 	ns.me, ns.Now, ns.Comm.Send, GetGuildInfo, ns.Print, ns.After, ns.Log = saved.me, saved.Now, saved.Send, saved.Guild, saved.Print, saved.After, saved.Log
 	ns.rdb.council, ns.rdb.councilTitles, ns.rdb.mainNominees, ns.db.previewMainNominees = saved.council, saved.titles, saved.main, saved.preview
-	ns.db.devKingView, ns.rdb.warSquads, ns.War.Show = saved.kingView, saved.store, saved.show
+	ns.db.devShogunView, ns.rdb.warSquads, ns.War.Show = saved.shogunView, saved.store, saved.show
 	rawset(ns, "WarSquads", saved.squads)
 	ns.SetCouncilNamesShown(saved.shown)
 	if ns.ViewAs.Role() ~= "my" then ns.ViewAs.Set("my") end
@@ -91,9 +91,9 @@ local function With(fn)
 end
 
 
-test("King's Legates: actual manual appointments rather than a council seat create own-guild groups", function()
+test("Shogun's Legates: actual manual appointments rather than a council seat create own-guild groups", function()
 	With(function(w)
-		local S = w.squads(); w.asKing()
+		local S = w.squads(); w.asShogun()
 		eq(#S.Leaders(), 0, "no implicit HC leadership")
 		eq(N.NameMain("Ada"), true); eq(N.NameMain("Bea"), true)
 		eq(N.NameMain("Unknown"), false, "current own roster required")
@@ -105,7 +105,7 @@ test("King's Legates: actual manual appointments rather than a council seat crea
 		local part
 		for _, msg in ipairs(w.parts()) do if msg:find("c=Ada", 1, true) then part = msg end end
 		assert(part, "actual unchanged c= transport contains the manual appointment")
-		w.as("Ada-Realm", "Bankai Guild", 3); N.Handle("CHANNEL", KING, part)
+		w.as("Ada-Realm", "Bankai Guild", 3); N.Handle("CHANNEL", SHOGUN, part)
 		eq(N.RoleOf("Ada-Realm", "Bankai Guild"), "centurion"); eq(S.CanManage(), true)
 		eq(S.Assign("Ada", "Bea"), true, "actual ordinary-rank appointee manages own group")
 		eq(S.Assign("Bea", VERA), false, "no other group's write authority")
@@ -114,9 +114,9 @@ test("King's Legates: actual manual appointments rather than a council seat crea
 	end)
 end)
 
-test("King's Legates: actual manual revocation removes leadership without deleting the old assignment", function()
+test("Shogun's Legates: actual manual revocation removes leadership without deleting the old assignment", function()
 	With(function(w)
-		local S = w.squads(); w.asKing()
+		local S = w.squads(); w.asShogun()
 		eq(N.NameMain("Ada"), true); eq(S.Assign("Ada", "Bea"), true)
 		local store = ns.rdb.warSquads[ns.Fold("Bankai Guild")]
 		local retained = store.rows[ns.Fold("Ada-Realm")]
@@ -126,10 +126,10 @@ test("King's Legates: actual manual revocation removes leadership without deleti
 	end)
 end)
 
-test("King's Legates: existing manual c= saves remain held rather than automatically retired", function()
+test("Shogun's Legates: existing manual c= saves remain held rather than automatically retired", function()
 	With(function(w)
-		local S = w.squads(); w.asKing()
-		ns.rdb.mainNominees = { rev = w.clock, by = KING, list = { { r = "c", n = "Ada-Realm" } } }
+		local S = w.squads(); w.asShogun()
+		ns.rdb.mainNominees = { rev = w.clock, by = SHOGUN, list = { { r = "c", n = "Ada-Realm" } } }
 		eq(N.ListOf("Bankai Guild").entries[1].name, "Ada-Realm"); eq(S.Get("Ada").name, "Ada-Realm")
 		local retained = ns.rdb.mainNominees
 		eq(N.Retire(), false); N.Minute()
@@ -138,11 +138,11 @@ test("King's Legates: existing manual c= saves remain held rather than automatic
 	end)
 end)
 
-test("King's Legates: actual author King preview names only a local sample and grants no group management", function()
+test("Shogun's Legates: actual author Shogun preview names only a local sample and grants no group management", function()
 	With(function(w)
 		local S = w.squads()
 		ns.Workshop.Visible, ns.Workshop.IsAuthor = function() return true end, function() return true end
-		w.as("Writer-Realm", "Bankai Guild II", 3); eq(ns.ViewAs.Set("king"), true)
+		w.as("Writer-Realm", "Bankai Guild II", 3); eq(ns.ViewAs.Set("shogun"), true)
 		eq(K.Preview(), true); eq(N.NameMain("Ada"), true)
 		eq(N.MainEditor(), false); eq(N.SendMain(true), false); eq(S.CanManage(), false)
 		w.flush(); eq(#w.parts(), 0); eq(ns.rdb.mainNominees, nil)
@@ -152,7 +152,7 @@ test("King's Legates: actual author King preview names only a local sample and g
 	end)
 end)
 
-test("King's Legates: other guilds require their own verified master's manual appointments", function()
+test("Shogun's Legates: other guilds require their own verified master's manual appointments", function()
 	With(function(w)
 		local S, BOSS = w.squads(), "Boss Master-Realm"
 		local R = ns.Roster

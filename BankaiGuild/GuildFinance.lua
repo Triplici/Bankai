@@ -22,17 +22,17 @@ end
 local function Same(a, b) return type(a) == "string" and type(b) == "string" and ns.FullName(a):lower() == ns.FullName(b):lower() end
 local function Preview()
 	local V = ns.ViewAs
-	return ns.King.Preview() or T.DevView() or (V and V.Previewing and V.Previewing()) or (ns.db and ns.db.devGMView == true)
+	return ns.Shogun.Preview() or T.DevView() or (V and V.Previewing and V.Previewing()) or (ns.db and ns.db.devGMView == true)
 end
 local function Off(name, guild)
 	local M = ns.Moderation
 	return M and M.Hides and M.Hides(name, guild) ~= nil
 end
 local function Crown(name)
-	if Same(name, ns.me) then return ns.King.IsKing() or ns.King.IsSteward() or ns.King.IsHand() end
-	return type(name) == "string" and (ns.IsKingCharacter(name) or ns.King.IsStewardName(name) or ns.King.IsHandName(name))
+	if Same(name, ns.me) then return ns.Shogun.IsShogun() or ns.Shogun.IsSteward() or ns.Shogun.IsHand() end
+	return type(name) == "string" and (ns.IsShogunCharacter(name) or ns.Shogun.IsStewardName(name) or ns.Shogun.IsHandName(name))
 end
-local function Lord(name, guild)
+local function Council(name, guild)
 	if type(guild) ~= "string" or not ns.IsFederation(guild) or Off(name, guild) then return false end
 	local rank, source = ns.Data.AuthorizedRank(ns.FullName(name), guild)
 	if rank ~= 0 then return false end
@@ -43,14 +43,14 @@ local function Lord(name, guild)
 	end
 	if source == "signed" or source == "pinned" then return true end
 	-- A new private financial audience never inherits the old census capability fallback.
-	-- Two reports may corroborate a directory entry, but cannot prove this Lord's office.
+	-- Two reports may corroborate a directory entry, but cannot prove this Council's office.
 	return false
 end
 function F.MayView(guild, name)
 	name = name or ns.me
 	if Same(name, ns.me) and (Preview() or not ns.IsMember()) then return false end
 	if type(guild) ~= "string" or (guild ~= "*" and not ns.IsFederation(guild)) or Off(name, guild) then return false end
-	return Crown(name) or (guild ~= "*" and Lord(name, guild)) or false
+	return Crown(name) or (guild ~= "*" and Council(name, guild)) or false
 end
 function F.MayAllocate()
 	return T.RealKeeper() and not Preview() and not Off(ns.me, GetGuildInfo("player"))
@@ -284,7 +284,7 @@ function F.Ask(scope)
 	if asked[scope] and now - asked[scope] < F.GAP then return false end
 	nextAsk = math.max(nextAsk + 1, now * 1000)
 	local p = Identity(); p.id, p.scope, p.at = nextAsk, scope, now
-	local names, seen = { ns.FullName(ns.TREASURER, ns.TREASURER_REALM), ns.FullName(ns.KingCharacter()) }, {}
+	local names, seen = { ns.FullName(ns.TREASURER, ns.TREASURER_REALM), ns.FullName(ns.ShogunCharacter()) }, {}
 	for _, name in ipairs(T.Keepers()) do names[#names + 1] = ns.FullName(name) end
 	local any = false
 	for _, name in ipairs(names) do
@@ -386,8 +386,8 @@ local function Peer(sender)
 		end
 	end
 	if not F.MayAllocate() then return false end
-	if Crown(sender) or Lord(sender, GetGuildInfo("player")) then return true end
-	for guild in pairs(ns.rdb and ns.rdb.guilds or {}) do if Lord(sender, guild) then return true end end
+	if Crown(sender) or Council(sender, GetGuildInfo("player")) then return true end
+	for guild in pairs(ns.rdb and ns.rdb.guilds or {}) do if Council(sender, guild) then return true end end
 	return false
 end
 T.OnPrivate("GF", {

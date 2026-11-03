@@ -21,16 +21,16 @@ local L = ns.L
 -- enabled only while it can be read. An account that accepted is never locked out by a Battle.net
 -- outage: the gate (ns.AccordAccepted) reads saved data alone, and Check acts only on a tag it read.
 -- It shows masked on the letter (its digits; Show reveals them for REVEAL seconds), and on the
--- King's screen (Stream: his character, any character of his game account once it was seen
+-- Shogun's screen (Stream: his character, any character of his game account once it was seen
 -- there, his preview) no part of it, with no Show (he streams).
 --
--- Who gets it in game: the moderation team alone (WatchChat.InRoom: the author, the King, the High
+-- Who gets it in game: the moderation team alone (WatchChat.InRoom: the author, the Shogun, the High
 -- Council and the Bankai Guild moderators they named). A team member's client asks on the Bankai Guild
 -- channel (BQ, ASK_FIRST after login, then every ASK_EVERY); each player's client that accepted
 -- answers that one asker by a logged whisper (BT), after a random delay, at most once every
 -- TELL_EVERY from each character to each asker, and only to an asker of the team level of its own
 -- or higher (WatchChat.ActorLevel): an ordinary player's goes to any team member, a moderator's to
--- the moderators and above, a councillor's to the council, the King and the author, the King's to
+-- the moderators and above, a councillor's to the council, the Shogun and the author, the Shogun's to
 -- the author alone. Nothing goes to a team member who did not just show he is online; the
 -- server's "No player named..." for one who left meanwhile drops what waits for him and, with
 -- mouse and keyboard (the gamepad gate's system-filters), stays out of the chat for QUIET seconds
@@ -38,7 +38,7 @@ local L = ns.L
 -- or shows one. The team's clients keep them (ns.rdb.battletags, KEEP after the last one) while
 -- they are on the team (Guard: wiped at once on its own sanction or a lost seat, else TEAM_GRACE
 -- off the team), and The Watch shows them, grouped by tag (the characters one player plays), the
--- digits hidden until the page's Show (REVEAL seconds), and on the King's screen no part of a tag,
+-- digits hidden until the page's Show (REVEAL seconds), and on the Shogun's screen no part of a tag,
 -- his eye button included. `/bk accord forget <name>` drops that player's tag on a team client (a
 -- removal asked for). A tag is what that player's own addon read and sent: a modified addon can
 -- send someone else's. Its one automatic use: a sanction follows the BattleTag (TagFollow.lua), a
@@ -47,7 +47,7 @@ local L = ns.L
 -- That code is made of the tag and this game account's follow key (AccountKey: 16 random hex digits
 -- made once, at the first accept, kept through later ones, and sent with the tag in BT alone), so
 -- only the team can tell whose BattleTag a code is, and a copied tag gives a code no other account
--- has. The King's game account (ns.db.kingAccount) answers the King and the author alone, as his
+-- has. The Shogun's game account (ns.db.shogunAccount) answers the Shogun and the author alone, as his
 -- own character does.
 --
 -- The Bankai Guild Companion app (the letter's ACCORD_T5_3): once accepted, the bridge's "self" section
@@ -204,33 +204,33 @@ end
 function Accord.TeamShown() return Accord.TeamMember() and not Previewing() end
 
 -- Whether our tag may go to `name`: a team member whose level is ours or higher (WatchChat's
--- ActorLevel: 0 an ordinary player, 3 a moderator, 4 a councillor, 6 the King, 7 the author), so a
+-- ActorLevel: 0 an ordinary player, 3 a moderator, 4 a councillor, 6 the Shogun, 7 the author), so a
 -- team member's own tag never goes down to those he outranks (one councillor's list names up to ten).
--- Any character of the King's game account (ns.db.kingAccount) stands as the King: his alts' tag
--- goes to the King and the author alone, so no other team client holds a row of his account (a
+-- Any character of the Shogun's game account (ns.db.shogunAccount) stands as the Shogun: his alts' tag
+-- goes to the Shogun and the author alone, so no other team client holds a row of his account (a
 -- sanction never follows it, TagFollow.lua).
 local function MayTell(name)
 	if not TeamName(name) then return false end
 	local w = WC()
 	if type(w.ActorLevel) ~= "function" then return true end
 	local mine = tonumber(w.ActorLevel(ns.me)) or 0
-	if type(ns.db) == "table" and ns.db.kingAccount == true then
-		mine = math.max(mine, type(w.LEVEL) == "table" and tonumber(w.LEVEL.king) or 6)
+	if type(ns.db) == "table" and ns.db.shogunAccount == true then
+		mine = math.max(mine, type(w.LEVEL) == "table" and tonumber(w.LEVEL.shogun) or 6)
 	end
 	return (tonumber(w.ActorLevel(name)) or 0) >= mine
 end
 Accord.MayTell = MayTell
 
--- The King's stream: his character, the author's preview of his screen, and any character of his
--- game account once his own was seen on it (ns.db.kingAccount: an alt's letter shows nothing either).
+-- The Shogun's stream: his character, the author's preview of his screen, and any character of his
+-- game account once his own was seen on it (ns.db.shogunAccount: an alt's letter shows nothing either).
 local function Stream()
-	if type(ns.db) == "table" and ns.db.kingAccount == true then return true end
-	return (ns.IsKingCharacter and ns.IsKingCharacter(ns.me) == true) or ns.KingsScreen() == true
+	if type(ns.db) == "table" and ns.db.shogunAccount == true then return true end
+	return (ns.IsShogunCharacter and ns.IsShogunCharacter(ns.me) == true) or ns.ShogunsScreen() == true
 end
 Accord.Stream = Stream
 
 -- A tag as this screen shows it: its name and "#****" until the page's Show (REVEAL seconds); on
--- the King's screen no part of it ("BattleTag <n>" for the n-th group), whatever his eye button
+-- the Shogun's screen no part of it ("BattleTag <n>" for the n-th group), whatever his eye button
 -- says (ns.CouncilNamesShown is not asked).
 function Accord.ShownTag(tag, n)
 	tag = tostring(tag or "")
@@ -239,7 +239,7 @@ function Accord.ShownTag(tag, n)
 	return (tag:match("^(.-)#") or tag) .. "#****"
 end
 function Accord.TeamRevealed() return not Stream() and session.teamRevealUntil > Mono() end
--- The page's Show / Hide: the digits for REVEAL seconds, never on the King's screen; the page
+-- The page's Show / Hide: the digits for REVEAL seconds, never on the Shogun's screen; the page
 -- follows (ACCORD_TEAM_CHANGED, UI.lua), and again when they hide by themselves.
 function Accord.RevealTeam()
 	if Stream() or not Accord.TeamShown() then return false end
@@ -350,7 +350,7 @@ end
 function Accord.Check()
 	local a = Saved()
 	local tag = Accord.ReadTag()
-	if type(ns.db) == "table" and ns.IsKingCharacter and ns.IsKingCharacter(ns.me) == true then ns.db.kingAccount = true end
+	if type(ns.db) == "table" and ns.IsShogunCharacter and ns.IsShogunCharacter(ns.me) == true then ns.db.shogunAccount = true end
 	local changed = a and ns.AccordAccepted() and tag and SavedFp(a) and SavedFp(a) ~= Accord.Fp(tag) or false
 	if changed then
 		a.yes, a.why = false, "tag"
@@ -572,7 +572,7 @@ local function Store(make)
 end
 
 -- A team member's client keeps when it was last on the team, as whom, and whether that one named
--- moderators (the author, the King, a councillor): Guard's facts.
+-- moderators (the author, the Shogun, a councillor): Guard's facts.
 local function OnTeam(s)
 	s.teamAt, s.teamChar = ns.Now(), ns.Fold(ns.me or "")
 	local w = WC()
@@ -844,7 +844,7 @@ function Accord.TeamLines()
 		lines[#lines + 1] = { text = Grey(L.ACCORD_TEAM_EMPTY), wrap = true }
 		return lines
 	end
-	-- The digits, for REVEAL seconds (never on the King's screen).
+	-- The digits, for REVEAL seconds (never on the Shogun's screen).
 	if not Stream() then
 		lines[#lines + 1] = { id = "accord-team-reveal", text = "|cffffd200" .. (Accord.TeamRevealed() and L.ACCORD_TEAM_HIDE or L.ACCORD_TEAM_SHOW) .. "|r",
 			onClick = function() Accord.RevealTeam() end, gapAfter = true }
@@ -891,7 +891,7 @@ function Accord.ProfileLines(target)
 	if type(row) ~= "table" or type(row.tag) ~= "string" then
 		return { { id = "watch-profile-battletag", text = Grey(L.ACCORD_TEAM_PROFILE_NONE) } }
 	end
-	-- (A click shows the digits a moment, as the BattleTags page's Show; never on the King's screen.)
+	-- (A click shows the digits a moment, as the BattleTags page's Show; never on the Shogun's screen.)
 	local out = { { id = "watch-profile-battletag", text = L.ACCORD_TEAM_PROFILE:format(Accord.ShownTag(row.tag)),
 		onClick = not Stream() and function() Accord.RevealTeam() end or nil } }
 	local others = {}
@@ -1006,7 +1006,7 @@ local function LayoutBody(f)
 	f.bodyChild:SetSize(PAGE_W, math.max(1, y + 4))
 end
 
--- The tag as the letter shows it: its digits hidden unless revealed; on the King's screen no part
+-- The tag as the letter shows it: its digits hidden unless revealed; on the Shogun's screen no part
 -- of it (a short name cut to four letters is still the whole name), never revealed.
 function Accord.LetterTag(tag, revealed)
 	if type(tag) ~= "string" then return nil end
@@ -1274,7 +1274,7 @@ function Accord.OnLogin()
 	-- (A 1.2.5.1 test build's two-byte fp: its first byte kept, the other one dropped from the file.)
 	local a = Saved()
 	if a and type(a.fp) == "string" and #a.fp > 2 then a.fp = SavedFp(a) end
-	if type(ns.db) == "table" and ns.IsKingCharacter and ns.IsKingCharacter(ns.me) == true then ns.db.kingAccount = true end
+	if type(ns.db) == "table" and ns.IsShogunCharacter and ns.IsShogunCharacter(ns.me) == true then ns.db.shogunAccount = true end
 	Accord.Prune()
 	ns.After(Accord.GUARD_FIRST, "bankaiguild accord guard", Accord.Guard)
 	ns.Every(Accord.GUARD_EVERY, "bankaiguild accord guard", Accord.Guard)

@@ -136,35 +136,35 @@ test("chat rooms (1.2.4): each guild has its master's room with his corresponden
 	end)
 end)
 
--- "Mesma coisa para a guilda principal": the King's own guild's master is the King (Core.lua's pin),
--- and its centurions are the list the King and the High Council name (Nominees.lua). It has no
+-- "Mesma coisa para a guilda principal": the Shogun's own guild's master is the Shogun (Core.lua's pin),
+-- and its centurions are the list the Shogun and the High Council name (Nominees.lua). It has no
 -- correspondents (Nominees.lua), so no master-and-correspondents room.
-test("chat rooms (1.2.4): the King's guild's centurions sit with the King in its room; it has no correspondents' room", function()
+test("chat rooms (1.2.4): the Shogun's guild's centurions sit with the Shogun in its room; it has no correspondents' room", function()
 	WithRooms(function(w, R, c)
 		local cast = Guilds(w, R, c)
 		local KG = "Bankai Guild"
-		w.king = "Crown Rook-Realm"
+		w.shogun = "Crown Rook-Realm"
 		w.council["sage rook-realm"] = true
 		w.lists[KG] = { by = "Sage Rook-Realm", entries = { { name = "Iris Rook-Realm", role = "centurion" } } }
 		local cent, corr = R.GuildRoom("gcent", KG), R.GuildRoom("gcorr", KG)
-		eq(R.Info(corr), nil, "no correspondents' room for the King's guild")
+		eq(R.Info(corr), nil, "no correspondents' room for the Shogun's guild")
 		eq(R.Info(cent).label, KG .. ": Master & Legates")
-		eq(R.CanAccess(cent, w.king), true, "the King, its master, without the signed list")
-		eq(R.CanAccess(cent, "Iris Rook-Realm"), true, "a centurion of the King's and the High Council's naming")
+		eq(R.CanAccess(cent, w.shogun), true, "the Shogun, its master, without the signed list")
+		eq(R.CanAccess(cent, "Iris Rook-Realm"), true, "a centurion of the Shogun's and the High Council's naming")
 		eq(R.CanAccess(cent, cast.bMaster), false)
 		eq(R.CanAccess("allcenturions", "Iris Rook-Realm"), true)
-		eq(R.CanAccess("masters", w.king), true); eq(R.CanAccess("allcenturions", w.king), true)
+		eq(R.CanAccess("masters", w.shogun), true); eq(R.CanAccess("allcenturions", w.shogun), true)
 	end)
 end)
 
-test("chat rooms Legates: the King's guild needs an explicit appointment, not a council title; removal stops queued delivery", function()
+test("chat rooms Legates: the Shogun's guild needs an explicit appointment, not a council title; removal stops queued delivery", function()
 	WithRooms(function(w, R, c)
 		local cast = Guilds(w, R, c)
 		local KG, sage, peer = "Bankai Guild", "Sage Rook-Realm", "Iris Rook-Realm"
-		w.guild, w.king = KG, "Crown Rook-Realm"
+		w.guild, w.shogun = KG, "Crown Rook-Realm"
 		w.council[sage:lower()] = true
-		w.ranks[KG] = { [w.king] = 0, [sage] = 3, [peer] = 3 }
-		c.Roster.members = { { name = w.king }, { name = sage }, { name = peer } }
+		w.ranks[KG] = { [w.shogun] = 0, [sage] = 3, [peer] = 3 }
+		c.Roster.members = { { name = w.shogun }, { name = sage }, { name = peer } }
 		local room = R.GuildRoom("gcent", KG)
 		eq(R.CanAccess(room, sage), false, "a councillor is not automatically a Legate")
 		eq(R.CanAccess(room, peer), false)
@@ -173,14 +173,14 @@ test("chat rooms Legates: the King's guild needs an explicit appointment, not a 
 		eq(R.CanAccess(room, sage), false, "appointing does not appoint the council member themselves")
 		c.me = peer
 		eq(R.Send(room, "assembling the raid group"), true)
-		eq(Targets(w), w.king, "an unnamed councillor does not receive the guild's Legate conversation")
+		eq(Targets(w), w.shogun, "an unnamed councillor does not receive the guild's Legate conversation")
 		local job = w.jobs[1]
 		w.lists[KG].entries = {}
 		eq(R.CanAccess(room, peer), false)
 		eq(w.finish(job), false, "a removed Legate cannot deliver a queued line")
-		eq(R.Receive("WHISPER", w.king, RoomMessage(room, 77, "assembly update"), 2000), false)
+		eq(R.Receive("WHISPER", w.shogun, RoomMessage(room, 77, "assembly update"), 2000), false)
 		w.lists[KG] = { by = cast.aMaster, entries = { { name = peer, role = "centurion" } } }
-		eq(R.CanAccess(room, peer), false, "another guild's master cannot appoint the King's Legates")
+		eq(R.CanAccess(room, peer), false, "another guild's master cannot appoint the Shogun's Legates")
 	end)
 end)
 
@@ -258,13 +258,13 @@ test("chat rooms (1.2.4): the author is in every room but the High Council's: li
 		c.ApprovedGuilds = function() return {} end
 		w.authorName = "Quill Wright-Realm"
 		local author = w.authorName
-		local kingCent = R.GuildRoom("gcent", "Bankai Guild")
+		local shogunCent = R.GuildRoom("gcent", "Bankai Guild")
 		-- His own menu: every room but the High Council's and the Secretariat's; each guild's rooms
-		-- (his own, the King's, then the others this client knows of).
+		-- (his own, the Shogun's, then the others this client knows of).
 		c.me = author
 		eq(R.CanAccess("council"), false, "never the High Council's by his name"); eq(R.CanAccess("secretariat"), false)
 		eq(Ids(R.Options("role")), table.concat({ "masters", "allcenturions", "dept:treasury", "dept:war", "dept:justice", "dept:citizenry",
-			"dept:heritage", "dept:church", aCorr, bCorr, aCent, kingCent, bCent }, ","))
+			"dept:heritage", "dept:church", aCorr, bCorr, aCent, shogunCent, bCent }, ","))
 		for _, id in ipairs({ "masters", "allcenturions", "dept:justice", aCorr, aCent, bCorr, bCent }) do eq(R.CanAccess(id), true, id) end
 		-- His own guild's rooms reach its people; another guild's, only once the signed list counts.
 		eq(table.concat(R.Recipients(aCent), ","), table.concat({ cast.aMaster, cast.aOfficer, cast.aCenturion }, ","))
@@ -359,13 +359,13 @@ test("chat rooms (1.2.4): forty rooms keep their lines: no room is let go, LINES
 end)
 
 -- A room's lines go as one whisper to each member (1.2 s apart, Comm's queue holding 60): FANOUT a
--- line at most, the author, the King, the High Council and the guild masters first, then those who
+-- line at most, the author, the Shogun, the High Council and the guild masters first, then those who
 -- wrote in the room in the last ten minutes, then the others by name; the sender is told how many.
-test("chat rooms (1.2.4): a line goes to FANOUT members at most, the author, the King and those heard lately first, and the sender is told how many it missed", function()
+test("chat rooms (1.2.4): a line goes to FANOUT members at most, the author, the Shogun and those heard lately first, and the sender is told how many it missed", function()
 	WithRooms(function(w, R, c)
 		eq(R.FANOUT, 40)
 		w.authorName, w.authorOnline = "Quill Wright-Realm", true
-		local names = { w.king }
+		local names = { w.shogun }
 		for i = 1, 50 do names[#names + 1] = ("Tester %02d-Realm"):format(i) end
 		local left = 3
 		assert(R.RegisterAudience("testers", { label = "Testers", CanAccess = function() return true end,
@@ -374,12 +374,12 @@ test("chat rooms (1.2.4): a line goes to FANOUT members at most, the author, the
 		assert(R.Receive("WHISPER", "Tester 50-Realm", RoomMessage("testers", 1, "hello"), 1000))
 		local list, missed = R.Recipients("testers")
 		eq(#list, 40); eq(missed, 11 + left, "51 members, and the 3 the audience left out")
-		eq(list[1], w.king, "the King first"); eq(list[2], "Tester 50-Realm", "heard lately")
+		eq(list[1], w.shogun, "the Shogun first"); eq(list[2], "Tester 50-Realm", "heard lately")
 		eq(list[3], "Tester 01-Realm"); eq(list[40], "Tester 38-Realm")
 		-- The author when he is a member of the room: first of all.
 		names[#names + 1] = w.authorName
 		list = R.Recipients("testers")
-		eq(list[1], w.authorName); eq(list[2], w.king)
+		eq(list[1], w.authorName); eq(list[2], w.shogun)
 		local ok, why, missed = R.Send("testers", "to all")
 		eq(ok, true); eq(why, "ok")
 		eq(#w.jobs, 40, "40 whispers")
@@ -455,7 +455,7 @@ test("chat rooms (1.2.4): a room's recipients counted for a page at most every R
 		c.rdb.council.names = { member = "Member", alpha = "Alpha" }
 		w.council["alpha-realm"] = true
 		local n = R.RecipientCount("council")
-		eq(n, 3, "the King, the Treasurer, Alpha")
+		eq(n, 3, "the Shogun, the Treasurer, Alpha")
 		c.rdb.council.names.beta = "Beta"; w.council["beta-realm"] = true
 		eq(R.RecipientCount("council"), 3, "not counted again yet")
 		w.advance(R.RECIPIENTS_EVERY)
@@ -472,7 +472,7 @@ end)
 
 -- 1.2.4: until the author's signed leadership list counts (Authority.Enforced), another guild's ranks
 -- come from the census alone, which the rooms never take: the rooms that reach other guilds reach
--- this character's own guild and the signed people (the King, the High Council's, the author) alone,
+-- this character's own guild and the signed people (the Shogun, the High Council's, the author) alone,
 -- and the page says so over their lines; /bk status says whether the list counts.
 test("chat rooms (1.2.4): without the signed leadership list each room reaches its own guild and the signed people, the page says so, and /bk status tells", function()
 	WithRooms(function(w, R, c)
@@ -483,11 +483,11 @@ test("chat rooms (1.2.4): without the signed leadership list each room reaches i
 		c.me = me
 		w.departments[me:lower()] = nil
 		local NOTE = ns.L.CHATROOM_NEEDS_LEADERS
-		-- The masters': our master (me), the King, the author; not another guild's census master.
-		eq(table.concat(R.Recipients("masters"), ","), table.concat({ w.authorName, w.king }, ","))
+		-- The masters': our master (me), the Shogun, the author; not another guild's census master.
+		eq(table.concat(R.Recipients("masters"), ","), table.concat({ w.authorName, w.shogun }, ","))
 		eq(R.StatusText("masters"), NOTE); eq(R.Info("masters").note, NOTE); eq(R.Info("masters").dim, nil)
-		-- Every guild's masters and centurions: ours, the King's, the author.
-		eq(table.concat(R.Recipients("allcenturions"), ","), table.concat({ w.authorName, w.king, cast.aOfficer, cast.aCenturion }, ","))
+		-- Every guild's masters and centurions: ours, the Shogun's, the author.
+		eq(table.concat(R.Recipients("allcenturions"), ","), table.concat({ w.authorName, w.shogun, cast.aOfficer, cast.aCenturion }, ","))
 		eq(R.StatusText("allcenturions"), NOTE)
 		-- A department's: its correspondent of ours, the author; not another guild's.
 		c.me = cast.aWar
@@ -497,14 +497,14 @@ test("chat rooms (1.2.4): without the signed leadership list each room reaches i
 		eq(R.StatusText(aCorr), nil); eq(R.Info(aCorr).note, nil)
 		w.council[cast.aWar:lower()] = true
 		eq(R.StatusText("council"), nil)
-		-- The author's list: another guild's rooms greyed, their note in the tooltip; ours and the King's not.
+		-- The author's list: another guild's rooms greyed, their note in the tooltip; ours and the Shogun's not.
 		c.me = w.authorName
 		eq(R.Info(bCent).dim, true); eq(R.Info(bCent).note, NOTE); eq(R.StatusText(bCent), NOTE)
-		eq(R.Info(aCent).dim, nil); eq(R.Info(R.GuildRoom("gcent", "Bankai Guild")).dim, nil, "the King's guild: the pinned King and the signed list")
+		eq(R.Info(aCent).dim, nil); eq(R.Info(R.GuildRoom("gcent", "Bankai Guild")).dim, nil, "the Shogun's guild: the pinned Shogun and the signed list")
 		-- Once the list counts: every guild's people, no note.
 		w.enforced = true
 		c.me = me
-		eq(table.concat(R.Recipients("masters"), ","), table.concat({ w.authorName, w.king, cast.bMaster }, ","))
+		eq(table.concat(R.Recipients("masters"), ","), table.concat({ w.authorName, w.shogun, cast.bMaster }, ","))
 		eq(R.StatusText("masters"), nil); eq(R.Info("masters").note, nil)
 		c.me = cast.aWar
 		eq(table.concat(R.Recipients("dept:war"), ","), table.concat({ w.authorName, cast.bWar }, ","))
@@ -529,9 +529,9 @@ test("chat rooms (1.2.4): without the signed leadership list each room reaches i
 end)
 
 -- The approved set against the whole cast, as another member's client sees each (the High
--- Council's, the King's Secretariat, the masters', every guild's masters and centurions, a
+-- Council's, the Shogun's Secretariat, the masters', every guild's masters and centurions, a
 -- department's, and each guild's two rooms), without the signed leadership list and with it.
-test("chat rooms (1.2.4): every room against the cast: the King, councillors titled and not, a Steward, the Treasurer, each guild's master, officer, centurion and correspondent, the author", function()
+test("chat rooms (1.2.4): every room against the cast: the Shogun, councillors titled and not, a Steward, the Treasurer, each guild's master, officer, centurion and correspondent, the author", function()
 	WithRooms(function(w, R, c)
 		local cast, aCorr, aCent, bCorr, bCent = Guilds(w, R, c)
 		c.ApprovedGuilds = function() return {} end
@@ -549,7 +549,7 @@ test("chat rooms (1.2.4): every room against the cast: the King, councillors tit
 		end
 		local everyButCouncil = "masters,allcenturions,dept:war,dept:treasury,gcorr:A,gcent:A,gcorr:B,gcent:B"
 		local want = {
-			{ w.king, "council,secretariat,masters,allcenturions" },
+			{ w.shogun, "council,secretariat,masters,allcenturions" },
 			-- Council oversight of the federation's leaders remains explicit in allcenturions.
 			-- This does not appoint them as Legates or admit them to a guild's private group room.
 			{ titled, "council,allcenturions,dept:war" }, { seat, "council,allcenturions" }, { steward, "secretariat" }, { treasurer, "council,dept:treasury" },
@@ -599,7 +599,7 @@ test("chat rooms (1.2.4): without the signed leadership list no room asks anothe
 		end
 		eq(R.Send("masters", "once more"), true)
 		for key, n in pairs(counted) do eq(n, 1, key .. ": once a send") end
-		eq(table.concat(R.Recipients("masters"), ","), table.concat({ w.king, cast.bMaster }, ","))
+		eq(table.concat(R.Recipients("masters"), ","), table.concat({ w.shogun, cast.bMaster }, ","))
 	end)
 end)
 

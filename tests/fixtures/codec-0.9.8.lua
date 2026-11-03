@@ -417,7 +417,7 @@ function Codec.SanitizeChat(s)
 			i = j + (len or 1)
 		end
 	end
-	-- Runs of spaces become one: padding could push a fake "[Lords] [Shobek] ..." to the start
+	-- Runs of spaces become one: padding could push a fake "[Council] [Shobek] ..." to the start
 	-- of a wrapped line.
 	return (table.concat(out):gsub("%s%s+", " "):gsub("^%s+", ""):gsub("%s+$", ""))
 end

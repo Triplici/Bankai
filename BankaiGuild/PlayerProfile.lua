@@ -215,7 +215,7 @@ function Profile.OpenName(text)
 	local p = Profile.Find(text)
 	if not p then return false, "name" end
 	if not ns.IsMember() then return false, "member" end
-	-- (1.2.4: his own, "My profile", through ProfileEdit.Open: on Look, and a King's letter waiting
+	-- (1.2.4: his own, "My profile", through ProfileEdit.Open: on Look, and a Shogun's letter waiting
 	-- opens on this command, as its notice says. In a fight before the page was ever drawn it is
 	-- refused there: the page as it comes.)
 	local PE = ns.ProfileEdit

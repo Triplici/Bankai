@@ -2,7 +2,7 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- The acts log (1.1, Fern's #12): what this client actually saw done, each with the sender's
--- name as the server stamped it: decrees, the gates, pardons, the King's visibility switches
+-- name as the server stamped it: decrees, the gates, pardons, the Shogun's visibility switches
 -- (what the army sees of the treasury, the untabarded list), and the moderation acts later
 -- features write here (a character or a guild taken off the net, the shared block terms). "Who
 -- opened the gates" is then a line a Hand can read, even after the message is long gone. Only
@@ -27,13 +27,13 @@ local L = ns.L
 --           `to` records its recipient, when the act was a private message.
 --
 -- Only acts heard from whoever did them: a repeat or a relay of someone else's act (the Treasurer's
--- book carrying the King's switches, an editor's list carrying another's block term) is no act
+-- book carrying the Shogun's switches, an editor's list carrying another's block term) is no act
 -- of its sender's, and a state this client only caught up on (a later login) is none it saw done.
 -- Such a state is noted, not written: ns.Chronicle.Seen(key, value), so the next change of it
 -- is compared with what this client holds.
 --
--- On the King's screen while the council's names are hidden there (his stream, ns.CouncilMasked)
--- every sender but the King shows cut short (ns.MaskName), in the list, its tooltips, the copy,
+-- On the Shogun's screen while the council's names are hidden there (his stream, ns.CouncilMasked)
+-- every sender but the Shogun shows cut short (ns.MaskName), in the list, its tooltips, the copy,
 -- /bk log and its search: these are the Crown's circle's acts, so a name here would say who is
 -- in it. The shared block terms' words show cut short on his screen always, as the filter's own
 -- lists do (Filter.Shown).
@@ -130,7 +130,7 @@ local function Veiled(e)
 	return e.words ~= nil and not revealed[e] and F ~= nil and not F.missing and F.Hides ~= nil and F.Hides(e.words)
 end
 -- The shared block terms' words ("+term -term") as the filter shows terms: cut short on the
--- King's screen (Filter.Shown), whole elsewhere.
+-- Shogun's screen (Filter.Shown), whole elsewhere.
 local function TermsShown(e)
 	local F = ns.Filter
 	if e.kind ~= "terms" or type(e.words) ~= "string" or not F or F.missing or type(F.Shown) ~= "function" then return e.words end
@@ -142,11 +142,11 @@ local function Words(e, esc)
 	return '"' .. (esc or tostring)(TermsShown(e)) .. '"'
 end
 
--- The sender as this screen shows it: cut short on the King's while the council's names are
+-- The sender as this screen shows it: cut short on the Shogun's while the council's names are
 -- hidden there (his stream), but his own.
 local function Who(e)
 	local by = tostring(e.by or "?")
-	if ns.CouncilMasked and ns.CouncilMasked() and not (ns.IsKingCharacter and ns.IsKingCharacter(by)) then return ns.MaskName(by) end
+	if ns.CouncilMasked and ns.CouncilMasked() and not (ns.IsShogunCharacter and ns.IsShogunCharacter(by)) then return ns.MaskName(by) end
 	return by
 end
 

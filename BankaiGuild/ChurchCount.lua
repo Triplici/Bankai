@@ -10,7 +10,7 @@ local L = ns.L
 --   READ_EVERY: QueryGuildEventLog(), then GUILD_EVENT_LOG_UPDATE, GetNumGuildEvents() and
 --   GetGuildEventInfo(i) -> type, player1, player2, rank, years, months, days, hours ago (Forever's
 --   Blizzard_Communities/GuildInfo.lua reads them the same way). Never in combat, never on the
---   King's screen, never while the game holds addon messages, at most every READ_GAP; no Blizzard
+--   Shogun's screen, never while the game holds addon messages, at most every READ_GAP; no Blizzard
 --   frame is opened or touched. An invite by a Church person followed by the invitee's join within
 --   PAIR_HOURS is whispered to every keeper heard online (an outbox keeps it otherwise).
 -- - Pending or confirmed. The recruiter's own report leaves a record pending; it is confirmed once a
@@ -40,7 +40,7 @@ local L = ns.L
 -- same sum over his network. Windows: this week (Dues.WeekOf), the last 30 days, all time.
 --
 -- Who sees what: the numbers go only to the audience (Church.InAudience), by whisper from a
--- keeper; a person's detail only to himself, the Head, the Apostles, the High Council, the King
+-- keeper; a person's detail only to himself, the Head, the Apostles, the High Council, the Shogun
 -- and the author. The public view: while the author's switch is open, the desk broadcasts the
 -- rows of the people who chose to show theirs (off by default), and the author's client the top 3
 -- of each ranking (Count.Top3; 1.2.3: the missionaries' is their crook, HonorsNet).
@@ -72,7 +72,7 @@ local L = ns.L
 --   NR~1~p~<switch at36>~<a|m>~<rank>~<name>~<30 days*10>~<all*10>   public rows, CHANNEL
 --   NR~1~n~<switch at36>~<a|m>~<rows>   the end of one list's public rows (0: none shows now), CHANNEL
 --   NR~1~t~<at36>~<a1,a2,a3|->~<m1,m2,m3|->   the top 3 (last 30 days), CHANNEL and GUILD, taken from
---       the Head's, the King's or the author's client only; sent by the author's alone (SendTop)
+--       the Head's, the Shogun's or the author's client only; sent by the author's alone (SendTop)
 
 local Count = {}
 ns.ChurchCount = Count
@@ -367,7 +367,7 @@ end
 
 function Count.CanRead(now)
 	if not ns.IsMember() then return false, "member" end
-	if ns.KingsScreen and ns.KingsScreen() then return false, "king" end
+	if ns.ShogunsScreen and ns.ShogunsScreen() then return false, "shogun" end
 	if InCombatLockdown and InCombatLockdown() then return false, "combat" end
 	if ns.ChatLocked and ns.ChatLocked() then return false, "lockdown" end
 	if type(QueryGuildEventLog) ~= "function" or type(GetNumGuildEvents) ~= "function" or type(GetGuildEventInfo) ~= "function" then
@@ -501,7 +501,7 @@ function Count.Process(events)
 end
 
 function Count.OnLogUpdate()
-	if ns.KingsScreen and ns.KingsScreen() then return end
+	if ns.ShogunsScreen and ns.ShogunsScreen() then return end
 	Count.Process(Count.Events())
 end
 
@@ -547,7 +547,7 @@ end
 function Count.SendEvidence(text)
 	if Off() then return false end
 	local took = false
-	if Church.IsKeeper(ns.me) and not Church.IsKing(ns.me) then took = Count.TakeEvidence(ns.me, text) == true end
+	if Church.IsKeeper(ns.me) and not Church.IsShogun(ns.me) then took = Count.TakeEvidence(ns.me, text) == true end
 	Queue(text, took)
 	Count.Flush()
 	return took or #Church.KeepersOnline(false) > 0
@@ -591,7 +591,7 @@ function Count.Flush()
 		if type(o) ~= "table" or type(o.text) ~= "string" or now - (tonumber(o.at) or 0) > Count.OUTBOX_DAYS * DAY then table.remove(out, i)
 		elseif type(o.to) ~= "table" then o.to = {} end
 	end
-	if Church.IsKeeper(ns.me) and not Church.IsKing(ns.me) then RetryOwn(out, now) end
+	if Church.IsKeeper(ns.me) and not Church.IsShogun(ns.me) then RetryOwn(out, now) end
 	local keepers = {}
 	for _, k in ipairs(Church.KeepersOnline(false)) do
 		local kk = Key(k.name)
@@ -619,7 +619,7 @@ end
 function Count.TakeReceipt(sender, text)
 	local list = tostring(text or ""):match("^NV~1~k~([0-9a-z,]+)$")
 	if not list then return Drop("shape") end
-	if not Church.IsKeeper(sender) or Church.IsKing(sender) then return Drop("keeper") end
+	if not Church.IsKeeper(sender) or Church.IsShogun(sender) then return Drop("keeper") end
 	local got, n = {}, 0
 	for h in list:gmatch("[0-9a-z]+") do
 		n = n + 1
@@ -639,7 +639,7 @@ end
 -- goes to it again, RESEND_GAP after it last did (Count.Flush).
 function Count.TakeLater(sender, text)
 	if not tostring(text or ""):match("^NV~1~l~%w+$") then return Drop("shape") end
-	if not Church.IsKeeper(sender) or Church.IsKing(sender) then return Drop("keeper") end
+	if not Church.IsKeeper(sender) or Church.IsShogun(sender) then return Drop("keeper") end
 	local k = Key(sender)
 	for _, o in ipairs(Out() or {}) do
 		local s = type(o) == "table" and type(o.to) == "table" and SentTo(o, k)
@@ -681,7 +681,7 @@ function Count.Receipt(sender, text, ok, why)
 	-- (Never to a keeper: his reports need none, one his own ledger took goes once to each keeper online and
 	-- one it refused it tries again itself, Count.Flush; and a keeper before 1.2.1 counted each line against
 	-- its budget for us, then refused our own reports.)
-	if Church.IsKeeper(sender) and not Church.IsKing(sender) then return false end
+	if Church.IsKeeper(sender) and not Church.IsShogun(sender) then return false end
 	local r = owed[k]
 	if not r then
 		Church.Capped(owed, Count.PEOPLE_MAX)
@@ -744,7 +744,7 @@ local function SeenHere(invitee, guild, tj)
 end
 
 -- (1.2.1) A witness this client can vouch for in the pair's guild, as the desk's seen-checks keep their
--- answers to (CheckRecipients): the signed (a keeper, the King, a High Councillor); that guild's
+-- answers to (CheckRecipients): the signed (a keeper, the Shogun, a High Councillor); that guild's
 -- correspondent, named by its guild master (the book); in our own guild, a guildmate on our fresh roster (a
 -- guildmate of ours reads our guild's log, never another's), for a recruit we saw there ourselves (SeenHere);
 -- in another, one the Bankai Guild chats verify for it (Channels.VerifiedLevel's verified word: its signed
@@ -759,7 +759,7 @@ local function VerifiedWitness(name, guild, invitee, tj)
 	local mate = fresh and R.RankOf and R.RankOf(who) ~= nil
 	local ours = mine ~= nil and ns.Fold(mine) == ns.Fold(guild)
 	if mate and not ours then return false, "unverified" end
-	if Church.IsKeeper(who) or Church.IsKing(who) or (ns.IsHighCouncillor and ns.IsHighCouncillor(who) == true) then return true end
+	if Church.IsKeeper(who) or Church.IsShogun(who) or (ns.IsHighCouncillor and ns.IsHighCouncillor(who) == true) then return true end
 	local S = Church.State()
 	local corr = S.corr[ns.Fold(guild)]
 	-- (1.2.4: one whom only another guild's census names its master's correspondent, as any census-only
@@ -1042,7 +1042,7 @@ end
 
 -- Evidence a keeper takes (from a whisper, or this client's own). True when taken.
 function Count.TakeEvidence(sender, text)
-	if not Church.IsKeeper(ns.me) or Church.IsKing(ns.me) then return Drop("not keeper") end
+	if not Church.IsKeeper(ns.me) or Church.IsShogun(ns.me) then return Drop("not keeper") end
 	local kind = tostring(text or ""):match("^NV~1~(%a)~")
 	if not kind then return Drop("shape") end
 	local now = Clock()
@@ -1531,7 +1531,7 @@ local function CheckRecipients()
 		local k = Key(h.name)
 		if k then
 			if Church.IsKeeper(h.name) then out[k] = "keeper"
-			elseif Church.IsKing(h.name) then out[k] = "king"
+			elseif Church.IsShogun(h.name) then out[k] = "shogun"
 			elseif ns.IsHighCouncillor(ns.FullName(h.name)) then out[k] = "council" end
 		end
 	end
@@ -1544,7 +1544,7 @@ local function ExpectedAnswer(c, sender)
 		local R = ns.Roster
 		return R and R.Fresh and R.Fresh() and R.RankOf(ns.FullName(sender)) ~= nil
 	elseif kind == "keeper" then return Church.IsKeeper(sender)
-	elseif kind == "king" then return Church.IsKing(sender)
+	elseif kind == "shogun" then return Church.IsShogun(sender)
 	elseif kind == "council" then return ns.IsHighCouncillor(ns.FullName(sender)) == true end
 	return false
 end
@@ -1558,7 +1558,7 @@ function Count.DeskTick(now)
 	for _, c in pairs(checks) do
 		if t - c.sent >= Count.CHECK_TTL then CloseCheck(c) end
 	end
-	if not Church.IsDesk() or Church.IsKing(ns.me) or Off() then return end
+	if not Church.IsDesk() or Church.IsShogun(ns.me) or Off() then return end
 	if dueRev ~= ledRev or now - dueAt >= Count.DUE_EVERY or now < dueAt then
 		dueRev, dueAt = ledRev, now
 		DueChecks(now)
@@ -1589,7 +1589,7 @@ function Count.TakeCheck(sender, text)
 	name = WireName(name)
 	if not cid or not name then return Drop("shape") end
 	if not Church.IsKeeper(sender) then return Drop("keeper") end
-	if ns.KingsScreen and ns.KingsScreen() then return false, "king" end
+	if ns.ShogunsScreen and ns.ShogunsScreen() then return false, "shogun" end
 	if Off() then return false, "netoff" end
 	local t, k = ns.Now(), Key(sender)
 	if not heardChecks[k] then Church.Capped(heardChecks, Count.PEOPLE_MAX) end
@@ -1715,12 +1715,12 @@ Count.SendLines = SendLines
 
 -- A ledger line to every keeper online, then to the council relays online while Comm's queue has
 -- room past SEND_ROOM. (Sent to every relay alike, with room wanted for each before a push, a council
--- or King client online cost the other keepers a keeper's word; a 1.2.5.1 councillor drops the line
--- anyway.) Never to the King's client: as in 1.2.5.1, it does no background Church work.
+-- or Shogun client online cost the other keepers a keeper's word; a 1.2.5.1 councillor drops the line
+-- anyway.) Never to the Shogun's client: as in 1.2.5.1, it does no background Church work.
 function Count.ToRelays(line)
 	for _, k in ipairs(Church.KeepersOnline(false)) do ns.Comm.Whisper(k.name, line, nil, false, false, nil, { owner = Count }) end
 	for _, k in ipairs(Church.LedgerRelaysOnline(false)) do
-		if not Church.IsKeeper(k.name) and not Church.IsKing(k.name) then
+		if not Church.IsKeeper(k.name) and not Church.IsShogun(k.name) then
 			if ns.Comm.QueueRoom() <= Count.SEND_ROOM then break end
 			ns.Comm.Whisper(k.name, line, nil, false, false, nil, { owner = Count })
 		end
@@ -1746,14 +1746,14 @@ end
 -- something but was cut short before its end is asked first again (TakeLine clears his ask).
 -- A keeper asks only keepers: it takes ledger lines from no other relay (Count.TakeLine). A council
 -- relay asks only while no keeper is online, its pages asking a keeper then (Count.Ask), and never
--- the King's client, which, as in 1.2.5.1, does no background Church work: it asks for none either.
+-- the Shogun's client, which, as in 1.2.5.1, does no background Church work: it asks for none either.
 -- Just logged in, it waits until every keeper online has been heard (SettledSinceLogin, as the desk
 -- does before it speaks for its switch): at once, the first keeper heard was the one asked, whatever
 -- the saved turn said, and the next catch-up came CATCHUP_EVERY later. Until its first catch-up
 -- ended, when nothing came for CATCHUP_RETRY from the ones it asked (any line of theirs: a round of
 -- CATCHUP_LINES takes minutes), it asks the next one, not one asked within CATCHUP_REASK.
 function Count.CatchUp(force)
-	if not Church.IsLedgerRelay(ns.me) or Church.IsKing(ns.me) or Off() then return false end
+	if not Church.IsLedgerRelay(ns.me) or Church.IsShogun(ns.me) or Off() then return false end
 	local t = ns.Now()
 	local retry = not catch.settled and t - math.max(catch.last, catch.heard) >= Count.CATCHUP_RETRY
 	if not force and ((t - catch.last < Count.CATCHUP_EVERY and not retry) or not Count.SettledSinceLogin()) then return false end
@@ -1769,7 +1769,7 @@ function Count.CatchUp(force)
 	local k, at
 	for _, o in ipairs(list) do
 		local rk = Key(o.name)
-		if not Church.IsKing(o.name) and not (soon and t - (catch.asked[rk] or -math.huge) < Count.CATCHUP_REASK) then
+		if not Church.IsShogun(o.name) and not (soon and t - (catch.asked[rk] or -math.huge) < Count.CATCHUP_REASK) then
 			local seen = math.max(tonumber(caught[rk]) or -math.huge, tonumber(asked[rk]) or -math.huge, catch.asked[rk] or -math.huge)
 			if not k or seen < at then k, at = o, seen end
 		end
@@ -1796,7 +1796,7 @@ end
 -- next keeper (Count.CatchUp).
 function Count.AnswerCatchUp(sender, since)
 	if not Church.IsLedgerRelay(ns.me) or not Church.IsLedgerRelay(sender) then return Drop("relay") end
-	if Church.IsKing(ns.me) or Church.IsKing(sender) then return Drop("king") end
+	if Church.IsShogun(ns.me) or Church.IsShogun(sender) then return Drop("shogun") end
 	if Church.IsKeeper(ns.me) and not Church.IsKeeper(sender) then return Drop("keeper") end
 	if Church.IsKeeper(ns.me) and not Count.Settled() then return Drop("catching up") end
 	local l = Led()
@@ -1879,16 +1879,16 @@ local function RecheckRecord(id, rec)
 	return true
 end
 
--- (As in 1.2.5.1: the King's client neither asks for a catch-up nor answers one, and holds no copy.
+-- (As in 1.2.5.1: the Shogun's client neither asks for a catch-up nor answers one, and holds no copy.
 -- On a keeper, every line only from a keeper: a council relay holds copies of the keepers' word and
--- is no source of it. Taken from one, any council or King client could add records and raise the
+-- is no source of it. Taken from one, any council or Shogun client could add records and raise the
 -- counts every keeper shows. Its asks for a catch-up too: a council client asks only council relays,
 -- while no keeper is online (Count.CatchUp); answered here, every ask cost the keeper a round of up to
 -- CATCHUP_LINES whispers.)
 function Count.TakeLine(sender, text)
 	local kind = tostring(text or ""):match("^NL~1~(%a)~")
 	if not Church.IsLedgerRelay(ns.me) or not Church.IsLedgerRelay(sender) then return Drop("relay") end
-	if Church.IsKing(ns.me) or Church.IsKing(sender) then return Drop("king") end
+	if Church.IsShogun(ns.me) or Church.IsShogun(sender) then return Drop("shogun") end
 	if Church.IsKeeper(ns.me) and not Church.IsKeeper(sender) then return Drop("keeper") end
 	-- (A line from one asked for a catch-up: his answer is coming, Count.CatchUp asks no other yet.)
 	if kind ~= "q" and catch.asked[Key(sender)] then catch.heard = ns.Now() end
@@ -1957,7 +1957,7 @@ end
 local WHATS = { a = true, m = true, c = true, me = true, p = true }
 local WINDOWS = { w = true, m = true, a = true }
 
--- May `asker` see `person`'s detail? Himself, the Head, the Apostles, the High Council, the King
+-- May `asker` see `person`'s detail? Himself, the Head, the Apostles, the High Council, the Shogun
 -- and the author (D4).
 function Count.MaySeeDetail(asker, person)
 	if Key(asker) == Key(person) then return Church.InAudience(asker) end
@@ -2012,7 +2012,7 @@ function Count.Settled()
 end
 
 function Count.Answer(sender, what, window, person)
-	if not Church.IsKeeper(ns.me) or Church.IsKing(ns.me) or Off() then return Drop("not keeper") end
+	if not Church.IsKeeper(ns.me) or Church.IsShogun(ns.me) or Off() then return Drop("not keeper") end
 	if not Church.InAudience(sender) then return Drop("audience") end
 	-- (1.2.1: a desk just logged in held a ledger behind the others': every audience page asking it
 	-- took its smaller numbers over the ones it had. Unanswered, a page keeps its last answer.)
@@ -2047,12 +2047,12 @@ function Count.Answer(sender, what, window, person)
 end
 
 -- Asks the desk (or another keeper online) for a page's numbers; a keeper computes them itself. A
--- High Council or King relay asks too: computed from its own copy, its pages showed a ledger far
+-- High Council or Shogun relay asks too: computed from its own copy, its pages showed a ledger far
 -- behind the keepers' (a 1.2.5.1 keeper answers its page, not its catch-up). And an audience page
 -- that asked the first relay online asked the author before the Apostles.
 function Count.Ask(what, window, person, force)
 	if not WHATS[what] or not WINDOWS[window] then return false end
-	if Church.IsKeeper(ns.me) and not Church.IsKing(ns.me) then return false, "local" end
+	if Church.IsKeeper(ns.me) and not Church.IsShogun(ns.me) then return false, "local" end
 	if not Church.InAudience(ns.me) or Off() then return false, "audience" end
 	local key = what .. ":" .. window .. ":" .. tostring(person or "-")
 	local t = ns.Now()
@@ -2119,19 +2119,19 @@ end
 -- (detail), the time they are as of, whether they came from another client, and (a keeper's own)
 -- whether its first catch-up still goes on (Count.Settled): just logged in, they showed as live the
 -- ledger it had before, the recruits that came while it was away missing. A council relay shows its
--- own copy only with no answer kept and no keeper online to ask; the King's client, which keeps none
+-- own copy only with no answer kept and no keeper online to ask; the Shogun's client, which keeps none
 -- (Count.TakeLine), never.
-local function OwnCopy() return Church.IsLedgerRelay(ns.me) and not Church.IsKing(ns.me) and #Church.KeepersOnline(false) == 0 end
+local function OwnCopy() return Church.IsLedgerRelay(ns.me) and not Church.IsShogun(ns.me) and #Church.KeepersOnline(false) == 0 end
 function Count.RankingView(list, window)
 	if list == "c" then return ns.ChurchFullness.Ranking(), Clock(), false end
-	if Church.IsKeeper(ns.me) and not Church.IsKing(ns.me) then return Count.Ranking(list, window), Clock(), false, not Count.Settled() end
+	if Church.IsKeeper(ns.me) and not Church.IsShogun(ns.me) then return Count.Ranking(list, window), Clock(), false, not Count.Settled() end
 	local v = View()[list .. ":" .. window .. ":-"]
 	if not v and OwnCopy() then return Count.Ranking(list, window), Clock(), false end
 	return v and v.rows or {}, v and v.asOf, true
 end
 function Count.DetailView(person, window)
 	local k = Key(person)
-	if Church.IsKeeper(ns.me) and not Church.IsKing(ns.me) then
+	if Church.IsKeeper(ns.me) and not Church.IsShogun(ns.me) then
 		local lines = Count.DetailLines(k, window)
 		return lines, Clock(), false, not Count.Settled()
 	end
@@ -2226,7 +2226,7 @@ Count.SettledSinceLogin = SettledSinceLogin
 -- from the ledger it had before were every client's for PUBLIC_EVERY.
 function Count.SendPublic(now)
 	local open, at = Church.Public()
-	if not open or not Church.IsDesk() or Church.IsKing(ns.me) or Off() or not SettledSinceLogin() or not Count.Settled() then return false end
+	if not open or not Church.IsDesk() or Church.IsShogun(ns.me) or Off() or not SettledSinceLogin() or not Count.Settled() then return false end
 	local t = ns.Now()
 	if lastPublicAt == at and t - lastPublic < Count.PUBLIC_EVERY then return false end
 	-- (Its rows go together: only with room for all of them past what the chat and the census keep.)
@@ -2293,9 +2293,9 @@ end
 
 -- The author's client (a keeper): the top 3, while the switch is open, at once when it changes and
 -- TOP_EVERY apart otherwise (D8). A closed switch ends it on every client (Count.Top3). (1.2.3: the
--- author's alone in fact. SendTop takes a root of H or W, but the Head is the King (Church.IsHead),
--- whose root is K, and the King's client is no keeper (Count.Tick leaves him out): TakeTop still takes
--- the King's word. So the top 3, and the missionaries' crooks, move only while the author's client
+-- author's alone in fact. SendTop takes a root of H or W, but the Head is the Shogun (Church.IsHead),
+-- whose root is K, and the Shogun's client is no keeper (Count.Tick leaves him out): TakeTop still takes
+-- the Shogun's word. So the top 3, and the missionaries' crooks, move only while the author's client
 -- is online with the ranking open; 30 days after its last word no client shows a crook.)
 -- (1.2.3: worked out again only when what it is made of may have changed: the ledger, the book, the
 -- hour (the last 30 days move on), the top 3 held; and when TOP_EVERY sends it anyway. It was every tick,
@@ -2527,7 +2527,7 @@ function Count.Tick(now)
 	Count.MaybeRead(now)
 	if #(Out() or {}) > 0 then Count.Flush() end
 	if Church.IsLedgerRelay(ns.me) then Count.CatchUp(false) end
-	if Church.IsKeeper(ns.me) and not Church.IsKing(ns.me) then
+	if Church.IsKeeper(ns.me) and not Church.IsShogun(ns.me) then
 		-- (Settled at SETTLE_MAX, or with no keeper online: its tab no longer says it is catching up.)
 		local settled = Count.Settled()
 		if settledShown == false and settled then ViewChanged() end

@@ -15,20 +15,20 @@ local _, own = ...; local ns = own.host; if not ns then return end
 -- banner with the five-place rule and the exact settled return; How to play, the lab's three pages
 -- (The deal, The rules, The payout) on the games' one pop-up (Games.Popup, Games.InkTab), shown by
 -- itself the first time on The deal (the full name and the explanation, Lottery.FirstUse: no
--- King's letter); once the bank settles a day with this player's tickets, a result card (Bones'
+-- Shogun's letter); once the bank settles a day with this player's tickets, a result card (Bones'
 -- card's pattern: the tickets, staked, refunded, won or lost, the balance, the Wallet). The bottom
 -- (Bones' bar, the owner's rule of 2026-09-30): the counter (the pick, the stake: steppers, no edit
 -- box, so the gamepad UI works and nothing takes the chat's keyboard), and Bet (Enter bets too,
 -- with the keyboard) or the draw's Roll on the right of the games' bar under the board (Games.Bar:
 -- the arena window's, or the board's own window's with the coin, the balance and How to play).
--- The King's corner (his client alone): who rolls, the draw time and the switch.
+-- The Shogun's corner (his client alone): who rolls, the draw time and the switch.
 --
 -- It is the betting window's "Lottery" section (ArenaUI.RegisterPane, the screens' window hosts it). While
 -- that window is not in the build, ArenaUI.LotteryWindow(show) is a window of its own
 -- (BankaiGuildArenaLottery) so the lottery can be played and tested. Everything it shows comes from
 -- ns.Lottery (Today, Bet, Draw, SetSchedule through the arena's actions); ArenaUI.LotteryModel()
 -- is that view as plain data, for the tests. ArenaUI.LotterySlip(parent) builds the result slip
--- for another screen (the King's overlay, the screens).
+-- for another screen (the Shogun's overlay, the screens).
 -- Animations are AnimationGroups; timing is C_Timer; the countdown is one C_Timer.NewTicker(1) that
 -- runs only while the board is shown with a countdown on it.
 local ArenaUI = own.ArenaUI
@@ -300,12 +300,12 @@ function ArenaUI.LotteryModel(day)
 	for _, t in ipairs(day.mine or {}) do list[#list + 1] = t end
 	table.sort(list, function(a, b) if a.o ~= b.o then return a.o < b.o end return a.s > b.s end)
 	for _, t in ipairs(list) do m.mine[#m.mine + 1] = L.LOTTERY_BOARD_MINE_LINE:format(Lt.Label(t.o), Money(t.s, cur)) end
-	-- The King's corner.
+	-- The Shogun's corner.
 	if day.isCaller then
 		local sch = day.schedule or Lt.Schedule()
 		local done = day.prizes and #day.prizes or 0
 		m.caller = { roll = L.LOTTERY_BOARD_ROLL:format(min(Lt.PRIZES, done + 1)), canRoll = day.canDraw == true,
-			roller = day.roller == "bank" and L.LOTTERY_BOARD_ROLLER_BANK or L.LOTTERY_BOARD_ROLLER_KING,
+			roller = day.roller == "bank" and L.LOTTERY_BOARD_ROLLER_BANK or L.LOTTERY_BOARD_ROLLER_SHOGUN,
 			time = Lt.MinutesText(sch.at) .. " " .. Lt.ZoneText(), at = sch.at,
 			on = sch.on and L.LOTTERY_BOARD_ON or L.LOTTERY_BOARD_OFF, isOn = sch.on }
 	elseif day.canDraw then
@@ -451,7 +451,7 @@ local function Row(parent, p)
 end
 
 -- The result slip: a dark card with a gold edge, its title, the five rows. Built for the board, and
--- for another screen that wants it (the King's overlay).
+-- for another screen that wants it (the Shogun's overlay).
 function ArenaUI.LotterySlip(parent)
 	local slip = CreateFrame("Frame", nil, parent)
 	local bg = slip:CreateTexture(nil, "BACKGROUND")
@@ -820,7 +820,7 @@ function ArenaUI.LotteryHowToPlay(page, toggle)
 end
 function ArenaUI.LotteryGuide() return guide end
 
--- The King's corner: who rolls, the draw time, the switch (the Roll button is the bar's).
+-- The Shogun's corner: who rolls, the draw time, the switch (the Roll button is the bar's).
 local function Caller(parent)
 	local c = CreateFrame("Frame", nil, parent)
 	local bg = c:CreateTexture(nil, "BACKGROUND")
@@ -835,7 +835,7 @@ local function Caller(parent)
 	end
 	c.roller = Button(c, "", 188, 24, function()
 		local m = board and board.model and board.model.caller
-		Schedule({ roller = m and m.roller == L.LOTTERY_BOARD_ROLLER_BANK and "king" or "bank" })
+		Schedule({ roller = m and m.roller == L.LOTTERY_BOARD_ROLLER_BANK and "shogun" or "bank" })
 	end)
 	c.roller:SetPoint("TOP", 0, -24)
 	c.minus = Button(c, "-", 26, 24, function()
@@ -1296,16 +1296,16 @@ Refresh = function()
 	-- (The caller never bets on it: his corner takes the place of the tickets.)
 	board.side:SetShown(not (m.caller and not m.caller.bank))
 	board.side.text:SetText(table.concat(lines, "\n"))
-	-- The King's corner (the bank's, when a draw is due there, is its Roll alone).
+	-- The Shogun's corner (the bank's, when a draw is due there, is its Roll alone).
 	local c = board.caller
-	local king = m.caller ~= nil and not m.caller.bank
-	if king then
+	local shogun = m.caller ~= nil and not m.caller.bank
+	if shogun then
 		c.title:SetText(L.LOTTERY_BOARD_CALLER)
 		c.roller:SetText(m.caller.roller)
 		c.time:SetText(m.caller.time)
 		c.switch:SetText(m.caller.on)
 	end
-	c:SetShown(king)
+	c:SetShown(shogun)
 	-- The bar's actions: Roll for the caller and the bank, Bet for everyone else.
 	board.roll:SetShown(m.caller ~= nil)
 	board.bet:SetShown(m.caller == nil)

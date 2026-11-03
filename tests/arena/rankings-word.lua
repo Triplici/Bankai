@@ -1,5 +1,5 @@
 -- 1.2.4, the author's ask (rankings and what shows them are never lost, and pass from client to
--- client): the King's (or a named councillor's) word that shows a game's ranking to everyone (AU,
+-- client): the Shogun's (or a named councillor's) word that shows a game's ranking to everyone (AU,
 -- ArenaRoles.lua) is the realm group's, and any client holding it tells it. Before, each word was
 -- kept under its giver's realm and only its giver repeated it, so a member who never was online with
 -- him, or one on another realm of the group, never saw the Games tab's rankings at all.
@@ -35,15 +35,15 @@ end
 
 print("1.2.4: the rankings' publish word, kept and told by any holder")
 
-test("1.2.4 rankings word: the King shows Bones' ranking and logs out; a member who logs in later opens the Games tab and asks, a member who holds the word tells it (its giver named), and the tab shows the ranking", function()
+test("1.2.4 rankings word: the Shogun shows Bones' ranking and logs out; a member who logs in later opens the Games tab and asks, a member who holds the word tells it (its giver named), and the tab shows the ranking", function()
 	local w = World.New()
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local lida = w:Client("Lida Fenn")
-	assert(w:As(king, king.ns.ArenaRoles.Publish, "bones", true))
+	assert(w:As(shogun, shogun.ns.ArenaRoles.Publish, "bones", true))
 	w:Run(0)
-	eq(Public(w, lida, "bones"), true, "heard from the King")
-	w:Logout(king)
-	w:Run(king.ns.ArenaRoles.REPEAT * 2)
+	eq(Public(w, lida, "bones"), true, "heard from the Shogun")
+	w:Logout(shogun)
+	w:Run(shogun.ns.ArenaRoles.REPEAT * 2)
 	local late = w:Client("Parric Stowe")
 	w:Run(3600)
 	eq(Public(w, late, "bones"), false, "nothing heard yet")
@@ -51,40 +51,40 @@ test("1.2.4 rankings word: the King shows Bones' ranking and logs out; a member 
 	Opens(w, late)
 	eq(Public(w, late, "bones"), true, "told by a member who holds it")
 	local word = Word(w, late, "bones")
-	eq(word.from, N.king, "the King's word, as he gave it"); eq(word.on, true)
+	eq(word.from, N.shogun, "the Shogun's word, as he gave it"); eq(word.on, true)
 	local said = AUs(w, lida)
 	assert(#said >= 1, "Lida told it")
-	assert(said[#said].msg:find("^AU~L1~b~1~%d+~" .. N.king:gsub("%-", "%%-") .. "$"), said[#said].msg)
+	assert(said[#said].msg:find("^AU~L1~b~1~%d+~" .. N.shogun:gsub("%-", "%%-") .. "$"), said[#said].msg)
 	-- (the ask names the games it lacks, once a session; a 1.2.3 client ignores both forms)
 	local asks = AUs(w, late)
 	eq(#asks, 1); eq(asks[1].msg, "AU~L1~q~abl", "it lacked them all")
 	Opens(w, late)
 	eq(#AUs(w, late), 1, "once a session")
-	-- the word stays through the late member's relog, the King still away
+	-- the word stays through the late member's relog, the Shogun still away
 	w:Logout(late); w:Logout(lida)
 	w:Login(late)
 	eq(Public(w, late, "bones"), true, "kept in his saved data")
 	NoErrors(w)
 end)
 
-test("1.2.4 rankings word: it is the realm group's: a word kept under the giver's realm (as 1.2.4 before kept it) counts on the group's other realm, and a guildmate tells it over the guild to a realm the King's channel never reaches", function()
+test("1.2.4 rankings word: it is the realm group's: a word kept under the giver's realm (as 1.2.4 before kept it) counts on the group's other realm, and a guildmate tells it over the guild to a realm the Shogun's channel never reaches", function()
 	local w = World.New()
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local far = w:Client("Wenna Crale", { realm = World.REALMS[2] })
-	-- (a word as the build before kept it: under the King's realm, in the saved data of a client of
+	-- (a word as the build before kept it: under the Shogun's realm, in the saved data of a client of
 	-- the other realm, an account that also plays there)
 	w:Logout(far)
 	local rdb = far.saved.db.realms[World.GROUP]
 	rdb.arena = rdb.arena or {}
 	rdb.arena.realms = rdb.arena.realms or {}
-	rdb.arena.realms[World.REALMS[1]] = { v = 1, roles = { rankPub = { arena = { on = true, at = w.clock - 60, from = N.king, t = w.clock - 60 } },
-		rankLog = { { game = "arena", on = true, at = w.clock - 60, from = N.king } } } }
+	rdb.arena.realms[World.REALMS[1]] = { v = 1, roles = { rankPub = { arena = { on = true, at = w.clock - 60, from = N.shogun, t = w.clock - 60 } },
+		rankLog = { { game = "arena", on = true, at = w.clock - 60, from = N.shogun } } } }
 	w:Login(far)
 	eq(Public(w, far, "arena"), true, "the group's word")
 	eq(#w:As(far, far.ns.ArenaRoles.PublishLog), 1, "its log too")
-	-- The King shows Bones on his realm's channel: the other realm's channel never hears it.
+	-- The Shogun shows Bones on his realm's channel: the other realm's channel never hears it.
 	local lida = w:Client("Lida Fenn")
-	assert(w:As(king, king.ns.ArenaRoles.Publish, "bones", true))
+	assert(w:As(shogun, shogun.ns.ArenaRoles.Publish, "bones", true))
 	w:Run(0)
 	eq(Public(w, lida, "bones"), true)
 	eq(Public(w, far, "bones"), false, "another realm's channel")
@@ -95,75 +95,75 @@ test("1.2.4 rankings word: it is the realm group's: a word kept under the giver'
 	eq(Public(w, far, "bones"), true, "heard over the guild")
 	local said = AUs(w, lida)
 	eq(said[#said].dist, "GUILD")
-	eq(Word(w, far, "bones").from, N.king)
+	eq(Word(w, far, "bones").from, N.shogun)
 	NoErrors(w)
 end)
 
 test("1.2.4 rankings word: a copy (unsigned) only fills: never over a word heard from its giver; the giver's own word replaces any copy of his; a copy naming one who may not publish counts nowhere", function()
 	local w = World.New()
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local lida = w:Client("Lida Fenn")
 	local x = w:Client("Idris Fold")
-	assert(w:As(king, king.ns.ArenaRoles.Publish, "bones", true))
+	assert(w:As(shogun, shogun.ns.ArenaRoles.Publish, "bones", true))
 	w:Run(0)
 	local at = Word(w, lida, "bones").at
-	-- x says the King hid it, a second later: Lida heard the King himself, and keeps his word.
-	Say(w, x, ("b~0~%d~%s"):format(at + 1, N.king))
+	-- x says the Shogun hid it, a second later: Lida heard the Shogun himself, and keeps his word.
+	Say(w, x, ("b~0~%d~%s"):format(at + 1, N.shogun))
 	eq(Public(w, lida, "bones"), true, "a copy never replaces the giver's own word")
 	-- A member who heard nothing takes x's copy (it only fills)...
-	w:Logout(king)
+	w:Logout(shogun)
 	local late = w:Client("Parric Stowe")
-	Say(w, x, ("b~0~%d~%s"):format(at + 2, N.king))
+	Say(w, x, ("b~0~%d~%s"):format(at + 2, N.shogun))
 	eq(Public(w, late, "bones"), false, "the made-up copy, while nothing else is heard")
 	eq(Word(w, late, "bones").copy, true)
-	-- ...until the King's own word: his, whatever its time.
-	w:Login(king)
-	w:Run(king.ns.ArenaRoles.LOGIN_REPEAT + 1)
-	eq(Public(w, late, "bones"), true, "the King's own word replaces a copy of it")
+	-- ...until the Shogun's own word: his, whatever its time.
+	w:Login(shogun)
+	w:Run(shogun.ns.ArenaRoles.LOGIN_REPEAT + 1)
+	eq(Public(w, late, "bones"), true, "the Shogun's own word replaces a copy of it")
 	eq(Word(w, late, "bones").copy, nil)
-	-- A copy naming a councillor the King never named for Bones: nowhere.
+	-- A copy naming a councillor the Shogun never named for Bones: nowhere.
 	local other = w:Client("Tessa Morrow")
 	Say(w, x, ("b~1~%d~%s"):format(at + 5, N.councillor2))
 	eq(Word(w, other, "bones"), nil, "not a publisher")
 	eq(Public(w, other, "bones"), false)
 	-- A copy older than the copy held: ignored.
 	local fresh = w:Client("Odo Brask")
-	Say(w, x, ("b~1~%d~%s"):format(at + 10, N.king))
-	Say(w, x, ("b~0~%d~%s"):format(at + 9, N.king))
+	Say(w, x, ("b~1~%d~%s"):format(at + 10, N.shogun))
+	Say(w, x, ("b~0~%d~%s"):format(at + 9, N.shogun))
 	eq(Public(w, fresh, "bones"), true, "the newer copy stands")
 	NoErrors(w)
 end)
 
--- (The review) A copy is unsigned: one naming another publisher (a councillor the King named for that
--- game), dated after the King's word, held on a member's client that heard neither giver. The King's
+-- (The review) A copy is unsigned: one naming another publisher (a councillor the Shogun named for that
+-- game), dated after the Shogun's word, held on a member's client that heard neither giver. The Shogun's
 -- own word, older than the made-up copy, must still replace it: any giver's own word replaces any copy.
 -- Before, it was refused as older, at every repeat of his, so the made-up copy stood for good there.
-test("1.2.4 rankings word: a made-up copy naming another publisher, newer than the King's word, gives way to the King's own word at his next repeat", function()
+test("1.2.4 rankings word: a made-up copy naming another publisher, newer than the Shogun's word, gives way to the Shogun's own word at his next repeat", function()
 	local w = World.New()
-	local king, hc = w:Role("king"), w:Role("councillor")
+	local shogun, hc = w:Role("shogun"), w:Role("councillor")
 	local late = w:Client("Parric Stowe")
-	-- (the member hears the King name the councillor, then is away when the King shows Bones)
-	assert(w:As(king, king.ns.ArenaRoles.SetPublishers, { { name = hc.name, games = { bones = true } } }))
+	-- (the member hears the Shogun name the councillor, then is away when the Shogun shows Bones)
+	assert(w:As(shogun, shogun.ns.ArenaRoles.SetPublishers, { { name = hc.name, games = { bones = true } } }))
 	w:Run(0)
 	w:Logout(late)
-	assert(w:As(king, king.ns.ArenaRoles.Publish, "bones", true))
+	assert(w:As(shogun, shogun.ns.ArenaRoles.Publish, "bones", true))
 	w:Run(0)
-	local at = Word(w, king, "bones").at
-	w:Logout(king); w:Logout(hc)
+	local at = Word(w, shogun, "bones").at
+	w:Logout(shogun); w:Logout(hc)
 	w:Run(3 * 3600)
 	local x = w:Client("Idris Fold")
 	w:Login(late)
 	w:Run(0)
 	eq(w:As(late, late.ns.ArenaRoles.MayPublish, hc.name, "bones"), true, "the councillor publishes Bones")
 	eq(Word(w, late, "bones"), nil, "no word heard")
-	-- x makes up the councillor's word hiding Bones, an hour after the King's
+	-- x makes up the councillor's word hiding Bones, an hour after the Shogun's
 	Say(w, x, ("b~0~%d~%s"):format(at + 3600, hc.name))
 	eq(Public(w, late, "bones"), false, "the made-up copy, while nothing else is heard")
-	-- the King logs in: his client says his own word again (its time the same, older than the copy)
-	w:Login(king)
-	w:Run(king.ns.ArenaRoles.LOGIN_REPEAT + 1)
-	eq(Public(w, late, "bones"), true, "the King's own word replaces the copy")
-	eq(Word(w, late, "bones").from, N.king); eq(Word(w, late, "bones").copy, nil)
+	-- the Shogun logs in: his client says his own word again (its time the same, older than the copy)
+	w:Login(shogun)
+	w:Run(shogun.ns.ArenaRoles.LOGIN_REPEAT + 1)
+	eq(Public(w, late, "bones"), true, "the Shogun's own word replaces the copy")
+	eq(Word(w, late, "bones").from, N.shogun); eq(Word(w, late, "bones").copy, nil)
 	-- and a copy, newer still, never replaces it again
 	Say(w, x, ("b~0~%d~%s"):format(at + 7200, hc.name))
 	eq(Public(w, late, "bones"), true, "a copy never replaces a giver's own word")
@@ -172,20 +172,20 @@ end)
 
 -- (The review) "About three holders whatever the army's size": the channel joins every Bankai Guild guild,
 -- so a holder's odds to answer an ask heard there are three in the army's addon users (the census's,
--- King.AddonsOnline, as the signed authority's answers draw), not three in his own guild's (Comm's
+-- Shogun.AddonsOnline, as the signed authority's answers draw), not three in his own guild's (Comm's
 -- peers): with thirty guilds about ninety holders were drawn for each ask. Over the guild, his
 -- guild's.
 test("1.2.4 rankings word: a holder answers an ask on the channel at the army's odds, over the guild at his guild's", function()
 	local w = World.New()
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local lida = w:Client("Lida Fenn")
-	assert(w:As(king, king.ns.ArenaRoles.Publish, "bones", true))
+	assert(w:As(shogun, shogun.ns.ArenaRoles.Publish, "bones", true))
 	w:Run(0)
-	w:Logout(king)
+	w:Logout(shogun)
 	local late = w:Client("Parric Stowe")
 	-- (Lida's draw: one half; the army's addon users online: 300, her guild's few)
 	lida.ns.ArenaRoles.random = function() return 0.5 end
-	lida.ns.King.AddonsOnline = function() return 300 end
+	lida.ns.Shogun.AddonsOnline = function() return 300 end
 	local before = #AUs(w, lida)
 	Say(w, late, "q~b")
 	w:Run(lida.ns.ArenaRoles.ANSWER_MIN + lida.ns.ArenaRoles.ANSWER_SPREAD + 2)

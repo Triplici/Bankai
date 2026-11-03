@@ -207,9 +207,9 @@ end)
 
 test("Chat role badge: the Throne loses only Games and bets and retains its agenda action", function()
 	WithWindow(function(w)
-		local shown, canAgenda, home = ns.King.ThroneShown, ns.King.CanAgenda, ns.ArenaHome
-		ns.King.ThroneShown = function() return true end
-		ns.King.CanAgenda = function() return true end -- Agenda eligibility is now its own role check.
+		local shown, canAgenda, home = ns.Shogun.ThroneShown, ns.Shogun.CanAgenda, ns.ArenaHome
+		ns.Shogun.ThroneShown = function() return true end
+		ns.Shogun.CanAgenda = function() return true end -- Agenda eligibility is now its own role check.
 		-- This harness predates the Arena module; expose the old shortcut's eligibility only.
 		ns.ArenaHome = { GamesStaff = function() return true end, OpenStaff = function() error("removed shortcut invoked") end }
 		local ok, err = pcall(function()
@@ -224,7 +224,7 @@ test("Chat role badge: the Throne loses only Games and bets and retains its agen
 			end
 			assert(agenda, "the existing agenda action remains")
 		end)
-		ns.King.ThroneShown, ns.King.CanAgenda, ns.ArenaHome = shown, canAgenda, home
+		ns.Shogun.ThroneShown, ns.Shogun.CanAgenda, ns.ArenaHome = shown, canAgenda, home
 		if not ok then error(err, 0) end
 	end)
 end)

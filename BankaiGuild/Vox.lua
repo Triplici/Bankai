@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- Vox Populi: the King (or one of his Hands) asks the army a question with two to six
+-- Vox Populi: the Shogun (or one of his Hands) asks the army a question with two to six
 -- answers, to pick one or to pick several. Every Bankai Guild member with the addon gets a window
 -- with the answers and a countdown; each vote goes to whoever asked, alone (Y1), and when
 -- time is up the results go to everyone (T1~E): a bar chart in the window, a line in chat.
@@ -9,7 +9,7 @@ local L = ns.L
 -- screen (on stream) while they do. His last questions stay on that tab, with their results,
 -- across sessions (1.1.6).
 -- 1.1.6: the asker picks who a question is for (Vox.AUDIENCES): the whole army, the High
--- Council or the guild masters (the King's, his Steward's or a Hand's), or his own guild (a guild
+-- Council or the guild masters (the Shogun's, his Steward's or a Hand's), or his own guild (a guild
 -- master's, Y3). Both ends check it: a client opens the window only when its own character is
 -- in that audience, and the asker counts a vote only from someone he can place in it.
 --   T1~V~<id>~<guild>~<seconds>~<1|M>~<question>~<answer 1>~...~<answer n>   (n = 2 to 6)
@@ -44,7 +44,7 @@ Vox.after = function(seconds, where, fn) ns.After(seconds, where, fn) end
 --     the census or the signed manifest for the others (Data.AuthorizedRank)
 --   G the asker's own guild: a guild master's question to his members, over GUILD (Y3), which
 --     the server carries between the members of one guild alone
--- (Not the writs' letters, Acts.lua: there L is the Lords and C the Lords and Captains.)
+-- (Not the writs' letters, Acts.lua: there L is the Council and C the Council and Captains.)
 -- An audience is who the addon shows the question to and whose vote it counts: like everything
 -- on the channel (or in the guild), the question's bytes reach every addon there. Clients
 -- before 1.1.6 read the seconds first, find a letter, and show H and M to nobody.
@@ -53,8 +53,8 @@ local KNOWN = { E = true, H = true, M = true, G = true }
 local THRONE_TO = { H = true, M = true } -- (the letters a T1~V may carry; any other: no window)
 
 local poll          -- the asker's open question: { id, q, answers, multi, to, t, at, votes = { [sender] = picks }, counts, voters, others }
-local shown         -- the question on this client's window: { id, asker, q, answers, multi, to, guild, at, byKing, picks, voted, counts, voters }
-local previewed = {} -- the author's preview's questions (King.Preview): this session alone, never saved
+local shown         -- the question on this client's window: { id, asker, q, answers, multi, to, guild, at, byShogun, picks, voted, counts, voters }
+local previewed = {} -- the author's preview's questions (Shogun.Preview): this session alone, never saved
 local frame         -- the window (made on the first question): a voter's, or the asker's chart (frame.live)
 local composer      -- the asker's "new question" window
 local lastSent = -math.huge
@@ -92,16 +92,16 @@ function Vox.InAudience(to)
 	return to == "E"
 end
 
--- May this character ask that audience? The King, his Steward or a Hand the army, the council
+-- May this character ask that audience? The Shogun, his Steward or a Hand the army, the council
 -- and the guild masters (the Throne's tools); a guild master his own guild.
 function Vox.MayAsk(to)
 	if to == "G" then return Vox.GuildMaster() end
-	return (to == "E" or THRONE_TO[to] == true) and ns.King.CanCommand() or false
+	return (to == "E" or THRONE_TO[to] == true) and ns.Shogun.CanCommand() or false
 end
 
 -- The audiences this character may pick, in the composer's order (the author's preview: all).
 function Vox.Audiences()
-	local out, preview = {}, ns.King.Preview()
+	local out, preview = {}, ns.Shogun.Preview()
 	for _, to in ipairs(Vox.AUDIENCES) do
 		if preview or Vox.MayAsk(to) then out[#out + 1] = to end
 	end
@@ -168,7 +168,7 @@ local function History(create)
 end
 
 -- The list the tab, the chart and the Discord copy read: the author's preview's while it is on.
-local function List() return ns.King.Preview() and previewed or History() end
+local function List() return ns.Shogun.Preview() and previewed or History() end
 
 -- When it was asked: "5 min ago" the first day, its date after.
 local function When(t)
@@ -215,11 +215,11 @@ local function Counts(p, sender, guild)
 	return sender == ns.me or Placed(sender, guild)
 end
 
--- Which open question gives way to another (1.1.6): the King's comes first, then the Throne's
--- (a Hand's, a Steward's), then a guild master's to his guild (the King's to his own among them).
-local function Weight(byKing, to)
+-- Which open question gives way to another (1.1.6): the Shogun's comes first, then the Throne's
+-- (a Hand's, a Steward's), then a guild master's to his guild (the Shogun's to his own among them).
+local function Weight(byShogun, to)
 	if to == "G" then return 1 end
-	return byKing and 3 or 2
+	return byShogun and 3 or 2
 end
 
 ---------------------------------------------------------------------------
@@ -326,7 +326,7 @@ local function Close(id)
 		shown.counts, shown.voters, shown.resultsAt = { unpack(poll.counts) }, poll.voters, ns.Now()
 	end
 	-- The final chart on the asker's screen (on stream), unless the window is taken by
-	-- someone else's question still open here (a Hand's while the King asks).
+	-- someone else's question still open here (a Hand's while the Shogun asks).
 	local busy = frame and frame:IsShown() and not frame.live and shown and shown.asker ~= ns.me and not shown.counts
 	if not ns.db.voxOff and not busy then Vox.ShowLive() end
 	Changed()
@@ -335,10 +335,10 @@ end
 -- opts: { q, answers = { ... }, seconds, multi, to }. The composer's way, and the typed one's.
 -- to (1.1.6): one of Vox.AUDIENCES, the army when left out.
 function Vox.AskWith(opts)
-	local preview = ns.King.Preview()
+	local preview = ns.Shogun.Preview()
 	local to = opts.to or "E"
 	if not KNOWN[to] then return ns.Print(L.VOX_USAGE) end
-	if not Vox.MayAsk(to) and not preview then return ns.Print(to == "G" and L.VOX_ONLY_GM or L.THRONE_ONLY_KING) end
+	if not Vox.MayAsk(to) and not preview then return ns.Print(to == "G" and L.VOX_ONLY_GM or L.THRONE_ONLY_SHOGUN) end
 	-- A guild master the moderators took off (net-off, Moderation.lua): his guild's clients drop
 	-- his question (Moderation.Hides), so it does not go.
 	local off = to == "G" and not preview and ns.Moderation.SelfOff and ns.Moderation.SelfOff()
@@ -356,17 +356,17 @@ function Vox.AskWith(opts)
 	local multi = opts.multi and true or false
 	local now = ns.Now()
 	if poll and not poll.closed then return ns.Print(L.VOX_BUSY) end
-	-- Someone else's question still open (the King's, a Hand's): it would not be shown. (1.1.6: a
+	-- Someone else's question still open (the Shogun's, a Hand's): it would not be shown. (1.1.6: a
 	-- guild's gives way to the Throne's, Weight.)
 	if shown and shown.asker ~= ns.me and now <= shown.at and not shown.counts
-		and Weight(ns.King.IsKing(), to) <= Weight(shown.byKing, shown.to) then return ns.Print(L.VOX_BUSY_OTHER) end
+		and Weight(ns.Shogun.IsShogun(), to) <= Weight(shown.byShogun, shown.to) then return ns.Print(L.VOX_BUSY_OTHER) end
 	if not preview and now - lastSent < Vox.GAP then
 		return ns.Print(L.THRONE_WAIT:format(math.ceil(Vox.GAP - (now - lastSent))))
 	end
 	lastSent = now
 	local counts = {}
 	for i = 1, #answers do counts[i] = 0 end
-	poll = { id = ns.King.NewId(), q = q, answers = answers, multi = multi, to = to, t = now, at = now + seconds,
+	poll = { id = ns.Shogun.NewId(), q = q, answers = answers, multi = multi, to = to, t = now, at = now + seconds,
 		votes = {}, counts = counts, voters = 0, others = 0, preview = preview or nil }
 	placed, placedAt = {}, -math.huge
 	if composer then composer:Hide() end
@@ -560,18 +560,18 @@ local function Source()
 		if not p then return nil end
 		return { q = p.q, answers = p.answers, multi = p.multi, to = p.to, counts = p.counts, voters = p.voters,
 			at = p.at or 0, final = p ~= poll or poll.closed, live = true, asker = ns.me,
-			guild = GetGuildInfo("player"), byKing = ns.King.IsKing() or ns.King.Preview() }
+			guild = GetGuildInfo("player"), byShogun = ns.Shogun.IsShogun() or ns.Shogun.Preview() }
 	end
 	return shown
 end
 
--- "Shobek asks the army", "Helper, Hand of the King, asks the High Council", "Zed asks <Bankai Guild Zeus>".
+-- "Shobek asks the army", "Helper, Hand of the Shogun, asks the High Council", "Zed asks <Bankai Guild Zeus>".
 local function Title(s, name)
 	local to = s.to or "E"
 	if to == "G" then return L.VOX_ASKS_G:format(name, s.guild or "") end
-	if to == "H" then return (s.byKing and L.VOX_ASKS_H or L.VOX_ASKS_HAND_H):format(name) end
-	if to == "M" then return (s.byKing and L.VOX_ASKS_M or L.VOX_ASKS_HAND_M):format(name) end
-	return (s.byKing and L.VOX_ASKS or L.VOX_ASKS_HAND):format(name)
+	if to == "H" then return (s.byShogun and L.VOX_ASKS_H or L.VOX_ASKS_HAND_H):format(name) end
+	if to == "M" then return (s.byShogun and L.VOX_ASKS_M or L.VOX_ASKS_HAND_M):format(name) end
+	return (s.byShogun and L.VOX_ASKS or L.VOX_ASKS_HAND):format(name)
 end
 
 function Vox.Refresh()
@@ -579,7 +579,7 @@ function Vox.Refresh()
 	local s = Source()
 	if not s then return frame:Hide() end
 	local now = ns.Now()
-	local byName = s.byKing and ns.KingName(s.asker) or ns.DisplayName(s.asker)
+	local byName = s.byShogun and ns.ShogunName(s.asker) or ns.DisplayName(s.asker)
 	frame.title:SetText(Title(s, byName))
 	frame.question:SetText(s.q)
 	local results = s.live or s.counts ~= nil
@@ -650,9 +650,9 @@ function Vox.Refresh()
 end
 
 -- to (1.1.6): who it is for, the army when left out (the title names them).
-function Vox.Show(asker, id, seconds, q, answers, multi, byKing, hidden, to)
+function Vox.Show(asker, id, seconds, q, answers, multi, byShogun, hidden, to)
 	shown = { id = id, asker = asker, q = q, answers = answers, multi = multi and true or false, at = ns.Now() + seconds,
-		byKing = byKing, picks = {}, hidden = hidden and true or nil, to = to or "E", guild = GetGuildInfo("player") }
+		byShogun = byShogun, picks = {}, hidden = hidden and true or nil, to = to or "E", guild = GetGuildInfo("player") }
 	-- 1.1 (#31): the player's block terms hit its question or an answer: no window, no sound, no
 	-- line in chat; the Decrees tab offers it with a click while it is open (Vox.Reveal).
 	if hidden then
@@ -662,7 +662,7 @@ function Vox.Show(asker, id, seconds, q, answers, multi, byKing, hidden, to)
 	if ns.db.voxOff then
 		local list = {}
 		for i, a in ipairs(answers) do list[i] = ("%d) %s"):format(i, a) end
-		ns.Print(L.VOX_CHAT:format(byKing and ns.KingName(asker) or ns.DisplayName(asker), q, table.concat(list, "  "), KindText(multi)))
+		ns.Print(L.VOX_CHAT:format(byShogun and ns.ShogunName(asker) or ns.DisplayName(asker), q, table.concat(list, "  "), KindText(multi)))
 		return
 	end
 	-- In an instance or on Busy (1.1): the question in chat now, the window once the player is
@@ -681,7 +681,7 @@ function Vox.Show(asker, id, seconds, q, answers, multi, byKing, hidden, to)
 	if not opened then
 		local list = {}
 		for i, a in ipairs(answers) do list[i] = ("%d) %s"):format(i, a) end
-		ns.Print(L.VOX_HELD:format(byKing and ns.KingName(asker) or ns.DisplayName(asker), q, table.concat(list, "  "), KindText(multi)))
+		ns.Print(L.VOX_HELD:format(byShogun and ns.ShogunName(asker) or ns.DisplayName(asker), q, table.concat(list, "  "), KindText(multi)))
 	end
 end
 
@@ -699,7 +699,7 @@ local function Take(sender, id, rest, guild, to)
 	if ns.FullName(sender) == ns.me then return end
 	-- 1.1: a Hand (or a guild master) the moderators took off (net-off, Moderation.lua): no window of theirs.
 	if ns.Moderation.Hides and ns.Moderation.Hides(sender, guild) then return end
-	local byKing = ns.King.FromKing(sender, guild)
+	local byShogun = ns.Shogun.FromShogun(sender, guild)
 	local seconds, kind, q, a = rest:match("^(%d+)~([1M])~([^~]+)~(.+)$")
 	seconds = tonumber(seconds)
 	if not seconds or seconds < Vox.MIN or seconds > Vox.MAX then return end
@@ -713,9 +713,9 @@ local function Take(sender, id, rest, guild, to)
 	local now = ns.Now()
 	local from = ns.FullName(sender)
 	-- One question at a time: another asker's still open stays, unless this one comes first
-	-- (Weight: the King's before a Hand's). And from each asker a new window SHOW_GAP apart at most.
+	-- (Weight: the Shogun's before a Hand's). And from each asker a new window SHOW_GAP apart at most.
 	local open = shown and now <= shown.at and not shown.counts
-	if open and shown.asker ~= from and Weight(byKing, to) <= Weight(shown.byKing, shown.to) then return end
+	if open and shown.asker ~= from and Weight(byShogun, to) <= Weight(shown.byShogun, shown.to) then return end
 	if now - (lastShownBy[from] or -math.huge) < Vox.SHOW_GAP then return end
 	lastShownBy[from] = now
 	-- 1.1 (#31): hidden when the player's block terms hit the question or an answer (Filter.lua).
@@ -724,10 +724,10 @@ local function Take(sender, id, rest, guild, to)
 		hidden = F.Hides(q)
 		for _, x in ipairs(answers) do hidden = hidden or F.Hides(x) end
 	end
-	Vox.Show(from, id, seconds, q, answers, kind == "M", byKing, hidden, to)
+	Vox.Show(from, id, seconds, q, answers, kind == "M", byShogun, hidden, to)
 end
 
--- A question from the King or a Hand (King.Authorized checked the sender). 1.1.6: a letter
+-- A question from the Shogun or a Hand (Shogun.Authorized checked the sender). 1.1.6: a letter
 -- before the seconds names a narrower audience (THRONE_TO); a client outside it opens nothing,
 -- and a letter it does not know opens nothing either.
 local function OnQuestion(sender, id, rest, guild)
@@ -753,7 +753,7 @@ function Vox.Reveal()
 	if ns.db.voxOff then
 		local list = {}
 		for i, a in ipairs(shown.answers) do list[i] = ("%d) %s"):format(i, a) end
-		return ns.Print(L.VOX_CHAT:format(shown.byKing and ns.KingName(shown.asker) or ns.DisplayName(shown.asker), shown.q, table.concat(list, "  "), KindText(shown.multi)))
+		return ns.Print(L.VOX_CHAT:format(shown.byShogun and ns.ShogunName(shown.asker) or ns.DisplayName(shown.asker), shown.q, table.concat(list, "  "), KindText(shown.multi)))
 	end
 	frame = frame or MakeFrame()
 	frame.live = nil
@@ -789,8 +789,8 @@ local function OnResults(sender, id, rest, overGuild)
 	end
 end
 
-ns.King.Register("V", OnQuestion)
-ns.King.Register("E", function(sender, id, rest) OnResults(sender, id, rest) end)
+ns.Shogun.Register("V", OnQuestion)
+ns.Shogun.Register("E", function(sender, id, rest) OnResults(sender, id, rest) end)
 
 -- Y3 (1.1.6): a guild master's question to his own guild, and its results. Over GUILD alone,
 -- which the server carries between the members of one guild (and names who sent it), from the
@@ -806,7 +806,7 @@ end
 ns.Comm.Handle("Y3", function(...) Vox.HandleGuild(...) end)
 
 ---------------------------------------------------------------------------
--- The Vox Populi tab (the King and his Hands)
+-- The Vox Populi tab (the Shogun and his Hands)
 ---------------------------------------------------------------------------
 
 -- A bar as wide as the share (a plain texture, tinted: gold for the leader).
@@ -1051,7 +1051,7 @@ end
 -- audience this character may pick (the Throne: the whole army; a guild master: his guild).
 function Vox.Prompt()
 	local audiences = Vox.Audiences()
-	if #audiences == 0 then return ns.Print(L.THRONE_ONLY_KING) end
+	if #audiences == 0 then return ns.Print(L.THRONE_ONLY_SHOGUN) end
 	composer = composer or MakeComposer()
 	composer.q:SetText("")
 	for i, eb in ipairs(composer.a) do eb:SetText(i == 1 and L.VOX_YES or i == 2 and L.VOX_NO or "") end
@@ -1061,9 +1061,9 @@ function Vox.Prompt()
 	ns.Focus(composer.q)
 end
 
--- The tab: the Throne's (the King, his Steward, his Hands, the author's preview) and, 1.1.6, every
+-- The tab: the Throne's (the Shogun, his Steward, his Hands, the author's preview) and, 1.1.6, every
 -- guild master's, for his guild's questions.
-function Vox.Visible() return ns.King.Visible() or Vox.GuildMaster() end
+function Vox.Visible() return ns.Shogun.Visible() or Vox.GuildMaster() end
 function Vox.State() return poll, List(), shown end
 function Vox.Frame() return frame end
 function Vox.Composer() return composer end

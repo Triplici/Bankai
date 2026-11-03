@@ -2,11 +2,11 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- The guild bank of <Elfcore>, as its Treasury tab shows it: whoever of that guild opens the
--- bank with the addon on (the Treasurer, the King, an officer who may see it) takes a
+-- bank with the addon on (the Treasurer, the Shogun, an officer who may see it) takes a
 -- snapshot of what it holds, tab by tab (item and count, the bank's gold), kept in the saved
 -- variables with when it was taken. A keeper of the treasury's client (the Treasurer, the
--- King, a character the King named: Treasury.lua) sends its snapshot on the channel (T9, in
--- pieces), once he said yes to sharing, so the King and the army see the bank as a keeper
+-- Shogun, a character the Shogun named: Treasury.lua) sends its snapshot on the channel (T9, in
+-- pieces), once he said yes to sharing, so the Shogun and the army see the bank as a keeper
 -- last saw it (the newest); anyone else's snapshot stays on their own screen. Nothing is ever
 -- moved or touched in the bank.
 --   T9~<guild>~<time>~<copper>~<tab name>;<id>x<count>,.<empty slots>,<id>x<count>...~<tab name>;...
@@ -43,7 +43,7 @@ local function HasBank() return type(GetNumGuildBankTabs) == "function" and type
 Bank.HasAPI = HasBank
 
 -- Our own snapshot (this character's guild's bank), and a keeper's as it reached us (while he
--- is one: a character the King took off the treasury no longer shows the bank).
+-- is one: a character the Shogun took off the treasury no longer shows the bank).
 function Bank.Own() return ns.rdb and ns.rdb.bank or nil end
 function Bank.Report()
 	local r = ns.rdb and ns.rdb.bankReport
@@ -55,10 +55,10 @@ function Bank.Report()
 	if ns.Treasury and ns.Treasury.IsKeeperName and not ns.Treasury.IsKeeperName(r.by, r.guild) then return nil end
 	return r
 end
--- What the Treasury tab shows: the newest of the two, when ours is the King's guild's bank.
+-- What the Treasury tab shows: the newest of the two, when ours is the Shogun's guild's bank.
 function Bank.Current()
 	local own, report = Bank.Own(), Bank.Report()
-	if own and not (own.guild and ns.IsKingGuild(own.guild)) then own = nil end
+	if own and not (own.guild and ns.IsShogunGuild(own.guild)) then own = nil end
 	if own and report then return (own.t or 0) >= (report.t or 0) and own or report end
 	return own or report
 end
@@ -99,7 +99,7 @@ local function CanSend() return ns.Treasury and ns.Treasury.CanSend and ns.Treas
 -- What one message may carry (the channel's pieces), a little short of it.
 local function Room() return (ns.Codec.CHUNK or 220) * (ns.Codec.MAX_CHUNKS or 30) - 40 end
 
--- kind: "T9" (a keeper's snapshot of the King's guild's bank) unless said; "TS" (1.1: a sister
+-- kind: "T9" (a keeper's snapshot of the Shogun's guild's bank) unless said; "TS" (1.1: a sister
 -- guild's, for the Guild treasuries' audience alone) leaves the tabs' names out: 1.2 writes each
 -- tab's number in the bank there instead (1.1 wrote nothing, and reads nothing there).
 function Bank.Message(snap, kind)
@@ -136,21 +136,21 @@ function Bank.Message(snap, kind)
 	return msg
 end
 
--- Our own snapshot of the King's guild's bank as a keeper's client whispers it (1.1), or nil.
+-- Our own snapshot of the Shogun's guild's bank as a keeper's client whispers it (1.1), or nil.
 function Bank.PrivateMessage()
 	if not CanSend() then return nil end
 	local snap = Bank.Own()
-	if not snap or not (snap.guild and ns.IsKingGuild(snap.guild)) then return nil end
+	if not snap or not (snap.guild and ns.IsShogunGuild(snap.guild)) then return nil end
 	return Bank.Message(snap)
 end
 
--- 1.1: on the channel only while the King shows the army the book (the bank goes with it); by
--- whisper otherwise, to the King, his Stewards and the keepers heard online (Treasury.Private:
+-- 1.1: on the channel only while the Shogun shows the army the book (the bank goes with it); by
+-- whisper otherwise, to the Shogun, his Stewards and the keepers heard online (Treasury.Private:
 -- each gets a snapshot once, the next one when it changed).
 function Bank.Share(force)
 	if not CanSend() then return false end
 	local snap = Bank.Own()
-	if not snap or not (snap.guild and ns.IsKingGuild(snap.guild)) then return false end
+	if not snap or not (snap.guild and ns.IsShogunGuild(snap.guild)) then return false end
 	local now = ns.Now()
 	local msg = Bank.Message(snap)
 	if not msg then return false end
@@ -178,7 +178,7 @@ function Bank.Share(force)
 	return true
 end
 
--- A keeper's snapshot (from a keeper alone, by his name, speaking for the King's guild: no
+-- A keeper's snapshot (from a keeper alone, by his name, speaking for the Shogun's guild: no
 -- census vote, which forged ones could turn against him). The newest one is kept: a keeper
 -- repeating an older snapshot doesn't replace a newer one of another's.
 -- A snapshot's tabs as a message writes them ("<name>;<id>x<n>,.<gap>,...~..."): each item where it
@@ -217,10 +217,10 @@ local function ReadTabs(rest, noNames)
 end
 
 function Bank.HandleReport(dist, sender, text)
-	-- (1.1: by whisper too, put together by Treasury.HandlePrivate, to the King, a Steward or a keeper.)
+	-- (1.1: by whisper too, put together by Treasury.HandlePrivate, to the Shogun, a Steward or a keeper.)
 	if dist ~= "CHANNEL" and not (dist == "WHISPER" and ns.Treasury.IsInsider()) then return end
 	local guild, when, money, rest = text:match("^T9~([^~]*)~(%d+)~(%d+)~(.*)$")
-	if not guild or not ns.IsKingGuild(guild) then return end
+	if not guild or not ns.IsShogunGuild(guild) then return end
 	if not (ns.Treasury and ns.Treasury.IsKeeperName and ns.Treasury.IsKeeperName(sender, guild)) then return end
 	local now = ns.Now()
 	local r = { t = math.min(tonumber(when) or now, now), guild = guild, by = ns.FullName(sender), money = math.min(tonumber(money) or 0, 2147483647), tabs = ReadTabs(rest) }
@@ -319,7 +319,7 @@ function Bank.Opened()
 		end
 	end
 	Settle()
-	-- (1.1: a sister guild's treasurer is asked once a session whether the King sees his bank.)
+	-- (1.1: a sister guild's treasurer is asked once a session whether the Shogun sees his bank.)
 	Bank.AskSister()
 end
 function Bank.Changed() if open then Settle() end end
@@ -788,7 +788,7 @@ local ownGuildReaders, ownGuildLastAsk, ownGuildLastGrant = {}, -math.huge, -mat
 local ownGuildGrantPending = false
 local function GuildPreview()
 	local V = ns.ViewAs
-	return (ns.King and ns.King.Preview and ns.King.Preview() == true)
+	return (ns.Shogun and ns.Shogun.Preview and ns.Shogun.Preview() == true)
 		or (type(V) == "table" and not V.missing and type(V.Role) == "function" and V.Role() ~= "my")
 		or (ns.db and ns.db.devGMView == true)
 end
@@ -970,13 +970,13 @@ ns.Treasury.OnPrivate("UG", { from = Bank.OwnGuildKeeper, to = Bank.OwnGuildRead
 		and msg == GuildSnapshotMessage() end,
 	handle = Bank.HandleOwnGuild })
 
--- Sister guilds' banks: an Bankai Guild guild other than the King's, whose treasurer (its guild
+-- Sister guilds' banks: an Bankai Guild guild other than the Shogun's, whose treasurer (its guild
 -- master or an officer, by the server's own roster) says yes, has its snapshot whispered to the
 -- directory's audience alone, never on the channel (the whole army would see another guild's
 -- stock), when their addon asks (TA, Treasury.lua) and when it changes. 1.2 (the Guild treasuries,
--- on the Treasury tab): that audience is the King, the High Council (the author's signed list; his
+-- on the Treasury tab): that audience is the Shogun, the High Council (the author's signed list; his
 -- Stewards and his Hands count as of it), the federal Treasurer (his own character, ns.TREASURER)
--- and the author. A yes given to 1.1's question (the King, his Stewards and his Hands) still covers
+-- and the author. A yes given to 1.1's question (the Shogun, his Stewards and his Hands) still covers
 -- those alone: its giver is asked once more whether the others see it too (BANKAIGUILD_SISTER_BANK_WIDER).
 --   TS~<guild>~<time>~<copper>~<tab>;<id>x<count>,.<gap>,...~<tab>;...   in pieces (Treasury.Private):
 --   the tabs' names left out (a name another guild typed never reaches a viewer's screen, his
@@ -984,7 +984,7 @@ ns.Treasury.OnPrivate("UG", { from = Bank.OwnGuildKeeper, to = Bank.OwnGuildRead
 --   with the same tab of the snapshot before (what left it since, Bank.Gone) even when one went
 --   unread and was left out; 1.1 sent nothing there and reads nothing there (its "Tab 1", "Tab 2"
 --   are the message's order). TS~<guild>~0~0~ withdraws it (his no)
--- Taken only from a Lord or Captain of that guild as current authority confirms: the legacy
+-- Taken only from a Council member or Captain of that guild as current authority confirms: the legacy
 -- census until explicit signed enforcement, our roster or the manifest afterwards. Before
 -- enforcement the census can be gamed; a snapshot is its sender's word, shown with his name.
 -- It is kept in memory alone, SISTERS_MAX guilds at most, and dropped once this character is no
@@ -1007,7 +1007,7 @@ Bank.SISTER_OLD = 3 * 86400 -- a snapshot taken longer ago shows as old (the ban
 -- RESET_GAP: Treasury.Resend). A changed one goes as ever.
 Bank.SISTER_REPEAT = 3 * 3600
 Bank.CONSENT_ALL = 2      -- ns.db.sisterBankShares: 1.2's yes, to the directory's whole audience
-Bank.CONSENT_KING = 1     -- ...asked that, he kept 1.1's yes (the King, his Stewards and his Hands)
+Bank.CONSENT_SHOGUN = 1     -- ...asked that, he kept 1.1's yes (the Shogun, his Stewards and his Hands)
 Bank.NO_MARGIN = 180 -- a viewer heard within ASK_EVERY and this is told our no at once (his ask: on a minute's timer, queued)
 function Bank.NoWithin() return ns.Treasury.ASK_EVERY + Bank.NO_MARGIN end
 local sisters, sisterCount = {}, 0   -- [guild, lower case] = { guild, by, t, money, tabs, heard, sister, numbered, prev }
@@ -1030,10 +1030,10 @@ local held, heldCount = {}, 0 -- [sender, lower case] = { sender, key, text, whe
 local heldTimer               -- the login (Comm.loginAt) whose window's end a check is due at
 local rechecking = false
 
--- 1.1's audience: the King, his Steward, his Hands (their names, which the server stamps).
+-- 1.1's audience: the Shogun, his Steward, his Hands (their names, which the server stamps).
 local function CrownViewer(name)
 	if type(name) ~= "string" or name == "" then return false end
-	return ns.IsKingCharacter(name) or ns.King.IsStewardName(name) or ns.King.IsHandName(name)
+	return ns.IsShogunCharacter(name) or ns.Shogun.IsStewardName(name) or ns.Shogun.IsHandName(name)
 end
 -- 1.2's, the Guild treasuries': those, the High Council, the federal Treasurer and the author.
 local function DirectoryViewer(name)
@@ -1048,7 +1048,7 @@ local SisterViewer = DirectoryViewer
 -- This client is one of the directory's audience (never a preview: the author's views change
 -- which pages are drawn alone, ViewAs.lua).
 function Bank.SeesSisters()
-	if ns.King.IsKing() or ns.King.IsSteward() or ns.King.IsHand() then return true end
+	if ns.Shogun.IsShogun() or ns.Shogun.IsSteward() or ns.Shogun.IsHand() then return true end
 	if type(ns.me) ~= "string" then return false end
 	if ns.IsHighCouncillor(ns.me) then return true end
 	if ns.IsMember() and ns.IsTreasurer(ns.me, GetGuildInfo("player")) then return true end
@@ -1074,9 +1074,9 @@ end
 -- its role is known for ROLE_SETTLE of a session spent outside it (taken off the High Council while
 -- offline). What came to it as a Steward or a Hand (crown: a 1.1 yes covers those alone, and only
 -- its sender's addon knows which yes it was) is shown in a later session only while this character
--- is of the crown again, and goes, the save too, once it surely is not: no Steward, and the King's
--- list heard without him (King.HandsFresh). A Hand's role rides on that list alone, which stops when
--- the King logs off: until it is heard again, his copies wait unseen.
+-- is of the crown again, and goes, the save too, once it surely is not: no Steward, and the Shogun's
+-- list heard without him (Shogun.HandsFresh). A Hand's role rides on that list alone, which stops when
+-- the Shogun logs off: until it is heard again, his copies wait unseen.
 ---------------------------------------------------------------------------
 Bank.SISTERS_SAVED_BYTES = 512 * 1024 -- some 70 full banks (a TS is 7.4 KB at most: Room), 128 of 4 KB
 Bank.ROLE_SETTLE = 20 * 60            -- (a session this long outside the audience: its role is known)
@@ -1103,18 +1103,18 @@ local function SavedMine(make)
 	end
 	return all[key]
 end
--- A guild the save may keep: an Bankai Guild guild, not the King's. (Its sender was confirmed when it
+-- A guild the save may keep: an Bankai Guild guild, not the Shogun's. (Its sender was confirmed when it
 -- came; the census's row is not asked for again: Data.KEEP forgets it while a viewer is away.)
 local function Keepable(guild)
-	return type(guild) == "string" and guild ~= "" and not ns.IsKingGuild(guild) and ns.IsFederation(guild)
+	return type(guild) == "string" and guild ~= "" and not ns.IsShogunGuild(guild) and ns.IsFederation(guild)
 end
--- This character, of the crown's own audience (the King, a Steward, a Hand); and a copy taken now
--- marked as one that came to a Steward or a Hand (the King's never lapses: none of his is marked).
-local function CrownMe() return ns.King.IsKing() or ns.King.IsSteward() or ns.King.IsHand() end
-local function CrownMark() return (not ns.King.IsKing() and (ns.King.IsSteward() or ns.King.IsHand())) or nil end
--- No longer of the crown, for sure: neither King nor Steward, and the King's list, heard now, does
--- not name him (nor a Steward's he still hears: King.IsHand).
-local function OutOfCrown() return not CrownMe() and ns.King.HandsFresh ~= nil and ns.King.HandsFresh() end
+-- This character, of the crown's own audience (the Shogun, a Steward, a Hand); and a copy taken now
+-- marked as one that came to a Steward or a Hand (the Shogun's never lapses: none of his is marked).
+local function CrownMe() return ns.Shogun.IsShogun() or ns.Shogun.IsSteward() or ns.Shogun.IsHand() end
+local function CrownMark() return (not ns.Shogun.IsShogun() and (ns.Shogun.IsSteward() or ns.Shogun.IsHand())) or nil end
+-- No longer of the crown, for sure: neither Shogun nor Steward, and the Shogun's list, heard now, does
+-- not name him (nor a Steward's he still hears: Shogun.IsHand).
+local function OutOfCrown() return not CrownMe() and ns.Shogun.HandsFresh ~= nil and ns.Shogun.HandsFresh() end
 -- A loading screen's moment: in a guild, its name not given yet. It tells nothing of the role.
 local function Loading() return IsInGuild ~= nil and IsInGuild() and GetGuildInfo("player") == nil end
 -- The save over SISTERS_SAVED_BYTES, or a character's over SISTERS_MAX: the one heard longest ago goes.
@@ -1172,7 +1172,7 @@ local function Unsave(key)
 	if mine then mine[key] = nil; if next(mine) == nil then DropMine() end end
 end
 -- This character's save, dropped (it left the audience): all but what came to it as a Steward or a
--- Hand, which waits for the King's list (DropCrown).
+-- Hand, which waits for the Shogun's list (DropCrown).
 local function ForgetSaved()
 	local mine = SavedMine(false)
 	if not mine then return end
@@ -1230,7 +1230,7 @@ end
 -- Still of it: once this character no longer is (taken off the High Council, no longer a Hand),
 -- what it held goes, at its next use or the share tick at the latest, and its next ask once it is
 -- of it again says it holds nothing (Bank.Lapsed: its senders' 3 hours, SISTER_REPEAT, never wait).
--- 1.2.4: the save goes with it (above, what came as a Steward or a Hand once the King's list says
+-- 1.2.4: the save goes with it (above, what came as a Steward or a Hand once the Shogun's list says
 -- so); and a loading screen's moment tells nothing of the role: what it holds stays, unseen.
 local function Holding()
 	local loading = Loading()
@@ -1255,7 +1255,7 @@ local function Holding()
 	return false
 end
 Bank.Holding = Holding
--- Its addon asks for them (TA): the King's, a Steward's and the Treasurer's ask anyway, as insiders.
+-- Its addon asks for them (TA): the Shogun's, a Steward's and the Treasurer's ask anyway, as insiders.
 function Bank.AsksSisters() return Bank.SeesSisters() end
 -- Back in the audience after what it held was dropped: this ask says it holds nothing (once).
 function Bank.Lapsed()
@@ -1264,9 +1264,9 @@ function Bank.Lapsed()
 	return true
 end
 
--- A Lord or Captain of `guild`: the legacy census until explicit enforcement, then our roster
+-- A Council member or Captain of `guild`: the legacy census until explicit enforcement, then our roster
 -- for our guild and the author-signed leadership manifest for another.
-function Bank.LordOrCaptain(sender, guild)
+function Bank.CouncilOrCaptain(sender, guild)
 	if type(sender) ~= "string" or type(guild) ~= "string" or guild == "" then return false end
 	local rank = ns.Data.AuthorizedRank(ns.FullName(sender), guild)
 	return rank ~= nil and rank <= ns.CAPTAIN_RANK
@@ -1275,7 +1275,7 @@ end
 -- 1.2.4: the legacy census refused `sender` for `guild` only because it cannot say yet: inside our
 -- login's Data.CROWN_AFTER (the reports of this session still coming in), no report of that guild
 -- heard yet (the census forgets at login the rows it has not heard for Data.KEEP: after a week away,
--- every one), its report older than Data.FRESH, or a report naming him a Lord or a Captain that
+-- every one), its report older than Data.FRESH, or a report naming him a Council member or a Captain that
 -- does not prove it yet (his own alone: he is its reporter, and the runner-up's comes up to 10
 -- minutes later; one where a guild master needs two). Never once the author's signed list is
 -- enforced (it says who is who at once), never for our own guild after the window (our roster says
@@ -1284,7 +1284,7 @@ end
 local function Unsettled(sender, guild)
 	local D = ns.Data
 	if not D or (ns.Authority and ns.Authority.Enforced and ns.Authority.Enforced()) then return false end
-	if not ns.IsFederation(guild) or ns.IsKingGuild(guild) then return false end
+	if not ns.IsFederation(guild) or ns.IsShogunGuild(guild) then return false end
 	local now = ns.Now()
 	if now - (ns.Comm and ns.Comm.loginAt or 0) < D.CROWN_AFTER then return true end
 	if guild == GetGuildInfo("player") then return false end
@@ -1295,12 +1295,12 @@ end
 Bank.Unsettled = Unsettled
 
 -- This character is its guild's treasurer for this: the guild master or an officer (the server's
--- rank), of an Bankai Guild guild that is not the King's.
+-- rank), of an Bankai Guild guild that is not the Shogun's.
 function Bank.SisterTreasurer()
 	if not ns.IsMember() or not ns.me then return false end
 	local guild, _, rank = GetGuildInfo("player")
 	rank = tonumber(rank)
-	return type(guild) == "string" and not ns.IsKingGuild(guild) and rank ~= nil and rank <= ns.CAPTAIN_RANK
+	return type(guild) == "string" and not ns.IsShogunGuild(guild) and rank ~= nil and rank <= ns.CAPTAIN_RANK
 end
 local function SisterKey() return tostring(ns.FullName(ns.me) or ""):lower() end
 -- This character's snapshot went out (`guild`'s), or the guild it last went out of (nil: never).
@@ -1320,7 +1320,7 @@ local function AnsweredFor()
 	local g = type(t) == "table" and t[SisterKey()]
 	return type(g) == "string" and g ~= "" and g or nil
 end
--- His answer as kept, per character: CONSENT_ALL (1.2's yes), CONSENT_KING or true (1.1's yes:
+-- His answer as kept, per character: CONSENT_ALL (1.2's yes), CONSENT_SHOGUN or true (1.1's yes:
 -- true until he is asked 1.2's question), false (his no), nil (never answered). (A 1.1 addon reads
 -- a number there as no yes: an addon taken back to 1.1 shares nothing.) 1.2: a yes is for the guild
 -- its question named, kept with it (sisterBankFor; 1.1's, which kept none: the guild its snapshot
@@ -1330,7 +1330,7 @@ local function Answer()
 	local t = ns.db and ns.db.sisterBankShares
 	if type(t) ~= "table" then return nil end
 	local a = t[SisterKey()]
-	if a == Bank.CONSENT_ALL or a == Bank.CONSENT_KING or a == true then
+	if a == Bank.CONSENT_ALL or a == Bank.CONSENT_SHOGUN or a == true then
 		local was, guild = AnsweredFor() or (a == true and SentGuild() or nil), GetGuildInfo("player")
 		if a ~= true and not was then return nil end
 		if was and (type(guild) ~= "string" or was:lower() ~= guild:lower()) then return nil end
@@ -1341,15 +1341,15 @@ end
 function Bank.SisterConsent()
 	local a = Answer()
 	if a == false then return false end
-	if a == true or a == Bank.CONSENT_ALL or a == Bank.CONSENT_KING then return true end
+	if a == true or a == Bank.CONSENT_ALL or a == Bank.CONSENT_SHOGUN then return true end
 	return nil
 end
--- Whom his yes covers: "all" (1.2's: the directory's audience), "crown" (1.1's: the King, his
+-- Whom his yes covers: "all" (1.2's: the directory's audience), "crown" (1.1's: the Shogun, his
 -- Stewards and his Hands), nil (no yes).
 function Bank.SisterScope()
 	local a = Answer()
 	if a == Bank.CONSENT_ALL then return "all" end
-	if a == true or a == Bank.CONSENT_KING then return "crown" end
+	if a == true or a == Bank.CONSENT_SHOGUN then return "crown" end
 	return nil
 end
 -- Whom our snapshot goes to now, by his yes (checked again for every piece: Treasury.Private).
@@ -1426,13 +1426,13 @@ function Bank.NotFound(Is)
 	for name in pairs(kept) do if Is(name) then kept[name] = nil end end
 end
 
--- on: his yes, 1.2's (the directory's whole audience), or with kingOnly 1.1's kept (the King, his
+-- on: his yes, 1.2's (the directory's whole audience), or with shogunOnly 1.1's kept (the Shogun, his
 -- Stewards and his Hands: his answer to BANKAIGUILD_SISTER_BANK_WIDER); otherwise his no. 1.2.4 (the
 -- branch's review): a no is his to give whatever he is now. One who answered or shared as a guild
 -- master or an officer and was demoted since (or is of another guild) takes his snapshot back
 -- still, from the viewers' screens and saves (their addon takes a no from whoever sent the copy it
 -- keeps); a yes stays a guild master's or an officer's alone.
-function Bank.SetSisterConsent(on, kingOnly)
+function Bank.SetSisterConsent(on, shogunOnly)
 	local officer = Bank.SisterTreasurer()
 	if not officer then
 		local t = ns.db and ns.db.sisterBankShares
@@ -1440,12 +1440,12 @@ function Bank.SetSisterConsent(on, kingOnly)
 		if on or not (answered or SentGuild()) then return ns.Print(L.BANK_SISTER_ONLY) end
 	end
 	ns.db.sisterBankShares = type(ns.db.sisterBankShares) == "table" and ns.db.sisterBankShares or {}
-	ns.db.sisterBankShares[SisterKey()] = on and (kingOnly and Bank.CONSENT_KING or Bank.CONSENT_ALL) or false
+	ns.db.sisterBankShares[SisterKey()] = on and (shogunOnly and Bank.CONSENT_SHOGUN or Bank.CONSENT_ALL) or false
 	if officer then
 		ns.db.sisterBankFor = type(ns.db.sisterBankFor) == "table" and ns.db.sisterBankFor or {}
 		ns.db.sisterBankFor[SisterKey()] = GetGuildInfo("player") -- (the guild his question named: Answer)
 	end
-	ns.Print(on and (kingOnly and L.BANK_SISTER_KING_KEPT or L.BANK_SISTER_ON) or L.BANK_SISTER_OFF)
+	ns.Print(on and (shogunOnly and L.BANK_SISTER_SHOGUN_KEPT or L.BANK_SISTER_ON) or L.BANK_SISTER_OFF)
 	if on then
 		wipe(sisterNoTold) -- (a later no goes to every viewer again)
 		ns.Treasury.PrunePrivate() -- (whatever still waits for one his yes no longer covers)
@@ -1485,7 +1485,7 @@ StaticPopupDialogs["BANKAIGUILD_SISTER_BANK"] = {
 	preferredIndex = 3,
 }
 -- 1.2: whoever said yes to 1.1's question is asked this once: the directory's other viewers too?
--- Its no keeps 1.1's yes (the King, his Stewards and his Hands); /bk bank share off stays the no.
+-- Its no keeps 1.1's yes (the Shogun, his Stewards and his Hands); /bk bank share off stays the no.
 StaticPopupDialogs["BANKAIGUILD_SISTER_BANK_WIDER"] = {
 	text = L.BANK_SISTER_WIDER,
 	button1 = L.BANK_SISTER_WIDER_YES,
@@ -1513,7 +1513,7 @@ function Bank.AskSister()
 	return true
 end
 
--- A sister guild's snapshot (TS), on a client of the directory's audience: from a Lord or Captain
+-- A sister guild's snapshot (TS), on a client of the directory's audience: from a Council member or Captain
 -- of that guild (the legacy census until enforcement, our roster or the signed manifest
 -- afterwards), the newest kept, in memory alone. 1.2: the one it replaces, the same sender's and
 -- older, is kept with it (prev: one, never a chain), for what left the bank since (Bank.Previous);
@@ -1563,11 +1563,11 @@ end
 ns.On("DATA_CHANGED", function() if heldCount > 0 then Bank.Recheck() end end)
 
 -- A TS as it travels, read: { guild, when, money, tabs, numbered } (when 0: a no, no tabs read), or
--- nil for none or one of the King's guild. (1.2.4: the save keeps the text, read again here.)
+-- nil for none or one of the Shogun's guild. (1.2.4: the save keeps the text, read again here.)
 Parse = function(text)
 	local guild, when, money, rest = text:match("^TS~([^~]*)~(%d+)~(%d+)~?(.*)$")
-	guild = guild and ns.King.CleanGuild(guild)
-	if not guild or guild == "" or ns.IsKingGuild(guild) then return nil end
+	guild = guild and ns.Shogun.CleanGuild(guild)
+	if not guild or guild == "" or ns.IsShogunGuild(guild) then return nil end
 	when = tonumber(when)
 	if when == 0 then return { guild = guild, when = 0, money = 0, tabs = {} } end
 	local tabs, numbered = ReadTabs(rest, true)
@@ -1587,13 +1587,13 @@ end
 function Bank.HandleSister(dist, sender, text)
 	if dist ~= "WHISPER" or type(text) ~= "string" then return end
 	local guild, when = text:match("^TS~([^~]*)~(%d+)~")
-	guild = guild and ns.King.CleanGuild(guild)
-	if not guild or ns.IsKingGuild(guild) then return end
+	guild = guild and ns.Shogun.CleanGuild(guild)
+	if not guild or ns.IsShogunGuild(guild) then return end
 	local key, now, who = guild:lower(), ns.Now(), ns.FullName(sender)
 	when = tonumber(when)
 	-- A no from whoever sent the copy kept counts, whatever the census says of him now. 1.2.4: and
 	-- whatever this character is now: it only takes away, from the save too, a copy kept unseen as
-	-- well (a loading screen's moment, a Hand while the King's list is not heard).
+	-- well (a loading screen's moment, a Hand while the Shogun's list is not heard).
 	if when == 0 and SentBy(key, who) then
 		if held[who:lower()] then held[who:lower()], heldCount = nil, heldCount - 1 end
 		if sisters[key] then sisters[key], sisterCount = nil, sisterCount - 1 end
@@ -1605,7 +1605,7 @@ function Bank.HandleSister(dist, sender, text)
 		if Loading() then Hold(key, who, text, when) end
 		return
 	end
-	if not Bank.LordOrCaptain(sender, guild) then
+	if not Bank.CouncilOrCaptain(sender, guild) then
 		if Unsettled(sender, guild) then Hold(key, who, text, when) end
 		return
 	end
@@ -1666,7 +1666,7 @@ function Bank.Sisters()
 	if not Holding() then return out end
 	local enforcing = ns.Authority and ns.Authority.Enforced and ns.Authority.Enforced()
 	for key, x in pairs(sisters) do
-		if not enforcing or Bank.LordOrCaptain(x.by, x.guild) then out[#out + 1] = x
+		if not enforcing or Bank.CouncilOrCaptain(x.by, x.guild) then out[#out + 1] = x
 		else sisters[key], sisterCount = nil, sisterCount - 1; Unsave(key) end
 	end
 	table.sort(out, function(a, b) return a.guild:lower() < b.guild:lower() end)
@@ -1693,7 +1693,7 @@ local function OtherMaster(by, guild)
 	return ns.FullName(g.leader, g.realm):lower() ~= ns.FullName(by):lower()
 end
 function Bank.Correspondent(guild)
-	if type(guild) ~= "string" or guild == "" or ns.IsKingGuild(guild) then return nil end
+	if type(guild) ~= "string" or guild == "" or ns.IsShogunGuild(guild) then return nil end
 	local key, N = guild:lower(), ns.Nominees
 	local list = N and N.ListOf and N.ListOf(guild)
 	local x = sisters[key]
@@ -1713,23 +1713,23 @@ function Bank.Correspondent(guild)
 end
 
 ---------------------------------------------------------------------------
--- 1.1: bank requests (Fern's): a Lord or a Captain asks the treasury for an item and a count
+-- 1.1: bank requests (Fern's): a Council member or a Captain asks the treasury for an item and a count
 -- ("need 10 Ironwood"), shown next to the bank snapshot. The bank view shows what the treasury
 -- holds, not what the raid is short: a request line stops five officers from buying the same
 -- stack. Handing it over stays a normal trade or mail, the player's own click: the addon moves
 -- nothing, and a request closes by itself when the keeper's book records that item given to that
 -- player (Treasury.Record).
---   TN~<id>~<item>~<count>~<guild>   by whisper, from a Lord or a Captain to each keeper, the King
+--   TN~<id>~<item>~<count>~<guild>   by whisper, from a Council member or a Captain to each keeper, the Shogun
 --                                     and his Stewards heard online (count 0: he cancels it); sent
 --                                     again every REQUEST_AGAIN while it is open, and answered each time
---   TO~<id>~<o|d|x|c>[~<Name-Realm>]  by whisper, a keeper's (the King's, a Steward's) answer: open
+--   TO~<id>~<o|d|x|c>[~<Name-Realm>]  by whisper, a keeper's (the Shogun's, a Steward's) answer: open
 --                                     (seen), done, declined, cancelled; with a name, to the other
---                                     keepers, the King and his Stewards: that player's request changed
+--                                     keepers, the Shogun and his Stewards: that player's request changed
 --   TL~<guild>~<id>:<item>:<count>:<Name-Realm>:<Guild>,...   on the channel, a keeper's open
---                                     requests, only while the King shows the army the book (the bank
+--                                     requests, only while the Shogun shows the army the book (the bank
 --                                     goes with it), for everyone who sees the bank; none: not sent
 -- No text travels, only an item's number and a count; REQUEST_OPEN open per character at most, each
--- for REQUEST_DAYS. Whom it comes from is checked as a sister guild's bank is (Bank.LordOrCaptain).
+-- for REQUEST_DAYS. Whom it comes from is checked as a sister guild's bank is (Bank.CouncilOrCaptain).
 -- Paced (Konig's review of 1.1: a request taken back and made again, or a modified client's new
 -- ids, had every keeper print a line, answer and put his list on the channel each time): REQUEST_NEW
 -- new requests a REQUEST_WINDOW per character (his own client says so; a keeper's takes no more from
@@ -1767,7 +1767,7 @@ local function Field(s, n) return ns.Cut((tostring(s or ""):gsub("[~;:,|%c]", " 
 local function Open(state) return state == "sent" or state == "seen" or state == "open" end
 local function Expired(e) return ns.Now() - (tonumber(e.t) or 0) > Bank.REQUEST_DAYS * 86400 end
 
--- A Lord or a Captain of an Bankai Guild guild (the server's rank of this character); not the King, a
+-- A Council member or a Captain of an Bankai Guild guild (the server's rank of this character); not the Shogun, a
 -- Steward or a keeper: the treasury is theirs already. (The treasury is the Alliance's <Elfcore>'s.)
 function Bank.MayRequest()
 	if ns.faction == "Horde" or not ns.IsMember() or ns.Treasury.IsInsider() then return false end
@@ -1776,7 +1776,7 @@ function Bank.MayRequest()
 	return rank ~= nil and rank <= ns.CAPTAIN_RANK
 end
 
--- This character's own requests (kept per character), and the requests a keeper's, the King's or
+-- This character's own requests (kept per character), and the requests a keeper's, the Shogun's or
 -- a Steward's client holds (["Name-Realm#id"]).
 local function Mine()
 	ns.rdb.bankAsks = type(ns.rdb.bankAsks) == "table" and ns.rdb.bankAsks or {}
@@ -1794,7 +1794,7 @@ end
 local function RequesterGuard(e)
 	return function()
 		if not (ns.Authority and ns.Authority.Enforced and ns.Authority.Enforced()) then return true end
-		return type(e) == "table" and not Expired(e) and Bank.LordOrCaptain(e.from, e.guild)
+		return type(e) == "table" and not Expired(e) and Bank.CouncilOrCaptain(e.from, e.guild)
 	end
 end
 
@@ -1807,7 +1807,7 @@ function Bank.MyRequests()
 	return out
 end
 
--- The requests this client holds for the treasury (a keeper's, the King's, a Steward's): the open
+-- The requests this client holds for the treasury (a keeper's, the Shogun's, a Steward's): the open
 -- ones first, then the ones closed within a day, the newest first. { { key, from, guild, id, item,
 -- n, t, state, by, at } }.
 function Bank.Requests()
@@ -1825,7 +1825,7 @@ function Bank.Requests()
 	return out
 end
 
--- The open requests the keepers put on the channel (while the King shows the army the book),
+-- The open requests the keepers put on the channel (while the Shogun shows the army the book),
 -- each once: { { id, item, n, from, guild } }.
 function Bank.PublicRequests()
 	local out, seen, now = {}, {}, ns.Now()
@@ -1843,7 +1843,7 @@ function Bank.PublicRequests()
 	return out
 end
 
--- Our open requests go to each keeper, the King and his Stewards heard online (Treasury.Online),
+-- Our open requests go to each keeper, the Shogun and his Stewards heard online (Treasury.Online),
 -- at once for a new one (force), again every REQUEST_AGAIN while it is open: each answers with
 -- where it stands. Returns how many whispers went.
 function Bank.SendRequests(force)
@@ -1865,7 +1865,7 @@ function Bank.SendRequests(force)
 	return n
 end
 
--- A Lord or a Captain asks the treasury for `count` of `item` (an item's number).
+-- A Council member or a Captain asks the treasury for `count` of `item` (an item's number).
 function Bank.Request(item, count)
 	if not Bank.MayRequest() then return ns.Print(L.BANK_REQUEST_ONLY) end
 	item, count = tonumber(item), math.floor(tonumber(count) or 0)
@@ -1919,17 +1919,17 @@ function Bank.Cancel(id)
 	end
 end
 
--- On a keeper's, the King's or a Steward's client: a request (TN) from a Lord or Captain of that
+-- On a keeper's, the Shogun's or a Steward's client: a request (TN) from a Council member or Captain of that
 -- guild (our roster or its census), REQUEST_OPEN open each at most, REQUESTS_KEPT in all; answered
 -- with where it stands (TO), each time he asks.
 function Bank.HandleRequest(dist, sender, text)
 	if dist ~= "WHISPER" or type(text) ~= "string" or not ns.Treasury.IsInsider() then return end
 	local id, item, count, guild = text:match("^TN~(%d+)~(%d+)~(%d+)~([^~]*)$")
 	id, item, count = tonumber(id), tonumber(item), tonumber(count)
-	guild = guild and ns.King.CleanGuild(guild)
+	guild = guild and ns.Shogun.CleanGuild(guild)
 	if not (id and item and item > 0 and item < 2147483647 and count and count <= Bank.REQUEST_MAX_COUNT and guild) then return end
 	sender = ns.FullName(sender)
-	if not Bank.LordOrCaptain(sender, guild) then return ns.Log("bank request from %s (%s) ignored: not its Lord or a Captain", sender, guild) end
+	if not Bank.CouncilOrCaptain(sender, guild) then return ns.Log("bank request from %s (%s) ignored: not its Council or a Captain", sender, guild) end
 	local held, key, now = Held(), sender .. "#" .. id, ns.Now()
 	local e = held[key]
 	if count == 0 then
@@ -1968,7 +1968,7 @@ function Bank.HandleRequest(dist, sender, text)
 	-- (A change at once. Unchanged: an open request once an ANSWER_GAP at most, half its asker's
 	-- REQUEST_AGAIN, so each honest ask is answered; a closed one, its state told, never again.
 	-- Konig's review of 1.1: paced per request id alone, a requester's REQUESTS_EACH ids asked about
-	-- every minute drew as many whispers a minute from every keeper, the King and each Steward.)
+	-- every minute drew as many whispers a minute from every keeper, the Shogun and each Steward.)
 	local code = CODE[e.state] or "o"
 	if e.told ~= code or (Open(e.state) and now - (tonumber(e.toldAt) or 0) >= Bank.ANSWER_GAP) then
 		e.told, e.toldAt = code, now
@@ -1979,7 +1979,7 @@ function Bank.HandleRequest(dist, sender, text)
 end
 ns.Comm.Handle("TN", function(...) Bank.HandleRequest(...) end)
 
--- A keeper (the King, a Steward) marks a request done or declined: the requester is told (while
+-- A keeper (the Shogun, a Steward) marks a request done or declined: the requester is told (while
 -- he was heard lately: otherwise his next ask gets it), and the others who hold it.
 function Bank.Answer(key, state)
 	local e = ns.Treasury.IsInsider() and ns.rdb and Held()[key]
@@ -1998,7 +1998,7 @@ function Bank.Answer(key, state)
 	Fire()
 end
 
--- An answer (TO), from a keeper, the King or a Steward alone: about our own request, or (with a
+-- An answer (TO), from a keeper, the Shogun or a Steward alone: about our own request, or (with a
 -- name, on another keeper's client) about one he holds too.
 function Bank.HandleAnswer(dist, sender, text)
 	if dist ~= "WHISPER" or type(text) ~= "string" then return end
@@ -2044,7 +2044,7 @@ function Bank.Paid(name, item, count)
 	end
 end
 
--- While the King shows the army the book, a keeper's client puts the open requests it holds on the
+-- While the Shogun shows the army the book, a keeper's client puts the open requests it holds on the
 -- channel next to the bank (TL), when they change and with its book; a list it had put there and
 -- that emptied, once more, empty. Once a PUBLIC_GAP at most: a change inside it goes once it ends.
 function Bank.SharePublic(force)
@@ -2098,7 +2098,7 @@ function Bank.HandlePublic(dist, sender, text)
 	if x and ns.Now() - x.t < 5 then list = x.list end
 	for entry in rest:gmatch("[^,]+") do
 		local id, item, n, from, g = entry:match("^(%d+):(%d+):(%d+):([^:]+):([^:]*)$")
-		local who, gl = ns.King.CleanName(from), ns.King.CleanGuild(g)
+		local who, gl = ns.Shogun.CleanName(from), ns.Shogun.CleanGuild(g)
 		id, item, n = tonumber(id), tonumber(item), tonumber(n)
 		if id and item and n and n >= 1 and n <= Bank.REQUEST_MAX_COUNT and who and gl and #list < 20 then
 			list[#list + 1] = { id = id, item = item, n = n, from = ns.FullName(who, ns.RealmOf(from)), guild = gl }
@@ -2171,7 +2171,7 @@ StaticPopupDialogs["BANKAIGUILD_BANK_REQUEST_ANY"] = {
 	hideOnEscape = true,
 	preferredIndex = 3,
 }
--- A keeper (the King, a Steward): done (handed over by trade or mail) or declined.
+-- A keeper (the Shogun, a Steward): done (handed over by trade or mail) or declined.
 StaticPopupDialogs["BANKAIGUILD_BANK_REQUEST_ANSWER"] = {
 	text = L.BANK_REQUEST_ANSWER,
 	button1 = L.BANK_REQUEST_MARK_DONE,

@@ -1,7 +1,7 @@
--- The King's minimap-edge arrow: truthful location gates and independent, bounded controls.
+-- The Shogun's minimap-edge arrow: truthful location gates and independent, bounded controls.
 local _, test, eq = ...
-local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]king%-arrow%.lua$")) or "./"
-local KING = "High King-Realm"
+local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]shogun%-arrow%.lua$")) or "./"
+local SHOGUN = "High Shogun-Realm"
 
 local function Full(name)
 	if type(name) ~= "string" or name == "" or name:find("-", 1, true) then return name end
@@ -158,7 +158,7 @@ local function WithWorld(fn, options)
 	for _, key in ipairs(globals) do saved[key] = rawget(_G, key) end
 	local w = { clock = 1000, current = nil, logged = true, edge = true, atlas = options.atlas ~= false,
 		mapCalls = 0, hbdCalls = 0, savedEnum = saved.Enum,
-		location = { from = KING, name = "Shobek", id = 77, mapID = 1453, x = 0.62, y = 0.44, t = 1000 } }
+		location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1453, x = 0.62, y = 0.44, t = 1000 } }
 	local ok, err = pcall(function()
 		UIParent = Frame()
 		Minimap = Frame(UIParent)
@@ -240,10 +240,10 @@ local function WithWorld(fn, options)
 				there = { mapID = 1453, zoneUID = 8, t = w.clock },
 			}
 			c.L = setmetatable({
-				KING_ARROW_TITLE = "Minimap arrow to the King", KING_ARROW_ON = "On", KING_ARROW_OFF = "Off",
-				KING_ARROW_ENABLED = "arrow on", KING_ARROW_DISABLED = "arrow off", KING_ARROW_DENIED = "denied",
-				KING_ARROW_USAGE = "usage", KING_ARROW_STATUS = "arrow: %s", KING_ARROW_GLOBAL_TIP = "global only",
-				KING_ARROW_GUILD_TIP = "guild only",
+				SHOGUN_ARROW_TITLE = "Minimap arrow to the Shogun", SHOGUN_ARROW_ON = "On", SHOGUN_ARROW_OFF = "Off",
+				SHOGUN_ARROW_ENABLED = "arrow on", SHOGUN_ARROW_DISABLED = "arrow off", SHOGUN_ARROW_DENIED = "denied",
+				SHOGUN_ARROW_USAGE = "usage", SHOGUN_ARROW_STATUS = "arrow: %s", SHOGUN_ARROW_GLOBAL_TIP = "global only",
+				SHOGUN_ARROW_GUILD_TIP = "guild only",
 			}, { __index = function(_, key) return key end })
 			c.Now = function() return w.clock end
 			c.CROWN_ICON = "Interface\\GroupFrame\\UI-Group-LeaderIcon"
@@ -253,7 +253,7 @@ local function WithWorld(fn, options)
 			c.Fold = function(s) return tostring(s or ""):lower() end
 			c.IsFederation = function(g) return type(g) == "string" and g:lower():find("bankaiguild", 1, true) ~= nil end
 			c.IsMember = function() return c.member == true end
-			c.IsKingCharacter = function(n) return type(n) == "string" and n:lower() == KING:lower() end
+			c.IsShogunCharacter = function(n) return type(n) == "string" and n:lower() == SHOGUN:lower() end
 			c.IsHighCouncillor = function(n) return c.council[tostring(n):lower()] == true end
 			c.Data = { ServerTime = function() return w.clock end }
 			c.Moderation = {
@@ -262,7 +262,7 @@ local function WithWorld(fn, options)
 				Hides = function(n) return c.hidden and c.hidden[tostring(n):lower()] or nil end,
 			}
 			c.Watch = { missing = false, IsAuthorized = function(n) return c.moderators[tostring(n):lower()] == true end }
-			c.King = {
+			c.Shogun = {
 				LOCATION_EXPIRE = 45,
 				Location = function() return w.location end,
 				ToggleLocation = function() c.crownToggles = (c.crownToggles or 0) + 1 end,
@@ -304,7 +304,7 @@ local function WithWorld(fn, options)
 			function pins:IsMinimapIconOnEdge() return w.edge end
 			c.pins = options.real and w.lib or pins
 			c.Pins = function() return c.pins end
-			assert(loadfile(ROOT .. "BankaiGuild/KingArrow.lua"))("BankaiGuild", c)
+			assert(loadfile(ROOT .. "BankaiGuild/ShogunArrow.lua"))("BankaiGuild", c)
 			return c
 		end
 
@@ -316,29 +316,29 @@ end
 
 -- The tint the arrow's texture has now: "exact", "maybe", or nil for neither.
 local function Tint(c)
-	local icon = c.KingArrow.State().frame.icon
-	for name, tint in pairs(c.KingArrow.TINTS) do
+	local icon = c.ShogunArrow.State().frame.icon
+	for name, tint in pairs(c.ShogunArrow.TINTS) do
 		if icon.color and icon.color[1] == tint.r and icon.color[2] == tint.g and icon.color[3] == tint.b
 			and icon.desaturated == tint.desaturate then return name end
 	end
 	return nil
 end
 
-test("king arrow: a fresh authenticated crown on our exact fresh layer draws only a native minimap pointer", function()
+test("shogun arrow: a fresh authenticated crown on our exact fresh layer draws only a native minimap pointer", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		local target, why, certainty, world = w.use(c, c.KingArrow.Target)
+		local target, why, certainty, world = w.use(c, c.ShogunArrow.Target)
 		eq(target, w.location)
 		eq(why, "shown"); eq(certainty, "exact"); eq(world, nil, "on his map: the map pin, limited to his map")
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(#c.pins.adds, 1)
 		eq(#c.pins.worldAdds, 0)
-		local frame = c.KingArrow.State().frame
-		eq(frame.icon.atlas, c.KingArrow.NATIVE_ATLAS)
+		local frame = c.ShogunArrow.State().frame
+		eq(frame.icon.atlas, c.ShogunArrow.NATIVE_ATLAS)
 		eq(frame.icon.texture, nil, "the native atlas exists: no addon art or fallback used")
-		eq(c.KingArrow.State().drawn.mapID, 1453)
-		eq(c.KingArrow.State().reason, "shown")
-		eq(c.KingArrow.State().certainty, "exact")
+		eq(c.ShogunArrow.State().drawn.mapID, 1453)
+		eq(c.ShogunArrow.State().reason, "shown")
+		eq(c.ShogunArrow.State().certainty, "exact")
 		eq(Tint(c), "exact", "untinted: white, never greyed")
 		eq(c.crownToggles, nil, "drawing the arrow never toggles the crown")
 		eq(frame.icon.alpha, 1, "a floating edge pointer is fully visible")
@@ -347,18 +347,18 @@ test("king arrow: a fresh authenticated crown on our exact fresh layer draws onl
 		-- sits right of the minimap's centre, so the up-pointing arrow turns a quarter clockwise.
 		Near(frame.icon.rotation, -math.pi / 2, "the edge pointer points right, toward its pin")
 		w.edge = false
-		eq(w.use(c, c.KingArrow.UpdateDirection), false)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), false)
 		eq(frame.icon.alpha, 0, "inside minimap range the existing crown is enough")
 	end)
 end)
 
 -- Before: the pin to the right turned a quarter counter-clockwise, pointing left (and every pin
 -- east or west of the player pointed the mirrored way).
-test("king arrow: the edge pointer turns toward the pin on every side of the minimap", function()
+test("shogun arrow: the edge pointer turns toward the pin on every side of the minimap", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		local frame = c.KingArrow.State().frame
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		local frame = c.ShogunArrow.State().frame
 		local sides = {
 			{ { 150, 100 }, -math.pi / 2, "right" }, { { 50, 100 }, math.pi / 2, "left" },
 			{ { 100, 150 }, 0, "up" }, { { 150, 150 }, -math.pi / 4, "up and right" },
@@ -366,144 +366,144 @@ test("king arrow: the edge pointer turns toward the pin on every side of the min
 		}
 		for _, side in ipairs(sides) do
 			frame.center = side[1]
-			eq(w.use(c, c.KingArrow.UpdateDirection), true)
+			eq(w.use(c, c.ShogunArrow.UpdateDirection), true)
 			Near(frame.icon.rotation, side[2], side[3])
 		end
 		frame.center = { 100, 50 }
-		eq(w.use(c, c.KingArrow.UpdateDirection), true)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), true)
 		Near(math.abs(frame.icon.rotation), math.pi, "down")
 	end)
 end)
 
-test("king arrow: native texture fallback works when the client lacks the atlas", function()
+test("shogun arrow: native texture fallback works when the client lacks the atlas", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		local icon = c.KingArrow.State().frame.icon
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		local icon = c.ShogunArrow.State().frame.icon
 		eq(icon.atlas, nil)
-		eq(icon.texture, c.KingArrow.NATIVE_TEXTURE)
+		eq(icon.texture, c.ShogunArrow.NATIVE_TEXTURE)
 		assert(not icon.texture:find("AddOns", 1, true), "the fallback is still Blizzard art")
 	end, { atlas = false })
 end)
 
 -- (Before 1.1.6 a stale layer report, another layer and another map were refusals here too; they
 -- now show a tinted arrow, below.)
-test("king arrow: offline, expired, forged, foreign and own crowns still fail closed", function()
+test("shogun arrow: offline, expired, forged, foreign and own crowns still fail closed", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
 		w.location = nil
-		eq(select(2, w.use(c, c.KingArrow.Target)), "offline")
-		w.location = { from = KING, mapID = 1453, x = 0.6, y = 0.4, t = w.clock - 46 }
-		eq(select(2, w.use(c, c.KingArrow.Target)), "offline")
+		eq(select(2, w.use(c, c.ShogunArrow.Target)), "offline")
+		w.location = { from = SHOGUN, mapID = 1453, x = 0.6, y = 0.4, t = w.clock - 46 }
+		eq(select(2, w.use(c, c.ShogunArrow.Target)), "offline")
 		w.location.t = w.clock
 		w.location.from = "Pretender-Realm"
-		eq(select(2, w.use(c, c.KingArrow.Target)), "identity")
-		w.location.from = KING
+		eq(select(2, w.use(c, c.ShogunArrow.Target)), "identity")
+		w.location.from = SHOGUN
 		local foreign = w.client("Traveller-Elsewhere")
 		foreign.realm = "Elsewhere"
-		eq(select(2, w.use(foreign, foreign.KingArrow.Target)), "realm")
+		eq(select(2, w.use(foreign, foreign.ShogunArrow.Target)), "realm")
 		w.location.x = 1.5
-		eq(select(2, w.use(c, c.KingArrow.Target)), "position")
+		eq(select(2, w.use(c, c.ShogunArrow.Target)), "position")
 		w.location.x = 0.6
-		c.me = KING
-		eq(select(2, w.use(c, c.KingArrow.Target)), "self")
+		c.me = SHOGUN
+		eq(select(2, w.use(c, c.ShogunArrow.Target)), "self")
 	end)
 end)
 
 -- Fails on the code before 1.1.6: every one of these was a refusal ("layer-stale" or "layer") and
 -- no arrow at all.
-test("king arrow: on his map with another or an unknown layer the arrow still shows, tinted as unsure", function()
+test("shogun arrow: on his map with another or an unknown layer the arrow still shows, tinted as unsure", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		c.mine.t = w.clock - c.KingArrow.LAYER_FRESH - 1
-		eq(w.use(c, c.KingArrow.Refresh), true, "our layer report is stale: still an arrow")
-		local at, why, certainty, world = w.use(c, c.KingArrow.Target)
+		c.mine.t = w.clock - c.ShogunArrow.LAYER_FRESH - 1
+		eq(w.use(c, c.ShogunArrow.Refresh), true, "our layer report is stale: still an arrow")
+		local at, why, certainty, world = w.use(c, c.ShogunArrow.Target)
 		eq(at, w.location); eq(why, "layer-stale"); eq(certainty, "maybe"); eq(world, nil)
-		local TINTS = c.KingArrow.TINTS
+		local TINTS = c.ShogunArrow.TINTS
 		assert(TINTS.maybe.a < TINTS.exact.a, "the unsure arrow is fainter than the certain one")
-		local frame = c.KingArrow.State().frame
+		local frame = c.ShogunArrow.State().frame
 		eq(#c.pins.adds, 1, "his map's pin, as for the certain arrow")
 		eq(c.pins.adds[1].mapID, 1453)
-		eq(c.KingArrow.State().reason, "layer-stale")
-		eq(c.KingArrow.State().certainty, "maybe")
+		eq(c.ShogunArrow.State().reason, "layer-stale")
+		eq(c.ShogunArrow.State().certainty, "maybe")
 		eq(Tint(c), "maybe")
 		eq(frame.icon.alpha, TINTS.maybe.a)
 		-- His report missing altogether is unknown too.
 		c.mine.t = w.clock
 		c.there = nil
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		eq(c.KingArrow.State().reason, "layer-stale")
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		eq(c.ShogunArrow.State().reason, "layer-stale")
 		eq(Tint(c), "maybe")
 		-- Both fresh, another layer.
 		c.there = { mapID = 1453, zoneUID = 9, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		eq(c.KingArrow.State().reason, "layer")
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		eq(c.ShogunArrow.State().reason, "layer")
 		eq(Tint(c), "maybe")
 		eq(frame.icon.alpha, TINTS.maybe.a)
 		-- Our fresh report is from another map: it says nothing of his layer here.
 		c.there.zoneUID = 8
 		c.mine = { mapID = 1429, zoneUID = 8, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		eq(c.KingArrow.State().reason, "layer")
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		eq(c.ShogunArrow.State().reason, "layer")
 		-- Agreeing again: the certain arrow, the same pin (a tint never moves it).
 		c.mine = { mapID = 1453, zoneUID = 8, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		eq(c.KingArrow.State().reason, "shown")
-		eq(c.KingArrow.State().certainty, "exact")
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		eq(c.ShogunArrow.State().reason, "shown")
+		eq(c.ShogunArrow.State().certainty, "exact")
 		eq(Tint(c), "exact")
 		eq(frame.icon.alpha, TINTS.exact.a)
 		eq(#c.pins.adds, 1, "never pinned again for a tint")
 		eq(#c.pins.removes, 0)
 		-- And unsure again once the reports go stale.
-		w.clock = w.clock + c.KingArrow.LAYER_FRESH + 1
+		w.clock = w.clock + c.ShogunArrow.LAYER_FRESH + 1
 		w.location.t = w.clock
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		eq(c.KingArrow.State().reason, "layer-stale")
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		eq(c.ShogunArrow.State().reason, "layer-stale")
 		eq(Tint(c), "maybe")
 	end)
 end)
 
 -- Fails on the code before 1.1.6: another map was the refusal "map".
-test("king arrow: in another zone of his continent a world pin at his world position, tinted as unsure", function()
+test("shogun arrow: in another zone of his continent a world pin at his world position, tinted as unsure", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.mine = { mapID = 1453, zoneUID = 8, t = w.clock }
 		c.there = { mapID = 1429, zoneUID = 8, t = w.clock }
-		local at, why, certainty, world = w.use(c, c.KingArrow.Target)
+		local at, why, certainty, world = w.use(c, c.ShogunArrow.Target)
 		eq(at, w.location); eq(why, "zone"); eq(certainty, "maybe")
 		-- Elwynn Forest's x 0.5, y 0.425 in its world yards (left - width * x, top - height * y).
 		eq(world.instanceID, 0); Near(world.wx, 6500); Near(world.wy, 650)
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(#c.pins.adds, 0, "no map pin: the library shows those only on his map")
 		eq(#c.pins.worldAdds, 1)
 		local add = c.pins.worldAdds[1]
-		eq(add.ref, c.KingArrow.State().pinRef)
-		eq(add.icon, c.KingArrow.State().frame)
+		eq(add.ref, c.ShogunArrow.State().pinRef)
+		eq(add.icon, c.ShogunArrow.State().frame)
 		eq(add.instanceID, 0); Near(add.x, 6500); Near(add.y, 650)
 		eq(add.edge, true, "it floats on the minimap's edge")
-		eq(c.KingArrow.State().mode, "world")
-		eq(c.KingArrow.State().reason, "zone")
+		eq(c.ShogunArrow.State().mode, "world")
+		eq(c.ShogunArrow.State().reason, "zone")
 		eq(Tint(c), "maybe", "layers cannot be compared across zones")
-		eq(c.KingArrow.State().frame.icon.alpha, c.KingArrow.TINTS.maybe.a)
+		eq(c.ShogunArrow.State().frame.icon.alpha, c.ShogunArrow.TINTS.maybe.a)
 		-- Even reports naming the same zone UID never make it certain from another zone.
 		c.mine = { mapID = 1429, zoneUID = 8, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		eq(c.KingArrow.State().certainty, "maybe")
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		eq(c.ShogunArrow.State().certainty, "maybe")
 		eq(c.crownToggles, nil)
 	end)
 end)
 
 -- Fails on the code before this fix: from another zone the arrow was transparent inside the
 -- minimap's range ("the crown is enough"), but his crown is a map pin the library draws only on his
--- map or a zone above it, so nothing marked him (the verifier's case: the King just outside a city
+-- map or a zone above it, so nothing marked him (the verifier's case: the Shogun just outside a city
 -- gate, his fans just inside).
-test("king arrow: from another zone inside the minimap's range a faded crown marks his spot", function()
+test("shogun arrow: from another zone inside the minimap's range a faded crown marks his spot", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
-		local TINTS, State = c.KingArrow.TINTS, c.KingArrow.State
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		local TINTS, State = c.ShogunArrow.TINTS, c.ShogunArrow.State
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(State().reason, "zone"); eq(State().mark, true, "his crown is not drawn from Stormwind City")
 		local frame = State().frame
 		local mark = frame.mark
@@ -517,7 +517,7 @@ test("king arrow: from another zone inside the minimap's range a faded crown mar
 		eq(frame.icon.alpha, TINTS.maybe.a); eq(mark.alpha, 0)
 		-- Inside the range: the crown at his spot, faded, upright; the arrow transparent.
 		w.edge = false
-		eq(w.use(c, c.KingArrow.UpdateDirection), false)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), false)
 		eq(frame.icon.alpha, 0)
 		eq(mark.alpha, TINTS.maybe.a)
 		eq(mark.rotation, nil, "the crown is never turned")
@@ -525,223 +525,223 @@ test("king arrow: from another zone inside the minimap's range a faded crown mar
 		eq(mark.alpha, TINTS.maybe.a, "it stays while he is in range")
 		-- Out of range again: the arrow comes back, the crown goes.
 		w.edge = true
-		eq(w.use(c, c.KingArrow.UpdateDirection), true)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), true)
 		eq(frame.icon.alpha, TINTS.maybe.a); eq(mark.alpha, 0)
 		-- Not placed by the library (no edge answer): neither.
 		w.edge = nil
-		eq(w.use(c, c.KingArrow.UpdateDirection), false)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), false)
 		eq(frame.icon.alpha, 0); eq(mark.alpha, 0)
 		-- On his map his own crown is drawn: inside the range nothing of ours, as before.
 		w.edge = false
 		c.mapID = 1429
 		c.mine = { mapID = 1429, zoneUID = 8, t = w.clock }
 		c.there = { mapID = 1429, zoneUID = 8, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(State().mode, "map"); eq(State().mark, false)
 		eq(frame.icon.alpha, 0); eq(mark.alpha, 0)
 		-- Back into the city, still in range: the faded crown again.
 		c.mapID = 1453
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(State().mode, "world"); eq(mark.alpha, TINTS.maybe.a)
 		-- His lease expires: everything goes.
 		w.clock = w.clock + 46
-		eq(w.use(c, c.KingArrow.Refresh), false)
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
 		eq(State().reason, "offline"); eq(State().mark, nil)
 		eq(mark.alpha, 0); eq(frame.shown, false)
 		-- Disabled by the controls while he is in range from another zone: nothing either.
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(mark.alpha, TINTS.maybe.a)
 		local moderator = "Moderator-Realm"
 		c.moderators[moderator:lower()] = true
-		eq(w.use(c, c.KingArrow.Handle, "GUILD", moderator, ("K6~1~L~0~%d~Bankai Guild II"):format(w.clock)), true)
+		eq(w.use(c, c.ShogunArrow.Handle, "GUILD", moderator, ("K6~1~L~0~%d~Bankai Guild II"):format(w.clock)), true)
 		eq(State().reason, "disabled"); eq(mark.alpha, 0); eq(frame.shown, false)
 	end)
 end)
 
-test("king arrow: another continent, an instance or a map without world coordinates draws nothing and says why", function()
+test("shogun arrow: another continent, an instance or a map without world coordinates draws nothing and says why", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.mapID = 1411
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "continent")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "continent")
 		eq(#c.pins.adds + #c.pins.worldAdds, 0)
 		c.mapID = 2999
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "world", "no world coordinates for our map")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "world", "no world coordinates for our map")
 		c.mapID = 1453
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 2999, x = 0.5, y = 0.5, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "world", "no world coordinates for his map")
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 2999, x = 0.5, y = 0.5, t = w.clock }
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "world", "no world coordinates for his map")
 		-- Both on that map: the library has no pin for it either (before: "pin-api").
 		c.mapID = 2999
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "world", "no world coordinates for the map we share")
-		eq(c.KingArrow.State().drawn, nil)
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "world", "no world coordinates for the map we share")
+		eq(c.ShogunArrow.State().drawn, nil)
 		c.mapID = 1453
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.instance = true
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "instance", "a dungeon, a raid or a battleground")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "instance", "a dungeon, a raid or a battleground")
 		c.instance = nil
 		c.mapID = nil
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "map")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "map")
 		c.mapID = 1453
 		c.noPosition = true
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "player-position")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "player-position")
 		c.noPosition = nil
 		local saved = LibStub
 		LibStub = nil
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "map-api", "without HereBeDragons no zone can be compared")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "map-api", "without HereBeDragons no zone can be compared")
 		LibStub = saved
 		eq(#c.pins.adds + #c.pins.worldAdds, 0, "nothing drawn by any of these")
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		eq(c.KingArrow.State().reason, "zone")
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		eq(c.ShogunArrow.State().reason, "zone")
 	end)
 end)
 
-test("king arrow: walking between his map, other zones and other continents swaps the pin and its tint", function()
+test("shogun arrow: walking between his map, other zones and other continents swaps the pin and its tint", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.mapID = 1429
 		c.mine = { mapID = 1429, zoneUID = 8, t = w.clock }
 		c.there = { mapID = 1429, zoneUID = 8, t = w.clock }
-		local State = c.KingArrow.State
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		local State = c.ShogunArrow.State
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(State().mode, "map"); eq(State().certainty, "exact"); eq(#c.pins.adds, 1)
 		-- Into Stormwind City: his map pin goes, his world pin comes, unsure.
 		c.mapID = 1453
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(State().mode, "world"); eq(State().reason, "zone"); eq(Tint(c), "maybe")
 		eq(#c.pins.removes, 1); eq(#c.pins.worldAdds, 1)
 		-- Still there: nothing moves.
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(#c.pins.worldAdds, 1); eq(#c.pins.removes, 1)
 		-- Over the sea to Durotar: gone.
 		c.mapID = 1411
-		eq(w.use(c, c.KingArrow.Refresh), false)
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
 		eq(State().reason, "continent"); eq(State().drawn, nil)
 		eq(#c.pins.removes, 2)
 		eq(State().frame.shown, false)
 		-- Back to Stormwind City, then into his forest on his layer.
 		c.mapID = 1453
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(State().mode, "world"); eq(#c.pins.worldAdds, 2)
 		c.mapID = 1429
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(State().mode, "map"); eq(State().reason, "shown"); eq(Tint(c), "exact")
 		eq(#c.pins.adds, 2); eq(#c.pins.removes, 3)
 		eq(State().frame.icon.alpha, 1)
 	end)
 end)
 
-test("king arrow: his world position is converted once per position his lease reports; moving and expiring follow it", function()
+test("shogun arrow: his world position is converted once per position his lease reports; moving and expiring follow it", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
-		local stats = c.KingArrow.State().stats
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		local stats = c.ShogunArrow.State().stats
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(stats.world, 1)
 		for _ = 1, 5 do
 			w.clock = w.clock + 1
-			eq(w.use(c, c.KingArrow.Refresh), true)
+			eq(w.use(c, c.ShogunArrow.Refresh), true)
 		end
 		eq(stats.world, 1, "five refreshes of the same position: no conversion again")
 		eq(#c.pins.worldAdds, 1)
-		-- His next report (a new table each time, King.lua OnLocation) at the same spot: the same.
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		-- His next report (a new table each time, Shogun.lua OnLocation) at the same spot: the same.
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(stats.world, 1); eq(#c.pins.worldAdds, 1)
 		-- He walks on: converted again, the pin follows him.
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.6, y = 0.425, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.6, y = 0.425, t = w.clock }
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(stats.world, 2)
 		eq(#c.pins.worldAdds, 2); eq(#c.pins.removes, 1)
 		Near(c.pins.worldAdds[2].x, 8000 - 3000 * 0.6)
 		-- He walks into our city: his map now, a map pin.
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1453, x = 0.62, y = 0.44, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		eq(c.KingArrow.State().mode, "map"); eq(#c.pins.adds, 1)
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1453, x = 0.62, y = 0.44, t = w.clock }
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		eq(c.ShogunArrow.State().mode, "map"); eq(#c.pins.adds, 1)
 		-- His lease expires (no report for longer than the crown keeps him): gone.
 		w.clock = w.clock + 46
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "offline"); eq(c.KingArrow.State().drawn, nil)
-		eq(c.KingArrow.State().frame.shown, false)
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "offline"); eq(c.ShogunArrow.State().drawn, nil)
+		eq(c.ShogunArrow.State().frame.shown, false)
 		-- He hides his crown: gone too.
 		w.location = nil
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "offline")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "offline")
 	end)
 end)
 
-test("king arrow: the frame's OnUpdate reads no map, converts nothing and repaints nothing", function()
+test("shogun arrow: the frame's OnUpdate reads no map, converts nothing and repaints nothing", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
-		local frame = c.KingArrow.State().frame
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
+		local frame = c.ShogunArrow.State().frame
 		local maps, conversions, paints = w.mapCalls, w.hbdCalls, frame.icon.paints
 		for _ = 1, 50 do w.use(c, frame.scripts.OnUpdate, frame, 0.05) end
 		eq(w.mapCalls, maps, "no C_Map call per frame")
 		eq(w.hbdCalls, conversions, "no HereBeDragons call per frame")
 		eq(frame.icon.paints, paints, "the tint is set when it changes, not per frame")
-		eq(frame.icon.alpha, c.KingArrow.TINTS.maybe.a, "and the rotation still runs")
+		eq(frame.icon.alpha, c.ShogunArrow.TINTS.maybe.a, "and the rotation still runs")
 		-- A refresh with the same lease and tint: one map read for us, his position not converted.
-		w.use(c, c.KingArrow.Refresh)
+		w.use(c, c.ShogunArrow.Refresh)
 		eq(frame.icon.paints, paints)
-		eq(c.KingArrow.State().stats.world, 1)
+		eq(c.ShogunArrow.State().stats.world, 1)
 	end)
 end)
 
 -- Fails on the code before 1.1.6: there was no arrow off his map.
-test("king arrow, the real map libraries: in another zone of his continent the arrow floats on the edge toward him and turns with the minimap", function()
+test("shogun arrow, the real map libraries: in another zone of his continent the arrow floats on the edge toward him and turns with the minimap", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
 		-- He stands in Elwynn Forest, due east of us in Stormwind City (the same world instance).
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.mapID, c.x, c.y = 1453, 0.2, 0.5
 		w.zone(c)
 		-- The cause, in the library itself: a pin given by his map is shown only on his map.
 		local probe = Frame(UIParent)
 		w.lib:AddMinimapIconMap("Probe", probe, 1429, 0.5, 0.425, true, true)
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		w.tick(c)
 		eq(w.lib.activeMinimapPins[probe], nil, "his map's pin is not drawn from Stormwind City")
 		eq(probe.point, nil)
-		local f = c.KingArrow.State().frame
+		local f = c.ShogunArrow.State().frame
 		assert(w.lib.activeMinimapPins[f], "the arrow's world pin is drawn")
 		eq(f.shown, true)
 		eq(f.parent, Minimap, "parented to the minimap by the library, as before")
 		eq(w.lib:IsMinimapIconOnEdge(f), true, "2300 yards away: on the edge")
-		eq(w.use(c, c.KingArrow.UpdateDirection), true)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), true)
 		Near(f.icon.rotation, -math.pi / 2, "east: the arrow points right")
-		eq(f.icon.alpha, c.KingArrow.TINTS.maybe.a)
+		eq(f.icon.alpha, c.ShogunArrow.TINTS.maybe.a)
 		eq(Tint(c), "maybe")
 		-- Into his forest, on his layer: the certain arrow on his map's pin, still pointing east.
 		c.mapID, c.x, c.y = 1429, 0.2, 0.425
 		c.mine = { mapID = 1429, zoneUID = 8, t = w.clock }
 		c.there = { mapID = 1429, zoneUID = 8, t = w.clock }
 		w.zone(c)
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		w.tick(c)
-		eq(c.KingArrow.State().mode, "map")
+		eq(c.ShogunArrow.State().mode, "map")
 		assert(w.lib.activeMinimapPins[f], "his map's pin is drawn on his map")
-		eq(w.use(c, c.KingArrow.UpdateDirection), true)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), true)
 		Near(f.icon.rotation, -math.pi / 2)
 		eq(f.icon.alpha, 1); eq(Tint(c), "exact")
 		-- Back in the city with a rotating minimap, facing west: he is behind us, at the bottom.
 		c.mapID, c.x, c.y = 1453, 0.2, 0.5
 		w.zone(c)
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		w.facing = math.pi / 2
 		w.rotate(true)
 		w.tick(c)
-		eq(w.use(c, c.KingArrow.UpdateDirection), true)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), true)
 		Near(math.abs(f.icon.rotation), math.pi, "the arrow follows the rotated pin: down")
 		w.rotate(false)
 		-- Over the sea to Durotar: the library hides it at once, the arrow takes it off.
@@ -749,42 +749,42 @@ test("king arrow, the real map libraries: in another zone of his continent the a
 		w.zone(c)
 		eq(w.lib.activeMinimapPins[f], nil, "another world instance: not drawn")
 		eq(f.shown, false)
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "continent")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "continent")
 		eq(w.lib.minimapPins[f], nil, "no pin of ours left in the library")
 		-- Both in a map the library has no world coordinates for: it refuses his map's pin.
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 2999, x = 0.5, y = 0.5, t = w.clock }
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 2999, x = 0.5, y = 0.5, t = w.clock }
 		c.mapID, c.x, c.y = 2999, 0.4, 0.4
 		w.zone(c)
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "world")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "world")
 		eq(w.lib.minimapPins[f], nil)
 	end, { real = true })
 end)
 
 -- Fails on the code before this fix (the verifier's reproduction): across the city's border, a few
 -- dozen yards from him, neither his crown nor the arrow showed.
-test("king arrow, the real map libraries: across a zone border inside the minimap's range the faded crown marks him, never doubling his own", function()
+test("shogun arrow, the real map libraries: across a zone border inside the minimap's range the faded crown marks him, never doubling his own", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		local TINTS = c.KingArrow.TINTS
+		local TINTS = c.ShogunArrow.TINTS
 		-- He stands just outside the gate, in Elwynn Forest; we stand just inside Stormwind City,
 		-- 45 yards west of him (the minimap shows 0.9 of its 100 yards' radius).
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.005, y = 0.425, t = w.clock }
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.005, y = 0.425, t = w.clock }
 		c.mapID, c.x, c.y = 1453, 0.97, 0.5
 		w.zone(c)
-		-- His crown, added as King.lua RefreshCrown adds it.
+		-- His crown, added as Shogun.lua RefreshCrown adds it.
 		local crown = Frame(UIParent)
 		w.lib:AddMinimapIconMap("Crown", crown, 1429, 0.005, 0.425, true, true)
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		w.tick(c)
-		eq(c.KingArrow.State().reason, "zone"); eq(c.KingArrow.State().mode, "world")
+		eq(c.ShogunArrow.State().reason, "zone"); eq(c.ShogunArrow.State().mode, "world")
 		eq(w.lib.activeMinimapPins[crown], nil, "his crown is not drawn from Stormwind City")
-		local f = c.KingArrow.State().frame
+		local f = c.ShogunArrow.State().frame
 		assert(w.lib.activeMinimapPins[f], "the arrow's world pin is drawn")
 		eq(f.shown, true)
 		eq(w.lib:IsMinimapIconOnEdge(f), false, "in range: not on the edge")
-		eq(w.use(c, c.KingArrow.UpdateDirection), false)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), false)
 		eq(f.icon.alpha, 0, "no arrow in range")
 		assert(f.mark, "a crown marker in the arrow's frame")
 		eq(f.mark.alpha, TINTS.maybe.a, "the faded crown marks him")
@@ -794,58 +794,58 @@ test("king arrow, the real map libraries: across a zone border inside the minima
 		local mx, my = Minimap:GetCenter()
 		Near(fx - mx, 45 / 100 * 70, "east of us"); Near(fy - my, 0)
 		-- He walks away east, beyond the range: the arrow on the edge, the crown gone.
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		w.tick(c)
 		eq(w.lib:IsMinimapIconOnEdge(f), true)
-		eq(w.use(c, c.KingArrow.UpdateDirection), true)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), true)
 		eq(f.icon.alpha, TINTS.maybe.a); eq(f.mark.alpha, 0)
 		w.lib:RemoveMinimapIcon("Crown", crown)
 		-- He goes down the Glimmerdeep Mine, a micro map inside Elwynn, and we stand in Elwynn at its
 		-- mouth: the library draws his crown from his parent zone, so ours stays transparent.
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 2998, x = 0.5, y = 0.5, t = w.clock }
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 2998, x = 0.5, y = 0.5, t = w.clock }
 		c.mapID, c.x, c.y = 1429, 0.38, 0.3
 		w.zone(c)
 		w.lib:AddMinimapIconMap("Crown", crown, 2998, 0.5, 0.5, true, true)
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		w.tick(c)
-		eq(c.KingArrow.State().reason, "zone"); eq(c.KingArrow.State().mark, false)
+		eq(c.ShogunArrow.State().reason, "zone"); eq(c.ShogunArrow.State().mark, false)
 		assert(w.lib.activeMinimapPins[crown], "his crown is drawn from the zone above his mine")
 		eq(w.lib:IsMinimapIconOnEdge(f), false)
-		eq(w.use(c, c.KingArrow.UpdateDirection), false)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), false)
 		eq(f.icon.alpha, 0); eq(f.mark.alpha, 0, "never a second crown over his")
 		w.lib:RemoveMinimapIcon("Crown", crown)
 		-- The other way round: we are in the mine, he is in Elwynn at its mouth. The library climbs
 		-- only from his map upward, so his crown is not drawn in the mine: ours marks him.
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.38, y = 0.3, t = w.clock }
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.38, y = 0.3, t = w.clock }
 		c.mapID, c.x, c.y = 2998, 0.5, 0.5
 		w.zone(c)
 		w.lib:AddMinimapIconMap("Crown", crown, 1429, 0.38, 0.3, true, true)
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		w.tick(c)
-		eq(c.KingArrow.State().mark, true)
+		eq(c.ShogunArrow.State().mark, true)
 		eq(w.lib.activeMinimapPins[crown], nil, "his crown is not drawn in the mine")
 		eq(w.lib:IsMinimapIconOnEdge(f), false)
-		eq(w.use(c, c.KingArrow.UpdateDirection), false)
+		eq(w.use(c, c.ShogunArrow.UpdateDirection), false)
 		eq(f.icon.alpha, 0); eq(f.mark.alpha, TINTS.maybe.a)
 		-- Over the sea: the library hides our pin, the arrow takes it off, no crown left.
 		c.mapID, c.x, c.y = 1411, 0.5, 0.5
 		w.zone(c)
-		eq(w.use(c, c.KingArrow.Refresh), false)
-		eq(c.KingArrow.State().reason, "continent")
+		eq(w.use(c, c.ShogunArrow.Refresh), false)
+		eq(c.ShogunArrow.State().reason, "continent")
 		eq(f.shown, false); eq(f.mark.alpha, 0)
 	end, { real = true })
 end)
 
-test("king arrow controls: King and current Council control the global lease; Watch moderators control only their guild", function()
+test("shogun arrow controls: Shogun and current Council control the global lease; Watch moderators control only their guild", function()
 	WithWorld(function(w)
 		local c = w.client("Council")
 		c.council[c.me:lower()], c.issuers[c.me:lower()] = true, true
-		eq(w.use(c, c.KingArrow.CanControl), true)
-		eq(select(2, w.use(c, c.KingArrow.CanControl)), "global")
-		eq(w.use(c, c.KingArrow.SetEnabled, false, "global", true), true)
-		eq(c.KingArrow.Enabled(), false)
-		eq(c.db.kingArrowControl.scope, "global")
+		eq(w.use(c, c.ShogunArrow.CanControl), true)
+		eq(select(2, w.use(c, c.ShogunArrow.CanControl)), "global")
+		eq(w.use(c, c.ShogunArrow.SetEnabled, false, "global", true), true)
+		eq(c.ShogunArrow.Enabled(), false)
+		eq(c.db.shogunArrowControl.scope, "global")
 		eq(c.sent[1].dist, "CHANNEL")
 		assert(c.sent[1].msg:match("^K6~1~G~0~%d+~$"), c.sent[1].msg)
 		eq(c.crownToggles, nil, "the independent switch never touches the crown")
@@ -856,121 +856,121 @@ test("king arrow controls: King and current Council control the global lease; Wa
 
 		local g = w.client("Moderator")
 		g.moderators[g.me:lower()] = true
-		eq(select(2, w.use(g, g.KingArrow.CanControl)), "guild")
-		eq(w.use(g, g.KingArrow.SetEnabled, false, nil, true), true)
+		eq(select(2, w.use(g, g.ShogunArrow.CanControl)), "guild")
+		eq(w.use(g, g.ShogunArrow.SetEnabled, false, nil, true), true)
 		eq(g.sent[1].dist, "GUILD")
 		assert(g.sent[1].msg:match("^K6~1~L~0~%d+~Bankai Guild II$"), g.sent[1].msg)
-		eq(#w.use(g, g.KingArrow.ControlLines), 1, "the Watch exposes the one independent toggle")
+		eq(#w.use(g, g.ShogunArrow.ControlLines), 1, "the Watch exposes the one independent toggle")
 
 		local outsider = w.client("Outsider")
-		eq(w.use(outsider, outsider.KingArrow.SetEnabled, false, nil, true), false)
+		eq(w.use(outsider, outsider.ShogunArrow.SetEnabled, false, nil, true), false)
 		eq(#outsider.sent, 0)
 	end)
 end)
 
-test("king arrow controls: server-stamped fresh authority wins; forged, unlogged, stale and replayed words do not", function()
+test("shogun arrow controls: server-stamped fresh authority wins; forged, unlogged, stale and replayed words do not", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
 		local council = "Council-Realm"
 		c.council[council:lower()], c.issuers[council:lower()] = true, true
 		w.logged = false
-		eq(w.use(c, c.KingArrow.Handle, "CHANNEL", council, "K6~1~G~0~1000~"), false)
-		eq(c.KingArrow.Enabled(), true, "an unlogged control is ignored where logged messages exist")
+		eq(w.use(c, c.ShogunArrow.Handle, "CHANNEL", council, "K6~1~G~0~1000~"), false)
+		eq(c.ShogunArrow.Enabled(), true, "an unlogged control is ignored where logged messages exist")
 		w.logged = true
-		eq(w.use(c, c.KingArrow.Handle, "CHANNEL", "Forged-Realm", "K6~1~G~0~1000~"), false)
-		eq(w.use(c, c.KingArrow.Handle, "CHANNEL", council, "K6~1~G~0~1000~"), true)
-		eq(c.KingArrow.Enabled(), false)
-		eq(w.use(c, c.KingArrow.Handle, "CHANNEL", council, "K6~1~G~1~999~"), false, "older replay")
-		eq(c.KingArrow.Enabled(), false)
-		eq(w.use(c, c.KingArrow.Handle, "CHANNEL", council, "K6~1~G~1~1~"), false, "stale")
-		eq(w.use(c, c.KingArrow.Handle, "GUILD", council, "K6~1~G~1~1001~"), false, "wrong lane")
-		w.clock = w.clock + c.KingArrow.CONTROL_LEASE + 1
-		eq(c.KingArrow.Enabled(), true, "an offline controller's lease cannot disable the arrow forever")
+		eq(w.use(c, c.ShogunArrow.Handle, "CHANNEL", "Forged-Realm", "K6~1~G~0~1000~"), false)
+		eq(w.use(c, c.ShogunArrow.Handle, "CHANNEL", council, "K6~1~G~0~1000~"), true)
+		eq(c.ShogunArrow.Enabled(), false)
+		eq(w.use(c, c.ShogunArrow.Handle, "CHANNEL", council, "K6~1~G~1~999~"), false, "older replay")
+		eq(c.ShogunArrow.Enabled(), false)
+		eq(w.use(c, c.ShogunArrow.Handle, "CHANNEL", council, "K6~1~G~1~1~"), false, "stale")
+		eq(w.use(c, c.ShogunArrow.Handle, "GUILD", council, "K6~1~G~1~1001~"), false, "wrong lane")
+		w.clock = w.clock + c.ShogunArrow.CONTROL_LEASE + 1
+		eq(c.ShogunArrow.Enabled(), true, "an offline controller's lease cannot disable the arrow forever")
 
 		local moderator = "Moderator-Realm"
 		c.moderators[moderator:lower()] = true
 		local now = w.clock
-		eq(w.use(c, c.KingArrow.Handle, "GUILD", moderator, ("K6~1~L~0~%d~Bankai Guild III"):format(now)), false,
+		eq(w.use(c, c.ShogunArrow.Handle, "GUILD", moderator, ("K6~1~L~0~%d~Bankai Guild III"):format(now)), false,
 			"another guild cannot change this guild's arrow")
-		eq(w.use(c, c.KingArrow.Handle, "GUILD", moderator, ("K6~1~L~0~%d~Bankai Guild II"):format(now)), true)
-		eq(w.use(c, c.KingArrow.Enabled), false)
+		eq(w.use(c, c.ShogunArrow.Handle, "GUILD", moderator, ("K6~1~L~0~%d~Bankai Guild II"):format(now)), true)
+		eq(w.use(c, c.ShogunArrow.Enabled), false)
 	end)
 end)
 
-test("king arrow controls: rank before recency: a High Councillor's newer 'on' never beats the King's 'off' in force, and his client's repeat never stamps it again past the King's word", function()
+test("shogun arrow controls: rank before recency: a High Councillor's newer 'on' never beats the Shogun's 'off' in force, and his client's repeat never stamps it again past the Shogun's word", function()
 	WithWorld(function(w)
 		local c = w.client("Council")
 		c.council[c.me:lower()], c.issuers[c.me:lower()] = true, true
-		eq(w.use(c, c.KingArrow.SetEnabled, true, "global", true), true)
+		eq(w.use(c, c.ShogunArrow.SetEnabled, true, "global", true), true)
 		w.clock = w.clock + 10
-		eq(w.use(c, c.KingArrow.Handle, "CHANNEL", KING, ("K6~1~G~0~%d~"):format(w.clock)), true, "the King's off")
-		eq(c.KingArrow.Enabled(), false)
+		eq(w.use(c, c.ShogunArrow.Handle, "CHANNEL", SHOGUN, ("K6~1~G~0~%d~"):format(w.clock)), true, "the Shogun's off")
+		eq(c.ShogunArrow.Enabled(), false)
 		local v = w.client("Viewer")
 		v.council[c.me:lower()], v.issuers[c.me:lower()] = true, true
-		eq(w.use(v, v.KingArrow.Handle, "CHANNEL", KING, ("K6~1~G~0~%d~"):format(w.clock)), true)
-		eq(w.use(v, v.KingArrow.Handle, "CHANNEL", c.me, ("K6~1~G~1~%d~"):format(w.clock + 5)), false, "a councillor's newer on")
-		eq(v.KingArrow.Enabled(), false, "the King's off stands")
-		-- The councillor's own repeat: nothing goes out, even once the King's word has lapsed.
+		eq(w.use(v, v.ShogunArrow.Handle, "CHANNEL", SHOGUN, ("K6~1~G~0~%d~"):format(w.clock)), true)
+		eq(w.use(v, v.ShogunArrow.Handle, "CHANNEL", c.me, ("K6~1~G~1~%d~"):format(w.clock + 5)), false, "a councillor's newer on")
+		eq(v.ShogunArrow.Enabled(), false, "the Shogun's off stands")
+		-- The councillor's own repeat: nothing goes out, even once the Shogun's word has lapsed.
 		local sent = #c.sent
-		eq(w.use(c, c.KingArrow.RepeatOwn), false)
-		w.clock = w.clock + c.KingArrow.CONTROL_LEASE + 1
-		eq(w.use(c, c.KingArrow.RepeatOwn), false, "never past the King's later word")
+		eq(w.use(c, c.ShogunArrow.RepeatOwn), false)
+		w.clock = w.clock + c.ShogunArrow.CONTROL_LEASE + 1
+		eq(w.use(c, c.ShogunArrow.RepeatOwn), false, "never past the Shogun's later word")
 		eq(#c.sent, sent)
 		-- A lapsed word gives way: the councillor's new choice is taken.
-		eq(w.use(v, v.KingArrow.Handle, "CHANNEL", c.me, ("K6~1~G~1~%d~"):format(w.clock)), true)
-		eq(v.KingArrow.Enabled(), true)
+		eq(w.use(v, v.ShogunArrow.Handle, "CHANNEL", c.me, ("K6~1~G~1~%d~"):format(w.clock)), true)
+		eq(v.ShogunArrow.Enabled(), true)
 	end)
 end)
 
 -- 1.2.5.1, review of the quiet presence (Core.lua): a controller's client stamped his word again
 -- every five minutes, each repeat saying he was online. His own switch is his act and goes.
-test("king arrow controls: while the quiet presence is on, his word is not repeated (his own switch still goes); the repeat comes back once off", function()
+test("shogun arrow controls: while the quiet presence is on, his word is not repeated (his own switch still goes); the repeat comes back once off", function()
 	WithWorld(function(w)
 		local c = w.client("Council")
 		c.council[c.me:lower()], c.issuers[c.me:lower()] = true, true
 		local quiet = true
 		c.QuietPresence = function() return quiet end
-		eq(w.use(c, c.KingArrow.SetEnabled, false, "global", true), true, "his own switch")
+		eq(w.use(c, c.ShogunArrow.SetEnabled, false, "global", true), true, "his own switch")
 		eq(#c.sent, 1)
-		w.clock = w.clock + c.KingArrow.CONTROL_REPEAT
-		eq(w.use(c, c.KingArrow.RepeatOwn), false)
+		w.clock = w.clock + c.ShogunArrow.CONTROL_REPEAT
+		eq(w.use(c, c.ShogunArrow.RepeatOwn), false)
 		eq(#c.sent, 1, "no repeat while it is on")
 		quiet = false
-		eq(w.use(c, c.KingArrow.RepeatOwn), true)
+		eq(w.use(c, c.ShogunArrow.RepeatOwn), true)
 		eq(#c.sent, 2)
 		assert(c.sent[2].msg:match("^K6~1~G~0~%d+~$"), c.sent[2].msg)
 	end)
 end)
 
-test("king arrow: disabling removes its pin and leaves every crown/location fact intact", function()
+test("shogun arrow: disabling removes its pin and leaves every crown/location fact intact", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
 		local original = w.location
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		local council = "Council-Realm"
 		c.council[council:lower()], c.issuers[council:lower()] = true, true
-		eq(w.use(c, c.KingArrow.Handle, "CHANNEL", council, "K6~1~G~0~1000~"), true)
+		eq(w.use(c, c.ShogunArrow.Handle, "CHANNEL", council, "K6~1~G~0~1000~"), true)
 		eq(#c.pins.removes, 1)
-		eq(c.KingArrow.State().drawn, nil)
-		eq(c.KingArrow.State().reason, "disabled")
+		eq(c.ShogunArrow.State().drawn, nil)
+		eq(c.ShogunArrow.State().reason, "disabled")
 		eq(w.location, original)
-		eq(c.King.Location(), original)
+		eq(c.Shogun.Location(), original)
 		eq(c.crownToggles, nil)
 		eq(c.mine.zoneUID, 8); eq(c.there.zoneUID, 8)
 	end)
 end)
 
-test("king arrow: disabling from another zone removes its world pin too", function()
+test("shogun arrow: disabling from another zone removes its world pin too", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
-		eq(w.use(c, c.KingArrow.Refresh), true)
+		w.location = { from = SHOGUN, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		eq(w.use(c, c.ShogunArrow.Refresh), true)
 		eq(#c.pins.worldAdds, 1)
 		local moderator = "Moderator-Realm"
 		c.moderators[moderator:lower()] = true
-		eq(w.use(c, c.KingArrow.Handle, "GUILD", moderator, "K6~1~L~0~1000~Bankai Guild II"), true)
+		eq(w.use(c, c.ShogunArrow.Handle, "GUILD", moderator, "K6~1~L~0~1000~Bankai Guild II"), true)
 		eq(#c.pins.removes, 1)
-		eq(c.KingArrow.State().reason, "disabled")
-		eq(c.KingArrow.State().frame.shown, false)
+		eq(c.ShogunArrow.State().reason, "disabled")
+		eq(c.ShogunArrow.State().frame.shown, false)
 	end)
 end)

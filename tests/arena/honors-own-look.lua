@@ -219,7 +219,7 @@ local function ChurchWith(w, clients, apostles)
 		c.rdb.church.pub = { on = true, at = w.clock - 3600 }
 	end
 end
--- The Church's top 3 (the King's word, NR~1~t): its Apostles, then its missionaries, on each client.
+-- The Church's top 3 (the Shogun's word, NR~1~t): its Apostles, then its missionaries, on each client.
 local function Top(w, to, apostles, missionaries)
 	local function Names(list)
 		local out = {}
@@ -228,7 +228,7 @@ local function Top(w, to, apostles, missionaries)
 	end
 	for _, c in ipairs(to) do
 		local text = ("NR~1~t~%s~%s~%s"):format(c.ns.Arena.B36(w.clock), Names(apostles), Names(missionaries or {}))
-		eq(w:As(c, c.ns.ChurchCount.Receive, "NR", "CHANNEL", World.NAMES.king, text), true, "the King's top 3 taken")
+		eq(w:As(c, c.ns.ChurchCount.Receive, "NR", "CHANNEL", World.NAMES.shogun, text), true, "the Shogun's top 3 taken")
 	end
 	w:Run(3)
 end

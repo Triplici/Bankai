@@ -5,13 +5,13 @@ local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]party%-g
 
 local function Scene(fn)
 	local saved = {
-		king = ns.King, roster = ns.Roster, who = ns.Who, hop = ns.Hop, now = ns.Now,
+		shogun = ns.Shogun, roster = ns.Roster, who = ns.Who, hop = ns.Hop, now = ns.Now,
 		member = ns.IsMember, gamepad = ns.GamepadUI, print = ns.Print, dialog = ns.Dialog.Show,
 		guild = GetGuildInfo, combat = InCombatLockdown, party = C_PartyInfo, oldInvite = InviteUnit,
 		isPlayer = UnitIsPlayer, full = UnitFullName, secret = issecretvalue, off = ns.db.partyGuardOff,
 	}
 	local w = {
-		now = 2000000000, kingAt = true, localKing = false, member = true, gamepad = false,
+		now = 2000000000, shogunAt = true, localShogun = false, member = true, gamepad = false,
 		rosterName = nil, rosterAt = nil, ownGuild = "Bankai Guild Test", seen = {}, searches = {},
 		seenReads = 0, room = true, combat = false, invited = {}, printed = {}, dialog = nil, units = {},
 	}
@@ -21,10 +21,10 @@ local function Scene(fn)
 		ns.IsMember = function() return w.member end
 		ns.GamepadUI = function() return w.gamepad end
 		ns.Print = function(s) w.printed[#w.printed + 1] = s end
-		ns.King = setmetatable({
-			IsKing = function() return w.localKing end,
-			Location = function() return w.kingAt and { name = "King-Realm", t = w.now } or nil end,
-		}, { __index = saved.king })
+		ns.Shogun = setmetatable({
+			IsShogun = function() return w.localShogun end,
+			Location = function() return w.shogunAt and { name = "Shogun-Realm", t = w.now } or nil end,
+		}, { __index = saved.shogun })
 		ns.Roster = setmetatable({
 			Fresh = function() return w.rosterAt and { snapshotAt = w.rosterAt } or nil end,
 			RankOf = function(name) return name == w.rosterName and "Member" or nil end,
@@ -61,7 +61,7 @@ local function Scene(fn)
 		fn(w)
 	end)
 	G.ResetForTests()
-	ns.King, ns.Roster, ns.Who, ns.Hop, ns.Now = saved.king, saved.roster, saved.who, saved.hop, saved.now
+	ns.Shogun, ns.Roster, ns.Who, ns.Hop, ns.Now = saved.shogun, saved.roster, saved.who, saved.hop, saved.now
 	ns.IsMember, ns.GamepadUI, ns.Print, ns.Dialog.Show = saved.member, saved.gamepad, saved.print, saved.dialog
 	GetGuildInfo, InCombatLockdown, C_PartyInfo, InviteUnit = saved.guild, saved.combat, saved.party, saved.oldInvite
 	UnitIsPlayer, UnitFullName, issecretvalue = saved.isPlayer, saved.full, saved.secret
@@ -79,11 +79,11 @@ local function Has(lines, needle)
 	end
 end
 
-test("party guard: only clear party requests while the King is online; candidates are secret-safe, deduplicated, bounded and expiring", function()
+test("party guard: only clear party requests while the Shogun is online; candidates are secret-safe, deduplicated, bounded and expiring", function()
 	Scene(function(w)
-		w.kingAt = false
-		eq(G.OnWhisper("invite me please", "Quiet-Realm"), false, "no King evidence: inert")
-		w.localKing = true
+		w.shogunAt = false
+		eq(G.OnWhisper("invite me please", "Quiet-Realm"), false, "no Shogun evidence: inert")
+		w.localShogun = true
 		for _, text in ipairs({ "inv", "Invite me please", "can you invite me to the group?", "me convida pro grupo?" }) do
 			assert(G.InviteIntent(text), text)
 		end
@@ -122,14 +122,14 @@ test("party guard: only clear party requests while the King is online; candidate
 		eq(Has(G.Lines(), "Crowd6"), nil, "the long list can be collapsed again")
 		local moreAgain = assert(Has(G.Lines(), ns.L.PARTY_GUARD_MORE:format(15)))
 		moreAgain.onClick()
-		w.localKing, w.kingAt = false, false
-		G.OnKingLocationChanged()
-		w.localKing = true
+		w.localShogun, w.shogunAt = false, false
+		G.OnShogunLocationChanged()
+		w.localShogun = true
 		for i = 1, 6 do
 			w.now = w.now + 1
 			assert(G.OnWhisper("inv", "Restart" .. i .. "-Realm"))
 		end
-		eq(Has(G.Lines(), "Restart1"), nil, "a later King-online session starts collapsed again")
+		eq(Has(G.Lines(), "Restart1"), nil, "a later Shogun-online session starts collapsed again")
 		w.now = w.now + G.CANDIDATE_TTL + 1
 		eq(#G.Candidates(), 0, "TTL")
 
@@ -216,7 +216,7 @@ test("party guard: guild status only comes from fresh roster, explicit who, or a
 	end)
 end)
 
-test("party guard: invitations are manual and recheck King, identity, evidence, group room, combat and client API", function()
+test("party guard: invitations are manual and recheck Shogun, identity, evidence, group room, combat and client API", function()
 	Scene(function(w)
 		w.rosterName, w.rosterAt = "Member-Realm", w.now
 		assert(G.OnWhisper("inv", w.rosterName))
@@ -234,8 +234,8 @@ test("party guard: invitations are manual and recheck King, identity, evidence, 
 		eq(G.RequestInvite(blocked), false); eq(#w.invited, before); w.combat = false
 		blocked = Member("Full-Realm"); w.room = false
 		eq(G.RequestInvite(blocked), false); eq(#w.invited, before); w.room = true
-		blocked = Member("Offline-Realm"); w.kingAt, w.localKing = false, false
-		eq(G.RequestInvite(blocked), false); eq(#w.invited, before); w.kingAt = true
+		blocked = Member("Offline-Realm"); w.shogunAt, w.localShogun = false, false
+		eq(G.RequestInvite(blocked), false); eq(#w.invited, before); w.shogunAt = true
 		blocked = Member("Api-Realm"); C_PartyInfo, InviteUnit = nil, nil
 		eq(G.RequestInvite(blocked), false); eq(#w.invited, before)
 		C_PartyInfo = { InviteUnit = function(name) w.invited[#w.invited + 1] = name end }

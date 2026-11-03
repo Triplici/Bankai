@@ -32,9 +32,9 @@ local function Catch(c, kind)
 	end))
 	return got
 end
--- The King's settings word (the live switch on by default), taken by everyone on his realm.
-local function GoLive(w, king, t)
-	local ok, why = king.Roles.SetSettings(t or { live = 1 })
+-- The Shogun's settings word (the live switch on by default), taken by everyone on his realm.
+local function GoLive(w, shogun, t)
+	local ok, why = shogun.Roles.SetSettings(t or { live = 1 })
 	assert(ok, "settings: " .. tostring(why))
 	w:Run(0)
 end
@@ -49,7 +49,7 @@ local function TestBuild(w, extra)
 	for k, v in pairs(extra or {}) do t[k] = v end
 	return t
 end
--- The body of a King's word as another client would send it (a forged or out-of-bounds one).
+-- The body of a Shogun's word as another client would send it (a forged or out-of-bounds one).
 local function Word(w, c, kind, body, at, guild)
 	w:As(c, function()
 		c.ns.Comm.Send("CHANNEL", ("T1~%s~%d~%s~%d~%s"):format(kind, 7, guild or GetGuildInfo("player") or "", at or w.clock, body))
@@ -61,8 +61,8 @@ print("ArenaNet: the envelope, lanes and modes")
 
 test("1.2 the arena's foundation: the envelope: no mode, another mode or protocol 2 never reach the handler; L1 and T1 do", function()
 	local w = World.New()
-	local king, a, b = w:Role("king"), w:Client("Lida Fenn"), w:Client("Parric Stowe")
-	GoLive(w, king)
+	local shogun, a, b = w:Role("shogun"), w:Client("Lida Fenn"), w:Client("Parric Stowe")
+	GoLive(w, shogun)
 	local got = Catch(b, "AF")
 	for _, text in ipairs({ "AF~~x", "AF~1~x", "AF~X1~x", "AF~L2~x", "AF~L~x", "AF~l1~x", "AF~LL1~x", "AF~T0~x" }) do
 		b.Arena.Inject("CHANNEL", a.name, text)
@@ -83,7 +83,7 @@ end)
 
 test("1.2 the arena's foundation: a release sends L only with its realm's live switch on (honours and a player's own obligations go anyway), T on the channel, one-to-one by whisper", function()
 	local w = World.New()
-	local king, a, b = w:Role("king"), w:Client("Lida Fenn"), w:Client("Parric Stowe")
+	local shogun, a, b = w:Role("shogun"), w:Client("Lida Fenn"), w:Client("Parric Stowe")
 	local got = Catch(b, "AF")
 	eq(a.Arena.NewMode(false), "T", "the live switch off: everything new is a rehearsal")
 	eq(a.Arena.Mode({ mode = "T" }), "T"); eq(a.Arena.Mode({}), "L"); eq(a.Arena.Mode("L"), "L")
@@ -104,8 +104,8 @@ test("1.2 the arena's foundation: a release sends L only with its realm's live s
 	eq(w:Sent{ from = a, type = "ZR" }[1].dist, "WHISPER"); eq(w:Sent{ from = a, type = "ZR" }[1].target, b.name)
 	eq(w:Sent{ from = a, type = "AF" }[1].dist, "CHANNEL")
 	eq(a.Arena.Lane("L", true), "CHANNEL"); eq(a.Arena.Lane("T", true), "CHANNEL", "an army rehearsal"); eq(a.Arena.Lane("L", false), "WHISPER")
-	-- The King turns it on: L goes.
-	GoLive(w, king)
+	-- The Shogun turns it on: L goes.
+	GoLive(w, shogun)
 	eq(a.Roles.Live(), true); eq(a.Arena.NewMode(false), "L"); eq(a.Arena.NewMode(true), "T", "a rehearsal ticked")
 	eq(a.Arena.Send("AF", "L", "live"), true)
 	w:Run(0)
@@ -115,7 +115,7 @@ test("1.2 the arena's foundation: a release sends L only with its realm's live s
 	eq(a.Arena.Lane("T", true), nil, "alone")
 	w:Group({ a, b })
 	eq(a.Arena.Lane("T", true), "PARTY"); eq(a.Arena.Lane("L", true), "CHANNEL")
-	w:Group({ a, b, king }, true)
+	w:Group({ a, b, shogun }, true)
 	eq(a.Arena.Lane("T", true), "RAID")
 	a.ns.ArenaTest.Running = nil
 	NoErrors(w)
@@ -123,7 +123,7 @@ end)
 
 test("1.2 the arena's foundation: a release takes L only with its realm's live switch on (honours, a match, the games' ledger and a player's own obligations whatever it says)", function()
 	local w = World.New()
-	local king, a, b = w:Role("king"), w:Client("Lida Fenn"), w:Client("Parric Stowe")
+	local shogun, a, b = w:Role("shogun"), w:Client("Lida Fenn"), w:Client("Parric Stowe")
 	local af, ae, ap, zr, zx, ay = Catch(b, "AF"), Catch(b, "AE"), Catch(b, "AP"), Catch(b, "ZR"), Catch(b, "ZX"), Catch(b, "AY")
 	eq(b.Roles.Live(), false)
 	-- A modified client sends L with the switch off: refused on the way in as on the way out.
@@ -135,8 +135,8 @@ test("1.2 the arena's foundation: a release takes L only with its realm's live s
 	eq(b.Arena.Stats().dropped["live-off"], 1, "the arbiter's entry alone")
 	eq(#ap, 1, "a profile is an honour's"); eq(#zr, 1, "a receipt: an obligation"); eq(#zx, 1, "a debtor's own mark may be one")
 	eq(#ay, 1, "the games' ledger")
-	-- The King turns it on: L comes in.
-	GoLive(w, king)
+	-- The Shogun turns it on: L comes in.
+	GoLive(w, shogun)
 	b.Arena.Inject("CHANNEL", a.name, "AE~L1~y")
 	eq(#ae, 1); eq(ae[1].body, "y")
 	NoErrors(w)
@@ -144,8 +144,8 @@ end)
 
 test("1.2 the arena's foundation: a release takes L on the channel and by whisper (ID on GUILD too), T on any lane but GUILD", function()
 	local w = World.New()
-	local king, a, b = w:Role("king"), w:Client("Lida Fenn"), w:Client("Parric Stowe")
-	GoLive(w, king)
+	local shogun, a, b = w:Role("shogun"), w:Client("Lida Fenn"), w:Client("Parric Stowe")
+	GoLive(w, shogun)
 	local af, id = Catch(b, "AF"), Catch(b, "ID")
 	for _, case in ipairs({ { "CHANNEL", "L", 1 }, { "WHISPER", "L", 1 }, { "RAID", "L", 0 }, { "PARTY", "L", 0 }, { "GUILD", "L", 0 },
 		{ "CHANNEL", "T", 1 }, { "RAID", "T", 1 }, { "PARTY", "T", 1 }, { "WHISPER", "T", 1 }, { "GUILD", "T", 0 } }) do
@@ -474,7 +474,7 @@ test("1.2 the arena's foundation: lockdown (chat messaging lockdown, or an insta
 	NoErrors(w)
 end)
 
-print("ArenaNet: the persistence gate, ids, the King's delay, the switches")
+print("ArenaNet: the persistence gate, ids, the Shogun's delay, the switches")
 
 test("1.2 the arena's foundation: Arena.Persists: false on a first login and on the beta (saved data lost at every login); true once the logout's sentinel came back", function()
 	local w = World.New()
@@ -533,36 +533,36 @@ test("1.2 the arena's foundation: Arena.NewId: five in one second from one write
 	NoErrors(w)
 end)
 
-test("1.2 the arena's foundation: the King's delay (T1~L): his alone, it lapses 15 minutes after the last; LastCall and OpenMin exactly", function()
+test("1.2 the arena's foundation: the Shogun's delay (T1~L): his alone, it lapses 15 minutes after the last; LastCall and OpenMin exactly", function()
 	local w = World.New()
-	local king, steward, hc, b = w:Role("king"), w:Role("steward"), w:Role("councillor"), w:Client("Lida Fenn")
-	eq(king.Arena.KingsView(), true); eq(b.Arena.KingsView(), false)
-	eq(king.Arena.SetDelay(30), true)
+	local shogun, steward, hc, b = w:Role("shogun"), w:Role("steward"), w:Role("councillor"), w:Client("Lida Fenn")
+	eq(shogun.Arena.ShogunsView(), true); eq(b.Arena.ShogunsView(), false)
+	eq(shogun.Arena.SetDelay(30), true)
 	w:Run(0)
-	eq(b.Roles.KingDelay(), 30)
-	eq(king.Arena.LastCall(true), 50); eq(king.Arena.OpenMin(true), 120)
-	eq(b.Arena.LastCall(true), 50, "a public event anyone opens keeps the King's delay"); eq(b.Arena.OpenMin(true), 120)
+	eq(b.Roles.ShogunDelay(), 30)
+	eq(shogun.Arena.LastCall(true), 50); eq(shogun.Arena.OpenMin(true), 120)
+	eq(b.Arena.LastCall(true), 50, "a public event anyone opens keeps the Shogun's delay"); eq(b.Arena.OpenMin(true), 120)
 	eq(b.Arena.LastCall(false), 20); eq(b.Arena.OpenMin(false), 120)
-	king.Arena.SetDelay(120)
+	shogun.Arena.SetDelay(120)
 	w:Run(0)
-	eq(king.Arena.LastCall(true), 140); eq(king.Arena.OpenMin(true), 195)
-	eq(hc.Arena.LastCall(true), 140, "a High Councillor opening while the King's word says 120"); eq(hc.Arena.OpenMin(true), 195)
-	-- A client's own stored delay counts only in the King's view.
+	eq(shogun.Arena.LastCall(true), 140); eq(shogun.Arena.OpenMin(true), 195)
+	eq(hc.Arena.LastCall(true), 140, "a High Councillor opening while the Shogun's word says 120"); eq(hc.Arena.OpenMin(true), 195)
+	-- A client's own stored delay counts only in the Shogun's view.
 	b.db.arenaUI = { delay = 300 }
-	eq(select(2, b.Arena.SetDelay(10)), "king")
+	eq(select(2, b.Arena.SetDelay(10)), "shogun")
 	-- He repeats it while online; logged out, it lapses 15 minutes after the last.
 	w:Run(600)
-	eq(b.Roles.KingDelay(), 120)
-	w:Logout(king)
+	eq(b.Roles.ShogunDelay(), 120)
+	w:Logout(shogun)
 	w:Run(899)
-	eq(b.Roles.KingDelay(), 120)
+	eq(b.Roles.ShogunDelay(), 120)
 	w:Run(302)
-	eq(b.Roles.KingDelay(), 0)
-	eq(b.Arena.LastCall(true), 20, "a non-King client with a stored delay and no King's word"); eq(b.Arena.OpenMin(true), 120)
+	eq(b.Roles.ShogunDelay(), 0)
+	eq(b.Arena.LastCall(true), 20, "a non-Shogun client with a stored delay and no Shogun's word"); eq(b.Arena.OpenMin(true), 120)
 	-- A Steward's T1~L is no word.
 	Word(w, steward, "L", "600")
-	eq(b.Roles.KingDelay(), 0)
-	eq(king.Arena.SetDelay(901), false); eq(king.Arena.SetDelay(-1), false)
+	eq(b.Roles.ShogunDelay(), 0)
+	eq(shogun.Arena.SetDelay(901), false); eq(shogun.Arena.SetDelay(-1), false)
 	NoErrors(w)
 end)
 
@@ -727,7 +727,7 @@ test("1.2 the arena's foundation: the rehearsal's director (ER): on a test build
 	eq(select(2, A.MayDirect(N.arbiter, { lane = "g", money = "p", roles = { [N.arbiter] = "b" } })), "self")
 	eq(select(2, A.MayDirect(N.arbiter, { lane = "g", money = "p", roles = { [N.arbiter] = "t" } })), "self")
 	eq(A.MayDirect(N.arbiter, { lane = "g", money = "p", roles = { [N.bettor1] = "b", [N.bettor2] = "t" } }), true)
-	-- A release: the King, a Steward, a High Councillor, a signed arbiter.
+	-- A release: the Shogun, a Steward, a High Councillor, a signed arbiter.
 	local r = w:Client("Lida Fenn")
 	eq(r.Arena.MayDirect(N.steward, { lane = "a", money = "c", roles = {} }), true)
 	eq(r.Arena.MayDirect(N.councillor, { lane = "a", money = "c", roles = {} }), true)
@@ -735,63 +735,63 @@ test("1.2 the arena's foundation: the rehearsal's director (ER): on a test build
 	NoErrors(w)
 end)
 
-print("ArenaRoles: the King's words")
+print("ArenaRoles: the Shogun's words")
 
-test("1.2 the arena's foundation: T1~B: the King's or a Steward's word (a Hand's refused); a keeper, the Treasurer's character or an arbiter is never a bank", function()
+test("1.2 the arena's foundation: T1~B: the Shogun's or a Steward's word (a Hand's refused); a keeper, the Treasurer's character or an arbiter is never a bank", function()
 	local w = World.New()
-	local king, steward, hand, b = w:Role("king"), w:Role("steward"), w:Role("hand"), w:Client("Lida Fenn")
-	w:As(king, function() king.ns.King.AddHand(N.hand) end)
+	local shogun, steward, hand, b = w:Role("shogun"), w:Role("steward"), w:Role("hand"), w:Client("Lida Fenn")
+	w:As(shogun, function() shogun.ns.Shogun.AddHand(N.hand) end)
 	w:Run(30)
-	eq(b.King.IsHandName(N.hand), true, "a Hand of the King's")
+	eq(b.Shogun.IsHandName(N.hand), true, "a Hand of the Shogun's")
 	-- A Hand's word is no word.
 	Word(w, hand, "B", N.bank .. ":o")
 	eq(#b.Roles.Banks("L"), 0)
-	eq(select(2, hand.Roles.SetBanks({ N.bank })), "king", "his own client refuses too")
+	eq(select(2, hand.Roles.SetBanks({ N.bank })), "shogun", "his own client refuses too")
 	-- A Steward's is.
 	eq(steward.Roles.SetBanks({ N.bank }), true)
 	w:Run(0)
 	eq(#b.Roles.Banks("L"), 1); eq(b.Roles.Banks("L")[1].name, N.bank); eq(b.Roles.BankState(N.bank), "o")
 	eq(b.Roles.IsBank(N.bank, "L"), true); eq(b.Roles.IsBank(N.bettor2, "L"), false)
-	eq(king.Roles.IsBank(N.bank, "L"), true)
-	eq(Printed(king, "changed the arena's"), 1, "the King is told his Steward changed it")
+	eq(shogun.Roles.IsBank(N.bank, "L"), true)
+	eq(Printed(shogun, "changed the arena's"), 1, "the Shogun is told his Steward changed it")
 	-- Refused by the giver's composer and by every client.
-	eq(select(2, king.Roles.SetBanks({ N.treasurerMail })), "keeper")
-	eq(select(2, king.Roles.SetBanks({ N.arbiter })), "arbiter")
-	eq(select(2, king.Roles.SetBanks({ N.councillor })), "councillor")
-	eq(select(2, king.Roles.SetBanks({ N.steward })), "steward")
-	eq(select(2, king.Roles.SetBanks({ N.king })), "king")
-	eq(select(2, king.Roles.SetBanks({ "A", "B", "C", "D" })), "count")
-	Word(w, king, "B", N.treasurerMail .. ":o," .. N.bank .. ":c", w.clock + 5)
+	eq(select(2, shogun.Roles.SetBanks({ N.treasurerMail })), "keeper")
+	eq(select(2, shogun.Roles.SetBanks({ N.arbiter })), "arbiter")
+	eq(select(2, shogun.Roles.SetBanks({ N.councillor })), "councillor")
+	eq(select(2, shogun.Roles.SetBanks({ N.steward })), "steward")
+	eq(select(2, shogun.Roles.SetBanks({ N.shogun })), "shogun")
+	eq(select(2, shogun.Roles.SetBanks({ "A", "B", "C", "D" })), "count")
+	Word(w, shogun, "B", N.treasurerMail .. ":o," .. N.bank .. ":c", w.clock + 5)
 	eq(#b.Roles.Banks("L"), 1, "the keeper left out on every client"); eq(b.Roles.BankState(N.bank), "c")
-	-- A keeper the King lists (T1~K) the same.
-	w:As(king, function() king.ns.Treasury.AddKeeper(N.bettor3) end)
+	-- A keeper the Shogun lists (T1~K) the same.
+	w:As(shogun, function() shogun.ns.Treasury.AddKeeper(N.bettor3) end)
 	w:Run(0)
-	Word(w, king, "B", N.bettor3 .. ":o", w.clock + 10)
+	Word(w, shogun, "B", N.bettor3 .. ":o", w.clock + 10)
 	eq(#b.Roles.Banks("L"), 0)
 	eq(b.Roles.Why(N.bettor3, "bank"), "keeper")
 	NoErrors(w)
 end)
 
-test("1.2 the arena's foundation: the words: the newest wins, the King's own on the same second; a word dated more than a minute ahead or malformed is not taken", function()
+test("1.2 the arena's foundation: the words: the newest wins, the Shogun's own on the same second; a word dated more than a minute ahead or malformed is not taken", function()
 	local w = World.New()
-	local king, steward, b = w:Role("king"), w:Role("steward"), w:Client("Lida Fenn")
+	local shogun, steward, b = w:Role("shogun"), w:Role("steward"), w:Client("Lida Fenn")
 	local t0 = w.clock
 	Word(w, steward, "B", N.bank .. ":o", t0)
-	Word(w, king, "B", N.bettor1 .. ":o", t0)
-	eq(b.Roles.Banks("L")[1].name, N.bettor1, "the King's on the same second")
+	Word(w, shogun, "B", N.bettor1 .. ":o", t0)
+	eq(b.Roles.Banks("L")[1].name, N.bettor1, "the Shogun's on the same second")
 	Word(w, steward, "B", N.bettor2 .. ":o", t0)
-	eq(b.Roles.Banks("L")[1].name, N.bettor1, "a Steward's on the same second never replaces the King's")
+	eq(b.Roles.Banks("L")[1].name, N.bettor1, "a Steward's on the same second never replaces the Shogun's")
 	Word(w, steward, "B", N.bettor2 .. ":o", t0 + 1)
 	eq(b.Roles.Banks("L")[1].name, N.bettor2, "newer")
-	Word(w, king, "B", N.bank .. ":o", t0 - 5)
+	Word(w, shogun, "B", N.bank .. ":o", t0 - 5)
 	eq(b.Roles.Banks("L")[1].name, N.bettor2, "older")
-	Word(w, king, "B", N.bank .. ":o", w.clock + 61)
+	Word(w, shogun, "B", N.bank .. ":o", w.clock + 61)
 	eq(b.Roles.Banks("L")[1].name, N.bettor2, "more than a minute ahead")
 	for _, bad in ipairs({ N.bank .. ":x", N.bank, "<b>:o", N.bank .. ":o," .. N.bank .. ":o" }) do
-		Word(w, king, "B", bad, w.clock)
+		Word(w, shogun, "B", bad, w.clock)
 		eq(b.Roles.Banks("L")[1].name, N.bettor2, bad)
 	end
-	-- Not from the King or a Steward: no word at all, nothing answered.
+	-- Not from the Shogun or a Steward: no word at all, nothing answered.
 	eq(steward.Roles.SetBanks({ N.bank }), true)
 	w:Run(0)
 	local function Words()
@@ -801,20 +801,20 @@ test("1.2 the arena's foundation: the words: the newest wins, the King's own on 
 	end
 	local before = Words()
 	Word(w, b, "B", N.bettor1 .. ":o", t0 - 100, "Bankai Guild Ember")
-	eq(Words(), before, "not from the King or a Steward")
-	-- An older word heard on the giver's side (the King's client missed it) is answered with the
+	eq(Words(), before, "not from the Shogun or a Steward")
+	-- An older word heard on the giver's side (the Shogun's client missed it) is answered with the
 	-- newer one, once: another within ANSWER_GAP (30 s) is not; after it, again. (The older words
 	-- above were answered already: 30 s first.)
 	w:Run(31)
 	before = Words()
 	local kept = steward.Roles.Banks("L")[1].name
-	Word(w, king, "B", N.bettor1 .. ":o", t0 - 100)
+	Word(w, shogun, "B", N.bettor1 .. ":o", t0 - 100)
 	eq(Words(), before + 1, "answered")
-	eq(king.Roles.Banks("L")[1].name, kept, "the King's client takes the newer one")
-	Word(w, king, "B", N.bettor1 .. ":o", t0 - 90)
+	eq(shogun.Roles.Banks("L")[1].name, kept, "the Shogun's client takes the newer one")
+	Word(w, shogun, "B", N.bettor1 .. ":o", t0 - 90)
 	eq(Words(), before + 1, "not again within 30 s")
 	w:Run(31)
-	Word(w, king, "B", N.bettor1 .. ":o", t0 - 80)
+	Word(w, shogun, "B", N.bettor1 .. ":o", t0 - 80)
 	eq(Words(), before + 2)
 	eq(b.Roles.Banks("L")[1].name, kept, "nobody took the older ones")
 	NoErrors(w)
@@ -822,34 +822,34 @@ end)
 
 test("1.2 the arena's foundation: T1~M: up to 40 arbiters with their caps in gold (none: the lowest tier, 100 g); never a bank; public arbiters hold 100 g", function()
 	local w = World.New()
-	local king, b = w:Role("king"), w:Client("Lida Fenn")
+	local shogun, b = w:Role("shogun"), w:Client("Lida Fenn")
 	local list = { { name = N.fighterA, cap = 250 }, { name = N.fighterB } }
 	for i = 1, 38 do list[#list + 1] = { name = "Arbiter Number" .. ("abcdefghijklmnopqrstuvwxyzabcdefghijkl"):sub(i, i) .. i, cap = i } end
-	eq(select(2, king.Roles.SetArbiters(list)), "name", "a name the addon takes")
+	eq(select(2, shogun.Roles.SetArbiters(list)), "name", "a name the addon takes")
 	list = { { name = N.fighterA, cap = 250 }, { name = N.fighterB } }
 	for i = 1, 38 do list[#list + 1] = { name = "Arbiter " .. ("abcdefghijklmnopqrstuvwxyz"):sub((i - 1) % 26 + 1, (i - 1) % 26 + 1) .. string.rep("x", math.floor((i - 1) / 26) + 1), cap = 100 + i } end
-	eq(king.Roles.SetArbiters(list), true)
+	eq(shogun.Roles.SetArbiters(list), true)
 	w:Run(0)
 	eq(#b.Roles.Arbiters(), 40)
 	eq(b.Roles.ArbiterCap(N.fighterA), 250 * 10000); eq(b.Roles.ArbiterCap(N.fighterB), 100 * 10000)
 	eq(b.Roles.IsArbiter(N.fighterA, "L"), true); eq(b.Roles.IsPublicArbiter(N.fighterA, "L"), false)
 	eq(b.Roles.ArbiterCap(N.arbiter), 100 * 10000, "a signed arbiter the word leaves out"); eq(b.Roles.ArbiterCap(N.bettor1), 0)
-	eq(#w:Sent{ from = king, dist = "CHANNEL" } > 0, true)
+	eq(#w:Sent{ from = shogun, dist = "CHANNEL" } > 0, true)
 	list[#list + 1] = { name = "One Toomany" }
-	eq(select(2, king.Roles.SetArbiters(list)), "count")
-	eq(select(2, king.Roles.SetArbiters({ { name = N.fighterA, cap = 0 } })), "cap")
-	eq(select(2, king.Roles.SetArbiters({ { name = N.fighterA, cap = 50001 } })), "cap")
-	king.Roles.SetBanks({ N.bank })
+	eq(select(2, shogun.Roles.SetArbiters(list)), "count")
+	eq(select(2, shogun.Roles.SetArbiters({ { name = N.fighterA, cap = 0 } })), "cap")
+	eq(select(2, shogun.Roles.SetArbiters({ { name = N.fighterA, cap = 50001 } })), "cap")
+	shogun.Roles.SetBanks({ N.bank })
 	w:Run(0)
-	eq(select(2, king.Roles.SetArbiters({ { name = N.bank, cap = 10 } })), "bank")
-	Word(w, king, "M", N.bettor1 .. ":0", w.clock + 1)
+	eq(select(2, shogun.Roles.SetArbiters({ { name = N.bank, cap = 10 } })), "bank")
+	Word(w, shogun, "M", N.bettor1 .. ":0", w.clock + 1)
 	eq(#b.Roles.Arbiters(), 40, "a cap of 0 refuses the word")
 	NoErrors(w)
 end)
 
 test("1.2 the arena's foundation: T1~O: gold by default; bounds refuse the whole word; gold with no fee receiver refused (a Horde world), a named one accepted", function()
 	local w = World.New()
-	local king, b = w:Role("king"), w:Client("Lida Fenn")
+	local shogun, b = w:Role("shogun"), w:Client("Lida Fenn")
 	local s = b.Roles.Settings()
 	eq(s.cur, "g"); eq(s.live, 0); eq(s.feeBp, 600); eq(s.arbBp, 200); eq(s.minBet, 1000); eq(s.maxBet, 200000); eq(s.maxDay, 600000)
 	eq(s.maxPool, 10000000); eq(s.bankCap, 50000000); eq(s.directMax, 500000); eq(s.scalePct, 100); eq(s.minLevel, 10); eq(s.feeTo, nil)
@@ -858,17 +858,17 @@ test("1.2 the arena's foundation: T1~O: gold by default; bounds refuse the whole
 	eq(b.Roles.IsFeeReceiver(N.treasurer), true); eq(b.Roles.IsFeeReceiver(N.bettor1), false)
 	for _, bad in ipairs({ { feeBp = 1001 }, { arbBp = 700 }, { minBet = 99 }, { maxBet = 501 * 10000 }, { scalePct = 24 }, { minLevel = 61 }, { cur = "x" } }) do
 		local k = next(bad)
-		eq(select(2, king.Roles.SetSettings(bad)), k == "maxBet" and "maxBet" or k, k)
+		eq(select(2, shogun.Roles.SetSettings(bad)), k == "maxBet" and "maxBet" or k, k)
 	end
-	GoLive(w, king, { live = 1, cur = "p", scalePct = 150 })
+	GoLive(w, shogun, { live = 1, cur = "p", scalePct = 150 })
 	eq(b.Roles.Live(), true); eq(b.Roles.Currency(), "p"); eq(b.Roles.Settings().scalePct, 150)
 	-- Out of bounds on the wire: the whole word refused.
 	local text = b.Roles.SettingsText(b.Roles.Settings()):gsub("^1~p~600", "0~g~1500")
-	Word(w, king, "O", text, w.clock + 1)
+	Word(w, shogun, "O", text, w.clock + 1)
 	eq(b.Roles.Live(), true, "unchanged")
-	-- A Horde world: no Treasurer there, no fee receiver unless the King names one.
+	-- A Horde world: no Treasurer there, no fee receiver unless the Shogun names one.
 	local h = World.New()
-	local hk = h:Role("kingHorde")
+	local hk = h:Role("shogunHorde")
 	local hb = h:Client("Grukk Tallyhand", { faction = "Horde" })
 	local other = h:Client("Lida Fenn", { faction = "Horde" })
 	eq(other.Roles.FeeReceiver(), nil)
@@ -887,23 +887,23 @@ end)
 
 test("1.2 the arena's foundation: realm scope: a word belongs to its sender's realm; the other realm's arena is separate", function()
 	local w = World.New()
-	local king2 = w:Role("king", { realm = "Emberfall2" })
+	local shogun2 = w:Role("shogun", { realm = "Emberfall2" })
 	local r1, r2 = w:Client("Lida Fenn"), w:Client("Parric Stowe", { realm = "Emberfall2" })
-	GoLive(w, king2)
+	GoLive(w, shogun2)
 	eq(r2.Roles.Live(), true); eq(r1.Roles.Live(), false, "the channel is per realm: realm 1 never heard it")
 	-- Heard anyway (a shared channel): kept under realm 2, never realm 1's.
-	local text = ("T1~O~5~%s~%d~%s"):format(World.KING_GUILD, w.clock, r1.Roles.SettingsText({ live = 1, cur = "g", feeBp = 600, arbBp = 200, minBet = 1000,
+	local text = ("T1~O~5~%s~%d~%s"):format(World.SHOGUN_GUILD, w.clock, r1.Roles.SettingsText({ live = 1, cur = "g", feeBp = 600, arbBp = 200, minBet = 1000,
 		maxBet = 200000, maxDay = 600000, maxPool = 10000000, bankCap = 50000000, directMax = 500000, scalePct = 100, minLevel = 10 }))
-	w:As(r1, function() r1.ns.King.HandleCommand("CHANNEL", king2.name, text) end)
+	w:As(r1, function() r1.ns.Shogun.HandleCommand("CHANNEL", shogun2.name, text) end)
 	eq(r1.Roles.Live(), false); eq(r1.Roles.Live("Emberfall2"), true)
-	eq(r1.rdb.arena.realms.Emberfall2.roles.settings.from, king2.name)
+	eq(r1.rdb.arena.realms.Emberfall2.roles.settings.from, shogun2.name)
 	NoErrors(w)
 end)
 
-test("1.2 the arena's foundation: who is who: the signed arbiters and auditors (^arbiter^), leaders, auditors (never a Steward alone), promoters (the King's Hands too)", function()
+test("1.2 the arena's foundation: who is who: the signed arbiters and auditors (^arbiter^), leaders, auditors (never a Steward alone), promoters (the Shogun's Hands too)", function()
 	local w = World.New()
-	local king, b = w:Role("king"), w:Client("Lida Fenn")
-	w:As(king, function() king.ns.King.AddHand(N.hand) end)
+	local shogun, b = w:Role("shogun"), w:Client("Lida Fenn")
+	w:As(shogun, function() shogun.ns.Shogun.AddHand(N.hand) end)
 	w:Run(30)
 	local ns2 = b.ns
 	eq(ns2.IsSignedArbiter(N.arbiter), true); eq(ns2.IsSignedAuditor(N.arbiter), false)
@@ -912,13 +912,13 @@ test("1.2 the arena's foundation: who is who: the signed arbiters and auditors (
 	eq(ns2.IsSignedArbiter("Oswin Marrow-Farshore"), false, "a namesake on another group")
 	eq(ns2.IsSignedArbiter(N.bettor1), false); eq(ns2.IsSignedArbiter(nil), false)
 	local R = b.Roles
-	eq(R.IsPublicArbiter(N.king), true); eq(R.IsPublicArbiter(N.councillor), true); eq(R.IsPublicArbiter(N.arbiter), true)
+	eq(R.IsPublicArbiter(N.shogun), true); eq(R.IsPublicArbiter(N.councillor), true); eq(R.IsPublicArbiter(N.arbiter), true)
 	eq(R.IsPublicArbiter(N.steward), false)
 	eq(R.Leader(N.steward), true); eq(R.Leader(N.arbiter), true); eq(R.Leader(N.bettor1), false); eq(R.Leader(N.hand), false)
-	eq(R.Auditor(N.king), true); eq(R.Auditor(N.councillor), true); eq(R.Auditor(N.auditor), true)
+	eq(R.Auditor(N.shogun), true); eq(R.Auditor(N.councillor), true); eq(R.Auditor(N.auditor), true)
 	eq(R.Auditor(N.arbiter), false, "no +a"); eq(R.Auditor(N.steward), false, "a Steward is no auditor (the owner's answer)")
 	eq(R.MayPromote(N.hand), true); eq(R.MayPromote(N.steward), true); eq(R.MayPromote(N.arbiter), true); eq(R.MayPromote(N.bettor1), false)
-	eq(R.IsKing(N.king), true); eq(R.IsKing(N.steward), false)
+	eq(R.IsShogun(N.shogun), true); eq(R.IsShogun(N.steward), false)
 	-- Stand-ins count in T alone.
 	R.standIn = function(name, letter) return name == N.bettor1 and letter == "p" end
 	eq(R.IsPublicArbiter(N.bettor1, "T"), true); eq(R.IsPublicArbiter(N.bettor1, "L"), false)
@@ -935,7 +935,7 @@ test("1.2 the arena's foundation: the bank's role is refused on its own client w
 	local w = World.New()
 	local bank = w:Role("bank")
 	eq(bank.Roles.MayBank(), true)
-	for _, case in ipairs({ { N.steward, "steward" }, { N.councillor, "councillor" }, { N.arbiter, "arbiter" }, { N.treasurerMail, "keeper" }, { N.king, "king" } }) do
+	for _, case in ipairs({ { N.steward, "steward" }, { N.councillor, "councillor" }, { N.arbiter, "arbiter" }, { N.treasurerMail, "keeper" }, { N.shogun, "shogun" } }) do
 		bank.db.myCharacters = { [bank.name:lower()] = true, [case[1]:lower()] = true }
 		local ok, why, who = bank.Roles.MayBank()
 		eq(ok, false, case[1]); eq(why, case[2]); eq(who, case[1])
@@ -948,12 +948,12 @@ end)
 
 test("1.2 the arena's foundation: a bank a newer word leaves out while it still owes stays, closing; the composer refuses to drop it", function()
 	local w = World.New()
-	local king, b = w:Role("king"), w:Client("Lida Fenn")
-	king.Roles.SetBanks({ N.bank })
+	local shogun, b = w:Role("shogun"), w:Client("Lida Fenn")
+	shogun.Roles.SetBanks({ N.bank })
 	w:Run(0)
-	for _, c in ipairs({ king, b }) do c.Roles.stillOwing = function(name) return name == N.bank end end
-	eq(select(2, king.Roles.SetBanks({ N.bettor2 })), "owing")
-	Word(w, king, "B", N.bettor2 .. ":o", w.clock + 1)
+	for _, c in ipairs({ shogun, b }) do c.Roles.stillOwing = function(name) return name == N.bank end end
+	eq(select(2, shogun.Roles.SetBanks({ N.bettor2 })), "owing")
+	Word(w, shogun, "B", N.bettor2 .. ":o", w.clock + 1)
 	local banks = b.Roles.Banks("L")
 	eq(#banks, 2); eq(b.Roles.BankState(N.bank), "c"); eq(b.Roles.BankState(N.bettor2), "o")
 	b.Roles.stillOwing = function() return false end
@@ -963,12 +963,12 @@ end)
 
 test("1.2 the arena's foundation: the giver's client repeats its own words every 5 minutes for late logins; nobody else's does", function()
 	local w = World.New()
-	local king, b = w:Role("king"), w:Client("Lida Fenn")
-	king.Roles.SetBanks({ N.bank })
+	local shogun, b = w:Role("shogun"), w:Client("Lida Fenn")
+	shogun.Roles.SetBanks({ N.bank })
 	w:Run(0)
-	local sent = #w:Sent{ from = king }
+	local sent = #w:Sent{ from = shogun }
 	w:Run(301)
-	assert(#w:Sent{ from = king } > sent, "repeated")
+	assert(#w:Sent{ from = shogun } > sent, "repeated")
 	eq(#w:Sent{ from = b }, 0, "a client that only heard it sends nothing")
 	eq(#w:Timers(b, true), 0)
 	local late = w:Client("Parric Stowe")
@@ -1189,12 +1189,12 @@ test("1.2 the arena's foundation: the source rules: no arena or companion file n
 		end
 		if isCompanion[path] and not labGame then assert(not code:find("OnUpdate", 1, true), path .. " uses OnUpdate") end
 	end
-	-- The real characters Bankai Guild pins (the King, the Treasurer, the author) are nowhere in them, in
+	-- The real characters Bankai Guild pins (the Shogun, the Treasurer, the author) are nowhere in them, in
 	-- the pure modules, nor in any arena test or fixture (every package's, under tests/arena/ and
 	-- tests/fixtures/arena-*); nor is anyone named as the source of a decision ("the owner's answer").
 	-- the arena's parser's Honors.lua names the author in two comments: a named exception, reworded at integration.
 	local EXCEPT = { [H.ADDON_DIR .. "Honors.lua"] = true }
-	local real = { H.ns.KING_CHARACTER.Alliance, H.ns.KING_CHARACTER.Horde, H.ns.TREASURER, H.ns.AUTHOR, H.ns.KING_NAME }
+	local real = { H.ns.SHOGUN_CHARACTER.Alliance, H.ns.SHOGUN_CHARACTER.Horde, H.ns.TREASURER, H.ns.AUTHOR, H.ns.SHOGUN_NAME }
 	for _, n in ipairs(H.ns.TREASURER_CHARACTERS) do real[#real + 1] = n end
 	local scan = {}
 	for _, f in ipairs(files) do scan[#scan + 1] = f end
@@ -1212,7 +1212,7 @@ test("1.2 the arena's foundation: the source rules: no arena or companion file n
 	for _, f in ipairs(Find(H.ROOT .. "tests/fixtures")) do
 		if f:find("/arena%-[^/]*%.lua$") then scan[#scan + 1] = f end
 	end
-	local ROLES = { King = true, Steward = true, Treasurer = true, Council = true, Director = true }
+	local ROLES = { Shogun = true, Steward = true, Treasurer = true, Council = true, Director = true }
 	for _, path in ipairs(scan) do
 		if not EXCEPT[path] then
 			local raw = Read(path)
@@ -1247,7 +1247,7 @@ test("1.2 the arena's foundation: every word the arena's core says exists in Eng
 	end
 	used.PROFILE_EDIT_BTN = true
 	for _, part in ipairs({ "BANK", "KEY", "COPPER", "MINE", "STAKES", "TICKETS" }) do used["BACKUP_ARENA_" .. part] = true end
-	for _, why in ipairs({ "KING", "STEWARD", "COUNCILLOR", "KEEPER", "ARBITER", "UNLISTED", "NAME", "PUBLIC", "AUDITOR", "LEADER", "ROLE" }) do used["ARENA_WHY_" .. why] = true end
+	for _, why in ipairs({ "SHOGUN", "STEWARD", "COUNCILLOR", "KEEPER", "ARBITER", "UNLISTED", "NAME", "PUBLIC", "AUDITOR", "LEADER", "ROLE" }) do used["ARENA_WHY_" .. why] = true end
 	for _, word in ipairs({ "BANKS", "ARBITERS", "SETTINGS" }) do used["ARENA_WORD_" .. word] = true end
 	for k in pairs(used) do assert(en[k], "not defined: " .. k) end
 	local L = H.ns.L
@@ -1955,64 +1955,64 @@ test("1.2 the arena's foundation review: the limits: a full backlog drops an ord
 	NoErrors(w)
 end)
 
-print("the arena's foundation review: the King's words, the backup, the login line")
+print("the arena's foundation review: the Shogun's words, the backup, the login line")
 
-test("1.2 the arena's foundation review: a test build gives no King's word and repeats none (never on the channel, never live): his settings, banks, arbiters and delay stay his client's", function()
+test("1.2 the arena's foundation review: a test build gives no Shogun's word and repeats none (never on the channel, never live): his settings, banks, arbiters and delay stay his client's", function()
 	local w = World.New()
-	local king = w:Role("king", { testBuild = TestBuild(w) })
+	local shogun = w:Role("shogun", { testBuild = TestBuild(w) })
 	local r = w:Client("Lida Fenn")
 	local function Words()
 		local n = 0
-		for _, s in ipairs(w:Sent{ from = king }) do if s.msg:find("^T1~") then n = n + 1 end end
+		for _, s in ipairs(w:Sent{ from = shogun }) do if s.msg:find("^T1~") then n = n + 1 end end
 		return n
 	end
-	eq(select(2, king.Roles.SetSettings({ live = 1 })), "test-channel")
-	eq(select(2, king.Roles.SetBanks({ N.bank })), "test-channel")
-	eq(select(2, king.Roles.SetArbiters({ { name = N.fighterA, cap = 200 } })), "test-channel")
-	eq(king.Arena.SetDelay(60), true, "kept for his own view")
-	eq(select(2, king.Roles.SendDelay(60)), "test-channel")
-	king.Roles.Repeat()
+	eq(select(2, shogun.Roles.SetSettings({ live = 1 })), "test-channel")
+	eq(select(2, shogun.Roles.SetBanks({ N.bank })), "test-channel")
+	eq(select(2, shogun.Roles.SetArbiters({ { name = N.fighterA, cap = 200 } })), "test-channel")
+	eq(shogun.Arena.SetDelay(60), true, "kept for his own view")
+	eq(select(2, shogun.Roles.SendDelay(60)), "test-channel")
+	shogun.Roles.Repeat()
 	w:Run(700)
-	eq(Words(), 0); eq(r.Roles.Live(), false); eq(r.Roles.KingDelay(), 0); eq(#r.Roles.Banks("L"), 0)
-	eq(king.Roles.Live(), false, "his own client took nothing either")
+	eq(Words(), 0); eq(r.Roles.Live(), false); eq(r.Roles.ShogunDelay(), 0); eq(#r.Roles.Banks("L"), 0)
+	eq(shogun.Roles.Live(), false, "his own client took nothing either")
 	-- A test-build Steward who hears an older word answers nothing.
 	local w2 = World.New()
-	local king2 = w2:Role("king")
+	local shogun2 = w2:Role("shogun")
 	local steward = w2:Role("steward", { testBuild = TestBuild(w2) })
-	eq(king2.Roles.SetBanks({ N.bank }), true)
+	eq(shogun2.Roles.SetBanks({ N.bank }), true)
 	w2:Run(0)
 	eq(steward.Roles.Banks("L")[1].name, N.bank, "it hears the words")
-	Word(w2, king2, "B", N.bettor1 .. ":o", w2.clock - 100)
+	Word(w2, shogun2, "B", N.bettor1 .. ":o", w2.clock - 100)
 	eq(#w2:Sent{ from = steward }, 0)
 	NoErrors(w)
 	NoErrors(w2)
 end)
 
-test("1.2 the arena's foundation review: the King's delay goes on after he logs in again (repeated every 5 minutes, the first a minute after login), and is published again from what he typed when the word was lost", function()
+test("1.2 the arena's foundation review: the Shogun's delay goes on after he logs in again (repeated every 5 minutes, the first a minute after login), and is published again from what he typed when the word was lost", function()
 	local w = World.New()
-	local king, b = w:Role("king"), w:Client("Lida Fenn")
-	king.Arena.SetDelay(120)
+	local shogun, b = w:Role("shogun"), w:Client("Lida Fenn")
+	shogun.Arena.SetDelay(120)
 	w:Run(0)
-	eq(b.Roles.KingDelay(), 120)
-	w:Logout(king)
-	w:Login(king)
+	eq(b.Roles.ShogunDelay(), 120)
+	w:Logout(shogun)
+	w:Login(shogun)
 	w:Run(700)
-	eq(b.Roles.KingDelay(), 120, "still his, 700 s after he came back")
+	eq(b.Roles.ShogunDelay(), 120, "still his, 700 s after he came back")
 	-- Gone long enough to lapse, and the word lost from his saved data: published again.
-	w:Logout(king)
+	w:Logout(shogun)
 	w:Run(1000)
-	eq(b.Roles.KingDelay(), 0, "lapsed")
-	king.saved.db.realms[World.GROUP].arena.realms.Emberfall.roles.kingDelay = nil
-	w:Login(king)
+	eq(b.Roles.ShogunDelay(), 0, "lapsed")
+	shogun.saved.db.realms[World.GROUP].arena.realms.Emberfall.roles.shogunDelay = nil
+	w:Login(shogun)
 	w:Run(61)
-	eq(b.Roles.KingDelay(), 120)
+	eq(b.Roles.ShogunDelay(), 120)
 	-- Off: nothing repeated.
-	king.Arena.SetDelay("off")
+	shogun.Arena.SetDelay("off")
 	w:Run(0)
-	eq(b.Roles.KingDelay(), 0)
-	w:Logout(king)
-	w:Login(king)
-	eq(table.concat(king.Arena.Involved(), ","), "", "nothing to repeat")
+	eq(b.Roles.ShogunDelay(), 0)
+	w:Logout(shogun)
+	w:Login(shogun)
+	eq(table.concat(shogun.Arena.Involved(), ","), "", "nothing to repeat")
 	NoErrors(w)
 end)
 
@@ -2187,36 +2187,36 @@ test("1.2 the arena's foundation review: the real Comm and Moderation: a net-off
 end)
 
 -- The owner's call, 2026-09-30: in the sim and the normal view names showed as "Fala****" on the
--- author's client (its preview of the King's view). Names are whole now; cut short only on the
--- King's own screen while the council's names are hidden there, and in the sim's King view.
-test("1.2 arena names: whole in the normal view and the sim, cut short only on the King's own screen or in the sim's King view", function()
+-- author's client (its preview of the Shogun's view). Names are whole now; cut short only on the
+-- Shogun's own screen while the council's names are hidden there, and in the sim's Shogun view.
+test("1.2 arena names: whole in the normal view and the sim, cut short only on the Shogun's own screen or in the sim's Shogun view", function()
 	local w = World.New()
 	local c = w:Client("Parric Stowe")
 	local ns = c.ns
-	local K, A = ns.King, ns.Arena
-	local saved = { isKing = K.IsKing, preview = K.Preview, sim = A.Sim, simKing = A.SimKingsView, shown = ns.CouncilNamesShown() }
+	local K, A = ns.Shogun, ns.Arena
+	local saved = { isShogun = K.IsShogun, preview = K.Preview, sim = A.Sim, simShogun = A.SimShogunsView, shown = ns.CouncilNamesShown() }
 	local ok, err = pcall(w.As, w, c, function()
 		ns.SetCouncilNamesShown(false)
 		A.Sim = function() return false end
-		K.IsKing, K.Preview = function() return false end, function() return true end
-		eq(A.Mask("Lida Fenn"), "Lida Fenn", "the author's preview of the King's view: whole")
+		K.IsShogun, K.Preview = function() return false end, function() return true end
+		eq(A.Mask("Lida Fenn"), "Lida Fenn", "the author's preview of the Shogun's view: whole")
 		eq(ns.ArenaHome.Name("Lida Fenn"), "Lida Fenn", "the screens' name too")
 		K.Preview = function() return false end
 		eq(A.Mask("Lida Fenn"), "Lida Fenn", "a player's own screen: whole")
-		K.IsKing = function() return true end
-		eq(A.Mask("Lida Fenn"), "Lida****", "the King's own screen, the council's names hidden")
+		K.IsShogun = function() return true end
+		eq(A.Mask("Lida Fenn"), "Lida****", "the Shogun's own screen, the council's names hidden")
 		ns.SetCouncilNamesShown(true)
-		eq(A.Mask("Lida Fenn"), "Lida Fenn", "the King showed them (the eye)")
+		eq(A.Mask("Lida Fenn"), "Lida Fenn", "the Shogun showed them (the eye)")
 		ns.SetCouncilNamesShown(false)
-		-- The sim: whole unless its King view is on.
+		-- The sim: whole unless its Shogun view is on.
 		A.Sim = function() return true end
-		A.SimKingsView = function() return false end
+		A.SimShogunsView = function() return false end
 		eq(A.Mask("Lida Fenn"), "Lida Fenn", "the sim's normal view")
-		K.IsKing = function() return false end
-		A.SimKingsView = function() return true end
-		eq(A.Mask("Lida Fenn"), "Lida****", "the sim's King view")
+		K.IsShogun = function() return false end
+		A.SimShogunsView = function() return true end
+		eq(A.Mask("Lida Fenn"), "Lida****", "the sim's Shogun view")
 	end)
-	K.IsKing, K.Preview, A.Sim, A.SimKingsView = saved.isKing, saved.preview, saved.sim, saved.simKing
+	K.IsShogun, K.Preview, A.Sim, A.SimShogunsView = saved.isShogun, saved.preview, saved.sim, saved.simShogun
 	ns.SetCouncilNamesShown(saved.shown)
 	if not ok then error(err, 0) end
 end)
@@ -2572,7 +2572,7 @@ end)
 -- does (Borders.NewPortrait: his frame's portrait, ring and art round it, at its offsets, scaled
 -- as a whole), the honour he won on it, a first place in the Arena's "-1" spelling as the honour;
 -- the lines above and below clear of its art.
-test("1.2 the King's letter (the Arena's own): his portrait drawn as his own on his unit frame, the honour won on it; the words clear of the art", function()
+test("1.2 the Shogun's letter (the Arena's own): his portrait drawn as his own on his unit frame, the honour won on it; the words clear of the art", function()
 	local w = World.New()
 	local t = w:Client("Wenna Crale", { testBuild = TestBuild(w) })
 	w:As(t, function()
@@ -2656,7 +2656,7 @@ end)
 
 -- The owner's profile page (2026-09-30): the stat blocks and the in-profile fight History in the
 -- grey block, the portrait and who he is on the parchment; Visibility opens the privacy page.
--- 1.2.4 (an intended change): Visibility, "As others see me" and the King's letters moved into "My
+-- 1.2.4 (an intended change): Visibility, "As others see me" and the Shogun's letters moved into "My
 -- profile" in the Bankai Guild window, its sections; the second button is "Edit my profile", which opens
 -- that page (the next test). The privacy page's Profile lines stay.
 test("1.2 the profile: its stat blocks and History, the Edit my profile button (1.2.4), the privacy page's Profile lines", function()
@@ -2783,9 +2783,9 @@ test("1.2 every locale key the code names exists where it reads it, in English a
 end)
 
 -- The owner's Games tab (2026-09-30): the games' rankings in one switchable view and a staff
--- section, for the King, the High Council and the author; the rankings for everyone once the
--- King's word (T1~O's new rankPub) says so. A word from a build before the field still reads.
-test("1.2 the Games tab: the rankings and the staff section for the staff; rankPub in the King's settings", function()
+-- section, for the Shogun, the High Council and the author; the rankings for everyone once the
+-- Shogun's word (T1~O's new rankPub) says so. A word from a build before the field still reads.
+test("1.2 the Games tab: the rankings and the staff section for the staff; rankPub in the Shogun's settings", function()
 	local w = World.New()
 	local a = w:Client("Lida Fenn")
 	local AH, L, R = a.ns.ArenaHome, a.ns.L, a.ns.ArenaRoles
@@ -2793,7 +2793,7 @@ test("1.2 the Games tab: the rankings and the staff section for the staff; rankP
 	w:As(a, function()
 		eq(AH.GamesStaff(), false)
 		local lines = AH.TabLines()
-		eq(Has(lines, L.ARENA_GAMES_RANKINGS), false, "a member: no rankings while the King keeps them to the staff")
+		eq(Has(lines, L.ARENA_GAMES_RANKINGS), false, "a member: no rankings while the Shogun keeps them to the staff")
 		eq(Has(lines, L.ARENA_GAMES_STAFF), false, "no staff section")
 		local was = a.ns.IsHighCouncillor
 		a.ns.IsHighCouncillor = function() return true end
@@ -2815,7 +2815,7 @@ test("1.2 the Games tab: the rankings and the staff section for the staff; rankP
 end)
 
 -- 1.2 (Daniel, 2026-10-05): the author's View as previews a role's Games tab too: the staff
--- section for the King's and the High Council's preview, none for a member's or an arbiter's; his
+-- section for the Shogun's and the High Council's preview, none for a member's or an arbiter's; his
 -- own view keeps his. Presentation alone: never more than his own staff view shows him.
 test("1.2 the Games tab: the author's View as shows the staff section of the role it previews; nobody else has View as", function()
 	local w = World.New()
@@ -2829,13 +2829,13 @@ test("1.2 the Games tab: the author's View as shows the staff section of the rol
 		assert(VA.Set("member")); eq(AH.GamesStaff(), false, "a member's preview: none")
 		assert(VA.Set("arbiter")); eq(AH.GamesStaff(), false, "an arbiter is no staff")
 		assert(VA.Set("councillor")); eq(AH.GamesStaff(), true, "the High Council's preview")
-		assert(VA.Set("king")); eq(AH.GamesStaff(), true)
-		eq(ns.King.IsKing(), false, "the preview crowns nobody")
+		assert(VA.Set("shogun")); eq(AH.GamesStaff(), true)
+		eq(ns.Shogun.IsShogun(), false, "the preview crowns nobody")
 		assert(VA.Set("my")); eq(AH.GamesStaff(), true)
 	end)
 	w:As(a, function()
 		assert(loadfile(H.ADDON_DIR .. "ViewAs.lua"))("BankaiGuild", a.ns)
-		eq(a.ns.ViewAs.Set("king"), false, "no View as but the author's"); eq(a.ns.ViewAs.Previewing(), false)
+		eq(a.ns.ViewAs.Set("shogun"), false, "no View as but the author's"); eq(a.ns.ViewAs.Previewing(), false)
 		eq(a.ns.ArenaHome.GamesStaff(), false)
 	end)
 end)
@@ -2845,9 +2845,9 @@ end)
 -- console, his fights, a new fight); a member has none.
 test("1.2 the Games tab: a listed arbiter who is not staff gets his console lines; a member does not", function()
 	local w = World.New()
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local lida, wenna = w:Client("Lida Fenn"), w:Client("Wenna Crale")
-	assert(king.Roles.SetArbiters({ { name = lida.name, cap = 5 } }))
+	assert(shogun.Roles.SetArbiters({ { name = lida.name, cap = 5 } }))
 	w:Run(0)
 	local L = lida.ns.L
 	local function Find(lines, text)
@@ -2863,7 +2863,7 @@ test("1.2 the Games tab: a listed arbiter who is not staff gets his console line
 	w:As(lida, function()
 		local AH = lida.ns.ArenaHome
 		eq(AH.GamesStaff(), false, "not staff")
-		eq(lida.ns.ArenaRoles.IsArbiter(lida.name, "L"), true, "listed by the King's word")
+		eq(lida.ns.ArenaRoles.IsArbiter(lida.name, "L"), true, "listed by the Shogun's word")
 		local lines = AH.TabLines()
 		eq(Find(lines, L.ARENA_GAMES_STAFF), nil, "no staff section")
 		local head = Find(lines, L.ARENA_GAMES_ARBITER)
@@ -2891,7 +2891,7 @@ end)
 -- Reviewer (2026-10-05): the Arbiter's preview showed a member's Games tab (the arbiter's lines
 -- went by the author's own character alone), and every other preview showed them once his
 -- character was an arbiter. Now the previews of the roles that are arbiters have them (the Arbiter,
--- the King and the High Council: ArenaRoles.IsPublicArbiter), acting for none when the author is no
+-- the Shogun and the High Council: ArenaRoles.IsPublicArbiter), acting for none when the author is no
 -- arbiter (the console's switches would send for real); the others' do not.
 test("1.2 the Games tab: the author's Arbiter preview shows an arbiter's lines, acting for none; the others' as their roles have them", function()
 	local function Find(lines, text)
@@ -2904,10 +2904,10 @@ test("1.2 the Games tab: the author's Arbiter preview shows an arbiter's lines, 
 		return nil
 	end
 	local NOT_ARBITERS = { "member", "officer", "gm", "treasurer", "correspondent" }
-	-- An author with no signed lists here: no arbiter (not signed one, not the King's listed one).
+	-- An author with no signed lists here: no arbiter (not signed one, not the Shogun's listed one).
 	local w = World.New()
-	local king, author = w:Role("king"), w:Role("author", { council = false })
-	assert(king.Roles.SetArbiters({ { name = w:Client("Lida Fenn").name, cap = 5 } }))
+	local shogun, author = w:Role("shogun"), w:Role("author", { council = false })
+	assert(shogun.Roles.SetArbiters({ { name = w:Client("Lida Fenn").name, cap = 5 } }))
 	w:Run(0)
 	w:As(author, function()
 		local ns = author.ns
@@ -2916,7 +2916,7 @@ test("1.2 the Games tab: the author's Arbiter preview shows an arbiter's lines, 
 		local AH, VA = ns.ArenaHome, ns.ViewAs
 		eq(ns.Workshop.IsAuthor(), true); eq(AH.IsArbiterHere(), false, "no arbiter")
 		eq(Head(AH.TabLines(), L), nil, "his own view: his own lines, none")
-		for _, role in ipairs({ "arbiter", "king", "councillor" }) do
+		for _, role in ipairs({ "arbiter", "shogun", "councillor" }) do
 			assert(VA.Set(role))
 			local lines = AH.TabLines()
 			local head = Head(lines, L)
@@ -2957,17 +2957,17 @@ test("1.2 the Games tab: the author's Arbiter preview shows an arbiter's lines, 
 	NoErrors(w2)
 end)
 
--- Who publishes the games' rankings (the owner's answer, 2026-10-04: the King and the councillors
+-- Who publishes the games' rankings (the owner's answer, 2026-10-04: the Shogun and the councillors
 -- he names, per game). The switch is now a publish word per game (AU), no longer the settings'
--- rankPub (a councillor's click on that was refused after the fact): the King names councillors
+-- rankPub (a councillor's click on that was refused after the fact): the Shogun names councillors
 -- for a game (T1~J); a named one flips that game's switch, for everyone, and the change is kept
 -- with who made it; an unnamed one sees it read-only and his word is ignored; named no more, his
 -- word stops counting at once. The giver's client repeats its word for late logins.
-test("1.2 the rankings' publish word: the King names a councillor per game; his switch shows that game's ranking to everyone, logged; read-only and ignored for the rest; revoked at once", function()
+test("1.2 the rankings' publish word: the Shogun names a councillor per game; his switch shows that game's ranking to everyone, logged; read-only and ignored for the rest; revoked at once", function()
 	local w = World.New()
-	local king, hc, hc2 = w:Role("king"), w:Role("councillor"), w:Role("councillor2")
+	local shogun, hc, hc2 = w:Role("shogun"), w:Role("councillor"), w:Role("councillor2")
 	local lida = w:Client("Lida Fenn")
-	local L = king.ns.L
+	local L = shogun.ns.L
 	local ARENA, BONES = L.ARENA_SECTION_ARENA, L.ARENA_SECTION_BONE
 	local function Find(lines, text)
 		for _, l in ipairs(lines) do if tostring(l.text or ""):find(text, 1, true) then return l end end
@@ -2983,21 +2983,21 @@ test("1.2 the rankings' publish word: the King names a councillor per game; his 
 	assert(tostring(line.right):find(L.ARENA_GAMES_READ_ONLY, 1, true), tostring(line.right))
 	eq(w:As(hc, hc.ns.ArenaHome.MaySetRankings, "arena"), false)
 	eq(Find(Lines(lida), L.ARENA_GAMES_RANKINGS), nil, "the member: no rankings yet")
-	eq(Find(Lines(hc), L.ARENA_GAMES_PUBLISHERS:format(ARENA)), nil, "only the King names publishers")
-	-- The King names Brannoc for the Arena: his council's line, clicked. (The King's screen cuts
+	eq(Find(Lines(hc), L.ARENA_GAMES_PUBLISHERS:format(ARENA)), nil, "only the Shogun names publishers")
+	-- The Shogun names Brannoc for the Arena: his council's line, clicked. (The Shogun's screen cuts
 	-- the councillors' names short until he clicks the eye; shown here.)
-	local cut = Find(Lines(king), L.ARENA_GAMES_PUBLISHERS:format(ARENA))
-	assert(cut, "the King's publishers lines")
-	eq(Find(Lines(king), "Brannoc Weald"), nil, "the names cut short on the King's screen")
-	w:As(king, king.ns.SetCouncilNamesShown, true)
-	local kingLines = Lines(king)
-	assert(Find(kingLines, L.ARENA_GAMES_PUBLISHERS:format(ARENA)), "the King's publishers lines")
-	local named = Find(kingLines, "Brannoc Weald")
+	local cut = Find(Lines(shogun), L.ARENA_GAMES_PUBLISHERS:format(ARENA))
+	assert(cut, "the Shogun's publishers lines")
+	eq(Find(Lines(shogun), "Brannoc Weald"), nil, "the names cut short on the Shogun's screen")
+	w:As(shogun, shogun.ns.SetCouncilNamesShown, true)
+	local shogunLines = Lines(shogun)
+	assert(Find(shogunLines, L.ARENA_GAMES_PUBLISHERS:format(ARENA)), "the Shogun's publishers lines")
+	local named = Find(shogunLines, "Brannoc Weald")
 	assert(named and named.onClick, "Brannoc's line can be clicked")
 	assert(tostring(named.right):find(L.ARENA_NO, 1, true), "not named yet")
-	w:As(king, named.onClick)
+	w:As(shogun, named.onClick)
 	w:Run(0)
-	local j = w:Sent({ from = king, type = "T1" })
+	local j = w:Sent({ from = shogun, type = "T1" })
 	assert(j[#j].msg:find("^T1~J~") and j[#j].msg:find("Brannoc Weald:a", 1, true), j[#j].msg)
 	eq(w:As(lida, lida.ns.ArenaRoles.MayPublish, hc.name, "arena"), true, "every client hears the naming")
 	eq(w:As(lida, lida.ns.ArenaRoles.MayPublish, hc.name, "bones"), false, "per game")
@@ -3018,7 +3018,7 @@ test("1.2 the rankings' publish word: the King names a councillor per game; his 
 	local log = w:As(lida, lida.ns.ArenaRoles.PublishLog)
 	eq(#log, 1); eq(log[1].game, "arena"); eq(log[1].on, true); eq(log[1].from, hc.name)
 	local tip = {}
-	Find(Lines(king), switch).tooltip({ AddLine = function(_, t) tip[#tip + 1] = t end })
+	Find(Lines(shogun), switch).tooltip({ AddLine = function(_, t) tip[#tip + 1] = t end })
 	local said = table.concat(tip, "\n")
 	assert(said:find(L.ARENA_GAMES_SHOWN, 1, true) and said:find("Brannoc Weald", 1, true), said)
 	-- An unnamed councillor's word, and Brannoc's for a game he was not named for: ignored.
@@ -3028,40 +3028,40 @@ test("1.2 the rankings' publish word: the King names a councillor per game; his 
 	w:Run(0)
 	eq(Public(lida, "arena"), true, "Idris's word ignored"); eq(Public(lida, "bones"), false, "Brannoc's Bones word ignored")
 	eq(select(2, w:As(hc, hc.ns.ArenaRoles.Publish, "bones", true)), "publisher")
-	-- The King's own switch, for Bones; a client that logs in later hears it repeated.
-	w:As(king, function() king.ns.ArenaHome.rankGame = "bones" end)
-	line = Find(Lines(king), L.ARENA_GAMES_SHOW_GAME:format(BONES))
-	assert(line and line.onClick, "the King's Bones switch")
-	w:As(king, line.onClick)
+	-- The Shogun's own switch, for Bones; a client that logs in later hears it repeated.
+	w:As(shogun, function() shogun.ns.ArenaHome.rankGame = "bones" end)
+	line = Find(Lines(shogun), L.ARENA_GAMES_SHOW_GAME:format(BONES))
+	assert(line and line.onClick, "the Shogun's Bones switch")
+	w:As(shogun, line.onClick)
 	w:Run(0)
 	eq(Public(lida, "bones"), true)
 	local late = w:Client("Parric Stowe")
 	eq(Public(late, "bones"), false, "not heard yet")
-	w:Run(king.ns.ArenaRoles.REPEAT + 1)
-	eq(Public(late, "bones"), true, "the King's client repeats its word")
+	w:Run(shogun.ns.ArenaRoles.REPEAT + 1)
+	eq(Public(late, "bones"), true, "the Shogun's client repeats its word")
 	eq(Public(late, "arena"), true, "and Brannoc's his")
 	-- Named no more: Brannoc's word stops counting everywhere at once, his switch is read-only again.
-	named = Find(Lines(king), "Brannoc Weald")
-	w:As(king, function() king.ns.ArenaHome.rankGame = "arena" end)
-	named = Find(Lines(king), "Brannoc Weald")
+	named = Find(Lines(shogun), "Brannoc Weald")
+	w:As(shogun, function() shogun.ns.ArenaHome.rankGame = "arena" end)
+	named = Find(Lines(shogun), "Brannoc Weald")
 	assert(tostring(named.right):find(L.ARENA_YES, 1, true), "named for the Arena")
-	w:As(king, named.onClick)
+	w:As(shogun, named.onClick)
 	w:Run(0)
 	eq(w:As(lida, lida.ns.ArenaRoles.MayPublish, hc.name, "arena"), false)
 	eq(Public(lida, "arena"), false, "his word no longer counts: back to the settings' (off)")
-	eq(Public(lida, "bones"), true, "the King's stands")
+	eq(Public(lida, "bones"), true, "the Shogun's stands")
 	eq(Find(Lines(hc), switch).onClick, nil, "read-only again")
 	NoErrors(w)
 end)
 
--- The owner's answer was "the King plus named councillors", not "the King plus Stewards": a Steward
+-- The owner's answer was "the Shogun plus named councillors", not "the Shogun plus Stewards": a Steward
 -- published every game's ranking unnamed (MayPublish took any Steward) and could name or revoke
--- the publishers himself (T1~J was lent to him). He is a publisher now only when the King names
+-- the publishers himself (T1~J was lent to him). He is a publisher now only when the Shogun names
 -- him as a councillor; his own switch is read-only, his AU word and his T1~J are ignored, and the
--- King's character alone names.
-test("1.2 the rankings' publish word: a Steward publishes only when the King names him as a councillor; his word and his naming are ignored otherwise", function()
+-- Shogun's character alone names.
+test("1.2 the rankings' publish word: a Steward publishes only when the Shogun names him as a councillor; his word and his naming are ignored otherwise", function()
 	local w = World.New()
-	local king, steward, hc = w:Role("king"), w:Role("steward"), w:Role("councillor")
+	local shogun, steward, hc = w:Role("shogun"), w:Role("steward"), w:Role("councillor")
 	local lida = w:Client("Lida Fenn")
 	local function May(name, game) return w:As(lida, lida.ns.ArenaRoles.MayPublish, name, game) end
 	local function Public(game) return w:As(lida, lida.ns.ArenaHome.RankingsPublic, game) end
@@ -3075,20 +3075,20 @@ test("1.2 the rankings' publish word: a Steward publishes only when the King nam
 	w:Run(0)
 	eq(Public("arena"), false, "the Steward's AU ignored")
 	-- His naming: refused on his client, and a T1~J from him is no word.
-	eq(select(2, w:As(steward, steward.ns.ArenaRoles.SetPublishers, { { name = hc.name, games = { arena = true } } })), "king")
+	eq(select(2, w:As(steward, steward.ns.ArenaRoles.SetPublishers, { { name = hc.name, games = { arena = true } } })), "shogun")
 	Word(w, steward, "J", "Brannoc Weald:a")
 	eq(May(hc.name, "arena"), false, "a Steward's T1~J names nobody")
-	-- The King's names count; the King publishes himself.
-	assert(w:As(king, king.ns.ArenaRoles.SetPublishers, { { name = hc.name, games = { bones = true } } }))
+	-- The Shogun's names count; the Shogun publishes himself.
+	assert(w:As(shogun, shogun.ns.ArenaRoles.SetPublishers, { { name = hc.name, games = { bones = true } } }))
 	w:Run(0)
-	eq(May(hc.name, "bones"), true, "the King's naming")
-	eq(May(king.name, "lottery"), true, "the King publishes every game")
+	eq(May(hc.name, "bones"), true, "the Shogun's naming")
+	eq(May(shogun.name, "lottery"), true, "the Shogun publishes every game")
 	eq(May(steward.name, "bones"), false, "the Steward still not")
 	NoErrors(w)
 end)
 
 -- The arena's How to play (the owner's call, 2026-09-30): the games' pop-up with four pages; the
--- fee's numbers come from the King's settings (6% of the money won: 4% guild, 2% arbiter) and the
+-- fee's numbers come from the Shogun's settings (6% of the money won: 4% guild, 2% arbiter) and the
 -- worked example adds up.
 test("1.1.6 free play guides: permitted fixture retains the arena's four pages and exact fee example", function()
 	local w = World.New()
@@ -3395,7 +3395,7 @@ test("1.2 the guild's rows: the community roster's menu hooked, never the game's
 	eq(ok, true); eq(owner, "row")
 	local text = table.concat(built or {}, " | ")
 	assert(text:find("button:" .. ns.L.VERSION_CHECK, 1, true), "Check version: " .. text)
-	-- (Changed on purpose, 1.2.1, the author's call: Ask to update in the author's, the King's and
+	-- (Changed on purpose, 1.2.1, the author's call: Ask to update in the author's, the Shogun's and
 	-- the High Council's menus alone; the harness's player is none of them, then a councillor.)
 	assert(not text:find("button:" .. ns.L.VERSION_ASK, 1, true), "no Ask to update for a member: " .. text)
 	H.WithStub("IsMember", function() return true end, function()

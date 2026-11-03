@@ -1,35 +1,35 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- The King's acts that show outside the Throne, where they belong:
---   Royal Writs (Decrees tab): a letter to the Lords (the Crown), or to the Lords and
---     Captains, on parchment. Each one can acknowledge it; the King sees how many did.
+-- The Shogun's acts that show outside the Throne, where they belong:
+--   Royal Writs (Decrees tab): a letter to the Council (the Crown), or to the Council and
+--     Captains, on parchment. Each one can acknowledge it; the Shogun sees how many did.
 --   Open the Gates (Realm tab, Recruiting): the guild the army should send new recruits to,
---     for two hours. The King or a Hand opens them.
+--     for two hours. The Shogun or a Hand opens them.
 --   Royal Pardon (The Watch's Tabards, Wall of Shame): a name off the wall, for everyone, for a week.
---   T1~W~<id>~<guild>~<L|C>~<text>               a writ (the King's)
---   T6~<id>~<guild>                               acknowledged (whisper to the King)
+--   T1~W~<id>~<guild>~<L|C>~<text>               a writ (the Shogun's)
+--   T6~<id>~<guild>                               acknowledged (whisper to the Shogun)
 --   T7~1                                          (1.2.4) a member's login: the week's writs again, please
 --   T1~G~<id>~<guild>~<seconds left>~<guild to join>   gates open (empty guild: closed)
---   T1~F~<id>~<guild>~<name>                      pardon (the King's)
+--   T1~F~<id>~<guild>~<name>                      pardon (the Shogun's)
 
 local Acts = {}
 ns.Acts = Acts
 
-Acts.WRIT_GAP = 60          -- one writ a minute (the King's)
+Acts.WRIT_GAP = 60          -- one writ a minute (the Shogun's)
 Acts.WRIT_SHOW_GAP = 45     -- a little less on the receiving side (queues, rounding)
 Acts.WRIT_MAX = 200         -- letters
 Acts.WRITS_KEPT = 20
 Acts.GATES_TIME = 2 * 3600  -- gates stay open this long
 Acts.GATES_RESEND = 600
 Acts.PARDON_DAYS = 7
-Acts.PARDON_RESEND = 600    -- the King's client repeats the week's pardons for late logins
+Acts.PARDON_RESEND = 600    -- the Shogun's client repeats the week's pardons for late logins
 Acts.NEWS_GAP = 60          -- gates news in chat once a minute at most
 Acts.MAX_ACKS = 300
 -- (1.2.4, the author's ask: announcements are not lost) A writ went out once: a member offline then
--- never got it. The King's client now says each writ of the last WRIT_DAYS again, one each
+-- never got it. The Shogun's client now says each writ of the last WRIT_DAYS again, one each
 -- WRIT_REPEAT (the least lately said first), and a member's client asks for them once a login
--- (T7, WRIT_ASK_AFTER after it); the King's answers an ask at most each WRIT_ANSWER_GAP, the week's
+-- (T7, WRIT_ASK_AFTER after it); the Shogun's answers an ask at most each WRIT_ANSWER_GAP, the week's
 -- writs WRIT_SPACING apart (every client shows one writ each WRIT_SHOW_GAP at most).
 Acts.WRIT_DAYS = 7
 Acts.WRIT_REPEAT = 900
@@ -54,15 +54,15 @@ local lastWritSent, lastWritShown = -math.huge, -math.huge
 local lastWritAnswer, writAnswering = -math.huge, false
 local writFrame
 
--- Who reads a writ: "L" the Lords (guild masters, and the officers of <Elfcore>), "C" every
--- Lord and Captain, "E" the whole army (every member; it is not acknowledged: thousands of
--- whispers to the King).
-Acts.AUDIENCES = { L = "WRIT_TO_LORDS", C = "WRIT_TO_ALL", E = "WRIT_TO_EVERYONE" }
-function Acts.Audience(to) return L[Acts.AUDIENCES[to] or "WRIT_TO_LORDS"] end
+-- Who reads a writ: "L" the Council (guild masters, and the officers of <Elfcore>), "C" every
+-- Council and Captain, "E" the whole army (every member; it is not acknowledged: thousands of
+-- whispers to the Shogun).
+Acts.AUDIENCES = { L = "WRIT_TO_COUNCIL", C = "WRIT_TO_ALL", E = "WRIT_TO_EVERYONE" }
+function Acts.Audience(to) return L[Acts.AUDIENCES[to] or "WRIT_TO_COUNCIL"] end
 function Acts.WritFor(to)
 	if not ns.IsMember() then return false end
 	if to == "E" then return true end
-	if to == "L" then return ns.IsLord() end
+	if to == "L" then return ns.IsCouncil() end
 	return ns.Roster.MyRank() <= ns.CAPTAIN_RANK
 end
 
@@ -111,8 +111,8 @@ end
 local function Ack(w)
 	if w.acked then return end
 	w.acked = true
-	if w.king and w.king ~= ns.me then
-		ns.Comm.Whisper(w.king, ("T6~%d~%s"):format(w.id, GetGuildInfo("player") or ""), "writ ack")
+	if w.shogun and w.shogun ~= ns.me then
+		ns.Comm.Whisper(w.shogun, ("T6~%d~%s"):format(w.id, GetGuildInfo("player") or ""), "writ ack")
 	end
 	ns.Fire("DECREES_CHANGED")
 end
@@ -124,7 +124,7 @@ function Acts.ShowWrit(w)
 	f.title:SetText(L.WRIT_TITLE)
 	f.to:SetText(Acts.Audience(w.to))
 	f.body:SetText(w.text)
-	f.sign:SetText(L.WRIT_SIGNED:format(w.by or ns.KingName()))
+	f.sign:SetText(L.WRIT_SIGNED:format(w.by or ns.ShogunName()))
 	f.ack:SetText(w.acked and L.WRIT_ACKED or L.WRIT_ACK)
 	f.ack:SetEnabled(not w.acked and not w.mine)
 	f.ack:SetShown(not w.mine and w.to ~= "E")
@@ -136,8 +136,8 @@ function Acts.ShowWrit(w)
 end
 
 function Acts.SendWrit(to, text)
-	local preview = ns.King.Preview()
-	if not ns.King.IsKing() and not preview then return ns.Print(L.THRONE_ONLY_KING) end
+	local preview = ns.Shogun.Preview()
+	if not ns.Shogun.IsShogun() and not preview then return ns.Print(L.THRONE_ONLY_SHOGUN) end
 	text = Clean(text, Acts.WRIT_MAX)
 	if #text < 3 then return ns.Print(L.WRIT_EMPTY) end
 	to = Acts.AUDIENCES[to] and to or "L"
@@ -146,7 +146,7 @@ function Acts.SendWrit(to, text)
 		return ns.Print(L.THRONE_WAIT:format(math.ceil(Acts.WRIT_GAP - (now - lastWritSent))))
 	end
 	lastWritSent = now
-	local w = { id = ns.King.NewId(), to = to, text = text, t = now, by = ns.KingName(ns.me), mine = true, acks = 0 }
+	local w = { id = ns.Shogun.NewId(), to = to, text = text, t = now, by = ns.ShogunName(ns.me), mine = true, acks = 0 }
 	local sent = Store("writsSent")
 	sent[#sent + 1] = w
 	while #sent > Acts.WRITS_KEPT do table.remove(sent, 1) end
@@ -166,15 +166,15 @@ local function OnWrit(sender, id, rest)
 	text = Clean(text, Acts.WRIT_MAX)
 	if #text < 3 then return end
 	local now = ns.Now()
-	-- (1.2.4: a writ held already first, the King's repeats: it never takes the next one's turn)
-	for _, old in ipairs(Read("writs")) do if old.id == id and old.king == ns.FullName(sender) then return end end
+	-- (1.2.4: a writ held already first, the Shogun's repeats: it never takes the next one's turn)
+	for _, old in ipairs(Read("writs")) do if old.id == id and old.shogun == ns.FullName(sender) then return end end
 	if now - lastWritShown < Acts.WRIT_SHOW_GAP then return end
 	lastWritShown = now
 	local list = Store("writs")
-	local w = { id = id, king = ns.FullName(sender), by = ns.KingName(sender), to = to, text = text, t = now }
+	local w = { id = id, shogun = ns.FullName(sender), by = ns.ShogunName(sender), to = to, text = text, t = now }
 	-- 1.1 (#31): a writ the player's block terms hit stays folded: no parchment, no alert, and
 	-- the Decrees tab offers it to read with a click (Filter.lua). His own terms alone: the shared
-	-- list never hides the King's writs (1.1, Konig's review).
+	-- list never hides the Shogun's writs (1.1, Konig's review).
 	local F = ns.Filter
 	if F and not F.missing and F.Hides(text, true) then w.hidden = true end
 	list[#list + 1] = w
@@ -182,7 +182,7 @@ local function OnWrit(sender, id, rest)
 	if not w.hidden then
 		-- In an instance or on Busy (1.1): the chat line and its line on the Decrees tab now, the
 		-- parchment once the player is out, if still unread.
-		ns.King.Warn(L.WRIT_ARRIVED:format(w.by), false, "throne", {
+		ns.Shogun.Warn(L.WRIT_ARRIVED:format(w.by), false, "throne", {
 			what = L.HELD_WRIT:format(w.by), key = "writ:" .. tostring(w.id), -- (each writ its own: two unread both pop)
 			open = function() return not w.acked end,
 			show = function() Acts.ShowWrit(w) end,
@@ -190,16 +190,16 @@ local function OnWrit(sender, id, rest)
 	end
 	ns.Fire("DECREES_CHANGED")
 end
-ns.King.Register("W", OnWrit)
+ns.Shogun.Register("W", OnWrit)
 
 function Acts.HandleAck(dist, sender, text)
-	if dist ~= "WHISPER" or not ns.King.IsKing() then return end
+	if dist ~= "WHISPER" or not ns.Shogun.IsShogun() then return end
 	local id, guild = text:match("^T6~(%d+)~(.*)$")
 	id = tonumber(id)
-	guild = ns.King.CleanGuild(guild)
+	guild = ns.Shogun.CleanGuild(guild)
 	if not id or not guild then return end
 	sender = ns.FullName(sender)
-	-- Only someone the writ was for: a Lord or Captain. Before signed enforcement this keeps the
+	-- Only someone the writ was for: a Council member or Captain. Before signed enforcement this keeps the
 	-- old roster/census decision exactly; afterwards a local roster role is valid only for its
 	-- actual guild and every cross-guild role comes from the manifest.
 	local enforcing = ns.Authority and ns.Authority.Enforced and ns.Authority.Enforced()
@@ -210,7 +210,7 @@ function Acts.HandleAck(dist, sender, text)
 	for _, w in ipairs(Read("writsSent")) do
 		if w.id == id and ns.Now() - w.t < 86400 then
 			if w.to == "E" then return end -- (not acknowledged)
-			if w.to == "L" and not ns.IsLordRank(guild, rank) then return end
+			if w.to == "L" and not ns.IsCouncilRank(guild, rank) then return end
 			w.ackBy = w.ackBy or {}
 			if w.ackBy[sender] or (w.acks or 0) >= Acts.MAX_ACKS then return end
 			w.ackBy[sender] = true
@@ -221,7 +221,7 @@ function Acts.HandleAck(dist, sender, text)
 end
 ns.Comm.Handle("T6", function(...) Acts.HandleAck(...) end)
 
--- (1.2.4) The King's writs of the last WRIT_DAYS, as his client sent them, oldest first.
+-- (1.2.4) The Shogun's writs of the last WRIT_DAYS, as his client sent them, oldest first.
 local function RecentWrits()
 	local out, now = {}, ns.Now()
 	for _, w in ipairs(Read("writsSent")) do
@@ -234,10 +234,10 @@ local function SayWrit(w)
 	w.saidAt = ns.Now()
 	ns.Comm.Send("CHANNEL", ("T1~W~%d~%s~%s~%s"):format(w.id, GetGuildInfo("player") or "", w.to, w.text), "writ " .. w.id)
 end
--- The King's client, each WRIT_REPEAT: the writ of the week said least lately (its first telling
+-- The Shogun's client, each WRIT_REPEAT: the writ of the week said least lately (its first telling
 -- counts), one a time. The writ said, or nil.
 function Acts.RepeatWrits()
-	if not ns.King.IsKing() or ns.King.Preview() then return nil end
+	if not ns.Shogun.IsShogun() or ns.Shogun.Preview() then return nil end
 	-- (1.2.5.1, quiet presence, Core.lua: neither this repeat nor the answer to an ask below, which
 	-- would say he is online; a writ he gives still goes, and the repeats come back once it is off.)
 	if ns.QuietPresence and ns.QuietPresence() then return nil end
@@ -249,16 +249,16 @@ function Acts.RepeatWrits()
 	if best then SayWrit(best) end
 	return best
 end
--- A member's login asks for the week's writs (the King's client alone answers).
+-- A member's login asks for the week's writs (the Shogun's client alone answers).
 function Acts.AskWrits()
-	if not ns.IsMember() or ns.King.IsKing() then return false end
+	if not ns.IsMember() or ns.Shogun.IsShogun() then return false end
 	ns.Comm.Send("CHANNEL", "T7~1", "writs ask")
 	return true
 end
--- The King's client hears an ask: the week's writs said again, WRIT_SPACING apart, once per
+-- The Shogun's client hears an ask: the week's writs said again, WRIT_SPACING apart, once per
 -- WRIT_ANSWER_GAP whoever asks. The number to be said.
 function Acts.HandleAsk(dist, sender, text)
-	if dist ~= "CHANNEL" or text ~= "T7~1" or not ns.King.IsKing() or ns.King.Preview() then return 0 end
+	if dist ~= "CHANNEL" or text ~= "T7~1" or not ns.Shogun.IsShogun() or ns.Shogun.Preview() then return 0 end
 	if ns.QuietPresence and ns.QuietPresence() then return 0 end
 	local now = ns.Now()
 	if writAnswering or now - lastWritAnswer < Acts.WRIT_ANSWER_GAP then return 0 end
@@ -269,7 +269,7 @@ function Acts.HandleAsk(dist, sender, text)
 	local function Next()
 		i = i + 1
 		local w = list[i]
-		if not w or not ns.King.IsKing() or (ns.QuietPresence and ns.QuietPresence()) then writAnswering = false return end
+		if not w or not ns.Shogun.IsShogun() or (ns.QuietPresence and ns.QuietPresence()) then writAnswering = false return end
 		SayWrit(w)
 		if list[i + 1] then ns.After(Acts.WRIT_SPACING, "writs answer", Next) else writAnswering = false end
 	end
@@ -281,11 +281,11 @@ ns.Comm.Handle("T7", function(...) Acts.HandleAsk(...) end)
 -- Writs the player's block terms hid and a click showed, this session (1.1, #31).
 local revealed = setmetatable({}, { __mode = "k" })
 
--- The Decrees tab's section: the writs we got, or the King's own with how many read them.
+-- The Decrees tab's section: the writs we got, or the Shogun's own with how many read them.
 -- Nothing for anyone else.
 function Acts.WritLines()
 	local lines = {}
-	local mine = ns.King.IsKing() or ns.King.Preview()
+	local mine = ns.Shogun.IsShogun() or ns.Shogun.Preview()
 	local list = mine and Read("writsSent") or Read("writs")
 	if not mine and #list == 0 then return lines end
 	lines[#lines + 1] = { header = true, text = L.WRITS }
@@ -354,7 +354,7 @@ StaticPopupDialogs["BANKAIGUILD_WRIT"] = {
 }
 StaticPopupDialogs["BANKAIGUILD_WRIT_TO"] = {
 	text = L.WRIT_TO_PROMPT,
-	button1 = L.WRIT_BTN_LORDS,
+	button1 = L.WRIT_BTN_COUNCIL,
 	button2 = L.WRIT_BTN_ALL,
 	button3 = L.WRIT_BTN_EVERYONE,
 	OnAccept = function(self, text) ns.SafeCall("writ", Acts.SendWrit, "L", text or (self and self.data)) end,
@@ -391,11 +391,11 @@ local function SendGates()
 end
 
 function Acts.OpenGates(guild)
-	local preview = ns.King.Preview()
-	if not ns.King.CanCommand() and not preview then return ns.Print(L.THRONE_ONLY_KING) end
-	guild = ns.King.CleanGuild(guild)
+	local preview = ns.Shogun.Preview()
+	if not ns.Shogun.CanCommand() and not preview then return ns.Print(L.THRONE_ONLY_SHOGUN) end
+	guild = ns.Shogun.CleanGuild(guild)
 	if not guild then return end
-	gates = { id = ns.King.NewId(), guild = guild, by = ns.me, at = ns.Now() + Acts.GATES_TIME, mine = true, preview = preview or nil }
+	gates = { id = ns.Shogun.NewId(), guild = guild, by = ns.me, at = ns.Now() + Acts.GATES_TIME, mine = true, preview = preview or nil }
 	if preview then ns.Print(L.THRONE_PREVIEW_NOTE) end
 	-- Kept across a /reload: the opener's client repeats them for late logins.
 	if not preview then
@@ -408,10 +408,10 @@ function Acts.OpenGates(guild)
 	ns.Fire("DATA_CHANGED")
 end
 
--- Whoever opened them, or the King, closes them for everyone.
+-- Whoever opened them, or the Shogun, closes them for everyone.
 function Acts.CanClose()
 	local g = Acts.Gates()
-	return g ~= nil and (g.mine or g.by == ns.me or ns.King.IsKing())
+	return g ~= nil and (g.mine or g.by == ns.me or ns.Shogun.IsShogun())
 end
 
 function Acts.CloseGates()
@@ -432,10 +432,10 @@ local function OnGates(sender, id, rest, guild)
 	seconds = tonumber(seconds)
 	if not seconds then return end
 	sender = ns.FullName(sender)
-	local king = ns.King.FromKing(sender, guild)
+	local shogun = ns.Shogun.FromShogun(sender, guild)
 	if target == "" or seconds <= 0 then
-		-- Closed: by whoever opened them, or by the King (ours too, when we opened them).
-		if gates and (gates.by == sender or king) then
+		-- Closed: by whoever opened them, or by the Shogun (ours too, when we opened them).
+		if gates and (gates.by == sender or shogun) then
 			if gates.mine then ns.rdb.gates = nil end
 			gates = nil
 			-- 1.1 (#12): in this client's log of acts, with the name the server stamped.
@@ -444,7 +444,7 @@ local function OnGates(sender, id, rest, guild)
 		end
 		return
 	end
-	target = ns.King.CleanGuild(target)
+	target = ns.Shogun.CleanGuild(target)
 	if not target then return end
 	local fresh = not gates or gates.id ~= id
 	gates = { id = id, guild = target, by = sender, at = ns.Now() + math.min(seconds, Acts.GATES_TIME) }
@@ -454,11 +454,11 @@ local function OnGates(sender, id, rest, guild)
 	local now = ns.Now()
 	if fresh and now - lastNews >= Acts.NEWS_GAP then
 		lastNews = now
-		ns.Print(L.GATES_NEWS:format(king and ns.KingName(sender) or ns.DisplayName(sender), target))
+		ns.Print(L.GATES_NEWS:format(shogun and ns.ShogunName(sender) or ns.DisplayName(sender), target))
 	end
 	ns.Fire("DATA_CHANGED")
 end
-ns.King.Register("G", OnGates)
+ns.Shogun.Register("G", OnGates)
 
 StaticPopupDialogs["BANKAIGUILD_GATES"] = {
 	text = L.GATES_CONFIRM,
@@ -471,7 +471,7 @@ StaticPopupDialogs["BANKAIGUILD_GATES"] = {
 	preferredIndex = 3,
 }
 -- The same, for a guild whose census row is marked (1.1, Fern's #30): what the mark says, so the
--- gates never open on a size nobody else confirms without the King seeing it.
+-- gates never open on a size nobody else confirms without the Shogun seeing it.
 StaticPopupDialogs["BANKAIGUILD_GATES_MARKED"] = {
 	text = L.GATES_CONFIRM_MARKED,
 	button1 = YES or "Yes",
@@ -493,9 +493,9 @@ StaticPopupDialogs["BANKAIGUILD_GATES_CLOSE"] = {
 	preferredIndex = 3,
 }
 
--- A guild's line in Recruiting, clicked: the King and his Hands open (or close) its gates.
+-- A guild's line in Recruiting, clicked: the Shogun and his Hands open (or close) its gates.
 function Acts.GatesClick(guild)
-	if not ns.King.CanCommand() and not ns.King.Preview() then return end
+	if not ns.Shogun.CanCommand() and not ns.Shogun.Preview() then return end
 	local g = Acts.Gates()
 	if g and g.guild == guild then
 		if not Acts.CanClose() then return ns.Print(L.GATES_ONLY_OPENER) end
@@ -535,11 +535,11 @@ local function Apply(name)
 	ns.Fire("INSPECT_CHANGED")
 end
 
--- The King's pardons of the week, in one message (as many names as fit): sent at once, then
+-- The Shogun's pardons of the week, in one message (as many names as fit): sent at once, then
 -- repeated for whoever logs in later.
 local function SendPardons()
 	local given = ns.rdb.pardonsGiven
-	if not given or not ns.King.IsKing() then return end
+	if not given or not ns.Shogun.IsShogun() then return end
 	local now, names, len = ns.Now(), {}, 0
 	for name, t in pairs(given) do
 		if now - t > Acts.PARDON_DAYS * 86400 then
@@ -551,13 +551,13 @@ local function SendPardons()
 	end
 	if #names == 0 then return end
 	table.sort(names)
-	ns.Comm.Send("CHANNEL", ("T1~F~%d~%s~%s"):format(ns.King.NewId(), GetGuildInfo("player") or "", table.concat(names, ",")), "pardons")
+	ns.Comm.Send("CHANNEL", ("T1~F~%d~%s~%s"):format(ns.Shogun.NewId(), GetGuildInfo("player") or "", table.concat(names, ",")), "pardons")
 end
 
 function Acts.Pardon(name)
-	local preview = ns.King.Preview()
-	if not ns.King.IsKing() and not preview then return ns.Print(L.THRONE_ONLY_KING) end
-	local short = ns.King.CleanName(name)
+	local preview = ns.Shogun.Preview()
+	if not ns.Shogun.IsShogun() and not preview then return ns.Print(L.THRONE_ONLY_SHOGUN) end
+	local short = ns.Shogun.CleanName(name)
 	if not short then return ns.Print(L.PARDON_BAD_NAME) end
 	if not preview then
 		ns.rdb.pardonsGiven = ns.rdb.pardonsGiven or {}
@@ -580,18 +580,18 @@ end
 local function OnPardon(sender, id, rest)
 	local n = 0
 	for name in tostring(rest or ""):gmatch("[^,]+") do
-		local short = ns.King.CleanName(name)
+		local short = ns.Shogun.CleanName(name)
 		n = n + 1
 		if n > 30 then break end
 		if short and not Acts.Pardoned(short) then
 			Apply(short)
 			-- 1.1 (#12): in this client's log of acts, with the name the server stamped.
 			ns.Chronicle.Add("pardon", sender, L.ACTS_PARDON:format(short))
-			ns.Print("|cffffd200" .. L.PARDON_NEWS:format(ns.KingName(sender), short) .. "|r")
+			ns.Print("|cffffd200" .. L.PARDON_NEWS:format(ns.ShogunName(sender), short) .. "|r")
 		end
 	end
 end
-ns.King.Register("F", OnPardon)
+ns.Shogun.Register("F", OnPardon)
 
 StaticPopupDialogs["BANKAIGUILD_PARDON"] = {
 	text = L.PARDON_CONFIRM,
@@ -607,13 +607,13 @@ StaticPopupDialogs["BANKAIGUILD_PARDON"] = {
 ns.On("LOGIN", function()
 	-- Our own gates from before a /reload, while they last.
 	local kept = ns.rdb and ns.rdb.gates
-	if type(kept) == "table" and tonumber(kept.at) and kept.at > ns.Now() and ns.King.CleanGuild(kept.guild) then
-		gates = { id = tonumber(kept.id) or ns.King.NewId(), guild = kept.guild, by = ns.me, at = kept.at, mine = true }
+	if type(kept) == "table" and tonumber(kept.at) and kept.at > ns.Now() and ns.Shogun.CleanGuild(kept.guild) then
+		gates = { id = tonumber(kept.id) or ns.Shogun.NewId(), guild = kept.guild, by = ns.me, at = kept.at, mine = true }
 	elseif ns.rdb then
 		ns.rdb.gates = nil
 	end
 	local lastPardons = ns.Now()
-	-- (1.2.4) The week's writs: asked for once a login, the King's client saying them again.
+	-- (1.2.4) The week's writs: asked for once a login, the Shogun's client saying them again.
 	ns.After(Acts.WRIT_ASK_AFTER, "writs ask", function() Acts.AskWrits() end)
 	ns.Every(Acts.WRIT_REPEAT, "writs repeat", function() Acts.RepeatWrits() end)
 	ns.Every(60, "gates", function()
@@ -624,7 +624,7 @@ ns.On("LOGIN", function()
 			return ns.Fire("DATA_CHANGED")
 		end
 		-- Only while we may still command (a Hand no longer named stops repeating them).
-		if g and g.mine and ns.King.CanCommand() and ns.Now() - (g.sentAt or 0) >= Acts.GATES_RESEND then SendGates() end
+		if g and g.mine and ns.Shogun.CanCommand() and ns.Now() - (g.sentAt or 0) >= Acts.GATES_RESEND then SendGates() end
 		if ns.Now() - lastPardons >= Acts.PARDON_RESEND then
 			lastPardons = ns.Now()
 			SendPardons()

@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- Party Guard keeps a small, short-lived inbox of clear party-invite requests while the King is
+-- Party Guard keeps a small, short-lived inbox of clear party-invite requests while the Shogun is
 -- demonstrably online. A whisper is only the request: it is never evidence of the sender's guild.
 -- Guild evidence comes from a fresh local roster, a recent explicit /who answer or a player the
 -- user can directly target/mouse over. Verification and every invite remain explicit clicks.
@@ -38,16 +38,16 @@ function Guard.Enabled()
 	return not (ns.db and ns.db.partyGuardOff == true)
 end
 
--- Location() already applies the King's freshness and location-sanction gates. The local King is
+-- Location() already applies the Shogun's freshness and location-sanction gates. The local Shogun is
 -- online by definition even before his first location broadcast.
-function Guard.KingOnline()
+function Guard.ShogunOnline()
 	if not (ns.IsMember and ns.IsMember()) then return false end
-	if ns.King and ns.King.IsKing and ns.King.IsKing() then return true end
-	return ns.King and ns.King.Location and type(ns.King.Location()) == "table" or false
+	if ns.Shogun and ns.Shogun.IsShogun and ns.Shogun.IsShogun() then return true end
+	return ns.Shogun and ns.Shogun.Location and type(ns.Shogun.Location()) == "table" or false
 end
 
 local function Active()
-	return Guard.Enabled() and Guard.KingOnline()
+	return Guard.Enabled() and Guard.ShogunOnline()
 end
 
 local function Drop(candidate)
@@ -394,11 +394,11 @@ function Guard.ResetForTests()
 end
 
 if ns.Who and ns.Who.OnSaw then ns.Who.OnSaw(Guard.OnWhoSeen) end
-function Guard.OnKingLocationChanged()
-	if not Guard.KingOnline() then wipe(candidates); showAll = false end
+function Guard.OnShogunLocationChanged()
+	if not Guard.ShogunOnline() then wipe(candidates); showAll = false end
 	Changed()
 end
-ns.On("KING_LOCATION_CHANGED", Guard.OnKingLocationChanged)
+ns.On("SHOGUN_LOCATION_CHANGED", Guard.OnShogunLocationChanged)
 ns.On("LOGIN", function()
 	ns.RegisterEvent("CHAT_MSG_WHISPER", function(text, sender) Guard.OnWhisper(text, sender) end)
 	ns.RegisterEvent("PLAYER_TARGET_CHANGED", function() Guard.ObserveUnit("target") end)

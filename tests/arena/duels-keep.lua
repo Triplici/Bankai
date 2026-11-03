@@ -23,7 +23,7 @@ local function Info(w, c)
 		return nil
 	end
 end
--- A world as 1.2.4 ships (no wager anywhere) with the King's live switch off; opts.clock, opts.more.
+-- A world as 1.2.4 ships (no wager anywhere) with the Shogun's live switch off; opts.clock, opts.more.
 local function World124(opts)
 	opts = opts or {}
 	local w, cast = W3.New({ live = false, world = { compliance = "shipped", clock = opts.clock }, more = opts.more })

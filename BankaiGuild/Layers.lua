@@ -13,11 +13,11 @@ ns.Layers = Layers
 local ANNOUNCE_EVERY = 600
 local MIN_GAP = 30
 local EXPIRE = 2 * ANNOUNCE_EVERY + 60 -- a missed announce does not drop anyone
--- The King's layer goes with his crown (King.lua), which he repeats every 20 seconds: his
+-- The Shogun's layer goes with his crown (Shogun.lua), which he repeats every 20 seconds: his
 -- client repeats his layer about once a minute, not every ten, so a player who just logged in
 -- or reloaded can ask to join him a minute later, not ten (1.0.0). One client, one message a
 -- minute. (Just under the minute of the ticker below, whose seconds may come a little early.)
-Layers.KING_EVERY = 55
+Layers.SHOGUN_EVERY = 55
 
 local mine          -- { mapID, zoneUID, t }
 local lastAnnounce = 0
@@ -47,17 +47,17 @@ end
 -- Our zone and layer go out only with the player's yes (0.9.1): without a realm key the
 -- Bankai Guild channel is public. Off until they answer (ns.db.shareLocation is nil until then,
 -- account-wide): no layer announcement, and the census they send names nobody's zone
--- (Comm.Broadcast). The King's is his crown on the map (the Throne) alone (0.9.2): his zone
+-- (Comm.Broadcast). The Shogun's is his crown on the map (the Throne) alone (0.9.2): his zone
 -- and layer go out while it is on, never otherwise, whatever he answered to the question.
 function Layers.Sharing()
-	local K = ns.King
-	if K and K.IsKing and K.IsKing() then return (K.SharingLocation and K.SharingLocation()) and true or false end
+	local K = ns.Shogun
+	if K and K.IsShogun and K.IsShogun() then return (K.SharingLocation and K.SharingLocation()) and true or false end
 	return ns.db.shareLocation == true
 end
 
 local function Announces() return Layers.Sharing() end
 
--- Sharing turned off (the player's answer, the King's crown): our layer leaves every screen at
+-- Sharing turned off (the player's answer, the Shogun's crown): our layer leaves every screen at
 -- once (0.9.2), not when it expires. Clients before 0.9.2 keep it until then (EXPIRE).
 local announced = false
 function Layers.Withdraw()
@@ -75,12 +75,12 @@ local function Announce(force)
 	-- Quiet presence (Core.lua): our layer is not announced (nor our zone: Comm.Hello, Comm.Broadcast).
 	if ns.QuietPresence and ns.QuietPresence() then return end
 	local now = ns.Now()
-	local K = ns.King
-	local every = (K and K.IsKing and K.IsKing()) and Layers.KING_EVERY or ANNOUNCE_EVERY
+	local K = ns.Shogun
+	local every = (K and K.IsShogun and K.IsShogun()) and Layers.SHOGUN_EVERY or ANNOUNCE_EVERY
 	if not force and now - lastAnnounce < every then return end
 	if now - lastAnnounce < MIN_GAP then
 		-- A layer change too soon after the last one: announced once the gap is over, so
-		-- nobody (the King's hop above all) is sent to a layer we already left.
+		-- nobody (the Shogun's hop above all) is sent to a layer we already left.
 		if force and not retryQueued then
 			retryQueued = true
 			ns.After(MIN_GAP - (now - lastAnnounce) + 1, "layer announce retry", function()
@@ -94,7 +94,7 @@ local function Announce(force)
 	local guild = GetGuildInfo("player")
 	if not ns.IsFederation(guild) then return end
 	-- With thousands of users only officers and a stable 1 in 8 sample announce, which is
-	-- enough to see the layers and to name each one after its highest rank. (The King is an
+	-- enough to see the layers and to name each one after its highest rank. (The Shogun is an
 	-- officer: his crown's layer always goes.)
 	if not ns.Roster.IsOfficer() and not Layers.InSample() then return end
 	ns.Comm.Send("CHANNEL", ns.Codec.EncodeLayer(mine.mapID, mine.zoneUID, ns.Roster.MyRank(), guild), "layer")
@@ -149,7 +149,7 @@ end
 
 function Layers.Mine() return mine end
 Layers.Observe = Observe -- tests
--- The King turned his crown on (King.ToggleLocation): his layer goes out now, not when the next
+-- The Shogun turned his crown on (Shogun.ToggleLocation): his layer goes out now, not when the next
 -- announcement is due (up to ten minutes when he had shown it before hiding it, 1.0.0).
 function Layers.AnnounceNow() Announce(true) end
 -- Quiet presence turned off (Core.lua): our layer at once, when we share it.
@@ -196,8 +196,8 @@ StaticPopupDialogs["BANKAIGUILD_LOCATION_CHOICE"] = {
 
 function Layers.AskChoice()
 	if asked or ns.db.shareLocation ~= nil or not ns.IsMember() then return false end
-	-- (The King's answer is his crown on the Throne.)
-	if ns.King and ns.King.IsKing and ns.King.IsKing() then return false end
+	-- (The Shogun's answer is his crown on the Throne.)
+	if ns.Shogun and ns.Shogun.IsShogun and ns.Shogun.IsShogun() then return false end
 	if (InCombatLockdown and InCombatLockdown()) or (IsInInstance and IsInInstance()) then return false end
 	-- 1.1 (#11): the first-open page is the first question, this one on it (once a session there);
 	-- this popup only while Consent.lua is not loaded (updated without a restart).
@@ -209,7 +209,7 @@ end
 
 -- Where a player last announced their layer: { mapID, zoneUID, t } while fresh, else nil.
 -- The census and the channel may write a name with different realms: short names match too,
--- unless `exact` (the King's: nobody else's announcement may pass for his).
+-- unless `exact` (the Shogun's: nobody else's announcement may pass for his).
 function Layers.Of(name, exact)
 	if type(name) ~= "string" then return nil end
 	if name == ns.me then return mine end
@@ -229,12 +229,12 @@ function Layers.InSample()
 	return h % 8 == 0
 end
 
--- The King's character as Hop.King reads it: the one pinned by name (1.0.0: his own messages, on
+-- The Shogun's character as Hop.Shogun reads it: the one pinned by name (1.0.0: his own messages, on
 -- whatever realm the server names), or the leader of his guild the census names.
-local function FromKing(sender)
-	if ns.IsKingCharacter(sender) then return true end
+local function FromShogun(sender)
+	if ns.IsShogunCharacter(sender) then return true end
 	for name, g in pairs(ns.rdb.guilds or {}) do
-		if ns.IsKingGuild(name) and type(g) == "table" and g.leader then
+		if ns.IsShogunGuild(name) and type(g) == "table" and g.leader then
 			local full = ns.FullName(g.leader, g.realm or ns.realm)
 			if full == sender and ns.Data.KnownRank(full, name, true) == 0 then return true end
 		end
@@ -244,7 +244,7 @@ end
 
 -- With thousands of users an announcement arrives every few seconds, each one a redraw of the
 -- Census, the Realm and the Decrees: at once for our zone (the layers the Realm tab lists) and
--- for the King's layer (his line tops the Census), the rest at most once every FIRE_GAP.
+-- for the Shogun's layer (his line tops the Census), the rest at most once every FIRE_GAP.
 Layers.FIRE_GAP = 5
 local function FireNow()
 	lastFire = ns.Now()
@@ -271,16 +271,16 @@ function Layers.Receive(sender, l)
 	-- 1.1: a name the moderators took off (net-off, Moderation.lua): no layer of theirs, and the
 	-- one they announced before goes.
 	if ns.Moderation.Hides and ns.Moderation.Hides(sender, l.guild) then return Layers.Forget(sender) end
-	-- The King's own layer tells where he plays (1.0.0, Konig's review: Hop.King), whatever a report says.
-	if ns.Hop and ns.Hop.HeardKing then ns.Hop.HeardKing(sender) end
+	-- The Shogun's own layer tells where he plays (1.0.0, Konig's review: Hop.Shogun), whatever a report says.
+	if ns.Hop and ns.Hop.HeardShogun then ns.Hop.HeardShogun(sender) end
 	local old = where[sender]
 	local here = CurrentMap()
-	local urgent = (here and (l.mapID == here or (old and old[1] == here))) or FromKing(sender)
+	local urgent = (here and (l.mapID == here or (old and old[1] == here))) or FromShogun(sender)
 	if old and seen[old[1]] and seen[old[1]][old[2]] then seen[old[1]][old[2]][sender] = nil end
 	where[sender] = { l.mapID, l.zoneUID }
 	seen[l.mapID] = seen[l.mapID] or {}
 	seen[l.mapID][l.zoneUID] = seen[l.mapID][l.zoneUID] or {}
-	-- The rank written in the message is not trusted: only verified Lords and Captains
+	-- The rank written in the message is not trusted: only verified Council and Captains
 	-- (or ranks from our own roster) can give a layer its name.
 	local rank = ns.Data.KnownRank(sender, l.guild) or 9
 	seen[l.mapID][l.zoneUID][sender] = { rank = rank, guild = l.guild, t = ns.Now() }
@@ -401,7 +401,7 @@ ns.Comm.Handle("L1", function(dist, sender, text)
 	if l then Layers.Receive(sender, l) end
 end)
 
--- Every minute: layers nobody repeated leave, ours goes out again when due (the King's every
+-- Every minute: layers nobody repeated leave, ours goes out again when due (the Shogun's every
 -- minute while his crown shows, anyone else's every ten), and the sharing question is asked
 -- when it can be.
 function Layers.Tick()

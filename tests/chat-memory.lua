@@ -51,7 +51,7 @@ local function Line(t, sender, guild, class, text, extra)
 	return e
 end
 
--- A busy channel's 100 lines: thirty writers in three guilds (the King's one), some of each a
+-- A busy channel's 100 lines: thirty writers in three guilds (the Shogun's one), some of each a
 -- link or a colour code another client sent, the block terms hiding a few, ours among them.
 local function History(n)
 	local list = {}
@@ -373,7 +373,7 @@ end)
 
 -- WarSquads.lua loaded beside the tab as in the game: its listeners hear what the tab hears
 -- (w.fire) and what it tells reaches the tab's listeners (the game's one ns.Fire; ns.Fire is none in
--- this harness), in the King's guild with a fresh roster and two manually appointed writers as
+-- this harness), in the Shogun's guild with a fresh roster and two manually appointed writers as
 -- its group leaders. A High Council seat alone is no appointment. (Its rooms are not given to ChatRooms here, nor its
 -- messages to Comm: neither outlives the test.) Returns WarSquads, what it told, and the undo.
 local function WithSquads(w)

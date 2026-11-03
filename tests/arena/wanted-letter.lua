@@ -1,4 +1,4 @@
--- 1.2.4, Most Wanted's notices on the real windows: the Slayer letter in the King's letter's own
+-- 1.2.4, Most Wanted's notices on the real windows: the Slayer letter in the Shogun's letter's own
 -- window (HonorsNet.lua: its "wanted@" family, its words and title Wanted.lua's, from its key), the
 -- death's toast (Bankai Guild's own window) and the avenged notice (Bankai Guild's own dialog, Dialog.lua).
 -- Every name is invented. Each of these fails on release/1.2.3 (no such letter, toast or dialog).
@@ -44,9 +44,9 @@ end
 
 print("Most Wanted: the Slayer letter and the notices (1.2.4)")
 
-test("1.2.4 the Slayer letter is the King's letter: its window, with Wanted's words (whom he slew, how many of ours, the bounty, the level's points, the total) and its title in the profile Edit's list; once a kill; kept to read again after a relog, never opening by itself again; Wear it changes nothing; never to the King", function()
+test("1.2.4 the Slayer letter is the Shogun's letter: its window, with Wanted's words (whom he slew, how many of ours, the bounty, the level's points, the total) and its title in the profile Edit's list; once a kill; kept to read again after a relog, never opening by itself again; Wear it changes nothing; never to the Shogun", function()
 	local w, cast = W3.New()
-	local A, king = Kept(w, cast.A), Kept(w, cast.king)
+	local A, shogun = Kept(w, cast.A), Kept(w, cast.shogun)
 	local WA = WithWanted(w, A)
 	Window(A)
 	local L = A.ns.L
@@ -55,12 +55,12 @@ test("1.2.4 the Slayer letter is the King's letter: its window, with Wanted's wo
 	local HN = A.ns.HonorsNet
 	local pick = A.ns.ArenaProfile.Pick().frame
 	w:As(A, HN.QueueLetter, key)
-	eq(Shown(A), true, "the King's letter's window")
+	eq(Shown(A), true, "the Shogun's letter's window")
 	local f = HN.LetterFrame()
 	eq(f.key, key)
 	local text, title = w:As(A, WA.LetterText, key)
 	eq(text, L.WANTED_LETTER:format("Grimtooth Gorefang", "60", 2, 90, L.WANTED_LETTER_LEVEL:format(6), 210))
-	eq(f.body:GetText(), text, "Wanted's words in the King's letter")
+	eq(f.body:GetText(), text, "Wanted's words in the Shogun's letter")
 	eq(w:As(A, HN.LetterText, key), text, "through HonorsNet's own entry point")
 	eq(title, L.WANTED_LETTER_TITLE:format("Grimtooth Gorefang"))
 	eq(w:As(A, HN.TitleText, key), title, "its title, as the profile Edit's list shows it")
@@ -87,10 +87,10 @@ test("1.2.4 the Slayer letter is the King's letter: its window, with Wanted's wo
 	eq(w:As(A, HN.ShowLetter, key), true)
 	eq(HN.LetterFrame().body:GetText(), text, "the same words after the relog: they are its key's")
 	w:As(A, HN.CloseLetter, false)
-	-- The King: no letter from himself, none kept.
-	local WK = WithWanted(w, king)
-	w:As(king, king.ns.HonorsNet.QueueLetter, Key(WK, king))
-	eq(Shown(king), false); eq(#king.ns.HonorsNet.Letters(), 0)
+	-- The Shogun: no letter from himself, none kept.
+	local WK = WithWanted(w, shogun)
+	w:As(shogun, shogun.ns.HonorsNet.QueueLetter, Key(WK, shogun))
+	eq(Shown(shogun), false); eq(#shogun.ns.HonorsNet.Letters(), 0)
 	W3.NoErrors(w)
 end)
 
@@ -166,7 +166,7 @@ test("1.2.4 Most Wanted's notices on the real windows: the death's toast is Bank
 	end)
 end)
 
--- 1.2.4 repair (the notices' review): the Slayer letter as the King's letter's model has it (its
+-- 1.2.4 repair (the notices' review): the Slayer letter as the Shogun's letter's model has it (its
 -- first button the Slayers, the Wanted tab; his portrait his rank's frame), its show-once Wanted's
 -- own queue (no mark a kill in the profile), and with the gamepad UI it waits in Wanted, saved,
 -- until the Bankai Guild window is open. Each fails on v124/notices.
@@ -235,7 +235,7 @@ test("1.2.4 repair: 25 Slayer letters (one a kill) leave the profile's told mark
 	W3.NoErrors(w)
 end)
 
-test("1.2.4 repair: with the gamepad UI a Slayer letter goes to the King's letter only with the Bankai Guild window open: before, nothing queued there and chat says once that a letter waits; then it shows at once", function()
+test("1.2.4 repair: with the gamepad UI a Slayer letter goes to the Shogun's letter only with the Bankai Guild window open: before, nothing queued there and chat says once that a letter waits; then it shows at once", function()
 	local w, cast = W3.New()
 	local A = Kept(w, cast.A)
 	local WA = WithWanted(w, A)
@@ -250,7 +250,7 @@ test("1.2.4 repair: with the gamepad UI a Slayer letter goes to the King's lette
 		local went, why = w:As(A, WA.Bounty.SendLetter, key)
 		eq(went, false); eq(why, "window")
 	end
-	eq(Shown(A), false); eq(#HN.QueuedLetters(), 0, "nothing in the King's letter's queue"); eq(#HN.Letters(), 0)
+	eq(Shown(A), false); eq(#HN.QueuedLetters(), 0, "nothing in the Shogun's letter's queue"); eq(#HN.Letters(), 0)
 	eq(Said(), 1, "chat says once")
 	win.open = true
 	eq(w:As(A, WA.Bounty.SendLetter, key), true)

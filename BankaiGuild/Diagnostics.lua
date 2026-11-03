@@ -475,7 +475,7 @@ function ns.StatusText()
 				v == true and "shared" or (v == false and "private" or "not chosen (private)"), tostring(b and b.epoch or "-"), tostring(b and b.opening or "-"))
 		end
 		if ns.faction == "Horde" then
-			add("Horde King: %s, realm %s", tostring(ns.KING_CHARACTER.Horde), tostring(ns.KingRealm and ns.KingRealm() or "?"))
+			add("Horde Shogun: %s, realm %s", tostring(ns.SHOGUN_CHARACTER.Horde), tostring(ns.ShogunRealm and ns.ShogunRealm() or "?"))
 		end
 		-- (1.1, Fern's #11: each off until answered, on the first-open page or its command.)
 		local ri = ns.db.royalInspection
@@ -505,7 +505,7 @@ function ns.StatusText()
 		add("discord link: %s", ns.Link and ns.Link.StatusLine and ns.Link.StatusLine() or "not loaded")
 		-- The Board (1.1): what this client holds and sends (the ch:G1, ch:G0, ch:GQ counts above).
 		add("board: %s", ns.Board and ns.Board.StatusLine and ns.Board.StatusLine() or "not loaded")
-		add("the King's week: %s", ns.Week and ns.Week.StatusLine and ns.Week.StatusLine() or "not loaded")
+		add("the Shogun's week: %s", ns.Week and ns.Week.StatusLine and ns.Week.StatusLine() or "not loaded")
 	end
 	local n = 0
 	for _ in pairs(ns.rdb.guilds) do n = n + 1 end
@@ -524,10 +524,10 @@ function ns.StatusText()
 	for _ in pairs(ns.rdb.seen or {}) do seen = seen + 1 end
 	add("who: %s  |  guilds seen=%d", ns.Who and ns.Who.StatusLine() or "not loaded", seen)
 	add("hop: %s", ns.Hop and ns.Hop.StatusLine and ns.Hop.StatusLine() or "not loaded")
-	-- (1.0.0) The King as this client knows him: why his layer can or can't be asked for.
-	add("king: %s", ns.Hop and ns.Hop.KingStatusLine and ns.Hop.KingStatusLine() or "not loaded")
-	-- (1.0.0) The King's Steward as the signed titles list names him here, and the Hands held.
-	add("steward: %s", ns.King and ns.King.StewardStatusLine and ns.King.StewardStatusLine() or "not loaded")
+	-- (1.0.0) The Shogun as this client knows him: why his layer can or can't be asked for.
+	add("shogun: %s", ns.Hop and ns.Hop.ShogunStatusLine and ns.Hop.ShogunStatusLine() or "not loaded")
+	-- (1.0.0) The Shogun's Steward as the signed titles list names him here, and the Hands held.
+	add("steward: %s", ns.Shogun and ns.Shogun.StewardStatusLine and ns.Shogun.StewardStatusLine() or "not loaded")
 	-- (1.1) Net-off words this client holds (Moderation.lua).
 	add("net-off: %s", ns.Moderation and ns.Moderation.StatusLine and ns.Moderation.StatusLine() or "not loaded")
 	add("alt links: %s", ns.Alts and ns.Alts.StatusLine and ns.Alts.StatusLine() or "not loaded")

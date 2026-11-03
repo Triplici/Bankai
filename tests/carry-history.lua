@@ -3,23 +3,23 @@ local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]carry%-hi
 local World = assert(loadfile(ROOT .. "tests/arena/lib/world.lua"))({ ROOT = ROOT, ADDON_DIR = ROOT .. "BankaiGuild/", ns = base })
 local function Setup()
 	local w = World.New({ council = false, compliance = "shipped", arenaFiles = { "ArenaMath", "ArenaNet", "ArenaMoney", "Debts" } })
-	local king, member = w:Role("king"), w:Role("fighterA")
-	for _, c in ipairs({ king, member }) do
+	local shogun, member = w:Role("shogun"), w:Role("fighterA")
+	for _, c in ipairs({ shogun, member }) do
 		w:As(c, function()
 			c.ns.ViewAs = { Previewing = function() return false end }
 			c.ns.Roster = { Fresh = function() return c.fresh ~= false and {} or nil end,
-				RankOf = function(name) for _, other in ipairs({ king, member }) do if name == other.name and other.guild == c.guild then return other.rank end end end }
+				RankOf = function(name) for _, other in ipairs({ shogun, member }) do if name == other.name and other.guild == c.guild then return other.rank end end end }
 			assert(loadfile(ROOT .. "BankaiGuild/CarryHistory.lua"))("BankaiGuild", c.ns)
 		end)
 	end
-	w:Group({ king.name, member.name })
-	return w, king, member
+	w:Group({ shogun.name, member.name })
+	return w, shogun, member
 end
-local function Original(w, king, member, kind, fields)
+local function Original(w, shogun, member, kind, fields)
 	local capsule
-	w:As(king, function()
-		local H = king.ns.CarryHistory
-		assert(H.CaptureOriginal(kind or "C", member.name, "native-note", w.clock, king.guild,
+	w:As(shogun, function()
+		local H = shogun.ns.CarryHistory
+		assert(H.CaptureOriginal(kind or "C", member.name, "native-note", w.clock, shogun.guild,
 			fields or { words = "Keep your word", court = "42", to = member.name }, function(c) capsule = c end))
 	end)
 	w:Run(2)
@@ -28,15 +28,15 @@ local function Original(w, king, member, kind, fields)
 end
 
 test("carry-history: original capture uses actual Ed25519, immutable author/time/GUID/subject and append-only private per-character storage", function()
-	local w, king, member = Setup()
-	local capsule = Original(w, king, member)
-	w:As(king, function()
-		local H = king.ns.CarryHistory
+	local w, shogun, member = Setup()
+	local capsule = Original(w, shogun, member)
+	w:As(shogun, function()
+		local H = shogun.ns.CarryHistory
 		local r = H.Parse(capsule.text)
-		eq(r.issuer, king.name); eq(r.subject, member.name); eq(r.guid, king.guid); eq(r.at, r.signedAt)
-		eq(r.guild, king.guild); eq(r.kind, "C"); eq(r.fields.words, "Keep your word")
-		assert(king.ns.Ed25519.Verify(king.ns.Ed25519.FromB64(capsule.pk), capsule.text, king.ns.Ed25519.FromB64(capsule.sig)))
-		eq(H.CaptureOriginal("C", member.name, "native-note", w.clock, king.guild, { words = "Replacement" }), false, "same original cannot be overwritten")
+		eq(r.issuer, shogun.name); eq(r.subject, member.name); eq(r.guid, shogun.guid); eq(r.at, r.signedAt)
+		eq(r.guild, shogun.guild); eq(r.kind, "C"); eq(r.fields.words, "Keep your word")
+		assert(shogun.ns.Ed25519.Verify(shogun.ns.Ed25519.FromB64(capsule.pk), capsule.text, shogun.ns.Ed25519.FromB64(capsule.sig)))
+		eq(H.CaptureOriginal("C", member.name, "native-note", w.clock, shogun.guild, { words = "Replacement" }), false, "same original cannot be overwritten")
 		capsule.text = "changed callback copy"
 		local originals = H.Originals(member.name)
 		eq(#originals, 1); assert(H.Parse(originals[1].text))
@@ -47,40 +47,40 @@ test("carry-history: original capture uses actual Ed25519, immutable author/time
 end)
 
 test("carry-history: no legacy origin promotion, invented pardon deadline, preview authority, unsigned receipt or moderator export", function()
-	local w, king, member = Setup()
-	w:As(king, function()
-		local H = king.ns.CarryHistory
-		eq(H.CaptureOriginal("C", member.name, "old", w.clock - 3600, king.guild, { words = "Old quote" }), false)
-		eq(H.CaptureOriginal("P", member.name, "pardon", w.clock, king.guild, { expires = w.clock + 86400 }), false)
-		eq(H.CaptureOriginal("M", member.name, "punishment", w.clock, king.guild, { words = "Private moderator" }), false)
-		eq(H.CaptureWitness(member.name, king.guild, { sourceKind = "M", originalWriter = king.name }), false)
-		king.ns.ViewAs.Previewing = function() return true end
-		eq(H.CaptureOriginal("C", member.name, "preview", w.clock, king.guild, { words = "Preview" }), false)
+	local w, shogun, member = Setup()
+	w:As(shogun, function()
+		local H = shogun.ns.CarryHistory
+		eq(H.CaptureOriginal("C", member.name, "old", w.clock - 3600, shogun.guild, { words = "Old quote" }), false)
+		eq(H.CaptureOriginal("P", member.name, "pardon", w.clock, shogun.guild, { expires = w.clock + 86400 }), false)
+		eq(H.CaptureOriginal("M", member.name, "punishment", w.clock, shogun.guild, { words = "Private moderator" }), false)
+		eq(H.CaptureWitness(member.name, shogun.guild, { sourceKind = "M", originalWriter = shogun.name }), false)
+		shogun.ns.ViewAs.Previewing = function() return true end
+		eq(H.CaptureOriginal("C", member.name, "preview", w.clock, shogun.guild, { words = "Preview" }), false)
 	end)
 	w:As(member, function()
-		eq(member.ns.CarryHistory.CaptureOriginal("C", member.name, "forged", w.clock, member.guild, { words = "Claimed King" }), false)
+		eq(member.ns.CarryHistory.CaptureOriginal("C", member.name, "forged", w.clock, member.guild, { words = "Claimed Shogun" }), false)
 		eq(member.ns.CarryHistory.CaptureOriginal("D", member.name, "forged", w.clock, member.guild, { copper = 100 }), false)
 	end)
 end)
 
 test("carry-history: only an explicitly requested original sender with native GUID binding can enroll a verified key; relays and partial identities grant nothing", function()
-	local w, king, member = Setup()
-	local capsule = Original(w, king, member)
+	local w, shogun, member = Setup()
+	local capsule = Original(w, shogun, member)
 	local got
 	w:As(member, function()
 		local H = member.ns.CarryHistory
-		eq(H.ReceiveOriginal(king.name, capsule), false, "unsolicited copy never enrolls a key")
-		assert(H.OpenRequest(king.name))
+		eq(H.ReceiveOriginal(shogun.name, capsule), false, "unsolicited copy never enrolls a key")
+		assert(H.OpenRequest(shogun.name))
 		eq(H.ReceiveOriginal(member.name, capsule), false, "an ordinary relay cannot claim to be the issuer")
 		member.target, member.groupId = nil, nil
-		eq(H.ReceiveOriginal(king.name, capsule), false, "a matching self-asserted name/GUID is not independent native binding")
-		member.target = king.name
-		assert(H.ReceiveOriginal(king.name, capsule, function(r) got = r end))
+		eq(H.ReceiveOriginal(shogun.name, capsule), false, "a matching self-asserted name/GUID is not independent native binding")
+		member.target = shogun.name
+		assert(H.ReceiveOriginal(shogun.name, capsule, function(r) got = r end))
 	end)
 	w:Run(2); assert(got)
 	w:As(member, function()
 		local H = member.ns.CarryHistory
-		eq(#H.Archive(), 1); eq(H.ReceiveOriginal(king.name, capsule), false, "exact replay adds nothing")
+		eq(#H.Archive(), 1); eq(H.ReceiveOriginal(shogun.name, capsule), false, "exact replay adds nothing")
 		local verified
 		assert(H.Verify(capsule, function(r) verified = r end))
 		w:Run(2); assert(verified)
@@ -89,14 +89,14 @@ end)
 
 test("carry-history: crypto callbacks recheck cancellation, guild transfer and current role; forged signatures cannot pin or append", function()
 	for _, mode in ipairs({ "cancel", "guild", "signature" }) do
-		local w, king, member = Setup()
-		local capsule = Original(w, king, member)
+		local w, shogun, member = Setup()
+		local capsule = Original(w, shogun, member)
 		w:As(member, function()
 			local H = member.ns.CarryHistory
-			assert(H.OpenRequest(king.name))
+			assert(H.OpenRequest(shogun.name))
 			if mode == "signature" then capsule.text = capsule.text:gsub("Keep your word", "Changed") end
-			assert(H.ReceiveOriginal(king.name, capsule))
-			if mode == "cancel" then H.CancelRequest(king.name)
+			assert(H.ReceiveOriginal(shogun.name, capsule))
+			if mode == "cancel" then H.CancelRequest(shogun.name)
 			elseif mode == "guild" then member.guild = "Bankai Guild II" end
 		end)
 		w:Run(2)
@@ -105,10 +105,10 @@ test("carry-history: crypto callbacks recheck cancellation, guild transfer and c
 end)
 
 local function TransferWorld()
-	local w, king, member = Setup()
-	local lord = w:Role("fighterB", { rank = 0, guild = "Bankai Guild II" })
+	local w, shogun, member = Setup()
+	local council = w:Role("fighterB", { rank = 0, guild = "Bankai Guild II" })
 	local source = w:Client("Source Warden-Emberfall", { rank = 0, guild = member.guild })
-	for _, c in ipairs({ king, member, lord, source }) do w:As(c, function()
+	for _, c in ipairs({ shogun, member, council, source }) do w:As(c, function()
 		c.ns.Roster = { Fresh = function() return c.fresh ~= false and {} or nil end,
 			RankOf = function(name) for _, other in ipairs(w.clients) do if name == other.name and other.guild == c.guild then return other.rank end end end }
 		c.ns.Data = { AuthorizedRank = function(name, guild)
@@ -124,23 +124,23 @@ local function TransferWorld()
 		c.ns.Dialog = { Show = function(_, _, _, data) c.question = data; return true end }
 		c.ns.RealmPages = {}
 		assert(loadfile(ROOT .. "BankaiGuild/Locales/CarryText.lua"))("BankaiGuild", c.ns)
-		if c == lord or c == source then assert(loadfile(ROOT .. "BankaiGuild/CarryHistory.lua"))("BankaiGuild", c.ns) end
+		if c == council or c == source then assert(loadfile(ROOT .. "BankaiGuild/CarryHistory.lua"))("BankaiGuild", c.ns) end
 		assert(loadfile(ROOT .. "BankaiGuild/Carry.lua"))("BankaiGuild", c.ns)
 	end) end
-	w:Group({ king.name, member.name, lord.name, source.name })
-	return w, king, member, lord, source
+	w:Group({ shogun.name, member.name, council.name, source.name })
+	return w, shogun, member, council, source
 end
-local function Collect(w, king, member)
-	w:As(member, function() assert(member.ns.CarryHistory.Collect(king.name)) end)
+local function Collect(w, shogun, member)
+	w:As(member, function() assert(member.ns.CarryHistory.Collect(shogun.name)) end)
 	w:Run(20)
 	w:As(member, function() assert(#member.ns.CarryHistory.Archive() > 0, "real XC dispatcher collects original signatures") end)
 end
-local function Transfer(w, member, lord)
+local function Transfer(w, member, council)
 	w:As(member, function()
-		assert(member.ns.Carry.Prepare(lord.name)); assert(member.ns.Carry.Confirm(member.question))
+		assert(member.ns.Carry.Prepare(council.name)); assert(member.ns.Carry.Confirm(member.question))
 		eq(member.ns.Carry.Offer(), false, "move still happens by the game's human invitation")
 	end)
-	member.guild = lord.guild
+	member.guild = council.guild
 	w:As(member, function() assert(member.ns.Carry.Offer()) end)
 	w:Run(1)
 	local key
@@ -148,174 +148,174 @@ local function Transfer(w, member, lord)
 		local scopes = member.ns.db.carryHistory.scopes
 		for _, scope in pairs(scopes) do key = member.ns.Fold(member.name) .. ":" .. scope.characters[member.ns.Fold(member.name)].draft.id end
 	end)
-	w:As(lord, function()
-		assert(lord.ns.Carry.Accept(key)); assert(lord.ns.Carry.Accept(key, lord.question))
+	w:As(council, function()
+		assert(council.ns.Carry.Accept(key)); assert(council.ns.Carry.Accept(key, council.question))
 	end)
 	w:Run(30)
 	return key
 end
 
 test("carry-history: XC2 collects and transfers more than 34 messages with per-declaration ACK cursors, not a truncated batch", function()
-	local w, king, member, lord = TransferWorld()
+	local w, shogun, member, council = TransferWorld()
 	for i = 1, 12 do
-		w:As(king, function()
-			assert(king.ns.CarryHistory.CaptureOriginal("C", member.name, "court-" .. i, w.clock, king.guild,
+		w:As(shogun, function()
+			assert(shogun.ns.CarryHistory.CaptureOriginal("C", member.name, "court-" .. i, w.clock, shogun.guild,
 				{ court = i, words = string.rep("a", 300), to = member.name }))
 		end)
 		if i % 3 == 0 then w:Run(2) end
 	end
-	Collect(w, king, member)
+	Collect(w, shogun, member)
 	w:As(member, function() eq(#member.ns.CarryHistory.Archive(), 12) end)
-	Transfer(w, member, lord)
-	w:As(lord, function()
-		local entries = lord.ns.CarryHistory.Imports(); eq(#entries, 1); eq(#entries[1].capsules, 12)
+	Transfer(w, member, council)
+	w:As(council, function()
+		local entries = council.ns.CarryHistory.Imports(); eq(#entries, 1); eq(#entries[1].capsules, 12)
 		for _, c in ipairs(entries[1].capsules) do eq(c.status, "pending-key", "member-forwarded keys confer no identity") end
-		eq(lord.ns.rdb.pardons, nil); eq(lord.ns.rdb.dues, nil)
-		assert(lord.ns.CarryHistory.RequestKey(king.name))
+		eq(council.ns.rdb.pardons, nil); eq(council.ns.rdb.dues, nil)
+		assert(council.ns.CarryHistory.RequestKey(shogun.name))
 	end)
 	w:Run(8)
-	w:As(lord, function()
-		local entries = lord.ns.CarryHistory.Imports()
+	w:As(council, function()
+		local entries = council.ns.CarryHistory.Imports()
 		for _, c in ipairs(entries[1].capsules) do eq(c.status, "signature-verified", "prior unknown keys require a firsthand original response") end
-		local lines = lord.ns.Carry.Lines(); assert(#lines > 20, "archive is reachable through the real Carry page")
+		local lines = council.ns.Carry.Lines(); assert(#lines > 20, "archive is reachable through the real Carry page")
 	end)
 	local data, acks = 0, 0
 	for _, msg in ipairs(w.sent) do
 		if msg.msg:sub(1, 5) == "XC~2~" then eq(msg.dist, "WHISPER"); assert(#msg.msg <= 255) end
 		if msg.from == member.name and msg.msg:sub(1, 7) == "XC~2~D~" then data = data + 1 end
-		if msg.from == lord.name and msg.msg:sub(1, 7) == "XC~2~N~" then acks = acks + 1 end
+		if msg.from == council.name and msg.msg:sub(1, 7) == "XC~2~N~" then acks = acks + 1 end
 	end
 	assert(data > 34, "archive exceeds the old batch ceiling"); eq(acks, 12)
-	for _, c in ipairs({ king, member, lord }) do
+	for _, c in ipairs({ shogun, member, council }) do
 		assert(#w:Errors(c) == 0, c.name .. ": " .. table.concat(w:Errors(c), "\n"))
 	end
 end)
 
 test("carry-history: private Loot requires subject token and two real GM consents, travels staff-to-staff, and legacy quotes remain new witness observations", function()
-	local w, king, member, lord, source = TransferWorld()
-	Original(w, king, member)
+	local w, shogun, member, council, source = TransferWorld()
+	Original(w, shogun, member)
 	w:As(source, function()
 		assert(source.ns.CarryHistory.CaptureOriginal("L", member.name, "original-loot", w.clock, source.guild,
 			{ writer = source.name, words = "PRIVATE ORIGINAL NOTE", to = member.name }))
 		source.ns.Loot = { Notes = function() return { { key = "legacy-loot", n = { writer = "Previous Officer-Emberfall", t = w.clock - 900,
 			text = "PRIVATE OLDER NOTE", to = member.name } } } end }
 	end)
-	w:Run(2); Collect(w, king, member)
-	local baseKey = Transfer(w, member, lord)
+	w:Run(2); Collect(w, shogun, member)
+	local baseKey = Transfer(w, member, council)
 	w:As(member, function() assert(member.ns.CarryHistory.StaffConsent(source.name)) end)
 	w:Run(1)
-	local sourceKey, recipientKey = baseKey, source.ns.Fold(lord.name) .. ":" .. baseKey:match(":([^:]+)$")
+	local sourceKey, recipientKey = baseKey, source.ns.Fold(council.name) .. ":" .. baseKey:match(":([^:]+)$")
 	w:As(source, function()
 		assert(source.ns.CarryHistory.StaffAccept(sourceKey))
 		eq(source.ns.CarryHistory.StaffAccept(sourceKey, true), false, "a forged yes grants no export")
 		assert(source.ns.CarryHistory.StaffAccept(sourceKey, source.question))
 	end)
 	w:Run(3)
-	local incoming = lord.ns.Fold(source.name) .. ":" .. baseKey:match(":([^:]+)$")
-	w:As(lord, function()
-		eq(#lord.ns.CarryHistory.Imports(), 1, "source consent alone sends no private record")
-		assert(lord.ns.Carry.Accept(incoming)); assert(lord.ns.Carry.Accept(incoming, lord.question))
+	local incoming = council.ns.Fold(source.name) .. ":" .. baseKey:match(":([^:]+)$")
+	w:As(council, function()
+		eq(#council.ns.CarryHistory.Imports(), 1, "source consent alone sends no private record")
+		assert(council.ns.Carry.Accept(incoming)); assert(council.ns.Carry.Accept(incoming, council.question))
 	end)
 	w:Run(15)
-	w:As(lord, function()
-		local all, staff = lord.ns.CarryHistory.Imports()
+	w:As(council, function()
+		local all, staff = council.ns.CarryHistory.Imports()
 		eq(#all, 2)
 		for _, e in ipairs(all) do if e.staff then staff = e end end
 		assert(staff); eq(#staff.capsules, 2)
 		local kinds = {}
-		for _, c in ipairs(staff.capsules) do local r = lord.ns.CarryHistory.Parse(c.text); kinds[r.kind] = r end
+		for _, c in ipairs(staff.capsules) do local r = council.ns.CarryHistory.Parse(c.text); kinds[r.kind] = r end
 		assert(kinds.L); assert(kinds.W); eq(kinds.W.fields.scope, "retained-copy-observed-now")
 		eq(kinds.W.issuer, source.name); eq(kinds.W.fields.originalWriter, "Previous Officer-Emberfall")
 		assert(kinds.W.at > tonumber(kinds.W.fields.originalAt), "witness signing time is not forged old authorship")
 	end)
 	for _, msg in ipairs(w.sent) do
-		if msg.msg:sub(1, 7) == "XC~2~D~" and msg.from == source.name then eq(msg.target, lord.name, "private payload never goes to the subject") end
+		if msg.msg:sub(1, 7) == "XC~2~D~" and msg.from == source.name then eq(msg.target, council.name, "private payload never goes to the subject") end
 	end
 	w:As(member, function() eq(#member.ns.CarryHistory.Archive(), 1); assert(member.ns.Carry.Revoke()) end)
 	w:Run(1)
-	w:As(lord, function() eq(#lord.ns.CarryHistory.Imports(), 0, "subject revocation also seals staff sidecars") end)
+	w:As(council, function() eq(#council.ns.CarryHistory.Imports(), 0, "subject revocation also seals staff sidecars") end)
 	w:As(source, function() eq(source.ns.CarryHistory.StaffAccept(sourceKey, source.question), false); eq(source.ns.CarryHistory.StaffAccept(recipientKey), false) end)
-	for _, c in ipairs({ king, member, lord, source }) do assert(#w:Errors(c) == 0, table.concat(w:Errors(c), "\n")) end
+	for _, c in ipairs({ shogun, member, council, source }) do assert(#w:Errors(c) == 0, table.concat(w:Errors(c), "\n")) end
 end)
 
 test("carry-history: private Loot never appears in subject collection wire and revoked destination archives cannot be resurrected", function()
-	local w, king, member, lord = TransferWorld()
-	Original(w, king, member)
-	w:As(king, function()
-		assert(king.ns.CarryHistory.CaptureOriginal("L", member.name, "private-loot", w.clock, king.guild,
-			{ writer = king.name, words = "Secret officer-only loot note", to = member.name }))
+	local w, shogun, member, council = TransferWorld()
+	Original(w, shogun, member)
+	w:As(shogun, function()
+		assert(shogun.ns.CarryHistory.CaptureOriginal("L", member.name, "private-loot", w.clock, shogun.guild,
+			{ writer = shogun.name, words = "Secret officer-only loot note", to = member.name }))
 	end)
-	w:Run(2); Collect(w, king, member)
+	w:Run(2); Collect(w, shogun, member)
 	w:As(member, function() eq(#member.ns.CarryHistory.Archive(), 1) end)
-	local key = Transfer(w, member, lord)
+	local key = Transfer(w, member, council)
 	local offer
 	for _, msg in ipairs(w.sent) do
 		assert(not msg.msg:find("Secret officer", 1, true), "private note is absent from subject raw payload")
 		if msg.from == member.name and msg.msg:sub(1, 7) == "XC~2~O~" then offer = msg.msg end
 	end
-	w:As(lord, function() eq(#lord.ns.CarryHistory.Imports(), 1); lord.rank = 1; eq(#lord.ns.CarryHistory.Imports(), 0); lord.rank = 0 end)
+	w:As(council, function() eq(#council.ns.CarryHistory.Imports(), 1); council.rank = 1; eq(#council.ns.CarryHistory.Imports(), 0); council.rank = 0 end)
 	w:As(member, function() assert(member.ns.Carry.Revoke()) end); w:Run(1)
-	w:As(lord, function()
-		eq(#lord.ns.CarryHistory.Imports(), 0)
-		eq(lord.ns.Carry.Handle("WHISPER", member.name, offer), false)
-		eq(lord.ns.Carry.Accept(key), false)
-		eq(lord.ns.Carry.Handle("CHANNEL", member.name, offer), false)
+	w:As(council, function()
+		eq(#council.ns.CarryHistory.Imports(), 0)
+		eq(council.ns.Carry.Handle("WHISPER", member.name, offer), false)
+		eq(council.ns.Carry.Accept(key), false)
+		eq(council.ns.Carry.Handle("CHANNEL", member.name, offer), false)
 	end)
 end)
 
 test("carry-history: expired offers release bounded slots and cancellation before an offer creates a durable native-subject floor", function()
-	local w, king, member, lord = TransferWorld()
-	Original(w, king, member); Collect(w, king, member)
-	w:As(member, function() assert(member.ns.Carry.Prepare(lord.name)); assert(member.ns.Carry.Confirm(member.question)) end)
-	member.guild = lord.guild
+	local w, shogun, member, council = TransferWorld()
+	Original(w, shogun, member); Collect(w, shogun, member)
+	w:As(member, function() assert(member.ns.Carry.Prepare(council.name)); assert(member.ns.Carry.Confirm(member.question)) end)
+	member.guild = council.guild
 	w:As(member, function() assert(member.ns.Carry.Offer()) end); w:Run(1)
 	local offer
 	for _, msg in ipairs(w.sent) do if msg.from == member.name and msg.msg:sub(1, 7) == "XC~2~O~" then offer = msg.msg end end
 	local oldId = offer:match("^XC~2~O~(%x+)~")
-	w:As(lord, function()
-		for i = 1, lord.ns.CarryHistory.SENDER_OFFERS - 1 do
-			assert(lord.ns.Carry.Handle("WHISPER", member.name, offer:gsub(oldId, ("%016x"):format(i))))
+	w:As(council, function()
+		for i = 1, council.ns.CarryHistory.SENDER_OFFERS - 1 do
+			assert(council.ns.Carry.Handle("WHISPER", member.name, offer:gsub(oldId, ("%016x"):format(i))))
 		end
-		eq(lord.ns.Carry.Handle("WHISPER", member.name, offer:gsub(oldId, "eeeeeeeeeeeeeeee")), false, "active bound enforced")
+		eq(council.ns.Carry.Handle("WHISPER", member.name, offer:gsub(oldId, "eeeeeeeeeeeeeeee")), false, "active bound enforced")
 	end)
-	w.clock = w.clock + lord.ns.CarryHistory.LIFE + 1
-	w:As(lord, function()
-		assert(lord.ns.Carry.Handle("WHISPER", member.name, offer:gsub(oldId, "eeeeeeeeeeeeeeee")), "expired offers release their slots")
+	w.clock = w.clock + council.ns.CarryHistory.LIFE + 1
+	w:As(council, function()
+		assert(council.ns.Carry.Handle("WHISPER", member.name, offer:gsub(oldId, "eeeeeeeeeeeeeeee")), "expired offers release their slots")
 		local digest = offer:match("~(%x+)$")
-		assert(lord.ns.Carry.Handle("WHISPER", member.name, "XC~2~R~ffffffffffffffff~" .. digest))
-		eq(lord.ns.Carry.Handle("WHISPER", member.name, offer:gsub(oldId, "ffffffffffffffff")), false, "a delayed offer cannot undo an earlier cancel")
-		eq(lord.ns.Carry.Handle("WHISPER", "Unknown-Emberfall", "XC~2~R~dddddddddddddddd~" .. digest), false, "a stranger cannot allocate cancellation floors")
+		assert(council.ns.Carry.Handle("WHISPER", member.name, "XC~2~R~ffffffffffffffff~" .. digest))
+		eq(council.ns.Carry.Handle("WHISPER", member.name, offer:gsub(oldId, "ffffffffffffffff")), false, "a delayed offer cannot undo an earlier cancel")
+		eq(council.ns.Carry.Handle("WHISPER", "Unknown-Emberfall", "XC~2~R~dddddddddddddddd~" .. digest), false, "a stranger cannot allocate cancellation floors")
 	end)
 end)
 
 test("carry-history: a member with only private Loot can prepare a consent-only transfer without seeing or carrying any note", function()
-	local w, _, member, lord, source = TransferWorld()
+	local w, _, member, council, source = TransferWorld()
 	w:As(source, function()
 		assert(source.ns.CarryHistory.CaptureOriginal("L", member.name, "only-private", w.clock, source.guild,
 			{ writer = source.name, words = "ONLY STAFF MAY SEE THIS", to = member.name }))
 	end)
 	w:Run(2)
-	local key = Transfer(w, member, lord)
-	w:As(lord, function() local all = lord.ns.CarryHistory.Imports(); eq(#all, 1); eq(#all[1].capsules, 0, "explicit consent without invented personal data") end)
+	local key = Transfer(w, member, council)
+	w:As(council, function() local all = council.ns.CarryHistory.Imports(); eq(#all, 1); eq(#all[1].capsules, 0, "explicit consent without invented personal data") end)
 	w:As(member, function() assert(member.ns.CarryHistory.StaffConsent(source.name)) end); w:Run(1)
 	w:As(source, function() assert(source.ns.CarryHistory.StaffAccept(key)); assert(source.ns.CarryHistory.StaffAccept(key, source.question)) end); w:Run(2)
 	local incoming = source.ns.Fold(source.name) .. ":" .. key:match(":([^:]+)$")
-	w:As(lord, function() assert(lord.ns.Carry.Accept(incoming)); assert(lord.ns.Carry.Accept(incoming, lord.question)) end); w:Run(10)
-	w:As(lord, function() eq(#lord.ns.CarryHistory.Imports(), 2) end)
+	w:As(council, function() assert(council.ns.Carry.Accept(incoming)); assert(council.ns.Carry.Accept(incoming, council.question)) end); w:Run(10)
+	w:As(council, function() eq(#council.ns.CarryHistory.Imports(), 2) end)
 	w:As(member, function() eq(#member.ns.CarryHistory.Archive(), 0) end)
 	for _, msg in ipairs(w.sent) do if msg.target == member.name then assert(not msg.msg:find("ONLY STAFF", 1, true), "the subject receives no private plaintext") end end
 end)
 
 test("carry-history: real Court, Loot write/removal and royal Pardon functions capture only their actor-owned issuance with original deadline", function()
-	local w, king, member, _, source = TransferWorld()
-	w:As(king, function()
-		assert(loadfile(ROOT .. "BankaiGuild/Chronicle.lua"))("BankaiGuild", king.ns)
-		assert(loadfile(ROOT .. "BankaiGuild/Court.lua"))("BankaiGuild", king.ns)
-		assert(loadfile(ROOT .. "BankaiGuild/Acts.lua"))("BankaiGuild", king.ns)
-		king.ns.Court.Toggle()
-		king.ns.Court.Request(member.name, king.ns.Court.Holding().id, member.guild)
-		king.ns.Court.Call(member.name, "A kept royal promise")
-		king.ns.Acts.Pardon(member.name)
+	local w, shogun, member, _, source = TransferWorld()
+	w:As(shogun, function()
+		assert(loadfile(ROOT .. "BankaiGuild/Chronicle.lua"))("BankaiGuild", shogun.ns)
+		assert(loadfile(ROOT .. "BankaiGuild/Court.lua"))("BankaiGuild", shogun.ns)
+		assert(loadfile(ROOT .. "BankaiGuild/Acts.lua"))("BankaiGuild", shogun.ns)
+		shogun.ns.Court.Toggle()
+		shogun.ns.Court.Request(member.name, shogun.ns.Court.Holding().id, member.guild)
+		shogun.ns.Court.Call(member.name, "A kept royal promise")
+		shogun.ns.Acts.Pardon(member.name)
 	end)
 	w:As(source, function()
 		source.ns.Roster.IsOfficer = function() return source.rank <= 1 end
@@ -324,12 +324,12 @@ test("carry-history: real Court, Loot write/removal and royal Pardon functions c
 		assert(note); source.ns.Loot.Remove(note.writer .. "#" .. note.id)
 	end)
 	w:Run(3)
-	w:As(king, function()
+	w:As(shogun, function()
 		local kinds = {}
-		for _, c in ipairs(king.ns.CarryHistory.Originals(member.name)) do local r = king.ns.CarryHistory.Parse(c.text); kinds[r.kind] = r end
+		for _, c in ipairs(shogun.ns.CarryHistory.Originals(member.name)) do local r = shogun.ns.CarryHistory.Parse(c.text); kinds[r.kind] = r end
 		assert(kinds.C); assert(kinds.P); eq(kinds.C.fields.words, "A kept royal promise")
-		eq(tonumber(kinds.P.fields.expires), kinds.P.at + king.ns.Acts.PARDON_DAYS * 86400)
-		eq(kinds.P.at, king.ns.rdb.pardonsGiven[king.ns.King.CleanName(member.name)], "matches the actual royal book key, not the lowercase receiver cache")
+		eq(tonumber(kinds.P.fields.expires), kinds.P.at + shogun.ns.Acts.PARDON_DAYS * 86400)
+		eq(kinds.P.at, shogun.ns.rdb.pardonsGiven[shogun.ns.Shogun.CleanName(member.name)], "matches the actual royal book key, not the lowercase receiver cache")
 	end)
 	w:As(source, function()
 		local all = source.ns.CarryHistory.Originals(member.name); eq(#all, 2)
@@ -341,10 +341,10 @@ test("carry-history: real Court, Loot write/removal and royal Pardon functions c
 end)
 
 test("carry-history: a lost fragment is retried with the same bounded cursor and completion requires the final receiver acknowledgement", function()
-	local w, king, member = TransferWorld()
-	Original(w, king, member, "C", { words = string.rep("r", 300), to = member.name, court = 45 })
-	w:Results(king, { 0, 0, 2 }) -- begin, first fragment, missing second fragment
-	w:As(member, function() assert(member.ns.CarryHistory.Collect(king.name)) end)
+	local w, shogun, member = TransferWorld()
+	Original(w, shogun, member, "C", { words = string.rep("r", 300), to = member.name, court = 45 })
+	w:Results(shogun, { 0, 0, 2 }) -- begin, first fragment, missing second fragment
+	w:As(member, function() assert(member.ns.CarryHistory.Collect(shogun.name)) end)
 	w:Run(5)
 	w:As(member, function() eq(#member.ns.CarryHistory.Archive(), 0, "an incomplete page cannot be retained") end)
 	w:Run(100)
@@ -352,5 +352,5 @@ test("carry-history: a lost fragment is retried with the same bounded cursor and
 	local ack = false
 	for _, msg in ipairs(w.sent) do if msg.from == member.name and msg.msg:sub(1, 7) == "XC~2~F~" then ack = true end end
 	assert(ack, "final destination confirmation is distinct from native send completion")
-	eq(#w:Errors(king), 0); eq(#w:Errors(member), 0)
+	eq(#w:Errors(shogun), 0); eq(#w:Errors(member), 0)
 end)

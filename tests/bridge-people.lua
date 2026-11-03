@@ -188,17 +188,17 @@ local function Modules(o)
 	return m
 end
 
--- The census: n guilds (the King's <Elfcore> first), each from its own roster's report; every
--- 50th an old report (3 hours), its Lord online in it when staleLordOnline.
-local function Census(n, now, staleLordOnline)
+-- The census: n guilds (the Shogun's <Elfcore> first), each from its own roster's report; every
+-- 50th an old report (3 hours), its Council online in it when staleCouncilOnline.
+local function Census(n, now, staleCouncilOnline)
 	local guilds = {}
-	guilds.BankaiGuild = { guild = "Bankai Guild", total = 1000, online = 400, t = now - 5, mine = true, avgLevel = 52.34, leader = "Kingly",
+	guilds.BankaiGuild = { guild = "Bankai Guild", total = 1000, online = 400, t = now - 5, mine = true, avgLevel = 52.34, leader = "Shogunly",
 		leaderOnline = true, officers = Rows(30, function(i) return { name = Name("Captain", i), online = i % 2 == 0, days = 1 } end),
 		inactive7 = 40, inactive30 = 12, battleTag = "Secret#1234" }
 	for i = 2, n do
 		local name = ("Bankai Guild Vanguard %s"):format(Name("", i))
 		guilds[name] = { guild = name, total = 1000 - i, online = 200, t = i % 50 == 0 and now - 3 * 3600 or now - 5, mine = true,
-			avgLevel = 40 + (i % 20), leader = Name("Lord", i), leaderOnline = i % 3 == 0 or (staleLordOnline == true and i % 50 == 0), leaderDays = 2.5,
+			avgLevel = 40 + (i % 20), leader = Name("Council", i), leaderOnline = i % 3 == 0 or (staleCouncilOnline == true and i % 50 == 0), leaderDays = 2.5,
 			officers = Rows(30, function(k) return { name = Name("Cap", i * 31 + k), online = false, days = 3 } end),
 			inactive7 = i % 7, inactive30 = i % 30, battleTag = "Secret#1234" }
 	end
@@ -216,7 +216,7 @@ local function With(o, fn)
 	if o.modules then for key in pairs(o.modules) do saved.modules[key] = rawget(ns, key) end end
 	for key, value in pairs(m) do rawset(ns, key, value) end
 	for key, value in pairs(o.modules or {}) do rawset(ns, key, value or nil) end
-	ns.rdb = { guilds = Census(o.guilds or 8, NOW, o.staleLordOnline), seen = {}, treasuryFlags = {} }
+	ns.rdb = { guilds = Census(o.guilds or 8, NOW, o.staleCouncilOnline), seen = {}, treasuryFlags = {} }
 	ns.Now = function() return NOW end
 	ns.realm, ns.group, ns.faction, ns.me = "Realm", "Realm", "Alliance", ME
 	UnitLevel = function() return 60 end
@@ -260,17 +260,17 @@ test("bridge people: every section is registered at version 1, and none gives an
 	end)
 end)
 
-test("bridge people: realm lists the Realm's guilds as rows of their fields in the census's order, at most 256, online only while fresh, the King's name, nothing private", function()
+test("bridge people: realm lists the Realm's guilds as rows of their fields in the census's order, at most 256, online only while fresh, the Shogun's name, nothing private", function()
 	With({ guilds = 300 }, function()
 		local d = Data("realm")
-		eq(d.fields, "members~online~avgLevel~captains~inactive7~inactive30~lordOnline~lordDays~lordSeenAt~fresh~name~lord")
-		eq(d.faction, "Alliance"); eq(d.realmGroup, "Realm"); eq(d.king, "Kingly"); eq(d.at, NOW)
+		eq(d.fields, "members~online~avgLevel~captains~inactive7~inactive30~councilOnline~councilDays~councilSeenAt~fresh~name~council")
+		eq(d.faction, "Alliance"); eq(d.realmGroup, "Realm"); eq(d.shogun, "Shogunly"); eq(d.at, NOW)
 		eq(#d.guilds, 256, "cut to 256, the census checkpoint's own cap")
 		local first = Fields(d.guilds[1])
-		eq(#first, Count(d.fields), "an empty lordSeenAt is a field all the same")
+		eq(#first, Count(d.fields), "an empty councilSeenAt is a field all the same")
 		eq(first[1], "1000"); eq(first[2], "400"); eq(first[3], "52.3"); eq(first[4], "30"); eq(first[5], "40"); eq(first[6], "12")
-		eq(first[7], "1"); eq(first[8], "0"); eq(first[9], "", "no old report's time for a Lord online now")
-		eq(first[10], "1"); eq(first[11], "Bankai Guild"); eq(first[12], "Kingly")
+		eq(first[7], "1"); eq(first[8], "0"); eq(first[9], "", "no old report's time for a Council member online now")
+		eq(first[10], "1"); eq(first[11], "Bankai Guild"); eq(first[12], "Shogunly")
 		-- The census's own order (Data.Summary's, the Realm's by default), cut from its end.
 		local s = ns.Data.Summary()
 		eq(#s.guilds, 300)
@@ -286,15 +286,15 @@ test("bridge people: realm lists the Realm's guilds as rows of their fields in t
 		for _, row in ipairs(Data("realm").guilds) do
 			local f = Fields(row)
 			if f[10] == "0" then stale = stale + 1; eq(f[2], "0", "an old report counts nobody online") end
-			if f[7] == "0" then eq(f[8], "2", "a Lord offline: his days away, whole"); eq(f[9], "") end
+			if f[7] == "0" then eq(f[8], "2", "a Council member offline: his days away, whole"); eq(f[9], "") end
 		end
 		eq(stale, 1, "an old report is listed, grey")
 	end)
 end)
 
-test("bridge people: realm: a Lord an old report had online, nobody seeing him now, is not known to be online or offline: empty lordOnline and lordDays, and that report's time, as the row's \"online <age> ago\"", function()
+test("bridge people: realm: a Council member an old report had online, nobody seeing him now, is not known to be online or offline: empty councilOnline and councilDays, and that report's time, as the row's \"online <age> ago\"", function()
 	-- (The review of 2026-10-20: the row said "online 3h ago", the section "offline today".)
-	With({ guilds = 60, staleLordOnline = true }, function()
+	With({ guilds = 60, staleCouncilOnline = true }, function()
 		local s, rows = ns.Data.Summary(), {}
 		for _, row in ipairs(Data("realm").guilds) do local f = Fields(row) rows[f[11]] = f end
 		local old
@@ -303,9 +303,9 @@ test("bridge people: realm: a Lord an old report had online, nobody seeing him n
 		local on, days, dim, at = ns.Views.PresenceNow(old, old.g.leader, old.g.leaderOnline, old.g.leaderDays)
 		eq(on, nil, "the page: not known now"); eq(days, nil); eq(dim, true); eq(at, NOW - 3 * 3600, "the page: online <age> ago")
 		local f = assert(rows[old.name], "its row")
-		eq(f[7], "", "lordOnline: unknown"); eq(f[8], "", "lordDays: unknown"); eq(f[9], tostring(NOW - 3 * 3600), "lordSeenAt: the report's time")
+		eq(f[7], "", "councilOnline: unknown"); eq(f[8], "", "councilDays: unknown"); eq(f[9], tostring(NOW - 3 * 3600), "councilSeenAt: the report's time")
 		eq(f[10], "0", "an old report")
-		-- The others as before: online now, or offline for whole days, and no lordSeenAt.
+		-- The others as before: online now, or offline for whole days, and no councilSeenAt.
 		local online, offline = 0, 0
 		for name, r in pairs(rows) do
 			if name ~= old.name then
@@ -378,12 +378,12 @@ test("bridge people: rankings' boards: each public board with its fields, 50 row
 		eq(Fields(BoardOf(boards, "arena", "all").rows[7])[5], "Tester", "his own row, by name as the page shows it")
 		eq(Fields(BoardOf(boards, "church", "month", "apostles").rows[1])[2], "124", "points in tenths: 12.4")
 		-- The legacy kinds stay as they were beside the boards.
-		eq(#d.slayers.month, 50); eq(d.treasury, nil, "no spending while the King keeps the balance private")
+		eq(#d.slayers.month, 50); eq(d.treasury, nil, "no spending while the Shogun keeps the balance private")
 	end)
 	With({ public = {}, treasury = {}, churchShut = true }, function()
 		local boards = Data("rankings").boards
 		for _, b in ipairs(boards) do
-			assert(b.board ~= "arena" and b.board ~= "bones", "a game the King keeps private: no board")
+			assert(b.board ~= "arena" and b.board ~= "bones", "a game the Shogun keeps private: no board")
 			assert(b.board ~= "treasury", "the Treasury's ranking hidden: no board")
 			assert(b.board ~= "church", "the Church's public ranking shut: no board")
 		end
@@ -477,8 +477,8 @@ test("bridge people: games: the public events and results the pages list, newest
 	end)
 	With({ public = {} }, function()
 		local own = Data("games").own
-		eq(own.duelsWon, 33, "his own record whatever the King shows")
-		eq(own.duelsPlace, nil, "no place on a ranking the King keeps private"); eq(own.bonesPlace, nil)
+		eq(own.duelsWon, 33, "his own record whatever the Shogun shows")
+		eq(own.duelsPlace, nil, "no place on a ranking the Shogun keeps private"); eq(own.bonesPlace, nil)
 	end)
 	With({ arenaOff = true }, function() eq(B.GetSection("games"), nil, "the arena off") end)
 end)

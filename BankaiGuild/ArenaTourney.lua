@@ -959,7 +959,7 @@ function T.Winner(tid)
 	return br and ns.ArenaBracket.Champion(br) or nil
 end
 
--- The bracket's view model: { tid, title, screenTitle (T.ScreenTitle: the one for the King's screen),
+-- The bracket's view model: { tid, title, screenTitle (T.ScreenTitle: the one for the Shogun's screen),
 -- st, cat, size, rounds, entrants, matches = { { key, round, a = { gk, name, n }, b = ..., fid, state,
 -- winner, score } }, draw = { steps, total } }.
 function T.View(tid)
@@ -995,12 +995,12 @@ function T.View(tid)
 	return v
 end
 
--- The title a tournament shows on the King's screen: its own only when the King set it (the design,
+-- The title a tournament shows on the Shogun's screen: its own only when the Shogun set it (the design,
 -- as a card's: Fight Night titles), else the plain word.
 function T.ScreenTitle(tid)
 	local t = Find(tid)
 	if not t then return nil end
-	if ns.ArenaRoles.IsKing(t.promoter) and (t.title or "") ~= "" then return t.title end
+	if ns.ArenaRoles.IsShogun(t.promoter) and (t.title or "") ~= "" then return t.title end
 	return L.ARENA_TOURNEY
 end
 

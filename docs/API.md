@@ -492,7 +492,7 @@ These methods exist only when `BankaiGuildAPI.Has("presence.quiet")` is true. Th
 feature, for an authorized addon only (see **Reserved features**).
 
 `handle:SetQuietPresence(on)` turns the player's own quiet presence on (`true`) or off (`false`) for
-the current session. It has no target. Only the King, a High Councillor (each while a current signed
+the current session. It has no target. Only the Shogun, a High Councillor (each while a current signed
 issuer) or the addon's author may turn it on: anyone else gets `false, "authority"`, and outside an
 Bankai Guild guild the call returns `false, "guild"`. It needs the player's Yes (`"pending"`,
 `"refused"`) and counts against the rate limit (`"busy"`). It returns `true`, or `false` and a
@@ -502,10 +502,10 @@ another handle gets `false, "owner"`. A No for that handle ends it.
 While it is on, this client stops sending, on its own, the words that announce the player as
 online or place him: no hello, no census report (it is never the guild's reporter, so it answers no
 census request), no layer announcement, guildmate map dot or layer-hop offer or answer, no answer
-to a player-sighting or King's-layer request, no roll-call, version-check, council-help or crafter
+to a player-sighting or Shogun's-layer request, no roll-call, version-check, council-help or crafter
 answer, no author, Church, Bankai Guild Link, council-help, crafter listing, Wanted reviewer, arena
 auditor or arbiter presence, no Wanted sighting, no treasury "taking donations" notice, no repeated
-treasury ask (a session's first still goes), no profile-presentation heartbeat and, for the King,
+treasury ask (a session's first still goes), no profile-presentation heartbeat and, for the Shogun,
 no crown position or layer, no court, no tabard collector lease and no timed repeat of his Hands,
 untabarded and agenda lists, writs or minimap-arrow word. No word says it went quiet and no earlier
 word is withdrawn, even when the player hides or stops something himself meanwhile: other clients
@@ -516,13 +516,13 @@ lists this client relays for others still go too, and any of them can show other
 is online.
 
 Bankai Guild cannot change what guildmates' clients report from the game's guild roster: the census
-still shows a guild leader or officer online (the King's line on other clients, and
-`GetLeaderPresence()` on theirs, still say the King is online), and the zone the roster gives may
+still shows a guild leader or officer online (the Shogun's line on other clients, and
+`GetLeaderPresence()` on theirs, still say the Shogun is online), and the zone the roster gives may
 appear in that census for up to 12 minutes after this client's last hello. The guild roster, `/who`
 and chat still show the player. A line on top of Bankai Guild's Census and Realm says it is on.
 
 It is never saved: a `/reload` or a logout ends it. After a login or `/reload`, Bankai Guild says hello
-about 6 seconds in (the King's crown, while he shares it, from about 5), and its other presence
+about 6 seconds in (the Shogun's crown, while he shares it, from about 5), and its other presence
 words follow within the first two minutes. Call
 `SetQuietPresence(true)` as early as you can, and while it returns `false, "guild"` (Bankai Guild does
 not know the player's guild yet) try again on `PLAYER_GUILD_UPDATE` or a short timer: whatever left
@@ -656,7 +656,7 @@ Treasury's ranking not shown to the army), is `nil`.
 	},
 	donors = { all = { "Name-Realm", ... } }, -- the all-time top three (see below)
 	church = { missionaries = { "Name-Realm", ... }, apostles = { "Name-Realm", ... } }, -- its public top three
-	games = { -- only the games the King made public
+	games = { -- only the games the Shogun made public
 		arena = { { place = 1, name = "Name-Realm", rating = 1520, wins = 9, losses = 2 }, ... },
 		bones = { { place = 1, name = "Name-Realm", games = 12, won = 8 }, ... },
 	},
@@ -664,11 +664,11 @@ Treasury's ranking not shown to the army), is `nil`.
 ```
 
 The Slayers boards are this client's own (what it observed), as the Wanted tab says. A game the
-King keeps to the staff is not there, whoever the player is. Lottery results are private history
+Shogun keeps to the staff is not there, whoever the player is. Lottery results are private history
 and never appear in rankings, including when an older client published a Lottery ranking word.
 
-`donors` is there only while the King shows every member the Treasury's ranking (it is off until he
-does), whoever the player is: the King's and the Treasury keepers' own view never counts. `all` is
+`donors` is there only while the Shogun shows every member the Treasury's ranking (it is off until he
+does), whoever the player is: the Shogun's and the Treasury keepers' own view never counts. `all` is
 the all-time top three, which head that ranking. `donors.month`, the month's top three, comes only
 in a build whose honour frames show them (the koi; 1.2.4 shows it): still check for it.
 
@@ -681,7 +681,7 @@ The player himself. In an Bankai Guild guild:
 	role = "member", frame = "donor-top-3", title = "Friend of the Treasury" }
 ```
 
-`rankIndex` is 0 for the guild master. `role` is the highest he holds: `"king"`, `"councillor"`,
+`rankIndex` is 0 for the guild master. `role` is the highest he holds: `"shogun"`, `"councillor"`,
 `"steward"`, `"treasurer"`, `"guildmaster"`, `"officer"` or `"member"`. `frame` is the frame his
 profile shows: an honour's key, `"rank"` (his rank's frame) or `"none"`. `title` is his title's
 words, or `nil`.
@@ -692,7 +692,7 @@ use, 1.2.5.1), it is `{ member = false }`, and `GetWanted` and `GetRankings` ret
 
 ### `handle:GetLeaderPresence()`
 
-The federation leader's presence (the King on Bankai Guild's pages), built field by field from what this
+The federation leader's presence (the Shogun on Bankai Guild's pages), built field by field from what this
 player's own Bankai Guild pages show: the leader lines on the Census and Realm tabs, the leader's crown on
 the map, and the Realm tab's layer list. Available when `BankaiGuildAPI.Has("leader")`, to an authorized
 addon only (a reserved feature); it needs the same permission, Bankai Guild guild and rate checks as

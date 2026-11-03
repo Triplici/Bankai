@@ -4,8 +4,8 @@
 local ns, test, eq, H = ...
 local M = ns.Moderation
 local L = ns.L
-local KING, HC = H.KING, H.HC
-local WithNetoff, AsSoldier, AsKing, Printed = H.WithNetoff, H.AsSoldier, H.AsKing, H.Printed
+local SHOGUN, HC = H.SHOGUN, H.HC
+local WithNetoff, AsSoldier, AsShogun, Printed = H.WithNetoff, H.AsSoldier, H.AsShogun, H.Printed
 local GUILD = "Bankai Guild Zeus"
 
 -- A timed word as a giver's client sends it.
@@ -159,11 +159,11 @@ test("1.1.6 exile: its giver or someone from higher up cancels it before its tim
 			M.HandleTimed("CHANNEL", HC, O2(true, t + 1800, t + 3600, GUILD, HC, "second notice"))
 			eq(M.TimedFor(GUILD).reason, "second notice")
 
-			-- The King cancels a councillor's word; a councillor never gives it again over his cancel.
-			M.HandleTimed("CHANNEL", KING, O2(false, t + 1801, t + 3600, GUILD, KING, ""))
-			eq(M.TimedFor(GUILD), nil, "the King cancels a councillor's word")
+			-- The Shogun cancels a councillor's word; a councillor never gives it again over his cancel.
+			M.HandleTimed("CHANNEL", SHOGUN, O2(false, t + 1801, t + 3600, GUILD, SHOGUN, ""))
+			eq(M.TimedFor(GUILD), nil, "the Shogun cancels a councillor's word")
 			M.HandleTimed("CHANNEL", HC, O2(true, t + 1802, t + 3602, GUILD, HC, "again"))
-			eq(M.TimedFor(GUILD), nil, "the King's cancel stands against a councillor")
+			eq(M.TimedFor(GUILD), nil, "the Shogun's cancel stands against a councillor")
 		end)
 	end)
 end)
@@ -192,10 +192,10 @@ test("1.1.6 exile: a cancel dated before its time that comes after it applied ta
 			M.HandleTimed("CHANNEL", HC, O2(true, t, t + 1800, GUILD, HC, "treason"))
 			w.clock = t + 1830
 			M.Tick()
-			M.Handle("CHANNEL", KING, ("O1~g~1~%d~%s~%s~%s"):format(t + 1825, GUILD, KING, "the King's own word"))
-			eq(M.Guild(GUILD).by, KING)
+			M.Handle("CHANNEL", SHOGUN, ("O1~g~1~%d~%s~%s~%s"):format(t + 1825, GUILD, SHOGUN, "the Shogun's own word"))
+			eq(M.Guild(GUILD).by, SHOGUN)
 			M.HandleTimed("CHANNEL", HC, O2(false, t + 1790, t + 1800, GUILD, HC, ""))
-			eq(M.Guild(GUILD).by, KING, "the King's word stays")
+			eq(M.Guild(GUILD).by, SHOGUN, "the Shogun's word stays")
 		end)
 	end)
 end)
@@ -234,13 +234,13 @@ test("1.1.6 exile: the giver's client cancels with a click or /bk neton guild, a
 			SlashCmdList.BANKAIGUILD("netoff guild " .. GUILD .. " in 30: treason")
 			local p = assert(M.TimedFor(GUILD), "/bk netoff guild ... in 30")
 			eq(p.when - p.at, 1800)
-			-- Its time comes; then the King's cancel, dated before it, arrives late: on its giver's client
+			-- Its time comes; then the Shogun's cancel, dated before it, arrives late: on its giver's client
 			-- the guild goes back on for the army (the clients before 1.1.6 follow that O1 word).
 			w.clock = p.when
 			M.Tick()
 			assert(M.Guild(GUILD))
 			local before = #w.sent
-			M.HandleTimed("CHANNEL", KING, O2(false, p.when - 1, p.when, GUILD, KING, ""))
+			M.HandleTimed("CHANNEL", SHOGUN, O2(false, p.when - 1, p.when, GUILD, SHOGUN, ""))
 			eq(M.Guild(GUILD), nil, "back on")
 			local back
 			for i = before + 1, #w.sent do if w.sent[i].msg:find("^O1~g~0~") then back = w.sent[i] end end
@@ -249,19 +249,19 @@ test("1.1.6 exile: the giver's client cancels with a click or /bk neton guild, a
 	end)
 end)
 
-test("1.1.6 exile: only an issuer's own word, with 30 to 60 minutes' notice and a reason, never the King's guild; the word from higher up holds", function()
+test("1.1.6 exile: only an issuer's own word, with 30 to 60 minutes' notice and a reason, never the Shogun's guild; the word from higher up holds", function()
 	H.WithUI(function() WithExile(function(w)
 		AsSoldier("Watcher")
 		local t = w.clock
 		local function Heard(sender, msg) M.HandleTimed("CHANNEL", sender, msg) return M.TimedFor(GUILD) end
 		eq(Heard("Random Guy-Realm", O2(true, t, t + 1800, GUILD, "Random Guy-Realm", "spam")), nil, "not an issuer")
-		eq(Heard(HC, O2(true, t, t + 1800, GUILD, KING, "spam")), nil, "passed on in the King's name")
+		eq(Heard(HC, O2(true, t, t + 1800, GUILD, SHOGUN, "spam")), nil, "passed on in the Shogun's name")
 		eq(Heard(HC, O2(true, t, t + 600, GUILD, HC, "spam")), nil, "ten minutes is too short a notice")
 		eq(Heard(HC, O2(true, t, t + 7200, GUILD, HC, "spam")), nil, "two hours is too long")
 		eq(Heard(HC, O2(true, t + M.DATE_AHEAD + 5, t + M.DATE_AHEAD + 1805, GUILD, HC, "spam")), nil, "dated ahead of the server")
 		eq(Heard(HC, O2(true, t, t + 1800, GUILD, HC, "")), nil, "a reason is needed")
-		M.HandleTimed("CHANNEL", HC, O2(true, t, t + 1800, "Bankai Guild", HC, "the King's"))
-		eq(M.TimedFor("Bankai Guild"), nil, "never the King's guild")
+		M.HandleTimed("CHANNEL", HC, O2(true, t, t + 1800, "Bankai Guild", HC, "the Shogun's"))
+		eq(M.TimedFor("Bankai Guild"), nil, "never the Shogun's guild")
 		M.HandleTimed("CHANNEL", HC, O2(true, t, t + 1800, "Horde Heroes", HC, "not ours"))
 		eq(#M.TimedList(), 0, "never a guild that is not Bankai Guild")
 		eq(Heard(HC, O2(true, t - 1800 - M.EXILE_LATE - 1, t - M.EXILE_LATE - 1, GUILD, HC, "spam")), nil, "first heard well past its time")
@@ -273,24 +273,24 @@ test("1.1.6 exile: only an issuer's own word, with 30 to 60 minutes' notice and 
 		local ok, err = pcall(function() eq(Heard(HC, O2(true, t, t + 1800, GUILD, HC, "spam")), nil, "unlogged") end)
 		C_ChatInfo, ns.Comm.DeliveredLogged = savedInfo, savedLogged
 		if not ok then error(err, 0) end
-		-- The King put the guild back on: a councillor's timed word never applies over it.
-		M.Handle("CHANNEL", KING, ("O1~g~1~%d~%s~%s~x"):format(t - 10, GUILD, KING))
-		M.Handle("CHANNEL", KING, ("O1~g~0~%d~%s~%s~"):format(t - 5, GUILD, KING))
-		eq(Heard(HC, O2(true, t, t + 1800, GUILD, HC, "spam")), nil, "held by the King's word")
+		-- The Shogun put the guild back on: a councillor's timed word never applies over it.
+		M.Handle("CHANNEL", SHOGUN, ("O1~g~1~%d~%s~%s~x"):format(t - 10, GUILD, SHOGUN))
+		M.Handle("CHANNEL", SHOGUN, ("O1~g~0~%d~%s~%s~"):format(t - 5, GUILD, SHOGUN))
+		eq(Heard(HC, O2(true, t, t + 1800, GUILD, HC, "spam")), nil, "held by the Shogun's word")
 		AsSoldier("Test Councillor")
 		eq(M.Exile(GUILD, 1800, "spam"), false)
 		assert(Printed(w, L.NETOFF_HELD_HIGHER:format("<" .. GUILD .. ">")))
-		eq(M.Exile("BankaiGuild", 1800, "the King's"), false)
-		assert(Printed(w, L.NETOFF_NOT_KING_GUILD))
+		eq(M.Exile("BankaiGuild", 1800, "the Shogun's"), false)
+		assert(Printed(w, L.NETOFF_NOT_SHOGUN_GUILD))
 		eq(M.Exile("Bankai Guild II", 1800, ""), false, "a reason")
 		AsSoldier("Watcher")
 		eq(M.Exile("Bankai Guild II", 1800, "spam"), false, "a soldier can't")
 		assert(Printed(w, L.NETOFF_ONLY))
-		-- A King's timed word: no councillor replaces it, newer or not.
+		-- A Shogun's timed word: no councillor replaces it, newer or not.
 		AsSoldier("Watcher")
-		M.HandleTimed("CHANNEL", KING, O2(true, t, t + 3600, "Bankai Guild II", KING, "the King's notice"))
+		M.HandleTimed("CHANNEL", SHOGUN, O2(true, t, t + 3600, "Bankai Guild II", SHOGUN, "the Shogun's notice"))
 		M.HandleTimed("CHANNEL", HC, O2(true, t + 1, t + 1801, "Bankai Guild II", HC, "sooner"))
-		eq(M.TimedFor("Bankai Guild II").by, KING, "no word replaces one from higher up")
+		eq(M.TimedFor("Bankai Guild II").by, SHOGUN, "no word replaces one from higher up")
 	end) end)
 end)
 
@@ -307,7 +307,7 @@ test("1.1.6 exile: a giver who no longer gives words by its time: it lapses; a f
 		M.Tick()
 		eq(M.Guild(GUILD), nil, "lapsed: nothing applied")
 		ns.rdb.council = { at = 3, names = { ["test councillor"] = "Test Councillor" } }
-		-- Full: a councillor's word finds no room among his own; the King's pushes out the oldest.
+		-- Full: a councillor's word finds no room among his own; the Shogun's pushes out the oldest.
 		ns.rdb.netoffTimed = nil
 		local names = {}
 		for i = 1, M.EXILE_MAX_KEPT do
@@ -318,8 +318,8 @@ test("1.1.6 exile: a giver who no longer gives words by its time: it lapses; a f
 		eq(#M.TimedList(), M.EXILE_MAX_KEPT, "full")
 		M.HandleTimed("CHANNEL", HC, O2(true, w.clock, w.clock + 1800, "Bankai Guild Late", HC, "flood"))
 		eq(M.TimedFor("Bankai Guild Late"), nil, "no room")
-		M.HandleTimed("CHANNEL", KING, O2(true, w.clock, w.clock + 1800, "Bankai Guild Late", KING, "the King's"))
-		assert(M.TimedFor("Bankai Guild Late"), "the King's word finds room")
+		M.HandleTimed("CHANNEL", SHOGUN, O2(true, w.clock, w.clock + 1800, "Bankai Guild Late", SHOGUN, "the Shogun's"))
+		assert(M.TimedFor("Bankai Guild Late"), "the Shogun's word finds room")
 		eq(M.TimedFor(names[1]), nil, "the soonest of the lower words went")
 		eq(#M.TimedList(), M.EXILE_MAX_KEPT)
 	end)
@@ -381,9 +381,9 @@ test("1.1.6 exile: a cancel its giver never heard holds: where it is held, the w
 			local t = w.clock
 			M.HandleTimed("CHANNEL", HC, O2(true, t, t + 1800, GUILD, HC, "treason"))
 			assert(M.TimedFor(GUILD))
-			-- Ten minutes later the King cancels it, its giver away.
+			-- Ten minutes later the Shogun cancels it, its giver away.
 			w.clock = t + 600
-			M.HandleTimed("CHANNEL", KING, O2(false, t + 600, t + 1800, GUILD, KING, ""))
+			M.HandleTimed("CHANNEL", SHOGUN, O2(false, t + 600, t + 1800, GUILD, SHOGUN, ""))
 			eq(M.TimedFor(GUILD), nil, "cancelled here")
 			w.clock = t + 1800
 			M.Tick()
@@ -392,10 +392,10 @@ test("1.1.6 exile: a cancel its giver never heard holds: where it is held, the w
 			w.clock = t + 1800 + 3600
 			local refused = M.Stats().refused
 			M.Handle("CHANNEL", HC, ("O1~g~1~%d~%s~%s~treason"):format(t + 1800, GUILD, HC))
-			eq(M.Guild(GUILD), nil, "the King's cancel holds here")
+			eq(M.Guild(GUILD), nil, "the Shogun's cancel holds here")
 			eq(M.SelfOff(), nil, "our guild still speaks")
 			eq(M.Stats().refused, refused + 1, "refused, and counted")
-			-- That word alone: another word of his on that guild is his word as ever (the King puts
+			-- That word alone: another word of his on that guild is his word as ever (the Shogun puts
 			-- it back with /bk neton guild).
 			M.Handle("CHANNEL", HC, ("O1~g~1~%d~%s~%s~spam"):format(t + 5400, GUILD, HC))
 			eq(M.Guild(GUILD).reason, "spam", "a different word is taken")
@@ -405,13 +405,13 @@ end)
 
 test("1.1.6 exile: its canceller's client answers its giver's word at once, and repeats the cancel after its time", function()
 	WithExile(function(w)
-		AsKing()
+		AsShogun()
 		M.random = function() return 0 end
 		local t = w.clock
 		M.HandleTimed("CHANNEL", HC, O2(true, t, t + 1800, GUILD, HC, "treason"))
-		assert(M.CancelExile(GUILD), "the King cancels a councillor's word")
+		assert(M.CancelExile(GUILD), "the Shogun cancels a councillor's word")
 		local cancel = LastSent(w).msg
-		eq(cancel, O2(false, t, t + 1800, GUILD, KING, ""))
+		eq(cancel, O2(false, t, t + 1800, GUILD, SHOGUN, ""))
 		local function Count()
 			local n = 0
 			for _, s in ipairs(w.sent) do if s.msg == cancel then n = n + 1 end end
@@ -463,8 +463,8 @@ test("1.1.6 exile: its giver's client, back after its time, waits WARMUP before 
 		M.Tick()
 		eq(M.Guild(GUILD), nil, "not applied before WARMUP")
 		eq(Words(before), 0, "nor sent")
-		-- The King's cancel, repeated after its time, reaches it meanwhile: it never applies.
-		M.HandleTimed("CHANNEL", KING, O2(false, t + 600, t + 1800, GUILD, KING, ""))
+		-- The Shogun's cancel, repeated after its time, reaches it meanwhile: it never applies.
+		M.HandleTimed("CHANNEL", SHOGUN, O2(false, t + 600, t + 1800, GUILD, SHOGUN, ""))
 		w.clock = w.clock + M.WARMUP + 1
 		M.Tick()
 		eq(M.Guild(GUILD), nil, "never applied")
@@ -494,8 +494,8 @@ test("1.1.6 exile: clients before 1.1.6 leave O2 alone; a saved timed word is ch
 		for _, old in ipairs({ true, false }) do
 			local cns, Deliver = H.FreshComm(old)
 			local bad, recv = cns.Comm.Stats().bad, cns.Comm.Stats().recv
-			Deliver("CHANNEL", KING, O2(true, os.time(), os.time() + 1800, GUILD, KING, "treason"))
-			Deliver("CHANNEL", KING, O2(false, os.time(), os.time() + 1800, GUILD, KING, ""))
+			Deliver("CHANNEL", SHOGUN, O2(true, os.time(), os.time() + 1800, GUILD, SHOGUN, "treason"))
+			Deliver("CHANNEL", SHOGUN, O2(false, os.time(), os.time() + 1800, GUILD, SHOGUN, ""))
 			eq(cns.Comm.Stats().bad, bad, "not a bad report")
 			eq(cns.Comm.Stats().recv, recv + 2, "heard, and left alone")
 		end
@@ -583,7 +583,7 @@ test("1.1.6: a client taken off the network sends no report to The Watch (Comm's
 		w.zeus()
 		local report = ("MR~1~R~1~%d~%s~RealmGroup~Alliance~A~Spammer Guy-Realm~0~spam"):format(w.clock, GUILD)
 		eq(M.Blocks(report), false, "while its guild is on")
-		M.Handle("CHANNEL", KING, ("O1~g~1~%d~%s~%s~x"):format(w.clock, GUILD, KING))
+		M.Handle("CHANNEL", SHOGUN, ("O1~g~1~%d~%s~%s~x"):format(w.clock, GUILD, SHOGUN))
 		assert(M.SelfOff(), "its guild is off")
 		eq(M.Blocks(report), true, "held once its guild is off")
 		eq(M.Blocks("MR~1~E~1~1~1~A~line"), true)

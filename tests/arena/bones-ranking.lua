@@ -1,7 +1,7 @@
 -- 1.2.3, the Bones ranking (BankaiGuild/FarkleTable.lua's Best, ArenaHome's Data.GamesRanking("bones"),
 -- the honours' source): before 1.2.3 Data.GamesRanking("bones") called FarkleTable.Best, which did
 -- not exist, so the list was always empty. The owner's decisions for 1.2.3: a free game (no gold,
--- the only kind 1.2.x allows) always counts for the history and the ranking, whatever the King's
+-- the only kind 1.2.x allows) always counts for the history and the ranking, whatever the Shogun's
 -- live switch, and a test build's never (decision 1); a game counts for everyone's ranking only when
 -- both players' clients reported the same result, each its own signed half (the duels' two halves,
 -- decision 2), with the ledger's caps and the alt check. Halves travel as the table's end (KN "e"

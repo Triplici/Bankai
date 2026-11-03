@@ -104,7 +104,7 @@ test("1.2 profile polish: an arena portrait is the player's own portrait again (
 		eq(framed.key, "bronze-elite", "anyone else's: his own")
 		-- ...but never as others see him (his preview is his screen's alone): "Preview as others see
 		-- me" shows his own frame (none: he holds no rank).
-		local lord = B.MarkOfName
+		local council = B.MarkOfName
 		B.MarkOfName = function(name, guild) return nil, { who = name, guild = guild } end
 		framed = Kit.SetPortraitFrame(rig, "Lida Fenn", "Bankai Guild Ember", nil, true)
 		eq(framed.key, nil, "as others see him: no preview"); eq(rig.shown, nil)
@@ -114,7 +114,7 @@ test("1.2 profile polish: an arena portrait is the player's own portrait again (
 		assert(seen.container and not seen.plain, "My profile's portrait is Borders'")
 		a.ns.ProfileEdit.DressPortrait(seen, { frame = "rank" })
 		eq(seen.shown, nil, "My profile's 'As others see you': no preview either")
-		B.MarkOfName = lord
+		B.MarkOfName = council
 		B.SetPreview("off")
 		W.Visible = visible
 		-- His own portrait: the live one ("player"), square as his unit frame asks for it, on the
@@ -169,7 +169,7 @@ test("1.2 profile polish: 'Preview as others see me' (1.2.4: My profile's detail
 	local saved = { verified = Data.Verified, mark = B.MarkOfName, pe = rawget(a.ns, "ProfileEdit"), visible = W.Visible }
 	local ok, err = pcall(w.As, w, a, function()
 		Data.Verified = function() return { frame = "rank" } end
-		-- (he holds no rank; Parric Stowe is a Lord: the gold tier)
+		-- (he holds no rank; Parric Stowe is a Council member: the gold tier)
 		B.MarkOfName = function(name, guild)
 			if name == "Parric Stowe" then return "silver", { who = name, guild = guild, bankaiguild = true, leader = true } end
 			return nil, { who = name, guild = guild }
@@ -879,7 +879,7 @@ test("1.2 UI: the Lottery's Bet and Roll sit on the games' bar under the board, 
 		end)
 	end)
 	-- The caller: Roll where Bet was, Bet gone.
-	local due = OpenDay(w, "L8", { state = "closed", isCaller = true, canDraw = true, roller = "king", schedule = { on = true, at = 1260 } })
+	local due = OpenDay(w, "L8", { state = "closed", isCaller = true, canDraw = true, roller = "shogun", schedule = { on = true, at = 1260 } })
 	WithStubs(Lt, { Today = function() return due end, LastDrawn = function() return nil end }, function()
 		w:As(a, function()
 			UI.LotteryRefresh()
@@ -938,7 +938,7 @@ test("1.2 UI: the Lottery's How to play is the lab's three pages on the games' p
 		eq(guide.tabs[1].text:GetText(), L.LOTTERY_GUIDE_DEAL); eq(guide.tabs[2].text:GetText(), L.LOTTERY_GUIDE_RULES)
 		eq(guide.tabs[3].text:GetText(), L.LOTTERY_GUIDE_PAYOUT)
 		eq(guide.page, 1); eq(guide.pages[1]:IsShown(), true); eq(guide.pages[2]:IsShown(), false)
-		-- The deal is the first-use explanation: unsigned, no King's letter.
+		-- The deal is the first-use explanation: unsigned, no Shogun's letter.
 		local deal = Texts(guide.pages[1])
 		for i = 1, 4 do assert(Has(deal, L["LOTTERY_INTRO_" .. i]), "the deal's paragraph " .. i) end
 		guide:Hide()

@@ -16,7 +16,7 @@ end
 
 test("1.1.6 crafting visibility: the common switch hides fees and stale navigation and keeps requests before history", function()
 	local w = World.New({ compliance = "shipped" })
-	local a = K.Client(w, World.NAMES.king)
+	local a = K.Client(w, World.NAMES.shogun)
 	local R, L = a.Craft, a.ns.L
 	local labels = {}
 	for _, choice in ipairs(Nav(R.BoardLines())) do labels[#labels + 1] = choice.text end

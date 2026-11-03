@@ -19,7 +19,7 @@ local function Number(x)
 	x = tonumber(x); return x and x == math.floor(x) and x >= 0 and x <= 2147483647 and x or nil
 end
 local function Preview()
-	local V = ns.ViewAs; local K = ns.King
+	local V = ns.ViewAs; local K = ns.Shogun
 	return (V and V.Previewing and V.Previewing()) or (K and K.Preview and K.Preview()) or false
 end
 local function Roster()
@@ -41,7 +41,7 @@ local function Issuer(name)
 	local M, W = ns.Moderation, ns.WatchChat
 	if M and M.Hides and M.Hides(name, nil, true) then return false end
 	if W and W.PowersBarred and W.PowersBarred(name) then return false end
-	return (ns.IsKingCharacter(name) == true and ns.KingRealm and ns.KingRealm() ~= nil) or ns.IsHighCouncillor(name) == true
+	return (ns.IsShogunCharacter(name) == true and ns.ShogunRealm and ns.ShogunRealm() ~= nil) or ns.IsHighCouncillor(name) == true
 end
 local function ReadPeer(name)
 	name = Name(name)
@@ -167,7 +167,7 @@ end
 function J.Issue(guild, assignee, subject)
 	if not J.CanIssue() or type(guild) ~= "string" or guild == "" or #guild > 72 or guild:find("[~|%^%c]") then return false, "authority" end
 	assignee, subject = Name(assignee), Name(subject)
-	if not assignee or not subject or not Correspondent(assignee, guild) or Same(subject, assignee) or ns.IsKingCharacter(subject) then return false, "identity" end
+	if not assignee or not subject or not Correspondent(assignee, guild) or Same(subject, assignee) or ns.IsShogunCharacter(subject) then return false, "identity" end
 	if Same(guild, Guild()) and not Member(subject, guild) then return false, "member" end
 	J.Prune(); local s = Bucket(true)
 	if not s or not Room(s, ns.me) then return false, "full" end
@@ -264,7 +264,7 @@ function J.Handle(dist, sender, text)
 	if op == "I" then
 		local seq, at, guild, assignee, subject = Number(f[1]), Number(f[2]), f[3], Name(f[4]), Name(f[5])
 		if #f ~= 5 or not Issuer(sender) or not J.Own() or not seq or seq == 0 or not at or at > Now() + 60 or Now() - at > J.KEEP
-			or not Same(guild, Guild()) or not Same(assignee, ns.me) or not Member(subject, guild) or Same(subject, ns.me) or ns.IsKingCharacter(subject) then return false end
+			or not Same(guild, Guild()) or not Same(assignee, ns.me) or not Member(subject, guild) or Same(subject, ns.me) or ns.IsShogunCharacter(subject) then return false end
 		local s = Bucket(true); if not s then return false end
 		local key = Key(sender, seq); local old = s.tasks[key]
 		if old then
@@ -499,7 +499,7 @@ local function MergeProof(sender, proof, core, kind, f, candidate)
 	if kind == "I" then
 		if not t then
 			if candidate.seq <= (s.floors[ns.Fold(candidate.issuer)] or 0) or not Room(s, candidate.issuer) then return false end
-			if J.Own() and Same(candidate.assignee, ns.me) and (not Member(candidate.subject, candidate.guild) or Same(candidate.subject, ns.me) or ns.IsKingCharacter(candidate.subject)) then return false end
+			if J.Own() and Same(candidate.assignee, ns.me) and (not Member(candidate.subject, candidate.guild) or Same(candidate.subject, ns.me) or ns.IsShogunCharacter(candidate.subject)) then return false end
 			t = candidate; s.tasks[key] = t; s.floors[ns.Fold(t.issuer)] = s.floors[ns.Fold(t.issuer)] or 0
 		end
 		t.signedVersion = 2; t.proofs = type(t.proofs) == "table" and t.proofs or {}; t.proofs.I = proof
@@ -684,7 +684,7 @@ ShareTick = function()
 		name = Name(name)
 		if name and not Same(name, ns.me) and ReadPeer(name) and not seen[ns.Fold(name)] then seen[ns.Fold(name)] = true; names[#names + 1] = name end
 	end
-	local K = ns.KingCharacter and ns.KingCharacter(); if K then Add(ns.FullName(K, ns.KingRealm())) end
+	local K = ns.ShogunCharacter and ns.ShogunCharacter(); if K then Add(ns.FullName(K, ns.ShogunRealm())) end
 	local W = ns.Workshop
 	if W and W.AuthorName then Add(W.AuthorName()) end
 	if type(ns.AUTHOR) == "string" and type(ns.AUTHOR_REALM) == "string" then Add(ns.FullName(ns.AUTHOR, ns.AUTHOR_REALM)) end

@@ -4,7 +4,7 @@
   python3 scripts/council-sign.py keygen                                  # once: ~/.bankaiguild/council-key.json
   python3 scripts/council-sign.py sign "Name One,Name Two" [realm group]  # the names alone: dist/CouncilList.lua
   python3 scripts/council-sign.py council [council.json]                  # names, departments and titles: dist/CouncilList.lua
-  python3 scripts/council-sign.py steward "<Name-Realm>" [Alliance|Horde] # mark the King's Steward, then sign as "council"
+  python3 scripts/council-sign.py steward "<Name-Realm>" [Alliance|Horde] # mark the Shogun's Steward, then sign as "council"
   python3 scripts/council-sign.py steward --remove "<Name-Realm>"         # end it: sign again without him
   python3 scripts/council-sign.py guild "<Guild Name>" [Alliance|Horde]  # approve a guild of Bankai Guild, then sign as "council"
   python3 scripts/council-sign.py guild --remove "<Guild Name>"          # take it off: sign again without it
@@ -35,14 +35,14 @@ and writes two lists: the names (HS1, every name of the departments and of "memb
 icon's name under Interface\\Icons, or its file number) may be left out. "public": whether
 everyone sees the council in the census (until then, the councillors and the author alone).
 
-The King's Steward (1.0.0): an optional "stewards" list in the same file names the characters
-who name Hands of their own beside the King's, set up for the King what only he could set up
+The Shogun's Steward (1.0.0): an optional "stewards" list in the same file names the characters
+who name Hands of their own beside the Shogun's, set up for the Shogun what only he could set up
 (the treasury's keepers and what the army sees of it) and send the Crown's decrees on every
 client:
 
   "stewards": ["First Surname-Realm", {"name": "First Surname-Realm", "faction": "Horde"}]
 
-A plain name is the Alliance King's Steward; the Horde gets one only when the list names one
+A plain name is the Alliance Shogun's Steward; the Horde gets one only when the list names one
 for it. The titles list carries them in an entry of its own after the departments, one per
 faction ("^steward^<faction>^<First Surname-Realm>,..."): three "^" where a department has two,
 so 0.9.9 clients leave it out unread and still take, show and pass on the whole list. At most 3
@@ -68,7 +68,7 @@ addon hears nothing of Bankai Guild until it holds it); his addon then passes it
 
 The Blood Arena's signed arbiters (1.2): an optional "arbiters" list in the same file names the
 characters who may arbitrate public fights and direct rehearsals on test builds, whatever the
-King's own list says, one faction's at most MAX_ARBITERS; "audit": true also makes one an auditor
+Shogun's own list says, one faction's at most MAX_ARBITERS; "audit": true also makes one an auditor
 (he receives the arena's ledgers):
 
   "arbiters": ["First Surname-Realm", {"name": "First Surname-Realm", "faction": "Horde", "audit": true}]
@@ -81,7 +81,7 @@ again. No arena file names the author: this entry is how his own character arbit
 
 The Missionary Church of Bankai Guild's Twelve Apostles (1.1.6): an optional "apostles" list in the same
 file names them, at most MAX_APOSTLES per faction, set once here so they hold on every client with
-nobody online (the Head of the Church, the King or the author may change them in game later, until
+nobody online (the Head of the Church, the Shogun or the author may change them in game later, until
 a newer list):
 
   "apostles": ["First Surname-Realm", {"name": "First Surname-Realm", "faction": "Horde"}]
@@ -90,7 +90,7 @@ The titles list carries them after the arbiters, one entry per faction
 ("^apostles^<faction>^<First Surname-Realm>,..."), three "^" again, so clients before 1.1.6 leave it
 out unread. A name as a Steward's (a realm of the list's group). "apostle" adds one and signs the
 council at once; "apostle --remove" takes him off and signs again. Shobek is the immutable
-Head of the Church, using the addon's canonical King identity. It is not an assignable Apostle
+Head of the Church, using the addon's canonical Shogun identity. It is not an assignable Apostle
 position. Remove legacy "head": true flags before signing a new list; old signed starred lists
 remain readable by the addon but confer no Head authority.
 
@@ -98,7 +98,7 @@ Cross-guild leadership migration (1.2): absent by default, so the documented cen
 unchanged. It is activated only by the deliberately explicit "leadership" object below:
 
   "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"],
-    "guilds": [{"guild": "Bankai Guild II", "leader": "Lord Name-ClassicBetaPvP",
+    "guilds": [{"guild": "Bankai Guild II", "leader": "Council Name-ClassicBetaPvP",
                 "officers": ["Captain One-ClassicBetaPvP2"], "faction": "Alliance"}]}
 
 Every character must carry an exact realm from the signed realm group. Each enforced faction gets
@@ -134,7 +134,7 @@ PREFIX = bytes.fromhex("3031300d060960864801650304020105000420")
 BASE, BITS = 1 << 24, 2048
 MAX_NAMES, MAX_NAME, MAX_BLOB = 30, 48, 2000 # what the addon takes (Workshop.TakeCouncil)
 MAX_TITLE, MAX_DEPT, MAX_DEPTS, MAX_TITLES_BLOB = 48, 40, 8, 3000 # and of the titles (Workshop.TakeTitles)
-MAX_STEWARDS, MAX_REALM, FACTIONS = 3, 40, ("Alliance", "Horde") # the King's Steward (Core.lua: ns.ReadStewards)
+MAX_STEWARDS, MAX_REALM, FACTIONS = 3, 40, ("Alliance", "Horde") # the Shogun's Steward (Core.lua: ns.ReadStewards)
 MAX_GUILDS, MAX_GUILD_CHARS, MAX_GUILD_BYTES = 20, 24, 72 # the approved guilds (Core.lua: ns.ReadApprovedGuilds)
 MAX_ARBITERS = 5 # the arena's signed arbiters per faction (Core.lua: ns.ReadArbiters, 1.2)
 MAX_APOSTLES = 12 # the Church's Twelve Apostles per faction (Church.lua: Church.ReadApostles, 1.1.6)
@@ -304,7 +304,7 @@ def steward_name(v):
     if not good: sys.exit("not a Steward's name the addon takes (First Surname-Realm): %r" % v)
     return v
 
-# The council file's "stewards": each a name (the Alliance King's) or {"name", "faction"}.
+# The council file's "stewards": each a name (the Alliance Shogun's) or {"name", "faction"}.
 # Returns {faction: [names]}, each faction MAX_STEWARDS at most, nobody twice, each realm one of
 # the list's realm group (a Steward elsewhere would be nobody's on every client).
 def read_stewards(v, realm):
@@ -537,7 +537,7 @@ def sign_council_data(data):
     names_text = "HS1~%d~%s~%s" % (at, realm, ",".join(names))
     entries = ["^^" + ",".join("%s=%s" % m for m in loose)] if loose else []
     entries += ["%s^%s^%s" % (name, icon, ",".join("%s=%s" % m for m in members)) for name, icon, members in depts]
-    # The King's Stewards after the departments: an entry per faction with three "^".
+    # The Shogun's Stewards after the departments: an entry per faction with three "^".
     entries += ["^steward^%s^%s" % (faction, ",".join(stewards[faction])) for faction in FACTIONS if stewards.get(faction)]
     # The approved guilds (1.1) after them, the same way.
     entries += ["^guilds^%s^%s" % (faction, ",".join(guilds[faction])) for faction in FACTIONS if guilds.get(faction)]
@@ -756,7 +756,7 @@ def check_out(path=OUT):
                 part = entry.split("^")
                 print("  %s: %s" % (part[0] or "(outside any department)", part[-1] or "-"))
         for faction in FACTIONS:
-            print("  the %s King's Steward: %s" % (faction, stewards.get(faction) or "none"))
+            print("  the %s Shogun's Steward: %s" % (faction, stewards.get(faction) or "none"))
         for faction in FACTIONS:
             print("  the %s's approved guilds: %s" % (faction, guilds.get(faction) or "none"))
         for faction in FACTIONS:

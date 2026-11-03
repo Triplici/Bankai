@@ -75,7 +75,7 @@ cat > "$BANKAIGUILD_COUNCIL_JSON" <<'JSON'
   {"name": "Department of Coin", "icon": 133784, "members": [{"name": "Third Mod", "title": "Keeper of Coin"}]}],
  "members": [{"name": " Test Councillor ", "title": " Council Speaker "}],
  "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"],
-  "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Test Lord-ClassicBetaPvP",
+  "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Test Council-ClassicBetaPvP",
                "officers": ["Test Captain-ClassicBetaPvP2"]}]}}
 JSON
 BANKAIGUILD_COUNCIL_OUT="$scratch/council1.lua" python3 "$signer" council > /dev/null
@@ -138,10 +138,10 @@ refused_council '{"leadership": {"mode": "legacy", "epoch": 1, "factions": ["All
 refused_council '{"leadership": {"mode": "enforce", "epoch": 0, "factions": ["Alliance"], "guilds": []}}' 'leadership epoch zero'
 refused_council '{"leadership": {"mode": "enforce", "epoch": 1, "factions": [], "guilds": []}}' 'leadership without an enforced faction'
 refused_council '{"leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance", "Alliance"], "guilds": []}}' 'a leadership faction twice'
-refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Lord Name"}]}}' 'a leader without an exact realm'
-refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Lord Name-Other"}]}}' 'a leader on another realm'
-refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Lord Name-Realm", "officers": ["Lord Name-Realm"]}]}}' 'a signed leader twice'
-refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Lord Name-Realm", "side": "Horde"}]}}' 'a leadership guild with an unknown field'
+refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Council Name"}]}}' 'a leader without an exact realm'
+refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Council Name-Other"}]}}' 'a leader on another realm'
+refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Council Name-Realm", "officers": ["Council Name-Realm"]}]}}' 'a signed leader twice'
+refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Council Name-Realm", "side": "Horde"}]}}' 'a leadership guild with an unknown field'
 refused_council 'not json' 'a file that is not JSON'
 if BANKAIGUILD_COUNCIL_JSON="$scratch/missing.json" BANKAIGUILD_COUNCIL_OUT="$scratch/refused.lua" python3 "$signer" council > refused.txt 2>&1; then fail 'signed: no council file'; fi
 if grep -Fq 'Traceback' refused.txt; then fail 'a crash, not a refusal: no council file'; fi
@@ -149,7 +149,7 @@ printf 'ok: refused, no council file\n'
 [ "$(last_at)" = "$before" ] || fail "a refused council moved the key's last time"
 printf 'ok: nothing refused was signed\n'
 
-# The King's Steward (1.0.0): "steward" adds him to the council file and signs the council at
+# The Shogun's Steward (1.0.0): "steward" adds him to the council file and signs the council at
 # once; "check" reads the lists back and checks them with the key; "steward --remove" signs a
 # newer council without him. The council file keeps everything else.
 cp "$BANKAIGUILD_COUNCIL_JSON" "$scratch/council-before.json"
@@ -161,7 +161,7 @@ assert after.pop("stewards") == ["Test Steward-ClassicBetaPvP2"], "the Steward, 
 assert after == before, "everything else kept"
 PY
 BANKAIGUILD_COUNCIL_OUT="$scratch/council3.lua" python3 "$signer" check > check.txt || fail 'check refused a list the script signed'
-grep -Fq "the Alliance King's Steward: Test Steward-ClassicBetaPvP2" check.txt || fail 'check does not show the Steward'
+grep -Fq "the Alliance Shogun's Steward: Test Steward-ClassicBetaPvP2" check.txt || fail 'check does not show the Steward'
 [ "$(grep -c 'signature good' check.txt)" = 3 ] || fail 'check does not say the names, titles and authority signatures hold'
 # A byte changed in the file: check says so, and fails.
 sed 's/Test Steward/Test Stewart/' "$scratch/council3.lua" > "$scratch/tampered.lua"
@@ -184,7 +184,7 @@ refused_steward 'Good Name-OtherRealm'
 refused_steward 'Good^Name-ClassicBetaPvP'
 refused_steward 'Good Name-ClassicBetaPvP' Neutral
 refused_steward --remove 'Nobody Here-ClassicBetaPvP'
-refused_council '{"stewards": ["A Aa-Realm", "B Bb-Realm", "C Cc-Realm", "D Dd-Realm"], "realm": "Realm"}' 'four Stewards for one King'
+refused_council '{"stewards": ["A Aa-Realm", "B Bb-Realm", "C Cc-Realm", "D Dd-Realm"], "realm": "Realm"}' 'four Stewards for one Shogun'
 refused_council '{"stewards": ["Same Name-Realm", {"name": "same name-Realm", "faction": "Horde"}], "realm": "Realm"}' 'a Steward twice'
 refused_council '{"stewards": [{"name": "Good Name-Realm", "side": "Horde"}], "realm": "Realm"}' 'a Steward with an unknown field'
 refused_council '{"stewards": "Good Name-Realm"}' 'stewards that are not a list'
@@ -192,7 +192,7 @@ refused_council '{"stewards": "Good Name-Realm"}' 'stewards that are not a list'
 grep -Fq 'Test Steward' "$BANKAIGUILD_COUNCIL_JSON" || fail 'a refused Steward changed the council file'
 BANKAIGUILD_COUNCIL_OUT="$scratch/council4.lua" python3 "$signer" steward --remove 'test steward-classicbetapvp2' > /dev/null
 BANKAIGUILD_COUNCIL_OUT="$scratch/council4.lua" python3 "$signer" check > check.txt || fail 'check refused the list without him'
-grep -Fq "the Alliance King's Steward: none" check.txt || fail 'the Steward is still in the newer list'
+grep -Fq "the Alliance Shogun's Steward: none" check.txt || fail 'the Steward is still in the newer list'
 printf 'ok: the Steward removed: a newer council without him\n'
 
 # The approved guilds (1.1): "guild" adds one to the council file and signs the council at once,

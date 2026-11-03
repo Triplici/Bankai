@@ -406,7 +406,7 @@ test("hop security (1.2.1): the asker takes no offer from a claimed guild; a ver
 	end)
 end)
 
--- Review of 1.2.1: Hop.Trusted counted a Lord or Captain the census names, and while signed
+-- Review of 1.2.1: Hop.Trusted counted a Council member or Captain the census names, and while signed
 -- enforcement is off (as 1.2.1 ships) two cooperating characters can forge one in their guild's
 -- reports. That trust accepted his invite for the player (AcceptGroup) and let "Always invite" or
 -- "For Bankai Guild!" invite him without a click. Now only our roster, signed or pinned people; a
@@ -434,16 +434,16 @@ local function WithCensusOfficer(w, H, fn)
 end
 
 test("hop security (1.2.1): Always invite and For Bankai Guild! invite a census officer of another guild only on a click", function()
-	for _, mode in ipairs({ "always", "king" }) do
+	for _, mode in ipairs({ "always", "shogun" }) do
 		WithHop(function(w, H)
 			WithCensusOfficer(w, H, function()
-				local S, saved = ns.HopSightings, ns.HopSightings.LocalKingLayer
+				local S, saved = ns.HopSightings, ns.HopSightings.LocalShogunLayer
 				local ok, err = pcall(function()
 					w.see(7)
 					if mode == "always" then ns.db.layerAutoInvite = true
 					else
-						S.LocalKingLayer = function(mapID, zoneUID) return mapID == 1453 and zoneUID == 7 end
-						H.ChooseKing("auto")
+						S.LocalShogunLayer = function(mapID, zoneUID) return mapID == 1453 and zoneUID == 7 end
+						H.ChooseShogun("auto")
 					end
 					eq(RealTrusted("Officer-Realm"), false, "the census alone vouches for nobody")
 					H.HandleAsk("CHANNEL", "Officer-Realm", "LQ~42~1453~7")
@@ -460,7 +460,7 @@ test("hop security (1.2.1): Always invite and For Bankai Guild! invite a census 
 					H.HandleRequest("WHISPER", "Mate-Realm", "LR~43")
 					eq(w.invited[2], "Mate", mode .. ": a guildmate, on its own"); eq(#w.popups, 1)
 				end)
-				S.LocalKingLayer = saved
+				S.LocalShogunLayer = saved
 				if not ok then error(err, 0) end
 			end)
 		end)
@@ -506,7 +506,7 @@ test("hop security (1.2.1): trust is asked again at the invite, and a pinned or 
 		w.strangers["Mate-Realm"] = true -- (out of our roster before his invite)
 		H.OnInvite("Mate")
 		eq(w.accepted, 0, "not one of ours any more: the player clicks")
-		local K, saved = ns.King, ns.King.IsStewardName
+		local K, saved = ns.Shogun, ns.Shogun.IsStewardName
 		K.IsStewardName = function(n) return ns.FullName(n) == "Stewardy-Realm" end
 		local ok, err = pcall(function()
 			w.strangers["Stewardy-Realm"] = true
@@ -556,16 +556,16 @@ end)
 -- with two requests every 5 minutes. Such a window's no is still a no to him, never a step towards
 -- the pause: before 52b7a66 he was invited without one, so it could not pause the helper either.
 test("hop security (1.2.1): unanswered windows of members we cannot vouch for never pause an automatic helper", function()
-	for _, mode in ipairs({ "always", "king" }) do
+	for _, mode in ipairs({ "always", "shogun" }) do
 		WithHop(function(w, H)
 			WithCensusOfficer(w, H, function()
-				local S, saved = ns.HopSightings, ns.HopSightings.LocalKingLayer
+				local S, saved = ns.HopSightings, ns.HopSightings.LocalShogunLayer
 				local ok, err = pcall(function()
 					w.see(7)
 					if mode == "always" then ns.db.layerAutoInvite = true
 					else
-						S.LocalKingLayer = function(mapID, zoneUID) return mapID == 1453 and zoneUID == 7 end
-						H.ChooseKing("auto")
+						S.LocalShogunLayer = function(mapID, zoneUID) return mapID == 1453 and zoneUID == 7 end
+						H.ChooseShogun("auto")
 					end
 					for i = 1, H.DECLINES do
 						H.HandleAsk("CHANNEL", "Officer-Realm", ("LQ~%d~1453~7"):format(40 + i))
@@ -583,7 +583,7 @@ test("hop security (1.2.1): unanswered windows of members we cannot vouch for ne
 					H.HandleRequest("WHISPER", "Mate-Realm", "LR~50")
 					eq(w.invited[1], "Mate", mode .. ": and invited on his own"); eq(#w.popups, H.DECLINES)
 				end)
-				S.LocalKingLayer = saved
+				S.LocalShogunLayer = saved
 				if not ok then error(err, 0) end
 			end)
 		end)
@@ -606,19 +606,19 @@ test("hop security (1.2.1): unanswered windows of members we cannot vouch for ne
 	end)
 end)
 
--- Review of 1.2.1, after 395d290: the King's pinned name, his Steward and Hands, and the High
--- Council (the author's signed list) are the King's or the author's word, not a guild claim.
--- Channels.VerifiedLevel verifies the King's titles only for his own guild, and a councillor below
+-- Review of 1.2.1, after 395d290: the Shogun's pinned name, his Steward and Hands, and the High
+-- Council (the author's signed list) are the Shogun's or the author's word, not a guild claim.
+-- Channels.VerifiedLevel verifies the Shogun's titles only for his own guild, and a councillor below
 -- an officer's rank nowhere, so one who plays in another Bankai Guild guild got no offer, window or
 -- invite, and his offers were dropped. A guild only claimed still counts for nothing.
-test("hop security (1.2.1): a councillor or the King's Hand of another guild still hops; a claimed guild alone does not", function()
+test("hop security (1.2.1): a councillor or the Shogun's Hand of another guild still hops; a claimed guild alone does not", function()
 	local function With(fn)
 		WithHop(function(w, H)
 			H.Trusted = RealTrusted
 			w.see(7)
 			local names = { ["Councilly-Realm"] = true, ["Handy-Realm"] = true, ["Claimant-Realm"] = true }
 			for name in pairs(names) do w.strangers[name] = true end
-			local guildOf, rdb, K, hand = ns.Moderation.GuildOf, ns.rdb, ns.King, ns.King.IsHandName
+			local guildOf, rdb, K, hand = ns.Moderation.GuildOf, ns.rdb, ns.Shogun, ns.Shogun.IsHandName
 			local council = rdb.council
 			ns.Moderation.GuildOf = function(n) if names[ns.FullName(n)] then return "Bankai Guild III" end return guildOf(n) end
 			rdb.council = { names = { councilly = true } }
@@ -637,7 +637,7 @@ test("hop security (1.2.1): a councillor or the King's Hand of another guild sti
 	end
 	With(function(w, H)
 		eq(H.Member("Councilly-Realm"), true, "a councillor")
-		eq(H.Member("Handy-Realm"), true, "the King's Hand")
+		eq(H.Member("Handy-Realm"), true, "the Shogun's Hand")
 		eq(H.Member("Claimant-Realm"), false, "a claim alone")
 		-- Helping: the councillor gets the offer and the window, and is invited on the click.
 		H.HandleAsk("CHANNEL", "Councilly-Realm", "LQ~42~1453~7")
@@ -673,7 +673,7 @@ end)
 
 -- Review of 1.2.1: the texts of Always invite and For Bankai Guild! still promised that every player
 -- who asks is invited without a window, while only the players Hop.Trusted vouches for are (our
--- guildmates, the King's Steward and Hands). They say so now, and that players of other guilds still
+-- guildmates, the Shogun's Steward and Hands). They say so now, and that players of other guilds still
 -- get the window, in both languages.
 test("hop texts (1.2.1): Always invite and For Bankai Guild! say who is invited on his own, and that other guilds still get the window", function()
 	local root = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]hop%-regressions%.lua$")) or "./"
@@ -683,7 +683,7 @@ test("hop texts (1.2.1): Always invite and For Bankai Guild! say who is invited 
 	local ok, err = pcall(function() assert(loadfile(root .. "BankaiGuild/Locales.lua"))("BankaiGuild", pt) end)
 	GetLocale = savedLocale
 	if not ok then error(err, 0) end
-	for _, key in ipairs({ "HOP_KING_PROMPT", "HOP_KING_AUTO", "HOP_AUTO_ON", "HOP_AUTO_TIP", "HOP_AUTO_GROUP_ON" }) do
+	for _, key in ipairs({ "HOP_SHOGUN_PROMPT", "HOP_SHOGUN_AUTO", "HOP_AUTO_ON", "HOP_AUTO_TIP", "HOP_AUTO_GROUP_ON" }) do
 		local en, br = ns.L[key], rawget(pt.L, key)
 		assert(type(br) == "string" and br ~= en, key .. ": its own Portuguese")
 		assert(en:find("guildmates", 1, true), "English " .. key .. " names who: " .. en)

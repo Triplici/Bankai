@@ -1,31 +1,31 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- 1.2: Judgment: the High Council votes within a period and the King has the final word.
--- An officer of an Bankai Guild guild sends one of The Watch's cases to the King:
+-- 1.2: Judgment: the High Council votes within a period and the Shogun has the final word.
+-- An officer of an Bankai Guild guild sends one of The Watch's cases to the Shogun:
 -- what its judgment card shows (the name, what it is about, how many players reported it, how many
 -- lines came with them) and his own finding, never who reported it, their notes nor the lines. The
--- King's client keeps it, and the High Council votes on it for a day (Judgment.PERIOD): each
--- councillor's client asks the King's client what is open whenever it is on (the Tabards' lease,
--- TabardsV2.Collector: the exact King client authenticated in the last 10 minutes) and votes upheld
--- or not upheld; the council's answer is the majority of those who answered (a tie: none). The King
+-- Shogun's client keeps it, and the High Council votes on it for a day (Judgment.PERIOD): each
+-- councillor's client asks the Shogun's client what is open whenever it is on (the Tabards' lease,
+-- TabardsV2.Collector: the exact Shogun client authenticated in the last 10 minutes) and votes upheld
+-- or not upheld; the council's answer is the majority of those who answered (a tie: none). The Shogun
 -- gives the final word once the period is over or every councillor answered. Nothing happens by
 -- itself: no sanction; the guild's Justice correspondent applies an upheld one (1.1.6: with
--- none named, its guild master), and the player is told the King's word in a pop-up (1.1.6,
--- WatchChat.TellCase, from the officer's client that sent the case). Who sent it and when, each vote and when, and the King's word with the
--- council's count and when are kept on the King's client (his Watch, Judgments), and his word goes
+-- none named, its guild master), and the player is told the Shogun's word in a pop-up (1.1.6,
+-- WatchChat.TellCase, from the officer's client that sent the case). Who sent it and when, each vote and when, and the Shogun's word with the
+-- council's count and when are kept on the Shogun's client (his Watch, Judgments), and his word goes
 -- back to the officers who sent it (their case page). Every message is a logged whisper between an
--- officer's or a councillor's client and the King's, checked on both ends: nothing goes on the
+-- officer's or a councillor's client and the Shogun's, checked on both ends: nothing goes on the
 -- channel or to a guild.
---   MJ~1~E~<id>~<guild>~<Name-Realm>~<categories>~<reporters>~<lines>~<finding U|D|->   a case to the King
---   MJ~1~A~<id>~<judgment id>  (or ~-~<why>)             the King's client keeps it (or refused it)
+--   MJ~1~E~<id>~<guild>~<Name-Realm>~<categories>~<reporters>~<lines>~<finding U|D|->   a case to the Shogun
+--   MJ~1~A~<id>~<judgment id>  (or ~-~<why>)             the Shogun's client keeps it (or refused it)
 --   MJ~1~Q~<judgment ids>          what is open (a councillor's), how the asker's own cases stand
 --   MJ~1~J~<jid>~<seconds left>~<guild>~<Name-Realm>~<categories>~<reporters>~<lines>~<finding>~<your vote U|D|->
 --   MJ~1~N~<count>~<open>          the end of that list (<open>: how many are open in all)
 --   MJ~1~V~<jid>~<U|D>             a councillor's vote (his newest counts)
 --   MJ~1~K~<jid>~<U|D|X>           counted (X: the vote is closed)
 --   MJ~1~R~<jid>~<O|W|F>~<U|D|->~<upheld>~<not upheld>~<answered>~<when decided>   how a case stands
---     (O: the council votes; W: the King's word comes next; F: his final word, U or D)
+--     (O: the council votes; W: the Shogun's word comes next; F: his final word, U or D)
 -- Clients before 1.2 know no MJ and leave it alone.
 
 local J = {}
@@ -33,31 +33,31 @@ ns.Judgment = J
 
 J.PROTOCOL = 1
 J.PERIOD = 24 * 60 * 60      -- the High Council's vote
-J.KEEP = 30 * 86400          -- the King's client keeps a judgment this long
+J.KEEP = 30 * 86400          -- the Shogun's client keeps a judgment this long
 J.MAX = 60                   -- and this many (the oldest decided ones go first)
 J.MAX_OPEN = 40              -- not decided yet, at most
 J.DAY = 5                    -- from one officer in a day
 J.MAX_OPEN_GUILD = 10        -- 1.2.0 (Konig's review): not decided yet, from one guild
-J.RETRY = 5 * 60             -- a case the King's client did not confirm goes again this often
+J.RETRY = 5 * 60             -- a case the Shogun's client did not confirm goes again this often
 J.QUERY_EVERY = 15 * 60      -- a councillor's (or a waiting officer's) client asks this often
-J.HEARD = 20 * 60            -- the King's client tells at once those who asked this recently
+J.HEARD = 20 * 60            -- the Shogun's client tells at once those who asked this recently
 J.ASK_GAP = 30               -- and answers one asker this often at most
 J.SHOWN = 8                  -- open judgments in one answer (the asker's not voted on first)
 J.ESCALATIONS_MAX = 30       -- an officer's client keeps this many sent cases
-J.REFUSE_GAP = 60            -- the King's client refuses one sender this often at most
+J.REFUSE_GAP = 60            -- the Shogun's client refuses one sender this often at most
 J.REFUSE_MINUTE = 10         -- and this many in a minute in all
-J.SPREAD = 5 * 60            -- the askers' first ask once the King's client comes on: within this
+J.SPREAD = 5 * 60            -- the askers' first ask once the Shogun's client comes on: within this
 J.random = math.random       -- (tests)
 
 local OWNER = {}
-local heard = {}      -- the King's client: [full name] = when they last asked (session only)
-local answered = {}   -- the King's client: [full name] = when it last answered them
-local incoming = {}   -- a councillor's client: [jid] = the open judgment as the King's client told it
+local heard = {}      -- the Shogun's client: [full name] = when they last asked (session only)
+local answered = {}   -- the Shogun's client: [full name] = when it last answered them
+local incoming = {}   -- a councillor's client: [jid] = the open judgment as the Shogun's client told it
 local told = {}       -- [jid] = true once this session said it waits for a vote
-local refused = {}    -- the King's client: [full name] = when it last refused them (session only)
+local refused = {}    -- the Shogun's client: [full name] = when it last refused them (session only)
 local refusals = { at = -math.huge, n = 0 } -- and how many in the minute since `at`
-local lease, lastAsk = nil, -math.huge -- (lease: the King's client's name as the last tick saw it)
-local listed = nil    -- a councillor's client: the King's last list ({ shown, open })
+local lease, lastAsk = nil, -math.huge -- (lease: the Shogun's client's name as the last tick saw it)
+local listed = nil    -- a councillor's client: the Shogun's last list ({ shown, open })
 
 J.after = function(seconds, where, fn) ns.After(seconds, where, fn) end
 
@@ -152,12 +152,12 @@ end
 -- Who is who
 ---------------------------------------------------------------------------
 
-local function IsKing() return ns.King and ns.King.IsKing and ns.King.IsKing() == true or false end
+local function IsShogun() return ns.Shogun and ns.Shogun.IsShogun and ns.Shogun.IsShogun() == true or false end
 local function Councillor(name)
-	return type(name) == "string" and ns.IsHighCouncillor and ns.IsHighCouncillor(name) == true and not ns.IsKingCharacter(name)
+	return type(name) == "string" and ns.IsHighCouncillor and ns.IsHighCouncillor(name) == true and not ns.IsShogunCharacter(name)
 end
 -- 1.1.6: a councillor under a moderator's sanction (WatchChat.PowersBarred: a timeout, a hold, a
--- net-off word) votes on nothing while it lasts: his client sends no vote, and the King's client,
+-- net-off word) votes on nothing while it lasts: his client sends no vote, and the Shogun's client,
 -- which knows its own timeouts, takes none from him. A vote he gave before stays counted.
 local function Voting(name)
 	if not Councillor(name) then return false end
@@ -166,62 +166,62 @@ local function Voting(name)
 end
 J.Voting = Voting
 
--- The King's client on now (its exact name), as the Tabards' lease says it, or nil.
+-- The Shogun's client on now (its exact name), as the Tabards' lease says it, or nil.
 local function Collector()
 	local T = ns.TabardsV2
 	if type(T) ~= "table" or T.missing or type(T.Collector) ~= "function" then return nil end
 	local c = T.Collector()
-	if type(c) ~= "table" or type(c.name) ~= "string" or not ns.IsKingCharacter(c.name) then return nil end
+	if type(c) ~= "table" or type(c.name) ~= "string" or not ns.IsShogunCharacter(c.name) then return nil end
 	return c
 end
 J.Collector = Collector
-local function FromKing(sender)
+local function FromShogun(sender)
 	local c = Collector()
 	return c ~= nil and Same(ns.FullName(sender), c.name)
 end
 
--- The signed council's names (short, lower case), the King's left out: the council's size.
+-- The signed council's names (short, lower case), the Shogun's left out: the council's size.
 local function CouncilNames()
 	local c = ns.rdb and ns.rdb.council
-	local king = ns.KingCharacter and ns.KingCharacter()
+	local shogun = ns.ShogunCharacter and ns.ShogunCharacter()
 	local out = {}
 	if type(c) == "table" and type(c.names) == "table" then
 		for name in pairs(c.names) do
-			if type(name) == "string" and not (king and name == king:lower()) then out[#out + 1] = name end
+			if type(name) == "string" and not (shogun and name == shogun:lower()) then out[#out + 1] = name end
 		end
 	end
 	table.sort(out)
 	return out
 end
 
--- The King's side of the page: the King (his preview too: what his client would show, nothing it
+-- The Shogun's side of the page: the Shogun (his preview too: what his client would show, nothing it
 -- does reaching anyone); the council's: a councillor (or the author's preview of one).
 local function ViewAs()
 	local V = ns.ViewAs
 	if type(V) == "table" and not V.missing and type(V.Available) == "function" and V.Available() == true then return V end
 	return nil
 end
-function J.KingSide()
-	return IsKing() or (ns.King and ns.King.Preview and ns.King.Preview() == true) or false
+function J.ShogunSide()
+	return IsShogun() or (ns.Shogun and ns.Shogun.Preview and ns.Shogun.Preview() == true) or false
 end
 function J.CouncilSide()
 	local V = ViewAs()
 	if V and V.Role() ~= "my" then return V.Role() == "councillor" end
 	return Councillor(ns.me)
 end
--- The Watch's Judgments (Watch.lua): the King, a councillor, and the author (every page; a role's
+-- The Watch's Judgments (Watch.lua): the Shogun, a councillor, and the author (every page; a role's
 -- preview: that role's).
 function J.Visible()
 	local V = ViewAs()
 	if V then return V.Role() == "my" or V.Allows("judgments") == true end
-	return J.KingSide() or J.CouncilSide()
+	return J.ShogunSide() or J.CouncilSide()
 end
 
 ---------------------------------------------------------------------------
--- The King's client: the judgments
+-- The Shogun's client: the judgments
 ---------------------------------------------------------------------------
 
-local function KingStore(create)
+local function ShogunStore(create)
 	if type(ns.rdb) ~= "table" then return nil end
 	local s = ns.rdb.judgments
 	if type(s) ~= "table" then
@@ -233,7 +233,7 @@ local function KingStore(create)
 	s.seq = math.max(0, math.floor(tonumber(s.seq) or 0))
 	return s
 end
-J.KingStore = KingStore
+J.ShogunStore = ShogunStore
 
 local function ValidJudgment(key, j)
 	if type(j) ~= "table" or type(j.jid) ~= "number" or tostring(j.jid) ~= key then return false end
@@ -267,7 +267,7 @@ function J.Majority(up, down)
 	return nil
 end
 
--- "O" the council votes, "W" the King's word comes next, "F" decided.
+-- "O" the council votes, "W" the Shogun's word comes next, "F" decided.
 local function State(j)
 	if j.final then return "F" end
 	local _, _, _, _, all = Tally(j)
@@ -277,7 +277,7 @@ end
 J.State = State
 
 function J.Prune()
-	local s = KingStore(false)
+	local s = ShogunStore(false)
 	if not s then return end
 	local now = Clock()
 	for key, j in pairs(s.list) do
@@ -296,10 +296,10 @@ function J.Prune()
 	for i = 1, #all - J.MAX do s.list[all[i].key] = nil end
 end
 
--- The King's judgments: not decided first (the nearest end of the vote first), then the newest.
+-- The Shogun's judgments: not decided first (the nearest end of the vote first), then the newest.
 function J.Judgments()
 	J.Prune()
-	local s, out = KingStore(false), {}
+	local s, out = ShogunStore(false), {}
 	for _, j in pairs(s and s.list or {}) do out[#out + 1] = j end
 	table.sort(out, function(a, b)
 		local fa, fb = a.final ~= nil, b.final ~= nil
@@ -312,7 +312,7 @@ function J.Judgments()
 end
 
 local function Find(jid)
-	local s = KingStore(false)
+	local s = ShogunStore(false)
 	return s and s.list[tostring(jid)] or nil
 end
 J.Find = Find
@@ -328,8 +328,8 @@ local function Whisper(target, msg, key, check)
 		end,
 	})
 end
-local function AsKing() return IsKing() end
-local function ToKing(to) return FromKing(to) end
+local function AsShogun() return IsShogun() end
+local function ToShogun(to) return FromShogun(to) end
 
 local function Wire(...) return table.concat({ "MJ", tostring(J.PROTOCOL), ... }, "~") end
 
@@ -364,10 +364,10 @@ local function SendOpen(to)
 		for _, j in ipairs(list) do
 			if n >= J.SHOWN then break end
 			n = n + 1
-			Whisper(to, JudgmentWire(j, to), "judgment-j" .. j.jid .. "-" .. Key(to), AsKing)
+			Whisper(to, JudgmentWire(j, to), "judgment-j" .. j.jid .. "-" .. Key(to), AsShogun)
 		end
 	end
-	Whisper(to, Wire("N", n, #waiting + #voted), "judgment-n-" .. Key(to), AsKing)
+	Whisper(to, Wire("N", n, #waiting + #voted), "judgment-n-" .. Key(to), AsShogun)
 	return n
 end
 
@@ -377,12 +377,12 @@ local function SentBy(j, name)
 	return type(j.also) == "table" and j.also[Key(name)] ~= nil
 end
 
--- The King's client tells those who asked recently at once (the others when they next ask).
+-- The Shogun's client tells those who asked recently at once (the others when they next ask).
 local function Recently(name) return heard[ns.FullName(name)] and ns.Now() - heard[ns.FullName(name)] <= J.HEARD end
 
 -- A refusal goes back once a REFUSE_GAP to one sender at most, REFUSE_MINUTE in a minute in all,
 -- and one waits at a time (its key is the sender's, not the case's: a newer one takes its place).
--- Anyone may whisper cases the King's client does not take: a refusal for each would fill its queue
+-- Anyone may whisper cases the Shogun's client does not take: a refusal for each would fill its queue
 -- (Comm's MAX_QUEUE) and push out its other sends, the Tabards' lease and the council's answers.
 -- An officer's client sends a refused case again (J.RETRY) until it hears why.
 local function Refuse(who, id, why)
@@ -397,35 +397,35 @@ local function Refuse(who, id, why)
 		if Count(refused) >= 200 then return false, why end
 	end
 	refused[who], refusals.n = now, refusals.n + 1
-	Whisper(who, Wire("A", id, "-", why), "judgment-a-" .. Key(who) .. "-no", AsKing)
+	Whisper(who, Wire("A", id, "-", why), "judgment-a-" .. Key(who) .. "-no", AsShogun)
 	return false, why
 end
 
--- A case comes to the King's client: from an officer of an Bankai Guild guild (as this client sees his
+-- A case comes to the Shogun's client: from an officer of an Bankai Guild guild (as this client sees his
 -- rank: its own roster for its guild, the census or the signed manifest for the others), on another
 -- player. The same case again (a retry: its sender's id, guild and name) is the same judgment; the
 -- same name from the same guild while it is open too. (The id alone is not the case: an officer's
 -- count starts again in another guild's Watch, or once his saved variables are gone.)
 local function TakeCase(sender, id, guild, target, cats, reporters, lines, finding)
-	if not IsKing() then return false, "king" end
+	if not IsShogun() then return false, "shogun" end
 	local who = ns.FullName(sender)
 	local rank = who ~= ns.me and ns.Data and ns.Data.AuthorizedRank and ns.Data.AuthorizedRank(who, guild) or nil
 	if who ~= ns.me and not (type(rank) == "number" and rank <= (ns.CAPTAIN_RANK or 1)) then return Refuse(who, id, "rank") end
-	if Same(target, who) or ns.IsKingCharacter(target) then return Refuse(who, id, "target") end
-	local s = KingStore(true)
+	if Same(target, who) or ns.IsShogunCharacter(target) then return Refuse(who, id, "target") end
+	local s = ShogunStore(true)
 	if not s then return false, "store" end
 	J.Prune()
 	local now, open, today, fromGuild = Clock(), 0, 0, 0
 	for _, j in pairs(s.list) do
 		if Same(j.from, who) and j.id == id and Same(j.guild, guild) and Same(j.target, target) then
-			if who ~= ns.me then Whisper(who, Wire("A", id, j.jid), "judgment-a-" .. Key(who) .. id, AsKing) end
+			if who ~= ns.me then Whisper(who, Wire("A", id, j.jid), "judgment-a-" .. Key(who) .. id, AsShogun) end
 			return true, j.jid, "again"
 		end
 		if not j.final and Same(j.guild, guild) and Same(j.target, target) then
 			-- (Another officer of that guild: his own client asks how it stands too.)
 			j.also = type(j.also) == "table" and j.also or {}
 			if not j.also[Key(who)] and Count(j.also) < 10 then j.also[Key(who)] = who end
-			if who ~= ns.me then Whisper(who, Wire("A", id, j.jid), "judgment-a-" .. Key(who) .. id, AsKing) end
+			if who ~= ns.me then Whisper(who, Wire("A", id, j.jid), "judgment-a-" .. Key(who) .. id, AsShogun) end
 			return true, j.jid, "open"
 		end
 		if not j.final then
@@ -443,21 +443,21 @@ local function TakeCase(sender, id, guild, target, cats, reporters, lines, findi
 		closes = math.floor(now) + J.PERIOD, votes = {} }
 	s.list[tostring(j.jid)] = j
 	J.Prune()
-	if who ~= ns.me then Whisper(who, Wire("A", id, j.jid), "judgment-a-" .. Key(who) .. id, AsKing) end
-	-- (1.2.0, Konig's review: the King's chat may be on stream; the accused's name, a sender's text,
+	if who ~= ns.me then Whisper(who, Wire("A", id, j.jid), "judgment-a-" .. Key(who) .. id, AsShogun) end
+	-- (1.2.0, Konig's review: the Shogun's chat may be on stream; the accused's name, a sender's text,
 	-- shows only in The Watch.)
-	ns.Print(Gold(L.JUDGMENT_IN_KING:format(guild)))
+	ns.Print(Gold(L.JUDGMENT_IN_SHOGUN:format(guild)))
 	if ns.PlayAlert then ns.PlayAlert("soft", "watch") end
 	-- The councillors who asked lately hear of it now.
 	for name in pairs(heard) do
-		if Recently(name) and Councillor(name) then Whisper(name, JudgmentWire(j, name), "judgment-j" .. j.jid .. "-" .. Key(name), AsKing) end
+		if Recently(name) and Councillor(name) then Whisper(name, JudgmentWire(j, name), "judgment-j" .. j.jid .. "-" .. Key(name), AsShogun) end
 	end
 	ns.Fire("WATCH_CHANGED")
 	return true, j.jid, "new"
 end
 
 local function TakeAsk(sender, ids)
-	if not IsKing() then return false end
+	if not IsShogun() then return false end
 	local who = ns.FullName(sender)
 	local now = ns.Now()
 	-- (Session-only and bounded: the askers of the last HEARD stay when there are many.)
@@ -474,13 +474,13 @@ local function TakeAsk(sender, ids)
 		n = n + 1
 		if n > 10 then break end
 		local j = Find(tonumber(jid))
-		if j and SentBy(j, who) then Whisper(who, StandingWire(j), "judgment-r" .. j.jid .. "-" .. Key(who), AsKing) end
+		if j and SentBy(j, who) then Whisper(who, StandingWire(j), "judgment-r" .. j.jid .. "-" .. Key(who), AsShogun) end
 	end
 	return true
 end
 
 local function TakeVote(sender, jid, v)
-	if not IsKing() then return false end
+	if not IsShogun() then return false end
 	local who = ns.FullName(sender)
 	if not Councillor(who) then return false, "council" end
 	if not Voting(who) then return false, "sanction" end
@@ -488,20 +488,20 @@ local function TakeVote(sender, jid, v)
 	local j = Find(jid)
 	if not j then return false, "gone" end
 	if State(j) ~= "O" then
-		Whisper(who, Wire("K", jid, "X"), "judgment-k" .. jid .. "-" .. Key(who), AsKing)
+		Whisper(who, Wire("K", jid, "X"), "judgment-k" .. jid .. "-" .. Key(who), AsShogun)
 		return false, "closed"
 	end
 	j.votes[who] = { v = v, at = math.floor(Clock()) }
-	Whisper(who, Wire("K", jid, v), "judgment-k" .. jid .. "-" .. Key(who), AsKing)
+	Whisper(who, Wire("K", jid, v), "judgment-k" .. jid .. "-" .. Key(who), AsShogun)
 	ns.Fire("WATCH_CHANGED")
 	return true
 end
 
--- The King's final word: upheld ("U") or not ("D"), once the vote is over (or every councillor
+-- The Shogun's final word: upheld ("U") or not ("D"), once the vote is over (or every councillor
 -- answered). Recorded with the council's count, and told to the officers who sent it when they are
 -- on (the others at their next ask). It changes nothing else.
 function J.Decide(jid, v)
-	if not IsKing() then return false, "king" end
+	if not IsShogun() then return false, "shogun" end
 	if v ~= "U" and v ~= "D" then return false, "verdict" end
 	local j = Find(jid)
 	if not j then return false, "gone" end
@@ -512,9 +512,9 @@ function J.Decide(jid, v)
 	local names = { j.from }
 	for _, name in pairs(type(j.also) == "table" and j.also or {}) do if type(name) == "string" then names[#names + 1] = name end end
 	for _, name in ipairs(names) do
-		if name ~= ns.me and Recently(name) then Whisper(name, StandingWire(j), "judgment-r" .. j.jid .. "-" .. Key(name), AsKing) end
+		if name ~= ns.me and Recently(name) then Whisper(name, StandingWire(j), "judgment-r" .. j.jid .. "-" .. Key(name), AsShogun) end
 	end
-	-- The King's own guild's case: on this client already.
+	-- The Shogun's own guild's case: on this client already.
 	J.TakeStanding(ns.me, j.jid, "F", v, up, down, n, j.final.at)
 	ns.Fire("WATCH_CHANGED")
 	return true
@@ -550,8 +550,8 @@ end
 
 local function SendCase(e)
 	e.sentAt = ns.Now()
-	if IsKing() then
-		-- The King's own guild: into his own judgments.
+	if IsShogun() then
+		-- The Shogun's own guild: into his own judgments.
 		local ok, jid, why = TakeCase(ns.me, e.id, e.guild, e.target, e.cats, e.reporters, e.lines, e.finding)
 		if ok then e.jid, e.state = jid, e.state or "O" else e.refused = why end
 		return ok
@@ -560,11 +560,11 @@ local function SendCase(e)
 	if not c then return false end
 	local W = Watch()
 	return Whisper(c.name, EscalationWire(e), "judgment-e" .. e.id, function(to)
-		return ToKing(to) and W ~= nil and W.CanManage() == true
+		return ToShogun(to) and W ~= nil and W.CanManage() == true
 	end)
 end
 
--- Sends the case on `name` (The Watch's) to the King: this guild's officers alone, once at a time.
+-- Sends the case on `name` (The Watch's) to the Shogun: this guild's officers alone, once at a time.
 -- True and "sent" or "held" (his client is not on: it goes once it is), or false and why.
 function J.Escalate(name)
 	local W = Watch()
@@ -600,7 +600,7 @@ function J.Escalate(name)
 end
 
 local function TakeReceipt(sender, id, jid, why)
-	if not FromKing(sender) then return false, "sender" end
+	if not FromShogun(sender) then return false, "sender" end
 	local s = OfficerStore(false)
 	for _, e in pairs(s and s.escalations or {}) do
 		if type(e) == "table" and e.id == id and not e.jid then
@@ -613,9 +613,9 @@ local function TakeReceipt(sender, id, jid, why)
 	return false, "unknown"
 end
 
--- How a case stands, from the King's client (or this one's, the King's own guild's).
+-- How a case stands, from the Shogun's client (or this one's, the Shogun's own guild's).
 function J.TakeStanding(sender, jid, state, v, up, down, n, at)
-	if sender ~= ns.me and not FromKing(sender) then return false, "sender" end
+	if sender ~= ns.me and not FromShogun(sender) then return false, "sender" end
 	local s = OfficerStore(false)
 	for _, e in pairs(s and s.escalations or {}) do
 		if type(e) == "table" and e.jid == jid then
@@ -638,11 +638,11 @@ function J.TakeStanding(sender, jid, state, v, up, down, n, at)
 end
 
 ---------------------------------------------------------------------------
--- A councillor's client: the open judgments, as the King's client tells them (this session's)
+-- A councillor's client: the open judgments, as the Shogun's client tells them (this session's)
 ---------------------------------------------------------------------------
 
 local function TakeOpen(sender, jid, left, guild, target, cats, reporters, lines, finding, mine)
-	if not FromKing(sender) or not Councillor(ns.me) then return false, "sender" end
+	if not FromShogun(sender) or not Councillor(ns.me) then return false, "sender" end
 	local was = incoming[jid]
 	incoming[jid] = { jid = jid, closesAt = ns.Now() + left, guild = guild, target = target, cats = cats, reporters = reporters,
 		lines = lines, finding = (finding == "U" or finding == "D") and finding or nil, mine = (mine == "U" or mine == "D") and mine or nil,
@@ -656,11 +656,11 @@ local function TakeOpen(sender, jid, left, guild, target, cats, reporters, lines
 	return true
 end
 
--- The end of the King's list: when it named every open one, what it no longer names is closed
--- (with more open than one list holds, those it left out stay until they end, or the King's
+-- The end of the Shogun's list: when it named every open one, what it no longer names is closed
+-- (with more open than one list holds, those it left out stay until they end, or the Shogun's
 -- client says their vote is closed).
 local function TakeEnd(sender, shown, open)
-	if not FromKing(sender) or not Councillor(ns.me) then return false end
+	if not FromShogun(sender) or not Councillor(ns.me) then return false end
 	listed = { shown = shown, open = open }
 	if shown >= open then
 		for jid, e in pairs(incoming) do if e.stale then incoming[jid] = nil end end
@@ -670,7 +670,7 @@ local function TakeEnd(sender, shown, open)
 end
 
 local function TakeCounted(sender, jid, v)
-	if not FromKing(sender) then return false end
+	if not FromShogun(sender) then return false end
 	local e = incoming[jid]
 	if not e then return false end
 	e.pending = nil
@@ -698,7 +698,7 @@ function J.Open()
 	return out
 end
 
--- A councillor's vote: upheld ("U") or not ("D"), to the King's client (on now), his newest counting.
+-- A councillor's vote: upheld ("U") or not ("D"), to the Shogun's client (on now), his newest counting.
 function J.Vote(jid, v)
 	if not Councillor(ns.me) then return false, "council" end
 	if not Voting(ns.me) then return false, "sanction" end
@@ -708,13 +708,13 @@ function J.Vote(jid, v)
 	local c = Collector()
 	if not c then return false, "away" end
 	e.pending = v
-	Whisper(c.name, Wire("V", jid, v), "judgment-v" .. jid, function(to) return ToKing(to) and Voting(ns.me) end)
+	Whisper(c.name, Wire("V", jid, v), "judgment-v" .. jid, function(to) return ToShogun(to) and Voting(ns.me) end)
 	ns.Fire("WATCH_CHANGED")
 	return true
 end
 
 ---------------------------------------------------------------------------
--- Asking the King's client: what is open (a councillor), how this client's cases stand (an officer)
+-- Asking the Shogun's client: what is open (a councillor), how this client's cases stand (an officer)
 ---------------------------------------------------------------------------
 
 local function Waiting()
@@ -730,14 +730,14 @@ local function Waiting()
 	return jids, unsent
 end
 
--- Every minute: the cases the King's client has not confirmed (at once when it comes on), and the
+-- Every minute: the cases the Shogun's client has not confirmed (at once when it comes on), and the
 -- ask, at most every QUERY_EVERY. When it comes on, each client's first ask waits a moment of its
 -- own within SPREAD, so the askers' answers do not all fill its queue in the same minute (nor
 -- again each QUERY_EVERY after). It comes on: another name than the last tick's, or none then (its
 -- lease's id is new at every announcement, every 8 minutes, and says nothing). force: now (the
 -- page's own Ask again).
 function J.Tick(force)
-	if IsKing() then return false end
+	if IsShogun() then return false end
 	local c = Collector()
 	if not c then lease = nil return false end
 	local fresh = not Same(lease, c.name)
@@ -758,7 +758,7 @@ function J.Tick(force)
 	if council then for _, e in pairs(incoming) do e.stale = true end end
 	local list = {}
 	for i = 1, math.min(10, #jids) do list[i] = tostring(jids[i]) end
-	Whisper(c.name, Wire("Q", table.concat(list, ",")), "judgment-q", ToKing)
+	Whisper(c.name, Wire("Q", table.concat(list, ",")), "judgment-q", ToShogun)
 	return true
 end
 
@@ -817,11 +817,11 @@ function J.Handle(dist, sender, text)
 end
 
 ---------------------------------------------------------------------------
--- The pages: The Watch's Judgments (the King's, the council's) and the case page's lines
+-- The pages: The Watch's Judgments (the Shogun's, the council's) and the case page's lines
 ---------------------------------------------------------------------------
 
--- (1.2.0: on the King's stream, no reporters' count, which alts could inflate; and the accused
--- named only once the King upheld the case, Watch.Accused.)
+-- (1.2.0: on the Shogun's stream, no reporters' count, which alts could inflate; and the accused
+-- named only once the Shogun upheld the case, Watch.Accused.)
 local function OnStream() return ns.CouncilMasked ~= nil and ns.CouncilMasked() == true end
 local function AboutText(e)
 	if OnStream() then return L.JUDGMENT_ABOUT_STREAM:format(CatsText(e.cats), tonumber(e.lines) or 0) end
@@ -839,7 +839,7 @@ local function CouncilText(up, down, n, size)
 	return L.JUDGMENT_COUNCIL:format(up, down, n, size) .. " · " .. verdict
 end
 
--- A judgment as plain text, for the copy box (the King's record): who sent it, the council's
+-- A judgment as plain text, for the copy box (the Shogun's record): who sent it, the council's
 -- votes and his word, each with its time.
 -- (1.2.1) The names and the guild come from other players: each through Codec.Discord, as written,
 -- never as Discord's markup.
@@ -866,12 +866,12 @@ function J.Text(j)
 	return table.concat(out, "\n")
 end
 
-local function KingRows(lines)
+local function ShogunRows(lines)
 	local list = J.Judgments()
-	local king = IsKing()
+	local shogun = IsShogun()
 	lines[#lines + 1] = { header = true, text = L.JUDGMENT_TITLE, right = Grey(tostring(#list)),
 		tooltip = function(tt) tt:AddLine(L.JUDGMENT_TITLE, 1, 0.82, 0); tt:AddLine(L.JUDGMENT_TIP, 1, 1, 1, true) end }
-	lines[#lines + 1] = { indent = 1, text = Grey(L.JUDGMENT_SCOPE_KING), gapAfter = #list == 0 }
+	lines[#lines + 1] = { indent = 1, text = Grey(L.JUDGMENT_SCOPE_SHOGUN), gapAfter = #list == 0 }
 	if #list == 0 then lines[#lines + 1] = { indent = 1, text = Grey(L.JUDGMENT_EMPTY), gapAfter = true } return end
 	for _, j in ipairs(list) do
 		local state = State(j)
@@ -894,7 +894,7 @@ local function KingRows(lines)
 			end }
 		if f then
 			lines[#lines + 1] = { indent = 2, text = L.JUDGMENT_FINAL_LINE:format(VerdictColored(f.v), ns.Ago(f.at)) }
-		elseif state == "W" and king then
+		elseif state == "W" and shogun then
 			for _, v in ipairs({ "U", "D" }) do
 				local verdict = v
 				lines[#lines + 1] = { indent = 2, text = Gold(v == "U" and L.JUDGMENT_FINAL_UP_BTN or L.JUDGMENT_FINAL_DOWN_BTN),
@@ -903,7 +903,7 @@ local function KingRows(lines)
 		elseif state == "O" then
 			lines[#lines + 1] = { indent = 2, text = Grey(L.JUDGMENT_FINAL_WAIT:format(Span(j.closes - Clock()))) }
 		else
-			lines[#lines + 1] = { indent = 2, text = Grey(L.JUDGMENT_ONLY_KING) }
+			lines[#lines + 1] = { indent = 2, text = Grey(L.JUDGMENT_ONLY_SHOGUN) }
 		end
 		lines[#lines + 1] = { indent = 2, text = Gold(L.JUDGMENT_COPY), gapAfter = true, onClick = function()
 			if ns.UI and ns.UI.ShowCopy then ns.UI.ShowCopy(L.WATCH_CASE_TITLE:format(name), J.Text(j), nil, { key = "judgment" }) end
@@ -913,11 +913,11 @@ end
 
 local function CouncilRows(lines)
 	local list = J.Open()
-	local king = Collector()
+	local shogun = Collector()
 	lines[#lines + 1] = { header = true, text = L.JUDGMENT_COUNCIL_TITLE, right = Grey(tostring(#list)),
 		tooltip = function(tt) tt:AddLine(L.JUDGMENT_COUNCIL_TITLE, 1, 0.82, 0); tt:AddLine(L.JUDGMENT_TIP, 1, 1, 1, true) end }
 	lines[#lines + 1] = { indent = 1, text = Grey(L.JUDGMENT_SCOPE_COUNCIL) }
-	if not king then lines[#lines + 1] = { indent = 1, text = Grey(L.JUDGMENT_KING_AWAY) } end
+	if not shogun then lines[#lines + 1] = { indent = 1, text = Grey(L.JUDGMENT_SHOGUN_AWAY) } end
 	if #list == 0 then
 		lines[#lines + 1] = { indent = 1, text = Grey(L.JUDGMENT_EMPTY_COUNCIL), gapAfter = true }
 	end
@@ -931,8 +931,8 @@ local function CouncilRows(lines)
 		for _, v in ipairs({ "U", "D" }) do
 			local verdict = v
 			local label = v == "U" and L.JUDGMENT_VOTE_UP_BTN or L.JUDGMENT_VOTE_DOWN_BTN
-			lines[#lines + 1] = { indent = 2, text = king and Gold(label) or Grey(label), gapAfter = v == "D",
-				onClick = king and function()
+			lines[#lines + 1] = { indent = 2, text = shogun and Gold(label) or Grey(label), gapAfter = v == "D",
+				onClick = shogun and function()
 					local ok, why = J.Vote(e.jid, verdict)
 					if not ok then ns.Print(L.JUDGMENT_NOT_SENT:format(Why(why))) end
 				end or nil }
@@ -940,15 +940,15 @@ local function CouncilRows(lines)
 	end
 	-- More open than one list holds: they come once he voted on these (or one ends).
 	if listed and listed.open > listed.shown then lines[#lines + 1] = { indent = 1, text = Grey(L.JUDGMENT_MORE:format(listed.open - listed.shown)) } end
-	lines[#lines + 1] = { indent = 1, text = king and Gold(L.JUDGMENT_ASK) or Grey(L.JUDGMENT_ASK), gapAfter = true,
-		onClick = king and function() J.Tick(true) end or nil }
+	lines[#lines + 1] = { indent = 1, text = shogun and Gold(L.JUDGMENT_ASK) or Grey(L.JUDGMENT_ASK), gapAfter = true,
+		onClick = shogun and function() J.Tick(true) end or nil }
 end
 
--- How many wait here (The Watch's navigation): the King's not decided yet, and the open ones a
+-- How many wait here (The Watch's navigation): the Shogun's not decided yet, and the open ones a
 -- councillor has not voted on.
 function J.Count()
 	local n = 0
-	if J.KingSide() then for _, j in ipairs(J.Judgments()) do if not j.final then n = n + 1 end end end
+	if J.ShogunSide() then for _, j in ipairs(J.Judgments()) do if not j.final then n = n + 1 end end end
 	if J.CouncilSide() then for _, e in ipairs(J.Open()) do if not e.mine then n = n + 1 end end end
 	return n
 end
@@ -958,7 +958,7 @@ function J.Lines()
 	local lines = {}
 	local V = ViewAs()
 	local mine = V and V.Role() == "my"
-	if J.KingSide() or mine then KingRows(lines) end
+	if J.ShogunSide() or mine then ShogunRows(lines) end
 	if J.CouncilSide() or mine then CouncilRows(lines) end
 	return lines
 end
@@ -981,7 +981,7 @@ function J.CaseLines(c)
 	}
 end
 
--- Its action (Watch.lua's case page, an officer's): send it to the King, once at a time.
+-- Its action (Watch.lua's case page, an officer's): send it to the Shogun, once at a time.
 function J.ActionLines(c)
 	local W = Watch()
 	if type(c) ~= "table" or not (W and W.CanManage and W.CanManage()) then return {} end

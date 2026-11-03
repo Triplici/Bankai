@@ -8,7 +8,7 @@ Channels.lua print 3
 ChatWindow.lua tooltip 22
 Decree.lua tooltip 6
 GuildFrame.lua tooltip 5
-King.lua tooltip 5
+Shogun.lua tooltip 5
 Map.lua tooltip 12
 BankaiGuild_Arena/BracketView.lua tooltip 5
 BankaiGuild_Arena/Card.lua tooltip 4

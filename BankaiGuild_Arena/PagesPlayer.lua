@@ -1074,7 +1074,7 @@ local function ProfileButtons(st)
 	end
 	-- 1.2.4: one place to edit, "My profile" in the Bankai Guild window (the core's ProfileEdit): this
 	-- window steps aside (as for a table, Window.lua) and Back there brings it back on Profile. Its
-	-- visibility, "as others see me" and the King's letters are that page's sections now: two
+	-- visibility, "as others see me" and the Shogun's letters are that page's sections now: two
 	-- buttons, no More menu.
 	local PE = ns.ProfileEdit
 	local edit = type(PE) == "table" and type(PE.Open) == "function"
@@ -1456,7 +1456,7 @@ ArenaUI.RegisterPane("bone.history", { section = "farkle", label = L.ARENA_PANE_
 -- member opens: the Games tab's "Your games" and, for an auditor, "Every game"), from the core's
 -- ArenaLedger.GamesView, whose rule says what it lists: this player's own games of every kind
 -- (Bones against a player, the House, a lesson; a duel, a Fight Night's bout, a tournament's; the
--- Lottery's practice draws), and on an auditor's client (the King's character, a High Councillor,
+-- Lottery's practice draws), and on an auditor's client (the Shogun's character, a High Councillor,
 -- a signed arbiter with "+a": the author's own character's entry) every game its players told him.
 -- Over the list, the filters (the rankings' dropdowns): the game, the period, and for an auditor
 -- whose games (everyone, only his own, or one player: the names of the games shown, the most

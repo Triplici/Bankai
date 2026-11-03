@@ -10,7 +10,7 @@ local ns, test, eq = ...
 local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]watch%-chat%.lua$")) or "./"
 
 local GLOBALS = { "GetGuildInfo", "IsInGuild", "UnitIsPlayer", "C_ChatInfo", "GetTime", "GetChannelName", "DEFAULT_CHAT_FRAME", "IsCombatLog",
-	"issecretvalue", "UnitClass", "C_FriendList", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDLORDS1" }
+	"issecretvalue", "UnitClass", "C_FriendList", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDCOUNCIL1" }
 
 local function Fold(s) return ns.Fold(tostring(s or "")) end
 
@@ -134,13 +134,13 @@ local function World(fn)
 			c.IsMember = function() return cl.guild ~= nil and ns.IsFederation(cl.guild) end
 			c.CouncilMasked = function() return cl.masked == true end
 			c.GamepadUI = function() return w.gamepad == true end
-			c.IsKingCharacter = function(n) return w.king ~= nil and type(n) == "string" and Fold(c.FullName(n)) == Fold(w.king) end
-			c.KingCharacter = function() return w.king and (w.king:gsub("%-.*$", "")) or nil end
+			c.IsShogunCharacter = function(n) return w.shogun ~= nil and type(n) == "string" and Fold(c.FullName(n)) == Fold(w.shogun) end
+			c.ShogunCharacter = function() return w.shogun and (w.shogun:gsub("%-.*$", "")) or nil end
 			c.IsHighCouncillor = function(n) return type(n) == "string" and w.council[Fold(c.FullName(n))] == true end
 			c.IsSteward = function(n) return type(n) == "string" and w.stewards[Fold(c.FullName(n))] == true end
 			c.Workshop = { IsAuthorName = function(n) return w.author ~= nil and type(n) == "string" and Fold(c.FullName(n)) == Fold(w.author) end }
-			c.King = { IsHandName = function(n) return type(n) == "string" and w.hands[Fold(c.FullName(n))] == true end,
-				IsStewardName = function(n) return c.IsSteward(n) end, IsKing = function() return c.IsKingCharacter(name) end,
+			c.Shogun = { IsHandName = function(n) return type(n) == "string" and w.hands[Fold(c.FullName(n))] == true end,
+				IsStewardName = function(n) return c.IsSteward(n) end, IsShogun = function() return c.IsShogunCharacter(name) end,
 				IsSteward = function() return false end, IsHand = function() return false end, Preview = function() return false end }
 			local function CharName(input, target)
 				local n = tostring(input or ""):gsub("^%s+", ""):gsub("%s+$", "")
@@ -153,7 +153,7 @@ local function World(fn)
 				Hidden = function(n) return w.off[Fold(c.FullName(n))] end,
 				Hides = function(n) return w.off[Fold(c.FullName(n))] end,
 				SelfOff = function() return w.off[Fold(name)] end,
-				IsKing = function(n) return c.IsKingCharacter(n) end,
+				IsShogun = function(n) return c.IsShogunCharacter(n) end,
 				GuildOf = function(n)
 					for g, list in pairs(w.guilds) do if list[c.FullName(n)] ~= nil then return g end end
 				end,
@@ -336,7 +336,7 @@ local function World(fn)
 end
 
 -- Guild X: an officer (A), a member (B), another member (D) and its guild master (G); guild Y: a
--- member (Y1). The author, the King and a councillor are named but play only where a test says.
+-- member (Y1). The author, the Shogun and a councillor are named but play only where a test says.
 local X, Y = "Bankai Guild II", "Bankai Guild of Ash"
 local function Standard(w)
 	local G = w.Client("Grandmaster", X, 0)
@@ -706,15 +706,15 @@ test("watch: chat moderation: a Watcher only in his own guild: over GUILD, on a 
 	end)
 end)
 
-test("watch: chat moderation: the council, the King and the author anywhere; never upward, never on himself, never through a linked alt, never while sanctioned", function()
+test("watch: chat moderation: the council, the Shogun and the author anywhere; never upward, never on himself, never through a linked alt, never while sanctioned", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
-		w.author, w.king = "Author-Realm", "Kingly-Realm"
+		w.author, w.shogun = "Author-Realm", "Shogunly-Realm"
 		w.council[Fold("Councillor-Realm")] = true
 		w.council[Fold("Peer-Realm")] = true
 		w.stewards[Fold("Steward-Realm")] = true
 		w.hands[Fold("Hand-Realm")] = true
-		local K = w.Client("Kingly", "Bankai Guild", 0)
+		local K = w.Client("Shogunly", "Bankai Guild", 0)
 		local Co = w.Client("Councillor", Y, 3)
 		local Au = w.Client("Author", Y, 2)
 		local Pe = w.Client("Peer", X, 3)
@@ -724,16 +724,16 @@ test("watch: chat moderation: the council, the King and the author anywhere; nev
 			local scope = w.As(actor, actor.WC.CanModerate, target)
 			return scope
 		end
-		-- Anywhere: the councillor (guild Y) on B (guild X), the King, the author.
+		-- Anywhere: the councillor (guild Y) on B (guild X), the Shogun, the author.
 		eq(May(Co, B.name), "O"); eq(May(K, B.name), "O"); eq(May(Au, B.name), "O")
 		eq(May(Co, G.name), "O", "a councillor on a guild master")
 		-- Never upward or across.
 		eq(May(Co, Pe.name), nil, "councillor on councillor")
 		eq(May(Co, Ha.name), nil, "councillor on a Hand")
 		eq(May(Co, St.name), nil, "councillor on a Steward")
-		eq(May(Co, K.name), nil, "councillor on the King")
-		eq(May(K, Au.name), nil, "the King on the author")
-		eq(May(Au, K.name), "O", "the author on the King")
+		eq(May(Co, K.name), nil, "councillor on the Shogun")
+		eq(May(K, Au.name), nil, "the Shogun on the author")
+		eq(May(Au, K.name), "O", "the author on the Shogun")
 		eq(May(Co, Co.name), nil, "on himself")
 		eq(May(A, G.name), nil, "a Watcher on the guild master")
 		w.SetRank("Officer2", X, 1)
@@ -939,7 +939,7 @@ test("watch: chat moderation: the guild master names and removes Watchers; only 
 		w.SetRank(B.name, Y, 3)
 		eq(w.As(D, D.WC.CanModerate, D.name), nil)
 		eq(w.As(D, D.W.IsAuthorized, B.name), false, "out of the roster")
-		-- The Justice correspondent counts as a Watcher, and applies the King's judgment.
+		-- The Justice correspondent counts as a Watcher, and applies the Shogun's judgment.
 		w.SetRank(B.name, X, 3)
 		assert(w.As(G, G.WC.SetWatcher, D.name, true, true))
 		w.epoch = w.epoch + 3
@@ -964,7 +964,7 @@ test("watch: chat moderation: Bankai Guild moderators: a councillor's list count
 		eq(w.As(D, D.WC.IsMod, Mo.name), true)
 		eq(w.As(Mo, Mo.WC.CanModerate, B.name), "O", "anywhere")
 		-- (1.2.3) On another guild's master too: no guild master stands above the Bankai Guild moderators
-		-- now but the King's guild's (tested below).
+		-- now but the Shogun's guild's (tested below).
 		eq(w.As(Mo, Mo.WC.CanModerate, G.name), "O", "on another guild's master")
 		eq(w.As(Mo, Mo.WC.CanModerate, Co.name), nil, "never on his namer")
 		-- A namer never changes another's list: Y1's word for Mo's list is not a namer's.
@@ -987,8 +987,8 @@ end)
 -- the client could name, from its roster, the signed list or the census, stood with the Bankai Guild
 -- moderators (WatchChat.ProtectLevel 3): no moderator could delete his lines or time him out
 -- anywhere, and two cooperating characters could make one of theirs the census guild master of an
--- invented guild to shield him. Now only the King's guild's master stands there.
-test("watch: chat moderation: Bankai Guild moderators act on another guild's master (our roster's, signed or a census one) since 1.2.3, never on the King's guild's master; his own guild's Watchers still never act on him", function()
+-- invented guild to shield him. Now only the Shogun's guild's master stands there.
+test("watch: chat moderation: Bankai Guild moderators act on another guild's master (our roster's, signed or a census one) since 1.2.3, never on the Shogun's guild's master; his own guild's Watchers still never act on him", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
 		w.council[Fold("Councillor-Realm")] = true
@@ -1011,7 +1011,7 @@ test("watch: chat moderation: Bankai Guild moderators act on another guild's mas
 		eq(w.As(G, G.WC.ProtectLevel, G.name), 0, "on his own client too")
 		eq(w.As(Mo, Mo.WC.CanModerate, G.name), "O", "a moderator acts on him")
 		eq(w.As(Mo, Mo.WC.CanModerate, Fake.name), "O", "and on a census guild master of an invented guild")
-		-- The King's guild's master: as before, on its own members' clients (our roster) and on
+		-- The Shogun's guild's master: as before, on its own members' clients (our roster) and on
 		-- every other client.
 		eq(w.As(KO, KO.WC.ProtectLevel, KM.name), LEVEL.mod, "on <Elfcore>'s own client")
 		eq(w.As(Mo, Mo.WC.ProtectLevel, KM.name), LEVEL.mod, "on another guild's client")
@@ -1063,7 +1063,7 @@ test("watch: chat moderation: the audit's audience: the guild's Watch (with the 
 		assert(text:find(ns.L.WATCHCHAT_ROLE_ANY, 1, true) and not text:find("Officer", 1, true), text)
 		-- Y1 (another guild, no council) keeps no reason.
 		eq(#Y1.WC.Store().audit, 0)
-		-- On the King's stream (masked) the page hides reasons and words.
+		-- On the Shogun's stream (masked) the page hides reasons and words.
 		Co.masked = true
 		local page = w.As(Co, Co.WC.PageLines)
 		for _, l in ipairs(page) do
@@ -1202,7 +1202,7 @@ test("watch: chat moderation: a real late author gets current target testimony a
 		eq(w.As(Au, Au.WC.NamerLevel, Au.name), 7)
 		eq(w.As(Au, Au.WC.CouncilSide), true, "real author entitlement does not depend on ViewAs")
 		eq(#Au.WC.Store().audit, 0); eq(next(Au.WC.Store().appeals), nil)
-		Au.ns.ViewAs = { Available = function() return true end, Role = function() return "king" end,
+		Au.ns.ViewAs = { Available = function() return true end, Role = function() return "shogun" end,
 			Allows = function() return true end, Inert = function(rows) return rows end }
 		w.As(Au, Au.WC.PageLines)
 		eq(next(Au.WC.Store().appeals), nil, "preview cannot invent a missed appeal")
@@ -1385,7 +1385,7 @@ test("watch: chat moderation: real paced Comm drops queued own timeout testimony
 	end
 end)
 
-test("watch: chat moderation: the King's word on a case reaches its player in a pop-up, over his guild, once", function()
+test("watch: chat moderation: the Shogun's word on a case reaches its player in a pop-up, over his guild, once", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
 		assert(w.As(A, A.WC.TellCase, B.name, 42, "U"))
@@ -1427,7 +1427,7 @@ test("watch: chat moderation: a sanction bars powers, games, locations and craft
 		eq(w.As(G, G.W.IsAuthorized, A.name), false, "on the others' clients too")
 		eq(w.As(A, A.WC.Barred, "wallet") ~= nil, true, "a hold freezes the wallet")
 		eq(w.As(A, A.WC.Timeout, D.name, 300, ""), false, "a sanctioned officer moderates nobody")
-		-- The other modules ask the same: the King's position, a crafting card, a guildmate's dot.
+		-- The other modules ask the same: the Shogun's position, a crafting card, a guildmate's dot.
 		local saved = { WatchChat = rawget(ns, "WatchChat"), me = ns.me }
 		local ok, err = pcall(function()
 			rawset(ns, "WatchChat", D.WC)
@@ -1494,12 +1494,12 @@ end)
 -- The review's findings (2026-10-05): each test fails on the code before its fix
 ---------------------------------------------------------------------------
 
-test("watch: chat moderation: a timeout passed on weighs its actor's: a moderator never carries, shortens or replaces the King's, and no councillor lifts it anywhere", function()
+test("watch: chat moderation: a timeout passed on weighs its actor's: a moderator never carries, shortens or replaces the Shogun's, and no councillor lifts it anywhere", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
-		w.king, w.author = "Kingly-Realm", "Author-Realm"
+		w.shogun, w.author = "Shogunly-Realm", "Author-Realm"
 		w.council[Fold("Councillor-Realm")] = true
-		local K = w.Client("Kingly", "Bankai Guild", 0)
+		local K = w.Client("Shogunly", "Bankai Guild", 0)
 		local Co = w.Client("Councillor", Y, 3)
 		local Mo = w.Client("Modder", Y, 3)
 		local Au = w.Client("Author", Y, 2)
@@ -1511,18 +1511,18 @@ test("watch: chat moderation: a timeout passed on weighs its actor's: a moderato
 		w.Run()
 		local T = w.Sent("MD~1~T~O~")[1].msg
 		local seq = tonumber(T:match("^MD~1~T~O~(%d+)~"))
-		eq(select(2, w.As(Mo, Mo.WC.Lift, B.name, "")), "rank", "the moderator may not lift the King's")
-		-- His pass-on made up in the King's name: a newer sequence, a minute's end.
+		eq(select(2, w.As(Mo, Mo.WC.Lift, B.name, "")), "rank", "the moderator may not lift the Shogun's")
+		-- His pass-on made up in the Shogun's name: a newer sequence, a minute's end.
 		local forged = ("MD~1~T~O~%d~%d~%s~%s~%d~-~%s~"):format(seq + 1, w.epoch, X, B.name, w.epoch + 60, K.name)
 		for _, cl in ipairs({ G, D, Y1 }) do
 			local ok, why = w.Inject("CHANNEL", Mo.name, cl, forged)
 			eq(ok, false, "refused on " .. cl.short); eq(why, "rank", "on " .. cl.short)
 		end
 		w.epoch = w.epoch + 61
-		for _, cl in ipairs({ G, D, Y1 }) do eq(w.As(cl, cl.WC.Silenced, B.name), true, "the King's 7 days stand on " .. cl.short) end
+		for _, cl in ipairs({ G, D, Y1 }) do eq(w.As(cl, cl.WC.Silenced, B.name), true, "the Shogun's 7 days stand on " .. cl.short) end
 		local _, again = w.Inject("CHANNEL", K.name, D, T)
-		eq(again, "repeat", "the King's own repeat is never refused as older")
-		-- The King goes quiet: the moderator's client never passes his word on; the author's does.
+		eq(again, "repeat", "the Shogun's own repeat is never refused as older")
+		-- The Shogun goes quiet: the moderator's client never passes his word on; the author's does.
 		K.online = false
 		w.epoch = w.epoch + Mo.WC.PASS_ON_AFTER + 1
 		local before = #w.sent
@@ -1537,13 +1537,13 @@ test("watch: chat moderation: a timeout passed on weighs its actor's: a moderato
 		for i = before + 1, #w.sent do
 			if w.sent[i].from == Au.name and w.sent[i].msg:find("^MD~1~T~O~") then passed = w.sent[i].msg end
 		end
-		assert(passed and passed:find("~" .. K.name .. "~", 1, true), "the author carries the King's word")
-		-- A councillor whose client hears it only that way holds it with the King's weight: his lift
+		assert(passed and passed:find("~" .. K.name .. "~", 1, true), "the author carries the Shogun's word")
+		-- A councillor whose client hears it only that way holds it with the Shogun's weight: his lift
 		-- is refused there as everywhere.
 		local Late = w.Client("Latecouncil", Y, 3)
 		w.council[Fold(Late.name)] = true
 		eq(w.Inject("CHANNEL", Au.name, Late, passed), true)
-		eq(w.As(Late, Late.WC.TimeoutOf, B.name).weight, 6, "the King's weight, however it came")
+		eq(w.As(Late, Late.WC.TimeoutOf, B.name).weight, 6, "the Shogun's weight, however it came")
 		eq(select(2, w.As(Late, Late.WC.Lift, B.name, "")), "rank")
 	end)
 end)
@@ -1571,10 +1571,10 @@ test("watch: chat moderation: an appeal's lift reaches a timeout the councillor'
 		eq(w.As(D, D.WC.Silenced, B.name), false, "and on his guildmates'")
 		eq(w.Dialog(B, "BANKAIGUILD_WATCHCHAT_DECISION").a,
 			ns.L.WATCHCHAT_APPEAL_LIFTED_YOU:format(ns.L.WATCHCHAT_ROLE_ANY, ns.L.WATCHCHAT_REASON_PART:format("fair")))
-		-- One from higher up (the King's, which the councillor's client never heard): his lift
+		-- One from higher up (the Shogun's, which the councillor's client never heard): his lift
 		-- does not reach it, and the player is told so.
-		w.king = "Kingly-Realm"
-		local K = w.Client("Kingly", "Bankai Guild", 0)
+		w.shogun = "Shogunly-Realm"
+		local K = w.Client("Shogunly", "Bankai Guild", 0)
 		Co.online = false
 		w.epoch = w.epoch + 5
 		assert(w.As(K, K.WC.Timeout, B.name, 3600, ""))
@@ -1590,7 +1590,7 @@ test("watch: chat moderation: an appeal's lift reaches a timeout the councillor'
 		assert(w.As(Co, Co.WC.Answer, key2, "L", ""))
 		w.Run()
 		local still = w.As(B, B.WC.SelfTimeout)
-		assert(still and still.by == K.name, "still timed out by the King")
+		assert(still and still.by == K.name, "still timed out by the Shogun")
 		eq(w.Dialog(B, "BANKAIGUILD_WATCHCHAT_DECISION").a,
 			ns.L.WATCHCHAT_APPEAL_LIFTED_STILL:format(ns.L.WATCHCHAT_ROLE_ANY, "", w.As(B, B.WC.TimeoutText, still)))
 		-- An appeal on a deleted line: "found for him", never a lift of anything.
@@ -1982,17 +1982,17 @@ test("watch: chat moderation: two Watchers' timeouts: the longer binds on every 
 	end)
 end)
 
-test("watch: chat moderation: the King is never given a timeout (no client would hold it); the author may still delete his line", function()
+test("watch: chat moderation: the Shogun is never given a timeout (no client would hold it); the author may still delete his line", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
-		w.author, w.king = "Author-Realm", "Kingly-Realm"
-		local K = w.Client("Kingly", "Bankai Guild", 0)
+		w.author, w.shogun = "Author-Realm", "Shogunly-Realm"
+		local K = w.Client("Shogunly", "Bankai Guild", 0)
 		local Au = w.Client("Author", Y, 2)
 		local ok, why = w.As(Au, Au.WC.Timeout, K.name, 300, "")
-		eq(ok, false); eq(why, "king")
+		eq(ok, false); eq(why, "shogun")
 		eq(#w.wire, 0, "nothing sent")
 		local _, fwhy = w.Inject("CHANNEL", Au.name, D, ("MD~1~T~O~%d~%d~Bankai Guild~%s~%d~-~-~"):format(900, w.epoch, K.name, w.epoch + 300))
-		eq(fwhy, "king", "nor taken")
+		eq(fwhy, "shogun", "nor taken")
 		w.Say(K, "A", "a royal line")
 		assert(w.As(Au, Au.WC.Delete, "A", w.Line(Au, "A", K.name, "a royal line"), ""))
 		w.Run()
@@ -2015,30 +2015,30 @@ test("watch: chat moderation: junk from players with no standing never spends th
 	end)
 end)
 
-test("watch: chat moderation: the King's upheld word reaches the guild's Justice correspondent and its guild master, not only the officer who sent the case; a warning applies it", function()
+test("watch: chat moderation: the Shogun's upheld word reaches the guild's Justice correspondent and its guild master, not only the officer who sent the case; a warning applies it", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
 		local P = w.Client("Plain", X, 3)
 		assert(w.As(G, G.WC.SetWatcher, D.name, true, true)) -- D: the Justice correspondent
 		w.epoch = w.epoch + 3
 		w.Run()
-		-- The King's final word reached A's client, the officer who sent the case (Judgment.lua).
+		-- The Shogun's final word reached A's client, the officer who sent the case (Judgment.lua).
 		assert(w.As(A, A.WC.TellCase, B.name, 42, "U"))
 		w.Run()
-		eq(w.As(D, D.WC.KingUpheld, B.name).jid, 42, "the Justice correspondent has it")
-		eq(w.As(G, G.WC.KingUpheld, B.name) ~= nil, true, "the guild master too")
-		eq(w.As(A, A.WC.KingUpheld, B.name) ~= nil, true, "the officer who sent it")
-		eq(w.As(P, P.WC.KingUpheld, B.name), nil, "a member keeps nothing")
-		eq(w.As(B, B.WC.KingUpheld, B.name), nil, "nor the player")
+		eq(w.As(D, D.WC.ShogunUpheld, B.name).jid, 42, "the Justice correspondent has it")
+		eq(w.As(G, G.WC.ShogunUpheld, B.name) ~= nil, true, "the guild master too")
+		eq(w.As(A, A.WC.ShogunUpheld, B.name) ~= nil, true, "the officer who sent it")
+		eq(w.As(P, P.WC.ShogunUpheld, B.name), nil, "a member keeps nothing")
+		eq(w.As(B, B.WC.ShogunUpheld, B.name), nil, "nor the player")
 		eq(w.Dialog(B, "BANKAIGUILD_WATCHCHAT_DECISION").a, ns.L.WATCHCHAT_DECISION_UP, "the player is told")
 		eq(w.As(D, D.WC.MayApplyJudgment), true)
 		-- A warning from him applies it: it leaves his case's page.
-		assert(w.As(D, D.W.Warn, B.name, "the King's judgment"))
+		assert(w.As(D, D.W.Warn, B.name, "the Shogun's judgment"))
 		w.Run()
-		eq(w.As(D, D.WC.KingUpheld, B.name), nil, "applied")
-		-- The case's page offers it while it waits (Watch.lua reads WatchChat.KingUpheld).
+		eq(w.As(D, D.WC.ShogunUpheld, B.name), nil, "applied")
+		-- The case's page offers it while it waits (Watch.lua reads WatchChat.ShogunUpheld).
 		local src = assert(io.open(ROOT .. "BankaiGuild/Watch.lua", "rb")):read("*a")
-		assert(src:find("WC.KingUpheld(target)", 1, true))
+		assert(src:find("WC.ShogunUpheld(target)", 1, true))
 	end)
 end)
 
@@ -2142,12 +2142,12 @@ end)
 -- 1.2.4, the author: "Precisam de uma sala para as pessoas que estão na The Watch ... Teria que serem
 -- as pessoas nomeadas, mais o High Council ali que está na The Watch, para os moderadores poderem
 -- conversar entre si." The Watch's room on the Chat tab: whoever acts in Bankai Guild scope (an Bankai Guild
--- moderator's level or above, WatchChat.ActorLevel): the author, the King, every councillor, the
+-- moderator's level or above, WatchChat.ActorLevel): the author, the Shogun, every councillor, the
 -- moderators a fresh list names. Not a guild's own Watchers, nor anyone sanctioned.
-test("watch: chat moderation (1.2.4): The Watch's room: the author, the King, every councillor and the Bankai Guild moderators named talk there; a lapsed list, a sanction and a guild's own Watcher keep one out", function()
+test("watch: chat moderation (1.2.4): The Watch's room: the author, the Shogun, every councillor and the Bankai Guild moderators named talk there; a lapsed list, a sanction and a guild's own Watcher keep one out", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
-		w.author, w.king = "Quill Wright-Realm", "Crown Rook-Realm"
+		w.author, w.shogun = "Quill Wright-Realm", "Crown Rook-Realm"
 		local Au = w.Client("Quill Wright", Y, 3)
 		local K = w.Client("Crown Rook", Y, 3)
 		w.council[Fold("Councillor-Realm")] = true
@@ -2171,7 +2171,7 @@ test("watch: chat moderation (1.2.4): The Watch's room: the author, the King, ev
 		end
 		eq(Listed(Mo), true); eq(Listed(Co), true); eq(Listed(B), false, "a guild's Watcher"); eq(Listed(D), false)
 		-- A councillor's line: one logged whisper to each member he knows of (the author while his
-		-- presence is heard, the King, the High Council's signed names, the moderators named), heard there.
+		-- presence is heard, the Shogun, the High Council's signed names, the moderators named), heard there.
 		Co.ns.Workshop.AuthorOnline = function() return true end
 		Co.ns.Workshop.AuthorName = function() return w.author end
 		Co.ns.rdb.council = { names = { [Fold("Councillor")] = "Councillor" } }
@@ -2200,9 +2200,9 @@ test("watch: chat moderation (1.2.4): The Watch's room: the author, the King, ev
 		eq(In(D, Mo.name), false, "a moderator taken off")
 		w.off[Fold(Co.name)] = true
 		eq(In(D, Co.name), false, "a councillor taken off")
-		eq(In(D, K.name), true, "never the King")
-		-- The King's and a councillor's previews list it (View as), inert; a guild master's does not.
-		for role, want in pairs({ king = true, councillor = true, gm = false, officer = false }) do
+		eq(In(D, K.name), true, "never the Shogun")
+		-- The Shogun's and a councillor's previews list it (View as), inert; a guild master's does not.
+		for role, want in pairs({ shogun = true, councillor = true, gm = false, officer = false }) do
 			D.ns.ViewAs = { Previewing = function() return true end, Role = function() return role end }
 			eq(Listed(D), want, role)
 		end
@@ -2225,10 +2225,10 @@ local function Words(w, ...)
 	for i = 1, select("#", ...) do w.words[#w.words + 1] = select(i, ...) end
 	for _, cl in ipairs(w.clients) do List(cl.S, w.words) end
 end
--- The chat warnings' team: the author (online), the King, a councillor and the Bankai Guild moderator he
+-- The chat warnings' team: the author (online), the Shogun, a councillor and the Bankai Guild moderator he
 -- names; every client knows the council's signed names and that the author is online.
 local function Team(w)
-	w.author, w.king = "Quill Wright-Realm", "Crown Rook-Realm"
+	w.author, w.shogun = "Quill Wright-Realm", "Crown Rook-Realm"
 	w.council[Fold("Councillor-Realm")] = true
 	local Au = w.Client("Quill Wright", Y, 3)
 	local K = w.Client("Crown Rook", Y, 3)
@@ -2343,7 +2343,7 @@ test("watch: chat moderation: strikes: the second warning pauses 30 minutes; the
 	end)
 end)
 
-test("watch: chat moderation: strikes: the third warning in 24 hours: held until the team decides; its report (head and lines, logged whispers of at most 255 bytes) reaches the author online, the King, a councillor and an Bankai Guild moderator, two a minute, nobody else, never on the channel or over guild; they keep his words exactly and say so", function()
+test("watch: chat moderation: strikes: the third warning in 24 hours: held until the team decides; its report (head and lines, logged whispers of at most 255 bytes) reaches the author online, the Shogun, a councillor and an Bankai Guild moderator, two a minute, nobody else, never on the channel or over guild; they keep his words exactly and say so", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
 		local Au, K, Co, Mo = Team(w)
@@ -2560,7 +2560,7 @@ test("watch: chat moderation: strikes: \"e assim por diante\": a fourth warning 
 	end)
 end)
 
-test("watch: chat moderation: strikes: the King and the author have the line refused and counted, nothing more; The Watch's room is not read; a line during a pause is not counted", function()
+test("watch: chat moderation: strikes: the Shogun and the author have the line refused and counted, nothing more; The Watch's room is not read; a line during a pause is not counted", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
 		local Au, K, Co, Mo = Team(w)
@@ -2748,7 +2748,7 @@ test("watch: chat moderation: strikes: in a lockdown a struck line is still stru
 	end)
 end)
 
-test("watch: chat moderation: strikes: the team's page and dialog: named moderators see it, open cases first; the dialog lets him chat, times him out or shows every line; on the King's stream the words are hidden", function()
+test("watch: chat moderation: strikes: the team's page and dialog: named moderators see it, open cases first; the dialog lets him chat, times him out or shows every line; on the Shogun's stream the words are hidden", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
 		local Au, K, Co, Mo = Team(w)
@@ -2792,7 +2792,7 @@ test("watch: chat moderation: strikes: the team's page and dialog: named moderat
 		copied = nil
 		w.As(Mo, Mo.S.Slash, "strikes", "")
 		assert(copied and copied.body:find("third " .. WORD, 1, true))
-		-- On the King's stream: names cut, words and lines hidden.
+		-- On the Shogun's stream: names cut, words and lines hidden.
 		Mo.masked = true
 		copied = nil
 		w.As(Mo, Mo.S.Slash, "strikes", "")
@@ -2860,7 +2860,7 @@ test("watch: chat moderation: strikes: \"Let them chat\" reaches whoever missed 
 		for _, cl in ipairs({ K, Co, Mo }) do eq(cl.S.Store().cases[key].decided.op, "R", cl.short) end
 		eq(Au.S.Store().cases[key].decided, nil, "away: not heard")
 		local tell = Mo.S.Store().cases[key].tell
-		eq(tell[Fold(K.name)].acked, true, "the King's client said it keeps it"); eq(tell[Fold(Au.name)].acked, nil)
+		eq(tell[Fold(K.name)].acked, true, "the Shogun's client said it keeps it"); eq(tell[Fold(Au.name)].acked, nil)
 		-- Back within the tries: the moderator's client tells him again, and only him and the player.
 		Au.online = true
 		Tick(w, Mo, Mo.S.RETRY)
@@ -2909,7 +2909,7 @@ test("watch: chat moderation: strikes: \"Let them chat\" reaches whoever missed 
 		end
 		eq(asked[1], Fold(Au.name), "the first of the team who kept it")
 		eq(asked[2], Fold(K.name), "then the next one, not the same again")
-		eq(w.As(B, B.S.Block), nil, "the King's client knew it: the hold is over")
+		eq(w.As(B, B.S.Block), nil, "the Shogun's client knew it: the hold is over")
 		eq(B.S.Store().mine[#B.S.Store().mine].decided.op, "R")
 		eq(Au.S.Store().cases[key4].decided, nil, "(the author's page: told no more after three tries)")
 	end)

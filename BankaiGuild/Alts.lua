@@ -58,7 +58,7 @@ local function CharName(input, realm)
 	local name = tostring(input or ""):gsub("^%s+", ""):gsub("%s+$", "")
 	if name == "" then return nil end
 	name = ns.Normal(name)
-	local short = ns.King and ns.King.CleanName and ns.King.CleanName(name)
+	local short = ns.Shogun and ns.Shogun.CleanName and ns.Shogun.CleanName(name)
 	if not short then return nil end
 	local r = ns.RealmOf(name)
 	if r then r = r:gsub("[%s%-]", "") end
@@ -353,7 +353,7 @@ function Alts.Handle(dist, sender, text)
 	if role == "A" and #names ~= 1 then stats.refused = stats.refused + 1 return end
 	if role == "M" and #names == 0 then role = "-" end
 	if role == "-" then names = {} end
-	guild = ns.King and ns.King.CleanGuild and ns.King.CleanGuild(guild) or nil
+	guild = ns.Shogun and ns.Shogun.CleanGuild and ns.Shogun.CleanGuild(guild) or nil
 	local claims = Claims()
 	local old = claims[key]
 	if type(old) == "table" then

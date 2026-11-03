@@ -26,7 +26,7 @@ local function Guild(s) return GuildShape(s) and ns.IsFederation(s) end
 H.GuildShape = GuildShape
 local function Scope() return tostring(ns.faction) .. ":" .. tostring(ns.group or ns.GroupOf(ns.realm)) end
 local function Count(t) local n = 0; for _ in pairs(t) do n = n + 1 end; return n end
-local function Preview() return ns.ViewAs and ns.ViewAs.Previewing and ns.ViewAs.Previewing() or ns.King and ns.King.Preview and ns.King.Preview() end
+local function Preview() return ns.ViewAs and ns.ViewAs.Previewing and ns.ViewAs.Previewing() or ns.Shogun and ns.Shogun.Preview and ns.Shogun.Preview() end
 local function Fresh()
 	return ns.IsMember() and ns.Roster and ns.Roster.Fresh and ns.Roster.Fresh() ~= nil
 end
@@ -34,7 +34,7 @@ local function Member(name) return Fresh() and ns.Roster.RankOf(name) ~= nil end
 local function OwnRole(kind, subject, guild)
 	if Preview() or not Fresh() or not Member(ns.me) or not Guild(guild) then return false end
 	if ns.Moderation and ns.Moderation.SelfOff and ns.Moderation.SelfOff() then return false end
-	if kind == "C" or kind == "P" then return ns.King and ns.King.IsKing and ns.King.IsKing() == true end
+	if kind == "C" or kind == "P" then return ns.Shogun and ns.Shogun.IsShogun and ns.Shogun.IsShogun() == true end
 	if kind == "D" then return ns.IsTreasurer and ns.IsTreasurer(ns.me, GetGuildInfo("player")) == true end
 	if guild ~= GetGuildInfo("player") then return false end
 	local rank = ns.Roster.RankOf(ns.me)
@@ -197,7 +197,7 @@ function H.Originals(subject)
 	return out
 end
 local function IssuerRole(r)
-	if r.kind == "C" or r.kind == "P" then return ns.IsKingCharacter and ns.IsKingCharacter(r.issuer) == true end
+	if r.kind == "C" or r.kind == "P" then return ns.IsShogunCharacter and ns.IsShogunCharacter(r.issuer) == true end
 	if r.kind == "D" then return ns.IsTreasurerCharacter and ns.IsTreasurerCharacter(r.issuer) == true end
 	local rank, source
 	-- Preserve multiple returns; a census rank is never source authority.
@@ -391,8 +391,8 @@ local function Destination(name)
 	local guild, rank, source
 	if ns.Authority and ns.Authority.Role then guild, rank, source = ns.Authority.Role(name) end
 	if rank == 0 and source == "signed" and Master(name, guild) then return guild end
-	local main = ns.KingGuildName and ns.KingGuildName()
-	if ns.IsKingCharacter and ns.IsKingCharacter(name) and Master(name, main) then return main end
+	local main = ns.ShogunGuildName and ns.ShogunGuildName()
+	if ns.IsShogunCharacter and ns.IsShogunCharacter(name) and Master(name, main) then return main end
 end
 local function Current(t)
 	return t and Live(t.actor, t.scope, t.localGuild) and Clock() - t.at >= 0 and Clock() - t.at <= H.LIFE

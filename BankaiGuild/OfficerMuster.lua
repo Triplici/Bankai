@@ -40,9 +40,9 @@ local function Zone(id)
 end
 local function ZoneName(id) return ns.Zones.NameForKey("m" .. id) end
 -- (1.2.3, Daniel: a guild master has nothing at the level of the whole army.) Who may post where:
---   CHANNEL  the whole army: the Crown alone, the King (his pinned name), his Steward and his Hands
---            (by name), and the King's guild's own master (its roster's, the signed list's or the
---            pinned King's rank 0)
+--   CHANNEL  the whole army: the Crown alone, the Shogun (his pinned name), his Steward and his Hands
+--            (by name), and the Shogun's guild's own master (its roster's, the signed list's or the
+--            pinned Shogun's rank 0)
 --   GUILD    his own guild alone: the master of any Bankai Guild guild, as our roster has him (the
 --            server's word); the server carries GUILD between that guild's members only
 -- Once the author's signed enforcement was on, every guild master in the signed list would have
@@ -57,13 +57,13 @@ local function Rank0(by, guild, sources)
 end
 local function Authorized(by, guild, dist)
 	if not Full(by) or not Field(guild, 72) or not ns.IsFederation(guild) then return false end
-	local WC, M, K = ns.WatchChat, ns.Moderation, ns.King
+	local WC, M, K = ns.WatchChat, ns.Moderation, ns.Shogun
 	if WC and not WC.missing and WC.Barred and WC.Barred("powers", by) then return false end
 	if M and M.Hides and M.Hides(by, guild) then return false end
 	if dist == "GUILD" then return guild == GetGuildInfo("player") and Rank0(by, guild, ROSTER) end
-	if ns.IsKingCharacter and ns.IsKingCharacter(by) then return true end
+	if ns.IsShogunCharacter and ns.IsShogunCharacter(by) then return true end
 	if K and not K.missing and ((K.IsStewardName and K.IsStewardName(by)) or (K.IsHandName and K.IsHandName(by))) then return true end
-	return ns.IsKingGuild ~= nil and ns.IsKingGuild(guild) and Rank0(by, guild, CROWN_SOURCES)
+	return ns.IsShogunGuild ~= nil and ns.IsShogunGuild(guild) and Rank0(by, guild, CROWN_SOURCES)
 end
 -- (931, read-only) The same rule for the Companion's notices (BridgeAffairs.lua): an ended call's
 -- reach, which the acts log does not keep. It reads; it changes nothing.
@@ -298,5 +298,5 @@ ns.Comm.Handle("OM", Muster.Handle)
 for _, event in ipairs({ "DATA_CHANGED", "THRONE_CHANGED", "WATCH_CHANGED", "MODERATION_CHANGED" }) do
 	ns.On(event, function() local s = Store(); if s then Prune(s) end; Refresh() end)
 end
-for _, event in ipairs({ "LAYERS_CHANGED", "LAYER_SHARING_CHANGED", "KING_LOCATION_CHANGED" }) do ns.On(event, Refresh) end
+for _, event in ipairs({ "LAYERS_CHANGED", "LAYER_SHARING_CHANGED", "SHOGUN_LOCATION_CHANGED" }) do ns.On(event, Refresh) end
 ns.On("LOGIN", function() ns.Every(30, "officer muster", Muster.Tick) end)

@@ -12,7 +12,7 @@ local L = ns.L
 -- accepted for the asker when the helper is one the addon can vouch for (Hop.Trusted), never
 -- with the gamepad UI (the game's invite window and the player's click otherwise), the game
 -- moves them to the helper's layer, and their addon takes them out of the group once it sees
--- the move. The main use: joining the King's layer while he is online. Players alone on his
+-- the move. The main use: joining the Shogun's layer while he is online. Players alone on his
 -- layer are asked once whether the addon may do all of it for them (invite, and let the guest
 -- go after a while: the guest's addon leaves, since only a click may remove someone from a
 -- group).
@@ -47,7 +47,7 @@ Hop.LAYER_FRESH = 600   -- our layer counts this long after the last NPC seen
 Hop.RECENT = 600        -- invites counted in the load we announce
 Hop.MAX_OFFERS = 30     -- offers kept per ask
 Hop.GUEST_TIME = 90     -- a guest the addon invited on its own is let go after this long
-Hop.PROMPT_EVERY = 10   -- how often we check whether we are alone on the King's layer
+Hop.PROMPT_EVERY = 10   -- how often we check whether we are alone on the Shogun's layer
 
 -- Swappable in tests.
 Hop.random = math.random
@@ -68,7 +68,7 @@ local recent = {}     -- times of our last invites
 local stats = { asks = 0, offers = 0, requests = 0, invites = 0, noes = 0, joins = 0, moves = 0, releases = 0,
 	autoBlocked = 0 }
 local guests = {}     -- [short name] = { name, id, t, release }: players we invited for a hop
-local kingMode        -- this session's answer to the King's layer window: auto, manual or no
+local shogunMode        -- this session's answer to the Shogun's layer window: auto, manual or no
 -- 1.1.5 (GitHub issue #50): "Always invite" clicked while leading a party or raid of our own also
 -- covers that group, as long as it lasts. This session's alone, never saved: after a /reload the
 -- window asks once more. Cleared when the group ends (Hop.OnRoster), and by /bk layerauto off.
@@ -103,23 +103,23 @@ local function Load()
 	return n
 end
 
--- The answer to the King's layer window: this session's, else the one kept with "Don't ask
+-- The answer to the Shogun's layer window: this session's, else the one kept with "Don't ask
 -- me again" (auto, manual or no), else nil.
-local function KingChoice() return kingMode or ns.db.hopKingChoice end
+local function ShogunChoice() return shogunMode or ns.db.hopShogunChoice end
 
--- We are on the King's layer (Hop.King below).
-local function OnKingLayer(strict)
-	local k = Hop.King(strict)
+-- We are on the Shogun's layer (Hop.Shogun below).
+local function OnShogunLayer(strict)
+	local k = Hop.Shogun(strict)
 	local mine = ns.Layers.Mine()
 	if k and k.zoneUID and mine and mine.mapID == k.mapID and mine.zoneUID == k.zoneUID then return true end
-	-- A private exact-nameplate observation may apply the player's existing King-layer choice
-	-- locally without becoming Hop.King authority or a destination for anyone.
+	-- A private exact-nameplate observation may apply the player's existing Shogun-layer choice
+	-- locally without becoming Hop.Shogun authority or a destination for anyone.
 	local S = ns.HopSightings
-	return (mine and type(S) == "table" and type(S.LocalKingLayer) == "function"
-		and S.LocalKingLayer(mine.mapID, mine.zoneUID)) and true or false
+	return (mine and type(S) == "table" and type(S.LocalShogunLayer) == "function"
+		and S.LocalShogunLayer(mine.mapID, mine.zoneUID)) and true or false
 end
--- The same answer for the API's leader presence (API.lua), which reports the line "on the King's layer".
-function Hop.OnKingLayer(strict) return OnKingLayer(strict) end
+-- The same answer for the API's leader presence (API.lua), which reports the line "on the Shogun's layer".
+function Hop.OnShogunLayer(strict) return OnShogunLayer(strict) end
 
 -- The short names of the others in our group.
 local function GroupNames()
@@ -154,20 +154,20 @@ local function GroupAutoActive()
 end
 
 -- Everyone who shares their layer helps once they said yes to it (1.1, Fern's #11: the
--- first-open page, or /bk layerhelp on; nil, never answered, is off). Not the King: he is the
+-- first-open page, or /bk layerhelp on; nil, never answered, is off). Not the Shogun: he is the
 -- one everybody wants, and his screen is on stream.
 function Hop.Helps() return ns.db ~= nil and ns.db.layerHelp == true end
 function Hop.CanHelp(mapID, zoneUID)
 	if not Hop.Helps() or not ns.IsMember() then return false end
 	-- An offer tells the asker we are on that layer: only for players who share theirs (0.9.2).
 	if not ns.Layers.Sharing() then return false end
-	if ns.King and ns.King.IsKing and ns.King.IsKing() then return false end
+	if ns.Shogun and ns.Shogun.IsShogun and ns.Shogun.IsShogun() then return false end
 	local mine = ns.Layers.Mine()
 	if not mine or mine.mapID ~= mapID or mine.zoneUID ~= zoneUID then return false end
 	if ns.Layers.CurrentMap() ~= mapID then return false end
 	if ns.Now() - (mine.t or 0) > Hop.LAYER_FRESH then return false end
-	-- "Can't right now" on the King's layer window.
-	if KingChoice() == "no" and OnKingLayer() then return false end
+	-- "Can't right now" on the Shogun's layer window.
+	if ShogunChoice() == "no" and OnShogunLayer() then return false end
 	if (IsInInstance and IsInInstance()) or (InCombatLockdown and InCombatLockdown()) then return false end
 	if pending or (ask and ask.phase ~= "done") then return false end
 	if ns.Now() < pausedUntil then return false end
@@ -175,10 +175,10 @@ function Hop.CanHelp(mapID, zoneUID)
 	return room
 end
 
--- Discovery knows it is specifically asking about the King before Hop.King has an L1 layer.
+-- Discovery knows it is specifically asking about the Shogun before Hop.Shogun has an L1 layer.
 -- Preserve the explicit "Can't right now" choice in that interval too.
-function Hop.CanHelpKing(mapID, zoneUID)
-	if KingChoice() == "no" then return false end
+function Hop.CanHelpShogun(mapID, zoneUID)
+	if ShogunChoice() == "no" then return false end
 	return Hop.CanHelp(mapID, zoneUID)
 end
 
@@ -215,14 +215,14 @@ end
 -- Channels.VerifiedLevel verified), never a stranger on an unsealed channel: only one gets an
 -- offer, a window or an invite, and only one's offer is taken. 1.2.1: a guild named in the sender's
 -- own messages is only his word (VerifiedLevel's 1, false): anyone on the channel can write it.
--- The King's pinned name, his Steward and Hands, and the High Council (the author's signed list)
--- are the King's or the author's word, whatever guild they play in: VerifiedLevel verifies the
--- King's titles only for his own guild, and a councillor below an officer's rank nowhere.
+-- The Shogun's pinned name, his Steward and Hands, and the High Council (the author's signed list)
+-- are the Shogun's or the author's word, whatever guild they play in: VerifiedLevel verifies the
+-- Shogun's titles only for his own guild, and a councillor below an officer's rank nowhere.
 local function Member(sender)
 	local R = ns.Roster
 	if R and R.RankOf and R.RankOf(sender) ~= nil then return true end
-	local K = ns.King
-	if (ns.IsKingCharacter and ns.IsKingCharacter(sender))
+	local K = ns.Shogun
+	if (ns.IsShogunCharacter and ns.IsShogunCharacter(sender))
 		or (type(K) == "table" and not K.missing and K.IsStewardName and (K.IsStewardName(sender) or K.IsHandName(sender)))
 		or (ns.IsHighCouncillor and ns.IsHighCouncillor(sender) == true) then
 		return true
@@ -320,13 +320,13 @@ function Hop.HandleRequest(dist, sender, text)
 	if Quiet() then return end
 	stats.requests = stats.requests + 1
 	if not Hop.CanHelp(offer.mapID, offer.zoneUID) then return SayNo(sender, id) end
-	-- On its own ("Always invite", or "For Bankai Guild!" on the King's layer): only while we are
+	-- On its own ("Always invite", or "For Bankai Guild!" on the Shogun's layer): only while we are
 	-- alone or with hop guests; in a group of our own we get the window, until "Always invite"
 	-- is clicked in it (1.1.5, #50: then that group too, GroupAutoActive).
-	-- "For Bankai Guild!" invites on its own only for a King two reports confirm.
+	-- "For Bankai Guild!" invites on its own only for a Shogun two reports confirm.
 	-- 1.2.1: both, only for a player the addon can vouch for (Hop.Trusted: roster, signed or
 	-- pinned); a member of another guild the census names gets the window, a click.
-	local wanted = ns.db.layerAutoInvite or (KingChoice() == "auto" and OnKingLayer(true))
+	local wanted = ns.db.layerAutoInvite or (ShogunChoice() == "auto" and OnShogunLayer(true))
 	local auto = wanted and Hop.Trusted(sender)
 	if auto and (OnlyGuests() or GroupAutoActive()) then return Invite(sender, id, true) end
 	if auto then
@@ -446,7 +446,7 @@ function Hop.WaitLeft(now)
 	return math.max(0, left)
 end
 
--- King-layer discovery is the first stage of the same hop. A discovery that found no safe
+-- Shogun-layer discovery is the first stage of the same hop. A discovery that found no safe
 -- destination shares the ordinary hop backoff instead of broadcasting a new Q forever.
 function Hop.DiscoveryFailed(message)
 	local now = ns.Now()
@@ -597,7 +597,7 @@ function Hop.Ask(mapID, zoneUID, label)
 		from = mine and { mapID = mine.mapID, zoneUID = mine.zoneUID },
 	}
 	stats.asks = stats.asks + 1
-	-- A crowd is asking for this layer right now (the King just came online): its helpers are
+	-- A crowd is asking for this layer right now (the Shogun just came online): its helpers are
 	-- busy answering them, so ours goes out a few seconds later, at a random moment (Tick).
 	if Hop.Crowd(mapID, zoneUID, now) > Hop.BRAKE_ASKS then
 		ask.phase, ask.sendAt = "queued", now + Hop.BRAKE_WINDOW * (0.5 + Hop.random())
@@ -634,7 +634,7 @@ function Hop.SendAsk()
 end
 
 -- A player the addon can vouch for, and so may act for without a click: a guildmate (our roster),
--- the King's pinned character, his Steward and Hands, or a Lord or Captain of the King's guild in
+-- the Shogun's pinned character, his Steward and Hands, or a Council member or Captain of the Shogun's guild in
 -- the author's signed manifest (once signed enforcement is on). Their invite is accepted for the
 -- player, and "Always invite" or "For Bankai Guild!" invites them; anyone else's invite is left to the
 -- game's invite window (one click), and anyone else's request to ours, so nobody pulls a player
@@ -642,16 +642,16 @@ end
 -- cooperating characters can forge an "officer" in one guild's reports, and the census rule still
 -- holds while enforcement is off. A census officer of another guild still hops, by a click.
 -- (1.2.3, Daniel: a guild master has nothing at the level of the whole army) nor another guild's
--- signed Lord or Captain: under enforcement any guild's would have been trusted by every Bankai Guild
+-- signed Council or Captain: under enforcement any guild's would have been trusted by every Bankai Guild
 -- client; he still helps with a hop, by the player's click. (A layer announcement is the sender's
 -- own word: it proves nothing here.)
 function Hop.Trusted(name)
 	name = ns.FullName(name)
 	if ns.Roster.RankOf(name) then return true end
-	if ns.IsKingCharacter(name) or (ns.King and (ns.King.IsStewardName(name) or ns.King.IsHandName(name))) then return true end
+	if ns.IsShogunCharacter(name) or (ns.Shogun and (ns.Shogun.IsStewardName(name) or ns.Shogun.IsHandName(name))) then return true end
 	if not (ns.Authority and ns.Authority.Enforced and ns.Authority.Enforced()) then return false end
 	local guild, rank = ns.Authority.Role(name)
-	return (guild and ns.IsKingGuild(guild) and rank <= ns.CAPTAIN_RANK and not (ns.Data.NetOff and ns.Data.NetOff(guild))) and true or false
+	return (guild and ns.IsShogunGuild(guild) and rank <= ns.CAPTAIN_RANK and not (ns.Data.NetOff and ns.Data.NetOff(guild))) and true or false
 end
 
 function Hop.HandleOffer(dist, sender, text)
@@ -858,7 +858,7 @@ function Hop.Tick()
 	ReleaseGuests(now)
 	if now - lastPromptCheck >= Hop.PROMPT_EVERY then
 		lastPromptCheck = now
-		Hop.CheckKingPrompt()
+		Hop.CheckShogunPrompt()
 	end
 	for key, askers in pairs(heard) do
 		for short, t in pairs(askers) do
@@ -891,47 +891,47 @@ function Hop.Tick()
 end
 
 ---------------------------------------------------------------------------
--- The King's layer
+-- The Shogun's layer
 ---------------------------------------------------------------------------
 
 function Hop.ZoneName(mapID)
 	return mapID and ns.Zones and ns.Zones.NameForKey and ns.Zones.NameForKey("m" .. mapID) or "?"
 end
 
--- The King's own word on where he plays (1.0.0, Konig's review of 1.0.0): the name the server
--- stamped on the last message his client sent us (his crown, his layer, his commands: King.lua
--- and Layers.lua call Hop.HeardKing for the character pinned by name, ns.IsKingCharacter).
+-- The Shogun's own word on where he plays (1.0.0, Konig's review of 1.0.0): the name the server
+-- stamped on the last message his client sent us (his crown, his layer, his commands: Shogun.lua
+-- and Layers.lua call Hop.HeardShogun for the character pinned by name, ns.IsShogunCharacter).
 -- A census report is anyone's word: one forged report from another realm of our group placed him
 -- there ("he plays on another realm"), and his layer could not be asked for. This session's alone.
-local kingFrom
-function Hop.HeardKing(sender)
-	if type(sender) == "string" and ns.IsKingCharacter(sender) then kingFrom = ns.FullName(sender) end
+local shogunFrom
+function Hop.HeardShogun(sender)
+	if type(sender) == "string" and ns.IsShogunCharacter(sender) then shogunFrom = ns.FullName(sender) end
 end
 
--- The King when he is online (leader of the guild named exactly "Bankai Guild"), and his layer
+-- The Shogun when he is online (leader of the guild named exactly "Bankai Guild"), and his layer
 -- when his addon announced it: { name, mapID, zoneUID }. The name is the one the army calls
--- him (ns.KING_NAME); his character's is only used to find his layer.
+-- him (ns.SHOGUN_NAME); his character's is only used to find his layer.
 -- Only the leader the reports name, none of them disagreeing (Data.KnownRank, soft: the line
 -- only shows; the Throne's commands ask for more): one forged report can't crown anyone
 -- while the guild's own reporter says otherwise. strict: two reports (inviting on its own,
 -- "For Bankai Guild!", waits for that).
 -- His realm and his layer (1.0.0, Konig's review): where the census names the character pinned
--- by name, from his own messages alone (Hop.HeardKing), none heard yet: neither is known. Where
+-- by name, from his own messages alone (Hop.HeardShogun), none heard yet: neither is known. Where
 -- none is pinned (another realm group), the census's word is all there is. A direct nameplate
 -- sighting is never installed here as authority: HopSightings privately asks, requires two
 -- independent answers and only then starts this module's ordinary Hop.Ask state machine.
-function Hop.King(strict)
+function Hop.Shogun(strict)
 	local now = ns.Now()
-	local pin = ns.KingCharacter()
+	local pin = ns.ShogunCharacter()
 	for name, g in pairs(ns.rdb.guilds or {}) do
-		if ns.IsKingGuild(name) and type(g) == "table" and g.leader
+		if ns.IsShogunGuild(name) and type(g) == "table" and g.leader
 			and now - (g.t or 0) <= ns.Data.FRESH and g.leaderOnline then
 			local full = ns.FullName(g.leader, g.realm or ns.realm)
 			if ns.Data.KnownRank(full, name, not strict) == 0 then
 				local at = full
-				if pin ~= nil and ns.ShortName(g.leader) == pin then at = kingFrom end
+				if pin ~= nil and ns.ShortName(g.leader) == pin then at = shogunFrom end
 				local where = at and ns.Layers.Of(at, true)
-				return { name = ns.KingName(g.leader), mapID = where and where.mapID, zoneUID = where and where.zoneUID,
+				return { name = ns.ShogunName(g.leader), mapID = where and where.mapID, zoneUID = where and where.zoneUID,
 					t = where and where.t, realm = at and ns.RealmOf(at) }
 			end
 		end
@@ -941,9 +941,9 @@ end
 
 -- <Elfcore> reports its leader online, but the census does not confirm him yet (a few
 -- minutes after login, Data.KnownRank): not "offline".
-local function KingUnconfirmed()
+local function ShogunUnconfirmed()
 	for name, g in pairs(ns.rdb.guilds or {}) do
-		if ns.IsKingGuild(name) and type(g) == "table" and g.leader and g.leaderOnline
+		if ns.IsShogunGuild(name) and type(g) == "table" and g.leader and g.leaderOnline
 			and ns.Now() - (g.t or 0) <= ns.Data.FRESH then
 			return true
 		end
@@ -951,45 +951,45 @@ local function KingUnconfirmed()
 	return false
 end
 
--- The King plays on another realm than ours (his own messages say so, Hop.King; where no King
+-- The Shogun plays on another realm than ours (his own messages say so, Hop.Shogun; where no Shogun
 -- is pinned by name, the census). A layer is a copy of a zone inside one realm: nobody here can
 -- join his, even when his crown and his layer reach us (a channel shared across realms,
 -- Comm.ElectsAcrossRealms). Checked before his layer.
-function Hop.KingOtherRealm(k)
+function Hop.ShogunOtherRealm(k)
 	return k ~= nil and k.realm ~= nil and ns.realm ~= nil and ns.realm ~= "?" and k.realm ~= ns.realm
 end
 
--- Why nobody can ask for the King's layer now (1.0.0), instead of "try again in a minute"
--- whatever the reason: he plays on another realm (Hop.KingOtherRealm), his crown is not on the
+-- Why nobody can ask for the Shogun's layer now (1.0.0), instead of "try again in a minute"
+-- whatever the reason: he plays on another realm (Hop.ShogunOtherRealm), his crown is not on the
 -- map (off, or he is in a dungeon: his layer is only announced while it shows, Layers.Sharing),
 -- or it is visible and an explicit click can start private, two-observer discovery.
-function Hop.KingUnknownText(k)
-	if Hop.KingOtherRealm(k) then return L.HOP_KING_OTHER_REALM:format(k.name, k.realm) end
-	if not (ns.King and ns.King.Location and ns.King.Location()) then return L.HOP_KING_HIDDEN:format(k.name) end
-	return L.HOP_KING_UNKNOWN:format(k.name)
+function Hop.ShogunUnknownText(k)
+	if Hop.ShogunOtherRealm(k) then return L.HOP_SHOGUN_OTHER_REALM:format(k.name, k.realm) end
+	if not (ns.Shogun and ns.Shogun.Location and ns.Shogun.Location()) then return L.HOP_SHOGUN_HIDDEN:format(k.name) end
+	return L.HOP_SHOGUN_UNKNOWN:format(k.name)
 end
 
-function Hop.AskKing()
+function Hop.AskShogun()
 	local WC = ns.WatchChat
 	local barred = WC and not WC.missing and WC.Barred and WC.Barred("locations")
-	if barred then return WC.TellBarred(barred) end -- (1.1.6: a sanctioned player asks for no King's layer)
-	local k = Hop.King()
-	if not k then return ns.Print(KingUnconfirmed() and L.HOP_KING_CHECKING:format(ns.KingName()) or L.HOP_KING_OFFLINE) end
-	if Hop.KingOtherRealm(k) then return ns.Print(Hop.KingUnknownText(k)) end
+	if barred then return WC.TellBarred(barred) end -- (1.1.6: a sanctioned player asks for no Shogun's layer)
+	local k = Hop.Shogun()
+	if not k then return ns.Print(ShogunUnconfirmed() and L.HOP_SHOGUN_CHECKING:format(ns.ShogunName()) or L.HOP_SHOGUN_OFFLINE) end
+	if Hop.ShogunOtherRealm(k) then return ns.Print(Hop.ShogunUnknownText(k)) end
 	-- An exact local nameplate observation can prove only that *this client* is already there.
-	-- Use it to avoid broadcasting a needless discovery Q, without installing it in Hop.King.
-	if OnKingLayer(true) then return ns.Print(L.HOP_ALREADY) end
+	-- Use it to avoid broadcasting a needless discovery Q, without installing it in Hop.Shogun.
+	if OnShogunLayer(true) then return ns.Print(L.HOP_ALREADY) end
 	if not k.zoneUID then
-		local at = ns.King and ns.King.Location and ns.King.Location()
-		if not at then return ns.Print(Hop.KingUnknownText(k)) end
-		if ns.Layers.CurrentMap() ~= at.mapID then return ns.Print(L.HOP_KING_ELSEWHERE:format(k.name, Hop.ZoneName(at.mapID))) end
+		local at = ns.Shogun and ns.Shogun.Location and ns.Shogun.Location()
+		if not at then return ns.Print(Hop.ShogunUnknownText(k)) end
+		if ns.Layers.CurrentMap() ~= at.mapID then return ns.Print(L.HOP_SHOGUN_ELSEWHERE:format(k.name, Hop.ZoneName(at.mapID))) end
 		if ask and ask.phase ~= "done" then return ns.Print(L.HOP_BUSY) end
 		if ns.HopSightings and ns.HopSightings.Request then
 			return ns.HopSightings.Request({ character = at.from, mapID = at.mapID, label = k.name }, L.LAYER_OF:format(k.name))
 		end
-		return ns.Print(Hop.KingUnknownText(k))
+		return ns.Print(Hop.ShogunUnknownText(k))
 	end
-	if ns.Layers.CurrentMap() ~= k.mapID then return ns.Print(L.HOP_KING_ELSEWHERE:format(k.name, Hop.ZoneName(k.mapID))) end
+	if ns.Layers.CurrentMap() ~= k.mapID then return ns.Print(L.HOP_SHOGUN_ELSEWHERE:format(k.name, Hop.ZoneName(k.mapID))) end
 	-- An authoritative L1 may arrive while private discovery is collecting answers. End that
 	-- discovery before entering the ordinary LQ/LO/LR machine; never run the two flows together.
 	local discovering = ns.HopSightings and ns.HopSightings.Requesting and ns.HopSightings.Requesting()
@@ -998,50 +998,50 @@ function Hop.AskKing()
 	Hop.Ask(k.mapID, k.zoneUID, L.LAYER_OF:format(k.name))
 end
 
--- The lines on top of the Census and the Realm while the King is online (Views.lua): the
+-- The lines on top of the Census and the Realm while the Shogun is online (Views.lua): the
 -- button, and under it where he is when that is not our zone.
-function Hop.KingLines()
-	-- (1.1.6: a sanctioned player, WatchChat.Barred, is not told when the King is online.)
+function Hop.ShogunLines()
+	-- (1.1.6: a sanctioned player, WatchChat.Barred, is not told when the Shogun is online.)
 	local WC = ns.WatchChat
 	if WC and not WC.missing and WC.Barred and WC.Barred("locations") then return {} end
-	local k = Hop.King()
-	if not k or (ns.King and ns.King.IsKing and ns.King.IsKing()) then return {} end
+	local k = Hop.Shogun()
+	if not k or (ns.Shogun and ns.Shogun.IsShogun and ns.Shogun.IsShogun()) then return {} end
 	-- The size of a title, with the crown the map shows him with.
 	local crown = "|T" .. ns.CROWN_ICON .. ":0|t "
 	-- (On another realm his layer is not ours to join or be on, whatever reaches us of it.)
-	local away = Hop.KingOtherRealm(k)
-	if not away and OnKingLayer(true) then
-		return Hop.WithAutoLine({ { text = crown .. "|cff40ff40" .. L.HOP_KING_HERE:format(k.name) .. "|r", color = "GameFontNormal", gapAfter = true } }, k)
+	local away = Hop.ShogunOtherRealm(k)
+	if not away and OnShogunLayer(true) then
+		return Hop.WithAutoLine({ { text = crown .. "|cff40ff40" .. L.HOP_SHOGUN_HERE:format(k.name) .. "|r", color = "GameFontNormal", gapAfter = true } }, k)
 	end
 	local elsewhere = not away and k.zoneUID and ns.Layers.CurrentMap() ~= k.mapID
 	local busy = (ask and ask.phase ~= "done")
 		or (ns.HopSightings and ns.HopSightings.Requesting and ns.HopSightings.Requesting())
 	local line = {
-		text = crown .. "|cffffd200" .. (busy and L.HOP_KING_BUSY or L.HOP_KING_LINE):format(k.name) .. "|r",
+		text = crown .. "|cffffd200" .. (busy and L.HOP_SHOGUN_BUSY or L.HOP_SHOGUN_LINE):format(k.name) .. "|r",
 		color = "GameFontNormal",
 		gapAfter = not elsewhere,
-		onClick = function() Hop.AskKing() end,
+		onClick = function() Hop.AskShogun() end,
 		tooltip = function(tt)
-			tt:AddLine(L.HOP_KING_LINE:format(k.name), 1, 0.82, 0)
+			tt:AddLine(L.HOP_SHOGUN_LINE:format(k.name), 1, 0.82, 0)
 			if away or not k.zoneUID then
-				tt:AddLine(Hop.KingUnknownText(k), 1, 1, 1, true)
+				tt:AddLine(Hop.ShogunUnknownText(k), 1, 1, 1, true)
 			elseif elsewhere then
-				tt:AddLine(L.HOP_KING_ELSEWHERE:format(k.name, Hop.ZoneName(k.mapID)), 1, 0.6, 0.2, true)
+				tt:AddLine(L.HOP_SHOGUN_ELSEWHERE:format(k.name, Hop.ZoneName(k.mapID)), 1, 0.6, 0.2, true)
 			else
-				tt:AddLine(L.HOP_KING_TIP:format(k.name), 1, 1, 1, true)
+				tt:AddLine(L.HOP_SHOGUN_TIP:format(k.name), 1, 1, 1, true)
 			end
-			local at = ns.King and ns.King.Location and ns.King.Location()
-			if at then tt:AddLine(L.HOP_KING_WHERE:format(Hop.ZoneName(at.mapID)), 0.25, 1, 0.25, true) end
+			local at = ns.Shogun and ns.Shogun.Location and ns.Shogun.Location()
+			if at then tt:AddLine(L.HOP_SHOGUN_WHERE:format(Hop.ZoneName(at.mapID)), 0.25, 1, 0.25, true) end
 		end,
 	}
 	if not elsewhere then return Hop.WithAutoLine({ line }, k) end
-	return Hop.WithAutoLine({ line, { text = "|cffff9933" .. L.HOP_KING_GO:format(Hop.ZoneName(k.mapID)) .. "|r", indent = 1, gapAfter = true } }, k)
+	return Hop.WithAutoLine({ line, { text = "|cffff9933" .. L.HOP_SHOGUN_GO:format(Hop.ZoneName(k.mapID)) .. "|r", indent = 1, gapAfter = true } }, k)
 end
 
 -- While the addon invites on its own ("For Bankai Guild!" or "Always invite"), a line under the
--- King's says so, and one click stops it.
+-- Shogun's says so, and one click stops it.
 function Hop.WithAutoLine(lines, k)
-	if not (ns.db.layerAutoInvite or KingChoice() == "auto") then return lines end
+	if not (ns.db.layerAutoInvite or ShogunChoice() == "auto") then return lines end
 	lines[#lines].gapAfter = nil
 	lines[#lines + 1] = {
 		text = "|cff40ff40" .. L.HOP_AUTO_LINE:format(k.name) .. "|r", indent = 1, gapAfter = true,
@@ -1058,40 +1058,40 @@ end
 function Hop.StopAuto()
 	ns.db.layerAutoInvite = false
 	groupAuto = nil
-	if KingChoice() == "auto" then
-		kingMode = "manual"
-		if ns.db.hopKingChoice == "auto" then ns.db.hopKingChoice = "manual" end
+	if ShogunChoice() == "auto" then
+		shogunMode = "manual"
+		if ns.db.hopShogunChoice == "auto" then ns.db.hopShogunChoice = "manual" end
 	end
 	ns.Print(L.HOP_AUTO_OFF)
 	Changed()
 end
-function Hop.KingLine() return Hop.KingLines()[1] end
+function Hop.ShogunLine() return Hop.ShogunLines()[1] end
 
--- Alone on the King's layer: may the addon invite, and later let go, the players who want to
--- come? Asked once a login (never again with the box ticked). Not asked of the King, nor of
+-- Alone on the Shogun's layer: may the addon invite, and later let go, the players who want to
+-- come? Asked once a login (never again with the box ticked). Not asked of the Shogun, nor of
 -- players who turned helping off or already invite on their own.
-function Hop.CheckKingPrompt()
-	if promptShown or KingChoice() or not Hop.Helps() or ns.db.layerAutoInvite then return end
-	if not ns.IsMember() or (ns.King and ns.King.IsKing and ns.King.IsKing()) then return end
+function Hop.CheckShogunPrompt()
+	if promptShown or ShogunChoice() or not Hop.Helps() or ns.db.layerAutoInvite then return end
+	if not ns.IsMember() or (ns.Shogun and ns.Shogun.IsShogun and ns.Shogun.IsShogun()) then return end
 	if (IsInGroup and IsInGroup()) or (IsInInstance and IsInInstance()) or (InCombatLockdown and InCombatLockdown()) then return end
 	local mine = ns.Layers.Mine()
-	if not mine or ns.Now() - (mine.t or 0) > Hop.LAYER_FRESH or not OnKingLayer() then return end
+	if not mine or ns.Now() - (mine.t or 0) > Hop.LAYER_FRESH or not OnShogunLayer() then return end
 	promptShown = true
 	ns.PlayAlert("soft", "hop")
-	Hop.ShowKingPrompt()
+	Hop.ShowShogunPrompt()
 end
 
-function Hop.ChooseKing(choice)
-	kingMode = choice
+function Hop.ChooseShogun(choice)
+	shogunMode = choice
 	local f = Hop.prompt
 	if f then
-		if f.check and f.check:GetChecked() then ns.db.hopKingChoice = choice end
+		if f.check and f.check:GetChecked() then ns.db.hopShogunChoice = choice end
 		f.answered = true
 		f:Hide()
 	end
-	if choice == "auto" then ns.Print(L.HOP_KING_AUTO:format((Hop.King() or {}).name or ns.KingName()))
-	elseif choice == "no" then ns.Print(L.HOP_KING_NO)
-	else ns.Print(L.HOP_KING_MANUAL) end
+	if choice == "auto" then ns.Print(L.HOP_SHOGUN_AUTO:format((Hop.Shogun() or {}).name or ns.ShogunName()))
+	elseif choice == "no" then ns.Print(L.HOP_SHOGUN_NO)
+	else ns.Print(L.HOP_SHOGUN_MANUAL) end
 	Changed()
 	ns.Fire("HOP_HELP_CHANGED", choice)
 end
@@ -1113,7 +1113,7 @@ local function PromptButton(f, label, choice, look)
 	local fs = b:GetFontString()
 	local textW = fs and (fs.GetUnboundedStringWidth and fs:GetUnboundedStringWidth() or fs:GetStringWidth()) or 100
 	b:SetWidth(math.max(120, math.ceil(textW) + 28))
-	b:SetScript("OnClick", function() ns.SafeCall("hop king choice", Hop.ChooseKing, choice) end)
+	b:SetScript("OnClick", function() ns.SafeCall("hop shogun choice", Hop.ChooseShogun, choice) end)
 	return b
 end
 
@@ -1122,7 +1122,7 @@ end
 -- no X (its answers close it; Escape too, with mouse and keyboard).
 Hop.PROMPT_TOP = -34 -- its text, under the title bar
 local function MakePrompt()
-	local f = ns.Window("BankaiGuildKingLayerPrompt", UIParent, { title = L.TITLE, close = false })
+	local f = ns.Window("BankaiGuildShogunLayerPrompt", UIParent, { title = L.TITLE, close = false })
 	f:SetFrameStrata("DIALOG")
 	f:SetToplevel(true)
 	f:EnableMouse(true)
@@ -1132,23 +1132,23 @@ local function MakePrompt()
 	f.text:SetJustifyH("CENTER")
 	-- Left to right: the way out (grey), inviting by hand, and "For Bankai Guild!" (lit, white).
 	f.buttons = {
-		PromptButton(f, L.HOP_KING_PROMPT_NO, "no", "dim"),
-		PromptButton(f, L.HOP_KING_PROMPT_MANUAL, "manual"),
-		PromptButton(f, L.HOP_KING_PROMPT_YES, "auto", "main"),
+		PromptButton(f, L.HOP_SHOGUN_PROMPT_NO, "no", "dim"),
+		PromptButton(f, L.HOP_SHOGUN_PROMPT_MANUAL, "manual"),
+		PromptButton(f, L.HOP_SHOGUN_PROMPT_YES, "auto", "main"),
 	}
 	f.check = CreateFrame("CheckButton", nil, f, "UICheckButtonTemplate")
 	f.check:SetSize(24, 24)
 	f.checkLabel = f:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	f.checkLabel:SetPoint("LEFT", f.check, "RIGHT", 2, 1)
-	f.checkLabel:SetText(L.HOP_KING_PROMPT_NEVER)
+	f.checkLabel:SetText(L.HOP_SHOGUN_PROMPT_NEVER)
 	-- Escape (or anything else closing it unanswered): the usual window per request, this login.
 	f:SetScript("OnHide", function(self)
-		if not self.answered then kingMode = kingMode or "manual" end
+		if not self.answered then shogunMode = shogunMode or "manual" end
 	end)
 	return f
 end
 
-function Hop.ShowKingPrompt()
+function Hop.ShowShogunPrompt()
 	Hop.prompt = Hop.prompt or MakePrompt()
 	local f = Hop.prompt
 	local total = 0
@@ -1157,8 +1157,8 @@ function Hop.ShowKingPrompt()
 	local width = math.max(400, total + 40)
 	f:SetWidth(width)
 	f.text:SetWidth(width - 48)
-	local kname = (Hop.King() or {}).name or ns.KingName()
-	f.text:SetText(L.HOP_KING_PROMPT:format(kname, kname))
+	local kname = (Hop.Shogun() or {}).name or ns.ShogunName()
+	f.text:SetText(L.HOP_SHOGUN_PROMPT:format(kname, kname))
 	local x = (width - total) / 2
 	for i, b in ipairs(f.buttons) do
 		b:ClearAllPoints()
@@ -1202,7 +1202,7 @@ end
 -- so a helper running the unmodified release can still answer.
 function Hop.Command(rest)
 	rest = (rest or ""):match("^%s*(.-)%s*$"):lower()
-	if rest == "" or rest == "king" then return Hop.AskKing() end
+	if rest == "" or rest == "shogun" then return Hop.AskShogun() end
 	if rest == "cancel" then return Hop.Cancel() end
 	if rest == "status" then
 		if ns.LOCAL_BUILD then ns.Print("Bankai Guild " .. ns.VERSION .. " / " .. ns.LOCAL_BUILD) end
@@ -1245,47 +1245,47 @@ function Hop.StatusLine()
 	local s = stats
 	local n = 0
 	for _ in pairs(guests) do n = n + 1 end
-	return ("help=%s auto=%s group-auto=%s king=%s  |  asks=%d offers=%d requests=%d invites=%d noes=%d joins=%d moves=%d releases=%d guests=%d auto-paused=%d  |  now=%s | %s"):format(
-		tostring(Hop.Helps()), tostring(ns.db.layerAutoInvite == true), tostring(GroupAutoActive()), tostring(KingChoice() or "-"),
+	return ("help=%s auto=%s group-auto=%s shogun=%s  |  asks=%d offers=%d requests=%d invites=%d noes=%d joins=%d moves=%d releases=%d guests=%d auto-paused=%d  |  now=%s | %s"):format(
+		tostring(Hop.Helps()), tostring(ns.db.layerAutoInvite == true), tostring(GroupAutoActive()), tostring(ShogunChoice() or "-"),
 		s.asks, s.offers, s.requests, s.invites, s.noes, s.joins, s.moves, s.releases, n, s.autoBlocked,
 		ask and ask.phase or "-", Hop.ProgressText())
 end
 
--- What this client knows of the King, for /bk status and /bk bug (1.0.0: "the King's layer
+-- What this client knows of the Shogun, for /bk status and /bk bug (1.0.0: "the Shogun's layer
 -- doesn't work" said nothing of why). Elsewhere: confirmed (two reports name him online),
 -- online (one report), checking (reported online, not confirmed yet) or offline; the realm his
--- own messages place him on (Hop.King); his layer and when it was heard; his crown and when it was heard. On
+-- own messages place him on (Hop.Shogun); his layer and when it was heard; his crown and when it was heard. On
 -- his own client: his crown shown or hidden, and when his layer last went out.
-function Hop.KingStatusLine()
-	local K = ns.King
-	if K and K.IsKing and K.IsKing() then
+function Hop.ShogunStatusLine()
+	local K = ns.Shogun
+	if K and K.IsShogun and K.IsShogun() then
 		local sent = ns.Layers.SentAt and ns.Layers.SentAt()
 		return ("me  |  crown %s  |  layer %s"):format(K.SharingLocation() and "shown" or "hidden",
 			sent and ("sent " .. ns.Ago(sent)) or "not sent")
 	end
-	local k, state = Hop.King(true), "confirmed"
-	if not k then k, state = Hop.King(), "online (one report)" end
-	if not k then return KingUnconfirmed() and "checking (reported online, not confirmed yet)" or "offline" end
-	local realm = k.realm and (k.realm .. (Hop.KingOtherRealm(k) and " (another realm)" or " (ours)")) or "?"
+	local k, state = Hop.Shogun(true), "confirmed"
+	if not k then k, state = Hop.Shogun(), "online (one report)" end
+	if not k then return ShogunUnconfirmed() and "checking (reported online, not confirmed yet)" or "offline" end
+	local realm = k.realm and (k.realm .. (Hop.ShogunOtherRealm(k) and " (another realm)" or " (ours)")) or "?"
 	local layer = k.zoneUID and ("map %d zone %d, heard %s"):format(k.mapID, k.zoneUID, ns.Ago(k.t)) or "not known"
 	local at = K and K.Location and K.Location()
 	local crown = at and ("map %d, heard %s"):format(at.mapID, ns.Ago(at.t)) or "not heard"
 	return ("%s  |  realm %s  |  layer %s  |  crown %s"):format(state, realm, layer, crown)
 end
 
--- On again also forgets the King's layer answer: the window may ask again. Off also ends the
+-- On again also forgets the Shogun's layer answer: the window may ask again. Off also ends the
 -- group "Always invite" covered (#50).
 function Hop.SetHelp(on)
 	ns.db.layerHelp = on
 	if not on then groupAuto = nil end
 	if on then
-		ns.db.hopKingChoice, kingMode, promptShown = nil, nil, false
+		ns.db.hopShogunChoice, shogunMode, promptShown = nil, nil, false
 	end
 	ns.Print(on and L.HOP_HELP_ON or L.HOP_HELP_OFF)
 	ns.Fire("HOP_HELP_CHANGED", on and true or false)
 end
 
--- Off also ends "For Bankai Guild!" (the King's layer window's answer).
+-- Off also ends "For Bankai Guild!" (the Shogun's layer window's answer).
 function Hop.SetAuto(on)
 	if not on then return Hop.StopAuto() end
 	ns.db.layerAutoInvite = true
@@ -1300,11 +1300,11 @@ function Hop.Reset()
 	if ns.HopSightings and ns.HopSightings.CancelRequest then ns.HopSightings.CancelRequest(nil, true) end
 	fails, failedAt = 0, -math.huge
 	wipe(heard)
-	kingMode, groupAuto, promptShown, lastPromptCheck, privateHinted = nil, nil, false, -math.huge, false
+	shogunMode, groupAuto, promptShown, lastPromptCheck, privateHinted = nil, nil, false, -math.huge, false
 	lastOffer, declines, pausedUntil = -math.huge, 0, -math.huge
 	wipe(offered); wipe(answeredAt); wipe(recent); wipe(guests)
 	for k in pairs(stats) do stats[k] = 0 end
-	kingFrom = nil
+	shogunFrom = nil
 end
 
 ns.Comm.Handle("LQ", function(...) Hop.HandleAsk(...) end)

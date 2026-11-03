@@ -43,7 +43,7 @@ local L = ns.L
 --     casual then.
 --   ArenaMatch.Stop(), ArenaMatch.View() (the Find dialog's and the tab's view model: state,
 --     line, findable, can, sharing, staked[d|b], stakeMax, firstTime, firstLine, rehearsal,
---     search, offers (the King's), match, ended),
+--     search, offers (the Shogun's), match, ended),
 --   ArenaMatch.SetFindable(on, { d, b, staked }), ArenaMatch.Findable() -> on, why,
 --   ArenaMatch.CanSearch(opts) -> ok, why, ArenaMatch.WhyText(why),
 --   ArenaMatch.Vet(sender, game "d"|"b", stake in copper) -> true | false, "m": the fights part and the Bones tables,
@@ -53,7 +53,7 @@ local L = ns.L
 --     exact match id as its second value so the local fight/table can retain it without a wire,
 --   ArenaMatch.Ended(mid): the fights part and the Bones tables, when the fight or table a match handed off to ends (the
 --     group the match formed goes then),
---   ArenaMatch.Pick(id): the King picks one of his offers (View().offers), ArenaMatch.Card(),
+--   ArenaMatch.Pick(id): the Shogun picks one of his offers (View().offers), ArenaMatch.Card(),
 --   the action "match.open" (Arena.Do("match.open", "d"|"b")), /bk arena find.
 -- The hand-off (the design): [Challenge] or [Open the table] opens the screens' or the Bones tables' panel pre-filled
 --   ({ stake = the lowest agreed, from = mid }); the match is then handed over: its clocks stop,
@@ -325,22 +325,22 @@ end
 -- Who may search, who is found, who never meets (the design)
 ---------------------------------------------------------------------------
 
-local function IsKing() return ns.King ~= nil and ns.King.IsKing ~= nil and ns.King.IsKing() == true end
--- A character of the King's account: his pinned character, here or among the account's names.
-local function KingAccount()
-	if ns.IsKingCharacter(ns.me) then return true end
+local function IsShogun() return ns.Shogun ~= nil and ns.Shogun.IsShogun ~= nil and ns.Shogun.IsShogun() == true end
+-- A character of the Shogun's account: his pinned character, here or among the account's names.
+local function ShogunAccount()
+	if ns.IsShogunCharacter(ns.me) then return true end
 	local mine = ns.db and ns.db.myCharacters
 	if type(mine) == "table" then
 		local R = ns.ArenaRoles
 		for key in pairs(mine) do
 			local name = R and R.ProperName and R.ProperName(key) or key
-			if type(name) == "string" and ns.IsKingCharacter(name) then return true end
+			if type(name) == "string" and ns.IsShogunCharacter(name) then return true end
 		end
 	end
 	return false
 end
-ArenaMatch.KingAccount = KingAccount
-local function CrownOn() return ns.King ~= nil and ns.King.SharingLocation ~= nil and ns.King.SharingLocation() == true end
+ArenaMatch.ShogunAccount = ShogunAccount
+local function CrownOn() return ns.Shogun ~= nil and ns.Shogun.SharingLocation ~= nil and ns.Shogun.SharingLocation() == true end
 
 -- The arena's tab shows: the companion's rule once it is loaded (ArenaUI.TabVisible), else
 -- ArenaHome's when it has one (the usual case at login: the companion is not loaded), else the
@@ -378,11 +378,11 @@ local function Able()
 end
 
 -- Findable now: the player's yes (or a search of his own), location shared, not paused, not
--- quiet, never the King's account.
+-- quiet, never the Shogun's account.
 function ArenaMatch.Findable()
 	local m = ns.db and ns.db.arenaMatch
 	if not search and not (type(m) == "table" and m.find == true) then return false, "off" end
-	if KingAccount() then return false, "king" end
+	if ShogunAccount() then return false, "shogun" end
 	if not search then
 		if not ns.Layers.Sharing() then return false, "location" end
 		if m.pausedUntil and Now() < m.pausedUntil then return false, "paused" end
@@ -503,8 +503,8 @@ function ArenaMatch.CanSearch(opts)
 	if opts.game == "b" and ns.FarkleTable and not ns.FarkleTable.CanPlayPlayers() then return false, "training" end
 	local ok, why = Able()
 	if not ok then return false, why end
-	if KingAccount() then
-		if not ns.IsKingCharacter(ns.me) then return false, "king" end
+	if ShogunAccount() then
+		if not ns.IsShogunCharacter(ns.me) then return false, "shogun" end
 		if not CrownOn() then return false, "crown" end
 	elseif not ns.Layers.Sharing() and not opts.share then
 		return false, "location"
@@ -746,8 +746,8 @@ function SUBS.Q(dist, sender, rest)
 	local key = Lower(sender)
 	stats.heard = stats.heard + 1
 	if not Heard(key, now) then stats.dropped = stats.dropped + 1 return end
-	-- The King's account never answers, searching or not.
-	if KingAccount() then return end
+	-- The Shogun's account never answers, searching or not.
+	if ShogunAccount() then return end
 	if popup or match or (search and (search.paused or search.current)) then return end
 	if not ArenaMatch.Findable() then return end
 	if Barred(sender) or not MemberOK(sender, guild) then return end
@@ -838,8 +838,8 @@ function SUBS.O(dist, sender, rest)
 		local ok, yes = pcall(ns.Hop.Trusted, sender)
 		trusted = ok and yes == true
 	end
-	-- The King's search lists only names the addon can vouch for.
-	if search.king and not trusted then return end
+	-- The Shogun's search lists only names the addon can vouch for.
+	if search.shogun and not trusted then return end
 	search.seq = (search.seq or 0) + 1
 	search.offers[key] = { id = search.seq, key = key, name = sender, qid = qid, searcher = sf == "s", same = same, lvl = lvl, class = class,
 		games = games, kinds = kinds, grp = grp, cell = sf == "s" and { cx, cy } or nil, t = Now(), trusted = trusted, guild = guild,
@@ -911,7 +911,7 @@ ArenaMatch.Ranked = function() return search and Ranked() or {} end
 local function Tail()
 	if not search or search.tail then return end
 	search.tail = true
-	Note(search.king and L.MATCH_NOBODY_KING or L.MATCH_NOBODY)
+	Note(search.shogun and L.MATCH_NOBODY_SHOGUN or L.MATCH_NOBODY)
 	Arena.Changed()
 	RefreshCard()
 end
@@ -921,9 +921,9 @@ Next = function()
 	if not s or s.paused or s.current or match or popup or s.phase ~= "open" then return end
 	if s.requests >= ArenaMatch.REQUESTS then return Tail() end
 	local list = Ranked()
-	-- The King picks among his offers himself (nobody is asked for him); with none after the
+	-- The Shogun picks among his offers himself (nobody is asked for him); with none after the
 	-- second ask, he is told so like anyone.
-	if s.king then
+	if s.shogun then
 		if not list[1] and #s.asks >= 2 then Tail() end
 		return
 	end
@@ -958,7 +958,7 @@ Request = function(e)
 	sentMids[mid] = { key = o.key, t = Now() }
 	stats.requests = stats.requests + 1
 	SendTo(o.name, table.concat(body, "~"), { done = Offline(s.current) })
-	-- (Masked on the King's screen, the design.)
+	-- (Masked on the Shogun's screen, the design.)
 	Note(Fill(L.MATCH_ASKING, { name = Arena.Mask(ns.DisplayName(o.name)) }))
 	Arena.Changed()
 	RefreshCard()
@@ -1026,7 +1026,7 @@ function ArenaMatch.Start(opts)
 	local cont, wx, wy = Pos()
 	local now = Now()
 	search = { opts = o, started = now, untilT = now + ArenaMatch.SEARCH_TIME, asks = {}, offers = {}, count = 0, tried = {}, requests = 0,
-		cont = cont, wx = wx, wy = wy, lvl = Level(), grp = Grp(), king = KingAccount() or nil }
+		cont = cont, wx = wx, wy = wy, lvl = Level(), grp = Grp(), shogun = ShogunAccount() or nil }
 	if not ns.Layers.Sharing() and o.share then
 		search.shared = { was = ns.db.shareLocation }
 		ns.Layers.SetSharing(true)
@@ -1066,10 +1066,10 @@ StopSearch = function(why)
 end
 function ArenaMatch.Stop() StopSearch("stopped") end
 
--- The King picks one of the offers he was shown (View().offers).
+-- The Shogun picks one of the offers he was shown (View().offers).
 function ArenaMatch.Pick(id)
 	local s = search
-	if not s or not s.king or s.current or match or popup then return false end
+	if not s or not s.shogun or s.current or match or popup then return false end
 	for _, e in ipairs(Ranked()) do
 		if e.o.id == id then
 			if s.requests >= ArenaMatch.REQUESTS then return false end
@@ -1130,7 +1130,7 @@ local function No(name, mid) SendTo(name, "A~" .. mid .. "~N", { urgent = true }
 -- R: a request to meet (a whisper), answering one of our offers.
 function SUBS.R(dist, sender, rest)
 	if dist ~= "WHISPER" then return end
-	if KingAccount() then return end
+	if ShogunAccount() then return end
 	local mid, qid, game, kind, lo, hi, lvl, class, cx, cy, grp = Arena.Fields(rest, 11)
 	if not grp or not mid:find("^M[0-9a-z]+$") or #mid > 16 then return end
 	local maxCell = 2 * Places.OFFSET / Places.CELL - 1
@@ -1346,7 +1346,7 @@ end
 -- (1.2.6, the author's ask of 2026-10-06: an arrow that leads the two to the place they meet, a
 -- tavern, another spot, or where one of them stood.) Out of the minimap's range HereBeDragons floats
 -- the minimap pin on the edge; there the pin is the game's own minimap arrow, turned toward the
--- place, as the King's (KingArrow.lua); in range, the icon again. It is the match's own place (an
+-- place, as the Shogun's (ShogunArrow.lua); in range, the icon again. It is the match's own place (an
 -- inn, a duel spot, an arena, a Where I am point): nothing more is sent, read or saved.
 ArenaMatch.ARROW_ATLAS = "UI-HUD-Minimap-Arrow-Player"
 ArenaMatch.ARROW_TEXTURE = "Interface\\Minimap\\MinimapArrow"
@@ -1396,7 +1396,7 @@ function ArenaMatch.TurnArrow()
 		return false
 	end
 	-- SetRotation turns counter-clockwise and the art points up: the angle from up to the pin,
-	-- clockwise, is atan2(dx, dy), so the art turns by its negative (KingArrow.UpdateDirection).
+	-- clockwise, is atan2(dx, dy), so the art turns by its negative (ShogunArrow.UpdateDirection).
 	local ok = pcall(f.arrow.SetRotation, f.arrow, -Atan2(fx - mx, fy - my))
 	f.arrow:SetAlpha(ok and 1 or 0); f.icon:SetAlpha(ok and 0 or 1)
 	return ok
@@ -2132,7 +2132,7 @@ local function SearchTick(s, now)
 		Next()
 	end
 	-- Nobody has accepted: once more, 20 s after the first (not once its requests are spent), the
-	-- King's search too (the design, step 2).
+	-- Shogun's search too (the design, step 2).
 	if s.phase == "open" and #s.asks == 1 and not s.current and not s.tail and now - s.asks[1].t >= ArenaMatch.ASK_GAP then
 		Ask(2)
 	end
@@ -2143,8 +2143,8 @@ Tick = function()
 	local dt = lastTick and max(0, now - lastTick) or 0
 	lastTick = now
 	if dt > 0 and Paused() then Shift(dt) end
-	-- The King's crown off: his search and his match end (and the group his match formed goes).
-	if (search and search.king or match and KingAccount()) and not CrownOn() then
+	-- The Shogun's crown off: his search and his match end (and the group his match formed goes).
+	if (search and search.shogun or match and ShogunAccount()) and not CrownOn() then
 		if search then StopSearch("crown") end
 		if match then End("crown", "c") end
 	end
@@ -2206,8 +2206,8 @@ end
 if ns.Consent and ns.Consent.Register then
 	ns.Consent.Register({
 		key = "arenaFind", label = "CONSENT_ARENAFIND", text = "CONSENT_ARENAFIND_TEXT",
-		-- Once the arena's tab shows, never on the King's account.
-		shown = function() return TabVisible() and not KingAccount() end,
+		-- Once the arena's tab shows, never on the Shogun's account.
+		shown = function() return TabVisible() and not ShogunAccount() end,
 		get = function()
 			local m = ns.db and ns.db.arenaMatch
 			if type(m) ~= "table" then return nil end
@@ -2266,7 +2266,7 @@ function ArenaMatch.View()
 		v.search = { game = s.opts.game, kind = s.opts.kind, lo = s.opts.lo * 100, hi = s.opts.hi * 100, level = s.opts.level, reach = s.opts.reach,
 			started = s.started, left = max(0, floor(s.untilT - Now())), answers = s.count, requests = s.requests, tail = s.tail == true,
 			paused = s.paused == true, asking = s.current and Arena.Mask(ns.DisplayName(s.current.name)) or nil }
-		if s.king then
+		if s.shogun then
 			v.offers = {}
 			for _, e in ipairs(Ranked()) do
 				v.offers[#v.offers + 1] = { id = e.o.id, name = Arena.Mask(ns.DisplayName(e.o.name)), band = e.band, level = e.o.lvl,
@@ -2311,7 +2311,7 @@ local function Model()
 		Line(L.MATCH_FIRST_LINE)
 		local R = ns.ArenaRoles
 		if not (R and R.Live and R.Live()) then Line(L.MATCH_REHEARSAL) end
-		if not ns.Layers.Sharing() and not KingAccount() then
+		if not ns.Layers.Sharing() and not ShogunAccount() then
 			Line(L.MATCH_NEEDS_LOCATION)
 			Btn("sharewhile") Btn("shareon")
 		else
@@ -2405,10 +2405,10 @@ local function Model()
 		Line(s.opts.reach == "c" and #s.asks > 1 and L.MATCH_SEARCHING_CONT or L.MATCH_SEARCHING)
 		if s.count > 0 then Line(Fill(L.MATCH_ANSWERS, { n = s.count })) end
 		if s.current then Line(Fill(L.MATCH_ASKING, { name = Arena.Mask(ns.DisplayName(s.current.name)) })) end
-		if s.tail then Line(s.king and L.MATCH_NOBODY_KING or L.MATCH_NOBODY) end
-		if s.king and not s.current then
+		if s.tail then Line(s.shogun and L.MATCH_NOBODY_SHOGUN or L.MATCH_NOBODY) end
+		if s.shogun and not s.current then
 			local list = Ranked()
-			if #list > 0 then Line(L.MATCH_KING_OFFERS) elseif not s.tail then Line(L.MATCH_KING_NONE) end
+			if #list > 0 then Line(L.MATCH_SHOGUN_OFFERS) elseif not s.tail then Line(L.MATCH_SHOGUN_NONE) end
 			for i, e in ipairs(list) do
 				if i > 5 then break end
 				out.rows[#out.rows + 1] = { text = ("%s (%d %s)"):format(Arena.Mask(ns.DisplayName(e.o.name)), e.o.lvl, ClassName(e.o.class)), pick = e.o.id }
@@ -2812,7 +2812,7 @@ Open = function(game)
 		return true
 	end
 	local m = ns.db and ns.db.arenaMatch
-	if not (m and m.seen) or (not ns.Layers.Sharing() and not KingAccount()) then
+	if not (m and m.seen) or (not ns.Layers.Sharing() and not ShogunAccount()) then
 		sheet, ended = { game = game }, nil
 		ShowCard()
 		return true

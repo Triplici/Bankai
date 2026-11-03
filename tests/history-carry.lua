@@ -17,7 +17,7 @@ local function Client(name, guild)
 	n.After, n.Every, n.Fire, n.Print, n.Log = function() end, function() end, function() end, function() end, function() end
 	n.RegisterEvent = function(event, fn) w.events[event] = fn end
 	n.SafeCall = function(_, fn, ...) return fn(...) end
-	n.King = { Register = function() end }
+	n.Shogun = { Register = function() end }
 	n.Roster = { Fresh = function() return w.fresh and w.snapshotGuild == w.guild and {} or nil end,
 		RankOf = function(who) return w.members[base.Fold(base.FullName(who))] end,
 		IsOfficer = function() return (w.members[base.Fold(name)] or 99) <= 1 end }
@@ -65,16 +65,16 @@ local function Client(name, guild)
 	return w
 end
 local function Setup()
-	local m, g = Client("Migrant-Realm", "Bankai Guild II"), Client("Lord-Realm", "Bankai Guild III")
+	local m, g = Client("Migrant-Realm", "Bankai Guild II"), Client("Council-Realm", "Bankai Guild III")
 	m.member(m.name, 3); g.member(g.name, 0); g.member(m.name, 3)
 	m.roles[base.Fold(g.name)] = { guild = g.guild, rank = 0, source = "signed" }
 	local book = m.ns.Loot.Book()
 	book.notes.first = { writer = "Writer-Realm", by = "Relay-Realm", via = "Relay-Realm", t = m.now - 100,
 		rev = m.now - 100, text = "Passed the gloves", item = 1, to = m.name }
 	book.notes.other = { writer = "Writer-Realm", t = m.now - 90, text = "Other person's loot", to = "Other-Realm" }
-	assert(m.ns.Chronicle.Add("court", "King-Realm", "Private royal message", {
-		id = "King-Realm:42:" .. (m.now - 80) .. ":" .. m.name, to = m.name, words = "Keep your word" }))
-	assert(m.ns.Chronicle.Add("court", "King-Realm", "Other", { to = "Other-Realm", words = "Do not carry this" }))
+	assert(m.ns.Chronicle.Add("court", "Shogun-Realm", "Private royal message", {
+		id = "Shogun-Realm:42:" .. (m.now - 80) .. ":" .. m.name, to = m.name, words = "Keep your word" }))
+	assert(m.ns.Chronicle.Add("court", "Shogun-Realm", "Other", { to = "Other-Realm", words = "Do not carry this" }))
 	return m, g
 end
 local function Prepared(m, g)
@@ -107,9 +107,9 @@ test("carry: member export excludes private Loot even when named as recipient an
 	local m, g = Setup(); local rows = m.ns.Carry.Gather()
 	eq(#rows, 1, "private Loot is not subject-readable/exportable material")
 	eq(rows[1].kind, "C"); eq(rows[1].at, m.now - 80); eq(tonumber(rows[1].a), m.now)
-	eq(rows[1].by, "King-Realm")
+	eq(rows[1].by, "Shogun-Realm")
 	m.ns.rdb.pardons = { migrant = m.now - 20 }; m.pardoned = true
-	rows = m.ns.Carry.Gather(); eq(#rows, 2); eq(rows[2].kind, "P"); eq(rows[2].a, "", "no fabricated King's deadline")
+	rows = m.ns.Carry.Gather(); eq(#rows, 2); eq(rows[2].kind, "P"); eq(rows[2].a, "", "no fabricated Shogun's deadline")
 	eq(#m.sent, 0); eq(m.ns.Carry.Prepare("Unknown-Realm"), false)
 	m.roles[base.Fold(g.name)].source = "census"; eq(m.ns.Carry.Prepare(g.name), false, "census rank is no authority")
 	m.roles[base.Fold(g.name)].source = "signed"; m.fresh = false; eq(m.ns.Carry.Prepare(g.name), false)
@@ -127,7 +127,7 @@ test("carry: two explicit consents, manual guild move, private real transport, a
 	local entries = g.ns.Carry.List(); eq(#entries, 1); eq(entries[1].entry.unverified, true)
 	eq(entries[1].entry.recipient, g.name); eq(#entries[1].entry.rows, 1)
 	local text = {}; for _, line in ipairs(g.ns.Carry.Lines()) do text[#text + 1] = line.text end
-	text = table.concat(text, "\n"); assert(text:find("Unverified quote", 1, true)); assert(text:find("King-Realm", 1, true))
+	text = table.concat(text, "\n"); assert(text:find("Unverified quote", 1, true)); assert(text:find("Shogun-Realm", 1, true))
 	assert(text:find("Keep your word", 1, true)); assert(not text:find("Passed the gloves", 1, true), "member cannot expose the private Loot book")
 	eq(next(g.ns.Loot.Book().notes), nil); eq(#g.ns.Court.Messages(), 0); eq(g.ns.rdb.pardons, nil); eq(g.ns.rdb.dues, nil)
 	for _, msg in ipairs(m.sent) do eq(msg.dist, "WHISPER"); eq(msg.target, base.TellName(g.name)) end
@@ -142,7 +142,7 @@ end)
 
 test("carry: sender forgery, wrong recipient, missing consent, public packets and realm/faction mismatch are refused", function()
 	local m, g = Setup(); local d, key, offer = Offered(m, g)
-	local other = Client("OtherLord-Realm", g.guild); other.member(other.name, 1); other.member(m.name, 3)
+	local other = Client("OtherCouncil-Realm", g.guild); other.member(other.name, 1); other.member(m.name, 3)
 	other.receive(m.name, offer); eq(other.ns.Carry.Accept(key), false)
 	m.receive("Pretender-Realm", "XC~1~A~" .. d.id .. "~" .. d.digest); m.pump(); eq(#m.sent, 1)
 	g.receive("Unknown-Realm", offer); eq(g.ns.Carry.Accept(base.Fold("Unknown-Realm") .. ":" .. d.id), false)

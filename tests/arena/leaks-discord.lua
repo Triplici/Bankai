@@ -113,14 +113,14 @@ test("1.2.1 leaks: the acts log copy: what a sender sent and his name never show
 end)
 
 -- The Watch's and the Judgment's files in a namespace of their own (nothing registered on the
--- harness's), the King's stream off.
+-- harness's), the Shogun's stream off.
 local function WithWatch(fn)
 	local dialogs = {}
 	for k, v in pairs(StaticPopupDialogs) do dialogs[k] = v end
 	local wns = setmetatable({ db = {}, rdb = { council = { names = { ["voter" .. BOLD:lower()] = true } } },
 		Comm = false, Moderation = false, PlayerMenu = false, UI = false, Watch = false, Judgment = false,
 		On = function() end, Fire = function() end, CouncilMasked = function() return false end,
-		IsKingCharacter = function() return false end,
+		IsShogunCharacter = function() return false end,
 		IsHighCouncillor = function(name) return ns.ShortName(name) == "Voter" .. BOLD end }, { __index = ns })
 	local ok, err = pcall(function()
 		assert(loadfile(H.ADDON_DIR .. "Watch.lua"))("BankaiGuild", wns)

@@ -50,7 +50,7 @@ client. So adding a language can't break anyone else's addon.
 - **Commands stay in English.** `/bk location on`, `/bk key <secret>` and the like are what
   the player types: translate the words around them (`<secret>` may become `<segredo>`), never
   the command itself.
-- **Names stay.** Bankai Guild, Discord, CurseForge and WowUp are names; so is `<Elfcore>`, the King's
+- **Names stay.** Bankai Guild, Discord, CurseForge and WowUp are names; so is `<Elfcore>`, the Shogun's
   guild.
 - **Short lines stay short.** Tab names, buttons and list lines have a fixed width: keep them
   about as long as the English one.

@@ -4,7 +4,7 @@ local World = assert(loadfile(ROOT .. "tests/church-world.lua"))(ns, ROOT)
 local DAY = 86400
 local function Setup()
 	local w = World.New({ apostles = { "Aldric Vane-Realm" } }); w.clock = math.floor(w.clock / DAY) * DAY + 100
-	local c = { author = w:Client(World.AUTHOR, { view = true }), king = w:Client(World.KING, { view = true }),
+	local c = { author = w:Client(World.AUTHOR, { view = true }), shogun = w:Client(World.SHOGUN, { view = true }),
 		keeper = w:Client("Aldric Vane"), gm = w:Client("Guild Master", { rank = 0 }), corr = w:Client("Guild Corr", { view = true }) }
 	assert(w:Act(c.author, c.author.Church.NameCorrespondent, "Guild Corr", World.GUILD))
 	w:Presence(); w:Flush()
@@ -142,7 +142,7 @@ test("Church fullness: bounded solicited keeper relay survives reload and never 
 	assert(w:As(c.author, a.Ask)); w:Flush(); eq(Row(w, c.author).days, 1); eq(Row(w, c.author).average, 975)
 	local relay; for _, e in ipairs(w.sent) do if e.msg:find("NF~1~r~", 1, true) then relay = e.msg end end
 	assert(relay)
-	eq(w:As(c.king, c.king.c.ChurchFullness.Receive, "WHISPER", c.keeper.name, relay), false)
+	eq(w:As(c.shogun, c.shogun.c.ChurchFullness.Receive, "WHISPER", c.keeper.name, relay), false)
 	eq(w:As(c.author, a.Receive, "WHISPER", c.gm.name, relay), false)
 	eq(w:As(c.author, a.Receive, "WHISPER", "Aldric Vane-Unrelated", relay), false, "unrelated realm cannot impersonate an appointed keeper")
 	w:As(c.author, function() assert(loadfile(ROOT .. "BankaiGuild/ChurchFullness.lua"))("BankaiGuild", c.author.c) end)

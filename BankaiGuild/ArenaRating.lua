@@ -65,7 +65,7 @@ local ADDON, ns = ...
 --     t = seconds,          server time of the word
 --     ref = id,             U only: the word it cancels
 --     by = key,             the giver, for U's rule
---     king = true }         given by the King
+--     shogun = true }         given by the Shogun
 --
 -- Public functions (`built` is what Build returns, `belts` what Belts returns, `o` an
 -- optional { now = server time, exclude = { [key] = true } or function(key) -> true when
@@ -713,7 +713,7 @@ end
 --   - 2 and 3 are the clerk's silver and bronze: the latest of each place counts, never for
 --     the holder, and a word naming the fighter who held the other place takes him off it
 --     (one fighter never shows as both, when the clerk's other word is lost or late).
---   - U cancels an earlier word as if it had never been given: the King's cancels anyone's,
+--   - U cancels an earlier word as if it had never been given: the Shogun's cancels anyone's,
 --     anyone else's only his own. An undo can itself be undone.
 
 local function VacantAfter(weeks)
@@ -778,7 +778,7 @@ end
 
 local function WordSignature(w)
 	return table.concat({ Text(WordKind(w.kind)), Text(w.cat), Text(w.gk), Text(w.ref), Text(w.by),
-		w.king == true and "1" or "0" }, "~")
+		w.shogun == true and "1" or "0" }, "~")
 end
 
 -- A reign as Belts writes it. Anything else in a saved copy is a hand edit or a bug.
@@ -881,7 +881,7 @@ local function Undone(list, ignored)
 				ignored[#ignored + 1] = { id = u.id, why = "unknown word" }
 			elseif j >= i then
 				ignored[#ignored + 1] = { id = u.id, why = "not before" }
-			elseif not (u.king or (u.by ~= nil and u.by == target.by)) then
+			elseif not (u.shogun or (u.by ~= nil and u.by == target.by)) then
 				ignored[#ignored + 1] = { id = u.id, why = "not his" }
 			else
 				undone[j] = true
@@ -897,7 +897,7 @@ local function Words(words, ignored)
 	local list = Collect(words, ArenaRating.CheckWord, WordSignature, ignored)
 	for i, w in ipairs(list) do
 		list[i] = { id = w.id, kind = WordKind(w.kind), cat = w.cat, gk = Key(w.gk) and w.gk or nil, t = w.t,
-			ref = w.ref, by = w.by, king = w.king == true }
+			ref = w.ref, by = w.by, shogun = w.shogun == true }
 	end
 	return list, Undone(list, ignored)
 end

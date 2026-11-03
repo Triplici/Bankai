@@ -5,15 +5,15 @@ for _, choice in ipairs({ { "enUS", "Games (staff)" }, { "ptBR", "Jogos (equipe)
 	local locale, label = choice[1], choice[2]
 	test("Games staff label: actual " .. locale .. " staff heading names games without advertising bets", function()
 		local w = World.New({ compliance = "shipped" })
-		local king = w:Role("king")
+		local shogun = w:Role("shogun")
 		local member = w:Client(World.NAMES.fighterA)
-		for _, client in ipairs({ king, member }) do
+		for _, client in ipairs({ shogun, member }) do
 			client.globals.GetLocale = function() return locale end
 			w:As(client, function()
 				-- Load the actual locale into this client's real namespace, then render the
 				-- same staff heading that the Games tab consumes; no authorization stand-in.
 				assert(loadfile(H.ADDON_DIR .. "Locales/ArenaHomeText.lua"))("BankaiGuild", client.ns)
-				local staff = client == king
+				local staff = client == shogun
 				eq(client.ns.ArenaHome.GamesStaff(), staff)
 				local found = 0
 				for _, row in ipairs(client.ns.ArenaHome.TabLines()) do

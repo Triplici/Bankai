@@ -2,7 +2,7 @@ local ns, test, eq, extra = ...
 local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]chat%-channel%-links%.lua$") or "./"
 local WithGamepadUI = assert(extra and extra.WithGamepadUI, "WithGamepadUI")
 
--- 1.2.1: [Bankai Guild], [Captains] and [Lords] before a line in the game's chat are links, as the game's
+-- 1.2.1: [Bankai Guild], [Captains] and [Council] before a line in the game's chat are links, as the game's
 -- [Party] is, where this client may write in that channel: a left click opens the chat box with
 -- /bg, /bgc or /bgl in it (Channels.lua's end). Channels.lua is loaded with Comm.lua and a gate of
 -- their own (as the gate's typed-commands test loads them) in a namespace over the harness's, with
@@ -13,12 +13,12 @@ local WithGamepadUI = assert(extra and extra.WithGamepadUI, "WithGamepadUI")
 -- loadDeprecationFallbacks setting is on: Deprecated_ChatFrame.lua:4/74), the main chat window,
 -- Shift. Generic names alone.
 local GUILD = "Bankai Guild II"
-local SPEAKER, CAPTAIN, LORD = "Test Speaker-Realm", "Test Captain-Realm", "Test Lord-Realm"
+local SPEAKER, CAPTAIN, COUNCIL = "Test Speaker-Realm", "Test Captain-Realm", "Test Council-Realm"
 
 local function WithLinks(fn)
 	local GLOBALS = { "hooksecurefunc", "SetItemRef", "ChatFrameUtil", "ChatFrame_OpenChat", "IsShiftKeyDown", "DEFAULT_CHAT_FRAME", "GetGuildInfo",
-		"C_ChatInfo", "IsInGuild", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDLORDS1" }
-	local SLASH = { "BANKAIGUILDALL", "BANKAIGUILDCAPTAINS", "BANKAIGUILDLORDS" }
+		"C_ChatInfo", "IsInGuild", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDCOUNCIL1" }
+	local SLASH = { "BANKAIGUILDALL", "BANKAIGUILDCAPTAINS", "BANKAIGUILDCOUNCIL" }
 	local DIALOGS = { "BANKAIGUILD_CHAT_PRIVACY", "BANKAIGUILD_PIN", "BANKAIGUILD_PIN_DOWN", "BANKAIGUILD_GAMEPAD_RELOAD" }
 	local saved = { g = {}, slash = {}, dialogs = {}, events = #EVENT_SCRIPTS, channels = rawget(ns, "Channels") }
 	for _, k in ipairs(GLOBALS) do saved.g[k] = rawget(_G, k) end
@@ -68,7 +68,7 @@ local function WithLinks(fn)
 			assert(loadfile(ROOT .. "BankaiGuild/" .. file .. ".lua"))("BankaiGuild", cns)
 		end
 		w.ns, w.C = cns, cns.Channels
-		w.roster[ns.FullName(SPEAKER)], w.roster[ns.FullName(CAPTAIN)], w.roster[ns.FullName(LORD)] = 3, 1, 0
+		w.roster[ns.FullName(SPEAKER)], w.roster[ns.FullName(CAPTAIN)], w.roster[ns.FullName(COUNCIL)] = 3, 1, 0
 		-- The login with mouse and keyboard: the commands (Core.lua's "slash"), then each of Channels.lua's.
 		cns.Gate.Install("slash")
 		w.Login = function() for _, f in ipairs(w.on.LOGIN or {}) do f() end end
@@ -97,10 +97,10 @@ end
 
 local function Link(tier, label) return "|Haddon:BankaiGuild:chan:" .. tier .. "|h[" .. label .. "]|h" end
 
-test("1.2.1 chat channel links: [Bankai Guild], [Captains] and [Lords] are links only where this client may write there (its rank, the chats on, not off them nor timed out), plain before the login's hook and with the gamepad UI", function()
+test("1.2.1 chat channel links: [Bankai Guild], [Captains] and [Council] are links only where this client may write there (its rank, the chats on, not off them nor timed out), plain before the login's hook and with the gamepad UI", function()
 	WithLinks(function(w)
 		local C, L = w.C, ns.L
-		local A, CA, LO = "[" .. L.CHAN_ALL .. "]", "[" .. L.CHAN_CAPTAINS .. "]", "[" .. L.CHAN_LORDS .. "]"
+		local A, CA, LO = "[" .. L.CHAN_ALL .. "]", "[" .. L.CHAN_CAPTAINS .. "]", "[" .. L.CHAN_COUNCIL .. "]"
 		w.rank = 0
 		eq(C.Tag("A"), A, "before the login's hook: the plain name")
 		eq(#w.hooks, 0)
@@ -108,10 +108,10 @@ test("1.2.1 chat channel links: [Bankai Guild], [Captains] and [Lords] are links
 		eq(table.concat(w.hooks, ","), "SetItemRef", "one post-hook, on SetItemRef")
 		w.Login()
 		eq(#w.hooks, 1, "once a session")
-		-- A Lord writes in all three; a Captain in [Bankai Guild] and [Captains]; a member in [Bankai Guild] alone.
-		eq(C.Tag("A"), Link("A", L.CHAN_ALL)); eq(C.Tag("C"), Link("C", L.CHAN_CAPTAINS)); eq(C.Tag("L"), Link("L", L.CHAN_LORDS))
+		-- A Council member writes in all three; a Captain in [Bankai Guild] and [Captains]; a member in [Bankai Guild] alone.
+		eq(C.Tag("A"), Link("A", L.CHAN_ALL)); eq(C.Tag("C"), Link("C", L.CHAN_CAPTAINS)); eq(C.Tag("L"), Link("L", L.CHAN_COUNCIL))
 		w.rank = 1
-		eq(C.Tag("A"), Link("A", L.CHAN_ALL)); eq(C.Tag("C"), Link("C", L.CHAN_CAPTAINS)); eq(C.Tag("L"), LO, "no [Lords] link for a Captain")
+		eq(C.Tag("A"), Link("A", L.CHAN_ALL)); eq(C.Tag("C"), Link("C", L.CHAN_CAPTAINS)); eq(C.Tag("L"), LO, "no [Council] link for a Captain")
 		w.rank = 3
 		eq(C.Tag("A"), Link("A", L.CHAN_ALL)); eq(C.Tag("C"), CA); eq(C.Tag("L"), LO)
 		-- The line itself: the tag, then the rest byte for byte as before; the Bankai Guild tab's has no tag.
@@ -194,7 +194,7 @@ test("1.2.1 chat channel links: a left click opens the chat box with /bg, /bgc o
 		-- A link printed while he could write, clicked once he can't: nothing opens, he is told why.
 		w.rank = 1
 		eq(w.Click("addon:BankaiGuild:chan:L"), nil, "demoted since: no box")
-		eq(w.printed[1], L.CHAN_ONLY_LORDS:format(L.CHAN_LORDS), "told in Send's words")
+		eq(w.printed[1], L.CHAN_ONLY_COUNCIL:format(L.CHAN_COUNCIL), "told in Send's words")
 		w.timeout = "until later"
 		eq(w.Click("addon:BankaiGuild:chan:A"), nil, "timed out since")
 		eq(w.printed[1], "timed out: until later", "told by the moderators' own words (WatchChat.TellTimeout)")
@@ -217,7 +217,7 @@ test("1.2.1 chat channel links: the chat box is opened with the game's ChatFrame
 		local L = ns.L
 		local A = "[" .. L.CHAN_ALL .. "]"
 		w.Login()
-		w.rank = 0 -- (a Lord: writes in all three)
+		w.rank = 0 -- (a Council member: writes in all three)
 		-- The loadDeprecationFallbacks setting off (Deprecated_ChatFrame.lua:4): no ChatFrame_OpenChat,
 		-- ChatFrameUtil.OpenChat still there (ChatFrameUtil.lua:433).
 		ChatFrame_OpenChat = nil
@@ -230,7 +230,7 @@ test("1.2.1 chat channel links: the chat box is opened with the game's ChatFrame
 		eq(w.Click("addon:BankaiGuild:chan:C").via, "ChatFrameUtil.OpenChat", "ChatFrameUtil.OpenChat first")
 		-- A ChatFrameUtil without OpenChat: the global, with the same text and window.
 		ChatFrameUtil = {}
-		eq(w.C.Tag("L"), Link("L", L.CHAN_LORDS))
+		eq(w.C.Tag("L"), Link("L", L.CHAN_COUNCIL))
 		local old = w.Click("addon:BankaiGuild:chan:L")
 		eq(old and old.text, "/bgl "); eq(old.via, "ChatFrame_OpenChat"); eq(old.frame, w.frame)
 		-- Neither: no chat box to open, so the plain name, and a link printed before opens nothing

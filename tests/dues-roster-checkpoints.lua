@@ -48,7 +48,7 @@ local function Load(w, c)
 end
 local function Setup()
 	local w = World.New({ clock = AUTH.START - 604800, council = false, arenaFiles = { "ArenaMath", "ArenaNet", "ArenaMoney", "Debts" }, compliance = "shipped" })
-	local t, king = w:Role("treasurer"), w:Role("king")
+	local t, shogun = w:Role("treasurer"), w:Role("shogun")
 	local gm = w:Role("fighterA", { guild = World.GUILD, rank = 0 })
 	local p = w:Role("bettor1", { guild = World.GUILD, rank = 5 })
 	local foreign = w:Role("fighterB", { guild = "Bankai Guild Willow", rank = 0 })
@@ -65,7 +65,7 @@ local function Setup()
 	for _, actor in ipairs({ t, mail }) do w:As(actor, function() assert(actor.ns.Dues.StartNativePayerTracking()) end) end
 	local delta = AUTH.START + 1 - w.clock; for _, timer in ipairs(w.timers) do timer.at = timer.at + delta end; w.clock = AUTH.START + 1
 	Scan(w)
-	return w, t, king, gm, p, foreign
+	return w, t, shogun, gm, p, foreign
 end
 local function Jump(w, at)
 	local delta = at - w.clock; for _, timer in ipairs(w.timers) do timer.at = timer.at + delta end

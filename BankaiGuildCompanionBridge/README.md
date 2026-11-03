@@ -129,19 +129,19 @@ and for a character who is no member:
   never the terms, the price or the request's chat;
 - `crafters`: the crafters' directory (300, the best skill first): name, guild, professions with
   their skill, cap and recipe count;
-- `treasury`: the public numbers alone, only while the King shows the balance (`shown = false`
+- `treasury`: the public numbers alone, only while the Shogun shows the balance (`shown = false`
   otherwise): balance, in, out, this week's donations and donors; never an item or a name;
 - `decrees`: the Decrees tab's decrees (30): kind, whole army or one guild, role and name of the
-  sender (no role for a councillor's while the King's screen hides the councillors' names), zone,
+  sender (no role for a councillor's while the Shogun's screen hides the councillors' names), zone,
   words as the page shows them, times;
-- `agenda`: the week (30, soonest first): the King's Agenda and dated entries, this guild's
+- `agenda`: the week (30, soonest first): the Shogun's Agenda and dated entries, this guild's
   calendar events, the Arena's fights;
 - `notices`: `{ items }` (30, newest first): musters (and those ended within a day, as withdrawn,
   with the same audience and role; an ended one this character's client may not place is left
   out), the Crown's and the High Council's decrees for the whole army, and this character's own
-  letters from the King (`audience = "self"`: his alone);
+  letters from the Shogun (`audience = "self"`: his alone);
 - `watch`: only on a moderation team client or for the desk's own staff: counts, the cases, the
-  guild's records, the inspected players and the untabarded list (100 each), on the King's stream
+  guild's records, the inspected players and the untabarded list (100 each), on the Shogun's stream
   as the page shows them there (an accused name cut short until upheld, no report counts or
   dates); never a reporter, a note, an evidence line, a moderator's reason or a chat line;
 - `chatRooms`: the rooms this character is in, with member and unread counts; no chat text.
@@ -160,7 +160,7 @@ anonymous revocation `{ bankaiguild = false, roles = {}, tabs = {} }`, so the re
 identity. It carries never another player's BattleTag (not the ones a moderation team client keeps).
 Never chat text or
 chat-strike lines, another player's private data, treasury items (numbers only, and
-only while the King publishes the balance), or anything private to an audience the player is not
+only while the Shogun publishes the balance), or anything private to an audience the player is not
 in.
 
 LAN synchronization and encryption are deliberately not responsibilities of this Bridge slice.

@@ -1,7 +1,7 @@
--- Request-bound King-nameplate discovery: private answers, consensus and revocation.
+-- Request-bound Shogun-nameplate discovery: private answers, consensus and revocation.
 local base, test, eq, WithHop = ...
 local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]hop%-sightings%.lua$")) or "./"
-local KING = "High King-Realm"
+local SHOGUN = "High Shogun-Realm"
 
 local function Full(name, realm)
 	if type(name) ~= "string" or name == "" or name:find("-", 1, true) then return name end
@@ -13,7 +13,7 @@ local function WithWorld(fn)
 		"IsInGuild", "IsInGroup", "InCombatLockdown", "C_Map" }
 	local saved = {}
 	for _, key in ipairs(globals) do saved[key] = _G[key] end
-	local w = { clock = 1000, crownOn = true, crown = { from = KING, id = 77, mapID = 1453, t = 1000 }, current = nil }
+	local w = { clock = 1000, crownOn = true, crown = { from = SHOGUN, id = 77, mapID = 1453, t = 1000 }, current = nil }
 	local ok, err = pcall(function()
 		UnitExists = function(unit) local u = w.current and w.current.units[unit]; return u and u.exists == true or false end
 		UnitIsPlayer = function(unit) local u = w.current and w.current.units[unit]; return u and u.player == true or false end
@@ -52,8 +52,8 @@ local function WithWorld(fn)
 			c.IsMember = function() return c.member ~= false end
 			c.UnitFullName = function(unit) local u = c.units[unit]; return u and u.name or nil end
 			c.IsFederation = function(guild) return type(guild) == "string" and guild:lower():find("bankaiguild", 1, true) ~= nil end
-			c.IsKingCharacter = function(n) return type(n) == "string" and n:lower() == KING:lower() end
-			c.KingName = function() return "Shobek" end
+			c.IsShogunCharacter = function(n) return type(n) == "string" and n:lower() == SHOGUN:lower() end
+			c.ShogunName = function() return "Shobek" end
 			c.Alts = { Linked = function(sender)
 				local linked = c.alts[type(sender) == "string" and sender:lower() or ""]
 				local out = {}
@@ -81,7 +81,7 @@ local function WithWorld(fn)
 				if known and type(guild) == "string" and known:lower() == guild:lower()
 					and c.unverified[key] ~= true then return 1 end
 			end }
-			c.King = { Location = function() return w.crownOn and w.crown or nil end }
+			c.Shogun = { Location = function() return w.crownOn and w.crown or nil end }
 			c.Layers = {
 				EVIDENCE_WINDOW = 15, Mine = function() return c.mine end, CurrentMap = function() return c.map end,
 				Sharing = function() return c.sharing == true end, Of = function() return c.official end,
@@ -112,8 +112,8 @@ local function WithWorld(fn)
 				Ask = function(mapID, zoneUID, label) c.hopAsks[#c.hopAsks + 1] = { mapID, zoneUID, label }; return true end,
 			}
 			c.Hop.AskDiscovered = c.Hop.Ask
-			c.Hop.CanHelpKing = function(mapID, zoneUID)
-				if c.db.hopKingChoice == "no" then return false end
+			c.Hop.CanHelpShogun = function(mapID, zoneUID)
+				if c.db.hopShogunChoice == "no" then return false end
 				return c.Hop.CanHelp(mapID, zoneUID)
 			end
 			c.Moderation = {
@@ -207,20 +207,20 @@ local function WithWorld(fn)
 	if not ok then error(err, 0) end
 end
 
-local function KingUnit(name, realm)
+local function ShogunUnit(name, realm)
 	return { exists = true, player = true, guid = "Player-4619-00001234", faction = "Alliance",
-		name = Full(name or KING:match("^(.-)%-"), realm or "Realm") }
+		name = Full(name or SHOGUN:match("^(.-)%-"), realm or "Realm") }
 end
 
 local function Observe(w, client)
-	client.units.nameplate1 = KingUnit()
+	client.units.nameplate1 = ShogunUnit()
 	eq(w.use(client, client.HopSightings.NameplateAdded, "nameplate1"), true)
 	eq(#client.jobs, 0, "a direct sighting is private until an active query")
 end
 
 local function Start(w, asker)
 	eq(w.use(asker, asker.HopSightings.Request,
-		{ character = KING, mapID = 1453, label = "Shobek" }, "Shobek's layer"), true)
+		{ character = SHOGUN, mapID = 1453, label = "Shobek" }, "Shobek's layer"), true)
 	local ok, _, query = w.use(asker, asker.flush)
 	eq(ok, true)
 	assert(query.msg:match("^LY~Q~1~%d+~77~1453$"), query.msg)
@@ -310,7 +310,7 @@ test("hop sighting: a lone spoof cannot redirect, and conflicting observers fail
 	end)
 end)
 
-test("hop sighting: the King's own layer word preempts observer consensus", function()
+test("hop sighting: the Shogun's own layer word preempts observer consensus", function()
 	WithWorld(function(w)
 		local asker = w.client("Asker")
 		local query = Start(w, asker)
@@ -323,7 +323,7 @@ test("hop sighting: the King's own layer word preempts observer consensus", func
 		w.clock = w.clock + asker.HopSightings.SETTLE
 		w.use(asker, asker.HopSightings.Tick)
 		eq(#asker.hopAsks, 1)
-		eq(asker.hopAsks[1][2], 9, "L1 from the King wins over two LY answers")
+		eq(asker.hopAsks[1][2], 9, "L1 from the Shogun wins over two LY answers")
 		eq(asker.HopSightings.Requesting(), false)
 	end)
 end)
@@ -393,7 +393,7 @@ test("hop sighting: consent or net-off cancels at the queue boundary and withdra
 		eq(#observer.sent, 0)
 		local blocked = w.client("BlockedAsker")
 		eq(w.use(blocked, blocked.HopSightings.Request,
-			{ character = KING, mapID = 1453, label = "Shobek" }, "Shobek's layer"), true)
+			{ character = SHOGUN, mapID = 1453, label = "Shobek" }, "Shobek's layer"), true)
 		blocked.selfOff = true
 		sent, why = w.use(blocked, blocked.flush)
 		eq(sent, false); eq(why, "member", "the channel query rechecks net-off too")
@@ -525,7 +525,7 @@ test("hop sighting: a validated query waits for the second local NPC proof", fun
 	WithWorld(function(w)
 		local asker, observer = w.client("Asker"), w.client("Observer")
 		observer.mine.confirmedAt = nil
-		observer.units.nameplate1 = KingUnit()
+		observer.units.nameplate1 = ShogunUnit()
 		eq(w.use(observer, observer.HopSightings.NameplateAdded, "nameplate1"), false)
 		local query = Start(w, asker)
 		observer.members[asker.me:lower()] = true
@@ -539,12 +539,12 @@ test("hop sighting: a validated query waits for the second local NPC proof", fun
 	end)
 end)
 
-test("hop sighting: the existing King no choice keeps local proof private and emits no answer", function()
+test("hop sighting: the existing Shogun no choice keeps local proof private and emits no answer", function()
 	WithWorld(function(w)
 		local asker, observer = w.client("Asker"), w.client("Observer")
-		observer.db.hopKingChoice = "no"
+		observer.db.hopShogunChoice = "no"
 		Observe(w, observer)
-		eq(w.use(observer, observer.HopSightings.LocalKingLayer, 1453, 8), true,
+		eq(w.use(observer, observer.HopSightings.LocalShogunLayer, 1453, 8), true,
 			"the observation remains usable only for the local no/auto choice")
 		local query = Start(w, asker)
 		observer.members[asker.me:lower()] = true
@@ -561,7 +561,7 @@ test("hop sighting: remote evidence expires without losing the local no-auto pol
 		Observe(w, observer)
 		w.clock = w.clock + observer.HopSightings.TTL + 1
 		w.use(observer, observer.HopSightings.Tick)
-		eq(w.use(observer, observer.HopSightings.LocalKingLayer, 1453, 8), true,
+		eq(w.use(observer, observer.HopSightings.LocalShogunLayer, 1453, 8), true,
 			"the crown lease and unchanged local layer still identify the policy layer")
 		local query = Start(w, asker)
 		observer.members[asker.me:lower()] = true
@@ -569,7 +569,7 @@ test("hop sighting: remote evidence expires without losing the local no-auto pol
 		eq(#observer.jobs, 0, "the old observation is not reused as remote destination evidence")
 		w.clock = w.clock + observer.HopSightings.POLICY_TTL
 		w.use(observer, observer.HopSightings.Tick)
-		eq(w.use(observer, observer.HopSightings.LocalKingLayer, 1453, 8), false,
+		eq(w.use(observer, observer.HopSightings.LocalShogunLayer, 1453, 8), false,
 			"the local policy marker is bounded when the exact plate stops refreshing it")
 	end)
 end)
@@ -599,7 +599,7 @@ test("hop sighting: failed discovery shares the ordinary escalating hop backoff"
 		w.use(asker, asker.HopSightings.Tick)
 		eq(asker.discoveryFails, 2); eq(asker.Hop.WaitLeft(w.clock), 60)
 		eq(w.use(asker, asker.HopSightings.Request,
-			{ character = KING, mapID = 1453, label = "Shobek" }, "Shobek's layer"), nil,
+			{ character = SHOGUN, mapID = 1453, label = "Shobek" }, "Shobek's layer"), nil,
 			"a third public question is held by the shared backoff")
 	end)
 end)
@@ -625,7 +625,7 @@ test("hop sighting: an explicitly hidden crown lease cannot be resurrected by a 
 		local observer, asker = w.client("Observer"), w.client("Asker")
 		Observe(w, observer)
 		w.crownOn = false
-		w.use(observer, observer.listeners.KING_LOCATION_CHANGED, "hide", KING, 77)
+		w.use(observer, observer.listeners.SHOGUN_LOCATION_CHANGED, "hide", SHOGUN, 77)
 		w.crownOn = true
 		w.clock = w.clock + 1
 		eq(w.use(observer, observer.HopSightings.UnitNameUpdated, "nameplate1"), false,
@@ -640,23 +640,23 @@ end)
 test("hop sighting integration: validated local proof applies the existing no and auto choices", function()
 	assert(type(WithHop) == "function", "WithHop fixture")
 	WithHop(function(w, H)
-		local saved = base.HopSightings.LocalKingLayer
+		local saved = base.HopSightings.LocalShogunLayer
 		local ok, err = pcall(function()
-			base.HopSightings.LocalKingLayer = function(mapID, zoneUID)
+			base.HopSightings.LocalShogunLayer = function(mapID, zoneUID)
 				return mapID == 1453 and zoneUID == 7
 			end
 			w.see(7)
-			base.db.hopKingChoice = "no"
+			base.db.hopShogunChoice = "no"
 			H.HandleAsk("CHANNEL", "Nope-Realm", "LQ~41~1453~7")
-			eq(#w.whispered, 0, "Can't right now offers nothing on the locally observed King layer")
-			base.db.hopKingChoice = "auto"
+			eq(#w.whispered, 0, "Can't right now offers nothing on the locally observed Shogun layer")
+			base.db.hopShogunChoice = "auto"
 			H.HandleAsk("CHANNEL", "Auto-Realm", "LQ~42~1453~7")
 			assert(w.whispered[#w.whispered]:match("^Auto%-Realm LO~42~"), tostring(w.whispered[#w.whispered]))
 			H.HandleRequest("WHISPER", "Auto-Realm", "LR~42")
 			eq(w.invited[1], "Auto", "For Bankai Guild invites through the existing Hop machine")
 			eq(#w.popups, 0)
 		end)
-		base.HopSightings.LocalKingLayer = saved
+		base.HopSightings.LocalShogunLayer = saved
 		if not ok then error(err, 0) end
 	end)
 end)
@@ -706,26 +706,26 @@ test("hop sighting moderation: LY queries/answers are held under net-off, withdr
 	if not ok then error(err, 0) end
 end)
 
-test("hop sighting integration: Hop never installs one sighting as King authority and asks discovery on click", function()
+test("hop sighting integration: Hop never installs one sighting as Shogun authority and asks discovery on click", function()
 	WithWorld(function(w)
 		local requested
 		local h = {
 			L = setmetatable({}, { __index = function(_, key) return key end }), db = {}, me = "Asker-Realm", realm = "Realm",
 			CROWN_ICON = "Interface\\Icons\\INV_Misc_Coin_01",
-			rdb = { guilds = { BankaiGuild = { leader = KING:match("^(.-)%-"), leaderOnline = true, realm = "Realm", t = w.clock } } },
+			rdb = { guilds = { BankaiGuild = { leader = SHOGUN:match("^(.-)%-"), leaderOnline = true, realm = "Realm", t = w.clock } } },
 		}
 		h.Now = function() return w.clock end
-		h.IsKingGuild = function(guild) return guild == "Bankai Guild" end
+		h.IsShogunGuild = function(guild) return guild == "Bankai Guild" end
 		h.FullName, h.ShortName = Full, function(n) return n and n:gsub("%-.*$", "") end
 		h.RealmOf = function(n) return n and n:match("%-(.+)$") end
-		h.KingCharacter = function() return KING:match("^(.-)%-") end
-		h.IsKingCharacter = function(n) return n == KING end
-		h.KingName = function() return "Shobek" end
+		h.ShogunCharacter = function() return SHOGUN:match("^(.-)%-") end
+		h.IsShogunCharacter = function(n) return n == SHOGUN end
+		h.ShogunName = function() return "Shobek" end
 		h.Data = { FRESH = 300, KnownRank = function() return 0 end }
 		h.Layers = { Of = function() return nil end, Mine = function() return nil end, CurrentMap = function() return 1453 end,
 			Sharing = function() return true end }
-		h.King = { Location = function() return { from = KING, id = 77, mapID = 1453, t = w.clock } end, IsKing = function() return false end }
-		h.HopSightings = { Request = function(king, label) requested = { king = king, label = label }; return true end,
+		h.Shogun = { Location = function() return { from = SHOGUN, id = 77, mapID = 1453, t = w.clock } end, IsShogun = function() return false end }
+		h.HopSightings = { Request = function(shogun, label) requested = { shogun = shogun, label = label }; return true end,
 			Requesting = function() return false end, CancelRequest = function() return false end }
 		h.Comm = { Handle = function() end, Cancel = function() end, ChannelReady = function() return true end,
 			Send = function() return true end }
@@ -735,18 +735,18 @@ test("hop sighting integration: Hop never installs one sighting as King authorit
 		h.IsMember = function() return true end
 		h.GamepadUI = function() return false end
 		assert(loadfile(ROOT .. "BankaiGuild/Hop.lua"))("BankaiGuild", h)
-		h.Hop.HeardKing(KING)
-		eq(h.Hop.King().zoneUID, nil, "no direct sighting is installed as authority")
-		w.use(h, h.Hop.AskKing)
-		assert(requested and requested.king.character == KING)
-		eq(requested.king.mapID, 1453)
+		h.Hop.HeardShogun(SHOGUN)
+		eq(h.Hop.Shogun().zoneUID, nil, "no direct sighting is installed as authority")
+		w.use(h, h.Hop.AskShogun)
+		assert(requested and requested.shogun.character == SHOGUN)
+		eq(requested.shogun.mapID, 1453)
 		requested = nil
 		h.Layers.Mine = function() return { mapID = 1453, zoneUID = 8, t = w.clock, confirmedAt = w.clock } end
-		h.HopSightings.LocalKingLayer = function(mapID, zoneUID) return mapID == 1453 and zoneUID == 8 end
-		w.use(h, h.Hop.AskKing)
+		h.HopSightings.LocalShogunLayer = function(mapID, zoneUID) return mapID == 1453 and zoneUID == 8 end
+		w.use(h, h.Hop.AskShogun)
 		eq(requested, nil, "a local exact sighting broadcasts no needless discovery query")
-		assert(h.Hop.KingLines()[1].text:find(h.L.HOP_KING_HERE:format("Shobek"), 1, true),
-			"the local UI says the player is already on the King's layer")
+		assert(h.Hop.ShogunLines()[1].text:find(h.L.HOP_SHOGUN_HERE:format("Shobek"), 1, true),
+			"the local UI says the player is already on the Shogun's layer")
 	end)
 end)
 

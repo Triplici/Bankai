@@ -13,7 +13,7 @@ local ArenaProfile = {}
 ns.ArenaProfile = ArenaProfile
 
 -- A fighter's profile (the design): only public-safe fields. The nickname comes from two
--- fixed lists (32 x 32 epithets: nobody can put words of his choosing on the King's screen), the
+-- fixed lists (32 x 32 epithets: nobody can put words of his choosing on the Shogun's screen), the
 -- emblem from the game's icons (ns.CouncilIconValue), the history public or private (a Consent
 -- line), and the honour pick (one frame and one title besides the Bankai Guild rank), which every
 -- viewer checks himself (HonorsNet.Verified): a pick is only a wish.

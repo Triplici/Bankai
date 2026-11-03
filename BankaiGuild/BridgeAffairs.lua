@@ -108,7 +108,7 @@ local function Digest(s)
 	return ("%08x"):format(h)
 end
 
--- The King's screen while the councillors' names are hidden there (ns.CouncilMasked, his stream):
+-- The Shogun's screen while the councillors' names are hidden there (ns.CouncilMasked, his stream):
 -- nobody is named a councillor, as in the chats (Bridge.lua's Masked).
 local function Masked()
 	if type(ns.CouncilMasked) ~= "function" then return false end
@@ -117,15 +117,15 @@ local function Masked()
 end
 
 -- The role a poster speaks with, in the self section's words (BridgeSections.lua's roles): crown
--- (the King, his Steward, his Hands; and for the whole army, the King's guild's own officers),
+-- (the Shogun, his Steward, his Hands; and for the whole army, the Shogun's guild's own officers),
 -- council (the signed High Council), author, and for one guild alone its master (guildMaster) or
--- another of its officers (officer). On the King's screen while the councillors' names are hidden
+-- another of its officers (officer). On the Shogun's screen while the councillors' names are hidden
 -- (Masked) a councillor has none (nil): "council" would mark him, and the Crown's is not his.
 local function RoleOf(name, scope)
 	if type(name) ~= "string" or name == "" then return nil end
 	local full = ns.FullName(name)
-	local K, W = Live("King"), Live("Workshop")
-	if Yes(ns.IsKingCharacter, full) or (K and (Yes(K.IsStewardName, full) or Yes(K.IsHandName, full))) then return "crown" end
+	local K, W = Live("Shogun"), Live("Workshop")
+	if Yes(ns.IsShogunCharacter, full) or (K and (Yes(K.IsStewardName, full) or Yes(K.IsHandName, full))) then return "crown" end
 	if Yes(ns.IsHighCouncillor, full) then
 		if Masked() then return nil end
 		return "council"
@@ -222,10 +222,10 @@ Register("crafters", { values = 8000 }, function()
 end)
 
 ---------------------------------------------------------------------------
--- treasury: the public numbers alone, and only while the King shows the balance
+-- treasury: the public numbers alone, and only while the Shogun shows the balance
 -- (Treasury.PublicShows): the balance, what came in and went out, this week's donations and donors,
 -- as the treasury may go out (Treasury.Report's shared, public form). Never an item, a book line, a
--- donor's name or a keeper's own book. While the King keeps the balance private: shown = false.
+-- donor's name or a keeper's own book. While the Shogun keeps the balance private: shown = false.
 ---------------------------------------------------------------------------
 
 Register("treasury", nil, function()
@@ -285,7 +285,7 @@ Register("decrees", { string = DECREE_TEXT }, function()
 end)
 
 ---------------------------------------------------------------------------
--- agenda: the week on top of the Decrees tab (Week.Section's rows): the King's current Agenda and
+-- agenda: the week on top of the Decrees tab (Week.Section's rows): the Shogun's current Agenda and
 -- the dated entries (the army's, or this guild's alone), this guild's own events from the game's
 -- calendar, and the Arena's dated fights; soonest first. Who set an entry, as the page names him,
 -- and with what role. Never a signup's name (the sheet's names stay on its setter's screen).
@@ -341,9 +341,9 @@ end)
 --   muster  the officer musters (OfficerMuster.List: the Crown's for the whole army, this guild's
 --           master's for it alone), and those that ended within a day (this client's acts log,
 --           Chronicle: withdrawn, expired or replaced) as withdrawn, with the same reach and role
---   king    the decrees of the Crown for the whole army (Decree.Active), and this character's own
---           letters from the King (HonorsNet.Letters; audience "self": his alone, never to fan out)
---   council the High Council's decrees for the whole army (none on the King's screen while the
+--   shogun    the decrees of the Crown for the whole army (Decree.Active), and this character's own
+--           letters from the Shogun (HonorsNet.Letters; audience "self": his alone, never to fan out)
+--   council the High Council's decrees for the whole army (none on the Shogun's screen while the
 --           councillors' names are hidden: RoleOf gives such a decree no role to show)
 -- An id is the same on every client that heard it ("muster:<sequence>:<poster key>", a decree's own
 -- fields); a letter's is this character's own.
@@ -355,9 +355,9 @@ local function MusterTitle(title)
 	return title
 end
 
--- A muster's role: the channel's calls are the Crown's alone (OfficerMuster's Authorized: the King,
--- his Steward, his Hands, the King's guild's master), whoever else the poster is; a guild's, its
--- master's. The same on every client, whatever the King's screen hides.
+-- A muster's role: the channel's calls are the Crown's alone (OfficerMuster's Authorized: the Shogun,
+-- his Steward, his Hands, the Shogun's guild's master), whoever else the poster is; a guild's, its
+-- master's. The same on every client, whatever the Shogun's screen hides.
 local function MusterRole(audience) return audience == "guild" and "guildMaster" or "crown" end
 
 -- An ended muster's reach. The acts log keeps no guild and no distribution, and it is this
@@ -369,8 +369,8 @@ local function MusterRole(audience) return audience == "guild" and "guildMaster"
 local function EndedReach(M, by, faction)
 	if type(M.Authorized) ~= "function" or faction ~= (ns.faction == "Horde" and "H" or ns.faction == "Alliance" and "A" or nil) then return nil end
 	local mine = type(GetGuildInfo) == "function" and GetGuildInfo("player") or nil
-	local king = type(ns.KingGuildName) == "function" and ns.KingGuildName() or nil
-	if Yes(M.Authorized, by, mine, "CHANNEL") or (king ~= mine and Yes(M.Authorized, by, king, "CHANNEL")) then return "army" end
+	local shogun = type(ns.ShogunGuildName) == "function" and ns.ShogunGuildName() or nil
+	if Yes(M.Authorized, by, mine, "CHANNEL") or (shogun ~= mine and Yes(M.Authorized, by, shogun, "CHANNEL")) then return "army" end
 	if Yes(M.Authorized, by, mine, "GUILD") then return "guild", mine end
 	return nil
 end
@@ -418,7 +418,7 @@ local function DecreeNotices(items, off)
 		local role = type(d) == "table" and type(d.kind) == "string" and d.scope ~= "guild" and not PreviewDecree(d) and DecreeRole(d, "army")
 		if role then
 			local veiled = d.hidden == true and not d.revealed
-			items[#items + 1] = { id = DecreeId(d), kind = role == "council" and "council" or "king", role = role,
+			items[#items + 1] = { id = DecreeId(d), kind = role == "council" and "council" or "shogun", role = role,
 				title = Text(type(D.Label) == "function" and D.Label(d) or d.kind, NOTICE_TITLE),
 				text = Text(veiled and L.FILTER_WORDS_HIDDEN_SHORT or d.text, NOTICE_TEXT), zone = Zone(d.mapID),
 				at = At(d.t, off), withdrawn = false, audience = "army" }
@@ -427,7 +427,7 @@ local function DecreeNotices(items, off)
 	return true
 end
 
--- The King's letters to this character (HonorsNet: queued once per honour, kept to read again in his
+-- The Shogun's letters to this character (HonorsNet: queued once per honour, kept to read again in his
 -- profile's Edit), in their words, one line. Their times are already the server's (Arena.Now).
 local function Letters(items)
 	local H = Live("HonorsNet")
@@ -438,7 +438,7 @@ local function Letters(items)
 			if type(text) == "string" then
 				-- (A Slayer letter's key is long and names its Horde player: its digest instead.)
 				local key = #x.key <= 40 and x.key:find("^[%w%-]+$") and x.key or Digest(x.key)
-				items[#items + 1] = { id = ("letter:%s:%d"):format(key, Whole(x.t)), kind = "king", role = "crown",
+				items[#items + 1] = { id = ("letter:%s:%d"):format(key, Whole(x.t)), kind = "shogun", role = "crown",
 					title = Text(type(title) == "string" and title or L.HONOR_LETTER_HEAD, NOTICE_TITLE) or Text(L.HONOR_LETTER_HEAD, NOTICE_TITLE),
 					text = Text(text, NOTICE_TEXT), at = Whole(x.t), withdrawn = false, audience = "self" }
 			end
@@ -467,12 +467,12 @@ end)
 
 ---------------------------------------------------------------------------
 -- watch: The Watch's staff pages, only on a moderation team client (WatchChat.InRoom) or for the
--- desk's own staff (Watch.DeskShown: the guild's officers and Watchers, the King, the High Council,
+-- desk's own staff (Watch.DeskShown: the guild's officers and Watchers, the Shogun, the High Council,
 -- the author). Counts, and the lists the pages show as their own gates let them: the cases (the
 -- reported name, open or handled, how many reported it and for what, when), the guild's records
 -- (status, warnings, timeout), the Tabards' inspected players and the untabarded list. Never a
 -- reporter's name or note, an evidence line, a moderator's reason or name, a chat line or a
--- chat-strike line, a BattleTag or a GUID. On the King's stream (Masked, as Watch.OnStream) the
+-- chat-strike line, a BattleTag or a GUID. On the Shogun's stream (Masked, as Watch.OnStream) the
 -- cases as the page shows them there (Watch.lua's CaseRow): the accused's name cut short until a
 -- finding upheld the case (Watch.Accused, Watch.Upheld), and neither how many reported him nor
 -- when (alts could inflate it), so no open reports' count either.
@@ -501,9 +501,9 @@ local function CaseRows(W, out, open, handled, council, stream)
 end
 
 local function Untabarded()
-	local I, K = Live("Inspect"), Live("King")
+	local I, K = Live("Inspect"), Live("Shogun")
 	if not I then return nil end
-	if K and (Yes(K.IsKing) or Yes(K.Preview)) then return type(I.ShameList) == "function" and I.ShameList() or nil end
+	if K and (Yes(K.IsShogun) or Yes(K.Preview)) then return type(I.ShameList) == "function" and I.ShameList() or nil end
 	if type(I.ShameOpen) == "function" and not Yes(I.ShameOpen) then return nil end
 	local shame = type(I.Shame) == "function" and I.Shame() or nil
 	return type(shame) == "table" and shame.list or nil

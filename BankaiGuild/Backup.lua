@@ -16,7 +16,7 @@ local L = ns.L
 --     time), and on the Treasurer's characters the other pinned one's (his account keeps both);
 --     it goes back into that character's book alone, merged with what was written since
 --     (Treasury.RestoreBook);
---   word: the King's switches and keepers (his client's or a Steward's), given again as a new word;
+--   word: the Shogun's switches and keepers (his client's or a Steward's), given again as a new word;
 --   settings: the player's toggles (Backup.SETTINGS) and this character's chat windows;
 --   blocked: the players this character blocked (/bk block).
 -- Never the channel key (Konig's review of 1.1: a restore took whatever key the text carried, and
@@ -299,8 +299,8 @@ function Backup.Data()
 		books[#books + 1] = { name = b.name, opening = b.opening, openedAt = b.openedAt, opened = b.opened, lines = Copy(b.lines), sums = Copy(b.sums) }
 	end
 	if #books > 0 then d.books = books end
-	-- The King's word, from his client or a Steward's (never the author's Shobek's view).
-	if ns.King and ns.King.SetsLists and ns.King.SetsLists() and ns.rdb then
+	-- The Shogun's word, from his client or a Steward's (never the author's Shobek's view).
+	if ns.Shogun and ns.Shogun.SetsLists and ns.Shogun.SetsLists() and ns.rdb then
 		local f = ns.rdb.treasuryFlags
 		local k = ns.rdb.treasuryKeepers
 		d.word = { flags = type(f) == "table" and { balance = f.balance == true, ranking = f.ranking == true, book = f.book == true } or nil,
@@ -568,7 +568,7 @@ function Backup.Summary(d)
 		lines[#lines + 1] = (fresh and L.BACKUP_BOOK_WHOLE or L.BACKUP_BOOK_MERGE):format(ns.DisplayName(b.name) or b.name, #b.lines, T.Coins(b.opening))
 	end
 	if d.word then
-		if ns.King.SetsLists() then
+		if ns.Shogun.SetsLists() then
 			if d.word.flags then
 				local shown = {}
 				for _, k in ipairs({ "balance", "ranking", "book" }) do if d.word.flags[k] then shown[#shown + 1] = L["TREASURY_PART_" .. k:upper()] end end
@@ -588,7 +588,7 @@ function Backup.Summary(d)
 				if #back > 0 then lines[#lines + 1] = L.BACKUP_WORD_KEEPERS_BACK:format(table.concat(back, ", ")) end
 			end
 		else
-			lines[#lines + 1] = L.BACKUP_WORD_NOT_KING
+			lines[#lines + 1] = L.BACKUP_WORD_NOT_SHOGUN
 		end
 	end
 	-- A key in it is never set (Konig's review of 1.1); one a newer key replaced, said so.
@@ -630,7 +630,7 @@ function Backup.Summary(d)
 	return lines
 end
 
--- Restores it (after the player's yes): books, the King's word, settings, the players the confirm
+-- Restores it (after the player's yes): books, the Shogun's word, settings, the players the confirm
 -- named as blocked. Never a channel key. Sends nothing: a keeper's book goes out afterwards as it
 -- always does, under his own yes.
 function Backup.Apply(d)
@@ -645,7 +645,7 @@ function Backup.Apply(d)
 		ns.db.myCharacters = type(ns.db.myCharacters) == "table" and ns.db.myCharacters or {}
 		for _, b in ipairs(d.books) do ns.db.myCharacters[tostring(ns.FullName(ns.Normal(b.name))):lower()] = true end
 	end
-	if d.word and ns.King.SetsLists() then T.RestoreWord(d.word.flags, d.word.keepers) end
+	if d.word and ns.Shogun.SetsLists() then T.RestoreWord(d.word.flags, d.word.keepers) end
 	local shown = {}
 	for key, v in pairs(d.settings or {}) do
 		if ns.db[key] ~= v then shown[key] = true end

@@ -2,7 +2,7 @@
 -- this): each loads as the addon loads it, its signature holds with that key, each is newer
 -- than the one before, and any change to one is refused. The councils (0.9.9: names, and the
 -- departments and titles) are also taken by the addon's own code, as a client takes them.
--- Councils 3 and 4 (1.0.0) are council 1 with the King's Steward marked ("steward"), then with
+-- Councils 3 and 4 (1.0.0) are council 1 with the Shogun's Steward marked ("steward"), then with
 -- him removed ("steward --remove"): the addon's own code makes him the Steward, then no longer.
 -- Councils 5 and 6 (1.1) are the council with an approved guild ("guild"), then without it
 -- ("guild --remove"): the addon's own code makes it an Bankai Guild guild, then no longer.
@@ -129,9 +129,9 @@ Sign.WithKey(n, mu, k, function()
 	check(not ns.Authority.Enforced(), "ordinary HT1 does not silently activate cross-guild authority")
 	check(ns.Authority.LoadLocal(c1.authority), "council 1: its separate signed authority set is taken")
 	check(ns.Authority.Enforced(), "council 1: its explicit signed leadership activates enforcement")
-	check(ns.Authority.Rank("Test Lord-ClassicBetaPvP", "Bankai Guild Zeus") == 0
+	check(ns.Authority.Rank("Test Council-ClassicBetaPvP", "Bankai Guild Zeus") == 0
 		and ns.Authority.Rank("Test Captain-ClassicBetaPvP2", "Bankai Guild Zeus") == 1,
-		"council 1: exact-realm Lord and Captain ranks come from the signed extension")
+		"council 1: exact-realm Council and Captain ranks come from the signed extension")
 	local _, _, realm, names = Parts(c1.names)
 	check(realm == "ClassicBetaPvP+ClassicBetaPvP2", "Forever's realm group by default")
 	check(names == "Test Councillor,Other Mod,F\195\160ladoriel Test,Third Mod", "every name, outside any department first: " .. names)
@@ -167,7 +167,7 @@ Sign.WithKey(n, mu, k, function()
 	end
 	check(not Sign.Verify(text, (TitleParts(councils[2].titles))), "another list's signature is refused")
 	local authorityText, _, _, _, _, _, _, _, _, _, _, authoritySig = AuthorityParts(c1.authority[1])
-	local alteredLeadership, altered = authorityText:gsub("Test Lord", "Fake Lord", 1)
+	local alteredLeadership, altered = authorityText:gsub("Test Council", "Fake Council", 1)
 	check(altered == 1 and not ns.Authority.TakePart(alteredLeadership .. "~" .. authoritySig, nil, "LOCAL"),
 		"a changed separate leadership manifest is refused by the author's signature")
 
@@ -190,7 +190,7 @@ Sign.WithKey(n, mu, k, function()
 	loose, depts = W.CouncilTree()
 	check(#loose == 2 and #depts == W.DEPTS_MAX, "all of it in the census")
 
-	-- The King's Steward (1.0.0): council 1 again with him marked, then without him, each newer.
+	-- The Shogun's Steward (1.0.0): council 1 again with him marked, then without him, each newer.
 	ns.realm, ns.me, ns.rdb, ns.faction = "ClassicBetaPvP", "Tester-ClassicBetaPvP", {}, "Alliance"
 	local c3, c4 = councils[3], councils[4]
 	local _, at3t = TitleParts(c3.titles)
@@ -208,7 +208,7 @@ Sign.WithKey(n, mu, k, function()
 	check(not ns.IsSteward("Test Steward-Elsewhere"), "a namesake on another realm group is nobody")
 	check(not ns.IsSteward("Test Councillor-ClassicBetaPvP"), "a councillor is not the Steward")
 	ns.faction = "Horde"
-	check(not ns.IsSteward("Test Steward-ClassicBetaPvP2"), "the Horde's King: none, the list names none for him")
+	check(not ns.IsSteward("Test Steward-ClassicBetaPvP2"), "the Horde's Shogun: none, the list names none for him")
 	ns.faction = "Alliance"
 	loose, depts = W.CouncilTree()
 	check(#loose == 1 and #depts == 2, "the census shows the same departments, no entry for the Steward")
@@ -266,10 +266,10 @@ Sign.WithKey(n, mu, k, function()
 	local c9, c10 = councils[9], councils[10]
 	check(W.TakeTitles(c9.titles) and ns.Authority.LoadLocal(c9.authority),
 		"council 9: the separate explicit empty leadership tombstone is taken")
-	check(ns.Authority.Enforced() and ns.Authority.Rank("Test Lord-ClassicBetaPvP", "Bankai Guild Zeus") == nil,
-		"the tombstone keeps enforcement and revokes the old Lord")
+	check(ns.Authority.Enforced() and ns.Authority.Rank("Test Council-ClassicBetaPvP", "Bankai Guild Zeus") == nil,
+		"the tombstone keeps enforcement and revokes the old Council")
 	check(W.TakeTitles(c10.titles), "council 10: a newer legacy HT1 is taken")
-	check(ns.Authority.Enforced() and ns.Authority.Rank("Test Lord-ClassicBetaPvP", "Bankai Guild Zeus") == nil,
+	check(ns.Authority.Enforced() and ns.Authority.Rank("Test Council-ClassicBetaPvP", "Bankai Guild Zeus") == nil,
 		"newer absence cannot reopen authority after activation")
 	check(not W.TakeTitles(c8.titles), "an older leadership manifest cannot replay")
 	check(not ns.Authority.LoadLocal(c8.authority), "nor can its separate authority set replay")

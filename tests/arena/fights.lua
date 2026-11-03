@@ -338,7 +338,7 @@ test("1.2 the fights part: AF only from its arbiter (the design S26): a public a
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part: AR from anyone but the writer, the card's promoter or the King (in grace) is ignored; AC from someone else is ignored", function()
+test("1.2 the fights part: AR from anyone but the writer, the card's promoter or the Shogun (in grace) is ignored; AC from someone else is ignored", function()
 	local w, cast = W3.New()
 	local fid = Booked(w, cast)
 	Live(w, cast, fid)
@@ -514,18 +514,18 @@ print("ArenaFights: cards, the week, the events")
 
 test("1.2 the fights part: a Fight Night card (AN) by a promoter: bouts written by the promoter, one handed to another public arbiter who takes it over; the week's rows; the events list; the Fight of the Night and the fastest knockout", function()
 	local w, cast = W3.New({ more = { { "hc", "Brannoc Weald" } } })
-	local king = cast.king
-	local C = W3.M(w, king, "ArenaFights").Card
-	local cid = assert(w:As(king, king.ns.ArenaFights.Card.New, "Night of Blades", w.clock + 3600))
-	local fid = assert(w:As(king, king.ns.ArenaFights.Card.AddBout, cid, { A = cast.A.name, B = cast.B.name }))
+	local shogun = cast.shogun
+	local C = W3.M(w, shogun, "ArenaFights").Card
+	local cid = assert(w:As(shogun, shogun.ns.ArenaFights.Card.New, "Night of Blades", w.clock + 3600))
+	local fid = assert(w:As(shogun, shogun.ns.ArenaFights.Card.AddBout, cid, { A = cast.A.name, B = cast.B.name }))
 	w:Run(0)
 	local card = cast.spectator.ns.ArenaFights.Card.Get(cid)
-	eq(card.promoter, king.name); eq(card.fids[1], fid)
-	-- The promoter's own title shows on the King's screen only because he is the King.
+	eq(card.promoter, shogun.name); eq(card.fids[1], fid)
+	-- The promoter's own title shows on the Shogun's screen only because he is the Shogun.
 	eq(w:As(cast.spectator, cast.spectator.ns.ArenaFights.Card.ScreenTitle, cid), "Night of Blades")
 	-- The bout handed to the signed arbiter: he writes it from then on.
-	w:As(king, king.ns.ArenaFights.Announce, fid)
-	assert(w:As(king, king.ns.ArenaFights.Card.SetArbiter, cid, fid, cast.arbiter.name))
+	w:As(shogun, shogun.ns.ArenaFights.Announce, fid)
+	assert(w:As(shogun, shogun.ns.ArenaFights.Card.SetArbiter, cid, fid, cast.arbiter.name))
 	w:Run(0)
 	local f = cast.arbiter.ns.ArenaFights.Find("fights", fid)
 	eq(f.writer, cast.arbiter.name)
@@ -542,9 +542,9 @@ test("1.2 the fights part: a Fight Night card (AN) by a promoter: bouts written 
 	w:Run(0)
 	w:Run(125)
 	eq(State(w, cast.arbiter, fid), "F")
-	assert(w:As(king, king.ns.ArenaFights.Card.SetFotN, cid, fid))
+	assert(w:As(shogun, shogun.ns.ArenaFights.Card.SetFotN, cid, fid))
 	w:Run(2)
-	local kc = king.ns.ArenaFights.Card.Get(cid)
+	local kc = shogun.ns.ArenaFights.Card.Get(cid)
 	eq(kc.st, "D", "every bout final: done")
 	eq(kc.awards.fotn, fid); eq(kc.awards.ko, fid)
 	eq(cast.spectator.ns.ArenaFights.Card.Get(cid).awards.fotn, fid)
@@ -555,7 +555,7 @@ end)
 
 print("ArenaLedger: the ledger's rules, the clerk")
 
--- A fighter's invented name from his gk (letters only, as King.CleanName takes names).
+-- A fighter's invented name from his gk (letters only, as Shogun.CleanName takes names).
 local function NameOf(gk)
 	local tail = gk:sub(-4)
 	return "Fighter " .. tail:gsub("%x", function(c) return string.char(97 + tonumber(c, 16)) end):gsub("^%l", string.upper) .. "-Emberfall"
@@ -619,13 +619,13 @@ test("1.2 the fights part: the ledger takes AE only from a listed arbiter who is
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part: a listed arbiter's entries: 60 a server day at most; once the King delists him they stop counting and the clerk stops relaying them (listed again, they count again)", function()
+test("1.2 the fights part: a listed arbiter's entries: 60 a server day at most; once the Shogun delists him they stop counting and the clerk stops relaying them (listed again, they count again)", function()
 	local w, cast = W3.New()
 	local sp = cast.spectator
 	W3.Companion(w, sp)
 	local LG = sp.ns.ArenaLedger
 	local arb = "Corvin Hale-Emberfall"
-	assert(cast.king.Roles.SetArbiters({ { name = arb, cap = 100 } }))
+	assert(cast.shogun.Roles.SetArbiters({ { name = arb, cap = 100 } }))
 	w:Run(0)
 	eq(w:As(sp, sp.ns.ArenaRoles.IsArbiter, arb, "L"), true)
 	local mark = w:As(sp, sp.ns.Arena.Hash36, arb:lower(), 2)
@@ -644,7 +644,7 @@ test("1.2 the fights part: a listed arbiter's entries: 60 a server day at most; 
 	local function Fights(gk) return select(2, w:As(sp, LG.Rating, gk)) end
 	eq(Fights("3e8.00000002"), 1); eq(Fights("3e8.0000aaa2"), 1)
 	-- Delisted: his entries leave the ratings and the history; the signed arbiter's stay.
-	assert(cast.king.Roles.SetArbiters({}))
+	assert(cast.shogun.Roles.SetArbiters({}))
 	w:Run(0)
 	local left = w:As(sp, LG.Entries)
 	eq(#left, 1); eq(left[1].fid, "F70zz")
@@ -653,7 +653,7 @@ test("1.2 the fights part: a listed arbiter's entries: 60 a server day at most; 
 	-- A clerk holding them relays none.
 	local clerk = cast.arbiter
 	W3.Companion(w, clerk)
-	assert(cast.king.Roles.SetArbiters({ { name = arb, cap = 100 } }))
+	assert(cast.shogun.Roles.SetArbiters({ { name = arb, cap = 100 } }))
 	w:Run(0)
 	for i = 1, 3 do Send(100 + i, day - 2 * 86400 + i) end
 	for i = 1, 3 do
@@ -661,31 +661,31 @@ test("1.2 the fights part: a listed arbiter's entries: 60 a server day at most; 
 		w:As(clerk, function() clerk.ns.Arena.Inject("CHANNEL", arb, "AE~L1~" .. LG.Encode(e)) end)
 	end
 	eq(#w:As(clerk, clerk.ns.ArenaLedger.Entries), 3)
-	assert(cast.king.Roles.SetArbiters({}))
+	assert(cast.shogun.Roles.SetArbiters({}))
 	w:Run(0)
 	eq(#w:As(clerk, clerk.ns.ArenaLedger.Entries), 0)
 	local d = w:As(clerk, clerk.ns.ArenaLedger.MakeDigest, "L")
 	eq(d.n, 0, "nothing of his in the clerk's digest or carousel")
 	-- Listed again: they count again.
-	assert(cast.king.Roles.SetArbiters({ { name = arb, cap = 100 } }))
+	assert(cast.shogun.Roles.SetArbiters({ { name = arb, cap = 100 } }))
 	w:Run(0)
 	eq(#w:As(sp, LG.Entries), 65)
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part: the clerk (a public arbiter with the companion, never the King's character) broadcasts a carousel of the week's entries; 1,000 listeners that join late all hold every entry within one turn, and the clerk's sends do not grow with them", function()
+test("1.2 the fights part: the clerk (a public arbiter with the companion, never the Shogun's character) broadcasts a carousel of the week's entries; 1,000 listeners that join late all hold every entry within one turn, and the clerk's sends do not grow with them", function()
 	local w, cast = W3.New({ more = { { "hc", "Brannoc Weald" }, { "late", "Wenna Crale" } } })
 	local clerk = cast.arbiter
 	W3.Companion(w, clerk)
-	W3.Companion(w, cast.king)
+	W3.Companion(w, cast.shogun)
 	local LG = clerk.ns.ArenaLedger
 	-- Forty entries in the ledger of the clerk.
 	for i = 1, 40 do
 		w:As(clerk, LG.Keep, Entry(i, ("3e8.%08x"):format(i), ("3e8.%08x"):format(1000 + i), w.clock - 3600 + i), "L", "own")
 	end
 	eq(#w:As(clerk, LG.Entries), 40)
-	-- The King's client is never the clerk, even with the ledger loaded.
-	eq(w:As(cast.king, cast.king.ns.ArenaLedger.MayClerk), false)
+	-- The Shogun's client is never the clerk, even with the ledger loaded.
+	eq(w:As(cast.shogun, cast.shogun.ns.ArenaLedger.MayClerk), false)
 	eq(w:As(clerk, LG.MayClerk), true)
 	-- 1,000 listeners of the channel join now: each decodes the pieces it hears (the real decoder).
 	local listeners, have = {}, {}
@@ -849,15 +849,15 @@ test("1.2 the fights part: a tournament of 8: 10 sign up (8 and 2 on the waitlis
 	local names = { "Aric", "Bram", "Cael", "Dorn", "Eska", "Fenn", "Gorm", "Hale", "Isla", "Jory" }
 	for i, n in ipairs(names) do more[#more + 1] = { "e" .. i, n .. " Stone" } end
 	local w, cast = W3.New({ more = more })
-	local king = cast.king
-	local T = W3.M(w, king, "ArenaTourney")
+	local shogun = cast.shogun
+	local T = W3.M(w, shogun, "ArenaTourney")
 	local tid = assert(T.New({ title = "Spring Cup", size = 8, tStart = w.clock + 7200, tReg = w.clock + 3000, bo = "1" }))
 	w:Run(0)
 	for i = 1, 10 do
 		eq(W3.M(w, cast["e" .. i], "ArenaTourney").Sign(tid), true)
 		w:Run(4)
 	end
-	local t = king.ns.ArenaTourney.Find(tid)
+	local t = shogun.ns.ArenaTourney.Find(tid)
 	eq(#t.entrants, 10)
 	eq(t.entrants[9].wait, true); eq(t.entrants[10].wait, true)
 	assert(T.CloseRegistration(tid))
@@ -871,35 +871,35 @@ test("1.2 the fights part: a tournament of 8: 10 sign up (8 and 2 on the waitlis
 	for i = 1, 10 do
 		if i ~= 3 then W3.M(w, cast["e" .. i], "ArenaTourney").CheckIn(tid) w:Run(4) end
 	end
-	local field = w:As(king, king.ns.ArenaTourney.Field, t)
+	local field = w:As(shogun, shogun.ns.ArenaTourney.Field, t)
 	eq(#field, 8)
 	local inField = {}
 	for _, e in ipairs(field) do inField[e.name] = true end
 	eq(inField[cast.e9.name], true, "the waitlist's first in"); eq(inField[cast.e10.name], nil); eq(inField[cast.e3.name], nil)
-	local scratched = w:As(king, king.ns.ArenaTourney.Scratched, t)
+	local scratched = w:As(shogun, shogun.ns.ArenaTourney.Scratched, t)
 	table.sort(scratched)
 	eq(table.concat(scratched, ","), "3,10")
-	-- The draw: the King draws in his raid; each Roll click's line counts (the first valid of a step).
-	w:Group({ king.name, cast.e1.name, cast.e2.name }, true)
+	-- The draw: the Shogun draws in his raid; each Roll click's line counts (the first valid of a step).
+	w:Group({ shogun.name, cast.e1.name, cast.e2.name }, true)
 	assert(T.StartDraw(tid))
 	eq(t.st, "D")
-	local AB = king.ns.ArenaBracket
-	local state = w:As(king, king.ns.ArenaTourney.DrawState, t)
+	local AB = shogun.ns.ArenaBracket
+	local state = w:As(shogun, shogun.ns.ArenaTourney.DrawState, t)
 	local steps = state.total
 	eq(steps, 5, "8 entrants, 2 seeds: 6 to draw, 5 rolls")
-	king.globals.RandomRoll = function(lo, hi) king.rolled = hi end
-	local witnesses = { king, cast.e1, cast.e2 }
+	shogun.globals.RandomRoll = function(lo, hi) shogun.rolled = hi end
+	local witnesses = { shogun, cast.e1, cast.e2 }
 	for s = 1, steps do
 		local ok, step, hi = T.DrawStep(tid)
 		eq(ok, true); eq(step, s)
-		W3.Roll(w, witnesses, king, 1, 1, hi)
-		if s == 2 then W3.Roll(w, witnesses, king, 2, 1, hi) end -- a second roll of step 2: ignored, flagged
+		W3.Roll(w, witnesses, shogun, 1, 1, hi)
+		if s == 2 then W3.Roll(w, witnesses, shogun, 2, 1, hi) end -- a second roll of step 2: ignored, flagged
 		w:Run(0)
 	end
 	eq(t.st, "L", "drawn: live")
 	eq(#t.flags >= 1, true, "the extra roll flagged")
-	eq(#w:Sent{ from = king, type = "AD" }, steps)
-	-- The first round's bouts, public fights of the King's.
+	eq(#w:Sent{ from = shogun, type = "AD" }, steps)
+	-- The first round's bouts, public fights of the Shogun's.
 	local bouts = 0
 	for _ in pairs(t.bouts) do bouts = bouts + 1 end
 	eq(bouts, 4)
@@ -908,29 +908,29 @@ test("1.2 the fights part: a tournament of 8: 10 sign up (8 and 2 on the waitlis
 	-- Reached and StageOf before anything is decided: still open.
 	local v = w:As(cast.spectator, cast.spectator.ns.ArenaTourney.View, tid)
 	eq(#v.matches >= 4, true)
-	eq(w:As(king, king.ns.ArenaTourney.StageOf, tid, 3), "scratched", "the no-show")
+	eq(w:As(shogun, shogun.ns.ArenaTourney.StageOf, tid, 3), "scratched", "the no-show")
 	local first = t.entrants[1]
-	eq(w:As(king, king.ns.ArenaTourney.StageOf, tid, first.n), nil, "still in: not settled")
+	eq(w:As(shogun, shogun.ns.ArenaTourney.StageOf, tid, first.n), nil, "still in: not settled")
 	-- Each bout to its A side (walkovers: the bracket moves on as FINAL results move it); the
 	-- rounds' bouts are made as their feeders end; the champion is the last one standing.
 	local stages = {}
-	for _, c in ipairs({ king, cast.spectator }) do c.ns.On("ARENA_TOURNEY", function(x, stage) if c == cast.spectator then stages[#stages + 1] = stage end end) end
+	for _, c in ipairs({ shogun, cast.spectator }) do c.ns.On("ARENA_TOURNEY", function(x, stage) if c == cast.spectator then stages[#stages + 1] = stage end end) end
 	for _ = 1, 3 do
 		for _, fid in pairs(t.bouts) do
-			local f = king.ns.ArenaFights.Find("fights", fid)
-			if f.st == "S" then w:As(king, king.ns.ArenaFights.Walkover, fid, "A") end
+			local f = shogun.ns.ArenaFights.Find("fights", fid)
+			if f.st == "S" then w:As(shogun, shogun.ns.ArenaFights.Walkover, fid, "A") end
 		end
 		w:Run(6)
 	end
 	eq(t.st, "F", "finished")
-	local champion = w:As(king, king.ns.ArenaTourney.Winner, tid)
+	local champion = w:As(shogun, shogun.ns.ArenaTourney.Winner, tid)
 	assert(champion, "a champion")
 	local R = t.bracket.rounds
 	eq(R, 3)
-	eq(w:As(king, king.ns.ArenaTourney.Reached, tid, champion), R + 1, "the champion: R + 1")
+	eq(w:As(shogun, shogun.ns.ArenaTourney.Reached, tid, champion), R + 1, "the champion: R + 1")
 	local champ
 	for _, e in ipairs(t.entrants) do if e.gk == champion then champ = e end end
-	eq(w:As(king, king.ns.ArenaTourney.StageOf, tid, champ.n), 1, "stage 1: champion")
+	eq(w:As(shogun, shogun.ns.ArenaTourney.StageOf, tid, champ.n), 1, "stage 1: champion")
 	-- A spectator builds the same bracket from the seeds and the bouts it heard.
 	eq(w:As(cast.spectator, cast.spectator.ns.ArenaTourney.Winner, tid), champion)
 	eq(stages[#stages], "F")
@@ -1056,8 +1056,8 @@ test("1.2 Arena chat rooms: private fights name participants only; cards and tou
 	eq(table.concat(duel.participants, ","), table.concat({ cast.A.name, cast.B.name }, ","))
 	eq(duel.supportsBets, true); eq(duel.supportsComments, true)
 
-	local cid = assert(w:As(cast.king, cast.king.ns.ArenaFights.Card.New, "Crown Night", w.clock + 3600))
-	local tid = assert(W3.M(w, cast.king, "ArenaTourney").New({ title = "Crown Cup", size = 4, tStart = w.clock + 7200 }))
+	local cid = assert(w:As(cast.shogun, cast.shogun.ns.ArenaFights.Card.New, "Crown Night", w.clock + 3600))
+	local tid = assert(W3.M(w, cast.shogun, "ArenaTourney").New({ title = "Crown Cup", size = 4, tStart = w.clock + 7200 }))
 	w:Run(0)
 	local card = w:As(sp, sp.ns.Arena.ChatRoom, cid)
 	eq(card.key, "arena:" .. cid); eq(card.kind, "event"); eq(card.eventKind, "card")
@@ -1069,7 +1069,7 @@ test("1.2 Arena chat rooms: private fights name participants only; cards and tou
 
 	-- With nobody checked in, closing registration and drawing cancels the tournament. The event
 	-- room is now completed, but remains recoverable for the same retention window as a fight.
-	local T = W3.M(w, cast.king, "ArenaTourney")
+	local T = W3.M(w, cast.shogun, "ArenaTourney")
 	assert(T.CloseRegistration(tid))
 	w:Run(0)
 	local ok, why = T.StartDraw(tid)
@@ -1139,7 +1139,7 @@ test("1.2 the fights part: the arbiter's word on a fight (the design): linked al
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part: a season word (AH) from the King or a public arbiter: 4 to 16 weeks, never starting before the last one's end less 7 days; a new season closes the last one into the Hall", function()
+test("1.2 the fights part: a season word (AH) from the Shogun or a public arbiter: 4 to 16 weeks, never starting before the last one's end less 7 days; a new season closes the last one into the Hall", function()
 	local w, cast = W3.New()
 	local sp = cast.spectator
 	W3.Companion(w, sp)
@@ -1161,9 +1161,9 @@ test("1.2 the fights part: a season word (AH) from the King or a public arbiter:
 	eq(s1.n, 1); eq(s1.by, cast.arbiter.name); eq(s1.vac, 6)
 	-- Entries of season 1, then season 2 too early, then in its time.
 	w:As(sp, LG.Keep, Entry(1, "3e8.00000001", "3e8.00000002", w.clock - 600), "L", "clerk")
-	Word(N.king, 2, w.clock, 8)
+	Word(N.shogun, 2, w.clock, 8)
 	eq(w:As(sp, LG.Season).n, 1, "starts before season 1's end less a week: refused")
-	Word(N.king, 2, s1.stop - 3 * 86400, 8)
+	Word(N.shogun, 2, s1.stop - 3 * 86400, 8)
 	eq(w:As(sp, LG.Season).n, 2)
 	local hall = w:As(sp, LG.Hall, 1)
 	eq(type(hall), "table", "season 1 in the Hall")
@@ -1211,10 +1211,10 @@ test("1.2 the fights part: a direct fight with one duel line missing ten minutes
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part: the King's screen shows a promoter's own tournament or Fight Night title only when the King set it (the design); a public arbiter's typed title shows as the plain word in the events list and the bracket view", function()
+test("1.2 the fights part: the Shogun's screen shows a promoter's own tournament or Fight Night title only when the Shogun set it (the design); a public arbiter's typed title shows as the plain word in the events list and the bracket view", function()
 	local w, cast = W3.New()
 	local sp = cast.spectator
-	local kt = assert(W3.M(w, cast.king, "ArenaTourney").New({ title = "Spring Cup", size = 4, tStart = w.clock + 7200 }))
+	local kt = assert(W3.M(w, cast.shogun, "ArenaTourney").New({ title = "Spring Cup", size = 4, tStart = w.clock + 7200 }))
 	local at = assert(W3.M(w, cast.arbiter, "ArenaTourney").New({ title = "Words Of My Choosing", size = 4, tStart = w.clock + 7300 }))
 	local ac = assert(w:As(cast.arbiter, cast.arbiter.ns.ArenaFights.Card.New, "Other Words", w.clock + 3600))
 	w:Run(0)

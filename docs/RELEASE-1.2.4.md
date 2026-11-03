@@ -16,7 +16,7 @@ tickets stay disabled.
   or verified correspondent. Army authority keeps its separate verified Crown, author and
   Heraldry Council duties. An ordinary guild master gains no army-wide Crown powers.
 - Centurions are now Legates: up to 25 explicitly appointed leaders per guild, including the
-  King's guild. A signed High Council title does not automatically appoint a Legate.
+  Shogun's guild. A signed High Council title does not automatically appoint a Legate.
   Each organizes their own agreed group of 40 total (leader plus up to 39 guildmates), coordinating
   attendance at events, raids and wars. Naming explains this purpose; the appointed character gets
   a quiet local notice. Existing officer oversight remains. Legacy oversized saved groups remain
@@ -45,7 +45,7 @@ tickets stay disabled.
   ring. All cross frames use the larger cross geometry. A signed Apostle's optional red cross
   is client-local, and its picker explains that other clients see the ordinary chosen honour.
 - An honour letter is remembered per character, category/place and applicable monthly period.
-  The King receives no letter from himself. Later losses, returns and place changes use quiet,
+  The Shogun receives no letter from himself. Later losses, returns and place changes use quiet,
   bounded notices. Letter text, parchment layout and the red seal beside the signature were
   revised; clipping and actual texture appearance still need the client checks below.
 - `/bk honours preview` opens the author's gallery of every existing letter family, using
@@ -85,10 +85,10 @@ tickets stay disabled.
   become fresh payment proof. Missing private receipts can be requested through the page.
 - A character-local dues reminder can be dismissed or changed on Privacy. It stays quiet in
   combat and instances and does not make a payment, impose a sanction or open a recurring popup.
-- The actual King can define a voluntary campaign purpose, gold/material goals and a 14-day
+- The actual Shogun can define a voluntary campaign purpose, gold/material goals and a 14-day
   receipt window. A real keeper explicitly assigns eligible newly received voluntary gifts;
-  verified current-week dues remain reserved. Only aggregate progress is reported to the King
-  and published by him. A receipt cannot be assigned twice, and closing records the King's
+  verified current-week dues remain reserved. Only aggregate progress is reported to the Shogun
+  and published by him. A receipt cannot be assigned twice, and closing records the Shogun's
   purchases note. The jar moves no money and grants no rank, payment exemption or privilege.
 - The pinned primary Treasurer's private recorded-week history preserves a first covered
   week without a sufficient native receipt; a second may privately notify the player, then the
@@ -110,7 +110,7 @@ tickets stay disabled.
   not become trusted. Private Loot passes between consenting guild masters, never through the
   member. Moderator records remain excluded. No archive applies payment, pardon, office or
   key authority. See [history carry](history-carry.md).
-- A named guild merger adds a separate frozen archive mandate: the actual King, source guild
+- A named guild merger adds a separate frozen archive mandate: the actual Shogun, source guild
   master and exact heir guild master each approve the same record index before the source
   folds. Each subject separately consents; private Loot passes only between keepers and only
   to that approving heir GM. Retained per-record hashes and original signatures remain
@@ -121,13 +121,13 @@ tickets stay disabled.
 
 ## Open limitations and acceptance gates
 
-- The Watch's private Justice requests record explicit King/High Council assignments to a
+- The Watch's private Justice requests record explicit Shogun/High Council assignments to a
   currently verified Justice correspondent. Receipt is acknowledged by the actual assignee;
   delivery while offline does not start the timer. The existing removal dialog remains a manual
   native action, with no new kick permission. A later complete fresh roster absence is recorded
   separately; it never proves who caused the removal. The original issuer must explicitly review
   completion, labeled human-confirmed. Cancellation/decision delivery has bounded retries and
-  acknowledgement. Actual King/Council and the verified author can privately recover original
+  acknowledgement. Actual Shogun/Council and the verified author can privately recover original
   issuer/assignee proofs from other staff, including after the originals go offline. Author
   read access creates no request, decision or removal power. Correspondents see only their
   own requests. Response ranking uses signed receipt-to-manual-attempt medians with sample

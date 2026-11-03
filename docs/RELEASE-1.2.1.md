@@ -34,7 +34,7 @@ Automated checks and live multiplayer checks are separate gates; use
   lines** is a separate personal parchment page in the main window's Realm tab, available to
   every member, not a Throne page. The old automatic personal popup is removed. Unknown
   coverage and receipts are shown honestly; opening either brief does not turn on sharing.
-- The King may leave a short message with an audience. The recipient retains it in their local
+- The Shogun may leave a short message with an audience. The recipient retains it in their local
   Chronicle with its sender; this does not create a jury or another punishment system.
 - Invitations through the addon warn about a character blocked from the network, with a reason
   and date. The officer still chooses; native guild invitations are not silently declined.
@@ -55,21 +55,21 @@ Automated checks and live multiplayer checks are separate gates; use
   reporter's own guild (the guild master, Captains, appointed Watchers and signed moderators) and
   shows in their Watch under **Reports** and **Cases**. With no officer online it waits on the
   reporter's client for a day.
-- A member's report also reaches the King and the High Council, in their Watch under **Reports**
-  and **Cases**, the tab where the High Council works. It goes by logged whisper to the King's
+- A member's report also reaches the Shogun and the High Council, in their Watch under **Reports**
+  and **Cases**, the tab where the High Council works. It goes by logged whisper to the Shogun's
   client while it is on, which keeps it apart from any guild's Watch and passes it on to the
   councillors whose clients asked lately. Each councillor's client asks every 15 minutes while the
-  King's client is on and gets every report it received since his last one, including one that
-  reached it late. The King's client takes a report only from a reporter it already knows in the
-  guild he names: the King's own guild by its roster, another guild when his own earlier messages
+  Shogun's client is on and gets every report it received since his last one, including one that
+  reached it late. The Shogun's client takes a report only from a reporter it already knows in the
+  guild he names: the Shogun's own guild by its roster, another guild when his own earlier messages
   there (his lines in the Bankai Guild chats, for one) spoke for it. A report from anyone else reaches
   his guild's officers only. It keeps only the lines it heard itself in the Bankai Guild channel, so a
   case never shows words its player did not write. Per-player and per-guild rate limits apply. A
-  councillor never receives a case about himself or a name his player linked, and the King's chat
+  councillor never receives a case about himself or a name his player linked, and the Shogun's chat
   names no one. The council's reports and cases have their own sections, apart from the guild's,
-  so an officer on the council, and the King, act on them in Bankai Guild's chats and never with their
-  guild's Watch; an officer can still send his own guild's case to the King for the council's
-  vote. With the King's client off, the report waits for it on the reporter's client for a day.
+  so an officer on the council, and the Shogun, act on them in Bankai Guild's chats and never with their
+  guild's Watch; an officer can still send his own guild's case to the Shogun for the council's
+  vote. With the Shogun's client off, the report waits for it on the reporter's client for a day.
   Multiplayer verification is still needed.
 - The Bankai Guild shortcut is **Shift + the game's guild key** (Shift-J on Forever, where the game
   binds Y to Legacy and G to Target Last Hostile, so the old Y shortcut never came on there). It is
@@ -77,7 +77,7 @@ Automated checks and live multiplayer checks are separate gates; use
   modifier or none is bound. As before it is used only while that key is unbound, saved bindings
   are never changed, and `/bk hotkey on|off` switches it. A key of the player's own can be set in
   the game's Key Bindings, under AddOns: **Toggle Bankai Guild**.
-- **Ask to update** in a player's right-click menu is now only for the author, the King and the
+- **Ask to update** in a player's right-click menu is now only for the author, the Shogun and the
   High Council. A 1.2.1 client ignores an ask from anyone else, which older versions can still
   send. **Check version** stays available to every member.
 - The race chat's short label is **Skyborn**. Long Lottery animal names stay on one line above
@@ -102,7 +102,7 @@ Automated checks and live multiplayer checks are separate gates; use
 - Officers can post a twenty-minute, zone-only muster. Participation requires existing location
   consent and the matching faction and realm scope; it does not publish exact coordinates or
   automatically invite anyone.
-- The actual King and pinned Treasurer can inspect a private five-week contribution history.
+- The actual Shogun and pinned Treasurer can inspect a private five-week contribution history.
   Missing snapshots stay unknown. This is reporting, not an automatic charge or feature lock.
 - Moderation replay and appeal quotas are bounded separately from target self-testimony.
   Arena relays reject known identity contradictions while preserving valid late testimony.

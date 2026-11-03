@@ -5,7 +5,7 @@
 --   local w = World.New()
 --   local c = M.Client(w, "Lida Fenn", { money = 100000 })   -- a world client, equipped
 --   c.Wallet.Deposit(...), c.Debts..., c.Standing..., c.Stakes..., c.Money...   -- run as that client
---   local cast = M.Cast(w)       -- the King (live, gold), the bank on duty, an auditor heard
+--   local cast = M.Cast(w)       -- the Shogun (live, gold), the bank on duty, an auditor heard
 local H = ...
 local World = H.World
 local M = {}
@@ -90,33 +90,33 @@ function M.Crash(w, c, snapshot)
 	return c
 end
 
--- The King's settings word taken by everyone (t over { live = 1 }), the banks named.
-function M.GoLive(w, king, t, banks)
+-- The Shogun's settings word taken by everyone (t over { live = 1 }), the banks named.
+function M.GoLive(w, shogun, t, banks)
 	local s = { live = 1 }
 	for k, v in pairs(t or {}) do s[k] = v end
-	assert(king.Roles.SetSettings(s))
-	if banks then assert(king.Roles.SetBanks(banks)) end
+	assert(shogun.Roles.SetSettings(s))
+	if banks then assert(shogun.Roles.SetBanks(banks)) end
 	w:Run(0)
 end
 
--- The money's cast: the King (live, gold), the bank on duty in L (its yes given, its saved data
+-- The money's cast: the Shogun (live, gold), the bank on duty in L (its yes given, its saved data
 -- kept), an auditor heard, the Treasurer's mail character (the fee receiver) heard. opts.bettors:
--- names of bettors (money each: opts.money, default 50 g). Returns { king, bank, auditor, fee,
+-- names of bettors (money each: opts.money, default 50 g). Returns { shogun, bank, auditor, fee,
 -- bettors = { ... } } and each by name.
 function M.Cast(w, opts)
 	opts = opts or {}
 	local N = World.NAMES
-	local king = M.Role(w, "king")
+	local shogun = M.Role(w, "shogun")
 	local bank = M.Role(w, "bank", { money = opts.bankMoney or 100000 })
 	local auditor = M.Role(w, "auditor")
 	local fee = M.Role(w, "treasurerMail")
-	local cast = { king = king, bank = bank, auditor = auditor, fee = fee, bettors = {} }
+	local cast = { shogun = shogun, bank = bank, auditor = auditor, fee = fee, bettors = {} }
 	for _, name in ipairs(opts.bettors or {}) do
 		local c = M.Client(w, name, { money = opts.money or 500000 })
 		cast.bettors[#cast.bettors + 1] = c
 		cast[name] = c
 	end
-	M.GoLive(w, king, opts.settings, { N.bank })
+	M.GoLive(w, shogun, opts.settings, { N.bank })
 	for _, c in ipairs({ bank, auditor, fee }) do M.Relog(w, c) end
 	for _, c in ipairs(cast.bettors) do M.Relog(w, c) end
 	w:Run(0)

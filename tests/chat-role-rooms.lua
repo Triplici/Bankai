@@ -30,15 +30,15 @@ test("role chat navigation: preview changes destinations but never authority or 
 		c.ViewAs = { Previewing = function() return role ~= "my" end, Role = function() return role end }
 		-- (1.2.4: an audience names the previews that list it, as Church.lua's does.)
 		assert(R.RegisterAudience("church", { label = "Church", CanAccess = function() return false end, Recipients = function() return {} end,
-			preview = { king = true, councillor = true } }))
+			preview = { shogun = true, councillor = true } }))
 		eq(#R.Options("role"), 0)
 		-- (Changed in 1.2.4, the author's approved set of rooms, "Sobre as salas, eu concordo com todas as
 		-- que você colocou. Só que a gente precisa também de uma só dos Guild Masters": each role's
-		-- preview lists the rooms that role has. The King's: the High Council, his Secretariat, the
+		-- preview lists the rooms that role has. The Shogun's: the High Council, his Secretariat, the
 		-- guild masters', every guild's masters and centurions, his guild's master and centurions, the
 		-- Church; the departments' rooms are their councillors' and correspondents'.)
 		local cent, corr = R.GuildRoom("gcent", w.guild), R.GuildRoom("gcorr", w.guild)
-		role = "king"
+		role = "shogun"
 		eq(Ids(R.Options("role")), "council,secretariat,masters,allcenturions," .. cent .. ",church")
 		for _, option in ipairs(R.Options("role")) do
 			eq(option.disabled, true, "preview destinations are inert")
@@ -59,7 +59,7 @@ test("role chat navigation: preview changes destinations but never authority or 
 			role = r; eq(#R.Options("role"), 0, r .. " is not federal authority")
 		end
 		w.council[c.me:lower()] = true
-		role = "king"
+		role = "shogun"
 		eq(R.Options("role")[1].disabled, true, "even an authorized reader cannot open real lines under a preview")
 		eq(R.PreviewOnly("council"), true); eq(R.PreviewOnly("guild"), false)
 		role = "my"; eq(R.Options("role")[1].disabled, false); eq(R.PreviewOnly("council"), false)

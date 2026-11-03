@@ -41,14 +41,14 @@ local function WithWatch(fn)
 		c.Fold, c.Cut = ns.Fold, ns.Cut
 		c.IsMember = function() return w.member and c.IsFederation(w.guild) end
 		c.CouncilMasked = function() return w.masked == true end
-		c.IsKingCharacter = function() return false end
+		c.IsShogunCharacter = function() return false end
 		c.MaskName = function(name) return tostring(name):sub(1, 4) .. "****" end
 		c.ChatLocked = function() return w.locked == true end
 		-- 1.1.6: the right-click menu's entries, the Bankai Guild channels' history (Channels.History) and
 		-- the copy box, as the Watch's report and case pages use them.
 		-- (1.2.5.1: with its options too: Report to Bankai Guild is an Bankai Guild line, PlayerMenu.KnownBankaiGuild.)
 		c.PlayerMenu = { Add = function(key, build, order, opts) w.menu = { key = key, build = build, order = order, opts = opts } return true end }
-		c.Channels = { ORDER = { "A", "C", "L" }, TIERS = { A = { label = "CHAN_ALL" }, C = { label = "CHAN_CAPTAINS" }, L = { label = "CHAN_LORDS" } },
+		c.Channels = { ORDER = { "A", "C", "L" }, TIERS = { A = { label = "CHAN_ALL" }, C = { label = "CHAN_CAPTAINS" }, L = { label = "CHAN_COUNCIL" } },
 			History = function(tier) return w.chat[tier] or {} end }
 		c.Ago = function(at) return tostring(w.epoch - (tonumber(at) or 0)) .. "s ago" end
 		c.SafeCall = function(_, call, ...) return call(...) end
@@ -86,7 +86,7 @@ local function WithWatch(fn)
 			Hidden = function(name) return w.hidden[c.Fold(c.FullName(name))] == true end,
 			Hides = function(name) return w.guildOff == true or w.hidden[c.Fold(c.FullName(name))] == true end,
 			IsIssuer = function(name) return w.issuers[c.Fold(c.FullName(name))] == true end,
-			IsKing = function(name) return w.king ~= nil and c.Fold(c.FullName(name)) == c.Fold(w.king) end,
+			IsShogun = function(name) return w.shogun ~= nil and c.Fold(c.FullName(name)) == c.Fold(w.shogun) end,
 			SelfOff = function() return w.selfOff end,
 			TargetRank = function(name) return w.targetRanks and w.targetRanks[c.Fold(c.FullName(name))] or 0 end,
 			Rank = function(name) return w.targetRanks and w.targetRanks[c.Fold(c.FullName(name))] or 0 end,
@@ -114,17 +114,17 @@ local function WithWatch(fn)
 			Toggle = function() w.courtToggled = true end,
 			Holding = function() return false end,
 		}
-		c.King = { IsKing = function() return false end, Preview = function() return false end }
-		-- 1.2: The Watch's Tabards (TabardsV2.SurfaceVisible: the King's fresh publication, an
+		c.Shogun = { IsShogun = function() return false end, Preview = function() return false end }
+		-- 1.2: The Watch's Tabards (TabardsV2.SurfaceVisible: the Shogun's fresh publication, an
 		-- officer's own patrols) and the author's View as (ViewAs.lua), as this world sets them, not
 		-- the harness's namespace (its roster and characters are another world's).
 		c.TabardsV2 = { SurfaceVisible = function() return w.tabards == true end,
-			-- (1.2: the King's client on now, Judgment.lua's way to it: w.lease.)
+			-- (1.2: the Shogun's client on now, Judgment.lua's way to it: w.lease.)
 			Collector = function() return w.lease end }
-		-- 1.2: the High Council's signed names (w.council) and the King's character (w.king).
+		-- 1.2: the High Council's signed names (w.council) and the Shogun's character (w.shogun).
 		c.IsHighCouncillor = function(name) return w.council ~= nil and w.council[c.Fold(c.FullName(name))] == true end
-		c.IsKingCharacter = function(name) return w.king ~= nil and type(name) == "string" and c.Fold(c.FullName(name)) == c.Fold(w.king) end
-		c.KingCharacter = function() return w.king and (w.king:gsub("%-.*$", "")) or nil end
+		c.IsShogunCharacter = function(name) return w.shogun ~= nil and type(name) == "string" and c.Fold(c.FullName(name)) == c.Fold(w.shogun) end
+		c.ShogunCharacter = function() return w.shogun and (w.shogun:gsub("%-.*$", "")) or nil end
 		c.ViewAs = { Available = function() return w.author ~= nil end, Role = function() return w.author or "my" end,
 			Allows = function(page) return w.allows ~= nil and w.allows[page] == true end }
 		c.Workshop = { IsAuthorName = function(name)
@@ -274,9 +274,9 @@ end)
 test("watch: a member reports a line he right-clicked in the chat, older ones too; it reaches his guild's officers and shows in their Reports and Cases", function()
 	WithWatch(function(w, W, c)
 		local RUDE = "Rude Guy-Realm"
-		w.setRank(c.me, 3); w.setRank("Lord Guy-Realm", 0); w.setRank("Captain One-Realm", 1); w.setRank("Member Two-Realm", 3)
+		w.setRank(c.me, 3); w.setRank("Council Guy-Realm", 0); w.setRank("Captain One-Realm", 1); w.setRank("Member Two-Realm", 3)
 		w.setRank(RUDE, 3)
-		w.online(c.me, "Lord Guy-Realm", "Captain One-Realm", "Member Two-Realm", RUDE)
+		w.online(c.me, "Council Guy-Realm", "Captain One-Realm", "Member Two-Realm", RUDE)
 		eq(W.CanRead(), false, "an ordinary member")
 		local old = { sender = RUDE, t = w.epoch - 3000, text = "an old rude line" }
 		w.chat.A = { old }
@@ -317,7 +317,7 @@ test("watch: a member reports a line he right-clicked in the chat, older ones to
 			eq(job.dist, "WHISPER"); eq(job.logged, true, "the logged API: the server keeps a player's words")
 			to[job.target] = (to[job.target] or 0) + 1
 		end
-		eq(to["Lord Guy-Realm"], 2, "the guild master: the report and its line"); eq(to["Captain One-Realm"], 2, "a Captain: the same")
+		eq(to["Council Guy-Realm"], 2, "the guild master: the report and its line"); eq(to["Captain One-Realm"], 2, "a Captain: the same")
 		eq(to["Member Two-Realm"], nil, "never an ordinary member"); eq(to[RUDE], nil, "never the one reported")
 		assert(w.prints[#w.prints]:find(ns.L.WATCH_REPORT_SENT:format("Rude Guy"), 1, true), w.prints[#w.prints])
 		local toCaptain = {}
@@ -420,10 +420,10 @@ test("watch: tab is Treasury > The Watch > Throne and reuses Court and Moderatio
 		for _, button in ipairs(w.tab.buttons) do assert(button[1] ~= "COURT_BTN", "Hold Court stays on the Throne") end
 		eq(w.tab.buttons[2][1], "WATCH_WATCH_BTN", "the Watch action uses the canonical locale key")
 	end)
-	local king = assert(io.open(ROOT .. "BankaiGuild/King.lua", "rb")):read("*a")
+	local shogun = assert(io.open(ROOT .. "BankaiGuild/Shogun.lua", "rb")):read("*a")
 	local views = assert(io.open(ROOT .. "BankaiGuild/Views.lua", "rb")):read("*a")
 	local ui = assert(io.open(ROOT .. "BankaiGuild/UI.lua", "rb")):read("*a")
-	assert(not king:find("Court and ns.Court.HomeLines", 1, true), "Throne no longer renders the Court queue")
+	assert(not shogun:find("Court and ns.Court.HomeLines", 1, true), "Throne no longer renders the Court queue")
 	assert(views:find("ns.Moderation.Lines", 1, true), "Decrees keeps member-visible net-off and SelfOff disclosure")
 	assert(ui:find('{ "COURT_BTN", function() ns.Court.Toggle()', 1, true), "Hold Court remains a Throne button")
 end)
@@ -522,12 +522,12 @@ test("watch: the BattleTags (1.2.5.1) are the moderation team's alone: an Bankai
 		assert(c.Accord.RevealTeam(), "the page's Show")
 		assert(Page():find("Target#1111", 1, true), "the digits a moment")
 		c.Accord.RevealTeam()
-		-- On the King's screen (his stream): masked.
+		-- On the Shogun's screen (his stream): masked.
 		w.masked = true
-		c.KingsScreen = function() return true end
+		c.ShogunsScreen = function() return true end
 		page = Page()
-		assert(not page:find("1111", 1, true), "never a tag on the King's screen")
-		c.KingsScreen, w.masked = nil, nil
+		assert(not page:find("1111", 1, true), "never a tag on the Shogun's screen")
+		c.ShogunsScreen, w.masked = nil, nil
 		-- An Bankai Guild moderator with no desk (not an officer): the tab, opened on the BattleTags.
 		w.setRank(c.me, 3)
 		W.Show(nil)
@@ -1159,7 +1159,7 @@ test("watch: Report to Bankai Guild from the right-click menu: a category, a not
 			{ sender = SPAMMER, t = w.epoch - 100, text = "fourth" },
 			{ sender = c.me, t = w.epoch - 50, text = "my own", mine = true },
 		}
-		w.chat.L = { { sender = SPAMMER, t = w.epoch - 90, text = "a Lords-channel line" } }
+		w.chat.L = { { sender = SPAMMER, t = w.epoch - 90, text = "a Council-channel line" } }
 		eq(w.menu.key, "report"); eq(w.menu.order, 30)
 		local menu = FakeMenu()
 		w.menu.build({ name = SPAMMER }, menu)
@@ -1168,10 +1168,10 @@ test("watch: Report to Bankai Guild from the right-click menu: a category, a not
 		local locked = FakeMenu()
 		w.menu.build({ name = SPAMMER, locked = true }, locked)
 		eq(locked.buttons[1].enabled, false, "greyed in a dungeon, a raid or a match"); eq(locked.buttons[1].tip, ns.L.PLAYERMENU_LOCKED)
-		w.king = "King Guy-Realm"
-		local king = FakeMenu()
-		w.menu.build({ name = "King Guy-Realm" }, king)
-		eq(#king.buttons, 0, "never on the King")
+		w.shogun = "Shogun Guy-Realm"
+		local shogun = FakeMenu()
+		w.menu.build({ name = "Shogun Guy-Realm" }, shogun)
+		eq(#shogun.buttons, 0, "never on the Shogun")
 
 		-- The click: what it is about, then the preview with the note.
 		b.fn()
@@ -1183,7 +1183,7 @@ test("watch: Report to Bankai Guild from the right-click menu: a category, a not
 		assert(note.b:find(ns.L.WATCH_REPORT_PREVIEW:format(ns.L.WATCH_REPORT_CAT_S, 3), 1, true), note.b)
 		assert(note.b:find('"buy [Thunderfury] cheap now"', 1, true), "the link's text, no codes: " .. note.b)
 		assert(note.b:find('"fourth"', 1, true) and note.b:find('"third"', 1, true))
-		for _, absent in ipairs({ "first", "too old", "someone else", "my own", "Lords" }) do
+		for _, absent in ipairs({ "first", "too old", "someone else", "my own", "Council" }) do
 			assert(not note.b:find(absent, 1, true), "not in the preview: " .. absent)
 		end
 		eq(#w.jobs, 0, "nothing sent before Send")
@@ -1261,7 +1261,7 @@ test("watch: Bankai Guild's chats are in English only: More asks between not in 
 	end)
 end)
 
-test("watch: a reporter's client reports a name once a day, once a minute and five times a day; never himself, the King, or while net-off", function()
+test("watch: a reporter's client reports a name once a day, once a minute and five times a day; never himself, the Shogun, or while net-off", function()
 	WithWatch(function(w, W, c)
 		w.setRank(c.me, 3); w.setRank("Captain One-Realm", 1); w.online(c.me, "Captain One-Realm")
 		assert(W.SendReport(SPAMMER, "A", "one"))
@@ -1283,9 +1283,9 @@ test("watch: a reporter's client reports a name once a day, once a minute and fi
 		assert(W.SendReport(SPAMMER, "A", "a day later"), "the same name again a day later")
 		ok, why = W.SendReport(c.me, "A", "")
 		eq(ok, false); eq(why, "self")
-		w.king = "King Guy-Realm"
-		ok, why = W.SendReport("King Guy-Realm", "A", "")
-		eq(ok, false); eq(why, "king")
+		w.shogun = "Shogun Guy-Realm"
+		ok, why = W.SendReport("Shogun Guy-Realm", "A", "")
+		eq(ok, false); eq(why, "shogun")
 		w.selfOff = { kind = "g" }
 		ok, why = W.SendReport("Netoff Case-Realm", "A", "")
 		eq(ok, false); eq(why, "netoff", "a client taken off the network reports nobody")
@@ -1321,9 +1321,9 @@ test("watch: a report with no officer online waits privately for thirty days; af
 		eq(W.FlushReports(true), 1, "sent once an officer is online")
 		eq(w.jobs[1].target, "Captain One-Realm")
 		w.finish(w.jobs[1])
-		-- (Changed on purpose, 1.2.1: a report goes to the High Council too, through the King's client;
+		-- (Changed on purpose, 1.2.1: a report goes to the High Council too, through the Shogun's client;
 		-- with that client off it stays in the outbox for it alone, never sent to the officers twice.)
-		eq(#W.Book(false).outbox, 1, "delivered to the officers; it waits for the King's client")
+		eq(#W.Book(false).outbox, 1, "delivered to the officers; it waits for the Shogun's client")
 		eq(W.FlushReports(true), 0, "never twice")
 		eq(#w.jobs, 1, "nothing more to the officers")
 		-- Another one, from its dialog: the reporter is told it waits. Nobody online for the full window:
@@ -1333,7 +1333,7 @@ test("watch: a report with no officer online waits privately for thirty days; af
 		local data = { name = "Other Guy-Realm", cat = "S" }
 		StaticPopupDialogs.BANKAIGUILD_WATCH_REPORT_NOTE.OnAccept({ data = data, editBox = { GetText = function() return "" end } }, data)
 		eq(w.prints[#w.prints], ns.L.WATCH_REPORT_HELD:format("Other Guy"), "told it waits")
-		eq(#W.Book(false).outbox, 2, "(the first one still waits for the King's client)")
+		eq(#W.Book(false).outbox, 2, "(the first one still waits for the Shogun's client)")
 		w.epoch = w.epoch + W.REPORT_HOLD + 1; w.refreshRoster()
 		local printed = #w.prints
 		W.FlushReports(true)
@@ -1369,8 +1369,8 @@ test("watch: an officer takes reports from his own guild's members alone, each p
 		assert(W.HandleReport("WHISPER", "Reporter One-Realm", msgs[1]))
 		eq(#w.prints, printed + 1, "the officer is told"); assert(w.prints[#w.prints]:find(ns.L.WATCH_REPORT_IN:format("Spammer Guy", ns.L.WATCH_REPORT_CAT_A), 1, true))
 		-- Its lines are the public channel's alone (Watch.Evidence sends no other): a Captains' or
-		-- Lords' line, which officers who can't read that channel would see, is refused.
-		Reject("tier", "WHISPER", "Reporter One-Realm", (msgs[2]:gsub("~A~", "~L~", 1)), "a Lords-channel line")
+		-- Council's line, which officers who can't read that channel would see, is refused.
+		Reject("tier", "WHISPER", "Reporter One-Realm", (msgs[2]:gsub("~A~", "~L~", 1)), "a Council-channel line")
 		Reject("tier", "WHISPER", "Reporter One-Realm", (msgs[2]:gsub("~A~", "~C~", 1)), "a Captains-channel line")
 		assert(W.HandleReport("WHISPER", "Reporter One-Realm", msgs[2])); assert(W.HandleReport("WHISPER", "Reporter One-Realm", msgs[3]))
 		Reject("stale", "WHISPER", "Reporter One-Realm", msgs[3], "a line once")
@@ -1461,7 +1461,7 @@ test("watch: Cases group reports by name, open until The Watch acts on it or an 
 	end)
 end)
 
-test("watch: a case's page shows its evidence through the block terms, reporters in tooltips (masked on the King's stream), and the judgment's separate clicks", function()
+test("watch: a case's page shows its evidence through the block terms, reporters in tooltips (masked on the Shogun's stream), and the judgment's separate clicks", function()
 	WithWatch(function(w, W, c)
 		w.setRank("Reporter One-Realm", 3); w.setRank(SPAMMER, 3); w.online(c.me)
 		for _, msg in ipairs(ReportMessages(w, W, c, { note = "badword in a note", lines = { { at = w.epoch - 5, tier = "A", text = "a badword here" } } })) do
@@ -1491,7 +1491,7 @@ test("watch: a case's page shows its evidence through the block terms, reporters
 		assert(Tip(reported):find("Reporter One", 1, true), "the reporter in the tooltip")
 		assert(Tip(evidence):find("a badword here", 1, true), "the line as written, for the officer")
 		w.masked = true
-		assert(not Tip(reported):find("Reporter One", 1, true) and Tip(reported):find("Repo****", 1, true), "masked on the King's stream")
+		assert(not Tip(reported):find("Reporter One", 1, true) and Tip(reported):find("Repo****", 1, true), "masked on the Shogun's stream")
 		assert(not Tip(evidence):find("a badword here", 1, true), "never the raw line there")
 		w.masked = false
 		-- The judgment: a finding, then the sanction, each its own click.
@@ -1547,7 +1547,7 @@ test("watch: the judgment card names no reporter, note or chat line; its thumbs 
 	end)
 end)
 
-test("watch: on the King's stream an accused is named only once a finding upheld the case, never beside the guild's ban-list, and no reporters' count shows", function()
+test("watch: on the Shogun's stream an accused is named only once a finding upheld the case, never beside the guild's ban-list, and no reporters' count shows", function()
 	WithWatch(function(w, W, c)
 		FakeWidgets()
 		w.setRank("Reporter One-Realm", 3); w.setRank("Reporter Two-Realm", 3); w.setRank(SPAMMER, 3); w.online(c.me)
@@ -1626,7 +1626,7 @@ test("watch: the report and case strings in English and pt-BR, with the same pla
 		end
 	end
 	assert(n >= 60, "the strings: " .. n)
-	-- (1.2.1, the review: the letter promises the council copy only as the King's client takes it.)
+	-- (1.2.1, the review: the letter promises the council copy only as the Shogun's client takes it.)
 	assert(ns.L.LETTER_1_2_2:find("once it already knows you in your guild", 1, true) and ns.L.LETTER_1_2_2:find("it keeps only the lines it heard itself", 1, true))
 	assert(pt.L.LETTER_1_2_2:find("quando ele já conhece você na sua guilda", 1, true) and pt.L.LETTER_1_2_2:find("ele guarda só as linhas que ouviu", 1, true))
 	assert(ns.L.WATCH_REPORT_TIP:find("Nothing happens to them by itself", 1, true))
@@ -1725,9 +1725,9 @@ test("watch: held reports go oldest first, and an officer takes a reporter's old
 	end)
 end)
 
--- The review of 1.1.6: on the King's stream the notes and lines still showed in the case's rows,
+-- The review of 1.1.6: on the Shogun's stream the notes and lines still showed in the case's rows,
 -- its tooltips and the Reports page; the net-off and the Watch hide other players' words there.
-test("watch: on the King's stream a case's notes and lines are hidden, in its rows, its tooltips, the Reports page and the copy", function()
+test("watch: on the Shogun's stream a case's notes and lines are hidden, in its rows, its tooltips, the Reports page and the copy", function()
 	WithWatch(function(w, W, c)
 		w.setRank("Reporter One-Realm", 3); w.setRank(SPAMMER, 3); w.online(c.me)
 		local NOTE, LINE = "a rude note of mine", "the rude line he wrote"
@@ -1795,7 +1795,7 @@ test("watch: the Tabards are a section of The Watch: a member sees them alone wh
 			for _, item in ipairs(lines[1].nav or {}) do out[#out + 1] = item.text .. (item.selected and "*" or "") end
 			return table.concat(out, ",")
 		end
-		-- An ordinary member: their own page, plus the Tabards while the King's publication is fresh.
+		-- An ordinary member: their own page, plus the Tabards while the Shogun's publication is fresh.
 		w.setRank(c.me, 3)
 		eq(W.TabVisible(), false, "no staff tab for a personal page")
 		w.tabards = true
@@ -1888,21 +1888,21 @@ test("watch: the author sees the desk without a rank, with only his own client's
 end)
 
 ---------------------------------------------------------------------------
--- 1.2: Judgment (Daniel, 2026-10-05: the council votes within a period and the King has the final
--- word). The officer's client is this world's (its real Watch.lua and Judgment.lua); the King's and
+-- 1.2: Judgment (Daniel, 2026-10-05: the council votes within a period and the Shogun has the final
+-- word). The officer's client is this world's (its real Watch.lua and Judgment.lua); the Shogun's and
 -- the councillors' are Judgment.lua again, each in a namespace of its own (Peer), their whispers
 -- handed to each other as the server would (Deliver): with the server's sender, once the permit each
 -- carried still allows it, as Comm asks it right before the game sends.
 ---------------------------------------------------------------------------
-local KING, HC1, HC2, HC3 = "Crown Bearer-Realm", "Sage One-Realm", "Sage Two-Realm", "Sage Three-Realm"
+local SHOGUN, HC1, HC2, HC3 = "Crown Bearer-Realm", "Sage One-Realm", "Sage Two-Realm", "Sage Three-Realm"
 
 local function Council(w, c)
 	w.peers, w.bus, w.log = w.peers or {}, w.bus or {}, w.log or {}
-	w.king = KING
+	w.shogun = SHOGUN
 	w.council = { [c.Fold(HC1)] = true, [c.Fold(HC2)] = true, [c.Fold(HC3)] = true }
 	-- (The signed list as clients keep it: short names, lower case.)
 	w.councilNames = { ["sage one"] = true, ["sage two"] = true, ["sage three"] = true }
-	-- What the King's client sees of each sender's rank in a guild (Data.AuthorizedRank: its roster,
+	-- What the Shogun's client sees of each sender's rank in a guild (Data.AuthorizedRank: its roster,
 	-- the census or the signed manifest): this officer is a Captain of his guild.
 	w.ranksSeen = { [c.Fold(c.me) .. "@" .. c.Fold(w.guild)] = 1 }
 end
@@ -1911,14 +1911,14 @@ local function Peer(w, c, name, o)
 	o = o or {}
 	local p = setmetatable({ me = name, db = {}, rdb = { council = { names = w.councilNames } } }, { __index = c })
 	p.prints, p.handlers = {}, {}
-	p.King = { IsKing = function() return o.king == true end, Preview = function() return false end }
+	p.Shogun = { IsShogun = function() return o.shogun == true end, Preview = function() return false end }
 	p.Workshop = { IsAuthorName = function(who)
 		return w.authorName ~= nil and c.Fold(c.FullName(who)) == c.Fold(c.FullName(w.authorName))
 	end }
 	p.Data = { ServerTime = function() return w.epoch end,
 		AuthorizedRank = function(sender, guild) return (w.ranksSeen or {})[c.Fold(c.FullName(sender)) .. "@" .. c.Fold(guild)] end }
 	p.Watch, p.ViewAs = { missing = true }, { missing = true }
-	p.TabardsV2 = { Collector = function() if o.king then return nil end return w.lease end }
+	p.TabardsV2 = { Collector = function() if o.shogun then return nil end return w.lease end }
 	p.Print = function(m) p.prints[#p.prints + 1] = tostring(m) end
 	p.PlayAlert, p.Fire, p.On = function() end, function() end, function() end
 	p.Comm = { Handle = function(kind, call) p.handlers[kind] = call end,
@@ -1931,7 +1931,7 @@ local function Peer(w, c, name, o)
 	assert(loadfile(ROOT .. "BankaiGuild/Judgment.lua"))("BankaiGuild", p)
 	StaticPopupDialogs.BANKAIGUILD_JUDGMENT_ESCALATE, StaticPopupDialogs.BANKAIGUILD_JUDGMENT_FINAL = dialogs[1], dialogs[2]
 	p.Judgment.ResetForTests()
-	-- (Each client's first ask once the King's client comes on waits a moment of its own within
+	-- (Each client's first ask once the Shogun's client comes on waits a moment of its own within
 	-- Judgment.SPREAD: these draw none and ask at once; the spread has its own test.)
 	p.Judgment.random = function(low) return low end
 	w.peers[c.Fold(name)] = p
@@ -1977,20 +1977,20 @@ local function LineWith(lines, text)
 	for _, l in ipairs(lines) do if tostring(l.text or ""):find(text, 1, true) then return l end end
 end
 
-test("watch: judgment: a case goes to the King, the High Council votes for a day (the majority of those who answered), his final word comes back; nothing else happens", function()
+test("watch: judgment: a case goes to the Shogun, the High Council votes for a day (the majority of those who answered), his final word comes back; nothing else happens", function()
 	WithWatch(function(w, W, c)
 		local J, L = c.Judgment, ns.L
 		Council(w, c)
 		w.setRank(c.me, 1); w.setRank("Reporter One-Realm", 3); w.online(c.me)
 		for _, msg in ipairs(ReportMessages(w, W, c, { cat = "A" })) do assert(W.HandleReport("WHISPER", "Reporter One-Realm", msg)) end
 		assert(W.SetFinding(SPAMMER, "up"))
-		local king = Peer(w, c, KING, { king = true })
+		local shogun = Peer(w, c, SHOGUN, { shogun = true })
 		local hc1, hc2, hc3 = Peer(w, c, HC1), Peer(w, c, HC2), Peer(w, c, HC3)
 		local key = c.Fold(SPAMMER)
 		-- The case's page offers it to the officers.
 		W.Show("case", key)
-		local send = assert(LineWith(W.Build(), L.JUDGMENT_ESCALATE_BTN), "Send it to the King")
-		-- Asked first, through ns.ShowDialog (Bankai Guild's own dialog with the gamepad UI); the King's
+		local send = assert(LineWith(W.Build(), L.JUDGMENT_ESCALATE_BTN), "Send it to the Shogun")
+		-- Asked first, through ns.ShowDialog (Bankai Guild's own dialog with the gamepad UI); the Shogun's
 		-- client is not on: it waits on the officer's.
 		send.onClick()
 		local d = w.dialogs[#w.dialogs]
@@ -2003,71 +2003,71 @@ test("watch: judgment: a case goes to the King, the High Council votes for a day
 		assert(LineWith(page, L.JUDGMENT_ESC_HELD), "the page says it waits")
 		eq(LineWith(page, L.JUDGMENT_ESCALATE_BTN), nil, "and offers it no more")
 		-- His client comes on (its lease): the case goes, with the card's facts and the finding alone.
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-1" }
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-1" }
 		J.Tick(false)
-		eq(#w.jobs, 1); eq(w.jobs[1].target, KING)
+		eq(#w.jobs, 1); eq(w.jobs[1].target, SHOGUN)
 		eq(w.jobs[1].msg, ("MJ~1~E~1~%s~%s~A1~1~0~U"):format(w.guild, SPAMMER))
 		assert(not w.jobs[1].msg:find("Reporter", 1, true) and not w.jobs[1].msg:find("flooding", 1, true), "never who reported it nor the note")
 		Deliver(w, c)
-		local list = king.Judgment.Judgments()
+		local list = shogun.Judgment.Judgments()
 		eq(#list, 1)
 		local j = list[1]
 		eq(j.from, c.me); eq(j.target, SPAMMER); eq(j.guild, w.guild); eq(j.finding, "U"); eq(j.at, w.epoch)
 		eq(j.closes - j.at, 86400, "the council's day")
-		eq(J.Escalation(key).jid, j.jid, "the King's client's receipt")
-		assert(king.prints[#king.prints]:find(w.guild, 1, true), "the King is told, by guild")
+		eq(J.Escalation(key).jid, j.jid, "the Shogun's client's receipt")
+		assert(shogun.prints[#shogun.prints]:find(w.guild, 1, true), "the Shogun is told, by guild")
 		-- (1.2.0, Konig's review: never the accused's name in his chat, which may be on stream.)
-		assert(not king.prints[#king.prints]:find((SPAMMER:gsub("%-Realm$", "")), 1, true), "not the accused's name")
-		-- The councillors' clients ask the King's (they heard its lease): each one has it to vote on.
+		assert(not shogun.prints[#shogun.prints]:find((SPAMMER:gsub("%-Realm$", "")), 1, true), "not the accused's name")
+		-- The councillors' clients ask the Shogun's (they heard its lease): each one has it to vote on.
 		for _, p in ipairs({ hc1, hc2, hc3 }) do p.Judgment.Tick(false) end
 		Deliver(w, c)
 		for _, p in ipairs({ hc1, hc2, hc3 }) do eq(#p.Judgment.Open(), 1); eq(p.Judgment.Open()[1].target, SPAMMER) end
-		-- One upheld, one not: no majority yet, and the King's word waits for the vote.
+		-- One upheld, one not: no majority yet, and the Shogun's word waits for the vote.
 		assert(hc1.Judgment.Vote(j.jid, "U")); assert(hc2.Judgment.Vote(j.jid, "D"))
 		Deliver(w, c)
 		eq(hc1.Judgment.Open()[1].mine, "U", "counted, his client says")
-		local up, down, n, size = king.Judgment.Tally(j)
+		local up, down, n, size = shogun.Judgment.Tally(j)
 		eq(up, 1); eq(down, 1); eq(n, 2); eq(size, 3)
-		eq(king.Judgment.Majority(up, down), nil, "a tie: no majority")
-		eq(king.Judgment.State(j), "O")
-		ok, how = king.Judgment.Decide(j.jid, "U")
+		eq(shogun.Judgment.Majority(up, down), nil, "a tie: no majority")
+		eq(shogun.Judgment.State(j), "O")
+		ok, how = shogun.Judgment.Decide(j.jid, "U")
 		eq(ok, false); eq(how, "open", "the council still votes")
 		-- A councillor's newest vote counts.
 		assert(hc2.Judgment.Vote(j.jid, "U")); Deliver(w, c)
-		up, down, n = king.Judgment.Tally(j)
+		up, down, n = shogun.Judgment.Tally(j)
 		eq(up, 2); eq(down, 0); eq(n, 2)
-		eq(king.Judgment.Majority(up, down), "U", "the majority of those who answered")
+		eq(shogun.Judgment.Majority(up, down), "U", "the majority of those who answered")
 		-- The officer's client asks how it stands: the council votes.
 		J.Tick(false); Deliver(w, c)
 		eq(J.Escalation(key).state, "O")
 		-- The day passes; the third councillor never answered and can't any more.
 		w.epoch = w.epoch + 86400
-		eq(king.Judgment.State(j), "W", "the King's word comes next")
+		eq(shogun.Judgment.State(j), "W", "the Shogun's word comes next")
 		eq(select(2, hc3.Judgment.Vote(j.jid, "D")), "closed")
 		J.Tick(false); Deliver(w, c)
 		eq(J.Escalation(key).state, "W")
-		-- Nobody but the King's own client gives the final word.
-		eq(select(2, hc1.Judgment.Decide(j.jid, "U")), "king")
-		assert(king.Judgment.Decide(j.jid, "D"), "his word is his: not upheld, whatever the council's majority")
-		eq(j.final.v, "D"); eq(j.final.by, KING); eq(j.final.at, w.epoch)
+		-- Nobody but the Shogun's own client gives the final word.
+		eq(select(2, hc1.Judgment.Decide(j.jid, "U")), "shogun")
+		assert(shogun.Judgment.Decide(j.jid, "D"), "his word is his: not upheld, whatever the council's majority")
+		eq(j.final.v, "D"); eq(j.final.by, SHOGUN); eq(j.final.at, w.epoch)
 		eq(j.final.up, 2); eq(j.final.down, 0); eq(j.final.answered, 2); eq(j.final.size, 3)
-		eq(select(2, king.Judgment.Decide(j.jid, "U")), "decided", "once")
+		eq(select(2, shogun.Judgment.Decide(j.jid, "U")), "decided", "once")
 		-- Back to the officer who sent it (his client asked lately): his case's page says it.
 		Deliver(w, c)
 		local e = J.Escalation(key)
 		eq(e.state, "F"); eq(e.verdict, "D"); eq(e.up, 2); eq(e.down, 0); eq(e.answered, 2); eq(e.decidedAt, w.epoch)
 		assert(w.prints[#w.prints]:find(L.JUDGMENT_NOT_UPHELD, 1, true), "the officer is told: " .. w.prints[#w.prints])
 		page = W.Build()
-		assert(LineWith(page, L.JUDGMENT_ESC_FINAL:match("^[^%%]+")), "the case's page keeps the King's word")
+		assert(LineWith(page, L.JUDGMENT_ESC_FINAL:match("^[^%%]+")), "the case's page keeps the Shogun's word")
 		assert(LineWith(page, L.JUDGMENT_ESCALATE_AGAIN), "and may send it again")
 		-- His record: who sent it and when, each vote and when, his word with the count and when.
-		local record = king.Judgment.Text(j)
+		local record = shogun.Judgment.Text(j)
 		for _, part in ipairs({ "Officer", "Sage One", "Sage Two", L.JUDGMENT_NOT_UPHELD, os.date("%Y-%m-%d %H:%M", w.epoch) }) do
 			assert(record:find(part, 1, true), "the record names " .. part .. ":\n" .. record)
 		end
 		-- (1.2.0) On his stream: a case not upheld never names its accused, nor how many reported him.
 		w.masked = true
-		local streamed = king.Judgment.Text(j)
+		local streamed = shogun.Judgment.Text(j)
 		assert(not streamed:find("Spammer Guy", 1, true), streamed)
 		-- (1.2.1: the record is a copy for Discord, where the mask's asterisks would be markup: escaped, Codec.Discord.)
 		assert(streamed:find(c.Codec.Discord(c.MaskName("Spammer Guy")), 1, true), streamed)
@@ -2084,57 +2084,57 @@ test("watch: judgment: a case goes to the King, the High Council votes for a day
 end)
 
 -- 1.1.6 (WatchChat.PowersBarred): the review's finding: a councillor under a moderator's sanction
--- kept voting. His client sends no vote while it lasts; the King's client, which knows the
+-- kept voting. His client sends no vote while it lasts; the Shogun's client, which knows the
 -- sanction it gave, takes none from a client that missed it or was modified; a vote he gave
 -- before stays counted.
-test("watch: chat moderation: a councillor under a moderator's sanction votes on no Judgment: his client sends none, the King's takes none, one he gave before stays", function()
+test("watch: chat moderation: a councillor under a moderator's sanction votes on no Judgment: his client sends none, the Shogun's takes none, one he gave before stays", function()
 	WithWatch(function(w, W, c)
 		local J = c.Judgment
 		Council(w, c)
 		w.setRank(c.me, 1); w.setRank("Reporter One-Realm", 3); w.online(c.me)
 		for _, msg in ipairs(ReportMessages(w, W, c, { cat = "A" })) do assert(W.HandleReport("WHISPER", "Reporter One-Realm", msg)) end
 		assert(W.SetFinding(SPAMMER, "up"))
-		local king = Peer(w, c, KING, { king = true })
+		local shogun = Peer(w, c, SHOGUN, { shogun = true })
 		local hc1, hc2 = Peer(w, c, HC1), Peer(w, c, HC2)
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-1" }
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-1" }
 		assert(J.Escalate(SPAMMER))
 		J.Tick(false)
 		Deliver(w, c)
-		local j = assert(king.Judgment.Judgments()[1], "the King's client has the case")
+		local j = assert(shogun.Judgment.Judgments()[1], "the Shogun's client has the case")
 		for _, p in ipairs({ hc1, hc2 }) do p.Judgment.Tick(false) end
 		Deliver(w, c)
 		assert(hc2.Judgment.Vote(j.jid, "U"))
 		Deliver(w, c)
-		local own, kings = {}, {}
+		local own, shoguns = {}, {}
 		hc1.WatchChat = { PowersBarred = function(name) if own[c.Fold(c.FullName(name))] then return { kind = "timeout" } end end }
-		king.WatchChat = { PowersBarred = function(name) if kings[c.Fold(c.FullName(name))] then return { kind = "timeout" } end end }
+		shogun.WatchChat = { PowersBarred = function(name) if shoguns[c.Fold(c.FullName(name))] then return { kind = "timeout" } end end }
 		own[c.Fold(HC1)] = true
 		local ok, why = hc1.Judgment.Vote(j.jid, "D")
 		eq(ok, false); eq(why, "sanction", "his own client sends none")
 		eq(rawget(ns.L, "JUDGMENT_WHY_SANCTION") ~= nil, true)
-		-- A client that missed it (or a modified one) sends it; the King's client knows it: refused.
+		-- A client that missed it (or a modified one) sends it; the Shogun's client knows it: refused.
 		own[c.Fold(HC1)] = nil
-		kings[c.Fold(HC1)], kings[c.Fold(HC2)] = true, true
+		shoguns[c.Fold(HC1)], shoguns[c.Fold(HC2)] = true, true
 		assert(hc1.Judgment.Vote(j.jid, "D"))
 		Deliver(w, c)
-		local up, down, n = king.Judgment.Tally(j)
-		eq(down, 0, "the King's client took none"); eq(up, 1, "the vote he gave before stays"); eq(n, 1)
+		local up, down, n = shogun.Judgment.Tally(j)
+		eq(down, 0, "the Shogun's client took none"); eq(up, 1, "the vote he gave before stays"); eq(n, 1)
 	end)
 end)
 
-test("watch: judgment: the King's client takes a case only from an officer as it sees him; each end hears only the King's client and the council", function()
+test("watch: judgment: the Shogun's client takes a case only from an officer as it sees him; each end hears only the Shogun's client and the council", function()
 	WithWatch(function(w, W, c)
 		local J, L = c.Judgment, ns.L
 		Council(w, c)
 		w.setRank(c.me, 1); w.setRank("Reporter One-Realm", 3); w.online(c.me)
 		for _, msg in ipairs(ReportMessages(w, W, c, {})) do assert(W.HandleReport("WHISPER", "Reporter One-Realm", msg)) end
-		local king, hc1 = Peer(w, c, KING, { king = true }), Peer(w, c, HC1)
+		local shogun, hc1 = Peer(w, c, SHOGUN, { shogun = true }), Peer(w, c, HC1)
 		local key = c.Fold(SPAMMER)
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-1" }
-		-- The King's client does not see this officer as one (no roster, census or manifest says so).
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-1" }
+		-- The Shogun's client does not see this officer as one (no roster, census or manifest says so).
 		w.ranksSeen = {}
 		assert(J.Escalate(SPAMMER)); Deliver(w, c)
-		eq(#king.Judgment.Judgments(), 0)
+		eq(#shogun.Judgment.Judgments(), 0)
 		eq(J.Escalation(key).refused, "rank")
 		W.Show("case", key)
 		assert(LineWith(W.Build(), L.JUDGMENT_WHY_RANK), "the case's page says why")
@@ -2142,58 +2142,58 @@ test("watch: judgment: the King's client takes a case only from an officer as it
 		-- Seen as a Captain: taken; the same one again (a retry) is the same judgment.
 		w.ranksSeen = { [c.Fold(c.me) .. "@" .. c.Fold(w.guild)] = 1 }
 		assert(J.Escalate(SPAMMER)); Deliver(w, c)
-		eq(#king.Judgment.Judgments(), 1)
+		eq(#shogun.Judgment.Judgments(), 1)
 		local jid = J.Escalation(key).jid
 		assert(jid)
-		eq(select(3, king.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~2~%s~%s~A1~1~0~-"):format(w.guild, SPAMMER))), "again")
-		eq(#king.Judgment.Judgments(), 1)
+		eq(select(3, shogun.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~2~%s~%s~A1~1~0~-"):format(w.guild, SPAMMER))), "again")
+		eq(#shogun.Judgment.Judgments(), 1)
 		-- Another officer of that guild on the same name while it is open: the same judgment, his too.
 		w.ranksSeen[c.Fold("Captain Two-Realm") .. "@" .. c.Fold(w.guild)] = 1
-		local ok, j2, how = king.Judgment.Handle("WHISPER", "Captain Two-Realm", ("MJ~1~E~7~%s~%s~S2~2~1~-"):format(w.guild, SPAMMER))
+		local ok, j2, how = shogun.Judgment.Handle("WHISPER", "Captain Two-Realm", ("MJ~1~E~7~%s~%s~S2~2~1~-"):format(w.guild, SPAMMER))
 		eq(ok, true); eq(j2, jid); eq(how, "open")
-		-- Not on himself, nor on the King.
-		eq(select(2, king.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~3~%s~%s~A1~1~0~-"):format(w.guild, c.me))), "target")
-		eq(select(2, king.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~4~%s~%s~A1~1~0~-"):format(w.guild, KING))), "target")
+		-- Not on himself, nor on the Shogun.
+		eq(select(2, shogun.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~3~%s~%s~A1~1~0~-"):format(w.guild, c.me))), "target")
+		eq(select(2, shogun.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~4~%s~%s~A1~1~0~-"):format(w.guild, SHOGUN))), "target")
 		-- Five a day from one officer.
-		for i = 1, 4 do assert(king.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~%d~%s~Case %d-Realm~A1~1~0~-"):format(10 + i, w.guild, i))) end
-		eq(select(2, king.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~20~%s~Case Six-Realm~A1~1~0~-"):format(w.guild))), "day")
+		for i = 1, 4 do assert(shogun.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~%d~%s~Case %d-Realm~A1~1~0~-"):format(10 + i, w.guild, i))) end
+		eq(select(2, shogun.Judgment.Handle("WHISPER", c.me, ("MJ~1~E~20~%s~Case Six-Realm~A1~1~0~-"):format(w.guild))), "day")
 		-- What does not read is refused: a field too many or missing, an unknown category, an outside guild.
 		for _, bad in ipairs({ "MJ~1~E~30~Bankai Guild II~X-Realm~A1~1~0", "MJ~1~E~30~Bankai Guild II~X-Realm~Z1~1~0~-",
 			"MJ~1~E~30~Bankai Guild II~X-Realm~A1A2~1~0~-", "MJ~1~E~30~Horde Guild~X-Realm~A1~1~0~-", "MJ~2~E~30~Bankai Guild II~X-Realm~A1~1~0~-",
 			"MJ~1~V~1~maybe", "MJ~1~R~1~F~-~0~0~0~0" }) do
-			eq(king.Judgment.Handle("WHISPER", c.me, bad), false, bad)
+			eq(shogun.Judgment.Handle("WHISPER", c.me, bad), false, bad)
 		end
-		eq(king.Judgment.Handle("CHANNEL", c.me, ("MJ~1~E~31~%s~Y-Realm~A1~1~0~-"):format(w.guild)), false, "a whisper or nothing")
-		-- Only the council votes; only the King's client is heard by the council and the officers.
-		eq(select(2, king.Judgment.Handle("WHISPER", "Somebody Else-Realm", ("MJ~1~V~%d~U"):format(jid))), "council")
+		eq(shogun.Judgment.Handle("CHANNEL", c.me, ("MJ~1~E~31~%s~Y-Realm~A1~1~0~-"):format(w.guild)), false, "a whisper or nothing")
+		-- Only the council votes; only the Shogun's client is heard by the council and the officers.
+		eq(select(2, shogun.Judgment.Handle("WHISPER", "Somebody Else-Realm", ("MJ~1~V~%d~U"):format(jid))), "council")
 		eq(select(2, hc1.Judgment.Handle("WHISPER", "Pretender-Realm", ("MJ~1~J~%d~3600~Bankai Guild II~Victim-Realm~A1~1~0~-~-"):format(jid + 50))), "sender")
 		eq(#hc1.Judgment.Open(), 0)
 		eq(select(2, J.Handle("WHISPER", "Pretender-Realm", ("MJ~1~R~%d~F~U~3~0~3~%d"):format(jid, w.epoch))), "sender")
 		eq(J.Escalation(key).state, "O", "a forged final word changes nothing")
-		-- A councillor's vote with the King's client away does not go.
+		-- A councillor's vote with the Shogun's client away does not go.
 		hc1.Judgment.Tick(false); Deliver(w, c)
 		eq(#hc1.Judgment.Open(), 5, "this one and the officer's four others of the day")
 		-- A new case while that councillor's client asked lately: it hears of it at once.
-		assert(king.Judgment.Handle("WHISPER", "Captain Two-Realm", ("MJ~1~E~8~%s~Fresh Case-Realm~O1~1~0~-"):format(w.guild)))
+		assert(shogun.Judgment.Handle("WHISPER", "Captain Two-Realm", ("MJ~1~E~8~%s~Fresh Case-Realm~O1~1~0~-"):format(w.guild)))
 		Deliver(w, c)
 		eq(#hc1.Judgment.Open(), 6, "told at once")
 		w.lease = nil
 		eq(select(2, hc1.Judgment.Vote(jid, "U")), "away")
-		-- The King's preview (the author's test build) shows his page, never his word.
+		-- The Shogun's preview (the author's test build) shows his page, never his word.
 		local preview = Peer(w, c, "Author Preview-Realm")
-		preview.King.Preview = function() return true end
-		eq(preview.Judgment.KingSide(), true)
-		eq(select(2, preview.Judgment.Decide(jid, "U")), "king")
+		preview.Shogun.Preview = function() return true end
+		eq(preview.Judgment.ShogunSide(), true)
+		eq(select(2, preview.Judgment.Decide(jid, "U")), "shogun")
 	end)
 end)
 
--- Reviewer (2026-10-05): the King's client answered every case it did not take with a refusal of
+-- Reviewer (2026-10-05): the Shogun's client answered every case it did not take with a refusal of
 -- its own, each case's id a new queued whisper: one player with no rank, whispering ever-new ids,
 -- kept its queue full (Comm's MAX_QUEUE), and the Tabards' lease and the council's answers fell out.
-test("watch: judgment: the King's client refuses one sender once a minute at most, and so many in all; the cases it takes are answered all the same", function()
+test("watch: judgment: the Shogun's client refuses one sender once a minute at most, and so many in all; the cases it takes are answered all the same", function()
 	WithWatch(function(w, W, c)
 		Council(w, c)
-		local KJ = Peer(w, c, KING, { king = true }).Judgment
+		local KJ = Peer(w, c, SHOGUN, { shogun = true }).Judgment
 		local stranger = "Nobody Ranked-Realm"
 		local function To(name)
 			local n = 0
@@ -2218,7 +2218,7 @@ test("watch: judgment: the King's client refuses one sender once a minute at mos
 			KJ.Handle("WHISPER", ("Stranger %s-Realm"):format(string.char(64 + i)), ("MJ~1~E~1~%s~Victim One-Realm~A1~1~0~-"):format(w.guild))
 		end
 		eq(#w.bus, KJ.REFUSE_MINUTE)
-		-- An officer as the King's client sees him: his case's receipt goes, whatever the refusals.
+		-- An officer as the Shogun's client sees him: his case's receipt goes, whatever the refusals.
 		w.bus = {}
 		local ok, jid, how = KJ.Handle("WHISPER", c.me, ("MJ~1~E~1~%s~%s~A1~1~0~-"):format(w.guild, SPAMMER))
 		eq(ok, true); eq(how, "new")
@@ -2233,9 +2233,9 @@ test("watch: judgment: past the SHOWN nearest, each open case still reaches ever
 	WithWatch(function(w, W, c)
 		local L = ns.L
 		Council(w, c)
-		local KJ = Peer(w, c, KING, { king = true }).Judgment
+		local KJ = Peer(w, c, SHOGUN, { shogun = true }).Judgment
 		local hc1, hc2, hc3 = Peer(w, c, HC1), Peer(w, c, HC2), Peer(w, c, HC3)
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-1" }
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-1" }
 		-- Three officers of the guild, each case a few seconds after the last (the nearest end first).
 		local officers = { c.me, "Captain Two-Realm", "Captain Three-Realm" }
 		for _, name in ipairs(officers) do w.ranksSeen[c.Fold(name) .. "@" .. c.Fold(w.guild)] = 1 end
@@ -2294,10 +2294,10 @@ test("watch: judgment: past the SHOWN nearest, each open case still reaches ever
 	end)
 end)
 
--- Reviewer (2026-10-05): each client took a new id of the Tabards' lease for the King's client
+-- Reviewer (2026-10-05): each client took a new id of the Tabards' lease for the Shogun's client
 -- coming on, and that id is new at every announcement (TabardsV2.LEASE_EVERY, 8 minutes): every
 -- councillor's client asked every 8 minutes, not every 15, and all of them in the same minute.
-test("watch: judgment: a councillor's client asks once the King's client comes on, at a moment of its own, then every QUERY_EVERY; a new lease id is no new King", function()
+test("watch: judgment: a councillor's client asks once the Shogun's client comes on, at a moment of its own, then every QUERY_EVERY; a new lease id is no new Shogun", function()
 	WithWatch(function(w, W, c)
 		Council(w, c)
 		local hc1, hc2 = Peer(w, c, HC1), Peer(w, c, HC2)
@@ -2308,15 +2308,15 @@ test("watch: judgment: a councillor's client asks once the King's client comes o
 			for _, m in ipairs(w.bus) do if m.from == name and m.msg:find("^MJ~1~Q~") then n = n + 1 end end
 			return n
 		end
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-1" }
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-1" }
 		eq(J1.Tick(false), false, "not at once"); eq(hc2.Judgment.Tick(false), true, "the other drew none: at once")
 		w.epoch = w.epoch + 60; eq(J1.Tick(false), false)
 		w.epoch = w.epoch + 60; eq(J1.Tick(false), true, "at its own moment, two minutes on")
 		eq(Asks(HC1), 1)
-		-- The King's client announces again (a new id, 8 minutes on): nothing new to ask.
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-2" }
+		-- The Shogun's client announces again (a new id, 8 minutes on): nothing new to ask.
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-2" }
 		w.epoch = w.epoch + 8 * 60
-		eq(J1.Tick(false), false, "a new lease id is the same King's client")
+		eq(J1.Tick(false), false, "a new lease id is the same Shogun's client")
 		eq(hc2.Judgment.Tick(false), false)
 		w.epoch = w.epoch + J1.QUERY_EVERY - 8 * 60
 		eq(J1.Tick(false), true, "every QUERY_EVERY")
@@ -2324,20 +2324,20 @@ test("watch: judgment: a councillor's client asks once the King's client comes o
 		-- It goes and comes back: a moment of its own again.
 		w.lease = nil
 		w.epoch = w.epoch + 60; eq(J1.Tick(false), false)
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-3" }
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-3" }
 		w.epoch = w.epoch + 60; eq(J1.Tick(false), false, "not at once")
 		w.epoch = w.epoch + 120; eq(J1.Tick(false), true)
 		eq(Asks(HC1), 3)
 	end)
 end)
 
--- Reviewer (2026-10-05): the King's client took a case with an id it had from that officer for a
+-- Reviewer (2026-10-05): the Shogun's client took a case with an id it had from that officer for a
 -- retry of it, whatever its guild and name: an officer's count starts again in another guild's
 -- Watch (or once his saved variables are gone), and his new case got the old one's judgment.
 test("watch: judgment: a retry is its sender's id on the same guild and name; the same id from another guild or on another name is a new case", function()
 	WithWatch(function(w, W, c)
 		Council(w, c)
-		local KJ = Peer(w, c, KING, { king = true }).Judgment
+		local KJ = Peer(w, c, SHOGUN, { shogun = true }).Judgment
 		w.ranksSeen[c.Fold(c.me) .. "@" .. c.Fold("Bankai Guild III")] = 1
 		local ok, first, how = KJ.Handle("WHISPER", c.me, ("MJ~1~E~1~%s~%s~A1~1~0~-"):format(w.guild, SPAMMER))
 		eq(ok, true); eq(how, "new")
@@ -2354,14 +2354,14 @@ test("watch: judgment: a retry is its sender's id on the same guild and name; th
 	end)
 end)
 
-test("watch: judgment: The Watch's Judgments for the King, his final word through our own dialog, and a councillor who is no officer sees them alone", function()
+test("watch: judgment: The Watch's Judgments for the Shogun, his final word through our own dialog, and a councillor who is no officer sees them alone", function()
 	WithWatch(function(w, W, c)
 		local J, L = c.Judgment, ns.L
 		Council(w, c)
-		-- The King's own guild: his client is the officer's and the King's (no whisper for it).
+		-- The Shogun's own guild: his client is the officer's and the Shogun's (no whisper for it).
 		w.setRank(c.me, 0); w.setRank("Reporter One-Realm", 3); w.online(c.me)
-		w.king = c.me
-		c.King.IsKing = function() return true end
+		w.shogun = c.me
+		c.Shogun.IsShogun = function() return true end
 		c.rdb.council = { names = w.councilNames }
 		for _, msg in ipairs(ReportMessages(w, W, c, { cat = "S" })) do assert(W.HandleReport("WHISPER", "Reporter One-Realm", msg)) end
 		local ok, how = J.Escalate(SPAMMER)
@@ -2377,7 +2377,7 @@ test("watch: judgment: The Watch's Judgments for the King, his final word throug
 		eq(W.ViewKey(), "judgments", "no buttons of the desk's under it: its own lines act")
 		local lines, title, detail = W.Build()
 		eq(title, L.TAB_WATCH); eq(detail, L.JUDGMENT_DETAIL)
-		assert(LineWith(lines, L.JUDGMENT_TITLE), "the King's Judgments")
+		assert(LineWith(lines, L.JUDGMENT_TITLE), "the Shogun's Judgments")
 		assert(LineWith(lines, L.JUDGMENT_FINAL_WAIT:match("^[^%%]+")), "his word waits for the council")
 		eq(LineWith(lines, L.JUDGMENT_FINAL_UP_BTN), nil)
 		-- The day passes: his two buttons, each through ns.ShowDialog (Bankai Guild's own with the gamepad UI).
@@ -2395,9 +2395,9 @@ test("watch: judgment: The Watch's Judgments for the King, his final word throug
 		-- The copy box, Bankai Guild's own.
 		LineWith(W.Build(), L.JUDGMENT_COPY).onClick()
 		assert(w.copied and w.copied.text:find(L.JUDGMENT_UPHELD, 1, true))
-		-- A councillor shares the King's desk navigation, not guild-local officer authority.
-		c.King.IsKing = function() return false end
-		w.king = KING
+		-- A councillor shares the Shogun's desk navigation, not guild-local officer authority.
+		c.Shogun.IsShogun = function() return false end
+		w.shogun = SHOGUN
 		w.setRank(c.me, 3)
 		w.council[c.Fold(c.me)] = true
 		eq(W.CanRead(), false); eq(W.TabVisible(), true, "The Council's desk")
@@ -2407,7 +2407,7 @@ test("watch: judgment: The Watch's Judgments for the King, his final word throug
 		W.Show("judgments")
 		lines = W.Build()
 		assert(#lines[1].nav > 2, "the Council keeps the shared desk navigation")
-		assert(LineWith(lines, L.JUDGMENT_COUNCIL_TITLE)); assert(LineWith(lines, L.JUDGMENT_KING_AWAY))
+		assert(LineWith(lines, L.JUDGMENT_COUNCIL_TITLE)); assert(LineWith(lines, L.JUDGMENT_SHOGUN_AWAY))
 		eq(LineWith(lines, L.JUDGMENT_TITLE .. "\n"), nil)
 		assert(W.Slash("judgments")); eq(w.selected, "watch")
 		-- Nobody else: an ordinary member sees no Judgments.
@@ -2448,11 +2448,11 @@ test("watch: judgment: its strings in English and pt-BR, with the same placehold
 	assert(n >= 70, "the strings: " .. n)
 end)
 
-test("watch: judgment: one guild's officers keep at most J.MAX_OPEN_GUILD cases open with the King; another guild's still reach him (Konig's review)", function()
+test("watch: judgment: one guild's officers keep at most J.MAX_OPEN_GUILD cases open with the Shogun; another guild's still reach him (Konig's review)", function()
 	WithWatch(function(w, W, c)
 		Council(w, c)
-		local KJ = Peer(w, c, KING, { king = true }).Judgment
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-1" }
+		local KJ = Peer(w, c, SHOGUN, { shogun = true }).Judgment
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-1" }
 		local officers = { c.me, "Captain Two-Realm", "Captain Three-Realm" }
 		for _, name in ipairs(officers) do w.ranksSeen[c.Fold(name) .. "@" .. c.Fold(w.guild)] = 1 end
 		w.ranksSeen[c.Fold("Captain Other-Realm") .. "@" .. c.Fold("Bankai Guild Other")] = 1
@@ -2464,7 +2464,7 @@ test("watch: judgment: one guild's officers keep at most J.MAX_OPEN_GUILD cases 
 		w.epoch = w.epoch + 10
 		eq(select(2, KJ.Handle("WHISPER", "Captain Three-Realm", ("MJ~1~E~99~%s~One Too Many-Realm~A1~1~0~-"):format(w.guild))), "full", "that guild's cases: full")
 		local _, _, how = KJ.Handle("WHISPER", "Captain Other-Realm", "MJ~1~E~1~Bankai Guild Other~Their Case-Realm~A1~1~0~-")
-		eq(how, "new", "another guild's case still reaches the King")
+		eq(how, "new", "another guild's case still reaches the Shogun")
 	end)
 end)
 
@@ -2480,7 +2480,7 @@ end)
 
 ---------------------------------------------------------------------------
 -- 1.2.1 (the owner: a member's report "deveria chegar na watch... que inclui high council nessa
--- tab"): every report reaches the High Council and the King too, in their Watch, through the King's
+-- tab"): every report reaches the High Council and the Shogun too, in their Watch, through the Shogun's
 -- client (Watch.lua's council copy, C; its passing on, F; a councillor's ask, Q).
 ---------------------------------------------------------------------------
 
@@ -2495,7 +2495,7 @@ local function As(p, fn)
 	return a, b, d
 end
 
--- Another client's own Watch (the King's, a councillor's): its own guild, roster, saved data, queue
+-- Another client's own Watch (the Shogun's, a councillor's): its own guild, roster, saved data, queue
 -- and timers over the world's client; its whispers go on w.bus.
 local function WatchPeer(w, c, name, o)
 	o = o or {}
@@ -2504,7 +2504,7 @@ local function WatchPeer(w, c, name, o)
 	p.guild, p.rank = o.guild or "Bankai Guild III", o.rank or 3
 	p.prints, p.handlers, p.timers = {}, {}, {}
 	p.IsMember = function() return true end
-	p.King = { IsKing = function() return o.king == true end, Preview = function() return false end }
+	p.Shogun = { IsShogun = function() return o.shogun == true end, Preview = function() return false end }
 	-- (1.2.1, the review: the guild each sender's own earlier messages spoke for here, w.claims, as
 	-- Data.ClaimedGuild looks it up; a council copy never makes one: w.claimsMade counts any try.)
 	p.Data = { ServerTime = function() return w.epoch end,
@@ -2582,54 +2582,54 @@ end
 
 local function CouncilWorld(w, c)
 	Council(w, c)
-	w.lease = { name = KING, guild = "Bankai Guild", id = "lease-1" }
+	w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-1" }
 	w.setRank(c.me, 3); w.setRank("Captain One-Realm", 1); w.online(c.me, "Captain One-Realm")
 	w.chat.A = {
 		{ sender = SPAMMER, t = w.epoch - 300, text = "buy gold cheap" },
 		{ sender = SPAMMER, t = w.epoch - 200, text = "cheap gold here" },
 	}
-	-- (The King's client heard this member speak for his guild before: his own earlier messages.)
+	-- (The Shogun's client heard this member speak for his guild before: his own earlier messages.)
 	w.claims = { [c.Fold(c.me)] = w.guild }
-	local king = WatchPeer(w, c, KING, { king = true, guild = "Bankai Guild", rank = 0 })
+	local shogun = WatchPeer(w, c, SHOGUN, { shogun = true, guild = "Bankai Guild", rank = 0 })
 	local hc1, hc2 = WatchPeer(w, c, HC1, { guild = "Bankai Guild III" }), WatchPeer(w, c, HC2, { guild = "Bankai Guild Other" })
-	return king, hc1, hc2
+	return shogun, hc1, hc2
 end
 
-test("watch: council reports (1.2.1): a member's report reaches the King's client and the High Council in their Watch, with its lines, and his guild's officers as before", function()
+test("watch: council reports (1.2.1): a member's report reaches the Shogun's client and the High Council in their Watch, with its lines, and his guild's officers as before", function()
 	WithWatch(function(w, W, c)
-		local king, hc1, hc2 = CouncilWorld(w, c)
+		local shogun, hc1, hc2 = CouncilWorld(w, c)
 		eq(W.CanRead(), false, "an ordinary member reports")
-		-- A councillor's client asks the King's client once it is on (nothing to pass on yet).
+		-- A councillor's client asks the Shogun's client once it is on (nothing to pass on yet).
 		eq(As(hc1, function() return hc1.Watch.CouncilTick(true) end), true)
 		Route(w, c)
 		local ok, how = W.SendReport(SPAMMER, "A", "gold ads")
 		eq(ok, true); eq(how, "sent")
-		local toCaptain, toKing = {}, {}
+		local toCaptain, toShogun = {}, {}
 		for _, job in ipairs(w.jobs) do
 			if job.target == "Captain One-Realm" then toCaptain[#toCaptain + 1] = job.msg end
-			if job.target == KING then toKing[#toKing + 1] = job.msg end
+			if job.target == SHOGUN then toShogun[#toShogun + 1] = job.msg end
 			eq(job.logged, true, "every one logged")
 		end
 		eq(#toCaptain, 3, "the guild's officer: the report and its two lines, as before"); assert(toCaptain[1]:find("^MR~1~R~"))
-		eq(#toKing, 3, "the King's client: the council's copy and its two lines")
-		local seq = toKing[1]:match("^MR~1~C~(%d+)~")
-		eq(toKing[1], ("MR~1~C~%s~%d~%s~%s~%s~A~%s~2~gold ads"):format(seq, w.epoch, w.guild, c.group, c.faction, SPAMMER))
-		eq(toKing[2], ("MR~1~E~%s~1~%d~A~buy gold cheap"):format(seq, w.epoch - 300))
+		eq(#toShogun, 3, "the Shogun's client: the council's copy and its two lines")
+		local seq = toShogun[1]:match("^MR~1~C~(%d+)~")
+		eq(toShogun[1], ("MR~1~C~%s~%d~%s~%s~%s~A~%s~2~gold ads"):format(seq, w.epoch, w.guild, c.group, c.faction, SPAMMER))
+		eq(toShogun[2], ("MR~1~E~%s~1~%d~A~buy gold cheap"):format(seq, w.epoch - 300))
 		Route(w, c)
 		eq(#W.Book(false).outbox, 0, "both parts went: out of the reporter's outbox")
-		-- The King's Watch: the report, its lines, its guild as the reporter's client said it (the
-		-- council's own list: the King is an officer of his guild, whose Watch holds none of it).
-		local kr = As(king, function() return king.Watch.CouncilReports() end)
-		eq(#As(king, function() return king.Watch.Reports() end), 0, "not in his guild's reports")
+		-- The Shogun's Watch: the report, its lines, its guild as the reporter's client said it (the
+		-- council's own list: the Shogun is an officer of his guild, whose Watch holds none of it).
+		local kr = As(shogun, function() return shogun.Watch.CouncilReports() end)
+		eq(#As(shogun, function() return shogun.Watch.Reports() end), 0, "not in his guild's reports")
 		eq(#kr, 1); eq(kr[1].reporter, c.me, "the server's sender"); eq(kr[1].guild, w.guild); eq(kr[1].note, "gold ads")
 		eq(kr[1].lines[1].text, "buy gold cheap"); eq(kr[1].lines[2].text, "cheap gold here")
-		eq(#king.prints, 1); eq(king.prints[1]:find(ns.L.WATCH_REPORT_IN_COUNCIL:format(ns.L.WATCH_REPORT_CAT_A), 1, true) ~= nil, true)
-		assert(not king.prints[1]:find("Spammer", 1, true) and not king.prints[1]:find("Officer", 1, true), "the King's chat names no one: " .. king.prints[1])
-		local open = As(king, function() return king.Watch.CouncilCases() end)
+		eq(#shogun.prints, 1); eq(shogun.prints[1]:find(ns.L.WATCH_REPORT_IN_COUNCIL:format(ns.L.WATCH_REPORT_CAT_A), 1, true) ~= nil, true)
+		assert(not shogun.prints[1]:find("Spammer", 1, true) and not shogun.prints[1]:find("Officer", 1, true), "the Shogun's chat names no one: " .. shogun.prints[1])
+		local open = As(shogun, function() return shogun.Watch.CouncilCases() end)
 		eq(#open, 1); eq(open[1].target, SPAMMER); eq(open[1].lines, 2); eq(open[1].council, true)
-		eq(#As(king, function() return king.Watch.Cases() end), 0, "no case of his guild's")
+		eq(#As(shogun, function() return shogun.Watch.Cases() end), 0, "no case of his guild's")
 		-- Passed on, once its lines had time to come, to the councillor who asked lately: not the other.
-		Timers(king)
+		Timers(shogun)
 		Route(w, c)
 		local hr = As(hc1, function() return hc1.Watch.CouncilReports() end)
 		eq(#hr, 1, "the asking councillor's Watch"); eq(hr[1].reporter, c.me); eq(hr[1].guild, w.guild); eq(hr[1].lines[2].text, "cheap gold here")
@@ -2649,8 +2649,8 @@ test("watch: council reports (1.2.1): a member's report reaches the King's clien
 		eq(#As(hc2, function() return hc2.Watch.CouncilReports() end), 1)
 		eq(w.claimsMade, nil, "no copy made its reporter's claim")
 		-- Nothing of it is a sanction anywhere, and no guild's Watch of theirs holds it.
-		eq(As(king, function() return king.Watch.Record(SPAMMER) end), nil)
-		eq(As(king, function() return king.Watch.Store(false) end), nil, "never in a guild's Watch store")
+		eq(As(shogun, function() return shogun.Watch.Record(SPAMMER) end), nil)
+		eq(As(shogun, function() return shogun.Watch.Store(false) end), nil, "never in a guild's Watch store")
 		eq(As(hc1, function() return hc1.Watch.Store(false) end), nil)
 		-- The reporter's guild's officer had the report as ever.
 		local heads = 0
@@ -2661,18 +2661,18 @@ end)
 
 test("watch: council reports: the pinned addon author receives the read-only council copy without guild moderation powers", function()
 	WithWatch(function(w, W, c)
-		local king = CouncilWorld(w, c)
+		local shogun = CouncilWorld(w, c)
 		w.authorName = "Author-Realm"
 		local author = WatchPeer(w, c, w.authorName, { guild = "Bankai Guild IV", rank = 3 })
 		eq(As(author, function() return author.Watch.CanRead() end), false, "not an officer of that guild")
 		eq(As(author, function() return author.Watch.CanManage() end), false, "the observer receives no moderation power")
 		eq(As(author, function() return author.Watch.CouncilDeskShown() end), true, "the exact pinned author has the council desk")
-		eq(As(author, function() return author.Watch.CouncilTick(true) end), true, "the author asks the King's relay")
+		eq(As(author, function() return author.Watch.CouncilTick(true) end), true, "the author asks the Shogun's relay")
 		Route(w, c)
 		local ok = W.SendReport(SPAMMER, "A", "author visibility")
 		eq(ok, true)
 		Route(w, c)
-		Timers(king)
+		Timers(shogun)
 		Route(w, c)
 		local reports = As(author, function() return author.Watch.CouncilReports() end)
 		eq(#reports, 1); eq(reports[1].reporter, c.me); eq(reports[1].target, SPAMMER)
@@ -2681,22 +2681,22 @@ test("watch: council reports: the pinned addon author receives the read-only cou
 	end)
 end)
 
-test("watch: council reports (1.2.1): the King's client is off, the report waits for it; on, only its council copy goes, never the officers' twice", function()
+test("watch: council reports (1.2.1): the Shogun's client is off, the report waits for it; on, only its council copy goes, never the officers' twice", function()
 	WithWatch(function(w, W, c)
-		local king = CouncilWorld(w, c)
+		local shogun = CouncilWorld(w, c)
 		w.lease = nil
 		local ok, how = W.SendReport(SPAMMER, "S", "")
 		eq(ok, true); eq(how, "sent", "the officers had it")
 		Route(w, c)
-		eq(#W.Book(false).outbox, 1, "it waits for the King's client")
+		eq(#W.Book(false).outbox, 1, "it waits for the Shogun's client")
 		eq(W.FlushReports(true), 0); eq(#w.jobs, 0, "nothing while it is off")
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-2" }
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-2" }
 		eq(W.FlushReports(true), 1)
-		for _, job in ipairs(w.jobs) do eq(job.target, KING, "the council's copy alone") end
+		for _, job in ipairs(w.jobs) do eq(job.target, SHOGUN, "the council's copy alone") end
 		Route(w, c)
 		eq(#W.Book(false).outbox, 0)
-		eq(#As(king, function() return king.Watch.CouncilReports() end), 1)
-		-- No officer and no King's client: held, as before.
+		eq(#As(shogun, function() return shogun.Watch.CouncilReports() end), 1)
+		-- No officer and no Shogun's client: held, as before.
 		w.lease = nil; w.online(c.me); w.refreshRoster(); w.jobs = {}
 		w.epoch = w.epoch + W.REPORT_GAP
 		ok, how = W.SendReport("Other Guy-Realm", "A", "")
@@ -2706,17 +2706,17 @@ end)
 
 test("watch: council reports (1.2.1): each end checks what it can; spoofed, replayed, unlogged and flooding copies fail closed, and the accused never gets his own case", function()
 	WithWatch(function(w, W, c)
-		local king, hc1, hc2 = CouncilWorld(w, c)
-		local K, H1 = king.Watch, hc1.Watch
+		local shogun, hc1, hc2 = CouncilWorld(w, c)
+		local K, H1 = shogun.Watch, hc1.Watch
 		local function Copy(o)
 			o = o or {}
 			local msgs = assert(W.CouncilWire({ seq = o.seq or 10, at = o.at or w.epoch, guild = o.guild or w.guild, group = c.group, faction = c.faction,
 				cat = o.cat or "A", target = c.FullName(o.target or SPAMMER), note = o.note or "flooding", lines = o.lines or {} }))
 			return msgs[1]
 		end
-		local function KingTakes(sender, msg, dist) return As(king, function() return K.HandleReport(dist or "WHISPER", sender, msg) end) end
+		local function ShogunTakes(sender, msg, dist) return As(shogun, function() return K.HandleReport(dist or "WHISPER", sender, msg) end) end
 		local function Refused(expected, label, sender, msg, dist)
-			local ok, why = KingTakes(sender, msg, dist)
+			local ok, why = ShogunTakes(sender, msg, dist)
 			eq(ok, false, label); eq(why, expected, label)
 		end
 		local REPORTER = "Reporter One-Realm"
@@ -2728,49 +2728,49 @@ test("watch: council reports (1.2.1): each end checks what it can; spoofed, repl
 		w.hidden[c.Fold(REPORTER)] = true; Refused("sender", "taken off the network", REPORTER, Copy()); w.hidden[c.Fold(REPORTER)] = nil
 		w.claims[c.Fold(REPORTER)] = "Bankai Guild Other"; Refused("sender", "his own messages speak for another guild", REPORTER, Copy())
 		w.claims[c.Fold(REPORTER)] = w.guild
-		Refused("sender", "the King's own guild: its live roster", REPORTER, Copy({ guild = "Bankai Guild" }))
+		Refused("sender", "the Shogun's own guild: its live roster", REPORTER, Copy({ guild = "Bankai Guild" }))
 		Refused("name", "himself", REPORTER, Copy({ target = REPORTER }))
-		Refused("name", "never the King", REPORTER, Copy({ target = KING }))
+		Refused("name", "never the Shogun", REPORTER, Copy({ target = SHOGUN }))
 		Refused("time", "dated ahead", REPORTER, Copy({ at = w.epoch + 600 }))
-		eq(select(1, KingTakes(REPORTER, Copy())), true)
+		eq(select(1, ShogunTakes(REPORTER, Copy())), true)
 		Refused("replay", "a replay", REPORTER, Copy())
-		for i = 1, W.REPORT_RATE - 1 do assert(KingTakes(REPORTER, Copy({ seq = 20 + i, target = "Flood" .. i .. "-Realm" })), "report " .. i) end
+		for i = 1, W.REPORT_RATE - 1 do assert(ShogunTakes(REPORTER, Copy({ seq = 20 + i, target = "Flood" .. i .. "-Realm" })), "report " .. i) end
 		Refused("rate", "a few an hour from one player", REPORTER, Copy({ seq = 40, target = "Flood Over-Realm" }))
-		-- Not the King's client: none taken there; a member's client takes nothing.
+		-- Not the Shogun's client: none taken there; a member's client takes nothing.
 		local ok, why = As(hc1, function() return H1.HandleReport("WHISPER", REPORTER, Copy({ seq = 50 })) end)
 		eq(ok, false); eq(why, "access")
 		ok, why = W.HandleReport("WHISPER", REPORTER, Copy({ seq = 51 }))
 		eq(ok, false); eq(why, "access", "a member's client")
-		-- A councillor's client takes F from the King's client alone.
+		-- A councillor's client takes F from the Shogun's client alone.
 		local relay = assert(W.RelayWire({ seq = 60, at = w.epoch, guild = w.guild, cat = "S", target = "Some One-Realm", n = 0, lines = {},
 			reporter = REPORTER, note = "x" }))[1]
 		ok, why = As(hc1, function() return H1.HandleReport("WHISPER", "Not Theking-Realm", relay) end)
 		eq(ok, false); eq(why, "sender")
 		w.lease = { name = "Pretender-Realm", guild = "Bankai Guild", id = "x" }
-		ok, why = As(hc1, function() return H1.HandleReport("WHISPER", KING, relay) end)
-		eq(ok, false); eq(why, "sender", "the lease's King's client only")
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-1" }
-		eq(select(1, As(hc1, function() return H1.HandleReport("WHISPER", KING, relay) end)), true)
-		-- Q: a councillor's alone, answered once in a while, while the King's client's queue keeps
+		ok, why = As(hc1, function() return H1.HandleReport("WHISPER", SHOGUN, relay) end)
+		eq(ok, false); eq(why, "sender", "the lease's Shogun's client only")
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-1" }
+		eq(select(1, As(hc1, function() return H1.HandleReport("WHISPER", SHOGUN, relay) end)), true)
+		-- Q: a councillor's alone, answered once in a while, while the Shogun's client's queue keeps
 		-- room for its own messages.
-		ok, why = KingTakes(REPORTER, "MR~1~Q~0"); eq(ok, false); eq(why, "sender", "not on the council")
+		ok, why = ShogunTakes(REPORTER, "MR~1~Q~0"); eq(ok, false); eq(why, "sender", "not on the council")
 		w.bus = {}
-		king.queueRoom = W.COUNCIL_QUEUE_KEEP
-		eq(select(1, KingTakes(HC1, "MR~1~Q~0")), true)
+		shogun.queueRoom = W.COUNCIL_QUEUE_KEEP
+		eq(select(1, ShogunTakes(HC1, "MR~1~Q~0")), true)
 		eq(#w.bus, 0, "its queue nearly full: nothing passed on")
-		king.queueRoom = 60
-		ok, why = KingTakes(HC1, "MR~1~Q~0"); eq(ok, false); eq(why, "rate")
+		shogun.queueRoom = 60
+		ok, why = ShogunTakes(HC1, "MR~1~Q~0"); eq(ok, false); eq(why, "rate")
 		w.epoch = w.epoch + W.COUNCIL_ASK_GAP
-		eq(select(1, KingTakes(HC1, "MR~1~Q~0")), true)
+		eq(select(1, ShogunTakes(HC1, "MR~1~Q~0")), true)
 		eq(#w.bus > 0, true, "room again: passed on")
 		w.bus = {}
 		-- A report on a councillor (or on a name his player linked) never goes to him.
 		w.links[c.Fold("Sage Alt-Realm")] = { HC2 }
 		w.epoch = w.epoch + 3600
-		eq(select(1, KingTakes(REPORTER, Copy({ seq = 70, at = w.epoch, target = HC2 }))), true)
+		eq(select(1, ShogunTakes(REPORTER, Copy({ seq = 70, at = w.epoch, target = HC2 }))), true)
 		w.claims[c.Fold("Reporter Two-Realm")] = w.guild
-		eq(select(1, KingTakes("Reporter Two-Realm", Copy({ seq = 71, at = w.epoch, target = "Sage Alt-Realm" }))), true)
-		eq(select(1, KingTakes(HC2, "MR~1~Q~0")), true)
+		eq(select(1, ShogunTakes("Reporter Two-Realm", Copy({ seq = 71, at = w.epoch, target = "Sage Alt-Realm" }))), true)
+		eq(select(1, ShogunTakes(HC2, "MR~1~Q~0")), true)
 		eq(#w.bus > 0, true, "the others' reports go to him")
 		for _, m in ipairs(w.bus) do
 			eq(m.target, HC2)
@@ -2779,32 +2779,32 @@ test("watch: council reports (1.2.1): each end checks what it can; spoofed, repl
 		w.bus = {}
 		-- A councillor's own client refuses one about himself too.
 		local own = assert(W.RelayWire({ seq = 80, at = w.epoch, guild = w.guild, cat = "A", target = HC1, n = 0, lines = {}, reporter = REPORTER, note = "" }))[1]
-		ok, why = As(hc1, function() return H1.HandleReport("WHISPER", KING, own) end)
+		ok, why = As(hc1, function() return H1.HandleReport("WHISPER", SHOGUN, own) end)
 		eq(ok, false); eq(why, "accused")
 	end)
 end)
 
-test("watch: council reports (1.2.1): a councillor's client asks once the King's client comes on, at a moment of its own, then every COUNCIL_ASK_EVERY; nobody else asks", function()
+test("watch: council reports (1.2.1): a councillor's client asks once the Shogun's client comes on, at a moment of its own, then every COUNCIL_ASK_EVERY; nobody else asks", function()
 	WithWatch(function(w, W, c)
-		local king, hc1 = CouncilWorld(w, c)
+		local shogun, hc1 = CouncilWorld(w, c)
 		w.lease = nil
-		eq(As(hc1, function() return hc1.Watch.CouncilTick(false) end), false, "no King's client: no ask")
-		w.lease = { name = KING, guild = "Bankai Guild", id = "lease-1" }
+		eq(As(hc1, function() return hc1.Watch.CouncilTick(false) end), false, "no Shogun's client: no ask")
+		w.lease = { name = SHOGUN, guild = "Bankai Guild", id = "lease-1" }
 		local drawn
 		hc1.Watch.random = function(low, high) drawn = { low, high } return high end
 		eq(As(hc1, function() return hc1.Watch.CouncilTick(false) end), false, "its own moment, not at once")
 		eq(drawn[1], 0); eq(drawn[2], W.COUNCIL_SPREAD)
 		w.epoch = w.epoch + W.COUNCIL_SPREAD
 		eq(As(hc1, function() return hc1.Watch.CouncilTick(false) end), true, "at its moment")
-		eq(#w.bus, 1); eq(w.bus[1].target, KING); assert(w.bus[1].msg:find("^MR~1~Q~%d+$"), w.bus[1].msg)
+		eq(#w.bus, 1); eq(w.bus[1].target, SHOGUN); assert(w.bus[1].msg:find("^MR~1~Q~%d+$"), w.bus[1].msg)
 		w.bus = {}
 		w.epoch = w.epoch + 60
 		eq(As(hc1, function() return hc1.Watch.CouncilTick(false) end), false, "not again so soon")
 		w.epoch = w.epoch + W.COUNCIL_ASK_EVERY
 		eq(As(hc1, function() return hc1.Watch.CouncilTick(false) end), true)
 		w.bus = {}
-		-- The King's client and a member's never ask.
-		eq(As(king, function() return king.Watch.CouncilTick(true) end), false)
+		-- The Shogun's client and a member's never ask.
+		eq(As(shogun, function() return shogun.Watch.CouncilTick(true) end), false)
 		eq(W.CouncilTick(true), false)
 		eq(#w.bus, 0); eq(#w.jobs, 0)
 	end)
@@ -2812,10 +2812,10 @@ end)
 
 ---------------------------------------------------------------------------
 -- 1.2.1, the review of the council copies (each of these failed on the first build of them):
--- the King's client took a copy from anyone, its own Data.ClaimGuild making the claim it checked,
+-- the Shogun's client took a copy from anyone, its own Data.ClaimGuild making the claim it checked,
 -- with lines of the sender's own making; a councillor's cursor was the reporters' dates, so a report
--- the King's client took late, or a backlog cut by a push, never reached him; and an officer on the
--- council, the King too, had the council's cases among his guild's, with his guild's Watch.
+-- the Shogun's client took late, or a backlog cut by a push, never reached him; and an officer on the
+-- council, the Shogun too, had the council's cases among his guild's, with his guild's Watch.
 ---------------------------------------------------------------------------
 
 local function PageText(lines)
@@ -2828,35 +2828,35 @@ end
 local GUILD_ACTIONS = { "WATCH_WARN_BTN", "WATCH_WATCH_BTN", "WATCH_BAN_BTN", "WATCH_CASE_CLOSE", "WATCH_CASE_UPHOLD",
 	"WATCH_CASE_DISMISS", "WATCH_CASE_CARD", "JUDGMENT_ESCALATE_BTN", "WATCH_CASE_COPY" }
 
-test("watch: council reports (1.2.1): the King's client takes a copy only from a reporter it knows in his guild without the copy, and keeps only the lines it heard itself; the councillors get those alone", function()
+test("watch: council reports (1.2.1): the Shogun's client takes a copy only from a reporter it knows in his guild without the copy, and keeps only the lines it heard itself; the councillors get those alone", function()
 	WithWatch(function(w, W, c)
-		local king, hc1 = CouncilWorld(w, c)
-		local K = king.Watch
+		local shogun, hc1 = CouncilWorld(w, c)
+		local K = shogun.Watch
 		local function Copy(o)
 			o = o or {}
 			return assert(W.CouncilWire({ seq = o.seq or 10, at = o.at or w.epoch, guild = o.guild or w.guild, group = c.group, faction = c.faction,
 				cat = "A", target = c.FullName(o.target or SPAMMER), note = o.note or "", lines = o.lines or {} }))
 		end
-		local function KingTakes(sender, msg) return As(king, function() return K.HandleReport("WHISPER", sender, msg) end) end
+		local function ShogunTakes(sender, msg) return As(shogun, function() return K.HandleReport("WHISPER", sender, msg) end) end
 		-- A stranger: in no roster, nothing of his heard here before; his copy is no claim.
 		local STRANGER = "Stranger Nobody-Realm"
 		local forged = Copy({ lines = { { at = w.epoch - 60, tier = "A", text = "a line he never wrote" } } })
-		local ok, why = KingTakes(STRANGER, forged[1])
+		local ok, why = ShogunTakes(STRANGER, forged[1])
 		eq(ok, false); eq(why, "sender", "known nowhere")
-		eq(select(2, KingTakes(STRANGER, forged[2])), "stale", "its line goes with it")
+		eq(select(2, ShogunTakes(STRANGER, forged[2])), "stale", "its line goes with it")
 		eq(w.claimsMade, nil, "his copy made no claim for him")
-		eq(#As(king, function() return K.CouncilReports() end), 0)
-		-- Known for another guild than his copy names; the King's guildmate naming another guild.
+		eq(#As(shogun, function() return K.CouncilReports() end), 0)
+		-- Known for another guild than his copy names; the Shogun's guildmate naming another guild.
 		w.claims[c.Fold(STRANGER)] = "Bankai Guild Other"
-		eq(select(2, KingTakes(STRANGER, Copy()[1])), "sender", "his own messages said another guild")
+		eq(select(2, ShogunTakes(STRANGER, Copy()[1])), "sender", "his own messages said another guild")
 		local SQUIRE = "Squire One-Realm"
-		king.Roster.byName[SQUIRE] = 4
+		shogun.Roster.byName[SQUIRE] = 4
 		w.claims[c.Fold(SQUIRE)] = w.guild
-		eq(select(2, KingTakes(SQUIRE, Copy()[1])), "sender", "the King's guildmate speaks for the King's guild alone")
-		-- For the King's own guild, its roster: the server's word.
-		eq(select(1, KingTakes(SQUIRE, Copy({ guild = "Bankai Guild", target = "Some One-Realm" })[1])), true, "the King's guild's roster")
-		eq(select(2, KingTakes("Not Ours-Realm", Copy({ guild = "Bankai Guild", target = "Some One-Realm" })[1])), "sender", "not in it")
-		-- A member known for his guild: only the lines the King's client heard itself, at its own time.
+		eq(select(2, ShogunTakes(SQUIRE, Copy()[1])), "sender", "the Shogun's guildmate speaks for the Shogun's guild alone")
+		-- For the Shogun's own guild, its roster: the server's word.
+		eq(select(1, ShogunTakes(SQUIRE, Copy({ guild = "Bankai Guild", target = "Some One-Realm" })[1])), true, "the Shogun's guild's roster")
+		eq(select(2, ShogunTakes("Not Ours-Realm", Copy({ guild = "Bankai Guild", target = "Some One-Realm" })[1])), "sender", "not in it")
+		-- A member known for his guild: only the lines the Shogun's client heard itself, at its own time.
 		local REPORTER = "Reporter One-Realm"
 		w.claims[c.Fold(REPORTER)] = w.guild
 		hc1.Watch.CouncilTick(true); Route(w, c)
@@ -2866,25 +2866,25 @@ test("watch: council reports (1.2.1): the King's client takes a copy only from a
 			{ at = w.epoch - 200 + 90, tier = "A", text = "cheap gold here" },
 		} })
 		eq(#msgs, 4)
-		eq(select(1, KingTakes(REPORTER, msgs[1])), true)
-		eq(select(1, KingTakes(REPORTER, msgs[2])), true, "heard as said")
-		ok, why = KingTakes(REPORTER, msgs[3]); eq(ok, false); eq(why, "unconfirmed", "words put in his mouth")
-		eq(select(1, KingTakes(REPORTER, msgs[4])), true, "heard, the reporter's clock 90 s off")
-		-- Words the King's client heard from another player, or too far from the time given, are no line of his.
+		eq(select(1, ShogunTakes(REPORTER, msgs[1])), true)
+		eq(select(1, ShogunTakes(REPORTER, msgs[2])), true, "heard as said")
+		ok, why = ShogunTakes(REPORTER, msgs[3]); eq(ok, false); eq(why, "unconfirmed", "words put in his mouth")
+		eq(select(1, ShogunTakes(REPORTER, msgs[4])), true, "heard, the reporter's clock 90 s off")
+		-- Words the Shogun's client heard from another player, or too far from the time given, are no line of his.
 		w.chat.A[#w.chat.A + 1] = { sender = "Bystander-Realm", t = w.epoch - 100, text = "frame him" }
 		w.claims[c.Fold("Reporter Two-Realm")] = w.guild
 		local other = Copy({ seq = 21, lines = { { at = w.epoch - 100, tier = "A", text = "frame him" },
 			{ at = w.epoch - 300 - W.COUNCIL_LINE_SLACK - 1, tier = "A", text = "buy gold cheap" } } })
-		eq(select(1, KingTakes("Reporter Two-Realm", other[1])), true)
-		eq(select(2, KingTakes("Reporter Two-Realm", other[2])), "unconfirmed", "another player's words")
-		eq(select(2, KingTakes("Reporter Two-Realm", other[3])), "unconfirmed", "not within the slack of the time given")
+		eq(select(1, ShogunTakes("Reporter Two-Realm", other[1])), true)
+		eq(select(2, ShogunTakes("Reporter Two-Realm", other[2])), "unconfirmed", "another player's words")
+		eq(select(2, ShogunTakes("Reporter Two-Realm", other[3])), "unconfirmed", "not within the slack of the time given")
 		local kept
-		for _, r in ipairs(As(king, function() return K.CouncilReports() end)) do if r.reporter == REPORTER then kept = r end end
+		for _, r in ipairs(As(shogun, function() return K.CouncilReports() end)) do if r.reporter == REPORTER then kept = r end end
 		assert(kept, "his report")
 		eq(kept.lines[1].text, "buy gold cheap"); eq(kept.lines[2], nil, "left out"); eq(kept.lines[3].text, "cheap gold here")
-		eq(kept.lines[3].at, w.epoch - 200, "at the King's client's own time")
+		eq(kept.lines[3].at, w.epoch - 200, "at the Shogun's client's own time")
 		-- Passed on with the lines it kept alone.
-		Timers(king); Route(w, c)
+		Timers(shogun); Route(w, c)
 		local got
 		for _, r in ipairs(As(hc1, function() return hc1.Watch.CouncilReports() end)) do if r.reporter == REPORTER then got = r end end
 		assert(got, "the councillor has it")
@@ -2896,23 +2896,23 @@ test("watch: council reports (1.2.1): the King's client takes a copy only from a
 	end)
 end)
 
-test("watch: council reports (1.2.1): on the King's client each guild's members have their own share, so another guild's characters never use up theirs; the King's own guild counts in no shared one", function()
+test("watch: council reports (1.2.1): on the Shogun's client each guild's members have their own share, so another guild's characters never use up theirs; the Shogun's own guild counts in no shared one", function()
 	WithWatch(function(w, W, c)
-		local king = CouncilWorld(w, c)
+		local shogun = CouncilWorld(w, c)
 		local n = 0
 		local function From(sender, guild, roster)
 			n = n + 1
 			assert(ns.IsFederation(guild), guild)
-			if roster then king.Roster.byName[sender] = 4 else w.claims[c.Fold(sender)] = guild end
+			if roster then shogun.Roster.byName[sender] = 4 else w.claims[c.Fold(sender)] = guild end
 			local msg = assert(W.CouncilWire({ seq = 100 + n, at = w.epoch, guild = guild, group = c.group, faction = c.faction,
 				cat = "S", target = "Target " .. n .. "-Realm", note = "", lines = {} }))[1]
-			return As(king, function() return king.Watch.HandleReport("WHISPER", sender, msg) end)
+			return As(shogun, function() return shogun.Watch.HandleReport("WHISPER", sender, msg) end)
 		end
 		for i = 1, W.COUNCIL_RATE_GUILD do eq(select(1, From("Flooder " .. i .. "-Realm", "Bankai Guild Kin")), true, "flood " .. i) end
 		local ok, why = From("Flooder Over-Realm", "Bankai Guild Kin")
 		eq(ok, false); eq(why, "rate", "that guild's share is used up")
 		eq(select(1, From("Honest One-Realm", w.guild)), true, "another guild's member is still taken")
-		-- The guilds but the King's share COUNCIL_RATE_ALL in all.
+		-- The guilds but the Shogun's share COUNCIL_RATE_ALL in all.
 		local taken = W.COUNCIL_RATE_GUILD + 1
 		for g = 1, 10 do
 			for i = 1, W.COUNCIL_RATE_GUILD do
@@ -2924,16 +2924,16 @@ test("watch: council reports (1.2.1): on the King's client each guild's members 
 		end
 		ok, why = From("Late Member-Realm", "Bankai Guild Other")
 		eq(ok, false); eq(why, "rate", "the shared share is used up")
-		eq(select(1, From("Squire Two-Realm", "Bankai Guild", true)), true, "the King's guild's member, whom its roster vouches for")
+		eq(select(1, From("Squire Two-Realm", "Bankai Guild", true)), true, "the Shogun's guild's member, whom its roster vouches for")
 		-- A while later, each share has room again.
 		w.epoch = w.epoch + W.COUNCIL_RATE_ALL_WINDOW
 		eq(select(1, From("Late Member-Realm", "Bankai Guild Other")), true)
 	end)
 end)
 
-test("watch: council reports (1.2.1): a councillor's cursor is the King's client's receipt: a report it took late, and a backlog a push cut, still reach him at his next asks, each once", function()
+test("watch: council reports (1.2.1): a councillor's cursor is the Shogun's client's receipt: a report it took late, and a backlog a push cut, still reach him at his next asks, each once", function()
 	WithWatch(function(w, W, c)
-		local king, hc1, hc2 = CouncilWorld(w, c)
+		local shogun, hc1, hc2 = CouncilWorld(w, c)
 		local n = 0
 		local function Take(o)
 			n = n + 1
@@ -2942,26 +2942,26 @@ test("watch: council reports (1.2.1): a councillor's cursor is the King's client
 			w.claims[c.Fold(sender)] = guild
 			local msg = assert(W.CouncilWire({ seq = 200 + n, at = o and o.at or w.epoch, guild = guild, group = c.group, faction = c.faction,
 				cat = "S", target = "Target " .. n .. "-Realm", note = "", lines = {} }))[1]
-			assert(As(king, function() return king.Watch.HandleReport("WHISPER", sender, msg) end))
-			Timers(king); Route(w, c)
+			assert(As(shogun, function() return shogun.Watch.HandleReport("WHISPER", sender, msg) end))
+			Timers(shogun); Route(w, c)
 		end
 		local function Has(p) return #As(p, function() return p.Watch.CouncilReports() end) end
 		local function Ask(p) As(p, function() return p.Watch.CouncilTick(true) end); Route(w, c) end
-		local function KingHas() return #As(king, function() return king.Watch.CouncilReports() end) end
+		local function ShogunHas() return #As(shogun, function() return shogun.Watch.CouncilReports() end) end
 		-- (a) He asked; a fresh report is pushed to him.
 		Ask(hc2)
 		Take()
 		eq(Has(hc2), 1)
-		-- Half an hour on, the King's client takes one its reporter's client held (dated before it):
+		-- Half an hour on, the Shogun's client takes one its reporter's client held (dated before it):
 		-- he asked too long ago to be pushed it.
 		w.epoch = w.epoch + 1800
 		Take({ at = w.epoch - 2400 })
-		eq(Has(hc2), 1); eq(KingHas(), 2)
+		eq(Has(hc2), 1); eq(ShogunHas(), 2)
 		Ask(hc2)
 		eq(Has(hc2), 2, "his next ask brings it")
 		-- (b) A backlog longer than one answer, and a push between its pages.
 		for _ = 1, 8 do Take() end
-		eq(KingHas(), 10)
+		eq(ShogunHas(), 10)
 		eq(Has(hc1), 0)
 		Ask(hc1)
 		eq(Has(hc1), W.COUNCIL_SHOWN, "a first page")
@@ -3005,13 +3005,13 @@ test("watch: council reports (1.2.1): a councillor's cursor is the King's client
 		Ask(hc1)
 		hc1.handlers.MR = saved
 		eq(Has(hc1), 14, "his ask brought the lost one"); eq(answers, 2, "it, and the one after it he had, once")
-		eq(KingHas(), 14)
+		eq(ShogunHas(), 14)
 	end)
 end)
 
-test("watch: council reports (1.2.1): an officer who sits on the council, and the King, have the council's cases apart from their guild's, with none of their guild's Watch on them; the navigation counts both", function()
+test("watch: council reports (1.2.1): an officer who sits on the council, and the Shogun, have the council's cases apart from their guild's, with none of their guild's Watch on them; the navigation counts both", function()
 	WithWatch(function(w, W, c)
-		local king, hc1 = CouncilWorld(w, c)
+		local shogun, hc1 = CouncilWorld(w, c)
 		local L, J = ns.L, c.Judgment
 		-- This client: an officer of his guild and a councillor.
 		w.setRank(c.me, 0); w.refreshRoster()
@@ -3027,20 +3027,20 @@ test("watch: council reports (1.2.1): an officer who sits on the council, and th
 			w.elsewhere = kept
 		end
 		eq(W.CouncilTick(true), true); ToMe()
-		-- Another guild's member reports SPAMMER; the King's client passes it on to this client.
+		-- Another guild's member reports SPAMMER; the Shogun's client passes it on to this client.
 		local FAR = "Far Member-Realm"
 		w.claims[c.Fold(FAR)] = "Bankai Guild Other"
 		for _, msg in ipairs(assert(W.CouncilWire({ seq = 5, at = w.epoch, guild = "Bankai Guild Other", group = c.group, faction = c.faction,
 			cat = "S", target = SPAMMER, note = "gold ads", lines = { { at = w.epoch - 300, tier = "A", text = "buy gold cheap" } } }))) do
-			assert(As(king, function() return king.Watch.HandleReport("WHISPER", FAR, msg) end))
+			assert(As(shogun, function() return shogun.Watch.HandleReport("WHISPER", FAR, msg) end))
 		end
-		Timers(king); ToMe()
+		Timers(shogun); ToMe()
 		eq(#W.CouncilReports(), 1); eq(#W.Reports(), 0, "not among his guild's reports")
 		eq(#W.CouncilCases(), 1); eq(#W.Cases(), 0, "nor its cases")
 		eq(W.Case(c.Fold(SPAMMER)), nil, "no guild case on that name")
 		local key = "council:" .. c.Fold(SPAMMER)
 		eq(W.CouncilCase(key).council, true)
-		-- Its page: the evidence, none of his guild's Watch (warn, watch, ban-list, close, finding, the King's judgment, the card).
+		-- Its page: the evidence, none of his guild's Watch (warn, watch, ban-list, close, finding, the Shogun's judgment, the card).
 		W.Show("case", key)
 		local page = PageText(W.Build())
 		assert(page:find("buy gold cheap", 1, true), page)
@@ -3048,7 +3048,7 @@ test("watch: council reports (1.2.1): an officer who sits on the council, and th
 		assert(not page:find(L.WATCH_CASE_FINDING_NONE, 1, true), "no finding of his guild's")
 		eq(W.ShowCard(key), nil, "no judgment card")
 		local ok, why = J.Escalate(SPAMMER)
-		eq(ok, false); eq(why, "case", "never sent to the King as his guild's case")
+		eq(ok, false); eq(why, "case", "never sent to the Shogun as his guild's case")
 		-- A report of his own guild's on the same name: its own case, with the guild's Watch on it.
 		w.setRank("Reporter One-Realm", 3)
 		for _, msg in ipairs(ReportMessages(w, W, c, { seq = 30, lines = { { at = w.epoch - 200, tier = "A", text = "cheap gold here" } } })) do
@@ -3068,14 +3068,14 @@ test("watch: council reports (1.2.1): an officer who sits on the council, and th
 		W.Show("cases")
 		page = PageText(W.Build())
 		assert(page:find(L.WATCH_CASES_TITLE, 1, true) and page:find(L.WATCH_CASES_TITLE_COUNCIL, 1, true), page)
-		-- The King (his guild's master): the same.
-		As(king, function()
-			local KW = king.Watch
+		-- The Shogun (his guild's master): the same.
+		As(shogun, function()
+			local KW = shogun.Watch
 			eq(KW.CanRead(), true); eq(#KW.Cases(), 0); eq(#KW.CouncilCases(), 1)
 			KW.Show("case", key)
 			local kp = PageText(KW.Build())
 			assert(kp:find("buy gold cheap", 1, true), kp)
-			for _, k in ipairs(GUILD_ACTIONS) do assert(not kp:find(L[k], 1, true), k .. " on the King's council case: " .. kp) end
+			for _, k in ipairs(GUILD_ACTIONS) do assert(not kp:find(L[k], 1, true), k .. " on the Shogun's council case: " .. kp) end
 		end)
 		-- A councillor who is no officer: the council's alone, counted in his navigation.
 		hc1.Watch.CouncilTick(true); Route(w, c)

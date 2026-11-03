@@ -29,11 +29,11 @@ end
 function History.IsTreasurer()
 	return D.Available() and T.TreasurerPin(ns.me) == 1 and ns.IsTreasurer(ns.me, GetGuildInfo("player")) == true
 end
-function History.IsKing() return D.Available() and ns.King.IsKing() and ns.IsKingCharacter(ns.me) end
-function History.Sees() return History.IsTreasurer() or History.IsKing() end
-local function KingPeer(name)
-	if not ns.IsKingCharacter(name) then return false end
-	local guild = ns.KingGuildName()
+function History.IsShogun() return D.Available() and ns.Shogun.IsShogun() and ns.IsShogunCharacter(ns.me) end
+function History.Sees() return History.IsTreasurer() or History.IsShogun() end
+local function ShogunPeer(name)
+	if not ns.IsShogunCharacter(name) then return false end
+	local guild = ns.ShogunGuildName()
 	if guild == GetGuildInfo("player") and not ns.Roster.Fresh() then return false end
 	local rank, source, support = ns.Data.AuthorizedRank(name, guild)
 	return rank == 0 and (source == "roster" or source == "pinned" or source == "signed"
@@ -226,7 +226,7 @@ local function Parse(text)
 	return data
 end
 function History.Ask()
-	if not History.IsKing() or ns.Now() - lastAsk < History.ASK_GAP then return false end
+	if not History.IsShogun() or ns.Now() - lastAsk < History.ASK_GAP then return false end
 	nextId = math.max(nextId + 1, Clock() * 1000)
 	local p = Identity(); p.id, p.week, p.at = nextId, D.Week(), Clock()
 	pending, lastAsk = p, ns.Now()
@@ -239,7 +239,7 @@ function History.Handle(dist, sender, text)
 	local id, week = text:match("^DH~1~Q~(%d+)~(%d+)$")
 	if id then
 		id, week = tonumber(id), tonumber(week)
-		if not History.IsTreasurer() or not T.CanSend() or not KingPeer(sender) or week ~= D.Week()
+		if not History.IsTreasurer() or not T.CanSend() or not ShogunPeer(sender) or week ~= D.Week()
 			or not Integer(id, 9007199254740991) or id < (Clock() - History.REPLY_WAIT) * 1000 or id > (Clock() + 30) * 1000 then return false end
 		local key = ns.FullName(sender)
 		if answered[key] and ns.Now() - answered[key] < History.ASK_GAP then return false end
@@ -248,7 +248,7 @@ function History.Handle(dist, sender, text)
 		replies = { [key] = { identity = Identity(), msg = msg, at = Clock() } }
 		return T.Private(sender, "DH", msg, "dues history answer")
 	end
-	if not History.IsKing() then pending, received = nil, nil; return false end
+	if not History.IsShogun() then pending, received = nil, nil; return false end
 	if T.TreasurerPin(sender) ~= 1 or not pending then return false end
 	if not SameIdentity(pending) then pending = nil; return false end
 	local data = Parse(text)
@@ -260,7 +260,7 @@ function History.Handle(dist, sender, text)
 	return true
 end
 function History.Held()
-	if not History.IsKing() or not received or not SameIdentity(received.identity) or received.week ~= D.Week() or Clock() - received.heard < 0
+	if not History.IsShogun() or not received or not SameIdentity(received.identity) or received.week ~= D.Week() or Clock() - received.heard < 0
 		or Clock() - received.heard > History.FRESH then received = nil; return nil end
 	return received
 end
@@ -291,7 +291,7 @@ function History.Build(q)
 	Para(lines, L.DUESHISTORY_HINT)
 	Para(lines, L.DUESHISTORY_BOOKS, true)
 	local data = History.IsTreasurer() and History.Data() or History.Held()
-	if History.IsKing() then History.Ask() end
+	if History.IsShogun() then History.Ask() end
 	if not data then Para(lines, L.DUESHISTORY_WAIT); return lines, L.TAB_TREASURY, L.DUESHISTORY_DETAIL end
 	if data.heard then Para(lines, L.DUESHISTORY_SOURCE:format(ns.Ago(data.heard))) end
 	if data.cut then Para(lines, L.DUESHISTORY_CUT) end
@@ -325,17 +325,17 @@ T.OnPrivate("DH", {
 		return id ~= nil and #id <= 8 and Integer(i, ns.Codec.MAX_CHUNKS) and i >= 1
 			and Integer(n, math.ceil(History.ROOM / ns.Codec.CHUNK)) and n >= i and #body <= ns.Codec.CHUNK
 	end,
-	from = function(s) return (History.IsKing() and T.TreasurerPin(s) == 1) or (History.IsTreasurer() and KingPeer(s)) end,
+	from = function(s) return (History.IsShogun() and T.TreasurerPin(s) == 1) or (History.IsTreasurer() and ShogunPeer(s)) end,
 	to = History.Sees,
 	send = function(to, msg)
 		local id, week = msg:match("^DH~1~Q~(%d+)~(%d+)$")
-		if id then return History.IsKing() and T.TreasurerPin(to) == 1 and SameIdentity(pending) and pending.id == tonumber(id)
+		if id then return History.IsShogun() and T.TreasurerPin(to) == 1 and SameIdentity(pending) and pending.id == tonumber(id)
 			and pending.week == tonumber(week) and pending.week == D.Week() and Clock() - pending.at >= 0
 			and Clock() - pending.at <= History.REPLY_WAIT end
 		local data = Parse(msg)
 		local reply = replies[ns.FullName(to)]
 		return data ~= nil and reply ~= nil and reply.msg == msg and SameIdentity(reply.identity)
-			and History.IsTreasurer() and T.CanSend() and KingPeer(to) and data.week == D.Week()
+			and History.IsTreasurer() and T.CanSend() and ShogunPeer(to) and data.week == D.Week()
 			and Clock() - data.at >= 0 and Clock() - data.at <= History.REPLY_WAIT
 	end,
 	handle = History.Handle,

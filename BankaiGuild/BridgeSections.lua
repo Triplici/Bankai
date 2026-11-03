@@ -103,15 +103,15 @@ local Open, Try, Text, Row, Same = Kit.Open, Kit.Try, Kit.Text, Kit.Row, Kit.Sam
 ---------------------------------------------------------------------------
 -- The ranking boards (the Companion's Rankings tab): each board as the page that lists it, its
 -- rows as "~" strings in `fields` order, cut from the end, and this character's own place where
--- the board has him. Only boards every member's page shows: the games' while the King made them
+-- the board has him. Only boards every member's page shows: the games' while the Shogun made them
 -- public (ArenaHome.RankingsPublic, as the Games tab and the API), the treasury's donors while the
--- King shows the Treasury's ranking (Treasury.PublicShows("ranking")), the Church's public rows
+-- Shogun shows the Treasury's ranking (Treasury.PublicShows("ranking")), the Church's public rows
 -- while its switch is open (ChurchCount.PublicView). Never a staff view.
 ---------------------------------------------------------------------------
 
 local BOARD_ROWS = 50
 
--- A name as the Arena's pages show it (ArenaHome.Name: masked on the King's screen while his
+-- A name as the Arena's pages show it (ArenaHome.Name: masked on the Shogun's screen while his
 -- councillors' names are, Arena.Mask), else as the other pages do.
 local function ArenaName(name)
 	local shown = Try("ArenaHome", "Name", name)
@@ -192,7 +192,7 @@ local function CraftingBoard()
 end
 
 -- The Treasury's ranking of donors (its tab's, as it may go out: Treasury.Report(true, true), the
--- copy the army reads), copper given, while the King shows the ranking.
+-- copy the army reads), copper given, while the Shogun shows the ranking.
 local function TreasuryBoard()
 	if Try("Treasury", "PublicShows", "ranking") ~= true then return nil end
 	local r = Try("Treasury", "Report", true, true)
@@ -210,7 +210,7 @@ local function TreasuryBoard()
 	return b
 end
 
--- The donors' honours (the API's, its own gate: while the King shows the Treasury's ranking): the
+-- The donors' honours (the API's, its own gate: while the Shogun shows the Treasury's ranking): the
 -- all-time three, and the month's where this build wears their frame. Names alone.
 local function DonorBoards(out, donors)
 	if type(donors) ~= "table" then return end
@@ -264,10 +264,10 @@ local function Boards(donors)
 	return out
 end
 
--- Public rankings: the API's (Slayers boards, donors' top three only while the King shows the
--- Treasury's ranking, the Church's public top three, the games the King made public), the month's
+-- Public rankings: the API's (Slayers boards, donors' top three only while the Shogun shows the
+-- Treasury's ranking, the Church's public top three, the games the Shogun made public), the month's
 -- crafting ranking as the Realm's crafting page lists it, and the Treasury's spending only while
--- the King shows the balance (numbers alone). 1.2.6 (the Companion's Rankings tab): `boards`, every
+-- the Shogun shows the balance (numbers alone). 1.2.6 (the Companion's Rankings tab): `boards`, every
 -- board above with its rows and this character's own place (Boards); nothing before the Accord.
 BankaiGuildBridge.RegisterSection("rankings", 1, function()
 	if not Open() then return nil end
@@ -345,7 +345,7 @@ end)
 
 -- The roles this character holds, as the Companion's tabs read them: officer (his guild rank may
 -- act as an officer, Roster.IsOfficer), guildMaster (rank 0), council (the signed High Council),
--- crown (the pinned King), author (the addon's author). His own, never another player's; absent
+-- crown (the pinned Shogun), author (the addon's author). His own, never another player's; absent
 -- roles are left out, so a plain member has an empty list.
 local function Yes(fn, ...)
 	if type(fn) ~= "function" then return false end
@@ -374,7 +374,7 @@ local function SelfRoles(me)
 		if ok and rank == 0 and Yes(IsInGuild) then out[#out + 1] = "guildMaster" end
 	end
 	if Yes(ns.IsHighCouncillor, me) then out[#out + 1] = "council" end
-	if Yes(ns.IsKingCharacter, me) then out[#out + 1] = "crown" end
+	if Yes(ns.IsShogunCharacter, me) then out[#out + 1] = "crown" end
 	if type(W) == "table" and Yes(W.IsAuthorName, me) then out[#out + 1] = "author" end
 	return out
 end

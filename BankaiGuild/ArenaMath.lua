@@ -32,13 +32,13 @@ local ADDON, ns = ...
 -- arbiter's), or one of three forms, all with the optional to = "g" | "a" | nil:
 --   { feeBp, arbBp, to }            by position, the WHOLE fee first, then the arbiter's part of
 --                                   it, as the ledger's n:<...>:<feeBp>:<arbBp>:... and the
---                                   King's T1~O ~feeBp~arbBp carry them ({ 600, 200 } is 6%);
+--                                   Shogun's T1~O ~feeBp~arbBp carry them ({ 600, 200 } is 6%);
 --   { feeBp = , arbBp = , to = }    the same by name;
 --   { g = , a = , to = }            the design's notation: the guild's part and the arbiter's
 --                                   (f = g + a; { g = 400, a = 200 } is 6%).
 --   A field left out takes its default (feeBp 600, arbBp 200; g 400, a 200). A number is floored
 --   and clamped: the whole fee to 0..FEE_CAP, then the arbiter's part to 0..the whole, the guild
---   keeping the rest. to = "g" moves the arbiter's part to the guild (the King arbitrates and
+--   keeping the rest. to = "g" moves the arbiter's part to the guild (the Shogun arbitrates and
 --   holds no gold, or no arbiter is paid); "a" or nil pays it to the arbiter. Anything else is
 --   refused ("fee"): a rate that is not a number, another `to`, an unknown field, or two forms
 --   mixed ({ 600, g = 400 }). A typo must not move the arbiter's part, nor charge a fee nobody
@@ -130,12 +130,12 @@ local ADDON, ns = ...
 --   ArenaMath.BetCap(record, kind, scalePct, limit) -> copper[, why]
 --       kind: "bet" (a wallet bet, per market), "balance" (a wallet's balance), "daily"
 --       (deposits a day) or "direct" (a direct bet). The tier is floor(points / 5), at most 5
---       (a tier lower on probation); the table's row times the King's scalePct (nil: 100;
+--       (a tier lower on probation); the table's row times the Shogun's scalePct (nil: 100;
 --       clamped to SCALE_LOW..SCALE_HIGH), under the code ceiling; "direct" needs DIRECT_NEED
---       points and is DirectCap over DirectTier. limit: a lower ceiling the King set (maxBet,
+--       points and is DirectCap over DirectTier. limit: a lower ceiling the Shogun set (maxBet,
 --       directMax); it never raises a cap. 0 comes with why: "open", "dispute", "history",
 --       "probation", "record", "scale", "limit" (malformed ones are refused, never read as
---       nothing). Another kind: nil, "kind" (an arbiter's holding cap comes from the King's T1~M
+--       nothing). Another kind: nil, "kind" (an arbiter's holding cap comes from the Shogun's T1~M
 --       word, not from points).
 --   ArenaMath.DirectTier(record) -> tier | NO_DIRECT, why
 --       the tier a bank writes in a standing token: NO_DIRECT (-1) under DIRECT_NEED points, with
@@ -156,13 +156,13 @@ local ADDON, ns = ...
 --       a record in time order: true for a payment on time (+1), false for a late one (halves).
 --   ArenaMath.HoldAdvice(record, scalePct) -> copper[, why]
 --       the design's holding cap from an arbiter's own points: advice for auditors only. The
---       cap each party enforces is the King's (T1~M).
+--       cap each party enforces is the Shogun's (T1~M).
 --   ArenaMath.Room(cap, held) -> copper[, why]    what an arbiter may still take under his
 --       T1~M cap in copper (never below 0). cap nil: the arbiter is on T1~M without a cap, which
 --       reads as HOLD_DEFAULT (100 gold, the design). why: "cap", "held" (malformed: 0).
 --   ArenaMath.BetOk(copper, cap, staked, rules) -> true | false, why
 --       a new bet, the bank's checks 5, 12 and 13 (the design). cap: the most this player may
---       have on this market (BetCap, with the King's maxBet as its limit); staked: what he has
+--       have on this market (BetCap, with the Shogun's maxBet as its limit); staked: what he has
 --       on it already (Staked), so the cap holds for the market and not for each slip. For a
 --       direct bet: BetCap(record, "direct"), and staked = his direct bets not yet paid.
 --       rules (optional): { minBet = copper (MIN_BET_LOW..MIN_BET_HIGH; nil: MIN_BET),
@@ -181,7 +181,7 @@ local ADDON, ns = ...
 --                                   "quarterfinal" (8)
 --     mode = "arbiter" | "direct",  "arbiter": the arbiter is paid his part of the fee;
 --                                   "direct": the whole fee is the guild's (a direct bet, or a
---                                   market the King arbitrates: he holds no gold and takes no part)
+--                                   market the Shogun arbitrates: he holds no gold and takes no part)
 --     fee = bps or nil,             the whole fee, in basis points of the money won; nil:
 --                                   DEFAULT_FEE; a number is clamped to 0..FEE_CAP
 --     arbiterFee = bps or nil,      the arbiter's part of that fee; nil: DEFAULT_ARBITER_FEE; a
@@ -234,7 +234,7 @@ ArenaMath.SILVER = 100
 ArenaMath.GOLD = 10000
 local SILVER, GOLD = ArenaMath.SILVER, ArenaMath.GOLD
 
-ArenaMath.MIN_BET = 10 * SILVER             -- the smallest bet unless the King sets another (about 10s)
+ArenaMath.MIN_BET = 10 * SILVER             -- the smallest bet unless the Shogun sets another (about 10s)
 ArenaMath.MIN_BET_LOW = SILVER              -- what he may set: 1s ...
 ArenaMath.MIN_BET_HIGH = 10 * GOLD          -- ... to 10g (the money section's bounds)
 ArenaMath.MAX_COPPER = 2147483647           -- one bet's most: the game's gold cap (214,748g)
@@ -244,7 +244,7 @@ ArenaMath.MAX_OUTCOMES = 64                 -- a tournament's slots, one outcome
 ArenaMath.BPS = 10000                       -- basis points in the whole
 local BPS = ArenaMath.BPS
 
--- The fee, in basis points of the money won. The King may set the rates; the market freezes
+-- The fee, in basis points of the money won. The Shogun may set the rates; the market freezes
 -- them when it opens, so a later change never touches a market that already has bets.
 ArenaMath.DEFAULT_FEE = 600                 -- 6% ...
 ArenaMath.DEFAULT_ARBITER_FEE = 200         -- ... of which 2% is the arbiter's ...
@@ -436,7 +436,7 @@ local function FeeRates(fee)
 	if to ~= nil and to ~= "g" and to ~= "a" then return nil end
 	local mode = to == "g" and "direct" or "arbiter"
 	if form ~= "guild" then
-		-- The whole fee and the arbiter's part, as the ledger and the King's word carry them.
+		-- The whole fee and the arbiter's part, as the ledger and the Shogun's word carry them.
 		local total, arbiter
 		if form == "named" then
 			total, arbiter = Rates(fee.feeBp, fee.arbBp, mode)
@@ -1062,7 +1062,7 @@ end
 ---------------------------------------------------------------------------
 
 -- A player's standing points buy him a tier, one per 5 points (an arbiter's advice, one per
--- ten), up to TIER_TOP; each kind of cap is a row of gold by tier, times the King's scalePct,
+-- ten), up to TIER_TOP; each kind of cap is a row of gold by tier, times the Shogun's scalePct,
 -- never past its ceiling. A late payment halves the points (Points) and puts a player on
 -- probation for 7 days, a tier lower (the caller keeps the date); any open debt makes every cap
 -- 0. A direct bet needs DIRECT_NEED points first: a debtor who wipes his saved variables or
@@ -1073,7 +1073,7 @@ ArenaMath.TIER_TOP = 5
 ArenaMath.DIRECT_NEED = 3
 ArenaMath.NO_DIRECT = -1
 ArenaMath.SCALE_LOW, ArenaMath.SCALE_HIGH = 25, 300
--- An arbiter on the King's T1~M list without a cap holds up to the lowest tier's (the design).
+-- An arbiter on the Shogun's T1~M list without a cap holds up to the lowest tier's (the design).
 ArenaMath.HOLD_DEFAULT = 100 * GOLD
 
 local function Gold(list)
@@ -1124,15 +1124,15 @@ local function TierOf(rule, points, probation)
 	return tier
 end
 
--- The King's scale: nil is 100, a number is clamped, anything else closes the cap.
+-- The Shogun's scale: nil is 100, a number is clamped, anything else closes the cap.
 local function Scale(scale)
 	if scale == nil then return 100 end
 	if Number(scale) then return Clamp(scale, ArenaMath.SCALE_LOW, ArenaMath.SCALE_HIGH) end
 	return nil, "scale"
 end
 
--- The King's limit only lowers a cap; one that isn't a number >= 0 closes it rather than being
--- skipped, since skipping it would let a player past what the King set.
+-- The Shogun's limit only lowers a cap; one that isn't a number >= 0 closes it rather than being
+-- skipped, since skipping it would let a player past what the Shogun set.
 local function Limit(cap, limit)
 	if limit == nil then return cap end
 	if not (Number(limit) and limit >= 0) then return nil, "limit" end

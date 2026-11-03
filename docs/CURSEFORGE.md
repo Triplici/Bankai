@@ -40,7 +40,7 @@ concerned). Using it requires accepting its terms, the Bankai Guild Accord, whic
 **Approved guilds (1.1).** A guild of Shobek's Bankai Guild whose name the rule leaves out (it leaves
 Olympian and Olympia out on purpose) counts as an Bankai Guild guild once the author names it in his
 signed list: the same list, signed with the same key on his own computer, that names the High
-Council and the King's Steward, for one faction and realm group. No census vote counts, and nobody
+Council and the Shogun's Steward, for one faction and realm group. No census vote counts, and nobody
 else can add one. A few ship with the addon itself, so their members have nothing to paste: since
 1.1, the Alliance's `<ELF>`, and since 1.1.5 its `<ELVES>` too (only a new version takes one of those off). Its members' addons, no Bankai Guild members
 until they hold that list, take it over their own guild alone (the list only: nothing else is
@@ -66,10 +66,10 @@ one more?"). No answer? **Try someone else** picks a member you have not asked y
 are highlighted. It is rate limited, so nobody gets spammed.
 
 **Where to go** (1.1): a search also asks one member's addon (an addon whisper, not a chat line)
-where recruits should go, and its census answers: the guild the King opened **the gates** of
-first, then the guilds with the **most free slots**, and a couple of their Lords and Captains
-online (never the King). It names only what the census confirms: guilds two members' reports
-agree on, and Lords and Captains two reports name. The screen lists them in that order, each
+where recruits should go, and its census answers: the guild the Shogun opened **the gates** of
+first, then the guilds with the **most free slots**, and a couple of their Council and Captains
+online (never the Shogun). It names only what the census confirms: guilds two members' reports
+agree on, and Council and Captains two reports name. The screen lists them in that order, each
 once `/who` found one of its members (the gates once a second member's answer agrees: one more
 is asked), the guilds found with `/who` too, and a click asks one of those officers that `/who`
 found in that guild, or another member it found there. Just before, their addon is asked
@@ -83,7 +83,7 @@ versions before 1.1 just get the whisper, as before.
 ## What it does
 
 ### Census: the army at a glance
-- Every Bankai Guild guild in one list: **Guild · Members · Online · Avg lvl · Lord**. Columns sort by
+- Every Bankai Guild guild in one list: **Guild · Members · Online · Avg lvl · Council**. Columns sort by
   clicking, like the Guild window.
 - **Total soldiers** and **online now** across the whole realm.
 - **Where the army stands**: top zones ("Stormwind City 742") and totals per continent
@@ -98,7 +98,7 @@ versions before 1.1 just get the whisper, as before.
   version than yours is out (he marks it once CurseForge lists it, never a build he is still
   trying), a line at the foot of the Census, one line in chat once a session and `/bk status`
   say so. It is yours alone: nothing is sent and nobody is whispered.
-- **Marked rows** (1.1): a warning mark on a guild whose senders disagree (on its Lord or
+- **Marked rows** (1.1): a warning mark on a guild whose senders disagree (on its Council or
   Captains, or on its size, by more than 5 members or 5% plus the 20 a minute a guild may gain or
   lose between their two reports), a question mark on one that a single
   sender stands behind. Its tooltip says which and who: check before calling a muster or opening
@@ -107,14 +107,14 @@ versions before 1.1 just get the whisper, as before.
 - **Asking to join** (1.1): a recruit who asked you from the Join Bankai Guild screen shows on top of
   the Census, with their whisper. An officer (the game's guild invite permission) answers with
   **Invite** (the game's own guild invite) or **Decline** (one whisper pointing to the gates'
-  guild while the King's gates are open, else naming your guild alone: never a guild the census
+  guild while the Shogun's gates are open, else naming your guild alone: never a guild the census
   lists for its room, which two made-up characters could report), one click each; anyone else
   can point them to an officer online. **Dismiss** sends nothing. In the Realm's Recruiting, one
   click (or `/bk nocontact`) sets your **do not contact** flag.
-- **Search the census** (1.1): a guild, a Lord, a Captain, a player of a guild's top five or one
+- **Search the census** (1.1): a guild, a Council member, a Captain, a player of a guild's top five or one
   seen online (the player shows under the guild's row), or a zone ("Stormwind": its soldiers
   and its guilds, most first). Type **recruiting** (or `free 50`) for every guild with room,
-  most free slots first and the King's gates on top.
+  most free slots first and the Shogun's gates on top.
 - **Tonight on this client** (1.1): under the list, the most soldiers your addon saw online at
   once tonight and when, and (in its tooltip, and next to a zone you search) how each zone
   filled or emptied since. Counted by your own addon once a minute from the reports it
@@ -124,16 +124,16 @@ versions before 1.1 just get the whisper, as before.
 ### The Realm: the hierarchy
 - **War Room**: members read their guild's records; its officers and verified War roles manage them.
   No cross-guild writes. Empty lists explain what is missing; role previews cannot act.
-- The **King**, then every guild's **Lord** (guild master) and **Captains** (the officer rank
+- The **Shogun**, then every guild's **Council** (guild master) and **Captains** (the officer rank
   right below the guild master).
   Each shows level, class and online or *offline 3d*. Long absences show in red
-  (`/bk warndays <days>`, 3 by default). **A Lord away** (1.1): when a Lord crosses that, one
-  chat line, once per absence: to his own guild's officers from their roster, and to the King,
-  his Steward and his Hands for every guild's Lord, by the census's word (a guild that stopped
+  (`/bk warndays <days>`, 3 by default). **A Council member away** (1.1): when a Council member crosses that, one
+  chat line, once per absence: to his own guild's officers from their roster, and to the Shogun,
+  his Steward and his Hands for every guild's Council, by the census's word (a guild that stopped
   reporting included, counted from its last report even when that showed him online). Never a
   popup, and nothing is done to anyone.
 - The **Treasurer of Bankai Guild** (Pyralis Ashandar, chosen by Shobek's chat) right under
-  the King, with a gold coin next to his name wherever he shows, his tooltip and his lines in
+  the Shogun, with a gold coin next to his name wherever he shows, his tooltip and his lines in
   the Bankai Guild chats included. Only
   that exact character of the guild Bankai Guild gets it: look-alikes don't.
 - **Members online** under each guild: your own guild's from your roster, any other's from
@@ -146,14 +146,14 @@ versions before 1.1 just get the whisper, as before.
   that may remove members (as in the game's Guild window: ranks below yours) removes **one
   person per click**, after a question that shows their rank and days away, a few seconds
   apart. There is no kick-all, and nothing is sent.
-- **Mentors** (1.1): a Lord opens **Recruits and their mentors** on that page (or `/bk recruits`):
+- **Mentors** (1.1): a Council member opens **Recruits and their mentors** on that page (or `/bk recruits`):
   his guild's lowest rank and whoever joined since he logged in. He clicks a recruit who is
   online, then one of his Captains, and says yes: **one whisper to each** from that click, the
   Captain told who to look after, the recruit told who to ask. The pair shows on his list (his
   client's alone); nothing goes on the channel.
-- **Legates and correspondents** (1.1.5): a guild master of an Bankai Guild guild (not the King's)
+- **Legates and correspondents** (1.1.5): a guild master of an Bankai Guild guild (not the Shogun's)
   has a tab of his own in the Throne's place, **Guild** (or `/bk nominees`), laid out as the
-  King's Hands page: **+ Name a legate** (his target, or a name he types), his list (a click
+  Shogun's Hands page: **+ Name a legate** (his target, or a name he types), his list (a click
   takes a title back, asked first), and a line per High Council department to name its
   correspondent. Since 1.2.4, up to 25
   Legates and one correspondent per department (6 at most), members of his own guild only: the
@@ -188,11 +188,11 @@ versions before 1.1 just get the whisper, as before.
 - **Level race**: the highest level players of the realm.
 - **Recruiting**: the guilds that still have free slots, so new players go where there is room
   (the five with the most, then every one on a click, 1.1).
-  When the King opens **the gates** of a guild, it tops the list: send new recruits there.
+  When the Shogun opens **the gates** of a guild, it tops the list: send new recruits there.
 - **Layers** of your zone, named after the highest ranked Bankai Guild member on each one
   ("Shobek's layer"), with how many members are there.
 
-### Layer hop: join the King's layer without begging in chat
+### Layer hop: join the Shogun's layer without begging in chat
 While Shobek is online, the top of the Census and the Realm shows **"Ask invite for Shobek
 Layer"** with his crown. One click (or `/bk hop`) and the addon does the asking:
 
@@ -210,13 +210,13 @@ Layer"** with his crown. One click (or `/bk hop`) and the addon does the asking:
   saved: a later group asks first again, after a `/reload` the window asks once more, and
   `/bk layerauto off` ends it at once.
 - The invite is accepted for you when that player is one the addon can vouch for (a member of
-  your own guild, the King, his Steward or Hands, or, once the author's signed list is on, a Lord
+  your own guild, the Shogun, his Steward or Hands, or, once the author's signed list is on, a Council member
   or Captain of `<Elfcore>` it names; never a census rank); anyone else's, and every invite
   while Blizzard's gamepad UI is on, waits for your click in the game's own invite window. The
   game moves you to the layer, and the addon takes you out of the group as soon as it sees the
   move (or offers a **Leave group** button if it can't tell).
 
-Players alone on the King's layer are asked once per login: **"Shobek is online and you are on
+Players alone on the Shogun's layer are asked once per login: **"Shobek is online and you are on
 his layer. May the addon invite the players who want to join, and take them out of the group
 once they are there?"** with **For Bankai Guild!**, **Can't right now** and **Invite manually**, and
 a **Don't ask me again** box. With For Bankai Guild! the addon invites on its own (only while you
@@ -226,13 +226,13 @@ are alone or with its guests, never into a group of your friends) and lets each 
 Any other layer in the Realm tab's layer list works the same way: click it. Everyone who
 shares their zone and layer (`/bk location on`) and said yes to layer help (1.1: the
 first-open page, or `/bk layerhelp on`) helps: a player who keeps them private is never asked, since an offer would tell the asker where they are. `/bk layerhelp
-off` stops the requests, `/bk layerhelp on` also forgets the answer to the King's layer
+off` stops the requests, `/bk layerhelp on` also forgets the answer to the Shogun's layer
 window, `/bk layerauto on` invites them without the window. Helpers must be in the same zone
-as the layer they are on, and the King himself is never asked.
+as the layer they are on, and the Shogun himself is never asked.
 
 Layers are known from the members who share their zone and layer (see Privacy, below):
 the more share, the better hopping works. Asking works either way, and says on the channel
-the zone you are in and the layer you want. If the King's own layer announcement has not
+the zone you are in and the layer you want. If the Shogun's own layer announcement has not
 arrived yet, clicking his hop line sends one discovery question on the Bankai Guild channel while his crown is visible.
 Clients that can see his exact nameplate keep that fact private until the question; eligible
 helpers answer the asker alone, and two independent answers must agree before the ordinary
@@ -240,29 +240,29 @@ layer-hop ask begins. A lone or conflicting answer moves nobody. Turning locatio
 layer help or the crown off cancels a queued answer and privately withdraws one already sent
 while that discovery question remains active.
 
-The King's layer is known only while his crown
+The Shogun's layer is known only while his crown
 shows on the map (**Show me on the map** on his Throne, off by default): his addon sends it
 the moment he shows the crown and repeats it every minute while it shows. With his crown
 hidden (or while he is in a dungeon, where it hides) the line says so instead of "try again in
 a minute". A layer is a copy of a zone inside one realm: when the census places him on another
-realm than yours, the line says that, even if his layer reaches your channel. The `king:` line
+realm than yours, the line says that, even if his layer reaches your channel. The `shogun:` line
 of `/bk status` (and of `/bk bug`) says what your addon knows of him: online and how sure,
 his realm, his layer and his crown, and how long ago each was heard.
 
 ### Person details
-Click any Lord, Captain, racer or inspected player. Their profile opens in the Bankai Guild window, at
+Click any Council, Captain, racer or inspected player. Their profile opens in the Bankai Guild window, at
 its size, with the census facts Bankai Guild knows: level, class, zone, rank and status. **Back**
 returns to the same list or Realm subpage, one opened from another first; **Whisper**,
 **Invite** and **Who** stay on it (offline: **Who** alone). It is not the Blood Arena
 companion's profile, and opening it sends no query. `/bk profile Name` (or `Name-Realm`) opens
 one by name. Yours is **My profile** (1.2.4: `/bk profile`, the Realm, the Games tab, the Games
 window's **Edit my profile**): **Look** (frame, title, nickname, emblem; one not released yet in
-grey), **Icons**, **Who sees what**, **Letters** (the King's), and you as others see you.
-Any soldier can reach the Lord of another Bankai Guild guild in two clicks.
+grey), **Icons**, **Who sees what**, **Letters** (the Shogun's), and you as others see you.
+Any soldier can reach the Council of another Bankai Guild guild in two clicks.
 
 A High Councillor's tooltip (1.1.5) says so too: their mark and own icon after their name, then
 **High Councillor**, their department and their title, for whoever may see the council (the
-same as their card); none on the King's screen while the council's names are hidden.
+same as their card); none on the Shogun's screen while the council's names are hidden.
 
 ### Right-click a player (1.1.2)
 Right-click a player (the target frame, party and raid frames, a name in chat, the Who list, the
@@ -275,7 +275,7 @@ friends list, a community roster) and the game's menu gets an **Bankai Guild** p
   answer, so no answer in 10 seconds can mean no Bankai Guild, an older one, a dungeon or raid, or no
   Bankai Guild guild (outside one the addon sends nothing). The author's check is his roll call to that
   player alone, which every version since 0.9.9 answers, and only after their yes to his roll calls.
-- **Ask to update** (1.2.1: the author, the King and the High Council only; others' asks are
+- **Ask to update** (1.2.1: the author, the Shogun and the High Council only; others' asks are
   dropped), when they are behind the newest version your addon knows: nothing goes before you
   confirm. On 1.1.2 or newer their addon shows a compact notice with both versions and where to
   update; **Read update** opens a plain-language parchment letter: reviewed public release notes
@@ -333,29 +333,29 @@ from it.
 ### Decrees
 | Decree | Who | What happens |
 |---|---|---|
-| **Call to arms!** | The Crown, the High Council, the King's Hands | Alarm for every Bankai Guild guild: raid warning, sound, red marker at the caller's position for 5 min |
-| **Muster here** | The Crown, the High Council, the King's Hands | Rally point: horn marker on the map for 30 min, soft alert |
+| **Call to arms!** | The Crown, the High Council, the Shogun's Hands | Alarm for every Bankai Guild guild: raid warning, sound, red marker at the caller's position for 5 min |
+| **Muster here** | The Crown, the High Council, the Shogun's Hands | Rally point: horn marker on the map for 30 min, soft alert |
 | **Royal decree** | The Crown, the High Council | A proclamation with free text, as a raid warning to the whole army |
 | **Tabard inspection** | The Crown, the High Council | Announces an inspection at the caller's position: wear your colors |
 
-For decrees *the Crown* means the King, his Steward and the officers of the main `<Elfcore>`
+For decrees *the Crown* means the Shogun, his Steward and the officers of the main `<Elfcore>`
 guild (a Hand sends them as one of its officers). Since 1.2.3 any other guild master's Royal
 decree and Tabard inspection reach his own guild alone, as guild decrees, and so do his and his
 officers' Calls to Arms and Musters (the same alarm, sound and marker, for his guild's members
 alone): no guild master has a decree for the whole army, and every client refuses one of
 theirs sent to it, a 1.2.2 officer's too. Everyone else gets a local preview when they press the buttons. Since 1.0.0 the
 officers of `<Elfcore>` are of the Crown for its own members, whose roster (the server's word)
-names them. On every other client its Crown is the King himself (by his character's name) and
+names them. On every other client its Crown is the Shogun himself (by his character's name) and
 the Hands his list or a Steward's own list names, on their word alone: a Hand who is one of its
-officers has all its decrees and [Lords] lines there. A census officer of `<Elfcore>` counts as
+officers has all its decrees and [Council] lines there. A census officer of `<Elfcore>` counts as
 a Captain there and, since 1.2.3, calls nobody to arms (one report can name anyone) until the
-author's signed list counts. The King can't take back a Hand his Steward named: that Steward
-does, or the author, by removing him. The King's Steward (1.0.0, below) sends the Crown's
-decrees for `<Elfcore>` on every client, whatever his rank, like the King.
+author's signed list counts. The Shogun can't take back a Hand his Steward named: that Steward
+does, or the author, by removing him. The Shogun's Steward (1.0.0, below) sends the Crown's
+decrees for `<Elfcore>` on every client, whatever his rank, like the Shogun.
 
 **Officer musters (1.2.1).** Under the royal decrees, the Decrees tab's **Officer musters** link
 opens its page (it used to be a page of the Realm): quiet 20-minute calls with a title and a zone,
-the whole army's from the King, a Steward, a Hand or the master of `<Elfcore>`, and another guild
+the whole army's from the Shogun, a Steward, a Hand or the master of `<Elfcore>`, and another guild
 master's for his own guild alone. Each shows how many players sharing their location were seen in
 that zone, never who; no popup or alert comes of it.
 
@@ -372,7 +372,7 @@ sound changes: the chat line, the raid warning and the Bankai Guild window stay,
 Busy (`/dnd`), Bankai Guild's alerts wait: no raid warning, no sound and no popup from the addon. Each
 one still prints its chat line and waits on top of the Decrees tab, where a click shows it now.
 Once you are out and not Busy, one line (and one raid warning and one sound) says what waited and
-is still current, and only what is still open pops up: a Vox question still open, the King's call
+is still current, and only what is still open pops up: a Vox question still open, the Shogun's call
 to his audience within its two minutes, the Agenda still to come, a roll call within its minute,
 an unread writ. What is over by then (a Call to Arms lasts 5 minutes) only stays in its list, and
 nothing is ever answered for you. `/bk alerts always` shows them at once as before; `/bk alerts
@@ -386,15 +386,15 @@ WoW channel number to join). Each channel is exclusive to a rank:
 | Channel | Command | Who reads and writes |
 |---|---|---|
 | **[Bankai Guild]** | `/bg <text>` | every member of every Bankai Guild guild |
-| **[Captains]** | `/bgc <text>` | the Captains (rank 1) and Lords of every Bankai Guild guild |
-| **[Lords]** | `/bgl <text>` | the Lords (every guild master, the King included) and the officers of `<Elfcore>` (their lines show to `<Elfcore>`'s own members, and to everyone for the Hands the King's list or a Steward's own names, 1.0.0) |
+| **[Captains]** | `/bgc <text>` | the Captains (rank 1) and Council of every Bankai Guild guild |
+| **[Council]** | `/bgl <text>` | the Council (every guild master, the Shogun included) and the officers of `<Elfcore>` (their lines show to `<Elfcore>`'s own members, and to everyone for the Hands the Shogun's list or a Steward's own names, 1.0.0) |
 
-- Higher ranks also use the channels below theirs: a Lord writes in all three.
-- `/bk mute captains` (or `bankaiguild`, `lords`) hides a channel in chat; the same command shows it again.
+- Higher ranks also use the channels below theirs: a Council member writes in all three.
+- `/bk mute captains` (or `bankaiguild`, `council`) hides a channel in chat; the same command shows it again.
 - **The Bankai Guild tab (1.1.1).** One click in the Chat tab's settings (the gear), or
   `/bk chatwindow tab` (`aba` works too), sends the three channels to a tab of your chat named
   "Bankai Guild". There each line comes without the channel's name, in its channel's colour: gold for
-  [Bankai Guild], teal for [Captains], purple for [Lords] (the tab's first line gives that legend).
+  [Bankai Guild], teal for [Captains], purple for [Council] (the tab's first line gives that legend).
   You make the tab yourself with the game's menu, as the click tells you: right-click the General
   tab, Create New Window, and name it Bankai Guild; the lines land there as soon as it exists, in the
   main window until then. The click shows you where on the Chat tab, as its **Add an Bankai Guild tab
@@ -439,7 +439,7 @@ WoW channel number to join). Each channel is exclusive to a rank:
   most once a minute. Those lines still go to the Chat tab (1.1.1), which keeps the last 100
   lines of each channel.
 - A line still waiting to leave when the Bankai Guild channel changes (a new realm key, from
-  `/bk key` or the King's rotation) is not sent, to either channel, and you are told: it was
+  `/bk key` or the Shogun's rotation) is not sent, to either channel, and you are told: it was
   written for the old channel's audience. Send it again to write on the new one (1.1.1, GitHub
   #34). The same holds for a line the privacy warning holds while the channel changes. Of a
   long line whose first parts had already left, the notice says how many went out, on the old
@@ -451,22 +451,22 @@ WoW channel number to join). Each channel is exclusive to a rank:
 - **Marks in the game's own chat (1.1.5).** Before the name of an Bankai Guild player in the game's
   channels (General, Trade, LocalDefense, LookingForGroup and any other), say, yell, emote,
   party, raid, instance chat and whispers both ways: the mark of their border's tier, the game's
-  gold elite dragon for the King, its silver one for a High Councillor (then the icon they
+  gold elite dragon for the Shogun, its silver one for a High Councillor (then the icon they
   picked), the bronze for a guild master of an Bankai Guild guild, the Legate or department shield for
   a verified Legate or correspondent, and Bankai Guild's star for any other
   member your addon can check: your guild's roster, or for another guild its census, naming them
   in the guild their own Bankai Guild messages speak for (someone else's report alone proves nothing,
   and a plain member of another guild is in no census, so gets none). Guild and officer chat show
-  the office marks alone (the King's gold, a High Councillor's silver, a guild master's bronze and
+  the office marks alone (the Shogun's gold, a High Councillor's silver, a guild master's bronze and
   the verified Legate or department shields), never
   the star: everyone there is of your guild, and you know who they are. Never on Bankai Guild's own
-  lines ([Bankai Guild], [Captains], [Lords] and the Chat tab), which show the name in its colour alone.
+  lines ([Bankai Guild], [Captains], [Council] and the Chat tab), which show the name in its colour alone.
   Through the game's own name filter, so the name's link, right-click and /r stay the game's. On
   by default (`/bk chatmarks off` hides them), hidden with the gamepad UI, and a High
-  Councillor's on the King's screen while the council's names are hidden. The 1.1.5 letter
+  Councillor's on the Shogun's screen while the council's names are hidden. The 1.1.5 letter
   (`/bk letters 1.1.5`) draws each mark with who it is.
 - **Block terms (1.1).** `/bk filter add <word>` hides, on your screen, every line of addon
-  text with that word: the Bankai Guild chats, the King's writs, a decree's words and Vox Populi's
+  text with that word: the Bankai Guild chats, the Shogun's writs, a decree's words and Vox Populi's
   question and answers. Whole words only, any case or accent, one word of 2 to 24 letters or
   digits (`/bk filter remove <word>`, `/bk filter` lists them). It never reads names, guilds,
   the census, the treasury or the game's own chat (Say, Trade, General). A hit hides the line and
@@ -475,11 +475,11 @@ WoW channel number to join). Each channel is exclusive to a rank:
   Decrees tab offers a hidden writ, a decree's hidden words or a hidden Vox question with a click.
   The pinned line's words hide the same way (1.1), and a click on the line shows them.
   A companion addon reading the chats (the bridge) still gets hidden lines, as with a muted
-  channel. **The shared block terms**: a second list the King, his Steward, a Hand or a High
+  channel. **The shared block terms**: a second list the Shogun, his Steward, a Hand or a High
   Councillor of the author's signed list edits for everyone (`/bk filter shared add|remove
   <word>`, 50 words at most, each one word of 4 letters at least: a short common word such as
   "the" or "de" would hide nearly every line), used on every client unless its player says
-  `/bk filter shared off`. The shared list never hides the King's writs (your own filter still
+  `/bk filter shared off`. The shared list never hides the Shogun's writs (your own filter still
   can). Each word is its own entry with the server's time of its edit, so two editors never undo
   each other's other words, and a removal is kept for 30 days (the list keeps 100 entries at
   most, the oldest removals going first, those of the same second in alphabetical order, so
@@ -492,17 +492,17 @@ WoW channel number to join). Each channel is exclusive to a rank:
   from anyone shows or is kept on this client, nor any pinned line; the Chat tab says the chats
   are off, with a click to choose. The Realm does not repeat a chat shortcut or status row.
 - Ranks follow the rule of the decrees: whoever founds a guild with "Bankai Guild" in its name is
-  its Lord and gets [Lords], and its officers get [Captains].
-- **One pinned line** (1.1): the King, his Stewards and Hands can pin one short line (100
+  its Council and gets [Council], and its officers get [Captains].
+- **One pinned line** (1.1): the Shogun, his Stewards and Hands can pin one short line (100
   characters) on top of the Bankai Guild chats and the Realm, for every member, for 2 hours: a raid
   move, a gates change (**Pin a line for the army...** in the Chat tab's settings). A guild
   master pins one for his own guild alone (**Pin a line for your guild...**): it goes over guild
   chat, and
   each guildmate's addon reads his rank in its own guild roster, never in the census (which
-  anyone on the Bankai Guild channel can report to). (The officers of <Elfcore> read [Lords] only on
-  its own members' addons, so they pin for the army as the King's Hands.) `/bk pin <text>` pins
+  anyone on the Bankai Guild channel can report to). (The officers of <Elfcore> read [Council] only on
+  its own members' addons, so they pin for the army as the Shogun's Hands.) `/bk pin <text>` pins
   where your rank allows; `/bk pin off` (or a click on the line) takes it down: its setter, or
-  a higher rank (the King anyone's, his Stewards and Hands a guild master's, over guild chat like
+  a higher rank (the Shogun anyone's, his Stewards and Hands a guild master's, over guild chat like
   the line itself, so it reaches his guildmates on every realm), and one line in chat says who
   took it down. A takedown sticks: every addon remembers the pins taken down for 2
   hours (in its saved variables), so a repeat that comes late, or a setter's addon that missed
@@ -523,14 +523,14 @@ WoW channel number to join). Each channel is exclusive to a rank:
   words, as any addon text, until a click on the line shows them. It is lighter than a writ: no
   parchment, nothing to acknowledge, no popup and no sound, one line in chat when it arrives.
   There is one line on each screen: a newer pin replaces one of its own rank or lower, so the
-  King's newer pin always wins, and his Stewards' and Hands' outrank a guild master's. Its words
+  Shogun's newer pin always wins, and his Stewards' and Hands' outrank a guild master's. Its words
   are the setter's own, sent with the logged API like a chat line (abuse can be reported), and
   its setter's addon repeats it for late logins. Charters and dues stay in Discord, typed by a
   person. Addons before 1.1 don't show it.
 
 **Not encrypted, not private:** every client on the hidden Bankai Guild channel receives the text of
 all three channels, and the addon only decides what to show. Anyone on that channel can read
-[Captains] and [Lords] with a one-line script: without `/bk key` that is anyone who joins
+[Captains] and [Council] with a one-line script: without `/bk key` that is anyone who joins
 "BankaiGuildNet" by name; with a key, every member of the guilds that have it. The guild tag on an
 [Bankai Guild] line is not verified. Seal the channel with `/bk key`, and never share passwords there.
 Before your first line in each channel the addon tells you this and waits for **Send**.
@@ -544,8 +544,8 @@ says public or sealed. It only tells: nothing is sent and nothing changes.
 The Bankai Guild chats in a tab of the Bankai Guild window, **Chat**, right after the Realm, like the chat
 pane of the Guild & Communities window. Click the tab, type `/bk talk` (or `/bg`, `/bgc` or
 `/bgl` with nothing after it), or Shift-click the minimap button: each opens the Bankai Guild window
-on its Chat tab, on that channel. `/bk talk lords`
-opens it on [Lords]; the same command again closes the window.
+on its Chat tab, on that channel. `/bk talk council`
+opens it on [Council]; the same command again closes the window.
 When the side column of the new look runs out of room, its canonical tail continues from the
 bottom of the window's left edge upward. Reading the right top-to-bottom and then the left
 bottom-to-top always gives the same tab order; changing role or debug view never rearranges it.
@@ -569,7 +569,7 @@ bottom-to-top always gives the same tab order; changing role or debug view never
   up; then the line you are reading stays in its place while new lines come in and the oldest go,
   and **N new** at the bottom takes you down to them.
 - By each name, the name in its colour (the High Council's for a councillor, the writer's class
-  for anyone else), the Treasurer's coin, **Steward** or **Hand** after the King's, and (1.2.4)
+  for anyone else), the Treasurer's coin, **Steward** or **Hand** after the Shogun's, and (1.2.4)
   **The Royal Dev** after the author's, on every line of his on the page. No mark
   before a name since 1.1.5: Bankai Guild's marks show in the game's own chat instead, where players
   outside Bankai Guild are ([Channels](#channels), `/bk chatmarks`). A click on a name whispers that
@@ -655,17 +655,17 @@ arrives. The rooms, in the list's order (none of yours: no Roles tab):
 
 | Room | Its members |
 |---|---|
-| **High Council** | the signed councillors, the King and the Federal Treasurer |
-| **Secretariat** | the King and his Stewards |
-| **Guild Masters** | the guild master of every Bankai Guild guild, the King |
-| **Masters & Legates** | every guild's master and legates (its officers and those its master names), the King |
+| **High Council** | the signed councillors, the Shogun and the Federal Treasurer |
+| **Secretariat** | the Shogun and his Stewards |
+| **Guild Masters** | the guild master of every Bankai Guild guild, the Shogun |
+| **Masters & Legates** | every guild's master and legates (its officers and those its master names), the Shogun |
 | One room a department (**Federal Treasury**, **Department of War**, **Council of Justice**, **Association of Artisanry**, **Department of Heritage**, **The Missionary Church of Bankai Guild**) | its councillors by the signed titles list, and each guild's correspondent of it; the Federal Treasury's also the Federal Treasurer |
-| **Master & Correspondents** (one a guild) | that guild's master and his correspondents (the King's guild has none) |
-| **Master & Legates** (one a guild) | that guild's master and his legates; the King's guild's: the King and the legates he and the High Council name |
-| **Apostles** | the author, the King, the Head and the signed Apostles |
+| **Master & Correspondents** (one a guild) | that guild's master and his correspondents (the Shogun's guild has none) |
+| **Master & Legates** (one a guild) | that guild's master and his legates; the Shogun's guild's: the Shogun and the legates he and the High Council name |
+| **Apostles** | the author, the Shogun, the Head and the signed Apostles |
 | **Apostles & Missionaries** | the Apostles' room and the missionaries |
 | **Church** | the whole Church, as in 1.1.6 |
-| **The Watch** | the author, the King, every councillor and the Bankai Guild moderators they name (a guild's own Watchers act on their guild alone and are not in it) |
+| **The Watch** | the author, the Shogun, every councillor and the Bankai Guild moderators they name (a guild's own Watchers act on their guild alone and are not in it) |
 
 - The author's character is in every room but the High Council's and the Secretariat's: his
   lines carry **The Royal Dev** after his name, and another member's line reaches him only while
@@ -674,9 +674,9 @@ arrives. The rooms, in the list's order (none of yours: no Roles tab):
 - Another guild's guild masters and officers are known only from the author's signed leadership
   list. Until it is out (`/bk status`, **signed leadership**), the rooms that reach other guilds
   (the masters', the masters' and legates', the departments') reach your own guild and the
-  signed people (the King, the councillors, the author) alone, and say so over their lines.
+  signed people (the Shogun, the councillors, the author) alone, and say so over their lines.
 - A line goes to 40 members of a room at most (the Church's rooms 30, those heard online), the
-  author, the King, the High Council and the guild masters first, then those who wrote in the room
+  author, the Shogun, the High Council and the guild masters first, then those who wrote in the room
   in the last ten minutes, then the others by name; the room says how many it missed. The whispers
   leave 1.2 seconds apart: 40 take about 48 seconds.
 - No limit on rooms: a session keeps the last 100 lines of each and 1,200 of them all together, the
@@ -692,15 +692,15 @@ arrives. The rooms, in the list's order (none of yours: no Roles tab):
 
 ### The Board: who is looking for a group, and where (1.1)
 The Realm tab links **the Board** (or `/bk lfg`): who in Bankai Guild wants a group right now, from
-what each player chose to share, and the King's week.
+what each player chose to share, and the Shogun's week.
 
-- **The King's week** (`/bk week`): the King's Agenda for the next 7 days, by day, with your own
+- **The Shogun's week** (`/bk week`): the Shogun's Agenda for the next 7 days, by day, with your own
   guild's events from the game's calendar among them, so nobody books the army twice. Bankai Guild
   can't write into the game's calendar: an officer's click opens it on the right day's month and
   says which day to right-click for the guild event. Your client keeps the week across a
-  `/reload` or a login, so it shows while the King is offline.
+  `/reload` or a login, so it shows while the Shogun is offline.
   **Heraldry and guild agendas (1.2.4).** The signed High Council's Heraldry holders and the author
-  also schedule for Bankai Guild, alongside the King's existing verified Steward and Hands. **Schedule
+  also schedule for Bankai Guild, alongside the Shogun's existing verified Steward and Hands. **Schedule
   for your guild** belongs to its own master and verified Heraldry correspondent: a day and hour,
   or `30 Guild gathering`. Entries and signup counts reach that guild alone. Saved entries keep
   their audience, and a roster still loading keeps them hidden until it confirms the issuer.
@@ -716,7 +716,7 @@ what each player chose to share, and the King's week.
   note if you want one (40 bytes at most). A box says first what goes out: your name, level,
   class and guild, the flag and the note, to every Bankai Guild player of your realm and faction.
   The note goes the way chat does (the game's servers keep it, so abuse can be reported); on the
-  King's screen no note shows.
+  Shogun's screen no note shows.
 - **Your zone shows on your card only while you share it** (`/bk location on`); otherwise the
   card says the zone is hidden. Never your position.
 - **A click on someone's card whispers them.** Nothing invites anyone, queues or forms a group.
@@ -728,13 +728,13 @@ what each player chose to share, and the King's week.
   or at a camp** (1.1.6): grouped, within about 10 yards, at the same inn or by your camp.
 
 ### Net-off (1.1): the moderators hide a character or take a guild off the network
-The King, his Steward, a Hand (the King's list or a Steward's) or a High Councillor of the
+The Shogun, his Steward, a Hand (the Shogun's list or a Steward's) or a High Councillor of the
 author's signed list can hide one character for the whole army: **Hide a character** on the
 **Decrees** tab (the name or your target, then the reason), or `/bk netoff Name: reason`. Every
 addon then hides that character on every Bankai Guild surface: their [Bankai Guild], [Captains] and
-[Lords] lines (and the lines the Bankai Guild chats kept), their pinned line, their decrees, their layer and hop offers,
+[Council] lines (and the lines the Bankai Guild chats kept), their pinned line, their decrees, their layer and hop offers,
 their Vox Populi votes and questions, their requests at court, and (1.1, Konig's review) their
-signups to the King's week, their flags and camps on the Board (the camps' map badges too),
+signups to the Shogun's week, their flags and camps on the Board (the camps' map badges too),
 their listing, answers and recipe lists as a crafter, and their elite border and nameplate mark
 (they show as no Bankai Guild player). The names their player already linked as alts are hidden with
 them (alt links, below). The rest of their guild, and
@@ -757,9 +757,9 @@ the census, are not touched: one name stops the spam.
   other characters whose BattleTag it holds, and The Watch's BattleTags page marks them; a click
   there stops a wrong follow (`/bk accord unfollow <name>`; `/bk accord follow <name>` follows one
   by hand). The giver follows only within his reach: never when a character of that BattleTag he
-  knows stands as high as he or the sanction does, or is the King; never on the King's game account,
+  knows stands as high as he or the sanction does, or is the Shogun; never on the Shogun's game account,
   never at or below a character's own rank or protection (his addon remembers its account's highest
-  for two days); the King's game account sends its BattleTag to the King and the author alone;
+  for two days); the Shogun's game account sends its BattleTag to the Shogun and the author alone;
   another game account that sent the same BattleTag (another computer or licence, or a copied tag:
   another code) waits for a team member's click. A follow given by itself never replaces one already
   kept and never passes a stop given since the sanction; a giver who loses his seat takes his follows
@@ -780,33 +780,33 @@ the census, are not touched: one name stops the spam.
   clock), and who passed the word on when it reached you through another issuer's addon (the
   server's name for that one: nobody writes a word in someone else's name unseen). The same
   people show a name again with a click there, or `/bk neton Name`.
-- Only a word from higher up reaches one who gives words: the King's reaches everyone but
+- Only a word from higher up reaches one who gives words: the Shogun's reaches everyone but
   himself, a Steward's the Hands and High Councillors, and a Hand's or a councillor's no other
   issuer (nor the names they linked as alts). So a rogue Hand or councillor can't hide the
-  Steward, another Hand or a councillor; the King (or the Steward, for a Hand or a councillor)
+  Steward, another Hand or a councillor; the Shogun (or the Steward, for a Hand or a councillor)
   hides the rogue, and the rogue's words then fade. And no word replaces one from higher up,
-  whatever its date: a Hand or a councillor never shows again one the King or the Steward hid,
-  nor hides again one they showed again, and the Steward never undoes the King's word (1.1,
-  Konig's review: the King's undo no longer loses an edit war to a newer word). Nor through
+  whatever its date: a Hand or a councillor never shows again one the Shogun or the Steward hid,
+  nor hides again one they showed again, and the Steward never undoes the Shogun's word (1.1,
+  Konig's review: the Shogun's undo no longer loses an edit war to a newer word). Nor through
   another name of that player: a word on a name he linked as an alt, or (Forever) on the same
   name on another realm of the group, doesn't hide him when his own name's word comes from
   higher up, or from as high and is newer.
-- It never aims at the King (his name in any case), nor at the characters he linked as his
+- It never aims at the Shogun (his name in any case), nor at the characters he linked as his
   alts. It uninvites nobody, demotes nobody and writes nothing to Blizzard's ignore list, and
   `/bk block` stays one client's and one player's. No treasury code can call it.
 - The hidden player's addon tells them why, and sends none of it. A Hand or a Steward who is
   hidden calls the army in vain: their Agenda, roll call, Vox Populi, inspection and gates, and
-  their entries on the King's week (their cancels of anyone else's too) and its signup sheets,
+  their entries on the Shogun's week (their cancels of anyone else's too) and its signup sheets,
   show nowhere, and what an addon heard of them before the word leaves its week (whoever named
   them a Hand still decides whether they stay one). Taking their own entry off the week still
   reaches every addon, so it doesn't come back once they are shown again.
 - A word goes on the Bankai Guild channel with Blizzard's logged addon-message function (the issuer's
   own words: the server keeps them, so abuse can be reported), one word per name. Each issuer's
   addon repeats his own words for late logins, every 5 minutes, and never anyone else's (1.1,
-  Konig's review: a word passed on in the King's name went out from the King's addon as his
+  Konig's review: a word passed on in the Shogun's name went out from the Shogun's addon as his
   own), and the army repeats at most 20 words a minute however long the list (a long list is
   repeated less often). Among words of the same rank the newest wins, by the server's clock;
-  on the same second the King's own, else the one hiding the name, so every addon keeps the
+  on the same second the Shogun's own, else the one hiding the name, so every addon keeps the
   same word, whatever reached it first.
   A word hiding someone lapses 30 days after it was given (give it again to keep it); a word
   showing a name again is kept for 30 days, so an older word never comes back. A word counts
@@ -816,10 +816,10 @@ the census, are not touched: one name stops the spam.
   a Hand while nobody who named him keeps his list alive) are no longer repeated, and fade
   within 3 days, as do, on the other addons, the words of an issuer who has not played for 3
   days (his addon repeats them when he is back). When the list is full (500 characters, 200
-  guilds) a new word waits for room, except the King's own, which always finds it, and no word
+  guilds) a new word waits for room, except the Shogun's own, which always finds it, and no word
   ever makes room by pushing out one from higher up (1.1, Konig's review: a Hand who filled the
-  list pushed out the King's word showing a name again).
-- On the King's screen, while the council's names are hidden (his stream), another issuer's
+  list pushed out the Shogun's word showing a name again).
+- On the Shogun's screen, while the council's names are hidden (his stream), another issuer's
   reason (even one written in his name) and a councillor's name stay hidden until he shows the
   council's names. Nothing about him or his alts is printed on his screen.
 - Each honest addon does it: a modified one can ignore it, and versions before 1.1 show
@@ -830,7 +830,7 @@ network** on the Decrees tab: the guild's name or your target's guild, then the 
 `/bk netoff guild Name: reason`), and put it back on (`/bk neton guild Name`). While it is off,
 honest addons stop sending and showing that guild's census (its size leaves the army's total),
 its zones on the map, its layers and hop, its decrees, its Vox Populi votes, its Bankai Guild chats
-and pinned lines, and (1.1, Konig's review) its members' entries and signups on the King's
+and pinned lines, and (1.1, Konig's review) its members' entries and signups on the Shogun's
 week, their flags and camps on the Board, and their listings, answers and recipe lists on the
 crafters' board: its own members' addons send none of it and say why, and every other addon
 drops what still comes. Every addon also drops its members' requests at court, and shows them
@@ -838,7 +838,7 @@ with no elite border or nameplate mark (as no Bankai Guild player). Blizzard's g
 window stay up, and so do the guild's own addon messages among its members (its guild master's
 pinned line aside: hidden with its chats). A
 spam guild, or one that is not really Bankai Guild, is cut out of the
-federation without touching anyone's rank. One guild per word and never the King's: there is
+federation without touching anyone's rank. One guild per word and never the Shogun's: there is
 no switch for the whole realm. Nothing about it is tied to the treasury or to any payment, and
 no treasury code can call it. Its members' hop asks and offers are known by the guild their own
 messages name (a census report names its sender's guild), never by the names written inside
@@ -866,51 +866,51 @@ alts and the census counts people:
 - The same faction and realm group only (one census). Up to 8 alts per player. On the Forever
   beta, which forgets addon data at every login, the offer can't reach the alt yet.
 
-### The Throne (the King and his Hands)
-A tab with a crown that only the King sees: the guild master of the guild named exactly
+### The Throne (the Shogun and his Hands)
+A tab with a crown that only the Shogun sees: the guild master of the guild named exactly
 "Bankai Guild" (of his faction), and on the Alliance that very character, Shobek Shobekler: the
 addon knows him by name, like the Treasurer. It opens on **the Throne Room** (the queue of
 his court while it is open, and the army's key), and holding court takes him there. Since 1.1.5
-the Treasury has its own tab alone, and under the Throne Room are **the King's guild's Legates**:
-up to 25 explicitly appointed members, named by the King or real High Council. A council title
+the Treasury has its own tab alone, and under the Throne Room are **the Shogun's guild's Legates**:
+up to 25 explicitly appointed members, named by the Shogun or real High Council. A council title
 does not automatically appoint a group leader. Each Legate organizes an agreed group of up to
 40 including themselves in the War Room. Each of his tools lives where it belongs:
-- **The King's Agenda** (a button on the Throne): minutes and an event ("30 Raid on
+- **The Shogun's Agenda** (a button on the Throne): minutes and an event ("30 Raid on
   Crossroads"). The whole army gets a popup with the appointment (what, in how long, where)
   and sees it on the Census, with reminders 10 minutes and 1 minute before. Since 1.1 it also
-  holds **the King's week**: a day and an hour of the realm, then what ("Sat 20:00 Raid night",
-  "today 21:30 Court", "sáb 20h Raide"), up to 7 days ahead, 10 entries each for the King and
+  holds **the Shogun's week**: a day and an hour of the realm, then what ("Sat 20:00 Raid night",
+  "today 21:30 Court", "sáb 20h Raide"), up to 7 days ahead, 10 entries each for the Shogun and
   his Steward and 5 for each Hand. The army sees them on the Board, by day (below), with one
   quiet chat line when an entry is added: no popup, raid warning or sound. The box starts
   empty, and a day and an hour typed after a number ("30 Sat 20:00 Raid night") still make a
   week entry, never a 30-minute Agenda.
-- **Hold Court** (a button on the Throne): the King opens his court where he stands. Every
+- **Hold Court** (a button on the Throne): the Shogun opens his court where he stands. Every
   Bankai Guild player in that zone gets a line on top of the Census and the Realm; one click asks
   for an audience. The requests line up on his Throne and a click calls that player (a popup
   and a raid warning).
-- **Summon the Lords** (on top of the Realm tab): every Lord and Captain online gets a popup,
-  "Present, my King" or "Busy". While the roll call is fresh, each Lord and Captain in the
+- **Summon the Council** (on top of the Realm tab): every Council and Captain online gets a popup,
+  "Present, my Shogun" or "Busy". While the roll call is fresh, each Council and Captain in the
   tree carries a ready-check mark: present, busy, or not answered yet.
 - **Royal Inspection** (on top of the Tabards tab): a raid warning for the whole army ("wear
   your tabard!"), then a sample of the soldiers with the addon (of those who said yes to it, 1.1) patrols the players around them
-  for 2 minutes and reports to the King: how many were checked, the percentage in colors, per
+  for 2 minutes and reports to the Shogun: how many were checked, the percentage in colors, per
   guild, and who was caught, on his untabarded list. It stays within a budget for the realm:
   once every 30 minutes at most (whoever calls it), each patrol inspects one player every 5
   seconds at most, and the sample is sized from the addons online so the whole realm sends
   about 20 inspect requests a second (100 patrols at once; everyone while the army is that small).
-- **Vox Populi** (a tab of its own): the King asks the army a question with two to six
+- **Vox Populi** (a tab of its own): the Shogun asks the army a question with two to six
   answers, to pick one or to pick several, open for 30 seconds to 5 minutes. Everyone with
-  the addon gets a window with check boxes and a countdown; each vote goes to the King alone.
+  the addon gets a window with check boxes and a countdown; each vote goes to the Shogun alone.
   He watches the bar chart fill, on his tab or on his screen for the stream ("Show on
   screen"); when time is up everyone gets the chart and the winner (shares of the votes, or
   of the voters when each picked several). `/bk vox off` keeps the questions in chat.
-- **Royal Writs** (in the Decrees tab): a letter from the King on parchment, to the Lords alone,
-  to every Lord and Captain, or to the whole army. Lords and Captains can answer "As you
-  command"; the King sees how many did. (1.2.4) His addon says each writ of the last seven days
+- **Royal Writs** (in the Decrees tab): a letter from the Shogun on parchment, to the Council alone,
+  to every Council and Captain, or to the whole army. Council and Captains can answer "As you
+  command"; the Shogun sees how many did. (1.2.4) His addon says each writ of the last seven days
   again, one every 15 minutes, and a member's addon asks for them once a login, so a member who
   was offline when it went still gets it, once. (The audience is who the addon shows it to: like
   everything on the channel, anyone on it can read the bytes.)
-- **Open the Gates** (in the Realm tab, Recruiting): the King picks the guild new recruits
+- **Open the Gates** (in the Realm tab, Recruiting): the Shogun picks the guild new recruits
   should join for the next two hours; everyone sees it on top of Recruiting.
 - **Royal Pardon** (on the untabarded list): a click takes a name off it, for everyone, for a
   week.
@@ -918,12 +918,12 @@ does not automatically appoint a group leader. Each Legate organizes an agreed g
   leaked, his addon (or his Steward's, acting for him) makes a new one (nobody sees it, he
   neither). He then picks the guilds that
   get it: those his own /who saw are checked, and a guild only the census names waits for his
-  click (two characters on the leaked channel can make up a guild and its Lords); nothing is
-  sent before he hands it out. His addon whispers it to their Lords and Captains the census
+  click (two characters on the leaked channel can make up a guild and its Council); nothing is
+  sent before he hands it out. His addon whispers it to their Council and Captains the census
   confirms online and his own /who saw in that guild in the last 30 minutes (the server's word:
-  two characters can also call themselves a real guild's Lord and Captain in the census, and a
+  two characters can also call themselves a real guild's Council and Captain in the census, and a
   name the census alone gives gets nothing). His click on a guild, or on the Throne's /who line, searches /who
-  for the Lords and Captains picked it has not seen there yet, one search a click: every guild
+  for the Council and Captains picked it has not seen there yet, one search a click: every guild
   picked first, then each of them by name, at most once in 30 minutes (with the gamepad UI his
   click on the /who line searches each guild picked plainly, its answer in the game's Who list,
   never a name, and a guild again a minute after its last search; a click on a guild only checks
@@ -931,28 +931,28 @@ does not automatically appoint a group leader. Each Legate organizes an agreed g
   relog too. Each hands it to his guild over guild chat, so
   nobody types `/bk key` by hand. It never travels on the Bankai Guild channel. Whoever holds the
   old key outside the guilds he picks stays behind on the old channel; anyone in a guild that
-  gets it has it too. For 10 minutes his addon keeps handing it to Lords and Captains who log in
+  gets it has it too. For 10 minutes his addon keeps handing it to Council and Captains who log in
   (once his /who saw them in their guild), on the old channel, a few
   whispers at a time so his other messages keep their place (a little longer while some picked
   still wait for their whisper), then he and his guild move to it ("Move now" sooner); the
   Throne says how many of those he whispered have it (an answer from anyone else is not
   counted), and of how many guilds (each counted for the guild his addon whispered him for,
   never the one his answer names). A guild with no officer online by then stays on the old channel
-  until one of its officers types the key by hand. The King or his Steward: never a Hand.
+  until one of its officers types the key by hand. The Shogun or his Steward: never a Hand.
   Each 1.1 addon keeps the newest key by the time it was made and remembers the keys a newer
   one replaced: an officer's plain `/bk key` from a version before 1.1 still moves his guild,
   as ever, but never back to a key a newer one replaced (the leaked one). A 1.1 officer's own
   `/bk key` is dated, and wins for his guild, as ever.
-- **Hands of the King** (a button next to his map button): players he names use the roll
+- **Hands of the Shogun** (a button next to his map button): players he names use the roll
   call, the inspection, the agenda, Vox Populi and the gates in his name. Never the court,
   writs, pardons or his crown on the map. Their addons learn the list from his, keep it across a
   `/reload`, and (1.2.4, until the author says otherwise) it stands until his newer list, also
   while he is offline; it ended 20 minutes after he stopped sending it before. His addon says an
-  emptied list again too, so a member who was away drops those names, and a list from a King an
+  emptied list again too, so a member who was away drops those names, and a list from a Shogun an
   update no longer names counts nowhere. A Hand who is an officer of `<Elfcore>` keeps its Crown (Royal
-  decrees, Tabard inspections, [Lords]) on every client, not only on its members' (1.0.0).
+  decrees, Tabard inspections, [Council]) on every client, not only on its members' (1.0.0).
   Each Steward names Hands of his own beside his, in a list of his own, with the same tools and
-  the same Crown, which the King can't change (1.0.0, below).
+  the same Crown, which the Shogun can't change (1.0.0, below).
 - **Show me on the map** (his own button, with the crown): while he turns it on, everyone with
   the addon sees a crown where he is, on the world map and the minimap. Off by default (his
   position is on stream); the same button hides it, its tooltip says whether it is on now, and
@@ -960,43 +960,43 @@ does not automatically appoint a group leader. Each Legate organizes an agreed g
   then every minute, so the army can ask to join him (**Ask invite for Shobek Layer**); hidden,
   it is withdrawn with the crown.
 
-Every command is checked on each client: it only counts if the sender is the King by name
+Every command is checked on each client: it only counts if the sender is the Shogun by name
 (the server stamps every sender's name, so nobody else can carry his), his Steward for what is
-his to do in the King's name (1.0.0), or one of the Hands (the King's or a Steward's), for what
-is lent to them. No census vote can make anyone else King or silence him. On the
-Horde the King is Duskmonkey Boneback, guild master of `<Mudhutters>` (0.9.4): his guild counts
-as an Bankai Guild guild there, whatever its name. Answers go to the King alone. Nothing another player sends can put free text on his screen: only names and
+his to do in the Shogun's name (1.0.0), or one of the Hands (the Shogun's or a Steward's), for what
+is lent to them. No census vote can make anyone else Shogun or silence him. On the
+Horde the Shogun is Duskmonkey Boneback, guild master of `<Mudhutters>` (0.9.4): his guild counts
+as an Bankai Guild guild there, whatever its name. Answers go to the Shogun alone. Nothing another player sends can put free text on his screen: only names and
 Bankai Guild guild names.
 
-### The King's Steward (1.0.0)
-The King's right hand, so that he needn't set everything up himself: a character the author
+### The Shogun's Steward (1.0.0)
+The Shogun's right hand, so that he needn't set everything up himself: a character the author
 marks as **Steward** in the High Council's signed titles list. On the Steward's client the
-Throne opens as the King's, with **Acting for the King** on top of every page, and in the
-King's name he:
-- names and removes **Hands of his own**, beside the King's (the Hands button on the Throne):
-  the King's list stays the King's, and his own is his;
+Throne opens as the Shogun's, with **Acting for the Shogun** on top of every page, and in the
+Shogun's name he:
+- names and removes **Hands of his own**, beside the Shogun's (the Hands button on the Throne):
+  the Shogun's list stays the Shogun's, and his own is his;
 - names and removes the **treasury's keepers**, and sets **what the army sees** of the
-  treasury (its three switches), on the Treasury tab, and **sees the whole treasury as the King
+  treasury (its three switches), on the Treasury tab, and **sees the whole treasury as the Shogun
   does**: the balance, the ranking, every keeper's shared book and the guild bank, whatever the
   switches (every keeper is told so before he shares his book);
-- uses every tool of a Hand: the Agenda, Summon the Lords, the Royal Inspection, Vox Populi and
+- uses every tool of a Hand: the Agenda, Summon the Council, the Royal Inspection, Vox Populi and
   the gates;
 - sends the **Crown's decrees** for `<Elfcore>` (Royal decrees, Tabard inspections, Calls to Arms,
   Musters), whatever his own rank: every client takes them by his name, `<Elfcore>`'s own
-  members' too, and they never wait behind the flood guard, like the King's. For the other
-  guilds his [Lords] lines are the Crown's, as the Hands' are.
+  members' too, and they never wait behind the flood guard, like the Shogun's. For the other
+  guilds his [Council] lines are the Crown's, as the Hands' are.
 
-Never the King's own: his crown on the map and his layer, holding court, Royal Writs, Royal
-Pardons, the untabarded list, and the King's own book of the treasury or his yes to share it
+Never the Shogun's own: his crown on the map and his layer, holding court, Royal Writs, Royal
+Pardons, the untabarded list, and the Shogun's own book of the treasury or his yes to share it
 (the Steward keeps no book unless named a keeper).
 
-**The Hands: each list its owner's.** The Hands are the King's list and each Steward's own
+**The Hands: each list its owner's.** The Hands are the Shogun's list and each Steward's own
 list together, and a Hand has the same tools, and the same Crown for `<Elfcore>` on the other
-guilds' clients, whoever named him. Nobody changes anyone else's list: the King's Hands page
+guilds' clients, whoever named him. Nobody changes anyone else's list: the Shogun's Hands page
 shows his own list, to change, and each Steward's, to read, under that Steward's name; a
-Steward's page shows his own list, to change, and the King's and the other Stewards', to read.
-**The King can't take back a Hand his Steward named**: that Steward does, or the author, by
-removing him as Steward (both pages say so). The King's list is the same message as before
+Steward's page shows his own list, to change, and the Shogun's and the other Stewards', to read.
+**The Shogun can't take back a Hand his Steward named**: that Steward does, or the author, by
+removing him as Steward (both pages say so). The Shogun's list is the same message as before
 1.0.0, from his client alone, and (1.2.4) stands until his newer list (it ended 20 minutes after
 his client stopped repeating it before; each owner's addon says an emptied list again, at his
 later sessions too). A Steward's list goes out from his own client alone, in a message of its
@@ -1005,44 +1005,44 @@ in its saved data, until his newer list (1.2.4; it ended 20 minutes after his cl
 repeating it), or at once, on every client, when a newer
 signed list no longer names him: named again later, he starts from no Hands, as long as his
 addon saw the list without him (on any of his characters there). Clients before 1.0.0 follow
-the King's list alone, as they
+the Shogun's list alone, as they
 always did, and leave a Steward's out: a Hand only a Steward named has his tools on 1.0.0
 clients.
 
 **The treasury: the newest word.** The treasury's keepers and its switches are one list each,
-which the King and his Steward both set: each client takes them only from the King's character
+which the Shogun and his Steward both set: each client takes them only from the Shogun's character
 or from a Steward its signed titles list names, each word dated by the server's clock. The
-newest wins, and on the same second the King's: **the King's newer word always wins** (his
+newest wins, and on the same second the Shogun's: **the Shogun's newer word always wins** (his
 screen tells him when his Steward changed one of them; the name is cut short there while the
-council's names are hidden on his stream). The King's client and the Steward's take the newest
+council's names are hidden on his stream). The Shogun's client and the Steward's take the newest
 word as theirs and repeat it, and each answers an older word it hears with the newer one. A word
 dated more than a minute ahead of the server's clock is not taken.
 
 **Who he is.** Only the author names a Steward, with the same key that signs the council (the
 README on GitHub says how): no name is written in the addon, no census vote counts, and nobody
-else can make one. A Steward acts for the Alliance's King (the Horde's only when the list names
-one for the Horde), on the list's realm group, where a King is named. A newer signed list
+else can make one. A Steward acts for the Alliance's Shogun (the Horde's only when the list names
+one for the Horde), on the list's realm group, where a Shogun is named. A newer signed list
 without him ends it on every client at once. `/bk status` says whom your addon knows as the
 Steward and the lists of Hands it holds, whose each is.
 
-### The Treasury (its keepers, the King, and the army when the King says so)
-A tab with a coin for the treasury's keepers, for the King, and for every member once the King
+### The Treasury (its keepers, the Shogun, and the army when the Shogun says so)
+A tab with a coin for the treasury's keepers, for the Shogun, and for every member once the Shogun
 shows the army something of it (1.1: for every member on the Treasurer's realms, with the dues' button
 alone until then).
-- **Voluntary campaigns (1.2.4)**: the real King defines one purpose and a gold goal, optionally
+- **Voluntary campaigns (1.2.4)**: the real Shogun defines one purpose and a gold goal, optionally
   up to four material goals (`Raid supplies | 100 | 1710=20`). Receipts have a fixed 14-day
   window. A real keeper manually assigns an actually confirmed trade/mail gift, once across
   reloads; only native-observed voluntary gold above its weekly baseline is eligible. Old or
   manual money cannot meet that baseline, and unconfirmed intake counts nothing. Materials
   wait for actual bag/trade confirmation. Up to 2,000 assignments per keeper are retained;
-  corrections in the book reduce totals. Only aggregate progress announced by the King is
-  public; keeper receipt identities and giver names stay private. The King closes with one
+  corrections in the book reduce totals. Only aggregate progress announced by the Shogun is
+  public; keeper receipt identities and giver names stay private. The Shogun closes with one
   Chronicle purchase note and removes the bar. Nothing moves money, adds dues, grants a perk,
   or changes donor-ranking publication and consent.
 - **Its keepers (1.0)**: the Treasurer of Bankai Guild (that exact character, in the guild Bankai Guild),
-  the King, and up to 5 characters the King adds on the Treasury tab (**The treasury's
+  the Shogun, and up to 5 characters the Shogun adds on the Treasury tab (**The treasury's
   keepers**, then **Add a treasury character**, by name or target; a click on one takes it off).
-  The list is the King's word (or his Steward's, in his name): every client checks it comes from
+  The list is the Shogun's word (or his Steward's, in his name): every client checks it comes from
   his character or a Steward's and keeps it (it never runs out while he is away); their addons
   repeat it. No keeper's book carries it, the Treasurer's included (his could otherwise name
   anyone a keeper).
@@ -1075,7 +1075,7 @@ alone until then).
   for the item itself), with the army's "book" switch; the item lines are in the book too.
 - **1.0's fresh start**: at a keeper's first login on 1.0 the old book (0.9's, the Treasurer's)
   is closed and kept in the saved variables, never shown or sent, and his new book opens at his
-  character's gold then (a keeper the King names later: at his gold then). The treasury starts
+  character's gold then (a keeper the Shogun names later: at his gold then). The treasury starts
   from their sum; the totals, the week and the ranking start at zero. A keeper can set his own
   book's opening balance on the tab. The era travels in each book ("1.0"): 1.0 clients never
   read 0.9's treasury, and 0.9 clients get a short copy of 1.0's, in 0.9's shape, from the
@@ -1084,9 +1084,9 @@ alone until then).
 - **Early supporters**: everyone who gave before 1.0 (from 0.9's closed book, sent by the Treasurer's addon), names only, in alphabetical order, with the ranking's switch: the Treasury tab's last section, folded until a click opens it (1.1.5). They go out only once the Treasurer said yes to 1.0's question, which says their names go to everyone on the channel (his yes of 0.9.3 is not enough: he is asked again).
 - **The guild bank of <Elfcore>**: whoever of that guild opens the bank with the addon on takes
   a snapshot of it (each tab's items with icons and counts, the bank's gold, when it was seen);
-  a keeper's snapshot (the newest, whoever took it) reaches the King and, with his "book"
+  a keeper's snapshot (the newest, whoever took it) reaches the Shogun and, with his "book"
   switch, the army (1.1: on the channel only with that switch; without it, by whisper to the
-  King, his Steward and the keepers alone). Hover an item for its tooltip. Nothing is ever moved in the bank: it is a
+  Shogun, his Steward and the keepers alone). Hover an item for its tooltip. Nothing is ever moved in the bank: it is a
   picture. On WoW: Forever the bank's window opens through the game's interaction manager,
   which 1.0 listens to (0.9's addon never saw it open there); a client with no guild bank says
   so on the tab.
@@ -1105,30 +1105,30 @@ alone until then).
   if you click it). A tab that reads empty with no earlier snapshot to keep it from (after your
   saved variables were wiped, or on a newly named keeper's first visit) is not sent, so nobody's
   screen lists its last items as gone.
-- **Taking donations** (1.1, the Treasurer's idea): a keeper (the Treasurer, the King, a
+- **Taking donations** (1.1, the Treasurer's idea): a keeper (the Treasurer, the Shogun, a
   character he named) turns it on with **Taking donations** on the Treasury tab or `/bk
   donations on`: everyone with the addon sees a line on the Realm and Treasury tabs ("Pyralis
   Ashandar is taking donations in Stormwind City"), his zone only if he shares his location
-  (`/bk location`; the King: his crown on the map), and one line in the [Bankai Guild] chat when he
+  (`/bk location`; the Shogun: his crown on the map), and one line in the [Bankai Guild] chat when he
   turns it on (not with that chat muted or the Bankai Guild chats off, nor for a late login; in the
   Bankai Guild tab without "[Bankai Guild]"). His addon repeats it every 2 minutes and when his zone
   changes; it is never saved, so it is off when he logs out (his addon says so as it leaves;
   otherwise it drops off every screen 5 minutes after his last word), and `/bk donations off`
   turns it off before.
-- **Requests to the treasury** (1.1): a Lord or a Captain of any Bankai Guild guild asks the treasury
+- **Requests to the treasury** (1.1): a Council member or a Captain of any Bankai Guild guild asks the treasury
   for an item and a count ("need 10 Ironwood"): a click on the item in the bank's grid (when he
   sees the bank), `/bk need 10 <item>` (the item shift-clicked into the chat line, its name or its
   number), or **Ask the treasury for an item** on the Treasury tab. No text travels: the item's
   number and the count, 3 open requests per character, each for 3 days. His addon whispers it to
-  the keepers, the King and his Steward heard online whose addon reads it (1.1 or later), and
+  the keepers, the Shogun and his Steward heard online whose addon reads it (1.1 or later), and
   again every 15 minutes while it is open.
   Their Treasury tab lists it under **Requests to the treasury** (with what the bank
   holds of it); a click marks it done or declines it, and the requester is told. Handing it over
   stays a normal trade or mail, the keeper's own click: the request closes by itself when his book
-  records that item given to that player. While the King shows the army the book, the keepers'
+  records that item given to that player. While the Shogun shows the army the book, the keepers'
   addons also put the open requests on the channel, next to the bank, so everyone who sees the
   bank sees what is already asked for (a request line stops five officers from buying the same
-  stack). Taken only from a Lord or Captain as the census confirms (it can be gamed: a request is
+  stack). Taken only from a Council member or Captain as the census confirms (it can be gamed: a request is
   its sender's word, shown with his name). Paced (Konig's review): at most 6 new requests an hour
   per character, one taken back included (his addon says when the next may go; a keeper's addon
   takes no more from one player, keeps 10 of his at most, and answers an open request once every
@@ -1141,11 +1141,11 @@ alone until then).
   Bankai Guild guild is asked again there, and shares nothing of it until he answers; his no stands
   wherever he goes). With his yes, his addon whispers its snapshot (items and counts, its
   gold, when it was seen; the tabs' names left out, shown as "Tab 1", "Tab 2" by their number in
-  the bank) to the King, the High Council (his Stewards and Hands among them), the Treasurer and
+  the bank) to the Shogun, the High Council (his Stewards and Hands among them), the Treasurer and
   the author when their addon asks, never on the Bankai Guild channel. A yes given to 1.1's question
-  (the King, his Steward and his Hands) still covers those alone: he is asked once more whether the
-  others see it too, and his "only the King's" keeps it as it was. Their addon takes it only from
-  a Lord or Captain of that guild as the census confirms (a snapshot is its sender's word; 1.2.4:
+  (the Shogun, his Steward and his Hands) still covers those alone: he is asked once more whether the
+  others see it too, and his "only the Shogun's" keeps it as it was. Their addon takes it only from
+  a Council member or Captain of that guild as the census confirms (a snapshot is its sender's word; 1.2.4:
   one heard before the census can say, in the first 200 seconds after a login or a `/reload`,
   while no report of that guild has come yet or its report is older than 15 minutes, or while only
   its sender's own report names him, is held unseen, in memory, one a sender, of Bankai Guild guilds
@@ -1158,8 +1158,8 @@ alone until then).
   save; dropped at once, the save too, if that character leaves the High Council, and after 20
   minutes of a session outside the audience if it left while offline; what came to it as a Steward
   or a Hand, which a yes to 1.1's question may cover alone, shows in a later session only once it
-  is one again (a Hand alone: unseen while the King is offline), and goes, the save too, once the
-  King's list is heard without it; its addon's next ask then says it holds nothing, as after a
+  is one again (a Hand alone: unseen while the Shogun is offline), and goes, the save too, once the
+  Shogun's list is heard without it; its addon's next ask then says it holds nothing, as after a
   login or a `/reload`, and that has it sent again, 3 minutes after the last one at the soonest,
   where an unchanged snapshot otherwise goes to the same viewer once in 3 hours), and
   shows it on the Treasury tab under **Guild treasuries** (the tab appears for it): every bank
@@ -1168,7 +1168,7 @@ alone until then).
   <Elfcore>'s alone: none is kept for another guild), who shared it and when (an old snapshot
   marked), with a total; the Bankai Guild guilds of the census whose bank they hold no snapshot
   of listed apart as "no snapshot received" (not a refusal: their sharer may not have been online
-  since, or may share with the King, his Stewards and his Hands alone). A click opens a guild's
+  since, or may share with the Shogun, his Stewards and his Hands alone). A click opens a guild's
   bank in place, as the guild bank shows its own (its tabs, slots, counts, tooltips, and what left
   it since that sender's snapshot before). One search finds an item (its name, its number, or its
   link: drag the item from your bags onto the box, or paste the link) or a guild across all of
@@ -1210,8 +1210,8 @@ alone until then).
 - **Sent by each keeper's addon by itself** (every 5 minutes and after a change), once he said
   yes: his book's balance, totals, ranking, items donated and latest lines (1.1: never a line of
   gold given to the Treasurer's characters, see the dues below). On the Bankai Guild
-  channel only the parts the King shows the army (1.1); the whole book goes by whisper, in
-  pieces, to the King, his Steward and the keepers whose addon was heard in the last few minutes
+  channel only the parts the Shogun shows the army (1.1); the whole book goes by whisper, in
+  pieces, to the Shogun, his Steward and the keepers whose addon was heard in the last few minutes
   and reads it (1.1 or later: it asks for it after login, then every 15 minutes; a 1.0 addon is
   never whispered). A changed book goes to each of them 3 minutes after the last one at the
   soonest, the latest then. A whole transfer starts while the addon's queue is nearly empty;
@@ -1222,32 +1222,32 @@ alone until then).
   before 2026 or more than a day ahead of the server's clock): one that doesn't is refused whole,
   and the copy it had of that keeper's book stays. A keeper's own addon never sends such a date,
   even when his computer's clock is wrong: it sends his dates within the server's clock.
-- **The King chooses what the army sees** (his Steward too, in his name), with three buttons:
-  the balance, the ranking, the book. Until he does, only the keepers, the King and his Steward
+- **The Shogun chooses what the army sees** (his Steward too, in his name), with three buttons:
+  the balance, the ranking, the book. Until he does, only the keepers, the Shogun and his Steward
   see them (a keeper's tab says so, and so does the question each keeper answers before sharing).
   With any of them on, the Treasury tab appears for every member with the addon, showing only
   what he turned on (the book behind its own button), and the balance shows under the Treasurer
-  in the Realm. Each client takes his word from the King's addon and his Steward's alone, which
+  in the Realm. Each client takes his word from the Shogun's addon and his Steward's alone, which
   repeat it every 5 minutes, and keeps the last one it heard: a member whose addon never met them
   online shows what that word shows (nothing, before any). (1.1, Konig's review: the Treasurer's
   book carried the word too, and a copy can't be told from one his addon made up or dated anew,
-  so 1.1 takes none from it; 1.0's addons still read it there.) The King and his Steward
-  always see all of it, whatever the switches, and the King the balance next to the soldiers on top of his window. **What he hides
+  so 1.1 takes none from it; 1.0's addons still read it there.) The Shogun and his Steward
+  always see all of it, whatever the switches, and the Shogun the balance next to the soldiers on top of his window. **What he hides
   never goes on the channel from a keeper whose addon is 1.1**, which anyone on it can read: not
-  in his book, not the guild bank, not the early supporters. His addon whispers it to the King,
+  in his book, not the guild bank, not the early supporters. His addon whispers it to the Shogun,
   his Steward and the keepers alone (guild chat would reach every member of `<Elfcore>`). What
   he shows goes on the channel, and every client on it receives it. A keeper still on 1.0 keeps
   sending his whole book on the channel, as 1.0 did, until he updates. A 1.0 addon of the army
-  shows what the King shows, as before. A King's, Steward's or keeper's 1.0 addon is never
-  whispered: it shows what the army sees of the books of keepers on 1.1, so, while the King
-  hides the balance, a balance of zero (every switch off, as the King starts) or of only the
-  parts he shows, as if it were the treasury's, until it updates. **The King, his Steward and
+  shows what the Shogun shows, as before. A Shogun's, Steward's or keeper's 1.0 addon is never
+  whispered: it shows what the army sees of the books of keepers on 1.1, so, while the Shogun
+  hides the balance, a balance of zero (every switch off, as the Shogun starts) or of only the
+  parts he shows, as if it were the treasury's, until it updates. **The Shogun, his Steward and
   the keepers should update to 1.1 first**; a 1.1 insider's Treasury tab names, in red, those
   heard lately still on 1.0.
 - **Dues (1.1)**: one fixed amount of gold a week that members send the Treasurer by trade or
-  mail, the same for everyone (1 gold until the King sets his; never a share of anyone's gold
-  or loot). The King sets it on the dues page of the Treasury tab (his Steward too, in his name:
-  dated, the newest wins, the King's on the same second); their addons repeat it, and only
+  mail, the same for everyone (1 gold until the Shogun sets his; never a share of anyone's gold
+  or loot). The Shogun sets it on the dues page of the Treasury tab (his Steward too, in his name:
+  dated, the newest wins, the Shogun's on the same second); their addons repeat it, and only
   theirs: the Treasurer, who receives the dues, sets none of it (1.1, Konig's review: his addon's
   copy could set the amount, this week's too). A member's addon keeps the last amount it heard
   from them (1 gold before any). A new amount starts at the next weekly reset: the week it is
@@ -1259,28 +1259,28 @@ alone until then).
     game shows on the other side of a trade, the Treasurer's own roster for his guild's members,
     or the note a dues mail carries (the payer's word: it only places his own gold); otherwise
     "guild not known".
-  - **Who sees what**: the King, his Steward and the Treasurer see every guild (its members in
+  - **Who sees what**: the Shogun, his Steward and the Treasurer see every guild (its members in
     the census, how many paid the amount this week, the gold in, the percentage), and a guild's
-    players a click away. A guild's Captains and Lord see their own guild's list: every member of
+    players a click away. A guild's Captains and Council see their own guild's list: every member of
     their roster with his last payment, his gold this week, and above or below the amount (those
     below first). A player who paid with no guild on his payment (a mail without the dues' note)
     is in no guild's list: a Captain's page asks the Treasurer's addon about the members of his
     roster missing from his list, by five letters of each name's hash, and hears back about those
     alone (until then they show as "not known yet", never below). Above and below go by the
-    week's amount as the King's word reached the viewer's own addon, never by the amount the
+    week's amount as the Shogun's word reached the viewer's own addon, never by the amount the
     Treasurer's list came with (the review of Konig's fixes: his addon, which receives the dues,
     decided who was under it). Where the two differ (one of the two addons has not heard the
-    King's latest, or the Treasurer's is not the addon it says), the page says so and asks for a
-    newer list, the King's table shows its "paid" as "?", and that list removes nobody. The
-    army's Treasury tab keeps the King's three switches, and nothing of this.
-  - **Clearing a seat (a guild's Captains and Lord)**: on their own guild's list, one click
+    Shogun's latest, or the Treasurer's is not the addon it says), the page says so and asks for a
+    newer list, the Shogun's table shows its "paid" as "?", and that list removes nobody. The
+    army's Treasury tab keeps the Shogun's three switches, and nothing of this.
+  - **Clearing a seat (a guild's Captains and Council)**: on their own guild's list, one click
     filters the roster to whoever is under the amount this week (never someone the Treasurer's
     list can't tell yet: a list still coming, or cut). A click picks one name; under it,
     **Remove <name> from the guild** asks first, then makes the game's own removal of that one
     member, as the Guild window's Remove does. Only where the player's rank may already remove
     members, only a member ranked below him, and checked again at the click. Never several at
     once, nothing at the weekly reset or on any timer, and never another guild's member: the
-    King's and the Treasurer's view of the other guilds has no such line. The guild's size in
+    Shogun's and the Treasurer's view of the other guilds has no such line. The guild's size in
     the census frees no seat: only a removal does.
   - **Mail counts once the Treasurer takes it**: the Send button's mail goes to his mail
     character, whose own client alone takes it (and, in whatever guild or none, sends nothing);
@@ -1290,14 +1290,14 @@ alone until then).
     "not in the book yet" (a plain "below" only with part of the amount); the page, the filter's
     tip and the removal's question say that a mail not taken yet is not counted, and when the mail
     character last played. **Remove** shows only with the Treasurer's list of the last 10
-    minutes, counted by the King's amount; with an older one, or one counted by another amount,
+    minutes, counted by the Shogun's amount; with an older one, or one counted by another amount,
     it says so, and a removal confirmed anyway does nothing and asks again.
   - **Send this week's dues**: a button on the Treasury tab, for every member on the
-    Treasurer's realms (the tab is there for it even while the King shows the army nothing;
+    Treasurer's realms (the tab is there for it even while the Shogun shows the army nothing;
     a keeper has none: gold between keepers is a transfer). Its click fills in what the usual
     miss gets wrong, the person and the amount: with your mailbox open on its Send Mail tab, a
     mail to the Treasurer's mail character (Pyralis Andarai, where he asked the treasury's mail
-    to go), the King's amount as money (never cash on delivery) and the note "Bankai Guild fund
+    to go), the Shogun's amount as money (never cash on delivery) and the note "Bankai Guild fund
     <the week's first day> <your guild>"; with a trade open with the Treasurer (or his mail
     character), the trade's gold. You still press Send or Trade; closing the window sends
     nothing, and the addon never moves gold. Nothing fills itself in when the mailbox or a
@@ -1320,22 +1320,22 @@ alone until then).
     and so who did not), and all he sent with the dues' note ("Bankai Guild fund", as **Send this
     week's dues** writes it). A week's amount is the one his book kept while that week ran: the
     amount his addon knew then, raised when it hears a higher one, never lowered, and never changed
-    by a later word of the King's (Konig's review again: worked out anew from each word, a second
+    by a later word of the Shogun's (Konig's review again: worked out anew from each word, a second
     change of the amount re-judged the weeks kept and showed their payers); a backup keeps it. A
     total grows only by what a week's gold went over the amount, so one that did not grow may be a
     payer's or not (one that grew gave more than the amount that week). The limit: his addon hears
-    the King's amount only from the King's or a Steward's addon while one of them is online, so a
+    the Shogun's amount only from the Shogun's or a Steward's addon while one of them is online, so a
     payer of a new amount it did not hear all that week, by trade or by a mail without the note,
     grows by the difference, which can tell that he paid. The tradeoff: it is that much lower
     than the Treasurer's own screen shows (his screen alone is whole), also for a donor who never
-    meant it as dues. This holds on the channel, in the whole book whispered to the King, his
+    meant it as dues. This holds on the channel, in the whole book whispered to the Shogun, his
     Steward and the keepers, in 0.9's copy, in his mail character's book he passes on, and in the
     Discord copy of the Treasury tab, his own too (the review of Konig's fixes: his was whole);
     another keeper's book, which receives no dues, ranks as it is. It also
     holds after his book is restored from a backup, which keeps the weeks. The Treasurer's addon
     works the lists out from his books and whispers
-    each one to whoever asks and may see it (the King or his Steward: any guild; a Captain or
-    Lord: his own guild, his rank by the Treasurer's roster or the census), once every 5 minutes
+    each one to whoever asks and may see it (the Shogun or his Steward: any guild; a Captain or
+    Council: his own guild, his rank by the Treasurer's roster or the census), once every 5 minutes
     per asker, while the Treasurer shares his book. A list still coming, or cut to fit, marks
     nobody below who is not on it.
   - **Light on the channel**: a page that holds a list whole asks with its id, and the Treasurer's
@@ -1363,13 +1363,13 @@ alone until then).
   officer's Tabards page shows them with his own, the officer who found each in its tooltip, for a
   day (his own later inspection of that player replaces it). Nothing is inspected more or sooner for
   it, nothing goes on the Bankai Guild channel, and only officers (the guild master and the rank right
-  below, by each addon's own roster) send or keep it. The King's untabarded list stays his: another
+  below, by each addon's own roster) send or keep it. The Shogun's untabarded list stays his: another
   officer's finding never joins it, never rides in a Royal Inspection's report and never replaces
-  what the King saw himself. Off until you say yes (officers get its line on the first-open page, or
+  what the Shogun saw himself. Off until you say yes (officers get its line on the first-open page, or
   `/bk patrolshare on`); `/bk patrolshare off` stops it.
 - Per guild: *"5 of 20 with problems"*.
 - **Untabarded** (the "Wall of Shame" before 0.9.2): the players the Royal Inspection found
-  without the colors are on the King's list, which only he sees. He alone can let the army see
+  without the colors are on the Shogun's list, which only he sees. He alone can let the army see
   it (a switch on the Throne, off by default): then it shows on the Tabards page, quietly (no
   raid warning, no chat line, no sound), and it leaves every screen when he turns it off or
   stops repeating it. Nobody else can publish one. Players under level 15 are exempt: never
@@ -1455,10 +1455,10 @@ publish the request to the board.
   trade both addons saw). He mails it to the guild's fee receiver (the Treasurer's mail character)
   titled "Bankai Guild craft fee" and the request (his sale's line fills the mail). Late, he is warned and
   takes no new requests until it is paid; a fee mail that comes back is owed again. Both parties'
-  addons tell the Treasurer's characters of the sale. The Treasurer, the King, the High Council and
+  addons tell the Treasurer's characters of the sale. The Treasurer, the Shogun, the High Council and
   the author see the debtors, the most overdue first, each with his step on the guild's ladder (late,
   a warning from his guild's Watch, his guild's decision up to removal), and every fee owed; the
-  reminders to a debtor are the Treasurer's and the King's. A sale only the buyer reported, or
+  reminders to a debtor are the Treasurer's and the Shogun's. A sale only the buyer reported, or
   a buyer's price above the seller's, waits apart until the Treasurer confirms it. Nothing here
   removes anyone. There is no guarantee fund yet.
 
@@ -1488,17 +1488,17 @@ guild aggregate cannot score the new management. Ordinary presence with an uncha
 does not reset its own proven streak. No new honour, gold rule or public/general-channel feed is added.
 
 The Church brings new players into Bankai Guild. **Shobek is its Head**, using the addon's canonical
-King identity. This position cannot be nominated; a legacy signed Head marker grants no Head powers.
-The author's signed list sets the Twelve Apostles. The King, the author and the signed High Council may name
+Shogun identity. This position cannot be nominated; a legacy signed Head marker grants no Head powers.
+The author's signed list sets the Twelve Apostles. The Shogun, the author and the signed High Council may name
 other Apostles in game. Under the Apostles are their **missionaries**: an Apostle names missionaries, and each missionary may name more under himself, so
 every Apostle's network grows. Each Bankai Guild guild has one **Church correspondent**, named by its guild
-master (or the Head, the King or the author), who keeps that guild full and answers to the Head.
+master (or the Head, the Shogun or the author), who keeps that guild full and answers to the Head.
 - **A guild master's correspondent shows everywhere, and stays** (1.2.4). Every addon takes it once that
   guild's census proves him its master, as for his bronze wings (two senders naming him; the author's
   signed leadership alone once he enforces it), and keeps it, saved, while he and his guild are offline:
   until 30 days after it last proved him, at once when it shows another master or another rank for him,
   or when he takes it back. From 1.2.1 to 1.2.3 only his own guild's addons took it (another guild's
-  master needed the signed leadership, which no release enforces): the author's, the King's and every
+  master needed the signed leadership, which no release enforces): the author's, the Shogun's and every
   other guild's Church page said "none". The keepers outside his guild dropped such a naming, so it
   may not come back by itself: once updated, the guild master names him again (the same person is fine).
   A correspondent named in the **Guild** tab's department line is not a Church appointment: the guild
@@ -1506,7 +1506,7 @@ master (or the Head, the King or the author), who keeps that guild full and answ
 - **One click to name.** On the **Church** tab's **Name** page, or with a right-click on a player
   (**Name as missionary**), an Apostle or a missionary names a missionary of his network: at most 12
   under one person, 5 levels below the Apostle, 5,000 in all (1.2.4). Whoever named someone, anyone above him,
-  the Head, the King and the author may remove him; the people he named keep their places, marked
+  the Head, the Shogun and the author may remove him; the people he named keep their places, marked
   for the Head's review.
 - **Counting is automatic.** The Church's addons read their own guild's log: an invite by a Church
   person followed by that player's join is reported to the Church's keepers (the Head, the Apostles
@@ -1523,10 +1523,10 @@ master (or the Head, the King or the author), who keeps that guild full and answ
   separate groups. The missionaries' appointment action remains subject to its existing quota.
   **Mine** is for the Head, Apostles, missionaries and
   Church correspondents; **Name** appears only to someone with a naming duty. **Reassignments** is
-  for the Head, the King and the author to keep or move missionaries whose namer lost his place.
+  for the Head, the Shogun and the author to keep or move missionaries whose namer lost his place.
 - **Two invitation rankings**, the Apostles and the missionaries, this week, the last 30 days or
   all time; correspondents use the ongoing guild-fullness streak above. The Church's room and private numbers are for the Church, the High
-  Council, the King and the author. The King, signed High Council and author can open or close the
+  Council, the Shogun and the author. The Shogun, signed High Council and author can open or close the
   ranking for every member; your row shows
   there only if you choose to show it (off by default). The author's Member preview shows the same
   pages a member sees and sends no Church actions.
@@ -1534,7 +1534,7 @@ master (or the Head, the King or the author), who keeps that guild full and answ
 ### World map
 - Soldiers per zone on zone and continent maps, and per continent on the world map (none with
   Blizzard's gamepad mode since 1.1.5: see below).
-- Decrees are round icons (the horn, the war cry...) where they were called, and the King's
+- Decrees are round icons (the horn, the war cry...) where they were called, and the Shogun's
   crown where he stands; the Board's camps (1.1) one fire badge per zone, with how many. Over a
   zone's circle they move just outside its edge, top right first, so its number stays readable;
   several around one circle each take a place of their own.
@@ -1603,13 +1603,13 @@ account, `/bk discord forget` drops this character's request and proof.
   newest first, and a click opens one; `/bk letters` (or `/bk letters 1.1.4`) does too. Nothing
   is sent: which letters you saw is kept on your computer, for your account.
 - **What this client saw** (1.1, the Decrees tab and `/bk log`): a log of the acts your addon
-  took while you were online (decrees, the gates opening and closing, pardons, the King's
+  took while you were online (decrees, the gates opening and closing, pardons, the Shogun's
   visibility switches for the treasury and the untabarded list, and the shared block terms'
   edits), each with the sender's name as the server stamped it, the newest 300. So "who opened the gates" has an answer after the message
   is gone. Only acts heard from whoever did them: a repeat or a relay of someone else's act (the
-  Treasurer's book carrying the King's switches, another editor's list carrying a block term) and
-  a state caught up on after a later login are not written. On the King's screen, while the
-  council's names are hidden there (his stream), every sender but the King shows cut short, and
+  Treasurer's book carrying the Shogun's switches, another editor's list carrying a block term) and
+  a state caught up on after a later login are not written. On the Shogun's screen, while the
+  council's names are hidden there (his stream), every sender but the Shogun shows cut short, and
   the shared terms' words too, as everywhere on his screen. Kept on your computer only, never
   sent, never in `/bk bug`; a record, not proof (anyone can edit their own saved files). The
   Decrees tab lists it with a search box and a copy; `/bk log [n | word | copy | clear]` in chat.
@@ -1617,7 +1617,7 @@ account, `/bk discord forget` drops this character's request and proof.
   backup of your book and settings** on the Treasury tab): this character's book of the treasury
   (its opening, its 500 lines and its sums of all time, each giver's weeks of the dues and each
   week's amount with them; on the Treasurer's characters his mail
-  character's book too), the King's switches and keepers on his client or a Steward's, and your
+  character's book too), the Shogun's switches and keepers on his client or a Steward's, and your
   settings (sound, map, minimap, borders, nameplates, Vox, your chat windows and mutes, the
   players you blocked), and (1.2.4) your own signed halves of the Bones games and duels that count
   (this month's and last month's Bones games, the newest 400, and your newest 200 duels; never
@@ -1633,8 +1633,8 @@ account, `/bk discord forget` drops this character's request and proof.
   hand the key out in game as ever, or `/bk key`); the confirm says a key in a text is left out,
   and warns when it is one your guild replaced. The players it would block are named one by one
   in the confirm (30 at most) and added only on your yes.
-- **Search**: a box on top of the Census (guilds, Lords, Captains, players, zones, recruiting),
-  the Realm (guilds, Lords, Captains, members seen online), Crafters (crafter, guild or profession), the
+- **Search**: a box on top of the Census (guilds, Council, Captains, players, zones, recruiting),
+  the Realm (guilds, Council, Captains, members seen online), Crafters (crafter, guild or profession), the
   Tabards (inspected and untabarded players, by name or guild), the Treasury (donors in the
   ranking and the book, and since 1.1 the bank's items), the Decrees (since 1.1: the log of what this client saw) and the Chat tab (since 1.1.1: a name, a guild or words of a line). Any case, accents too; only what matches shows, under the headers it belongs to (a Captain under his guild, opened
   for you, a page of guilds at a time), with an **x** to empty it. Each tab keeps its text until
@@ -1651,7 +1651,7 @@ account, `/bk discord forget` drops this character's request and proof.
   windows of its own instead of the game's popups, which Blizzard's gamepad code blocks (and
   freezes) when an addon opens one. With mouse and keyboard, the game's popups as always.
   Since 0.9.8 it also leaves the game's own frames alone there: no quiet `/who` on its own
-  (**Refresh** and **Find Bankai Guild online** still search, and so does the King's click on his
+  (**Refresh** and **Find Bankai Guild online** still search, and so does the Shogun's click on his
   Throne's /who line for his key rotation, 1.1: the answer shows in the game's
   Who list), and the Issue Reporter is the game's to show. Since 0.9.9 it leaves the world map
   alone there too: no zone counts, decrees, crown or guildmate dots on it (the minimap keeps
@@ -1682,11 +1682,11 @@ account, `/bk discord forget` drops this character's request and proof.
 ### Other addons: the Bankai Guild API (1.2.4)
 
 Another addon can read, with your permission, what Bankai Guild already shows you: the Wanted list
-and its bounties, the public rankings (the Slayers, the Church's top three, the games the King
+and its bounties, the public rankings (the Slayers, the Church's top three, the games the Shogun
 made public, the donors' top three while he shows the Treasury's ranking), your own frame and
-title, your Bankai Guild guild, rank and role, and the King's presence as his lines and the Realm tab
+title, your Bankai Guild guild, rank and role, and the Shogun's presence as his lines and the Realm tab
 show it (online, the zone they name, his crown while he shares it, whether you are on his layer,
-and his zone's layers with their "~N with Bankai Guild" counts while you are there). The King's
+and his zone's layers with their "~N with Bankai Guild" counts while you are there). The Shogun's
 presence, the player-sighting searches and the profile presentation below are reserved for addons
 the Bankai Guild team has authorized; any other addon is asked only about the rest. An addon that asks gets its own line on the privacy
 page and nothing until your **Yes** there or the page's deliberate **Authorize all** action
@@ -1720,11 +1720,11 @@ never gives another addon the census, other players' private data or Bankai Guil
 its own bounded copy. What that addon then does with a copy is up to it, so authorize only addons
 you trust. After the update it loads once the game restarts (not on a `/reload`).
 
-An authorized addon can also turn on a quiet presence for the King, a High Councillor or the addon's
+An authorized addon can also turn on a quiet presence for the Shogun, a High Councillor or the addon's
 author, for that session alone: Bankai Guild then stops sending, on its own, the words that announce
 that player online or say where he is (no hello, census report, layer, map dot, layer-hop offer,
 court, donations or duty notice, help or crafter answer, Wanted sighting or sighting answer, profile
-presentation, nor the King's crown or the lists his client repeats), and other Bankai Guild clients age
+presentation, nor the Shogun's crown or the lists his client repeats), and other Bankai Guild clients age
 him out as after a logout. His guild roster, `/who` and chat still show him, and so does the census
 his guildmates build from the roster: a guild leader or officer still shows online there, and his
 zone may show for up to 12 minutes. Bankai Guild chat lines he types and what he posts himself still go
@@ -1778,8 +1778,8 @@ Your guildmates with the addon receive it automatically through guild chat. From
 the Bankai Guild channel has a name and password derived from the secret, and outsiders can't
 find or join it. Share the same secret with the officers of the other Bankai Guild guilds
 (for example in the officers' Discord), so all guilds meet on the same sealed channel.
-Since 1.1 the King (or his Steward, for him) can also rotate the army's key from the Throne: his new key reaches the
-Lords and Captains online of the guilds he picks whom his own /who saw in them by whisper, and
+Since 1.1 the Shogun (or his Steward, for him) can also rotate the army's key from the Throne: his new key reaches the
+Council and Captains online of the guilds he picks whom his own /who saw in them by whisper, and
 their guilds over guild chat, never on the Bankai Guild channel.
 
 If a guild was accidentally given a different private key and lost the shared census and
@@ -1837,50 +1837,50 @@ alone (the Companion's rows below). Your name is on every message (the game adds
 | The census names people: your guild's leader and officers (above) and its five highest-level members (name, level and class), online or not, with the addon or not; the Realm's level race shows them | everyone on the Bankai Guild channel | in every census report of your guild, from the member it elects: nobody named is asked |
 | Zones in that census: members per zone (numbers only), a leader's or officer's zone | everyone on the Bankai Guild channel | only if the member sending it shares their zone and layer; a leader's or officer's zone only if they share theirs too |
 | Your zone, layer, guild rank and guild (layer announcements) | everyone on the Bankai Guild channel | only if you share: officers and one member in eight announce, every 10 minutes and when their layer changes |
-| A layer hop ask: the zone you are in and the layer you want; or a King-layer discovery question: the map and current crown lease, but no claimed destination layer | everyone on the Bankai Guild channel | when you ask to hop or explicitly click the King's unknown-layer line |
-| An answer to an ask for your layer (it tells the asker you are on it), including a direct sighting when an active asker is discovering the King's layer | the asker alone (a whisper; a direct sighting is never broadcast by itself) | only if you share your zone and layer and said yes to layer help (1.1: off until you answer, on the first-open page or with `/bk layerhelp on`; `/bk layerhelp off` stops it); direct sightings require two independent answers, last only for that request and are withdrawn on opt-out while it remains active |
-| [Bankai Guild], [Captains] and [Lords] lines | everyone on the Bankai Guild channel, all three | when you write one, only while the Bankai Guild chats are on (1.1: off until you say yes, on the first-open page or with `/bk chat on`) |
-| A pinned line (1.1): its words, your guild and, as on every message, your name | the King's, his Stewards' and Hands': everyone on the Bankai Guild channel. A guild master's, and a higher rank's takedown of it: his guild alone (over guild chat) | when you pin one (only while your Bankai Guild chats are on, never while the moderators have you off), again every 5 minutes while it lasts (2 hours at most, a `/reload` included), and when you take it down (`/bk pin off` with nothing pinned on your screen too, once a minute at most: a `/reload` on the Forever beta forgets your pin); a pin you took down (its number and your guild), when you take it down and again when its setter's addon repeats it, once a minute at most, never while the moderators have you off |
+| A layer hop ask: the zone you are in and the layer you want; or a Shogun-layer discovery question: the map and current crown lease, but no claimed destination layer | everyone on the Bankai Guild channel | when you ask to hop or explicitly click the Shogun's unknown-layer line |
+| An answer to an ask for your layer (it tells the asker you are on it), including a direct sighting when an active asker is discovering the Shogun's layer | the asker alone (a whisper; a direct sighting is never broadcast by itself) | only if you share your zone and layer and said yes to layer help (1.1: off until you answer, on the first-open page or with `/bk layerhelp on`; `/bk layerhelp off` stops it); direct sightings require two independent answers, last only for that request and are withdrawn on opt-out while it remains active |
+| [Bankai Guild], [Captains] and [Council] lines | everyone on the Bankai Guild channel, all three | when you write one, only while the Bankai Guild chats are on (1.1: off until you say yes, on the first-open page or with `/bk chat on`) |
+| A pinned line (1.1): its words, your guild and, as on every message, your name | the Shogun's, his Stewards' and Hands': everyone on the Bankai Guild channel. A guild master's, and a higher rank's takedown of it: his guild alone (over guild chat) | when you pin one (only while your Bankai Guild chats are on, never while the moderators have you off), again every 5 minutes while it lasts (2 hours at most, a `/reload` included), and when you take it down (`/bk pin off` with nothing pinned on your screen too, once a minute at most: a `/reload` on the Forever beta forgets your pin); a pin you took down (its number and your guild), when you take it down and again when its setter's addon repeats it, once a minute at most, never while the moderators have you off |
 | A flag on the Board (1.1): your guild, level and class, the flag (dungeon, raid, PvP or layer), your note (with the logged API), and your zone only while you share it | everyone on the Bankai Guild channel, and whispered to a player whose Board asked for the flags up | when you raise it, then every 10 to 30 minutes for an hour at most, until you lower it |
 | The Board's ask (1.1): nothing but your name | everyone on the Bankai Guild channel | once a session, the first time you open the Board |
 | A guild Agenda entry (1.2.4): its title, time, setter and guild | that guild alone (over guild chat), from its own master or verified Heraldry correspondent | when scheduled, then every 10 minutes while within a day, every 30 otherwise; the saved audience and current authority are checked again |
-| A voluntary campaign (1.2.4): purpose, goal, 14-day receipt window, aggregate gold/material progress and the King's closing purchase note; no giver or receipt identity | everyone on the Bankai Guild channel, from the actual King's client only | when he creates, updates or closes it, then every 5 minutes for late logins |
-| A keeper's campaign report (1.2.4): campaign id, aggregate assigned voluntary gold and material counts, no giver names | the pinned King alone (a whisper) | after explicit assignment/correction and every 5 minutes while open; current keeper authority is checked again before sending |
+| A voluntary campaign (1.2.4): purpose, goal, 14-day receipt window, aggregate gold/material progress and the Shogun's closing purchase note; no giver or receipt identity | everyone on the Bankai Guild channel, from the actual Shogun's client only | when he creates, updates or closes it, then every 5 minutes for late logins |
+| A keeper's campaign report (1.2.4): campaign id, aggregate assigned voluntary gold and material counts, no giver names | the pinned Shogun alone (a whisper) | after explicit assignment/correction and every 5 minutes while open; current keeper authority is checked again before sending |
 | A signup (1.1): the Agenda entry, the role you claim (or that you withdraw) and your guild | whoever set that entry, alone (a whisper); a guild entry accepts only its own current roster members | only when you click Sign up |
 | A signup sheet (1.1): the counts per role of each entry, no names, and when the next one comes | the entry's audience: everyone on the Bankai Guild channel for an army entry, its own guild alone for a guild entry | from the client of whoever set the entries, soon after a change, then every 5 minutes while one of them has signups or is within 2 days, every 15 otherwise |
 | A camp on the Board (1.1): your guild, level and class, the camp's zone (never your spot) and your note (with the logged API) | everyone on the Bankai Guild channel, and whispered to a player whose Board asked | only with `/bk location on`, when you drop it, then every 10 minutes for its 30 minutes, until you take it down |
-| A net-off word (1.1): the character's name, hidden or shown again (or the guild's name, off or on again), the time, who gave it and the reason | everyone on the Bankai Guild channel | when the King, his Steward, a Hand or a High Councillor gives one, then from the giver's own addon every few minutes for late logins |
-| The army's key (1.1, when the King or his Steward rotates it): the new key, the time it was made and the hashes of the keys it replaces | each Lord and Captain the census confirms online in the guilds the King picks whom his own /who saw in that guild (a whisper from the King each), then each one's guild over guild chat; never the Bankai Guild channel. Each 1.1 addon that has it tells the King so (a whisper), and after login asks its guild whether a newer key exists | only when the King rotates it on the Throne; a guildmate's ask once a login |
+| A net-off word (1.1): the character's name, hidden or shown again (or the guild's name, off or on again), the time, who gave it and the reason | everyone on the Bankai Guild channel | when the Shogun, his Steward, a Hand or a High Councillor gives one, then from the giver's own addon every few minutes for late logins |
+| The army's key (1.1, when the Shogun or his Steward rotates it): the new key, the time it was made and the hashes of the keys it replaces | each Council and Captain the census confirms online in the guilds the Shogun picks whom his own /who saw in that guild (a whisper from the Shogun each), then each one's guild over guild chat; never the Bankai Guild channel. Each 1.1 addon that has it tells the Shogun so (a whisper), and after login asks its guild whether a newer key exists | only when the Shogun rotates it on the Throne; a guildmate's ask once a login |
 | Your alt links (1.1, only if you link your characters): each linked character's name and guild, and the names it confirmed (its main, or its alts) | everyone on the Bankai Guild channel | from each character you linked yourself, confirmed on each: at login, when a link changes and every 30 minutes while you play |
 | Hello: addon version, realm, public or sealed channel, whether you share your zone | your guild | every minute or so |
-| The signed leadership snapshot (1.2, only after the author explicitly activates it): each Bankai Guild guild's Lord and Captains for this realm group and faction, its generation, issue and expiry times, and the author's signatures | Bankai Guild addons in that realm group and faction; a client asks on the Bankai Guild channel and in its guild, then a holder answers that client alone by whisper, one bounded signed part at a time | after login while missing or behind (four short retries, then every 10 minutes); a holder answers one requester at most every 2 minutes and stops immediately if its own membership, net-off state or signed generation changes |
+| The signed leadership snapshot (1.2, only after the author explicitly activates it): each Bankai Guild guild's Council and Captains for this realm group and faction, its generation, issue and expiry times, and the author's signatures | Bankai Guild addons in that realm group and faction; a client asks on the Bankai Guild channel and in its guild, then a holder answers that client alone by whisper, one bounded signed part at a time | after login while missing or behind (four short retries, then every 10 minutes); a holder answers one requester at most every 2 minutes and stops immediately if its own membership, net-off state or signed generation changes |
 | Check version (1.1.2): nothing but a number to match the answer | the player you right-clicked, alone (a whisper) | only when you pick **Check version** (a player once every 2 minutes, 6 a minute) |
 | The answer to a version check (1.1.2): your addon's version | the player whose addon asked, alone (a whisper) | when a player's addon asks: each once every 30 seconds at most, 20 a minute in all; never to a player you block or ignore, and to the author only after your yes to his roll calls (his checks are roll calls) |
-| Ask to update (1.1.2): the newest version your addon knows | the player you right-clicked, alone (a whisper) | only after you pick **Ask to update** and confirm (the author, the King and the High Council alone, since 1.2.1), for a player on 1.1.2 or newer (a player once a day, 5 an hour); cancelling sends nothing and spends no limit, and for an older one confirmation only opens a whisper you send yourself |
+| Ask to update (1.1.2): the newest version your addon knows | the player you right-clicked, alone (a whisper) | only after you pick **Ask to update** and confirm (the author, the Shogun and the High Council alone, since 1.2.1), for a player on 1.1.2 or newer (a player once a day, 5 an hour); cancelling sends nothing and spends no limit, and for an older one confirmation only opens a whisper you send yourself |
 | Your bug report (the same text as `/bk bug`) | the author alone (whispers); since 1.1.5 his addon keeps the last 30 it got in his saved variables | only when you press **Send to** him in Report a bug, or **Send** in the window his ask opens (1.1.2) |
-| The shared block terms (1.1): each word, whether it was added or removed, and when; for 15 minutes after an edit, the editor's own client adds his name to it (never to anyone else's) | everyone on the Bankai Guild channel | only from the client of the King, his Steward, a Hand or a High Councillor: at once when they edit it, and every 10 minutes while they play (not when another client just sent the same list). Your own filter is never sent |
+| The shared block terms (1.1): each word, whether it was added or removed, and when; for 15 minutes after an edit, the editor's own client adds his name to it (never to anyone else's) | everyone on the Bankai Guild channel | only from the client of the Shogun, his Steward, a Hand or a High Councillor: at once when they edit it, and every 10 minutes while they play (not when another client just sent the same list). Your own filter is never sent |
 | Your position as a dot on the map | your guild | only with `/bk share` (off by default) |
-| A Lord's mentor pair (1.1): the recruit's name to the Captain, the Captain's name to the recruit, as whispers in his words | those two players | only when the Lord clicks **Send both** |
+| A Council member's mentor pair (1.1): the recruit's name to the Captain, the Captain's name to the recruit, as whispers in his words | those two players | only when the Council clicks **Send both** |
 | A guild master's Legates and correspondents: names and each correspondent's department | everyone on the Bankai Guild channel; each client saves up to 300 accepted guild lists, including its own, while the source is offline; verified removal or change of master revokes the duty | only from that guild master's client: after a change and every 5 minutes while online |
-| The King's guild's manually appointed Legates (1.2.4): up to 25 names, original issuer and revision, including an empty removal list | everyone on the Bankai Guild channel; retained appointments use compatible historical ids, with current King/High Council issuer verification | only from the King or an actual High Councillor's client after an authorized edit or repeat; no automatic retirement message |
+| The Shogun's guild's manually appointed Legates (1.2.4): up to 25 names, original issuer and revision, including an empty removal list | everyone on the Bankai Guild channel; retained appointments use compatible historical ids, with current Shogun/High Council issuer verification | only from the Shogun or an actual High Councillor's client after an authorized edit or repeat; no automatic retirement message |
 | Join Bankai Guild (1.1, outside an Bankai Guild guild): "which guild should I ask?" (J1), and your request (J3: the guild you ask, your level and class) | the one member the screen asks: one found with `/who` at a search, and the one you are about to whisper | J1 at a search (one member every 15 seconds at most, none while a recent answer is known; while only one answer names the gates, one more member at once, three in 10 minutes at most) and just before a whisper (again if that member never answered); J3 with each whisper you send |
-| The answer (J2): whether you take recruit whispers, the King's gates, and up to 8 guilds with room the census confirms, each with its free slots and up to 2 of its Lords and Captains online that two reports name (never the King) | the recruit who asked, alone | when a recruit's addon asks you, once a minute per recruit and 10 a minute at most (with do not contact on, a bare "no" to the rest) |
-| A treasury keeper's book (balance, gold and items given and who gave them, the ranking) and the guild bank of `<Elfcore>` (its gold and items) | the parts the King shows the army (his switches): everyone on the Bankai Guild channel. The rest (1.1): the King, his Steward and the keepers alone, by whisper, never on the channel (from a keeper whose addon is 1.1: one still on 1.0 sends his whole book on the channel, as 1.0 did) | only after that keeper says yes (each keeper, the King too, is asked once; `/bk treasurer on\|off`), withdrawn at once when he turns it off, and again every 5 minutes while he plays, for clients that were offline |
-| Your character's name and what you gave, when you give gold or items to a treasury keeper (by trade or mail): in the ranking of donors (the top 100, with each one's total), the items donated (with who gave each last) and the book's latest lines (1.1: never the lines of gold given to the Treasurer's characters, which are the dues; this week's donors only as a count, never by name; in the Treasurer's part of the ranking, your gold to his characters less each week's up to the dues' amount his addon knew that week, and less all you sent with the dues' note) | with the King's ranking or book switch on: everyone on the Bankai Guild channel. Otherwise (1.1): the keepers, the King and his Steward alone, by whisper | while that keeper shares his book: his yes, and a donor is not asked |
+| The answer (J2): whether you take recruit whispers, the Shogun's gates, and up to 8 guilds with room the census confirms, each with its free slots and up to 2 of its Council and Captains online that two reports name (never the Shogun) | the recruit who asked, alone | when a recruit's addon asks you, once a minute per recruit and 10 a minute at most (with do not contact on, a bare "no" to the rest) |
+| A treasury keeper's book (balance, gold and items given and who gave them, the ranking) and the guild bank of `<Elfcore>` (its gold and items) | the parts the Shogun shows the army (his switches): everyone on the Bankai Guild channel. The rest (1.1): the Shogun, his Steward and the keepers alone, by whisper, never on the channel (from a keeper whose addon is 1.1: one still on 1.0 sends his whole book on the channel, as 1.0 did) | only after that keeper says yes (each keeper, the Shogun too, is asked once; `/bk treasurer on\|off`), withdrawn at once when he turns it off, and again every 5 minutes while he plays, for clients that were offline |
+| Your character's name and what you gave, when you give gold or items to a treasury keeper (by trade or mail): in the ranking of donors (the top 100, with each one's total), the items donated (with who gave each last) and the book's latest lines (1.1: never the lines of gold given to the Treasurer's characters, which are the dues; this week's donors only as a count, never by name; in the Treasurer's part of the ranking, your gold to his characters less each week's up to the dues' amount his addon knew that week, and less all you sent with the dues' note) | with the Shogun's ranking or book switch on: everyone on the Bankai Guild channel. Otherwise (1.1): the keepers, the Shogun and his Steward alone, by whisper | while that keeper shares his book: his yes, and a donor is not asked |
 | That you are taking donations, if you keep a book of the treasury (1.1), with your zone only if you share your location | everyone on the Bankai Guild channel | only while you turn it on (**Taking donations**, `/bk donations on`): every 2 minutes and when your zone changes, off when you log out |
-| A request to the treasury, if you are a Lord or a Captain (1.1): the item's number, the count, your guild | the treasury's keepers, the King and his Steward heard online (their addon 1.1 or later), by whisper; while the King shows the army the book, the open ones also on the Bankai Guild channel, from the keepers' addons | when you ask (a click on an item, or `/bk need`; 6 new requests an hour at most), then every 15 minutes while it is open |
-| Your guild bank's snapshot, if you are the guild master or an officer of an Bankai Guild guild other than the King's (1.1): items and counts, its gold, when it was seen (not the tabs' names) | the King, the High Council (his Stewards and Hands among them), the Treasurer and the author alone (1.2; a yes given to 1.1's question: the King, his Steward and his Hands until you answer again), by whisper, when their addon asks (never on the Bankai Guild channel) | only after your yes (asked once when you open the bank; `/bk bank share on\|off`); your no takes it back from their screens: at once from those whose addon asked in the last 18 minutes, from the others at their next ask while you are online, from their saved variables too, even once you are no longer an officer (1.2.4: each one's addon keeps the newest of each guild there, across logouts, and ranks the guilds' treasuries by their numbers on its own screen, sending nothing of it; one never heard again keeps it, saved, until your no reaches him) |
-| Your character's name, if you gave to the treasury before 1.0 (the early supporters): names only, no amounts, in alphabetical order | with the King's ranking switch on: everyone on the Bankai Guild channel, shown at the end of the Treasury tab. Otherwise (1.1): the keepers, the King and his Steward alone, by whisper | from the Treasurer's addon once he said yes to 1.0's question or to his line on the first-open page, both of which say their names go to everyone on the channel (his 0.9.3 yes is not enough), after his login and when a client asks: a donor is not asked |
-| The dues' amount (1.1): one amount a week, the same for everyone | everyone on the Bankai Guild channel | from the King's and his Steward's addons alone, when they set it and every 5 minutes |
-| Your guild's dues list (1.1): each of its players who paid the Treasurer in the last 5 weeks with that guild on the payment (name, gold this week, hours since his last payment), how many hours ago the Treasurer's mail character last played, and a digest (with a secret of his session) that changes when this week's payers with no guild change | the King, his Steward, or a Captain or Lord of that guild who asked, alone (whispers from the Treasurer's addon); when nothing changed, one whisper saying so | when they open the dues page, once every 5 minutes per asker at most, while the Treasurer shares his book |
-| A Captain's ask about his roster (1.1): five letters of the hash of each name on his guild's roster missing from its dues list | the Treasurer alone (whispers) | from a Captain's or Lord's dues page while this week's list says some paid with no guild on it, when that changes or his roster does, once a minute at most |
-| Its answer (1.1): which of those codes paid the Treasurer this week with no guild on the payment, with the gold and the hours since | that Captain or Lord alone (whispers from the Treasurer's addon) | once per ask, as many codes as the guild has members at most |
-| Every guild's dues this week (1.1): how many paid the amount, the gold in, how many players | the King or his Steward who asked, alone (whispers from the Treasurer's addon) | when they open the dues page, once every 5 minutes at most |
-| An ask for a dues list (1.1): the week, the guild and the id of the list already held | the Treasurer alone (a whisper) | while the King, his Steward, a Captain or a Lord has the dues page open, once every 5 minutes per list |
+| A request to the treasury, if you are a Council member or a Captain (1.1): the item's number, the count, your guild | the treasury's keepers, the Shogun and his Steward heard online (their addon 1.1 or later), by whisper; while the Shogun shows the army the book, the open ones also on the Bankai Guild channel, from the keepers' addons | when you ask (a click on an item, or `/bk need`; 6 new requests an hour at most), then every 15 minutes while it is open |
+| Your guild bank's snapshot, if you are the guild master or an officer of an Bankai Guild guild other than the Shogun's (1.1): items and counts, its gold, when it was seen (not the tabs' names) | the Shogun, the High Council (his Stewards and Hands among them), the Treasurer and the author alone (1.2; a yes given to 1.1's question: the Shogun, his Steward and his Hands until you answer again), by whisper, when their addon asks (never on the Bankai Guild channel) | only after your yes (asked once when you open the bank; `/bk bank share on\|off`); your no takes it back from their screens: at once from those whose addon asked in the last 18 minutes, from the others at their next ask while you are online, from their saved variables too, even once you are no longer an officer (1.2.4: each one's addon keeps the newest of each guild there, across logouts, and ranks the guilds' treasuries by their numbers on its own screen, sending nothing of it; one never heard again keeps it, saved, until your no reaches him) |
+| Your character's name, if you gave to the treasury before 1.0 (the early supporters): names only, no amounts, in alphabetical order | with the Shogun's ranking switch on: everyone on the Bankai Guild channel, shown at the end of the Treasury tab. Otherwise (1.1): the keepers, the Shogun and his Steward alone, by whisper | from the Treasurer's addon once he said yes to 1.0's question or to his line on the first-open page, both of which say their names go to everyone on the channel (his 0.9.3 yes is not enough), after his login and when a client asks: a donor is not asked |
+| The dues' amount (1.1): one amount a week, the same for everyone | everyone on the Bankai Guild channel | from the Shogun's and his Steward's addons alone, when they set it and every 5 minutes |
+| Your guild's dues list (1.1): each of its players who paid the Treasurer in the last 5 weeks with that guild on the payment (name, gold this week, hours since his last payment), how many hours ago the Treasurer's mail character last played, and a digest (with a secret of his session) that changes when this week's payers with no guild change | the Shogun, his Steward, or a Captain or Council of that guild who asked, alone (whispers from the Treasurer's addon); when nothing changed, one whisper saying so | when they open the dues page, once every 5 minutes per asker at most, while the Treasurer shares his book |
+| A Captain's ask about his roster (1.1): five letters of the hash of each name on his guild's roster missing from its dues list | the Treasurer alone (whispers) | from a Captain's or Council's dues page while this week's list says some paid with no guild on it, when that changes or his roster does, once a minute at most |
+| Its answer (1.1): which of those codes paid the Treasurer this week with no guild on the payment, with the gold and the hours since | that Captain or Council alone (whispers from the Treasurer's addon) | once per ask, as many codes as the guild has members at most |
+| Every guild's dues this week (1.1): how many paid the amount, the gold in, how many players | the Shogun or his Steward who asked, alone (whispers from the Treasurer's addon) | when they open the dues page, once every 5 minutes at most |
+| An ask for a dues list (1.1): the week, the guild and the id of the list already held | the Treasurer alone (a whisper) | while the Shogun, his Steward, a Captain or a Council member has the dues page open, once every 5 minutes per list |
 | The dues' note (1.1): the fund, the week and your guild's name, in the subject of the mail the Send this week's dues button fills in | the Treasurer's mail character, in your mail | only when you click that button and then press Send yourself |
-| The King's crown on the map, and with it his zone and layer | everyone on the Bankai Guild channel | only while the King turns it on (Throne tab), whatever he answered to the question |
-| A Royal Inspection's report (1.1: off until you say yes, on the first-open page or with `/bk inspection on`): when the King, his Steward or a Hand calls one and your addon is in the sample, it patrols for 2 minutes, inspecting the Bankai Guild players of your faction around you, level 15 and up, with the game's own inspect, and records whether each wears the guild tabard, another one or none (kept in your saved variables); then it reports your guild, how many it found in each case (your own tabard counted) and up to 6 names, with their guild, of players caught without the colors | whoever called it, alone (a whisper); the King can show the names to the army on his untabarded list | each Royal Inspection you are sampled for (one every 30 minutes at most, for the whole realm), once you said yes and until `/bk inspection off`; you still get its raid warning either way |
-| An officer's patrol findings (1.1): the name and guild of each player your own inspections caught without the colors or with another tabard (or wearing ours again after that), and how long ago | your guild's officers (a guild addon message: every guildmate's client receives the bytes, and only officers' addons keep them), for their Tabards pages alone: never the King's untabarded list, nor a Royal Inspection's report | only while you are an officer (the guild master or the rank right below) and said yes (1.1: off until you answer, on the first-open page or with `/bk patrolshare on`): each new finding once, at most once a minute, and the day's findings when another officer's addon asks (once a session: after its login, or at its officer's yes if later); `/bk patrolshare off` stops it. Nothing more is inspected for it |
+| The Shogun's crown on the map, and with it his zone and layer | everyone on the Bankai Guild channel | only while the Shogun turns it on (Throne tab), whatever he answered to the question |
+| A Royal Inspection's report (1.1: off until you say yes, on the first-open page or with `/bk inspection on`): when the Shogun, his Steward or a Hand calls one and your addon is in the sample, it patrols for 2 minutes, inspecting the Bankai Guild players of your faction around you, level 15 and up, with the game's own inspect, and records whether each wears the guild tabard, another one or none (kept in your saved variables); then it reports your guild, how many it found in each case (your own tabard counted) and up to 6 names, with their guild, of players caught without the colors | whoever called it, alone (a whisper); the Shogun can show the names to the army on his untabarded list | each Royal Inspection you are sampled for (one every 30 minutes at most, for the whole realm), once you said yes and until `/bk inspection off`; you still get its raid warning either way |
+| An officer's patrol findings (1.1): the name and guild of each player your own inspections caught without the colors or with another tabard (or wearing ours again after that), and how long ago | your guild's officers (a guild addon message: every guildmate's client receives the bytes, and only officers' addons keep them), for their Tabards pages alone: never the Shogun's untabarded list, nor a Royal Inspection's report | only while you are an officer (the guild master or the rank right below) and said yes (1.1: off until you answer, on the first-open page or with `/bk patrolshare on`): each new finding once, at most once a minute, and the day's findings when another officer's addon asks (once a session: after its login, or at its officer's yes if later); `/bk patrolshare off` stops it. Nothing more is inspected for it |
 | A loot note (1.1): an officer's words, the item and whom it went to; a member's points set by hand; and your addon's ask for the book (the spans of change times it lacks) | your guild (guild addon messages): every guildmate's addon keeps the notes and points; the ask is answered by one officer's addon, with the changes in those spans | a note or points when an officer writes or removes them (only officers do); the ask when the Loot notes page opens (an officer's at login), again after each answer while the book lacks something (16 a session at most) |
 | Your crafter listing (1.1): your guild, and each profession you listed with its skill and how many recipes you know | everyone on the Bankai Guild channel | only after your yes when you open that profession (asked once), once at login, then every 45 minutes while you play, and after a change: a profession listed or taken off (2 minutes after the last at the soonest), a skill up or a new recipe (10 minutes); `/bk crafter off` withdraws it at once |
 | An answer to "who can make it" (1.1): your guild, the profession, your skill and the recipe and item ids of up to 6 recipes that match | the asker alone (a whisper) | only while you are listed, to asks heard on the Bankai Guild channel, by your addon by itself (10 a minute at most) |
@@ -1890,32 +1890,32 @@ alone (the Companion's rows below). Your name is on every message (the game adds
 | A claim on a request, and the two parties' words after it (1.2): your guild, the terms (the price, the rail, how it is paid), the start, the delivery (quantity, price and how), the confirmation, a cancel, a dispute | the other party alone (logged whispers) | when you claim, propose or confirm terms, start, deliver, confirm, cancel or dispute |
 | A request's private chat (1.2): your lines | the other party alone (logged whispers) | when you write in it |
 | A line in a role room (1.2.4): your words, your guild | one logged whisper to each member of that room your addon verifies (40 at most; the Church's rooms 30, heard online), and the author's character in every room but the High Council's and the Secretariat's while his presence is heard | when you write one, with the rooms' consent on |
-| Your chat-warning report: the lines Bankai Guild refused to send (up to 5, 140 bytes each around the word), the matched words, when, which chat, your guild | The moderation team online: the author while online, the King, the High Council, the Bankai Guild moderators. By logged whisper | From your third warning in 24 hours, again until each one's client confirms (3 tries each), and again to one who says he no longer has it. Kept 30 days on their clients and on yours. |
+| Your chat-warning report: the lines Bankai Guild refused to send (up to 5, 140 bytes each around the word), the matched words, when, which chat, your guild | The moderation team online: the author while online, the Shogun, the High Council, the Bankai Guild moderators. By logged whisper | From your third warning in 24 hours, again until each one's client confirms (3 tries each), and again to one who says he no longer has it. Kept 30 days on their clients and on yours. |
 | A chat-warning decision: your character's name and that your block was lifted or a timeout given | Your client, the characters you linked, and the team online, by logged whisper (a timeout as today's moderator timeout) | When a moderator decides, again until each one's client confirms (3 tries each), and when your blocked client asks. |
 | The guild-mediated rail and a dispute's review (1.2): the parties, the item, quantity and price, what reached the custodian, a dispute's reason and its verdict | the custodian (the treasury keeper who holds the goods and the gold), the reviewer the parties put the dispute to, and the parties (logged whispers) | while that deal or its dispute is open |
 | Your word of a direct sale to the guild's fee desk (1.2): the request, the buyer's and the seller's names, the price, the item and quantity, the seller's guild | the Treasurer's characters alone (logged whispers), from the buyer's addon and the seller's | when the buyer confirms the sale, when it completes, or 3 days after a sale the buyer never confirmed; again each 30 minutes while the seller's fee is open; only while a Treasurer's character's addon is heard online |
 | The fee desk's answer (1.2): the fee, what was paid, its deadline, and whether it is due, paid or waived | that party alone (a whisper from the Treasurer's character) | once for each word of a sale |
-| The crafting fees owed (1.2): each fee's seller and buyer, price, fee, gold paid, deadline, item, quantity and the seller's guild, who reported it and whether the Treasurer confirmed it | the King's character alone (whispers from the Treasurer's character) | at his ask, when he opens the Guild fees page or asks again: once each 5 minutes at most, 40 fees an answer |
-| A reminder of a crafting fee owed (1.2): the amount and the deadline | that seller alone (a whisper from the Treasurer's or the King's character) | when they press Remind him, once a day per seller at most |
-| Other players' lines in the Bankai Guild chats as your addon accepted them (channel, sender and text; [Captains] and [Lords] only if your rank reads them), and the High Council list; and (1.2.6, `RegisterChatRecorder`) the lines of the Bankai Guild chats and rooms as your client receives them, yours included and locally hidden lines too: [Bankai Guild], [Captains], [Lords], the rooms you are in (Guild, guildmates without Bankai Guild included, role rooms, squads, crafting deals' private chats) and the fight and Bones rooms | other addons in your own game, through `BankaiGuildBridge` (made for OfficerSpy, the moderators' companion addon, and for the Bankai Guild Companion's chat record, but any addon you install can read it, with no Companion) | always, while such an addon is loaded (no chat line while the Bankai Guild chats are off on your client; the chat record's lines only once you accepted the Bankai Guild Accord): Bankai Guild sends nothing through it and never learns what that addon does with what it read |
+| The crafting fees owed (1.2): each fee's seller and buyer, price, fee, gold paid, deadline, item, quantity and the seller's guild, who reported it and whether the Treasurer confirmed it | the Shogun's character alone (whispers from the Treasurer's character) | at his ask, when he opens the Guild fees page or asks again: once each 5 minutes at most, 40 fees an answer |
+| A reminder of a crafting fee owed (1.2): the amount and the deadline | that seller alone (a whisper from the Treasurer's or the Shogun's character) | when they press Remind him, once a day per seller at most |
+| Other players' lines in the Bankai Guild chats as your addon accepted them (channel, sender and text; [Captains] and [Council] only if your rank reads them), and the High Council list; and (1.2.6, `RegisterChatRecorder`) the lines of the Bankai Guild chats and rooms as your client receives them, yours included and locally hidden lines too: [Bankai Guild], [Captains], [Council], the rooms you are in (Guild, guildmates without Bankai Guild included, role rooms, squads, crafting deals' private chats) and the fight and Bones rooms | other addons in your own game, through `BankaiGuildBridge` (made for OfficerSpy, the moderators' companion addon, and for the Bankai Guild Companion's chat record, but any addon you install can read it, with no Companion) | always, while such an addon is loaded (no chat line while the Bankai Guild chats are off on your client; the chat record's lines only once you accepted the Bankai Guild Accord): Bankai Guild sends nothing through it and never learns what that addon does with what it read |
 | A requested player sighting (PS, 1.2.5): an exact query carries one Name-Realm; a hostile-area query carries one selected zone or micro-map ID and lasts five minutes. Both use a short opaque request id. Exact answers carry the consenting observer's name and guild; public area rows omit both. Every answer carries target, observation time, expiry, layer, point kind and map position. The point is the target's native visible-unit or matching party/raid-unit position when WoW returns one; otherwise it is the observer's encounter position, rounded to 0.1% of the map | the query: everyone on the Bankai Guild channel, only from a currently signed authorized requester; each answer: that requester alone (a whisper). One observer contributes at most six rows to an area search and the requester keeps at most 48 distinct players. On an explicit action Bankai Guild can show sanitized rows as host-owned world-map pins, cleared on cancel, expiry, permission revocation or reload | only after the requester's addon permission is enabled by its own **Yes** or the page's deliberate **Authorize all** action; an observer answers only after the separate **Guild tools: player sightings** permission is enabled the same way and while sharing location. The exact-name session's visible Start declares selected/configured names and any included list source. One handle has one live area, on its current map or an owned exact-result map until its row expires, and rotates only after cancel plus 60 seconds. Its visible UI shows the map and rotation position, never opens the world map automatically, and stops on Off, No or reload without automatic resume. The game must have shown the exact or hostile target, mouseover or nameplate either now or within the last 15 minutes while both choices stayed on. Each client keeps at most 64 such observations only in memory and clears them on permission, location-sharing or network opt-out. A live answer rechecks the visible identity and coordinate before send; a cached answer rechecks its age and fields plus current eligibility. Requests and results expire; cancellation, either No and net-off cancel queued data and withdraw or discard live results |
 | Bankai Guild Link (1.0.0): a request (your guild, faction, a random number, your code's id and a tag made from your code's signature and your name) | the confirmers asked (a whisper each): a High Councillor, or verified players drawn for your code | only after you press **Accept** on `/bk discord <code>` |
 | Bankai Guild Link: the finished proof (your character name, realm, guild, faction, the tag, and the confirmers' names, how each knew your guild, their signatures and their keys' certificates) | the Bankai Guild bot, through the page you scan it with, or a watcher (a High Councillor, by whisper) who hands it to the bot | when it is ready, until it is delivered (5 days after your code expired at most) |
 | Bankai Guild Link, if you confirm (a key and its certificate from the bot's keeper, High Councillors' too): your proof for another player's request (its time, your key's id, how you know their guild, your signature), and in their finished proof your character's name and your key's certificate | that player alone (a whisper), then the Bankai Guild bot in their finished proof | by itself, without asking you each time, once the bot is ready: only for players of an Bankai Guild guild of your faction, never your own account's characters, one a minute and five a day per character, thirty a minute in all, until `/bk discord key off` |
 | Bankai Guild Link: "a confirmer's key is online" (its certificate: the key's id, public half, tier, expiry and character), "a watcher is online" | everyone on the Bankai Guild channel | every 5 minutes, only from characters with a key from the bot's keeper and its certificate, once the bot is ready (no addon makes or announces a key by itself), or a High Councillor's watcher on (`/bk discord watcher on`) |
 | Bankai Guild Link: a High Councillor's key's public half, and the certificate for it | the author's character, and back (a whisper each) | never while the council authority is off (as it ships: only the author turns it on, and only once the bot is ready); then only from a councillor of the signed list whose addon made its own key, once a session when it hears the author |
-| The Church (1.1.6): a naming or a removal (who, the place, under whom, the guild for a correspondent, the time), the author's switch for the public ranking | everyone on the Bankai Guild channel and your guild (logged); your naming or removal also to each of the Church's keepers (the Head, the Apostles, the author) who was not online then, alone (a logged whisper each). Each addon saves the Church's book it takes; since 1.2.4 it also saves, with a guild master's correspondent, when it last confirmed him that guild's master (kept on that computer, never sent) | only when an Apostle, a missionary, a guild master, the Head, the King, a signed High Councillor or the author makes one within their authority; to a keeper who was away, once, when his addon is next heard, up to 7 days after |
+| The Church (1.1.6): a naming or a removal (who, the place, under whom, the guild for a correspondent, the time), the author's switch for the public ranking | everyone on the Bankai Guild channel and your guild (logged); your naming or removal also to each of the Church's keepers (the Head, the Apostles, the author) who was not online then, alone (a logged whisper each). Each addon saves the Church's book it takes; since 1.2.4 it also saves, with a guild master's correspondent, when it last confirmed him that guild's master (kept on that computer, never sent) | only when an Apostle, a missionary, a guild master, the Head, the Shogun, a signed High Councillor or the author makes one within their authority; to a keeper who was away, once, when his addon is next heard, up to 7 days after |
 | The Church: that you hold a place (your role, your guild; a keeper also a digest of his book and the author's switch for the public ranking as his addon holds it) | everyone on the Bankai Guild channel and your guild | while you hold one: every 5 minutes for the Head, the Apostles and the author, every 10 for the others |
 | The Church: what your addon read in your guild's log (an invite by a Church person and the join after it: both names, your guild, the hours), a registration (the name), your public-row choice | the Church's keepers online (the Head, the Apostles, the author), alone (whispers); kept on your client up to 7 days while none is online | a Church person's own addon every 5 minutes; any other member's only where a Church person was heard in the guild lately, drawn so that about two of each guild read; your own invite count and your guild's joins and leaves are never sent |
 | The Church's seen-check (a name) and its answer (the guild your roster saw him in, the first and last day, whether he is in it now) | the check: everyone on the Bankai Guild channel, from the desk (a keeper). The answer: that keeper alone (a whisper) | the desk asks about each new recruit, a registered one on its days and 7 days after a join; about two clients of each guild that knew the name answer |
-| The Church's numbers (rankings, a person's detail) and the keepers' ledger | the Church's audience who asked (the Church, the High Council, the King, the author), alone; the ledger between keepers alone, and a keeper's copy of it to the signed High Councillors' addons online, which pass it to each other only while no keeper is online (never the King's). A councillor's addon saves its copy apart from the ledger of a keeper character on the same account, which never reads it | when a member of that audience opens the tab or refreshes; the ledger when a keeper confirms a record or closes its check, and in a catch-up; never on the channel, except, while the author's switch is open, the rows of the people who chose to show theirs and the top 3 of each ranking (names only) |
-| Your BattleTag, the Bankai Guild Accord's version and when you accepted it, your guild, and your game account's random follow key (made at your first accept: the code a sanction that follows your BattleTag carries needs it) (BT, 1.2.5.1) | one moderation team member alone (the author, the King, a High Councillor or an Bankai Guild moderator they named) at your team level or higher, by a logged whisper; never the Bankai Guild channel, guild chat or any other player | once you accepted the Accord, only to a team member whose addon just asked on your channel, at most once every 20 hours to each, from each of your characters; his client keeps it up to 180 days after he last got it |
+| The Church's numbers (rankings, a person's detail) and the keepers' ledger | the Church's audience who asked (the Church, the High Council, the Shogun, the author), alone; the ledger between keepers alone, and a keeper's copy of it to the signed High Councillors' addons online, which pass it to each other only while no keeper is online (never the Shogun's). A councillor's addon saves its copy apart from the ledger of a keeper character on the same account, which never reads it | when a member of that audience opens the tab or refreshes; the ledger when a keeper confirms a record or closes its check, and in a catch-up; never on the channel, except, while the author's switch is open, the rows of the people who chose to show theirs and the top 3 of each ranking (names only) |
+| Your BattleTag, the Bankai Guild Accord's version and when you accepted it, your guild, and your game account's random follow key (made at your first accept: the code a sanction that follows your BattleTag carries needs it) (BT, 1.2.5.1) | one moderation team member alone (the author, the Shogun, a High Councillor or an Bankai Guild moderator they named) at your team level or higher, by a logged whisper; never the Bankai Guild channel, guild chat or any other player | once you accepted the Accord, only to a team member whose addon just asked on your channel, at most once every 20 hours to each, from each of your characters; his client keeps it up to 180 days after he last got it |
 | A moderation team member's ask for BattleTags (BQ, 1.2.5.1): nothing but his name | everyone on the Bankai Guild channel | from a team member's addon, 90 seconds after login and every 30 minutes |
 | A sanction that follows a BattleTag (TF): a 16-character code of a sanctioned player's BattleTag (SHA-256 of the BattleTag and a random key of his game account that only the moderation team receives: nobody else can tell whose it is), the sanctioned character's name, which sanction (net-off or chat timeout), when, and the team member who gave it | everyone on the Bankai Guild channel (logged); each addon keeps only the ones made from its own player's BattleTag, without the code (a moderation team addon keeps them all), never the BattleTag itself | when a team member's addon follows or stops following a sanction it may give and whose player's BattleTag it holds, then every 5 minutes from that addon while the sanction lasts (a stop every 30 minutes, for 30 days) |
-| Your own character's name (Name-Realm), own BattleTag, current native Bankai Guild guild, roles (officer, guild master, council, King, author) and actual tabs (the Companion's `self` section, 1.3.2) | the private Bankai Guild Companion Bridge addon, only if you installed it with the Bankai Guild Companion app: it saves them in its own file on your computer (`BankaiGuildCompanionDB`) for the Companion; the BattleTag is visible only to staff and is display/linking data, never membership or witness authority. Any addon in your game can read them through `BankaiGuildBridge` too | only once you accepted both the Bankai Guild Accord and the separate Bankai Guild Companion Accord, saved at logout or `/reload`; before consent, after withdrawal, outside an Bankai Guild guild or while the game cannot authenticate your own tag, the section carries only an anonymous revocation so a stale identity can be removed; your own tag as the game gives it, never another player's BattleTag, and never a census-inferred membership or role |
-| The Bankai Guild and guild chat lines your client receives (the Companion's chat record, `BankaiGuildBridge.RegisterChatRecorder`, 1.2.6): each line's chat ([Bankai Guild], [Captains], [Lords], a room you are in, or a fight or Bones room; Guild is your guild's own chat as the game gives it, guildmates without Bankai Guild included), its sender, its sanitized words, and whether it is your own | Bankai Guild's staff, through your own Bankai Guild Companion: the private Bankai Guild Companion Bridge addon, only if you installed it with the Bankai Guild Companion app, saves them in its own file on your computer, and the Companion sends them to Bankai Guild's server, where only the staff see them and keep them, to confirm what was said (several players' Companions agreeing on a line) and to moderate; never other players or the public. Any addon in your game can read them through `BankaiGuildBridge` too | every accepted line your client receives, your own once one of its sends left (never one that reached nobody, a squad leader's alone included), including those a muted channel, the Bankai Guild channels' flood guard or your own block terms hide locally; never a line a chat warning refused, nor one Bankai Guild kept off for moderation (net-off, a timeout, a deleted line's late copy), nor a pinned line (its own row above); only once you accepted the Bankai Guild Accord, and only from the chats and rooms you have on; saved at logout or `/reload` |
+| Your own character's name (Name-Realm), own BattleTag, current native Bankai Guild guild, roles (officer, guild master, council, Shogun, author) and actual tabs (the Companion's `self` section, 1.3.2) | the private Bankai Guild Companion Bridge addon, only if you installed it with the Bankai Guild Companion app: it saves them in its own file on your computer (`BankaiGuildCompanionDB`) for the Companion; the BattleTag is visible only to staff and is display/linking data, never membership or witness authority. Any addon in your game can read them through `BankaiGuildBridge` too | only once you accepted both the Bankai Guild Accord and the separate Bankai Guild Companion Accord, saved at logout or `/reload`; before consent, after withdrawal, outside an Bankai Guild guild or while the game cannot authenticate your own tag, the section carries only an anonymous revocation so a stale identity can be removed; your own tag as the game gives it, never another player's BattleTag, and never a census-inferred membership or role |
+| The Bankai Guild and guild chat lines your client receives (the Companion's chat record, `BankaiGuildBridge.RegisterChatRecorder`, 1.2.6): each line's chat ([Bankai Guild], [Captains], [Council], a room you are in, or a fight or Bones room; Guild is your guild's own chat as the game gives it, guildmates without Bankai Guild included), its sender, its sanitized words, and whether it is your own | Bankai Guild's staff, through your own Bankai Guild Companion: the private Bankai Guild Companion Bridge addon, only if you installed it with the Bankai Guild Companion app, saves them in its own file on your computer, and the Companion sends them to Bankai Guild's server, where only the staff see them and keep them, to confirm what was said (several players' Companions agreeing on a line) and to moderate; never other players or the public. Any addon in your game can read them through `BankaiGuildBridge` too | every accepted line your client receives, your own once one of its sends left (never one that reached nobody, a squad leader's alone included), including those a muted channel, the Bankai Guild channels' flood guard or your own block terms hide locally; never a line a chat warning refused, nor one Bankai Guild kept off for moderation (net-off, a timeout, a deleted line's late copy), nor a pinned line (its own row above); only once you accepted the Bankai Guild Accord, and only from the chats and rooms you have on; saved at logout or `/reload` |
 
-Decrees and the King's calls go out when someone sends one (a decree carries its sender's
+Decrees and the Shogun's calls go out when someone sends one (a decree carries its sender's
 position on the map).
 
 **The Bankai Guild Accord (1.2.5.1).** Before anything else the addon asks every game account once to
@@ -1939,15 +1939,15 @@ with the game running and then reloaded does not have the Accord's file yet: Ban
 there until the game restarts, and says so.
 The Accord asks for **your BattleTag**. Your own addon reads it from your own game (Battle.net's,
 locally: Bankai Guild Link still needs no Battle.net login) and shows it on the letter with its digits
-masked (**Show** reveals them for ten seconds; on the King's screen, and on any character of his
+masked (**Show** reveals them for ten seconds; on the Shogun's screen, and on any character of his
 game account once his own was seen there, no part of it shows and there is no Show). **I accept** works only while Battle.net gives it; while Battle.net can't be
 reached the letter says so and tries again by itself, and an account that accepted is never locked
 out by an outage. Only 8 bits of its hash are kept on your client, to see whether it changed (one
 change in 256 goes unseen), never the tag itself, and too few bits to give its digits back. In
-game, your BattleTag goes to the moderation team alone (the author, the King, the High Council and the Bankai Guild
+game, your BattleTag goes to the moderation team alone (the author, the Shogun, the High Council and the Bankai Guild
 moderators they named), by a logged whisper, only to a team member whose addon just asked on your
 channel and whose team level is yours or higher (a moderator's own goes to the moderators and
-above, a councillor's to the council, the King and the author, the King's to the author alone), at
+above, a councillor's to the council, the Shogun and the author, the Shogun's to the author alone), at
 most once every 20 hours to each from each of your characters. If he logs off before it goes, the
 server's "No player named" line drops it, and with mouse and keyboard that line, for your own
 whisper, stays out of your chat. His client keeps it up to 180 days after he last received it (The
@@ -1963,7 +1963,7 @@ The Watch.
 map, a treasury keeper's book, a sister guild's bank (1.1), a Royal Inspection's report, your answers to the author's roll
 calls, the Bankai Guild chats, an officer's patrol findings to his guild's officers, your crafter
 listing (and with it your addon's answers to who can make it), another addon's use of the Bankai Guild API (1.2.4: each
-addon its own Yes or the page's deliberate **Authorize all**; ordinary reads send nothing; an authorized exact-name search sends the Name-Realm, while a five-minute hostile-area search sends one selected map ID; a visible Start declares selected/configured names and included list sources; one live area uses the current or an owned exact-result map until its row expires, cancels before a 60-second rotation, stays visibly stoppable and never auto-resumes or opens the map; both receive only opted-in observers' private, expiring last-seen reports labelled as a native target point or observer encounter point; an area row omits observer identity and guild, with at most six rows from one observer and 48 distinct players at the requester; for an addon the Bankai Guild team authorized, the same permission may let a current signed issuer or the addon's author open the bounded host-owned profile-presentation session and an admitted member enable its single fixed style on themself; it never accepts a target, asset path or arbitrary message; what the addon does with its bounded copies is its own; it may also read the King's presence as his lines and the Realm tab show it, and widen an area search to labelled not-hostile players outside Bankai Guild guilds and the observer's group), **Guild tools: player sightings** (a separate permission enabled by its own Yes or **Authorize all**; while it and location sharing stay on, up to 64 direct observations may remain only in memory for up to 15 minutes; the same permission also permits bounded hostile-area answers on a selected map and, for a wider search, labelled not-hostile players outside Bankai Guild guilds and your group) and Bankai Guild Link (your **Accept**, or a confirmer's typing in the key the
+addon its own Yes or the page's deliberate **Authorize all**; ordinary reads send nothing; an authorized exact-name search sends the Name-Realm, while a five-minute hostile-area search sends one selected map ID; a visible Start declares selected/configured names and included list sources; one live area uses the current or an owned exact-result map until its row expires, cancels before a 60-second rotation, stays visibly stoppable and never auto-resumes or opens the map; both receive only opted-in observers' private, expiring last-seen reports labelled as a native target point or observer encounter point; an area row omits observer identity and guild, with at most six rows from one observer and 48 distinct players at the requester; for an addon the Bankai Guild team authorized, the same permission may let a current signed issuer or the addon's author open the bounded host-owned profile-presentation session and an admitted member enable its single fixed style on themself; it never accepts a target, asset path or arbitrary message; what the addon does with its bounded copies is its own; it may also read the Shogun's presence as his lines and the Realm tab show it, and widen an area search to labelled not-hostile players outside Bankai Guild guilds and the observer's group), **Guild tools: player sightings** (a separate permission enabled by its own Yes or **Authorize all**; while it and location sharing stay on, up to 64 direct observations may remain only in memory for up to 15 minutes; the same permission also permits bounded hostile-area answers on a selected map and, for a wider search, labelled not-hostile players outside Bankai Guild guilds and your group) and Bankai Guild Link (your **Accept**, or a confirmer's typing in the key the
 bot's keeper made them) wait for your yes. The rest of the table goes out while you are in an
 Bankai Guild guild, once you accepted the Bankai Guild Accord, with no question first: your guild's census (from the member it elects, with the
 names above), the hello, your BattleTag to the moderation team alone in game, signed-leadership synchronization after the author activates it, and your addon's answer to a version check (1.1.2), an officer's loot notes and points to his guild and your addon's ask for what its book lacks
@@ -1992,7 +1992,7 @@ requester keeps at most 48 distinct players; the public area copy omits the obse
 explains the selected map broadcast, native target point when WoW supplies one, observer
 encounter-point fallback, every field and recipient, and that results are last-seen rather than
 continuous tracking.
-No on the chats means this client neither sends nor shows [Bankai Guild], [Captains] or [Lords]. The
+No on the chats means this client neither sends nor shows [Bankai Guild], [Captains] or [Council]. The
 window, the census and your own guild's roster work whatever you answer, location included.
 `/bk privacy` opens the page again, and each answer has its own command too (`/bk location`,
 `/bk layerhelp`, `/bk treasurer`, `/bk inspection`, `/bk rollcall`, `/bk chat`,
@@ -2014,7 +2014,7 @@ shows it. Layers and hops work better the more members share. Versions before
 0.9.1 still send all of it: update.
 
 **How long it lasts.** A layer you announced shows on other screens for up to 21 minutes
-after your last announcement. Turning sharing off (or the King hiding his crown) withdraws it
+after your last announcement. Turning sharing off (or the Shogun hiding his crown) withdraws it
 at once from 0.9.2 clients; older ones keep it until it expires. Your location is always your
 own message: nothing relays another player's zone or layer, and nobody can withdraw yours.
 
@@ -2023,13 +2023,13 @@ Horde's "BankaiGuildNetH") is public: anyone can join it by name and read everyt
 script. With a key (`/bk key`) it gets a hidden name and the key as its password, and only
 the key's holders can join. A shared key is only as private as its least careful holder:
 every member of every guild that has it can read the channel, anyone can pass it on, and
-nobody can take it back. If it leaks, the King or his Steward rotates it for the whole army (1.1, on the
-Throne: a new key by whisper to the Lords and Captains his /who saw in the guilds he picks and
+nobody can take it back. If it leaks, the Shogun or his Steward rotates it for the whole army (1.1, on the
+Throne: a new key by whisper to the Council and Captains his /who saw in the guilds he picks and
 over guild chat, never on the Bankai Guild channel), or officers set a new one (`/bk key <new secret>`) and
 hand it out again.
 
 **Chat is never private.** Every client on the channel receives [Bankai Guild], [Captains] and
-[Lords] alike; the addon only decides what to show. Before your first line in each of them
+[Council] alike; the addon only decides what to show. Before your first line in each of them
 the addon says so and waits for **Send** (**Cancel** sends nothing), once per channel. Since
 1.1 the chats are off until you say yes (the first-open page, or `/bk chat on`): off, this
 client neither sends nor shows them, and a line that arrives is dropped before anything keeps it.
@@ -2075,30 +2075,30 @@ few characters working together can still reach is said plainly further down
 - **Guild traffic is verified by Blizzard's servers.** Guild addon messages only reach
   members of that guild, so the realm key and guild elections can't be faked from outside.
 - **Sender names cannot be forged.** The server stamps every message with its sender.
-  - **The King and the Treasurer are known by name**, not by vote: only their characters can
-    send their commands and the treasury (with the characters the King names to the treasury,
+  - **The Shogun and the Treasurer are known by name**, not by vote: only their characters can
+    send their commands and the treasury (with the characters the Shogun names to the treasury,
     whose books count while his list names them: a list taken from his character or his
     Steward's alone, never from a keeper's book). A report of `<Elfcore>` naming anyone else as its
-    leader counts for nothing, not even as a vote: no count of votes makes anyone else its King.
-    Since 1.0.0 the King's decrees and [Lords] lines count by his name too, with no census.
+    leader counts for nothing, not even as a vote: no count of votes makes anyone else its Shogun.
+    Since 1.0.0 the Shogun's decrees and [Council] lines count by his name too, with no census.
     Their names count on their realm group only (Forever's PvP realms): a namesake anywhere
-    else is someone else, and there is no King there.
-  - **The King's Steward** (1.0.0) is named by the author's signature, like the High Council:
-    a character the signed titles list marks, for his realm group and his King's faction, and
+    else is someone else, and there is no Shogun there.
+  - **The Shogun's Steward** (1.0.0) is named by the author's signature, like the High Council:
+    a character the signed titles list marks, for his realm group and his Shogun's faction, and
     nobody else (no name in the code, no vote). His word counts by his name, which the server
-    stamps: a list of Hands of his own, beside the King's, whose Hands have the same Crown for
-    `<Elfcore>` on the other guilds' clients (nobody changes anyone else's list: the King can't
+    stamps: a list of Hands of his own, beside the Shogun's, whose Hands have the same Crown for
+    `<Elfcore>` on the other guilds' clients (nobody changes anyone else's list: the Shogun can't
     take them back);
-    the treasury's keepers and its switches, dated, the newest kept and the King's newer word
+    the treasury's keepers and its switches, dated, the newest kept and the Shogun's newer word
     always over his; and the Crown's decrees for `<Elfcore>` on every client; and he sees the
-    whole treasury as the King does, whatever the switches (every keeper is told so before
-    sharing). Never the King's own list of Hands, his crown on the map, his court, writs,
+    whole treasury as the Shogun does, whatever the switches (every keeper is told so before
+    sharing). Never the Shogun's own list of Hands, his crown on the map, his court, writs,
     pardons, untabarded list, book or yes. This adds trust in the author's key: whoever holds it
-    can make a character act for the King in these, as it can name the council. A newer signed
+    can make a character act for the Shogun in these, as it can name the council. A newer signed
     list without him ends it, and the Hands he named with it, on every client at once. A word of
     the treasury dated more than a minute ahead of the server's clock is not taken.
-  - A decree counts only if its sender is the Lord or a Captain of that guild as the census
-    pictures it (below), or as our own roster says for our own guild; the King's by his name.
+  - A decree counts only if its sender is the Council or a Captain of that guild as the census
+    pictures it (below), or as our own roster says for our own guild; the Shogun's by his name.
     The rank written inside the message is ignored. Since 1.0.0 a sender speaks for one guild
     in decrees as in the chats, and a decree's words go out with Blizzard's logged
     addon-message function (a decree that arrives any other way shows without its words).
@@ -2109,17 +2109,17 @@ few characters working together can still reach is said plainly further down
     3 minutes, so a guild's own reporters have voted before anyone else can win.
   - A report never proves its own sender's rank: someone else's vote must name them. The
     runner-up of each guild's election also reports every 10 minutes (and answers census
-    requests), so a Lord or officer who is the elected reporter is still verified. (An officer
+    requests), so a Council member or officer who is the elected reporter is still verified. (An officer
     who is the only one of their guild with the addon is not.)
-  - **A Lord** (any guild master; since 1.2.3 only `<Elfcore>`'s are of the Crown) needs two
-    senders naming them, and one of the two may be that Lord himself (see below). The officers
+  - **A Council member** (any guild master; since 1.2.3 only `<Elfcore>`'s are of the Crown) needs two
+    senders naming them, and one of the two may be that Council himself (see below). The officers
     of `<Elfcore>` are of the Crown only on `<Elfcore>` members' clients, from their roster
-    (1.0.0), and the Hands the King's list or a Steward's own list names (their word, never a
-    vote; the King can't take back a Steward's Hand: that Steward does, or the author by
+    (1.0.0), and the Hands the Shogun's list or a Steward's own list names (their word, never a
+    vote; the Shogun can't take back a Steward's Hand: that Steward does, or the author by
     removing him): everywhere else they count as Captains, so outsiders' reports can't add one
     to the Crown.
-  - **The King's Legates** (1.2.4) are explicitly appointed by the King or real High Council,
-    up to 25 members of the King's guild. A council title alone does not make its holder a
+  - **The Shogun's Legates** (1.2.4) are explicitly appointed by the Shogun or real High Council,
+    up to 25 members of the Shogun's guild. A council title alone does not make its holder a
     Legate. Historical appointment ids remain compatible; role previews appoint nobody.
 | A guild master's Legates and correspondents: names and each correspondent's department | everyone on the Bankai Guild channel; each client saves up to 300 accepted guild lists, including its own, while the source is offline; verified removal or change of master revokes the duty | only from that guild master's client: after a change and every 5 minutes while online |
     client sends (the sender the server stamps), and only while the census or your roster proves
@@ -2134,7 +2134,7 @@ few characters working together can still reach is said plainly further down
     second spelling is a vote on the same guild, never a second guild.
   - **The row everyone sees is the majority's**: a report whose leader or officers differ from
     the picture most senders give is counted as a vote but does not replace what the census
-    shows, so one outsider can't rename a Lord. A guild's numbers are not part of that picture
+    shows, so one outsider can't rename a Council member. A guild's numbers are not part of that picture
     (see below). A report claiming more members than a guild can hold is dropped as forged. A
     guild not heard from for a day leaves the total.
 - **Only our channel counts**: addon messages that arrive on any other chat channel are
@@ -2147,8 +2147,8 @@ few characters working together can still reach is said plainly further down
   ten minutes per recruit, thirty kept at most, six chat lines a minute at most.
 - **Validation**: every number is range checked, names are length limited, and malformed
   messages are dropped. Decrees are rate limited per sender (one a minute) and in total (6 a
-  minute from senders only the census vouches for; since 1.0.0 the King's, his Steward's, the
-  Hands' for `<Elfcore>` (the King's list or a Steward's) and your own guild's officers' never
+  minute from senders only the census vouches for; since 1.0.0 the Shogun's, his Steward's, the
+  Hands' for `<Elfcore>` (the Shogun's list or a Steward's) and your own guild's officers' never
   wait behind that limit).
 - **Admission** (0.9.3): one sender gets 60 messages at once and 2 a second after that, whatever
   they are; past it their messages are dropped unread. Pieces of long messages waiting for the
@@ -2160,16 +2160,16 @@ few characters working together can still reach is said plainly further down
   quest links shaped the way the game makes them. Text the addon builds for Discord pings
   nobody. The offline tests send hostile messages for each of these rules and check they
   are refused.
-- **Channels**: [Captains]/[Lords] lines count only if the sender's rank is verified like
+- **Channels**: [Captains]/[Council] lines count only if the sender's rank is verified like
   decrees; everyone else can use [Bankai Guild] only. Sent with Blizzard's logged addon-message
   function (lines sent any other way are dropped); rate limited per sender and per channel, and
   no single sender can fill a channel.
 - `/bk block <name>` ignores a player completely.
 - **Block terms** (1.1) only hide lines on each screen: no word can ignore, block, kick or cut
-  anyone off. The shared list is taken only from the King's, his Steward's, a Hand's or a signed
+  anyone off. The shared list is taken only from the Shogun's, his Steward's, a Hand's or a signed
   High Councillor's character (the server stamps the sender), newest time first word by word, a
   time more than a minute ahead of the server's clock refused, and each player can ignore it.
-  Its words are 4 letters at least and it never hides the King's writs (1.1, Konig's review:
+  Its words are 4 letters at least and it never hides the Shogun's writs (1.1, Konig's review:
   one editor adding "the" or "de" could hide nearly every decree and writ for everyone).
   Blocked words for chat warnings are a separate built-in list.
 
@@ -2180,9 +2180,9 @@ sender belongs to: a census report is its sender's word. So a few characters wor
 can still reach the following today (1.0.0); each outcome was checked against this version's
 code.
 
-- **Two characters make a Lord.** Two characters, even two alts of one account logged in one
-  after the other (a report counts as a vote for 30 minutes), make one of them the Lord of a
-  made-up Bankai Guild guild on every client. He gets [Lords] lines (since 1.2.3 never a decree on
+- **Two characters make a Council member.** Two characters, even two alts of one account logged in one
+  after the other (a report counts as a vote for 30 minutes), make one of them the Council of a
+  made-up Bankai Guild guild on every client. He gets [Council] lines (since 1.2.3 never a decree on
   another guild's screen: a guild master's and his officers' Calls to Arms, Musters, Royal decrees
   and Tabard inspections reach his own guild alone), for as long as their reports keep coming (15
   minutes after the last one). Anyone who really founds such a guild can do
@@ -2195,18 +2195,18 @@ code.
   clients, and six of them filled its flood guard (6 decrees a minute) with raid warnings.
 - **A real guild: two contest it, three take it.** A real guild is pictured by its reporter and
   runner-up, two votes at most. Two outsiders who send another picture leave it contested: its
-  Lord and officers lose their rank on every other client ([Lords], [Captains]) while the two
-  keep voting. Three make theirs its picture: their man is its Lord, the real one nobody. Two
+  Council and officers lose their rank on every other client ([Council], [Captains]) while the two
+  keep voting. Three make theirs its picture: their man is its Council, the real one nobody. Two
   alts who join a real guild with names that sort first in its election become its reporter
   and runner-up, and name whom they like.
-- **`<Elfcore>`.** Its King counts by his character's name: no count of votes makes anyone else
-  King or silences him. Three outsiders can still add one of their own to its officers in the
+- **`<Elfcore>`.** Its Shogun counts by his character's name: no count of votes makes anyone else
+  Shogun or silences him. Three outsiders can still add one of their own to its officers in the
   census. Before 1.0.0 that made him of the Crown on every client outside `<Elfcore>`; since
   1.0.0 the officers of `<Elfcore>` are of the Crown on its own members' clients only (their
   roster), and a census officer of `<Elfcore>` is a Captain everywhere else (since 1.2.3 one who
-  calls nobody to arms), unless the King's list or a Steward's own list names him a Hand (their
+  calls nobody to arms), unless the Shogun's list or a Steward's own list names him a Hand (their
   word, never a vote).
-- **The Church correspondent of a made-up guild** (1.2.4). The two characters who make a Lord
+- **The Church correspondent of a made-up guild** (1.2.4). The two characters who make a Council member
   (above) can name that guild's Church correspondent: every client shows him in the Church with its
   room, its People page and his recruits' reports, kept 30 days after their reports stop unless a
   census proves another master. His word as a witness has the census's smaller budget, and a
@@ -2214,19 +2214,19 @@ code.
   (above) can name its correspondent in place of its master's, or take him back, on every client
   outside it; the master's naming does not come back when they stop, until he names again. Each
   book keeps 128 correspondents: past that, made-up guilds' namings push out other guilds' masters'
-  (the one confirmed longest ago first), never one the Head, the King or the author named, nor your
+  (the one confirmed longest ago first), never one the Head, the Shogun or the author named, nor your
   own guild's. Before 1.2.4 nothing but the author's signed leadership named another guild's master
   in the Church (no release enforces it): then nobody's correspondent showed outside his own guild.
 - **Numbers.** A guild's size and online count are not part of the picture. One outsider who
   copies a guild's leader and officers with other numbers shows his numbers on every screen
-  until its reporter's next report (800 members as 1, the King offline). Each made-up guild
+  until its reporter's next report (800 members as 1, the Shogun offline). Each made-up guild
   adds up to 1,000 soldiers to every client's army total for a day, and one character can
   start a new one every 15 minutes.
 - **Trust elsewhere.** A made-up Captain who answers a layer-hop ask is no helper the addon
   vouches for (since 1.2.1 never on a census rank, and since 1.2.3 never another guild's officer,
   signed or not): his party invite waits for the player's click. His
-  report on a Royal Inspection can put an innocent player on the King's untabarded list, which
-  the King's share sends to the army. A made-up Captain of a real guild (above: three
+  report on a Royal Inspection can put an innocent player on the Shogun's untabarded list, which
+  the Shogun's share sends to the army. A made-up Captain of a real guild (above: three
   outsiders take its picture) can ask the Treasurer's addon for that guild's dues list (1.1):
   who of it paid him in the last five weeks, how much this week and when last; never another
   guild's list, and never on the channel. He, or any real Captain, can also ask about names of
@@ -2234,24 +2234,24 @@ code.
   once a minute, and hear which of them paid the Treasurer this week with no guild on their
   payment. A dues mail sent with the button carries its guild, and so does a trade: only those
   who pay without either can be found that way.
-- **The King's new key (1.1).** Two characters who make a Lord of a made-up guild (above) are
-  listed among the guilds the King can hand a new army key to when he rotates it. That guild is
+- **The Shogun's new key (1.1).** Two characters who make a Council member of a made-up guild (above) are
+  listed among the guilds the Shogun can hand a new army key to when he rotates it. That guild is
   not checked unless his own /who saw a guild of that name, and he can uncheck any guild. Either
-  way his addon whispers the key only to the Lords and Captains his own /who saw in that very
-  guild (the server's word), so two characters who call themselves a real guild's Lord and
+  way his addon whispers the key only to the Council and Captains his own /who saw in that very
+  guild (the server's word), so two characters who call themselves a real guild's Council and
   Captain in the census get nothing either. Anyone in a real Bankai Guild guild he picks gets the key
   from its officers, whoever leaked the old one. (Every member of an Bankai Guild guild that has the
   key can read the sealed channel anyway.)
 
-What 1.0.0 hardened: the King's decrees and [Lords] lines count by his name, with no census at
-all, and the Hands' for `<Elfcore>` by the word of the King or of the Steward whose own list
+What 1.0.0 hardened: the Shogun's decrees and [Council] lines count by his name, with no census at
+all, and the Hands' for `<Elfcore>` by the word of the Shogun or of the Steward whose own list
 names them; those, the Steward's and your own guild's officers' decrees never wait behind the
 flood guard, however many made-up Captains fill it; a decree speaks
 for one guild per sender, as the chats do; a decree's words go out with Blizzard's logged
 addon-message function (one that arrives any other way, from a sender before 1.0.0, still
 shows, without its words); and the officers of `<Elfcore>` are of the Crown on its own
-members' clients only, and elsewhere only the Hands the King's list or a Steward's own list
-names (the King can't take back a Steward's Hand: that Steward does, or the author by removing
+members' clients only, and elsewhere only the Hands the Shogun's list or a Steward's own list
+names (the Shogun can't take back a Steward's Hand: that Steward does, or the author by removing
 him).
 
 On the public channel anyone can try all of the legacy census paths above; **seal it with
@@ -2282,12 +2282,12 @@ Other limits:
   the census marks a row whose senders disagree on its leader, its officers or its size, and,
   fainter, one that a single sender stands behind (hover it for what the mark says).
 - **Net-off is its issuers' word (1.1).** One Hand or High Councillor can hide anyone who gives
-  no words (and neither the King nor his alts) for the whole army, or take any guild but the
-  King's off the network. The Decrees tab shows everyone who did it, why and when, and who
-  passed it on; an issuer as high or higher (the King always) can put it back on, and no word
-  replaces one from higher up. Only the King, or the Steward for a Hand or a councillor, can
+  no words (and neither the Shogun nor his alts) for the whole army, or take any guild but the
+  Shogun's off the network. The Decrees tab shows everyone who did it, why and when, and who
+  passed it on; an issuer as high or higher (the Shogun always) can put it back on, and no word
+  replaces one from higher up. Only the Shogun, or the Steward for a Hand or a councillor, can
   hide an issuer, and a name that is hidden gives no word: its words fade. Without signatures, one issuer can still write a word in another
-  issuer's name: the addon then shows who passed it on, his reason stays off the King's
+  issuer's name: the addon then shows who passed it on, his reason stays off the Shogun's
   stream, the word weighs no more than his own rank, and no addon repeats it.
 
 ## Built for a crowd of thousands
@@ -2295,7 +2295,7 @@ Other limits:
 - One summary per guild about every 3 minutes, not one per player.
 - In a full guild only the members who could be elected keep saying hello; the rest go quiet.
 - Layers are announced by officers plus a stable 1 in 8 sample who share them, every 10 minutes
-  (the King's alone every minute, while his crown shows: one client, one message a minute).
+  (the Shogun's alone every minute, while his crown shows: one client, one message a minute).
 - A layer request goes out once; only about 6 players answer it, each by a whisper to the asker.
 - Messages are spaced 1.2 s apart, below Blizzard's addon message limits, and alert sounds
   play at most once every 15 seconds (1.1: a softer one never silences the Call to Arms or a
@@ -2312,9 +2312,9 @@ Other limits:
 | `/bk` | open or close the window |
 | `/bk realm` · `/bk decrees` · `/bk tabard` | open a tab |
 | `/bk inactive [7\|14\|30]` | your guild's members offline that long, by name (a rank that may remove members removes one per click, asked first) |
-| `/bk warndays <days>` | when a Lord or Captain counts as away: red in the Realm, and one line when a Lord crosses it |
-| `/bk recruits` | Lords: your recruits, and a Captain as each one's mentor (one whisper to each, from your click) |
-| `/bk nominees [legate <name> \| correspondent <n> <name> \| remove <name>]` | guild masters: up to 25 Legates and one correspondent per department from their own guild. The King or real High Council explicitly appoints up to 25 Legates of the King's guild; being on the council alone appoints nobody. The historical `centurion` command remains an alias |
+| `/bk warndays <days>` | when a Council member or Captain counts as away: red in the Realm, and one line when a Council member crosses it |
+| `/bk recruits` | Council: your recruits, and a Captain as each one's mentor (one whisper to each, from your click) |
+| `/bk nominees [legate <name> \| correspondent <n> <name> \| remove <name>]` | guild masters: up to 25 Legates and one correspondent per department from their own guild. The Shogun or real High Council explicitly appoints up to 25 Legates of the Shogun's guild; being on the council alone appoints nobody. The historical `centurion` command remains an alias |
 | `/bk nocontact on\|off` | do not contact: recruits' Join screens skip you (on), or may ask you (off) |
 | `/bk patrol` | start or stop the tabard patrol |
 | `/bk mark [note]` | mark your target |
@@ -2325,31 +2325,31 @@ Other limits:
 | `/bk approved` · `/bk approved paste` | the guilds of Shobek's Bankai Guild the author's signed list makes Bankai Guild guilds (their names don't say Bankai Guild), and whether yours is one; paste that signed list (the first member of such a guild: his addon then passes it to the guild) |
 | `/bk church` · `/bk church status` · `/bk church name <Name>` · `/bk church register <Name>` | the Missionary Church of Bankai Guild's tab; its status in a window you can copy from; name a missionary of your network; register a recruit you brought |
 | `/bk arms [text]` · `/bk muster [text]` | send a decree (`test` = local preview) |
-| `/bg <text>` · `/bgc <text>` · `/bgl <text>` | write in [Bankai Guild], [Captains] or [Lords]; alone (`/bg`, `/bgc`, `/bgl`): open the Chat tab on that channel (1.1.1) |
-| `/bk all <text>` · `/bk captains <text>` · `/bk lords <text>` | the same, as `/bk` commands |
-| `/bk mute bankaiguild` · `/bk mute captains` · `/bk mute lords` | hide or show a channel in chat |
-| `/bk pin <text>` · `/bk pin off` · `/bk pin` | the King, his Stewards and Hands: pin one line for the army on top of the Bankai Guild chats and the Realm (2 hours); a guild master: one for his own guild. Take it down, or see what is pinned |
-| `/bk chatwindow tab` · `/bk chatwindow <number or name> [bankaiguild\|captains\|lords]` · `/bk chatwindow main` | the Bankai Guild chats in a chat tab named Bankai Guild (without the channel's name; it says how to make the tab), in another chat window (with Chattynator, one of its tabs, by name), or back in the main one |
-| `/bk treasurer on\|off` | a keeper of the treasury (the Treasurer, the King, a character he named) shares his book and the guild bank, or keeps them private (1.1: what the King hides goes only to the King, his Steward and the keepers, by whisper) |
+| `/bg <text>` · `/bgc <text>` · `/bgl <text>` | write in [Bankai Guild], [Captains] or [Council]; alone (`/bg`, `/bgc`, `/bgl`): open the Chat tab on that channel (1.1.1) |
+| `/bk all <text>` · `/bk captains <text>` · `/bk council <text>` | the same, as `/bk` commands |
+| `/bk mute bankaiguild` · `/bk mute captains` · `/bk mute council` | hide or show a channel in chat |
+| `/bk pin <text>` · `/bk pin off` · `/bk pin` | the Shogun, his Stewards and Hands: pin one line for the army on top of the Bankai Guild chats and the Realm (2 hours); a guild master: one for his own guild. Take it down, or see what is pinned |
+| `/bk chatwindow tab` · `/bk chatwindow <number or name> [bankaiguild\|captains\|council]` · `/bk chatwindow main` | the Bankai Guild chats in a chat tab named Bankai Guild (without the channel's name; it says how to make the tab), in another chat window (with Chattynator, one of its tabs, by name), or back in the main one |
+| `/bk treasurer on\|off` | a keeper of the treasury (the Treasurer, the Shogun, a character he named) shares his book and the guild bank, or keeps them private (1.1: what the Shogun hides goes only to the Shogun, his Steward and the keepers, by whisper) |
 | `/bk backup` · `/bk restore` | copy a backup of your treasury book and your settings as text, or paste one back after a wipe (nothing is sent anywhere, never the channel key) (1.1) |
 | `/bk donations on\|off` | a keeper of the treasury tells everyone with the addon he is taking donations (a line on the Realm and Treasury tabs, with his zone if he shares it, one line in the [Bankai Guild] chat), until he logs out (1.1) |
-| `/bk need <count> <item>` · `/bk need` | Lords and Captains: ask the treasury for an item (shift-click it into the chat line, or its name or number); alone, your requests and where each stands (1.1) |
-| `/bk bank share on\|off` | the guild master or an officer of an Bankai Guild guild other than the King's shows his guild bank's snapshot to the King, his Steward and his Hands (by whisper, never on the channel), or not (1.1) |
+| `/bk need <count> <item>` · `/bk need` | Council and Captains: ask the treasury for an item (shift-click it into the chat line, or its name or number); alone, your requests and where each stands (1.1) |
+| `/bk bank share on\|off` | the guild master or an officer of an Bankai Guild guild other than the Shogun's shows his guild bank's snapshot to the Shogun, his Steward and his Hands (by whisper, never on the channel), or not (1.1) |
 | `/bk rollcall on\|off` | answer the author's roll calls (version, client, channel state) or not (1.1: not until you say yes) |
 | `/bk accord` · `/bk accord forget <name>` · `/bk accord follow <name>` · `/bk accord unfollow <name>` | the Bankai Guild Accord (Bankai Guild's terms of use) again: its version and date; while it waits, I accept or Not now. On a moderation team client, forget drops the BattleTag a player asked to have removed (1.2.5.1); follow makes that player's sanction follow his BattleTag by hand (another game account's that sent it too included), unfollow stops it (his other characters are free, his own sanction stays) |
 | `/bk privacy` | the first-open page again: what the addon shares, and your Yes or No to each (1.1) |
 | `/bk profile [Name]` | a player's profile in the Bankai Guild window, yours (**My profile**) with no name |
 | `/bk letters [version]` | the version letters (1.1.5): every one, newest first, a click opens one; with a version, that letter |
 | `/bk chat on\|off` | the Bankai Guild chats on this client; off, nothing is sent or shown (1.1: off until you say yes) |
-| `/bk talk [bankaiguild\|captains\|lords]` | open or close the Bankai Guild window on its Chat tab, on that channel; also `/bg`, `/bgc` or `/bgl` with nothing after it, or Shift-click the minimap button (1.1.1) |
-| `/bk inspection on\|off` | take part in the King's Royal Inspection when sampled (a 2-minute patrol reported to him), or not (1.1: not until you say yes) |
+| `/bk talk [bankaiguild\|captains\|council]` | open or close the Bankai Guild window on its Chat tab, on that channel; also `/bg`, `/bgc` or `/bgl` with nothing after it, or Shift-click the minimap button (1.1.1) |
+| `/bk inspection on\|off` | take part in the Shogun's Royal Inspection when sampled (a 2-minute patrol reported to him), or not (1.1: not until you say yes) |
 | `/bk issuereporter hide\|show` | hide Blizzard's Issue Reporter box (beta clients) at every login, or show it again (also a "Hide" button on it) |
 | `/bk helpme [text]` (or **Ask a High Councillor** on the Realm tab) | ask the High Council (the moderators) for help: it goes by whisper to up to three of them online who take requests |
 | `/bk council list` · `/bk council help on\|off` | the High Council as your addon knows it; moderators: take help requests or not. The list is signed by the author on his own computer and checked by every client: no name is written in the addon's code, and nobody can forge or change it. An addon without the list (`High Council: -`) asks the channel for it a minute or so after login, and again until it has it (two and a half minutes later when nobody answered, up to 3 times). Since 1.0.0 the list also crosses realms through guild chat: guildmates on another realm answer the ask and pass the list on, and it goes on to your realm's channel |
 | `/bk council icon` (or **My council icon** on the Realm tab, councillors only; 1.2.4: **My profile**'s **Icons**) | moderators: a councillor's name always carries the High Council's mark, which nobody can change: in the game's own chat (1.1.5, `/bk chatmarks`) the game's silver elite dragon, on their tooltip and in the census the game's target-frame skull. An icon of your own after it is optional: pick it from the game's icons, like a macro's. Your addon announces it on the channel (at once, then every 20 minutes), and other clients take it only from a councillor and only as a game icon |
 | `/bk discord <code>` · `/bk discord` | Bankai Guild Link: link this character to your Discord account with the bot's code (or paste it in a box) |
 | `/bk discord show` · `status` · `forget` | the Bankai Guild Link window (QR code and link) again; every character's request or proof; drop this character's |
-| `/bk hop` | ask for an invite to the King's layer (while he is online) |
+| `/bk hop` | ask for an invite to the Shogun's layer (while he is online) |
 | `/bk lfg` · `/bk lfg dungeon\|raid\|pvp\|layer [note]` · `/bk lfg off` | the Board (1.1): who is looking for a group; raise your flag (a box with your note first) or lower it |
 | `/bk week` | the week on the Board and Decrees: army and own-guild Agenda entries for 7 days, alongside your guild's calendar; eligible schedulers see separate army and guild buttons ("Sat 20:00 Raid night") |
 | `/bk camp [note]` · `/bk camp off` · `/bk camps on\|off` | drop a camp in your zone (1.1: it needs `/bk location on`) or take yours down; the camps' badges on the world map |
@@ -2357,16 +2357,16 @@ Other limits:
 | `/bk layerhelp on` · `/bk layerhelp off` | get (or not) requests to invite players to your layer (1.1: not until you say yes) |
 | `/bk layerauto on` · `/bk layerauto off` | invite layer requests without the window |
 | `/bk location on` · `/bk location off` | share (or not) your zone and layer on the Bankai Guild channel |
-| `/bk borders on` · `/bk borders off` | elite borders round the portrait of your target, focus, party members and your own frame (Forever): the game's gold wings for the King, silver wings for the High Council and Max's bronze wings for Bankai Guild guild masters (none for a character or guild the moderators took off, net-off). Legates and correspondents use separate verified office shields instead of the old wingless bronze role frame; signed High Council departments use the same shield family without replacing silver, and earned honours remain. Since 1.1.5 the old rank borders (gold for Lords, silver for Captains, bronze for Raiders and Veterans) are gone, and any other member has the nameplate star alone. On by default, hidden with the gamepad UI. Off, the nameplate marks go too |
-| `/bk nameplates on` · `/bk nameplates off` | a small mark left of the name on friendly players' nameplates (Forever; friendly nameplates show with Shift+V): the game's gold elite mark for the King, silver for the High Council, bronze for guild masters, the verified Legate or department shield for an appointee, and a star for any other member of an Bankai Guild guild (none for a character or a guild the moderators took off, net-off); on by default, hidden with the gamepad UI and with `/bk borders off` |
-| `/bk chatmarks on` · `/bk chatmarks off` | 1.1.5: the verified mark before a player's name in the game's own chat (channels, say, yell, emote, party, raid, instance and whispers; guild and officer chat the office marks alone, never the star): the King's gold dragon, a High Councillor's silver then their icon, a guild master's bronze, the Legate or department shield for an appointee, and the star for any other member your addon can check. Bankai Guild's own lines carry none. Through the game's own name filter, so the name's link, right-click and /r stay the game's; on by default, hidden with the gamepad UI, and a councillor's on the King's screen while the council's names are hidden |
+| `/bk borders on` · `/bk borders off` | elite borders round the portrait of your target, focus, party members and your own frame (Forever): the game's gold wings for the Shogun, silver wings for the High Council and Max's bronze wings for Bankai Guild guild masters (none for a character or guild the moderators took off, net-off). Legates and correspondents use separate verified office shields instead of the old wingless bronze role frame; signed High Council departments use the same shield family without replacing silver, and earned honours remain. Since 1.1.5 the old rank borders (gold for Council, silver for Captains, bronze for Raiders and Veterans) are gone, and any other member has the nameplate star alone. On by default, hidden with the gamepad UI. Off, the nameplate marks go too |
+| `/bk nameplates on` · `/bk nameplates off` | a small mark left of the name on friendly players' nameplates (Forever; friendly nameplates show with Shift+V): the game's gold elite mark for the Shogun, silver for the High Council, bronze for guild masters, the verified Legate or department shield for an appointee, and a star for any other member of an Bankai Guild guild (none for a character or a guild the moderators took off, net-off); on by default, hidden with the gamepad UI and with `/bk borders off` |
+| `/bk chatmarks on` · `/bk chatmarks off` | 1.1.5: the verified mark before a player's name in the game's own chat (channels, say, yell, emote, party, raid, instance and whispers; guild and officer chat the office marks alone, never the star): the Shogun's gold dragon, a High Councillor's silver then their icon, a guild master's bronze, the Legate or department shield for an appointee, and the star for any other member your addon can check. Bankai Guild's own lines carry none. Through the game's own name filter, so the name's link, right-click and /r stay the game's; on by default, hidden with the gamepad UI, and a councillor's on the Shogun's screen while the council's names are hidden |
 | `/bk key <secret>` | officers: seal the Bankai Guild channel |
 | `/bk key off` | officers: remove a mismatched guild-only key and return the guild to the public Bankai Guild channel (1.2.5.1) |
-| `/bk key rotate` | the King or his Steward: a new key for the whole army, by whisper to the Lords and Captains his /who saw in the guilds he picks and over guild chat, never on the Bankai Guild channel (also on the Throne) (1.1) |
+| `/bk key rotate` | the Shogun or his Steward: a new key for the whole army, by whisper to the Council and Captains his /who saw in the guilds he picks and over guild chat, never on the Bankai Guild channel (also on the Throne) (1.1) |
 | `/bk block <name>` | ignore a player |
 | `/bk filter add\|remove <word>` · `/bk filter` | block terms: hide, on your screen, lines of addon text (Bankai Guild chats, writs, decrees, Vox) with a word; the list (1.1) |
-| `/bk filter shared on\|off` · `/bk filter shared add\|remove <word>` | use the shared block terms or not; the King, his Steward, his Hands and the High Council edit them (1.1) |
-| `/bk netoff Name: reason` · `/bk neton Name` · `/bk netoff` | the King, his Steward, a Hand or a High Councillor: hide a character for the whole army, or show them again (also on the Decrees tab); alone, who is hidden (1.1) |
+| `/bk filter shared on\|off` · `/bk filter shared add\|remove <word>` | use the shared block terms or not; the Shogun, his Steward, his Hands and the High Council edit them (1.1) |
+| `/bk netoff Name: reason` · `/bk neton Name` · `/bk netoff` | the Shogun, his Steward, a Hand or a High Councillor: hide a character for the whole army, or show them again (also on the Decrees tab); alone, who is hidden (1.1) |
 | `/bk netoff guild Name: reason` · `/bk neton guild Name` | the same people: take a guild off the Bankai Guild network for the army, or put it back on (also on the Decrees tab) (1.1) |
 | `/bk alt add Name` · `/bk alt remove Name` · `/bk alt` | link a character of this account as your alt (log it and say yes there), take a link apart, or see your links: the census and the treasury count you once (1.1) |
 | `/bk map` | zone markers on the world map |
@@ -2375,7 +2375,7 @@ Other limits:
 | `/bk sound <kind> on\|off` | one kind's sound (1.1): `arms`, `muster`, `royal`, `court`, `vox`, `agenda`, `throne`, `help`, `hop`, `treasury`, `patrol`, `update`; also a click on its line at the bottom of the Decrees tab |
 | `/bk bug` | copyable bug report (also: the help button left of the window's X, then **Report a bug**) |
 | `/bk log [n \| word \| copy \| clear]` | the acts this client saw (decrees, gates, pardons, visibility switches), each with the sender's name; kept on this computer, never sent (1.1) |
-| `/bk status` | diagnostics in chat (1.0.0: whom your addon knows as the King's Steward, and the lists of Hands it holds, whose each is; 1.1.2: the author's in a copy window) |
+| `/bk status` | diagnostics in chat (1.0.0: whom your addon knows as the Shogun's Steward, and the lists of Hands it holds, whose each is; 1.1.2: the author's in a copy window) |
 
 ## Reporting a bug
 
@@ -2394,7 +2394,7 @@ also saved in `WTF/Account/<ACCOUNT>/SavedVariables/BankaiGuild.lua`.
 
 - **Shobek** and his team (Daily Dose of Shobek, Max, Heuto, Fernmelder and the High
   Council), for making Bankai Guild the army's addon and for the ideas.
-- **Security reviews:** Konig, bjess9 (jess), lordjumper and Fadirstave, who read the code and
+- **Security reviews:** Konig, bjess9 (jess), counciljumper and Fadirstave, who read the code and
   showed what an attacker could do.
 - **Code and ideas:** RoyLeviGit (Bankai Guild chats in their own chat window), Artz (hiding the
   Issue Reporter), bjess9 (CI and the shared checks), hypertectonic (Chattynator's tabs),
@@ -2403,7 +2403,7 @@ also saved in `WTF/Account/<ACCOUNT>/SavedVariables/BankaiGuild.lua`.
   regressions, adapted from PR #52).
 - **Feature requests:** Fernmelder, whose 39 posts became 1.1 (the Fernmelder release);
   shenanigans_ (the nameplate marks), Valdericht (`<ELF>`), Pyralis Ashandar (taking
-  donations) and Zeal (what the King hides stays off the channel).
+  donations) and Zeal (what the Shogun hides stays off the channel).
 - **Art:** Max (the bronze elite borders, drawn over the game's own; the winged one remains the guild masters').
 - **Reports from the field:** Riukensei and PartyRockAce (the gamepad UI; PartyRockAce's report
   of the world map blocked in controller mode, fixed in 1.0), Ignitheus (whispers to Forever

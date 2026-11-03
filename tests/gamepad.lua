@@ -1843,15 +1843,15 @@ local function DialogsFlow(C)
 	return n, #keys, clicks
 end
 
--- The author's King's view (King.SetDevView, a test character's: ns.devWorkshop): the window with
--- the King's tabs too (Throne, Vox) and the Workshop, each clicked.
-local function KingViewFlow(C)
+-- The author's Shogun's view (Shogun.SetDevView, a test character's: ns.devWorkshop): the window with
+-- the Shogun's tabs too (Throne, Vox) and the Workshop, each clicked.
+local function ShogunViewFlow(C)
 	local ns = C.ns
 	ns.devWorkshop = true
-	ns.King.SetDevView(true)
-	assert(ns.King.Preview(), "the King's view")
+	ns.Shogun.SetDevView(true)
+	assert(ns.Shogun.Preview(), "the Shogun's view")
 	local tabs = WindowFlow(C)
-	ns.King.SetDevView(false)
+	ns.Shogun.SetDevView(false)
 	ns.devWorkshop = nil
 	return tabs
 end
@@ -2095,7 +2095,7 @@ for _, initialPad in ipairs({ false, true }) do
 		eq(arrow.State().active, false); eq(arrow.State().ticker, nil, "no idle guidance ticker at login")
 		C.position = { cont = inn.cont, wx = inn.wx + 65, wy = inn.wy }
 		C.resting = false
-		local sent, kingSent = #C.sent, ns.KingArrow.State().stats.sent
+		local sent, shogunSent = #C.sent, ns.ShogunArrow.State().stats.sent
 		local pins = ns.Pins()
 		eq(arrow.Start(), true)
 		eq(#C.sent, sent, "local guidance sends no private position or request")
@@ -2122,7 +2122,7 @@ for _, initialPad in ipairs({ false, true }) do
 			eq(arrow.State().ticker, ticker, "no duplicate timer across switches")
 			assert(frame:IsVisible()); assert(pins:GetVectorToIcon(frame))
 		end
-		eq(ns.KingArrow.State().stats.sent, kingSent, "guidance makes no additional King request")
+		eq(ns.ShogunArrow.State().stats.sent, shogunSent, "guidance makes no additional Shogun request")
 		arrow.Cancel("user")
 		eq(ticker:IsCancelled(), true); eq(frame:GetScript("OnUpdate"), nil)
 		eq(C.updating[frame], nil); eq(frame:IsShown(), false)
@@ -2316,7 +2316,7 @@ test("gamepad pass 1: a whole session with the gamepad UI on from the login reac
 	local dialogs, all, clicks = DialogsFlow(C)
 	eq(dialogs, all, "every dialog shown, in Bankai Guild's own window")
 	assert(clicks >= all, "their buttons clicked: " .. clicks)
-	KingViewFlow(C)
+	ShogunViewFlow(C)
 	GuildWindowsFlow(C)
 	MapFlow(C)
 	TooltipFlow(C)
@@ -2344,7 +2344,7 @@ test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the g
 	-- Mouse and keyboard: everything installs, every flow works the game's way.
 	local mark = C.Mark()
 	WindowFlow(C)
-	KingViewFlow(C)
+	ShogunViewFlow(C)
 	PersonFlow(C)
 	QuietWhoFlow(C)
 	ChatTabFlow(C)
@@ -2595,7 +2595,7 @@ test("gamepad pass 5: the rest of the list with the gamepad UI on: the Issue Rep
 	eq(Hh.invited, "Asker", "the helper's invite, on its own")
 	GP.Covers("hop-group")
 	hop.Reset()
-	hop.Ask(1429, 8, "the King's layer")
+	hop.Ask(1429, 8, "the Shogun's layer")
 	local id = hop.State() and hop.State().id
 	assert(id, "asked")
 	hop.HandleOffer("WHISPER", "Bbb-Realm", ("LO~%d~3~5"):format(id))
@@ -2872,7 +2872,7 @@ test("gamepad duel view (1.2.6): Watch duel's line only through the player menu'
 	NoErrors(C, "a duel watch")
 end)
 
--- 1.2.1: [Bankai Guild], [Captains] and [Lords] before a line in the game's chat, links where the player
+-- 1.2.1: [Bankai Guild], [Captains] and [Council] before a line in the game's chat, links where the player
 -- may write there. A click on one the game's way: the chat window's OnHyperlinkClick calls SetItemRef
 -- (the hooks on it after).
 local function ClickTag(C, tier, button)

@@ -148,13 +148,13 @@ end)
 -- account's: one bank character asked, the account's others never were by themselves.)
 test("1.2.1 privacy page: the arena bank's line is asked once on each bank character of the account", function()
 	local w = World.New()
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local bank = w:Role("bank")
 	LoadWanted(w, bank)
 	local other = "Coffrey Strongbox-Emberfall" -- (another bank character on the same saved data)
-	w:As(king, function()
-		assert(king.ns.ArenaRoles.SetSettings({ live = 1 }))
-		assert(king.ns.ArenaRoles.SetBanks({ World.NAMES.bank, other }))
+	w:As(shogun, function()
+		assert(shogun.ns.ArenaRoles.SetSettings({ live = 1 }))
+		assert(shogun.ns.ArenaRoles.SetBanks({ World.NAMES.bank, other }))
 	end)
 	w:Run(0)
 	-- (A third character of the account answered before: Wallet.lua's book of the bank's yeses.)
@@ -215,20 +215,20 @@ test("1.2.1 privacy page: a new tabard contract asks its two lines once more", f
 	NoErrors(w)
 end)
 
--- (1.2.3, the King's stream right after the update to 1.2.2: the page opened by itself again,
+-- (1.2.3, the Shogun's stream right after the update to 1.2.2: the page opened by itself again,
 -- though he had always closed it with its X.) Up to 1.2.1 the page kept the lines it showed for the
 -- session alone and its games notice for good; 1.2.2's record of the lines started empty, so every
 -- line he had left unanswered was taken for a question never asked.
 test("1.2.3 privacy page: an account whose page 1.2.1 showed and was closed unanswered is not asked again by itself after the update; nothing answered, every line off; a later question still asks once", function()
 	local w = World.New({ compliance = "shipped" })
-	local king = w:Role("king")
-	LoadWanted(w, king)
-	if king.Consent.Frame() then king.Consent.Frame():Hide() end
+	local shogun = w:Role("shogun")
+	LoadWanted(w, shogun)
+	if shogun.Consent.Frame() then shogun.Consent.Frame():Hide() end
 	-- 1.2.1's saved data: its games notice shown, the lines never answered, no record of them.
-	king.db.consentNotices, king.db.consentAsked = { games = true }, nil
-	king.db.royalInspection, king.db.wantedSightings = nil, nil
-	Relog(w, king)
-	local C = king.Consent
+	shogun.db.consentNotices, shogun.db.consentAsked = { games = true }, nil
+	shogun.db.royalInspection, shogun.db.wantedSightings = nil, nil
+	Relog(w, shogun)
+	local C = shogun.Consent
 	local waiting = Keys(C.Pending())
 	for _, key in ipairs({ "inspection", "wantedsightings" }) do
 		assert(waiting:find(key, 1, true), key .. " still waits for his answer: " .. waiting)
@@ -239,10 +239,10 @@ test("1.2.3 privacy page: an account whose page 1.2.1 showed and was closed unan
 	eq(C.Ask("window"), false, "nor when the window opens")
 	eq(C.Ask("chat"), false, "nor when he types in a chat still unanswered")
 	eq(Keys(C.Pending()), waiting, "nothing answered for him")
-	eq(C.Answer("inspection"), nil); eq(king.db.wantedSightings, nil)
+	eq(C.Answer("inspection"), nil); eq(shogun.db.wantedSightings, nil)
 	for session = 2, 3 do
-		Relog(w, king)
-		C = king.Consent
+		Relog(w, shogun)
+		C = shogun.Consent
 		w:Run(C.LOGIN_WAIT + 125)
 		eq(C.Frame(), nil, "session " .. session .. ": not by itself either")
 	end
@@ -255,13 +255,13 @@ test("1.2.3 privacy page: an account whose page 1.2.1 showed and was closed unan
 		return C.Register({ key = "test-later", label = "A test line", text = "A later build's question.",
 			get = function() return nil end, set = function() end })
 	end
-	Relog(w, king)
-	C = king.Consent
+	Relog(w, shogun)
+	C = shogun.Consent
 	assert(Later())
 	eq(C.Ask("login"), true, "a new question: the page, once")
 	C.Frame():Hide()
-	Relog(w, king)
-	C = king.Consent
+	Relog(w, shogun)
+	C = shogun.Consent
 	assert(Later())
 	w:Run(C.LOGIN_WAIT + 125)
 	eq(C.Frame(), nil, "then never again")
@@ -271,25 +271,25 @@ end)
 -- (The same report: his X is kept for good.) An account the page was never shown (no games notice:
 -- a fresh install, or 1.1.5 and before) is asked once; the X (it hides the page) answers nothing,
 -- and no later login or /reload opens it by itself.
-test("1.2.3 privacy page: the King's first page closed with its X leaves every line as it is, and no later session opens it by itself", function()
+test("1.2.3 privacy page: the Shogun's first page closed with its X leaves every line as it is, and no later session opens it by itself", function()
 	local w = World.New({ compliance = "shipped" })
-	local king = w:Role("king")
-	LoadWanted(w, king)
-	if king.Consent.Frame() then king.Consent.Frame():Hide() end
-	king.db.consentNotices, king.db.consentAsked = nil, nil
-	king.db.royalInspection, king.db.wantedSightings = nil, nil
-	Relog(w, king)
-	local C = king.Consent
+	local shogun = w:Role("shogun")
+	LoadWanted(w, shogun)
+	if shogun.Consent.Frame() then shogun.Consent.Frame():Hide() end
+	shogun.db.consentNotices, shogun.db.consentAsked = nil, nil
+	shogun.db.royalInspection, shogun.db.wantedSightings = nil, nil
+	Relog(w, shogun)
+	local C = shogun.Consent
 	eq(C.Waiting(), true)
 	w:Run(C.LOGIN_WAIT + 1)
 	local page = C.Frame()
 	assert(page and page:IsShown(), "never shown on this account: the page asks once")
 	page:Hide() -- (the X)
-	eq(C.Answer("inspection"), nil, "the X answers nothing"); eq(king.db.wantedSightings, nil)
+	eq(C.Answer("inspection"), nil, "the X answers nothing"); eq(shogun.db.wantedSightings, nil)
 	eq(C.Ask("window"), false, "this session: not again")
 	for session = 2, 3 do
-		Relog(w, king)
-		C = king.Consent
+		Relog(w, shogun)
+		C = shogun.Consent
 		eq(C.Waiting(), false, "session " .. session)
 		w:Run(C.LOGIN_WAIT + 125)
 		eq(C.Frame(), nil, "session " .. session .. ": the page does not open by itself")
@@ -304,10 +304,10 @@ end)
 -- login check: those count as asked, and only those; a line that shows after it is a new question.
 test("1.2.3 privacy page: in the first session with the record, a line that first shows after the login check is asked once (a character named an arena bank then)", function()
 	local w = World.New()
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local bank = w:Role("bank")
 	LoadWanted(w, bank)
-	w:As(king, function() assert(king.ns.ArenaRoles.SetSettings({ live = 1 })) end)
+	w:As(shogun, function() assert(shogun.ns.ArenaRoles.SetSettings({ live = 1 })) end)
 	w:Run(0)
 	if bank.Consent.Frame() then bank.Consent.Frame():Hide() end
 	-- 1.2.1's saved data: its games notice shown, the lines never answered, no record of them.
@@ -334,8 +334,8 @@ test("1.2.3 privacy page: in the first session with the record, a line that firs
 	w:Run(C.LOGIN_WAIT)
 	eq(C.Frame(), nil, "the login check: the lines left from 1.2.1 count as asked, no page")
 	eq(C.Waiting(), false)
-	-- Later in the session the King names him a bank: a question 1.2.1's page never showed him.
-	w:As(king, function() assert(king.ns.ArenaRoles.SetBanks({ World.NAMES.bank })) end)
+	-- Later in the session the Shogun names him a bank: a question 1.2.1's page never showed him.
+	w:As(shogun, function() assert(shogun.ns.ArenaRoles.SetBanks({ World.NAMES.bank })) end)
 	w:Run(0)
 	eq(Waits("arenabank"), true, "his bank line waits for his answer")
 	eq(C.Waiting(), true, "a new question to ask")

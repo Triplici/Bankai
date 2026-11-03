@@ -1,27 +1,27 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- The King's key rotation (1.1, Fern's request #8, its second part): a leaked realm key (/bk key)
--- shut without teaching everyone /bk key by hand. The King (his pinned character) or one of his
--- Stewards, acting for him (the author's signed list names them; 1.1: the King rarely runs the
+-- The Shogun's key rotation (1.1, Fern's request #8, its second part): a leaked realm key (/bk key)
+-- shut without teaching everyone /bk key by hand. The Shogun (his pinned character) or one of his
+-- Stewards, acting for him (the author's signed list names them; 1.1: the Shogun rarely runs the
 -- addon's tools himself), never a Hand or an officer, presses Rotate on the Throne; his addon
 -- makes a new key (never typed,
 -- never shown: not on his stream either). He then picks which guilds get it: those his own /who
 -- saw are checked (the server's word that a guild of that name exists: a census row alone is
--- anyone's report, and two characters on the leaked channel can make up a guild and its Lords),
+-- anyone's report, and two characters on the leaked channel can make up a guild and its Council),
 -- the others wait for his click; nothing is sent before he hands it out. It goes where only its
 -- receivers read it, never on the Bankai Guild channel (public, or sealed with the key that leaked):
 --   K3~<epoch>~<key>[~<h1.h2.h3>]
---                      by whisper from the King (or his Steward) to every Lord and Captain of the
+--                      by whisper from the Shogun (or his Steward) to every Council and Captain of the
 --                      guilds he picked
 --                      current authority confirms online (the census before explicit signed
 --                      enforcement, the manifest afterwards) whom his own /who saw in that guild
 --                      (Who.SeenGuild, the server's word; before enforcement two characters on the
---                      leaked channel can name themselves a real guild's Lord and Captain),
+--                      leaked channel can name themselves a real guild's Council and Captain),
 --                      and over GUILD from each of
 --                      them (their officers) to their own guild; K1~<key> with it there, for
 --                      guildmates before 1.1. The hashes: the keys it replaces (at most 3).
---   K4~<epoch>~<guild> a Lord's or Captain's addon tells the King it has it (a whisper); his
+--   K4~<epoch>~<guild> a Council member's or Captain's addon tells the Shogun it has it (a whisper); his
 --                      Throne counts it only from a name his client whispered the key to, and
 --                      under the guild it whispered him for (its own record), never the one named.
 --   K5~<epoch held>    over GUILD, after login: a guildmate asks whether a newer key exists;
@@ -35,18 +35,18 @@ local L = ns.L
 -- without an epoch (K1 alone, from an officer before 1.1) is taken as ever, unless it is one of
 -- those. So a 1.0 officer's K1 of the leaked key no longer pulls his 1.1 guildmates back, and a
 -- 1.0 officer who re-keys his guild by hand still moves all of it; an older key with an epoch
--- does not undo his re-key either. A K3 takes a whisper from the King's pinned name or a Steward's
+-- does not undo his re-key either. A K3 takes a whisper from the Shogun's pinned name or a Steward's
 -- (the signed list), or GUILD from our own officers (the server's roster), and never the channel.
--- Two rotations at once (the King's and a Steward's): every client keeps the newer epoch.
+-- Two rotations at once (the Shogun's and a Steward's): every client keeps the newer epoch.
 -- Whoever is in a guild that gets it has it too (its officers hand it to the whole guild): the
 -- rotation leaves behind whoever holds the old key outside the guilds picked.
--- The King's client hands the key out a few whispers at a time, never more than the send queue
+-- The Shogun's client hands the key out a few whispers at a time, never more than the send queue
 -- has room for (its other messages keep their place), and counts a whisper as sent once it left.
 -- /who goes from a click alone: his click on a guild, or on the Throne's /who line, searches the
--- next one picked whose Lords and Captains it has not seen there yet, then each of them by name
+-- next one picked whose Council and Captains it has not seen there yet, then each of them by name
 -- (Keys.Confirm); with the gamepad UI his click on the /who line searches a guild picked plainly,
 -- never a name. What it saw is kept with the rotation (rot.saw), through a /reload too.
--- It keeps handing it to Lords and Captains who come online for GRACE, on the old channel (a
+-- It keeps handing it to Council and Captains who come online for GRACE, on the old channel (a
 -- little longer while some picked still wait for their whisper), then moves (with his guild);
 -- "Move now" sooner. Guilds with no officer online in that time stay on the old channel until one
 -- of theirs types the key by hand; the Throne says how many acknowledged. Older clients ignore
@@ -55,20 +55,20 @@ local L = ns.L
 local Keys = {}
 ns.Keys = Keys
 
-Keys.GRACE = 600          -- the King's client hands the new key out this long before it moves
-Keys.GRACE_MORE = 600     -- ...and up to this much longer while Lords and Captains picked wait for their whisper
-Keys.RESEND = 300         -- the same Lord or Captain is whispered again after this long without an answer
+Keys.GRACE = 600          -- the Shogun's client hands the new key out this long before it moves
+Keys.GRACE_MORE = 600     -- ...and up to this much longer while Council and Captains picked wait for their whisper
+Keys.RESEND = 300         -- the same Council or Captain is whispered again after this long without an answer
 Keys.MAX_WHISPERS = 60    -- whispers a round at most (the queue sends one each 1.2 s)
 Keys.QUEUE_SPARE = 20     -- ...and never more than leaves this much of the send queue free
 Keys.QUEUE_WAIT = 120     -- a whisper waiting this long in the queue (lost there) is handed again
 Keys.DATE_AHEAD = 60      -- an epoch further ahead of the server's clock is not taken
 Keys.ANSWER_GAP = 60      -- an officer answers a guildmate's ask (K5) once a minute at most
 Keys.ASK_AFTER = 25       -- the ask goes this long after login
-Keys.ONLINE_FRESH = 240   -- a Lord or Captain counts as online from a report this recent (a whisper to
-                          -- someone who logged off since shows the King the game's "no player named" line)
+Keys.ONLINE_FRESH = 240   -- a Council member or Captain counts as online from a report this recent (a whisper to
+                          -- someone who logged off since shows the Shogun the game's "no player named" line)
 Keys.RETIRED_MAX = 16     -- keys replaced by a newer epoch this client remembers (their hashes)
 Keys.RETIRES_SENT = 3     -- ...and a K3 names at most this many
-Keys.WHO_FRESH = 30 * 60  -- a Lord or Captain is whispered while his /who saw him in that guild this recently
+Keys.WHO_FRESH = 30 * 60  -- a Council member or Captain is whispered while his /who saw him in that guild this recently
 
 local stats = { rotated = 0, taken = 0, refused = 0, whispered = 0, acks = 0, relayed = 0, answered = 0, legacy = 0 }
 local lastAnswer = -math.huge
@@ -147,7 +147,7 @@ local function Message(at, key, retires)
 	return msg
 end
 
--- The King's rotation (ns.rdb.keyRotation): { at, key, retires, picking, picked = { [guild, lower
+-- The Shogun's rotation (ns.rdb.keyRotation): { at, key, retires, picking, picked = { [guild, lower
 -- case] = true | false }, till, acked = { [Name-Realm] = guild }, sent = { [Name-Realm] = t },
 -- sentFor = { [Name-Realm] = the guild he was whispered for }, queued = { [Name-Realm] = t },
 -- saw = { [Name-Realm] = { guild, at } } (WhoSaw), moved, movedAt }.
@@ -158,7 +158,7 @@ end
 Keys.Rotation = Rotation
 
 -- The key this client hands its guild (K0, K5): the one it holds, its epoch and the keys it
--- replaced. (The King's new key goes to his guild when he moves to it.)
+-- replaced. (The Shogun's new key goes to his guild when he moves to it.)
 function Keys.HandOut()
 	local key = ns.rdb and ns.rdb.realmKey
 	if not ValidKey(key) then return nil end
@@ -215,11 +215,11 @@ function Keys.HandleKey(dist, sender, text)
 	sender = ns.FullName(sender)
 	local fromCrown
 	if dist == "WHISPER" then
-		-- The King by his pinned name, or his Steward by the signed list: the server stamps the
+		-- The Shogun by his pinned name, or his Steward by the signed list: the server stamps the
 		-- sender, nobody else carries it.
-		if not (ns.IsKingCharacter(sender) or (ns.KingCharacter() ~= nil and ns.King.IsStewardName(sender))) then
+		if not (ns.IsShogunCharacter(sender) or (ns.ShogunCharacter() ~= nil and ns.Shogun.IsStewardName(sender))) then
 			stats.refused = stats.refused + 1
-			return ns.Log("realm key by whisper from %s ignored: not the King nor his Steward", sender)
+			return ns.Log("realm key by whisper from %s ignored: not the Shogun nor his Steward", sender)
 		end
 		fromCrown = true
 	elseif dist == "GUILD" then
@@ -252,7 +252,7 @@ function Keys.HandleAck(dist, sender, text)
 	if tonumber(at) ~= rot.at then return end
 	sender = ns.FullName(sender)
 	-- Only from a name his client whispered the key to (counted once it left): anyone else's K4
-	-- would pass on his Throne for a Lord or Captain who has it (Konig's review).
+	-- would pass on his Throne for a Council member or Captain who has it (Konig's review).
 	if not (type(rot.sent) == "table" and rot.sent[sender]) then
 		return ns.Log("realm key: %s's acknowledgement ignored: not whispered the key", sender)
 	end
@@ -265,11 +265,11 @@ function Keys.HandleAck(dist, sender, text)
 	end
 	rot.acked = type(rot.acked) == "table" and rot.acked or {}
 	if rot.acked[sender] then return end
-	-- Under the guild his client whispered him for, never the one the K4 names: a Lord whispered
+	-- Under the guild his client whispered him for, never the one the K4 names: a Council member whispered
 	-- could name any guild, and the Throne would count it as having the key (1.1 review).
 	rot.acked[sender] = sentFor
 	stats.acks = stats.acks + 1
-	ns.King.Changed()
+	ns.Shogun.Changed()
 end
 
 function Keys.HandleAsk(dist, sender, text)
@@ -388,7 +388,7 @@ function Keys.TakesLegacy(key)
 end
 
 ---------------------------------------------------------------------------
--- The King: rotate, pick the guilds, hand out, move
+-- The Shogun: rotate, pick the guilds, hand out, move
 ---------------------------------------------------------------------------
 
 -- A new key from this computer (the Link's entropy sample, the clocks, the game's generator),
@@ -404,14 +404,14 @@ function Keys.NewKey()
 	return table.concat(hex):sub(1, 20)
 end
 
--- The King, by his pinned character, or his Steward (the signed list), acting for him: never a
--- Hand or an officer. None where no King is pinned.
+-- The Shogun, by his pinned character, or his Steward (the signed list), acting for him: never a
+-- Hand or an officer. None where no Shogun is pinned.
 function Keys.CanRotate()
-	if not (ns.King ~= nil and ns.KingCharacter() ~= nil) then return false end
-	return (ns.King.IsKing() and ns.IsKingCharacter(ns.me)) or ns.King.IsSteward()
+	if not (ns.Shogun ~= nil and ns.ShogunCharacter() ~= nil) then return false end
+	return (ns.Shogun.IsShogun() and ns.IsShogunCharacter(ns.me)) or ns.Shogun.IsSteward()
 end
 
--- The King's own /who saw someone of this guild (Data.Seen, within Data.KEEP): the server's word
+-- The Shogun's own /who saw someone of this guild (Data.Seen, within Data.KEEP): the server's word
 -- that a guild of that name exists. A census row alone is anyone's report.
 local function Seen(guild)
 	local now, lower = ns.Now(), tostring(guild):lower()
@@ -424,7 +424,7 @@ local function Seen(guild)
 end
 Keys.Seen = Seen
 
--- What his /who saw of the Lords and Captains the census names is kept in the rotation (rot.saw:
+-- What his /who saw of the Council and Captains the census names is kept in the rotation (rot.saw:
 -- [Name-Realm] = { guild, at = server time }), like the rest of it: Who.lua's own list starts
 -- empty after a /reload or relog, and is forgotten whole past Who.SEEN_MAX names (a pass over
 -- the army's guilds lists more), while the hand-out depends on it (Konig's review).
@@ -432,7 +432,7 @@ local function Keep(rot, name, guild, at)
 	rot.saw = type(rot.saw) == "table" and rot.saw or {}
 	rot.saw[name] = { guild = guild, at = at }
 end
--- Every player an answer of ours lists (Who.OnSaw): kept when current authority names him a Lord
+-- Every player an answer of ours lists (Who.OnSaw): kept when current authority names him a Council member
 -- or Captain of the guild it shows, or was kept already (seen elsewhere now: that counts too).
 -- Current authority is the legacy census until explicit signed enforcement.
 function Keys.Saw(name, guild)
@@ -449,7 +449,7 @@ if ns.Who and ns.Who.OnSaw then ns.Who.OnSaw(function(name, guild) Keys.Saw(name
 
 -- His own /who listed this player in exactly this guild within WHO_FRESH (Who.SeenGuild, or the
 -- rotation's own record: the newer): the server's word. The census alone can't say it: two
--- characters on the leaked channel can report themselves a real guild's Lord and Captain
+-- characters on the leaked channel can report themselves a real guild's Council and Captain
 -- (Data.KnownRank asks two senders, they are two). A sighting from before the rotation that holds
 -- is kept in it from then on.
 local function WhoSaw(name, guild)
@@ -469,7 +469,7 @@ end
 Keys.WhoSaw = WhoSaw
 
 -- Every guild but ours (ours gets it over GUILD when he moves: an officer's word there; a Steward
--- who is no officer of his guild has it handed like any other) with Lords and Captains current
+-- who is no officer of his guild has it handed like any other) with Council and Captains current
 -- authority confirms online: { guild, names = { Name-Realm } his /who saw
 -- in it (whispered), waiting = { Name-Realm } it did not (not whispered), seen }.
 function Keys.Candidates()
@@ -496,7 +496,7 @@ function Keys.Candidates()
 	return out
 end
 
--- Does this guild get the new key? The King's click, else whether his /who saw it.
+-- Does this guild get the new key? The Shogun's click, else whether his /who saw it.
 local function Picked(rot, c)
 	-- (Never `t[k] or nil`: an unchecked guild's false would read as no click at all.)
 	local v
@@ -505,7 +505,7 @@ local function Picked(rot, c)
 	return v == true
 end
 
--- The Lords and Captains online of the guilds the King picked, whom his /who saw in them:
+-- The Council and Captains online of the guilds the Shogun picked, whom his /who saw in them:
 -- { name, guild }. Those the census alone names wait for his /who (Keys.Confirm).
 function Keys.Targets()
 	local rot, out = Rotation(), {}
@@ -518,7 +518,7 @@ function Keys.Targets()
 	return out
 end
 
--- The King clicks a guild on the Throne: it gets the key, or not (later rounds too).
+-- The Shogun clicks a guild on the Throne: it gets the key, or not (later rounds too).
 function Keys.Toggle(guild)
 	local rot = Rotation()
 	if type(guild) ~= "string" or not rot or rot.moved or not Keys.CanRotate() then return end
@@ -526,11 +526,11 @@ function Keys.Toggle(guild)
 	local now = rot.picked[guild:lower()]
 	if now == nil then now = Seen(guild) end
 	rot.picked[guild:lower()] = not now
-	ns.King.Changed()
+	ns.Shogun.Changed()
 end
 
--- The King's click (the game takes /who from a click alone): his /who asks the server about the
--- Lords and Captains picked it has not seen in their guild yet, one search a click at Who.lua's
+-- The Shogun's click (the game takes /who from a click alone): his /who asks the server about the
+-- Council and Captains picked it has not seen in their guild yet, one search a click at Who.lua's
 -- pace (quiet): first the players of every guild picked not searched yet (up to 50 each), then
 -- by name each one those answers did not list (full, or he logged in since), the one asked
 -- longest ago first and each at most once in WHO_FRESH: made-up names in one guild's census
@@ -539,7 +539,7 @@ end
 -- With the gamepad UI no quiet search goes, and none by name (1.1 review): his click on the
 -- /who line searches one guild picked plainly, as the census's Refresh does there (the answer in
 -- the game's Who list, nothing silenced; Who.OnSaw reads it), the one searched longest ago
--- first, each again a minute after its last (Who.GUILD_AGAIN: a Lord who logged in since). A
+-- first, each again a minute after its last (Who.GUILD_AGAIN: a Council member who logged in since). A
 -- click on a guild's row only checks it there (the game's list opening would take the gamepad's
 -- focus). What the census's Refresh lists counts too.
 local asked, askedFor = {}, nil -- [Name-Realm] = GetTime() of our search for him by name; the rotation's epoch
@@ -591,7 +591,7 @@ function Keys.Confirm(only)
 	return false
 end
 
--- Picked Lords and Captains online whose whisper never left yet (nor did they answer).
+-- Picked Council and Captains online whose whisper never left yet (nor did they answer).
 function Keys.Waiting()
 	local rot = Rotation()
 	if not rot then return 0 end
@@ -602,7 +602,7 @@ function Keys.Waiting()
 	return n
 end
 
--- Whispers the new key to the Lords and Captains picked who have not answered (again after
+-- Whispers the new key to the Council and Captains picked who have not answered (again after
 -- RESEND): as many as the send queue has room for, each counted once it left.
 function Keys.Hand()
 	local rot = Rotation()
@@ -638,7 +638,7 @@ function Keys.Hand()
 					rot.sent[name] = ns.Now()
 					rot.sentFor[name] = guild -- (his acknowledgement counts for this guild, HandleAck)
 					stats.whispered = stats.whispered + 1
-					ns.King.Changed()
+					ns.Shogun.Changed()
 				end
 			end, guard)
 			n = n + 1
@@ -648,8 +648,8 @@ function Keys.Hand()
 end
 
 function Keys.Rotate()
-	if ns.King and ns.King.Preview and ns.King.Preview() then return ns.Print(L.THRONE_PREVIEW_NOTE) end
-	if not Keys.CanRotate() then return ns.Print(L.KEY_ROTATE_ONLY_KING) end
+	if ns.Shogun and ns.Shogun.Preview and ns.Shogun.Preview() then return ns.Print(L.THRONE_PREVIEW_NOTE) end
+	if not Keys.CanRotate() then return ns.Print(L.KEY_ROTATE_ONLY_SHOGUN) end
 	local rot = Rotation()
 	if rot and not rot.moved then return ns.Print(L.KEY_ROTATE_BUSY) end
 	local at = Clock()
@@ -662,13 +662,13 @@ function Keys.Rotate()
 	rot.retires = #list > 0 and table.concat(list, ".") or nil
 	ns.rdb.keyRotation = rot
 	stats.rotated = stats.rotated + 1
-	ns.Log("realm key: the King rotates it (epoch %d): picking the guilds", at)
+	ns.Log("realm key: the Shogun rotates it (epoch %d): picking the guilds", at)
 	ns.Print(L.KEY_ROTATE_READY)
-	ns.King.Changed()
+	ns.Shogun.Changed()
 	return true
 end
 
--- The King hands it out to the guilds picked: whispers now, and for GRACE to those who log in.
+-- The Shogun hands it out to the guilds picked: whispers now, and for GRACE to those who log in.
 function Keys.Start()
 	local rot = Rotation()
 	if not rot or rot.moved or not rot.picking or not Keys.CanRotate() then return false end
@@ -677,7 +677,7 @@ function Keys.Start()
 	ns.Log("realm key: handed out (epoch %d)", rot.at)
 	Keys.Hand()
 	ns.Print(L.KEY_ROTATED:format(math.ceil(Keys.GRACE / 60)))
-	ns.King.Changed()
+	ns.Shogun.Changed()
 	return true
 end
 
@@ -687,11 +687,11 @@ function Keys.Drop()
 	if not rot or not rot.picking or not Keys.CanRotate() then return false end
 	ns.rdb.keyRotation = nil
 	ns.Print(L.KEY_ROTATE_DROPPED)
-	ns.King.Changed()
+	ns.Shogun.Changed()
 	return true
 end
 
--- The King moves to his new key, and his guild with him (over GUILD).
+-- The Shogun moves to his new key, and his guild with him (over GUILD).
 function Keys.Move()
 	local rot = Rotation()
 	if not rot or rot.moved or rot.picking or not Keys.CanRotate() then return false end
@@ -700,7 +700,7 @@ function Keys.Move()
 	Take(rot.key, rot.at, true, rot.retires)
 	ToGuild(rot.key, rot.at)
 	ns.Print(L.KEY_ROTATION_MOVED)
-	ns.King.Changed()
+	ns.Shogun.Changed()
 	return true
 end
 
@@ -708,7 +708,7 @@ function Keys.Tick()
 	local rot = Rotation()
 	if not rot or rot.moved or rot.picking or not Keys.CanRotate() then return end
 	local now, till = ns.Now(), tonumber(rot.till) or 0
-	-- The grace is over: he moves, a little later while Lords and Captains picked still wait for
+	-- The grace is over: he moves, a little later while Council and Captains picked still wait for
 	-- their whisper (a long queue), GRACE_MORE at most.
 	if now >= till and (now >= till + Keys.GRACE_MORE or Keys.Waiting() == 0) then return Keys.Move() end
 	Keys.Hand()
@@ -726,11 +726,11 @@ local function Counts(rot)
 	return sent, acked, n
 end
 
--- On the Throne (the King's and his Steward's): rotate; then the guilds to pick, handing it out,
+-- On the Throne (the Shogun's and his Steward's): rotate; then the guilds to pick, handing it out,
 -- how far it got.
 function Keys.ThroneLines()
-	local K = ns.King
-	if not (K and (K.IsKing() or K.IsSteward() or (K.Preview and K.Preview()))) then return {} end
+	local K = ns.Shogun
+	if not (K and (K.IsShogun() or K.IsSteward() or (K.Preview and K.Preview()))) then return {} end
 	local Line, INK, TITLE = K.Line, K.INK, K.TITLE
 	local lines = { Line(L.KEY_ROTATE_TITLE, TITLE) }
 	local rot = Rotation()
@@ -790,8 +790,8 @@ function Keys.ThroneLines()
 end
 
 function Keys.RotatePrompt()
-	if ns.King and ns.King.Preview and ns.King.Preview() then return ns.Print(L.THRONE_PREVIEW_NOTE) end
-	if not Keys.CanRotate() then return ns.Print(L.KEY_ROTATE_ONLY_KING) end
+	if ns.Shogun and ns.Shogun.Preview and ns.Shogun.Preview() then return ns.Print(L.THRONE_PREVIEW_NOTE) end
+	if not Keys.CanRotate() then return ns.Print(L.KEY_ROTATE_ONLY_SHOGUN) end
 	ns.ShowDialog("BANKAIGUILD_KEY_ROTATE", tostring(math.ceil(Keys.GRACE / 60)))
 end
 

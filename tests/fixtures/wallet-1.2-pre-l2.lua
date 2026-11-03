@@ -24,7 +24,7 @@ local ADDON, ns = ...
 --
 -- the money part's full contract (the names the markets, the Farkle table, the Lottery and the screens use):
 --   Units. Every amount is a whole number of ledger units: copper for gold ("g"); for glory points
---     ("p", the King's option) and a rehearsal's chips ("c", kept in the "p" balance of the
+--     ("p", the Shogun's option) and a rehearsal's chips ("c", kept in the "p" balance of the
 --     rehearsal's store) 100 units are one point or one chip (Wallet.UNIT), so a slip's stake in
 --     whole silver is whole points too. Wallet.POINTS_WEEK: the weekly grant (1,000 points).
 --   Modes. The bank works in one mode at a time (Wallet.Duty), "L" (the realm's live store) or "T"
@@ -63,11 +63,11 @@ local ADDON, ns = ...
 --     Wallet.Register(eid, idx, spec): spec = { nsel, closes (lockAt), feeBp, arbBp, kind "p"|"s",
 --       cur "g"|"p"|"c", to "a"|"g", arbiter = name, rounds (a bracket pool), public (the event
 --       is public; else Arena.EventOf(eid).public), event (its kind; else EventOf's); a stake
---       market (kind "s": the King's fights, a Bone Throw game from the wallets) also parties =
+--       market (kind "s": the Shogun's fights, a Bone Throw game from the wallets) also parties =
 --       { A = name, B = name } and stakes = { A = copper, B = copper } in whole silver: Hold then
 --       takes only party o's own stake, exactly, on "A" or "B", once ("party", "stake", "held");
 --       its entries go on the channel as h:<digest>, their text to the auditors }. The
---       arbiter is paid his part only when one is named who is not the King; otherwise all of the
+--       arbiter is paid his part only when one is named who is not the Shogun; otherwise all of the
 --       fee is the guild's. A points or chips market takes no fee. A closing bank registers
 --       nothing ("closing"); gold with no fee receiver is refused ("receiver"); an arbiter of the
 --       bank's own account or key ("arbiter"); a stake market without its two parties and stakes
@@ -1439,8 +1439,8 @@ function Wallet.Register(eid, idx, spec)
 	-- Points and chips pay no fee (the design): there is no gold to give the guild.
 	if cur ~= "g" then feeBp, arbBp = 0, 0 end
 	arbBp = math.min(arbBp, feeBp)
-	-- The arbiter is paid his part only when there is one to credit; the King holds no gold (the design
-	-- money 9.4): with none, or the King, all of the fee is the guild's (else it would be lost).
+	-- The arbiter is paid his part only when there is one to credit; the Shogun holds no gold (the design
+	-- money 9.4): with none, or the Shogun, all of the fee is the guild's (else it would be lost).
 	local arbiter = spec.arbiter and ns.FullName(spec.arbiter) or nil
 	-- The market's arbiter is never one of the bank's own characters, nor of its key (the design).
 	if arbiter then
@@ -1448,7 +1448,7 @@ function Wallet.Register(eid, idx, spec)
 		local _, fp = D().Verified(arbiter)
 		if Own(arbiter) or (fp and myFp and fp == myFp) then return nil, "arbiter" end
 	end
-	-- A stake market (the design: the King's fights, a Bone Throw game from the wallets): two
+	-- A stake market (the design: the Shogun's fights, a Bone Throw game from the wallets): two
 	-- named parties, each staking exactly his stake on himself.
 	local parties, stakes
 	if spec.kind == "s" then
@@ -1458,7 +1458,7 @@ function Wallet.Register(eid, idx, spec)
 		if not a or not bn or Same(a, bn) or sa <= 0 or sb <= 0 or sa % 100 ~= 0 or sb % 100 ~= 0 then return nil, "parties" end
 		parties, stakes = { A = a, B = bn }, { A = sa, B = sb }
 	end
-	local to = (spec.to == "g" or not arbiter or (R() and R().IsKing(arbiter))) and "g" or "a"
+	local to = (spec.to == "g" or not arbiter or (R() and R().IsShogun(arbiter))) and "g" or "a"
 	local seq = Write(b, { k = "n", market = market, eid = eid, idx = idx, nsel = spec.kind == "s" and 2 or math.max(0, math.floor(tonumber(spec.nsel) or 2)),
 		closes = math.floor(tonumber(spec.closes or spec.lockAt) or 0), feeBp = feeBp, arbBp = arbBp, kind = spec.kind == "s" and "s" or "p", cur = cur, to = to })
 	if seq then
@@ -2463,13 +2463,13 @@ function Wallet.Refuse(nonce)
 	return true
 end
 
--- A leader's order (ZJ, the King's character or an auditor): kept for the operator's click; never
+-- A leader's order (ZJ, the Shogun's character or an auditor): kept for the operator's click; never
 -- from a sender whose key is the bank's own (the design).
 local function OnOrder(dist, sender, mode, body)
 	local b = Bank()
 	if dist ~= "WHISPER" or not b or mode ~= duty then return end
 	local R0 = R()
-	if not (R0 and (R0.IsKing(sender) or R0.Auditor(sender, mode))) then return end
+	if not (R0 and (R0.IsShogun(sender) or R0.Auditor(sender, mode))) then return end
 	local _, _, myFp = D().MyKey()
 	local _, fp = D().Verified(sender)
 	if fp and fp == myFp then return end
@@ -2496,7 +2496,7 @@ function Wallet.ApplyOrder(nonce)
 	return seq
 end
 
--- An auditor's order to a bank (the King's character or an auditor).
+-- An auditor's order to a bank (the Shogun's character or an auditor).
 function Wallet.Order(bank, code, sign, copper, why, ref, mode)
 	mode = Mode(mode)
 	local rep = Replica(bank, mode)
@@ -3434,5 +3434,5 @@ A.Action("bank.reseat", OnBankDuty, function(a, b2)
 	return Wallet.Reseat(a, b2)
 end)
 A.Action("audit.attest", function() return R() ~= nil and R().Auditor(ns.me, "L"), "auditor" end, function(bank) return Wallet.Attest(bank) end)
-A.Action("audit.order", function() return R() ~= nil and (R().Auditor(ns.me, "L") or R().IsKing(ns.me)), "auditor" end,
+A.Action("audit.order", function() return R() ~= nil and (R().Auditor(ns.me, "L") or R().IsShogun(ns.me)), "auditor" end,
 	function(...) return Wallet.Order(...) end)

@@ -505,7 +505,7 @@ test("1.2 craft requests: the guild rail needs the Arena's live gold (live switc
 	local t = K.Role(w, "treasurer")
 	local r = K.Request(w, a, ITEM, "Mooncloth", 1)
 	assert(b.Craft.Accept(r.id)); w:Run(0)
-	eq(a.Craft.GoldGate(), "live", "the King's live switch is off")
+	eq(a.Craft.GoldGate(), "live", "the Shogun's live switch is off")
 	local ok, why = b.Craft.ConfigureSettlement(r.id, "guild", "trade", t.name, 0)
 	eq(ok, false); eq(why, "live")
 	ok, why = b.Craft.ProposeTerms(r.id, "finished", 10000, 0, {}, { rail = "guild", payment = "trade", custodian = t.name })
@@ -568,7 +568,7 @@ test("1.2 craft requests (the guild fee): a direct sale's 6% is the seller's deb
 	local w = World.New()
 	local a, b = Cast(w)
 	local r, rb = Completed(w, a, b)
-	eq(a.Craft.GoldGate(), "live", "the King's live switch is off")
+	eq(a.Craft.GoldGate(), "live", "the Shogun's live switch is off")
 	eq(rb.state, "completed"); eq(rb.settlement.guildFee, 600)
 	eq(rb.settlement.feeState, "due", "owed all the same")
 	eq(rb.settlement.feeDue, rb.completedAt + b.Craft.FEE_DUE)
@@ -678,18 +678,18 @@ test("1.2 craft requests (the guild fee): the fee mail lands in the desk's book 
 	NoErrors(w)
 end)
 
-test("1.2 craft requests (the guild fee): the Treasurer's characters and the King read the debtors, ranked and in detail; the King's copy is the desk's answer, paced; nobody else, and never a preview of the Treasurer's or the King's view", function()
+test("1.2 craft requests (the guild fee): the Treasurer's characters and the Shogun read the debtors, ranked and in detail; the Shogun's copy is the desk's answer, paced; nobody else, and never a preview of the Treasurer's or the Shogun's view", function()
 	local w = World.New()
 	local a, b, c = Cast(w)
 	local desk = K.Role(w, "treasurerMail")
-	local king = K.Role(w, "king")
-	HearsDesk({ a, b, c, king }, desk)
+	local shogun = K.Role(w, "shogun")
+	HearsDesk({ a, b, c, shogun }, desk)
 	local r1 = Completed(w, a, b, 10000)
 	w:Run(61)
 	Completed(w, a, b, 20000)
 	-- b's two are late past a second deadline; c's sale, later, is not due yet.
 	K.Jump(w, 2 * b.Craft.FEE_DUE + 60)
-	HearsDesk({ a, b, c, king }, desk)
+	HearsDesk({ a, b, c, shogun }, desk)
 	w:Run(61)
 	Completed(w, a, c, 5000)
 	local d = desk.Craft.Debtors()
@@ -699,14 +699,14 @@ test("1.2 craft requests (the guild fee): the Treasurer's characters and the Kin
 	eq(d.ranking[2].name, c.name); eq(d.ranking[2].late, 0); eq(d.ranking[2].level, 0)
 	eq(#d.entries, 3)
 	assert(desk.Craft.DebtorsText():find(b.name, 1, true), "the copy names him")
-	-- The King asks: the desk answers a word at a time, and his copy is replaced at its end.
-	eq(king.Craft.Debtors().entries[1], nil, "nothing before the answer")
-	assert(king.Craft.AskDebtors())
+	-- The Shogun asks: the desk answers a word at a time, and his copy is replaced at its end.
+	eq(shogun.Craft.Debtors().entries[1], nil, "nothing before the answer")
+	assert(shogun.Craft.AskDebtors())
 	w:Run(30)
-	local kd = king.Craft.Debtors()
+	local kd = shogun.Craft.Debtors()
 	eq(#kd.entries, 3); eq(kd.ranking[1].name, b.name); eq(kd.ranking[1].owed, 1800)
 	-- Asking again at once is refused; the desk answers a reader once each DEBTS_ASK_GAP.
-	eq(king.Craft.AskDebtors(), false)
+	eq(shogun.Craft.AskDebtors(), false)
 	-- Nobody else: a member reads none, and the desk answers none of his asks.
 	eq(a.Craft.Debtors(), nil)
 	a.Comm.Whisper(desk.name, "CK~1~fees~7~debtors", nil, true, true)
@@ -714,19 +714,19 @@ test("1.2 craft requests (the guild fee): the Treasurer's characters and the Kin
 	local toA = 0
 	for _, m in ipairs(K.Words(w, "CK", desk, a)) do if m.msg:find("~debt", 1, true) then toA = toA + 1 end end
 	eq(toA, 0)
-	-- Debt words the King never asked for change nothing on his copy.
-	desk.Comm.Whisper(king.name, ("CK~1~zz9~%d~debt~%s~%s~7ps~go~0~1~s~0~1~Bankai Guild Ember"):format(w.clock + 99, c.name, a.name), nil, true, true)
+	-- Debt words the Shogun never asked for change nothing on his copy.
+	desk.Comm.Whisper(shogun.name, ("CK~1~zz9~%d~debt~%s~%s~7ps~go~0~1~s~0~1~Bankai Guild Ember"):format(w.clock + 99, c.name, a.name), nil, true, true)
 	w:Run(0)
-	eq(#king.Craft.Debtors().entries, 3)
-	-- A preview of the Treasurer's or the King's view reads nothing, and has no page for it.
+	eq(#shogun.Craft.Debtors().entries, 3)
+	-- A preview of the Treasurer's or the Shogun's view reads nothing, and has no page for it.
 	local v = K.Client(w, "Fern Lantern")
-	rawset(v.ns, "ViewAs", { Is = function(what) return what == "treasurer" or what == "king" end })
+	rawset(v.ns, "ViewAs", { Is = function(what) return what == "treasurer" or what == "shogun" end })
 	eq(v.Treasury.IsKeeper(), true, "(the preview shows a keeper's pages)")
 	eq(v.Craft.Debtors(), nil)
 	eq(NavHas(v.Craft.BoardLines(), "Guild fees"), nil)
 	assert(NavHas(desk.Craft.BoardLines(), "Guild fees"), "the desk's page has the tab")
-	assert(NavHas(king.Craft.BoardLines(), "Guild fees"), "and the King's")
-	for _, x in ipairs({ desk, king }) do
+	assert(NavHas(shogun.Craft.BoardLines(), "Guild fees"), "and the Shogun's")
+	for _, x in ipairs({ desk, shogun }) do
 		x.Craft.SetPage("fees")
 		local lines = x.Craft.BoardLines()
 		assert(Find(lines, "Debtors"), "the ranking")
@@ -741,7 +741,7 @@ test("1.2 craft requests (the guild fee): the Treasurer's characters and the Kin
 	for _, e in ipairs(desk.Craft.Debtors().entries) do if e.id == r1.id then key = e.key end end
 	eq(desk.Craft.SettleFee(key, "paid", ""), false, "a note first")
 	eq(desk.Craft.SettleFee(key, "paid", "traded at the bank"), true)
-	eq(king.Craft.SettleFee(key, "waived", "no"), false, "the desk's alone")
+	eq(shogun.Craft.SettleFee(key, "waived", "no"), false, "the desk's alone")
 	w:Run(30 * 60)
 	HearsDesk({ b }, desk)
 	w:Run(61)
@@ -749,7 +749,7 @@ test("1.2 craft requests (the guild fee): the Treasurer's characters and the Kin
 	NoErrors(w)
 end)
 
-test("1.2 craft requests (the guild fee): a reminder from the desk or the King warns the debtor; anyone else's is ignored; one a day per debtor", function()
+test("1.2 craft requests (the guild fee): a reminder from the desk or the Shogun warns the debtor; anyone else's is ignored; one a day per debtor", function()
 	local w = World.New()
 	local a, b = Cast(w)
 	local desk = K.Role(w, "treasurerMail")
@@ -766,8 +766,8 @@ test("1.2 craft requests (the guild fee): a reminder from the desk or the King w
 	NoErrors(w)
 end)
 
--- (The owner's answer, 2026-10-04: the debtors are the Treasurer's, the High Council's, the King's
--- and the author's to read, and nobody else's. Before it the desk answered the King alone.)
+-- (The owner's answer, 2026-10-04: the debtors are the Treasurer's, the High Council's, the Shogun's
+-- and the author's to read, and nobody else's. Before it the desk answered the Shogun alone.)
 test("1.2 craft requests (the guild fee): a High Councillor and the author read the debtors too, ranked and in detail, from the desk's answer; they remind nobody; a Steward or an arbiter reads none", function()
 	local w = World.New()
 	local a, b = Cast(w)
@@ -790,7 +790,7 @@ test("1.2 craft requests (the guild fee): a High Councillor and the author read 
 		local lines = x.Craft.BoardLines()
 		assert(Find(lines, "1. Wren Thistle"), x.short .. ": the ranking")
 		assert(Find(lines, "Every fee owed"), x.short .. ": and every fee")
-		eq(NavHas(lines, "Remind him"), nil, x.short .. ": the collection's reminders are the desk's and the King's")
+		eq(NavHas(lines, "Remind him"), nil, x.short .. ": the collection's reminders are the desk's and the Shogun's")
 		eq(x.Craft.RemindDebtor(d.entries[1].key), false, x.short .. " reminds nobody")
 		x.Craft.SetPage("board")
 	end
@@ -816,7 +816,7 @@ test("1.2 craft requests (the guild fee): a High Councillor and the author read 
 end)
 
 -- The review of the guild fee (a modified client's words, the keepers' own mail, a mail's days,
--- the ledger's room, a sale the buyer never confirmed, the King's copy, a fee paid by hand).
+-- the ledger's room, a sale the buyer never confirmed, the Shogun's copy, a fee paid by hand).
 local function Entry(desk, id)
 	for _, e in pairs(desk.Craft.FeeLedger().entries) do if e.id == id then return e end end
 end
@@ -829,8 +829,8 @@ test("1.2 craft requests (the guild fee): the buyer's word alone puts nobody on 
 	local w = World.New()
 	local a, b, c = Cast(w)
 	local desk = K.Role(w, "treasurerMail")
-	local king = K.Role(w, "king")
-	HearsDesk({ a, b, c, king }, desk)
+	local shogun = K.Role(w, "shogun")
+	HearsDesk({ a, b, c, shogun }, desk)
 	-- c names himself the buyer of a sale b never made (a modified client's made-up word).
 	FeeWordTo(w, c, desk, "fake01", "b", c.name, b.name, "8ow")
 	local e = assert(Entry(desk, "fake01"), "kept for the desk to check")
@@ -853,18 +853,18 @@ test("1.2 craft requests (the guild fee): the buyer's word alone puts nobody on 
 	assert(NavHas(lines, "Confirm"), "the desk's own click")
 	-- Three deadlines later still nobody on the ladder, and no Watch warning.
 	K.Jump(w, 4 * desk.Craft.FEE_DUE)
-	HearsDesk({ a, b, c, king }, desk)
+	HearsDesk({ a, b, c, shogun }, desk)
 	eq(#desk.Craft.Debtors().ranking, 0)
 	eq(desk.Craft.WarnDebtor(b.name), false, "no Watch warning")
 	eq(NavHas(desk.Craft.BoardLines(), "Warn (the Watch)"), nil)
 	eq(#warned, 0)
-	-- The King's copy keeps it apart too.
-	assert(king.Craft.AskDebtors()); w:Run(30)
-	local kd = king.Craft.Debtors()
+	-- The Shogun's copy keeps it apart too.
+	assert(shogun.Craft.AskDebtors()); w:Run(30)
+	local kd = shogun.Craft.Debtors()
 	eq(#kd.ranking, 0); eq(#kd.toCheck, 1)
 	-- The desk confirms it by hand, with a note: ranked from then, a fresh deadline.
 	eq(desk.Craft.SettleFee(e.key, "confirmed", ""), false, "a note first")
-	eq(king.Craft.SettleFee(e.key, "confirmed", "no"), false, "the desk's alone")
+	eq(shogun.Craft.SettleFee(e.key, "confirmed", "no"), false, "the desk's alone")
 	eq(desk.Craft.SettleFee(e.key, "confirmed", "the buyer's trade, checked with both"), true)
 	d = desk.Craft.Debtors()
 	eq(#d.ranking, 1); eq(d.ranking[1].name, b.name); eq(d.ranking[1].level, 0, "a fresh deadline from the confirmation")
@@ -904,18 +904,18 @@ test("1.2 craft requests (the guild fee): the higher of the two figures sets the
 	NoErrors(w)
 end)
 
-test("1.2 craft requests (the guild fee): the King's character's fee mail is booked on the desk (a transfer between keepers' books all the same); 31 days on he is clear", function()
+test("1.2 craft requests (the guild fee): the Shogun's character's fee mail is booked on the desk (a transfer between keepers' books all the same); 31 days on he is clear", function()
 	local w = World.New()
 	local a = K.Client(w, "Sage Owl", { money = 500000 })
-	local king = K.Role(w, "king", { money = 500000 })
-	K.Recipes(w, king, { [ITEM] = "Mooncloth" })
+	local shogun = K.Role(w, "shogun", { money = 500000 })
+	K.Recipes(w, shogun, { [ITEM] = "Mooncloth" })
 	local desk = K.Role(w, "treasurerMail", { money = 1000 })
 	w:Run(10)
-	HearsDesk({ a, king }, desk)
-	local r, rk = Completed(w, a, king)
+	HearsDesk({ a, shogun }, desk)
+	local r, rk = Completed(w, a, shogun)
 	eq(rk.settlement.feeState, "due")
 	local e = OneEntry(desk)
-	local i = w:Mail(king, desk, 600, "Bankai Guild craft fee " .. r.id)
+	local i = w:Mail(shogun, desk, 600, "Bankai Guild craft fee " .. r.id)
 	w:Take(desk, i)
 	eq(e.state, "paid", "booked against his fee")
 	local kinds = {}
@@ -923,7 +923,7 @@ test("1.2 craft requests (the guild fee): the King's character's fee mail is boo
 	assert(table.concat(kinds, " "):find("transfer:600", 1, true), table.concat(kinds, " "))
 	K.Jump(w, 31 * 86400)
 	w:Run(61)
-	eq(king.Craft.PrivilegeStatus(king.name).tier, "clear")
+	eq(shogun.Craft.PrivilegeStatus(shogun.name).tier, "clear")
 	eq(#desk.Craft.Debtors().ranking, 0)
 	NoErrors(w)
 end)
@@ -1023,19 +1023,19 @@ test("1.2 craft requests (the guild fee): a delivery the buyer never confirms st
 	NoErrors(w)
 end)
 
-test("1.2 craft requests (the guild fee): the King's copy says when it holds part of the desk's list, on the page and in its copy", function()
+test("1.2 craft requests (the guild fee): the Shogun's copy says when it holds part of the desk's list, on the page and in its copy", function()
 	local w = World.New()
 	local a, b = Cast(w)
 	local desk = K.Role(w, "treasurerMail")
-	local king = K.Role(w, "king")
-	HearsDesk({ a, b, king }, desk)
+	local shogun = K.Role(w, "shogun")
+	HearsDesk({ a, b, shogun }, desk)
 	w:As(desk, function() desk.ns.CraftRequests.DEBTS_ANSWER_MAX = 2 end)
 	for _ = 1, 3 do Completed(w, a, b) w:Run(61) end
-	HearsDesk({ a, b, king }, desk)
-	assert(king.Craft.AskDebtors()); w:Run(30)
-	king.Craft.SetPage("fees")
-	assert(Find(king.Craft.BoardLines(), "2 of the 3"), "a part of the list, said")
-	assert(king.Craft.DebtorsText():find("2 of the 3", 1, true), "and in its copy")
+	HearsDesk({ a, b, shogun }, desk)
+	assert(shogun.Craft.AskDebtors()); w:Run(30)
+	shogun.Craft.SetPage("fees")
+	assert(Find(shogun.Craft.BoardLines(), "2 of the 3"), "a part of the list, said")
+	assert(shogun.Craft.DebtorsText():find("2 of the 3", 1, true), "and in its copy")
 	desk.Craft.SetPage("fees")
 	eq(Find(desk.Craft.BoardLines(), "of the 3"), nil, "the desk's own page has them all")
 	NoErrors(w)
@@ -1045,23 +1045,23 @@ test("1.2 craft requests (the guild fee): an ask the desk will not answer yet is
 	local w = World.New()
 	local a, b = Cast(w)
 	local desk = K.Role(w, "treasurerMail")
-	local king = K.Role(w, "king")
-	HearsDesk({ a, b, king }, desk)
+	local shogun = K.Role(w, "shogun")
+	HearsDesk({ a, b, shogun }, desk)
 	Completed(w, a, b)
-	assert(king.Craft.AskDebtors()); w:Run(30)
-	king.Craft.SetPage("fees")
+	assert(shogun.Craft.AskDebtors()); w:Run(30)
+	shogun.Craft.SetPage("fees")
 	local lines
 	-- 70 seconds on: the desk answers him once each 5 minutes, so the ask waits.
 	w:Run(70)
-	local ok, why = king.Craft.AskDebtors(true)
+	local ok, why = shogun.Craft.AskDebtors(true)
 	eq(ok, false); eq(why, "fresh")
-	eq(Find(king.Craft.BoardLines(), "Asking the Treasurer"), nil)
+	eq(Find(shogun.Craft.BoardLines(), "Asking the Treasurer"), nil)
 	-- His client forgot (a reload): the desk's refusal comes back, and the page says when to ask.
-	K.Relog(w, king)
-	HearsDesk({ king }, desk)
-	assert(king.Craft.AskDebtors(true)); w:Run(5)
-	king.Craft.SetPage("fees")
-	lines = king.Craft.BoardLines()
+	K.Relog(w, shogun)
+	HearsDesk({ shogun }, desk)
+	assert(shogun.Craft.AskDebtors(true)); w:Run(5)
+	shogun.Craft.SetPage("fees")
+	lines = shogun.Craft.BoardLines()
 	eq(Find(lines, "Asking the Treasurer"), nil, "not left waiting")
 	assert(Find(lines, "answers again"), "when to ask again")
 	NoErrors(w)
@@ -1390,7 +1390,7 @@ test("1.2 craft requests: the claim won opens the deal's own tab on both parties
 	NoErrors(w)
 end)
 
--- (1.2.3, the King's stream: "the Bankai Guild window opened by itself", a minute or two after his login.
+-- (1.2.3, the Shogun's stream: "the Bankai Guild window opened by itself", a minute or two after his login.
 -- A request of his from the last three days, published again after the login, claimed by another
 -- member: his client showed the closed window on the deal's room, with no click or key of his.)
 test("1.2.3 craft requests: another member's claim never opens the requester's closed Bankai Guild window, after an instance or a fight too: his line and the deal's tab tell him, its page opens it; the crafter who claimed still gets the room", function()

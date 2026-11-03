@@ -1,9 +1,9 @@
 local ADDON, ns = ...
 
--- Private, request-bound discovery for the King's layer. Seeing the King's exact nameplate
+-- Private, request-bound discovery for the Shogun's layer. Seeing the Shogun's exact nameplate
 -- records a fact on this client; it sends nothing by itself. Its remote evidence is short-lived,
 -- while its local no/auto policy marker lasts only under the same crown lease and layer. When another player
--- explicitly asks for the King's unknown layer, eligible observers answer that asker alone.
+-- explicitly asks for the Shogun's unknown layer, eligible observers answer that asker alone.
 -- The asker waits for at least two independent, verified senders to agree before handing the
 -- destination to Hop's existing LQ/LO/LR state machine.
 --
@@ -32,7 +32,7 @@ Sightings.SEEN_MAX = 96
 Sightings.MAX_QUEUED = 8
 
 local active = {}              -- nameplate unit -> generation handed by NAME_PLATE_UNIT_ADDED
-local candidates = {}          -- exact King UNITs still present; retried as layer proof matures
+local candidates = {}          -- exact Shogun UNITs still present; retried as layer proof matures
 local generations = 0
 local localSighting             -- this client's direct, private observation
 local crownKey, crownEpoch = nil, 0
@@ -68,7 +68,7 @@ local function Integer(n, low, high)
 end
 local function LeaseKey(from, id)
 	id = Integer(id, 1, 99999)
-	if not id or Secret(from) or type(from) ~= "string" or not ns.IsKingCharacter(from) then return nil end
+	if not id or Secret(from) or type(from) ~= "string" or not ns.IsShogunCharacter(from) then return nil end
 	return from:lower() .. ":" .. id
 end
 local function Same(a, b)
@@ -159,7 +159,7 @@ local function Admit(sender, guild, now)
 	local known = admitBuckets[sender] ~= nil
 	if not known and admitBucketCount >= Sightings.SEEN_MAX then return false end
 	local accepted = C.Admit(sender, guild, "", now, {
-		level = 1, buckets = admitBuckets, stats = admitStats, where = "King sighting",
+		level = 1, buckets = admitBuckets, stats = admitStats, where = "Shogun sighting",
 	})
 	if accepted ~= true then
 		-- Channels.Admit creates its bucket before authority verification.
@@ -172,7 +172,7 @@ end
 
 local function SenderAuthority(sender)
 	sender = ns.FullName(sender)
-	if type(sender) ~= "string" or sender == "" or ns.IsKingCharacter(sender) or Ignored(sender) then return nil end
+	if type(sender) ~= "string" or sender == "" or ns.IsShogunCharacter(sender) or Ignored(sender) then return nil end
 	local guild = SenderGuild(sender)
 	if not guild then return nil end
 	if ns.Moderation and ns.Moderation.Hides and ns.Moderation.Hides(sender, guild) then return nil end
@@ -192,10 +192,10 @@ local function VerifiedSender(sender, now)
 end
 
 local function RawCrown()
-	local K = ns.King
+	local K = ns.Shogun
 	local at = type(K) == "table" and type(K.Location) == "function" and K.Location() or nil
 	if type(at) ~= "table" or not Integer(at.id, 1, 99999) or not Integer(at.mapID, 1, 9999999)
-		or Secret(at.from) or type(at.from) ~= "string" or not ns.IsKingCharacter(at.from) then return nil end
+		or Secret(at.from) or type(at.from) ~= "string" or not ns.IsShogunCharacter(at.from) then return nil end
 	local leaseKey = LeaseKey(at.from, at.id)
 	if not leaseKey or revokedLeases[leaseKey] then return nil end
 	return at, leaseKey .. ":" .. at.mapID
@@ -230,11 +230,11 @@ local function StrongLayer()
 	return mine
 end
 
--- The King's own L1 announcement is stronger than discovery. If it appears while Q/R is in
--- flight, it takes over immediately; two observers can never outvote or race the King's word.
+-- The Shogun's own L1 announcement is stronger than discovery. If it appears while Q/R is in
+-- flight, it takes over immediately; two observers can never outvote or race the Shogun's word.
 local function OfficialLayer(r)
 	local L = ns.Layers
-	local where = type(L) == "table" and type(L.Of) == "function" and L.Of(r.king, true) or nil
+	local where = type(L) == "table" and type(L.Of) == "function" and L.Of(r.shogun, true) or nil
 	if type(where) ~= "table" or not Integer(where.mapID, 1, 9999999)
 		or not Integer(where.zoneUID, 1, 2147483647) then return nil end
 	return where
@@ -253,7 +253,7 @@ local function HelperEligible(mapID, zoneUID)
 	if Quiet() then return false, "quiet" end
 	local eligible, why = ObservationEligible(mapID, zoneUID)
 	if not eligible then return false, why end
-	if not (ns.Hop and ns.Hop.CanHelpKing and ns.Hop.CanHelpKing(mapID, zoneUID)) then return false, "helper" end
+	if not (ns.Hop and ns.Hop.CanHelpShogun and ns.Hop.CanHelpShogun(mapID, zoneUID)) then return false, "helper" end
 	return true
 end
 
@@ -264,7 +264,7 @@ local function QueryEligible(r)
 	if IsInGroup and IsInGroup() then return false, "group" end
 	if not (ns.Layers and ns.Layers.CurrentMap and ns.Layers.CurrentMap() == r.mapID) then return false, "map" end
 	local at, key = RawCrown()
-	if not at or key ~= r.crownKey or at.id ~= r.lease or at.mapID ~= r.mapID or not Same(at.from, r.king) then return false, "lease" end
+	if not at or key ~= r.crownKey or at.id ~= r.lease or at.mapID ~= r.mapID or not Same(at.from, r.shogun) then return false, "lease" end
 	if not (ns.Comm and ns.Comm.ChannelReady and ns.Comm.ChannelReady()) then return false, "channel" end
 	if not ns.Comm.ChannelName or ns.Comm.ChannelName() ~= r.channel then return false, "moved" end
 	if Now() - r.queuedAt > Sightings.QUEUE_TTL then return false, "stale" end
@@ -378,7 +378,7 @@ local function ExactUnit(unit)
 	local ok, name = pcall(ns.UnitFullName, unit)
 	local at, key = RawCrown()
 	if not ok or Secret(name) or type(name) ~= "string" or not at or not Same(name, at.from)
-		or not ns.IsKingCharacter(name) then return nil end
+		or not ns.IsShogunCharacter(name) then return nil end
 	candidates[unit] = generation
 	return at, key
 end
@@ -392,7 +392,7 @@ function Sightings.Observe(unit)
 	if not mine then return Drop("evidence") end
 	local eligible, why = ObservationEligible(mine.mapID, mine.zoneUID)
 	if not eligible then return Drop(why) end
-	localSighting = { king = at.from, lease = at.id, mapID = mine.mapID, zoneUID = mine.zoneUID,
+	localSighting = { shogun = at.from, lease = at.id, mapID = mine.mapID, zoneUID = mine.zoneUID,
 		at = Now(), crownKey = key, epoch = crownEpoch }
 	stats.observed = stats.observed + 1
 	Fire()
@@ -406,7 +406,7 @@ function Sightings.NameplateAdded(unit)
 	active[unit] = generation
 	local ok = Sightings.Observe(unit)
 	if not ok and ns.After then
-		ns.After(0, "King nameplate sighting", function()
+		ns.After(0, "Shogun nameplate sighting", function()
 			if active[unit] == generation then Sightings.Observe(unit) end
 		end)
 	end
@@ -431,7 +431,7 @@ local function AnswerEligible(job)
 	if sighting ~= job.sighting or Now() - sighting.at > Sightings.TTL then return false, "stale" end
 	local at, key = RawCrown()
 	if not at or key ~= sighting.crownKey or sighting.epoch ~= crownEpoch or at.id ~= job.lease
-		or at.mapID ~= job.mapID or not Same(at.from, sighting.king) then return false, "lease" end
+		or at.mapID ~= job.mapID or not Same(at.from, sighting.shogun) then return false, "lease" end
 	local target, guild = SenderAuthority(job.target)
 	if not target or not Same(target, job.target) or not Same(guild, job.requesterGuild) then return false, "requester" end
 	return HelperEligible(job.mapID, job.zoneUID)
@@ -570,7 +570,7 @@ local function ReceiveAnswer(sender, text)
 	if not r or r.phase ~= "waiting" or id ~= r.id or lease ~= r.lease or mapID ~= r.mapID then return Drop("request") end
 	local now = Now()
 	if now - r.t >= Sightings.REQUEST_TTL then
-		FailRequest(ns.L.HOP_SIGHTING_NONE:format(ns.KingName()))
+		FailRequest(ns.L.HOP_SIGHTING_NONE:format(ns.ShogunName()))
 		return Drop("stale")
 	end
 	PruneAdmission(now)
@@ -615,12 +615,12 @@ function Sightings.Receive(dist, sender, text)
 	return Drop("shape")
 end
 
-function Sightings.Request(king, label)
-	if type(king) ~= "table" then return Drop("king") end
+function Sightings.Request(shogun, label)
+	if type(shogun) ~= "table" then return Drop("shogun") end
 	local at, key, changed = SyncCrown()
 	if changed then ClearLocal("lease") end
-	if not at or (king.character and not Same(at.from, king.character)) then return Drop("lease") end
-	if king.mapID and king.mapID ~= at.mapID then return Drop("lease") end
+	if not at or (shogun.character and not Same(at.from, shogun.character)) then return Drop("lease") end
+	if shogun.mapID and shogun.mapID ~= at.mapID then return Drop("lease") end
 	if not ns.IsMember or ns.IsMember() ~= true then return ns.Print(ns.MembersOnlyText and ns.MembersOnlyText() or ns.L.MEMBERS_ONLY) end
 	local off = SelfOff()
 	if off then return ns.Print(ns.Moderation.YouText(off)) end
@@ -628,7 +628,7 @@ function Sightings.Request(king, label)
 	if (InCombatLockdown and InCombatLockdown()) then return ns.Print(ns.L.HOP_COMBAT) end
 	if IsInGroup and IsInGroup() then return ns.Print(ns.L.HOP_IN_GROUP) end
 	if not ns.Layers or not ns.Layers.CurrentMap or ns.Layers.CurrentMap() ~= at.mapID then
-		return ns.Print(ns.L.HOP_KING_ELSEWHERE:format(king.label or ns.KingName(), ns.Hop.ZoneName(at.mapID)))
+		return ns.Print(ns.L.HOP_SHOGUN_ELSEWHERE:format(shogun.label or ns.ShogunName(), ns.Hop.ZoneName(at.mapID)))
 	end
 	if request then return ns.Print(ns.L.HOP_BUSY) end
 	local now = Now()
@@ -641,8 +641,8 @@ function Sightings.Request(king, label)
 	local channel = comm.ChannelName and comm.ChannelName()
 	if type(channel) ~= "string" or channel == "" then return ns.Print(ns.L.CHAN_NOT_READY) end
 	sequence = sequence % 99999 + 1
-	local r = { id = sequence, lease = at.id, mapID = at.mapID, king = at.from, crownKey = key,
-		label = label or ns.L.LAYER_OF:format(king.label or ns.KingName()), channel = channel,
+	local r = { id = sequence, lease = at.id, mapID = at.mapID, shogun = at.from, crownKey = key,
+		label = label or ns.L.LAYER_OF:format(shogun.label or ns.ShogunName()), channel = channel,
 		guild = GetGuildInfo("player"), phase = "sending", queuedAt = now, responses = {} }
 	local guardKey = table.concat({ "Q", r.id, r.lease, r.mapID }, ":")
 	local msg = ("LY~Q~%d~%d~%d~%d"):format(Sightings.VERSION, r.id, r.lease, r.mapID)
@@ -659,7 +659,7 @@ function Sightings.Request(king, label)
 		r.job, r.phase, r.t, lastRequestAt = nil, "waiting", Now(), Now()
 		if ns.Hop and ns.Hop.DiscoverySent then ns.Hop.DiscoverySent() end
 		stats.queries = stats.queries + 1
-		ns.Print(ns.L.HOP_SIGHTING_ASKING:format(king.label or ns.KingName()))
+		ns.Print(ns.L.HOP_SIGHTING_ASKING:format(shogun.label or ns.ShogunName()))
 		Fire()
 	end, {
 		owner = Sightings, key = guardKey,
@@ -685,17 +685,17 @@ function Sightings.Progress()
 	return r.phase, 0
 end
 
--- This is only a local predicate for the existing King-layer no/auto/manual choice. It never
--- supplies Hop.King or a remote destination. Unlike an R, it may outlive the short evidence TTL,
+-- This is only a local predicate for the existing Shogun-layer no/auto/manual choice. It never
+-- supplies Hop.Shogun or a remote destination. Unlike an R, it may outlive the short evidence TTL,
 -- but only for a bounded causal window and while the crown lease/local layer remain unchanged.
-function Sightings.LocalKingLayer(mapID, zoneUID)
+function Sightings.LocalShogunLayer(mapID, zoneUID)
 	local sighting = localSighting
 	if not sighting or Now() - sighting.at > Sightings.POLICY_TTL
 		or sighting.mapID ~= mapID or sighting.zoneUID ~= zoneUID then return false end
 	local at, key = RawCrown()
 	if not at or key ~= sighting.crownKey or crownEpoch ~= sighting.epoch
 		or at.id ~= sighting.lease or at.mapID ~= sighting.mapID
-		or not Same(at.from, sighting.king) then return false end
+		or not Same(at.from, sighting.shogun) then return false end
 	local L = ns.Layers
 	local mine = type(L) == "table" and type(L.Mine) == "function" and L.Mine() or nil
 	return type(mine) == "table" and mine.mapID == mapID and mine.zoneUID == zoneUID
@@ -754,12 +754,12 @@ function Sightings.Tick()
 	local at, key, changed = SyncCrown()
 	if changed then
 		ClearLocal("lease")
-		if request and request.crownKey ~= key then CancelRequest(ns.L.HOP_KING_HIDDEN:format(ns.KingName())) end
+		if request and request.crownKey ~= key then CancelRequest(ns.L.HOP_SHOGUN_HIDDEN:format(ns.ShogunName())) end
 	end
 	if localSighting then
 		local lease = at and key == localSighting.crownKey and crownEpoch == localSighting.epoch
 			and at.id == localSighting.lease and at.mapID == localSighting.mapID
-			and Same(at.from, localSighting.king)
+			and Same(at.from, localSighting.shogun)
 		local L, mine = ns.Layers, ns.Layers and ns.Layers.Mine and ns.Layers.Mine()
 		local here = type(mine) == "table" and mine.mapID == localSighting.mapID
 			and mine.zoneUID == localSighting.zoneUID and L.CurrentMap and L.CurrentMap() == mine.mapID
@@ -811,13 +811,13 @@ function Sightings.Tick()
 			request = nil
 			stats.consensus = stats.consensus + 1
 			Fire()
-			ns.Print(ns.L.HOP_SIGHTING_FOUND:format(ns.KingName()))
+			ns.Print(ns.L.HOP_SIGHTING_FOUND:format(ns.ShogunName()))
 			local ask = ns.Hop.AskDiscovered or ns.Hop.Ask
 			return ask(r.mapID, zoneUID, r.label)
 		elseif why == "ambiguous" then
-			return FailRequest(ns.L.HOP_SIGHTING_AMBIGUOUS:format(ns.KingName()))
+			return FailRequest(ns.L.HOP_SIGHTING_AMBIGUOUS:format(ns.ShogunName()))
 		elseif now - r.t >= Sightings.REQUEST_TTL then
-			return FailRequest(ns.L.HOP_SIGHTING_NONE:format(ns.KingName()))
+			return FailRequest(ns.L.HOP_SIGHTING_NONE:format(ns.ShogunName()))
 		end
 	end
 end
@@ -850,7 +850,7 @@ ns.On("CONSENT_CHANGED", function(key) if key == "layerhelp" or key == "location
 ns.On("NETOFF_CHANGED", function() Sightings.Tick() end)
 ns.On("HOP_HELP_CHANGED", function() Sightings.Tick() end)
 ns.On("LAYER_SHARING_CHANGED", function() Sightings.Tick() end)
-ns.On("KING_LOCATION_CHANGED", function(action, from, id)
+ns.On("SHOGUN_LOCATION_CHANGED", function(action, from, id)
 	-- Expiry/network absence is temporary and the same authenticated lease may return. An
 	-- explicit T1~Q hide is different: never resurrect that consent period if a delayed P or a
 	-- pre-lease client reuses its id.
@@ -864,4 +864,4 @@ ns.On("LAYERS_CHANGED", function()
 	for unit in pairs(active) do Sightings.Observe(unit) end
 	Sightings.Tick()
 end)
-ns.On("LOGIN", function() ns.Every(1, "King nameplate sighting", Sightings.Tick) end)
+ns.On("LOGIN", function() ns.Every(1, "Shogun nameplate sighting", Sightings.Tick) end)

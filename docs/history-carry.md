@@ -17,7 +17,7 @@ punishment or payment action is performed.
    Ordinary collection excludes private Loot and moderator records.
 2. While still in the original guild, with a current complete roster, run
    `/bk carry prepare <destination guild master-Realm>` and confirm the question.
-   The destination guild master must have a current signed role or pinned King identity
+   The destination guild master must have a current signed role or pinned Shogun identity
    accepted by `Data.AuthorizedRank`; an ordinary census claim is insufficient. If this
    authority is unavailable, preparing is refused. Nothing is sent at preparation.
 3. Arrange the guild move with the officers and accept the game's manual invitation.
@@ -49,7 +49,7 @@ There is no automatic transfer between characters, even a confirmed alt.
   preserves the original server timestamp and the row also keeps its observation time.
   An unknown source guild stays unknown.
 - A currently cached pardon observation, if present: its first observed local time only.
-  That cache cannot establish the King's original deadline. No end date is calculated
+  That cache cannot establish the Shogun's original deadline. No end date is calculated
   and no pardon is applied in the destination.
 - If `Dues.PayerReceiptFacts(week)` is present, the current character's retained private
   pinned-Treasurer receipt facts for up to the retained five weeks. Issuer, source,
@@ -81,11 +81,11 @@ rechecked after cryptographic work and before sending.
 ## Named guild merger: a separate frozen archive
 
 Before the source guild folds, its actual current native GM opens `/bk carry merger prepare
-<exact heir guild master-Realm>`. The actual King, the source GM and that exact current heir
+<exact heir guild master-Realm>`. The actual Shogun, the source GM and that exact current heir
 GM each review and sign the same frozen record index (OLYCM1), source/destination guilds and
 private reader. This requires current signed role material and firsthand native character/key
-binding. A census claim or a key forwarded in a packet cannot establish authority. The King
-must be the pinned actual King of the connected realm group, not someone whose title looks
+binding. A census claim or a key forwarded in a packet cannot establish authority. The Shogun
+must be the pinned actual Shogun of the connected realm group, not someone whose title looks
 similar. `/bk carry` displays the mandate, three approvals and per-character progress.
 
 Each subject separately consents to that exact source/destination archive. The subject receives
@@ -138,7 +138,7 @@ Still needed in the real Forever client, with two players and retained source re
    A stale source roster, a demoted destination master or an unknown alt must not send.
 3. Offer and cancel the master's question: no records should arrive. Offer again and
    explicitly accept; only the exact current destination master should see unverified
-   quotes. Other members, Lords of another guild and replacement masters see none.
+   quotes. Other members, Council of another guild and replacement masters see none.
 4. Compare original Court/receipt declarations and their timestamps against source records;
    an unknown original key stays unverified until directly confirmed. For private Loot, the
    member initiates consent but receives no notes; source and destination masters separately

@@ -1,5 +1,5 @@
 -- Current human policy: accepted appointments survive offline/reload; current roster/root proof
--- still controls duties. Legates are manual, including the King's guild, 25 plus six correspondents.
+-- still controls duties. Legates are manual, including the Shogun's guild, 25 plus six correspondents.
 local ns, test, eq = ...
 local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]nominees%-durable%.lua$") or "./"
 local function World(fn)
@@ -14,11 +14,11 @@ local function World(fn)
 		c.ShortName = function(name) return name and name:match("^[^-]+") end
 		c.RealmOf = function(name) return name and name:match("%-([^%-]+)$") end
 		c.IsMember = function() return c.IsFederation(w.guild) end
-		c.IsKingGuild, c.KingGuildName = function(g) return g == "Bankai Guild" end, function() return "Bankai Guild" end
-		c.KingCharacter = function() return "Pinned King-Realm" end
-		c.IsKingCharacter = function(name) return c.FullName(name) == c.KingCharacter() end
+		c.IsShogunGuild, c.ShogunGuildName = function(g) return g == "Bankai Guild" end, function() return "Bankai Guild" end
+		c.ShogunCharacter = function() return "Pinned Shogun-Realm" end
+		c.IsShogunCharacter = function(name) return c.FullName(name) == c.ShogunCharacter() end
 		c.IsHighCouncillor = function(name) return w.council and c.FullName(name) == "Councilor-Realm" or false end
-		c.King = { IsKing = function() return c.IsKingCharacter(c.me) and w.guild == "Bankai Guild" and w.rank == 0 end, Preview = function() return false end }
+		c.Shogun = { IsShogun = function() return c.IsShogunCharacter(c.me) and w.guild == "Bankai Guild" and w.rank == 0 end, Preview = function() return false end }
 		c.Workshop, c.ViewAs = { Visible = function() return false end }, { Is = function() return false end, Previewing = function() return false end }
 		c.Print = function(line) w.prints[#w.prints + 1] = line end
 		c.Log, c.Fire, c.On, c.After = function() end, function() end, function() end, function() end
@@ -128,11 +128,11 @@ test("nominees retention: main c wire is explicit manual data, never an automati
 		eq(c.Nominees.RoleOf("Councilor", w.guild), nil, "a council seat is not an appointment")
 		w.take(w.guild, "Peer-Realm", w.now, "c=Peer")
 		eq(c.Nominees.RoleOf("Peer", w.guild), nil, "no ordinary-guild authority over main appointments")
-		w.take(w.guild, "Pinned King-Realm", w.now, "c=Peer")
+		w.take(w.guild, "Pinned Shogun-Realm", w.now, "c=Peer")
 		eq(c.Nominees.RoleOf("Peer", w.guild), "centurion", "authenticated manual compatibility wire")
-		w.take(w.guild, "Pinned King-Realm", w.now + 1, "")
+		w.take(w.guild, "Pinned Shogun-Realm", w.now + 1, "")
 		w.now = w.now + 366 * 86400; c.Roster.snapshotAt = w.now; w.reload()
-		w.take(w.guild, "Pinned King-Realm", w.now - 366 * 86400, "c=Peer")
+		w.take(w.guild, "Pinned Shogun-Realm", w.now - 366 * 86400, "c=Peer")
 		eq(c.Nominees.RoleOf("Peer", w.guild), nil, "retained empty tombstone rejects the old main revision")
 		w.take(w.guild, "Councilor-Realm", w.now, "c=Peer")
 		eq(c.Nominees.RoleOf("Peer", w.guild), "centurion", "a real council root may appoint manually")
@@ -152,7 +152,7 @@ test("nominees retention: actual presentation preview predicates cannot print, s
 		c.ViewAs.Available, c.ViewAs.Role = function() return true end, function() return "gm" end
 		eq(c.Nominees.AppointmentNotice(l), false); eq(c.db.legateNotices, nil)
 		c.ViewAs.Available = function() return false end
-		c.King.Preview = function() return true end
+		c.Shogun.Preview = function() return true end
 		eq(c.Nominees.AppointmentNotice(l), false); eq(c.db.legateNotices, nil)
 		eq(#w.prints, printed, "a preview cannot falsely tell the player he was appointed")
 	end)

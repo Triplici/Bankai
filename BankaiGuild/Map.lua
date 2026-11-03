@@ -264,8 +264,8 @@ function AddContinentTotals(s)
 end
 
 ---------------------------------------------------------------------------
--- Round icons beside the circles (1.0.0): the decrees and the King's crown on the world map.
--- Each is an anchor the pin library puts where the decree was called or the King stands, and a
+-- Round icons beside the circles (1.0.0): the decrees and the Shogun's crown on the world map.
+-- Each is an anchor the pin library puts where the decree was called or the Shogun stands, and a
 -- badge drawn from it: on that very spot, or, when that spot is under a zone's circle, just
 -- outside the circle's edge (top right first, then the other corners and sides), so its number
 -- stays readable. Several around one circle each take a place of their own. Laid out again while

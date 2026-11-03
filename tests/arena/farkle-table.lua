@@ -507,20 +507,20 @@ local function Calls(calls, fn, by)
 	return out
 end
 
--- The arena live on the King's realm, the rules accepted, saved data proven kept (a logout and a
+-- The arena live on the Shogun's realm, the rules accepted, saved data proven kept (a logout and a
 -- login), the players (and the arbiter) grouped at the Goldshire inn, the money package faked.
 local function Live(o)
 	o = o or {}
 	local w = FW.New()
 	-- (no screens in the table's tests: the board's own, tests/arena/farkle-board.lua, have them)
-	local king = w:Role("king", { companion = { state = "missing" } })
+	local shogun = w:Role("shogun", { companion = { state = "missing" } })
 	local a, b = w:Player(P1), w:Player(P2)
-	local arb = o.arbiter and (o.arbiter == "king" and king or w:Player(ARB)) or nil
-	if arb == king then FW.Extend(w, king) end
+	local arb = o.arbiter and (o.arbiter == "shogun" and shogun or w:Player(ARB)) or nil
+	if arb == shogun then FW.Extend(w, shogun) end
 	local list = { a, b }
-	if arb and arb ~= king then list[#list + 1] = arb end
+	if arb and arb ~= shogun then list[#list + 1] = arb end
 	for _, c in ipairs(list) do w:Logout(c); w:Login(c) end
-	assert(king.Roles.SetSettings({ live = 1 }))
+	assert(shogun.Roles.SetSettings({ live = 1 }))
 	w:Run(0)
 	local calls = {}
 	for _, c in ipairs({ a, b, arb }) do
@@ -529,20 +529,20 @@ local function Live(o)
 	end
 	w:Group({ a, b, arb })
 	w:AtInn(a.name, b.name, arb and arb.name or nil)
-	return w, a, b, arb, king, calls
+	return w, a, b, arb, shogun, calls
 end
 
-test("1.2 the Bone Throw tables: the stake sources: direct o/o, an arbiter's t/t or w/w, the King w/w; nothing mixed is offered or taken", function()
-	local w, a, b, arb, king = Live({ arbiter = true })
+test("1.2 the Bone Throw tables: the stake sources: direct o/o, an arbiter's t/t or w/w, the Shogun w/w; nothing mixed is offered or taken", function()
+	local w, a, b, arb, shogun = Live({ arbiter = true })
 	local S = 10000
 	local function Can(o) return w:As(a, a.ns.FarkleTable.CanCreate, o) end
 	eq(select(2, Can({ guest = b.name, stake = S, mode = "d", src = "t" })), "source")
 	eq(select(2, Can({ guest = b.name, stake = S, mode = "d", src = "w" })), "source")
 	eq(select(2, Can({ guest = b.name, stake = S, mode = "a", arbiter = arb.name, src = "o" })), "source")
-	eq(select(2, Can({ guest = b.name, stake = S, mode = "a", arbiter = king.name, src = "t" })), "king")
+	eq(select(2, Can({ guest = b.name, stake = S, mode = "a", arbiter = shogun.name, src = "t" })), "shogun")
 	eq(Can({ guest = b.name, stake = S, mode = "d", src = "o", target = 5000 }), true)
 	eq(Can({ guest = b.name, stake = S, mode = "a", arbiter = arb.name, src = "t", target = 5000 }), true)
-	eq(Can({ guest = b.name, stake = S, mode = "a", arbiter = king.name, src = "w", target = 5000 }), true)
+	eq(Can({ guest = b.name, stake = S, mode = "a", arbiter = shogun.name, src = "w", target = 5000 }), true)
 	-- the guest answers with the host's own source in arbiter mode, or refuses
 	local id = FT(w, a).Create({ guest = b.name, stake = S, mode = "a", arbiter = arb.name, src = "w", target = 5000 })
 	w:Run(0)
@@ -561,7 +561,7 @@ test("1.2 the Bone Throw tables: the stake sources: direct o/o, an arbiter's t/t
 end)
 
 test("1.2 the Bone Throw tables: a direct game for gold: the loser's own record makes his obligation (Stakes.Direct), the winner's fee is 6% of the money won; the creditor's KD r clears it, the debtor's KD p alone never does", function()
-	local w, a, b, arb, king, calls = Live()
+	local w, a, b, arb, shogun, calls = Live()
 	local S = 12300
 	local id, why = FT(w, a).Create({ guest = b.name, stake = S, mode = "d", src = "o", target = 2000 })
 	assert(id, why)
@@ -601,7 +601,7 @@ test("1.2 the Bone Throw tables: a direct game for gold: the loser's own record 
 end)
 
 test("1.2 the Bone Throw tables: a rehearsal with a stake: the same table, but no obligation, no fill line and nothing that counts", function()
-	local w, a, b, arb, king, calls = Live()
+	local w, a, b, arb, shogun, calls = Live()
 	local id = FT(w, a).Create({ guest = b.name, stake = 10000, mode = "d", src = "o", target = 2000, rehearsal = true })
 	w:Run(0)
 	eq(Get(b, id).mode, "T")
@@ -622,7 +622,7 @@ end)
 -- A staked table with an arbiter, from the invitation to play (the opening rolled).
 local function Held(o)
 	local S = o.stake or 10000
-	local w, a, b, arb, king, calls = Live({ arbiter = o.king and "king" or true, money = o.money })
+	local w, a, b, arb, shogun, calls = Live({ arbiter = o.shogun and "shogun" or true, money = o.money })
 	local id, why = FT(w, a).Create({ guest = b.name, stake = S, mode = "a", arbiter = arb.name, src = o.src, target = 2000 })
 	assert(id, why)
 	w:Run(0)
@@ -669,14 +669,14 @@ test("1.2 the Bone Throw tables: held stakes never settle on the arbiter's KE al
 	NoErrors(w)
 end)
 
-test("1.2 the Bone Throw tables: wallet stakes (w/w, the King as arbiter): the arbiter opens the table's FK market, each player backs his seat; the bank hears every KE and settles only on an agreeing player's", function()
+test("1.2 the Bone Throw tables: wallet stakes (w/w, the Shogun as arbiter): the arbiter opens the table's FK market, each player backs his seat; the bank hears every KE and settles only on an agreeing player's", function()
 	local S = 20000
 	local pools = { 0, 0 }
 	local bankName = N.bank
 	-- (the FK sheet as Markets.View shows it: its bank, its opener (the arbiter), its parties)
-	local view = function(id) return { bank = bankName, opener = N.king, parties = { P1, P2 },
+	local view = function(id) return { bank = bankName, opener = N.shogun, parties = { P1, P2 },
 		markets = { { idx = 1, outcomes = { { o = "1", pool = pools[1] }, { o = "2", pool = pools[2] } } } } } end
-	local w, a, b, arb, id, calls = Held({ src = "w", stake = S, king = true, money = { view = view } })
+	local w, a, b, arb, id, calls = Held({ src = "w", stake = S, shogun = true, money = { view = view } })
 	local open = Calls(calls, "Markets.Open", arb.name)
 	eq(#open, 1); eq(open[1].args[1], id); eq(open[1].args[2].kind, "FK")
 	local bets = Calls(calls, "Markets.Bet")
@@ -688,7 +688,7 @@ test("1.2 the Bone Throw tables: wallet stakes (w/w, the King as arbiter): the a
 	eq(Get(a, id).state, "play"); eq(Get(arb, id).state, "play")
 	-- the bank: a client told of the market (Markets.Has), hearing the KEs
 	local bank = w:Player(bankName)
-	-- (A late login takes L once it has heard the live switch: the King's repeat.)
+	-- (A late login takes L once it has heard the live switch: the Shogun's repeat.)
 	w:As(arb, arb.ns.ArenaRoles.Repeat)
 	w:Run(2)
 	FakeMoney(bank, calls, { has = true, view = view })
@@ -709,9 +709,9 @@ end)
 -- bank. It voids the market now, code X (a void game), and declares nothing.
 test("1.2 the Bone Throw tables: a void game at a wallet table voids its FK market (code X): both stakes come back, nothing is declared", function()
 	local S = 20000
-	local view = function() return { bank = N.bank, opener = N.king, parties = { P1, P2 },
+	local view = function() return { bank = N.bank, opener = N.shogun, parties = { P1, P2 },
 		markets = { { idx = 1, outcomes = { { o = "1", pool = S }, { o = "2", pool = S } } } } } end
-	local w, a, b, arb, id, calls = Held({ src = "w", stake = S, king = true, money = { view = view } })
+	local w, a, b, arb, id, calls = Held({ src = "w", stake = S, shogun = true, money = { view = view } })
 	w:Run(2)
 	eq(Get(arb, id).state, "play")
 	eq(w:As(arb, function() return arb.ns.Arena.Do("farkle.void", id) end), true)
@@ -730,10 +730,10 @@ print("FarkleTable: the crowd's bets at a public arbiter's table")
 -- arbiter of the test world), from the invitation to the opening rolled.
 local function Crowd(o)
 	o = o or {}
-	local w, a, b, arb, king, calls = Live({ arbiter = true, money = o.money })
+	local w, a, b, arb, shogun, calls = Live({ arbiter = true, money = o.money })
 	local crowdA = w:Player(N.bettor1)
-	-- (A late login takes L once it has heard the live switch: the King's repeat.)
-	w:As(king, king.ns.ArenaRoles.Repeat)
+	-- (A late login takes L once it has heard the live switch: the Shogun's repeat.)
+	w:As(shogun, shogun.ns.ArenaRoles.Repeat)
 	w:Run(0)
 	local id, why = FT(w, a).Create({ guest = b.name, stake = o.stake or 0, src = o.src, mode = "a", arbiter = arb.name, target = 2000,
 		spectators = true, crowd = o.crowd ~= false, rehearsal = o.rehearsal })
@@ -888,22 +888,22 @@ test("1.2 the crowd's bets at a Bone Throw table: a client the crowd's market in
 end)
 
 test("1.2 the crowd's bets at a Bone Throw table: only with an arbiter, watchers let in and no stakes in the wallet; never from an arbiter who is not public", function()
-	local w, a, b, arb, king, calls = Live({ arbiter = true })
+	local w, a, b, arb, shogun, calls = Live({ arbiter = true })
 	local function Can(o) return w:As(a, a.ns.FarkleTable.CanCreate, o) end
 	local base = { guest = b.name, target = 2000, mode = "a", arbiter = arb.name, spectators = true, crowd = true }
 	eq(Can(base), true)
 	local function With(k, v) local o = {} for x, y in pairs(base) do o[x] = y end o[k] = v return o end
 	eq(select(2, Can(With("spectators", false))), "crowd", "watchers kept out")
 	eq(select(2, Can(With("mode", "d"))), "crowd", "a direct table")
-	local walled = With("stake", 20000); walled.src = "w"; walled.arbiter = king.name
+	local walled = With("stake", 20000); walled.src = "w"; walled.arbiter = shogun.name
 	eq(select(2, Can(walled)), "crowd", "beside the wallet's stakes (their FK market)")
-	-- An arbiter the King lists but who is not public: the table plays, without the crowd's bets.
+	-- An arbiter the Shogun lists but who is not public: the table plays, without the crowd's bets.
 	local listed = w:Player(N.bettor3)
 	FakeMoney(listed, calls)
 	listed.Arena.SetRules(true)
-	-- (he came after the King's word that the arena is live: he hears it again)
-	assert(king.Roles.SetArbiters({ { name = listed.name, cap = 100 } }))
-	assert(king.Roles.SetSettings({ live = 1 }))
+	-- (he came after the Shogun's word that the arena is live: he hears it again)
+	assert(shogun.Roles.SetArbiters({ { name = listed.name, cap = 100 } }))
+	assert(shogun.Roles.SetSettings({ live = 1 }))
 	w:Run(0)
 	w:Group({ a, b, listed })
 	eq(w:As(listed, listed.ns.ArenaRoles.IsPublicArbiter, listed.name, "L"), false)
@@ -1135,7 +1135,7 @@ test("1.1.6 Bones at a camp: the table is the camp's; a player who walks off pau
 end)
 
 test("1.2 the Bone Throw tables: at a gold table a player who walks off pauses the game; back in time it goes on, gone past the grace he forfeits", function()
-	local w, a, b, arb, king = Live()
+	local w, a, b, arb, shogun = Live()
 	local id = FT(w, a).Create({ guest = b.name, stake = 10000, mode = "d", src = "o", target = 2000, secs = 30 })
 	w:Run(0)
 	assert(FT(w, b).Answer(id, true, "o"))

@@ -480,7 +480,7 @@ function ns.Pins()
 	return nil
 end
 
--- Whether `ref` (Map, Decree, King, Positions) puts its icons on the world map (0.9.9). Every
+-- Whether `ref` (Map, Decree, Shogun, Positions) puts its icons on the world map (0.9.9). Every
 -- add or remove there goes through the pin library into the map's canvas (MarkCanvasDirty,
 -- which clears its current zoom), from Bankai Guild's code. With Blizzard's gamepad UI (Forever) the
 -- gamepad map then zooms, builds its button bar and closes with B in our taint, and the game
@@ -551,8 +551,8 @@ end
 -- ns.db.sound stays the switch for every kind, as in 0.9 and 1.0 (their saves keep working);
 -- ns.db.soundOff[kind] = true silences one kind. Local only: nothing is sent.
 --   arms, muster, royal   the decrees (royal: the Royal decree and the Tabard inspection)
---   court, vox, agenda    the King's court, Vox Populi, the King's Agenda
---   throne                the King's other calls: the roll call, the Royal Inspection, writs, a Hand or Steward named
+--   court, vox, agenda    the Shogun's court, Vox Populi, the Shogun's Agenda
+--   throne                the Shogun's other calls: the roll call, the Royal Inspection, writs, a Hand or Steward named
 --   help                  a High Councillor's help requests, the author's bug reports
 --   hop, treasury, patrol a layer hop, a donation, a patrol's player without the tabard
 --   update                the author's update notice
@@ -586,7 +586,7 @@ end
 
 -- One alert sound every 15 seconds at most, but a softer one never silences a louder one: the
 -- Call to Arms (a lane of its own) sounds whatever chimed just before it, a loud alert (a Royal
--- decree, the King's call) whatever soft one did. A louder one silences the softer ones after it.
+-- decree, the Shogun's call) whatever soft one did. A louder one silences the softer ones after it.
 -- tone: "soft" or "loud"; kind: see SOUND_KINDS. True when it played.
 -- own: the player's own click (a decree sent or previewed), heard in an instance too (ns.Quiet).
 local SOUND_GAP = 15
@@ -751,7 +751,7 @@ function ns.Held()
 	return out
 end
 
--- On the Decrees tab while alerts wait, under the King's week (1.1.5): a click shows one now (its
+-- On the Decrees tab while alerts wait, under the Shogun's week (1.1.5): a click shows one now (its
 -- popup or window).
 function ns.HeldLines()
 	local list = ns.Held()
@@ -845,9 +845,9 @@ end
 -- fixed so that senders and receivers always agree on who may send decrees.
 ns.CAPTAIN_RANK = 1
 
--- What the army calls the King on the lines and the crown made for him (Hop.lua, King.lua),
+-- What the army calls the Shogun on the lines and the crown made for him (Hop.lua, Shogun.lua),
 -- whatever his character's name in the census.
-ns.KING_NAME = "Leader"
+ns.SHOGUN_NAME = "Leader"
 -- The addon's author (Workshop.lua): his character on Forever. Names there are a first name
 -- and a surname, unique across the realm group; no Classic realm allows a space in a name.
 ns.AUTHOR = "Unset0 Nobody" -- Bankai Guild: set to the maintainer's character
@@ -899,66 +899,66 @@ function ns.IsTreasurerCharacter(name)
 	end
 	return false
 end
--- The King's name on the lines and the crown: the army's name for him on the Alliance side,
+-- The Shogun's name on the lines and the crown: the army's name for him on the Alliance side,
 -- his character's on the Horde (whose <Elfcore> has a guild master of its own).
-function ns.KingName(leader)
+function ns.ShogunName(leader)
 	if ns.faction == "Horde" then return leader and ns.ShortName(leader) or "?" end
-	return ns.KING_NAME
+	return ns.SHOGUN_NAME
 end
 ns.CROWN_ICON = "Interface\\GroupFrame\\UI-Group-LeaderIcon"
 
--- The King's guild on each side: the guild master of this exact name is the King, its officers
+-- The Shogun's guild on each side: the guild master of this exact name is the Shogun, its officers
 -- are of the Crown. The Alliance's is <Elfcore>; the Horde's is set here once Shobek founds
 -- it (a guild name is one per realm, so it can't be "Bankai Guild" there).
-ns.KING_GUILD = { Alliance = "elfcore", Horde = "elfcore" } -- (the Horde's: <Mudhutters>, 0.9.4)
-function ns.IsKingGuild(guild)
+ns.SHOGUN_GUILD = { Alliance = "elfcore", Horde = "elfcore" } -- (the Horde's: <Mudhutters>, 0.9.4)
+function ns.IsShogunGuild(guild)
 	if type(guild) ~= "string" then return false end
-	local want = ns.KING_GUILD[ns.faction or "Alliance"]
+	local want = ns.SHOGUN_GUILD[ns.faction or "Alliance"]
 	return want ~= nil and guild:lower() == want
 end
 
--- The King himself, by his character's name, like the Treasurer: sender names are set by the
+-- The Shogun himself, by his character's name, like the Treasurer: sender names are set by the
 -- server, so nobody else can speak as him, and no census vote (anyone on the channel can
 -- vote) can crown someone else or take the Crown from him. The Alliance's is the guild master
 -- of <ELFCORE> as the census saw him on September 24, 2026 (a Forever name, one across the
 -- realm group). The Horde's is set here once it is known: until then nobody commands there
 -- (his position and his name on the lines still come from the census). His name is his on his
--- realm group alone (ns.KING_REALM's): anywhere else (Forever's other realms, Classic Era,
--- Anniversary) there is no King by name either, like the Horde's, and a namesake on another
+-- realm group alone (ns.SHOGUN_REALM's): anywhere else (Forever's other realms, Classic Era,
+-- Anniversary) there is no Shogun by name either, like the Horde's, and a namesake on another
 -- group is not him.
 -- The Horde's (0.9.4): Duskmonkey Boneback, guild master of <Mudhutters>. His realm is not known
--- yet: until it is (ns.KING_REALM_HORDE), his name alone counts on the Horde, anywhere (Forever
+-- yet: until it is (ns.SHOGUN_REALM_HORDE), his name alone counts on the Horde, anywhere (Forever
 -- names are one per region; a namesake can only exist on another client or region).
-ns.KING_CHARACTER = {} -- Bankai Guild: no King character
-ns.KING_REALM = "ClassicBetaPvP"
-ns.KING_REALM_HORDE = nil
--- Until it is set here, the Horde King's realm is learned from the first message of his that
+ns.SHOGUN_CHARACTER = {} -- Bankai Guild: no Shogun character
+ns.SHOGUN_REALM = "ClassicBetaPvP"
+ns.SHOGUN_REALM_HORDE = nil
+-- Until it is set here, the Horde Shogun's realm is learned from the first message of his that
 -- reaches us (his name is his alone), and from then on only that realm group counts: shown in
 -- /bk status so it can be written here.
-local function KingRealm()
-	if ns.faction == "Horde" then return ns.KING_REALM_HORDE or (ns.rdb and ns.rdb.kingRealmHorde) end
-	return ns.KING_REALM
+local function ShogunRealm()
+	if ns.faction == "Horde" then return ns.SHOGUN_REALM_HORDE or (ns.rdb and ns.rdb.shogunRealmHorde) end
+	return ns.SHOGUN_REALM
 end
-ns.KingRealm = KingRealm
-function ns.KingCharacter()
-	local realm = KingRealm()
+ns.ShogunRealm = ShogunRealm
+function ns.ShogunCharacter()
+	local realm = ShogunRealm()
 	if realm and ns.GroupOf(ns.realm or ns.CurrentRealm()) ~= ns.GroupOf(realm) then return nil end
-	return ns.KING_CHARACTER[ns.faction or "Alliance"]
+	return ns.SHOGUN_CHARACTER[ns.faction or "Alliance"]
 end
-function ns.IsKingCharacter(name)
-	local pin = ns.KingCharacter()
+function ns.IsShogunCharacter(name)
+	local pin = ns.ShogunCharacter()
 	if pin == nil or type(name) ~= "string" or ns.ShortName(name) ~= pin then return false end
-	local realm = KingRealm()
+	local realm = ShogunRealm()
 	return realm == nil or OfGroup(name, realm)
 end
--- Learned only from a message he sent (King.lua: the sender name is the server's), never from
+-- Learned only from a message he sent (Shogun.lua: the sender name is the server's), never from
 -- a name written inside a report, which anyone could forge to lock him out.
-function ns.LearnKingRealm(sender)
-	if ns.faction ~= "Horde" or KingRealm() ~= nil or not ns.rdb or not ns.IsKingCharacter(sender) then return end
+function ns.LearnShogunRealm(sender)
+	if ns.faction ~= "Horde" or ShogunRealm() ~= nil or not ns.rdb or not ns.IsShogunCharacter(sender) then return end
 	local realm = ns.RealmOf(ns.FullName(sender))
 	if not realm then return end
-	ns.rdb.kingRealmHorde = realm
-	ns.Log("the Horde's King is on %s (learned from his first message)", realm)
+	ns.rdb.shogunRealmHorde = realm
+	ns.Log("the Horde's Shogun is on %s (learned from his first message)", realm)
 end
 
 -- The High Council: the Bankai Guild moderators, shown with their mark and their colour in the Bankai Guild
@@ -1073,16 +1073,16 @@ function ns.CouncilTitle(name)
 	return nil
 end
 
--- The King's Steward (1.0.0): a character the author marks in the signed titles list, who names
--- Hands of his own beside the King's, sets up for the King what only the King could set up before
--- (the treasury's keepers and switches) and sends the Crown's decrees on every client (King.lua,
+-- The Shogun's Steward (1.0.0): a character the author marks in the signed titles list, who names
+-- Hands of his own beside the Shogun's, sets up for the Shogun what only the Shogun could set up before
+-- (the treasury's keepers and switches) and sends the Crown's decrees on every client (Shogun.lua,
 -- Treasury.lua, Decree.lua).
 -- The titles list names him in an entry of its own among the departments, one per faction:
 --   ^steward^<Alliance|Horde>^<First Surname-Realm>,...
 -- Three "^": a client of 0.9.9 reads a department as two (<name>^<icon>^<members>), leaves this
 -- entry out unread, and still takes, shows and passes on the rest (the signature covers every
--- byte, the entry too). A Steward acts for the King of his own faction, where a King is named
--- (ns.KingCharacter): the Alliance's, and on the Horde only when the list names one there.
+-- byte, the entry too). A Steward acts for the Shogun of his own faction, where a Shogun is named
+-- (ns.ShogunCharacter): the Alliance's, and on the Horde only when the list names one there.
 -- Nobody else is ever a Steward: no name is written in this code, no census vote counts, and a
 -- newer signed list without him ends it at once.
 ns.STEWARDS_MAX = 3
@@ -1117,12 +1117,12 @@ function ns.ReadStewards(text)
 	return out
 end
 
--- The Stewards of the titles list we hold, for our faction, where a King is named: { name, ... }.
+-- The Stewards of the titles list we hold, for our faction, where a Shogun is named: { name, ... }.
 -- Read when the list was taken; a list taken by a version before 1.0.0 (which left the entry
 -- out) is read again from its signed text, which this client checked then.
 function ns.Stewards()
 	local t = ns.CouncilTitles()
-	if not t or not ns.KingCharacter() then return {} end
+	if not t or not ns.ShogunCharacter() then return {} end
 	if type(t.stewards) ~= "table" then
 		t.stewards = ns.ReadStewards(type(t.blob) == "string" and t.blob:match("^HT1~%d+~[^~]*~[01]~([^~]*)~%x+$") or "")
 	end
@@ -1210,11 +1210,11 @@ ns.APPROVED_BUILTIN = { Alliance = { "ELFCORE", "BANKAI" }, Horde = { "ELFCORE",
 -- their name says, per faction. On 1.1.5 and newer they are no Bankai Guild guild: no census, no
 -- Bankai Guild chats, no marks, and their own members' addon shows the Join Bankai Guild screen. Their way
 -- back is an appeal to the council: the author's signed approved list (ns.IsApprovedGuild) lets
--- one in again without a new version. Never the King's guild. On every 1.1 addon meanwhile, and on
+-- one in again without a new version. Never the Shogun's guild. On every 1.1 addon meanwhile, and on
 -- older versions than this one, the council's own word does it live: /bk netoff guild (a 1.1.5
 -- moderator still gives and repeats it for them, Moderation.GuildName).
 -- One faction's list, on its realm group alone (realm: a realm of it; none: anywhere), like the
--- King: a guild of that name on another realm group is another guild.
+-- Shogun: a guild of that name on another realm group is another guild.
 ns.REMOVED_BUILTIN = {}
 -- Asked with every IsFederation, like the approved list: each name's answer is kept while the
 -- faction's list, our realm group and our realm are the same (a faction with none answers at once).
@@ -1233,7 +1233,7 @@ function ns.IsRemovedGuild(guild)
 	end
 	local known = m.seen[guild]
 	if known == nil then
-		known = m.set[ns.Fold((guild:gsub("^%s+", ""):gsub("%s+$", "")))] == true and not ns.IsKingGuild(guild)
+		known = m.set[ns.Fold((guild:gsub("^%s+", ""):gsub("%s+$", "")))] == true and not ns.IsShogunGuild(guild)
 		if m.n >= 2000 then m.seen, m.n = {}, 0 end
 		m.seen[guild], m.n = known, m.n + 1
 	end
@@ -1321,11 +1321,11 @@ end
 function ns.ApprovedOnly()
 	local guild = IsInGuild and IsInGuild() and GetGuildInfo("player")
 	-- (1.1.5: a removed guild the list lets back in counts by the list alone, whatever its name.)
-	return type(guild) == "string" and ns.IsApprovedGuild(guild) and not ns.IsKingGuild(guild)
+	return type(guild) == "string" and ns.IsApprovedGuild(guild) and not ns.IsShogunGuild(guild)
 		and (not ns.NamedBankaiGuild(guild) or ns.IsRemovedGuild(guild))
 end
 
--- Is this character (a sender's name, which the server sets) a Steward of our King?
+-- Is this character (a sender's name, which the server sets) a Steward of our Shogun?
 function ns.IsSteward(name)
 	if type(name) ~= "string" or name == "" then return false end
 	local t = ns.CouncilTitles()
@@ -1342,34 +1342,34 @@ function ns.IsSteward(name)
 	return false
 end
 
--- The King's guild as a Steward's decree names it: ours when we are in it, else its own name.
-function ns.KingGuildName()
+-- The Shogun's guild as a Steward's decree names it: ours when we are in it, else its own name.
+function ns.ShogunGuildName()
 	local mine = GetGuildInfo and GetGuildInfo("player")
-	if ns.IsKingGuild(mine) then return mine end
-	local want = ns.KING_GUILD[ns.faction or "Alliance"] or ""
+	if ns.IsShogunGuild(mine) then return mine end
+	local want = ns.SHOGUN_GUILD[ns.faction or "Alliance"] or ""
 	return want:sub(1, 1):upper() .. want:sub(2)
 end
 
--- The King's own screen (0.9.9, the author's, for Shobek's stream): the King's client, or the
--- author's "Shobek's view" (King.Preview) so he can try it. Nobody else's.
-function ns.KingsScreen()
-	local K = ns.King
-	if type(K) ~= "table" or type(K.IsKing) ~= "function" then return false end
-	return K.IsKing() == true or (type(K.Preview) == "function" and K.Preview() == true)
+-- The Shogun's own screen (0.9.9, the author's, for Shobek's stream): the Shogun's client, or the
+-- author's "Shobek's view" (Shogun.Preview) so he can try it. Nobody else's.
+function ns.ShogunsScreen()
+	local K = ns.Shogun
+	if type(K) ~= "table" or type(K.IsShogun) ~= "function" then return false end
+	return K.IsShogun() == true or (type(K.Preview) == "function" and K.Preview() == true)
 end
 
 -- Who sees the High Council in the census, its marks there and its titles (0.9.9, the author's
 -- call): until launch the councillors themselves, the author's own client (the one holding the
--- signed lists, CouncilList.lua) and the King's (names hidden, below); everyone once the signed
+-- signed lists, CouncilList.lua) and the Shogun's (names hidden, below); everyone once the signed
 -- titles list says it is public. The game's own chat shows the mark to everyone (1.1.5,
 -- Borders.lua; the Bankai Guild chats did from 0.9.8 to 1.1.5).
 function ns.CouncilVisible()
-	if ns.COUNCIL_SIGNED ~= nil or ns.COUNCIL_TITLES ~= nil or ns.IsHighCouncillor(ns.me) or ns.KingsScreen() then return true end
+	if ns.COUNCIL_SIGNED ~= nil or ns.COUNCIL_TITLES ~= nil or ns.IsHighCouncillor(ns.me) or ns.ShogunsScreen() then return true end
 	local t = ns.CouncilTitles()
 	return t ~= nil and t.public == true
 end
 
--- The King streams: on his screen the councillors' names stay hidden (0.9.9). The High Council
+-- The Shogun streams: on his screen the councillors' names stay hidden (0.9.9). The High Council
 -- in the Realm shows each name cut short (ns.MaskName), and no council mark, icon or title goes
 -- with a name anywhere else (census rows, person card, the chats), until he clicks the eye
 -- under the council's header. Never saved: every login and /reload starts hidden again.
@@ -1383,7 +1383,7 @@ function ns.SetCouncilNamesShown(on)
 	councilNamesShown = on
 	ns.Fire("COUNCIL_MASK_CHANGED")
 end
-function ns.CouncilMasked() return not councilNamesShown and ns.KingsScreen() end
+function ns.CouncilMasked() return not councilNamesShown and ns.ShogunsScreen() end
 
 -- A councillor's name while hidden: its first four characters (UTF-8: a character is a lead
 -- byte and the continuation bytes after it), or all of a shorter name, then "****".
@@ -1429,36 +1429,36 @@ function ns.Holds(query, ...)
 	return false
 end
 
--- The Lords: guild masters of any Bankai Guild guild, and the officers of the King's guild. Those
--- officers only on the clients of the King's guild's own members (1.0.0), where their rank is
+-- The Council: guild masters of any Bankai Guild guild, and the officers of the Shogun's guild. Those
+-- officers only on the clients of the Shogun's guild's own members (1.0.0), where their rank is
 -- the server's word (our roster: Data.KnownRank and Channels.VerifiedLevel read our own guild
 -- from it, never from the census). Anywhere else the census alone could name them, and three
 -- outsiders' reports were enough to add one of their own: there they are Captains like any
--- guild's officers, and the Crown of the King's guild is the King himself (his pinned name) and
--- the Hands his list or a Steward's own names (King.IsHandName: their word, never a vote), who
+-- guild's officers, and the Crown of the Shogun's guild is the Shogun himself (his pinned name) and
+-- the Hands his list or a Steward's own names (Shogun.IsHandName: their word, never a vote), who
 -- speak for his guild with his Crown there (Decree.lua, Channels.VerifiedLevel) besides his
--- tools (King.Authorized).
--- (1.2.3) Their seats, not powers: [Lords] (Channels.LevelOf), the King's writs to his Lords
+-- tools (Shogun.Authorized).
+-- (1.2.3) Their seats, not powers: [Council] (Channels.LevelOf), the Shogun's writs to his Council
 -- (Acts.lua) and the census's two reports for them (Data.KnownRank). This was ns.IsCrownRank, and
 -- counted every guild master as the Crown; a feature that gives the Crown a power at the level of
--- the whole army asks ns.IsCrownRank (below), the King's guild's alone.
-function ns.IsLordRank(guild, rankIndex)
+-- the whole army asks ns.IsCrownRank (below), the Shogun's guild's alone.
+function ns.IsCouncilRank(guild, rankIndex)
 	if not guild or not rankIndex then return false end
 	if rankIndex == 0 then return true end
-	return ns.IsKingGuild(guild) and rankIndex <= ns.CAPTAIN_RANK and ns.IsKingGuild(GetGuildInfo("player"))
+	return ns.IsShogunGuild(guild) and rankIndex <= ns.CAPTAIN_RANK and ns.IsShogunGuild(GetGuildInfo("player"))
 end
 
-function ns.IsLord()
+function ns.IsCouncil()
 	local guild, _, rankIndex = GetGuildInfo("player")
-	return ns.IsFederation(guild) and ns.IsLordRank(guild, rankIndex)
+	return ns.IsFederation(guild) and ns.IsCouncilRank(guild, rankIndex)
 end
 
 -- The Crown's own rank (1.2.3, Daniel: a guild master has nothing at the level of the whole army):
--- the Lords of the King's guild alone (its master, and its officers on its own members' clients).
--- Another guild's master is a Lord, never the Crown. The Royal decree and the Tabard inspection
+-- the Council of the Shogun's guild alone (its master, and its officers on its own members' clients).
+-- Another guild's master is a Council member, never the Crown. The Royal decree and the Tabard inspection
 -- for the whole army ask this (Decree.lua); so may any later feature.
 function ns.IsCrownRank(guild, rankIndex)
-	return ns.IsKingGuild(guild) and ns.IsLordRank(guild, rankIndex)
+	return ns.IsShogunGuild(guild) and ns.IsCouncilRank(guild, rankIndex)
 end
 
 function ns.IsCrown()
@@ -1474,7 +1474,7 @@ end
 -- (Olmps, Olymp, Olympe, Oymps). BankaiGuild/Olympo/Olympos count the same way. Words are never
 -- joined: "Holy Mpulse" is not Bankai Guild. Olympia, Olympic, Elf, Olympiad and the like in
 -- other languages (Olympique, olympisch) are other words and are left out, and so is polyp.
--- The main guild itself (the King's, the Treasurer's) is still the exact name, see IsCrownRank.
+-- The main guild itself (the Shogun's, the Treasurer's) is still the exact name, see IsCrownRank.
 local REALM_WORDS = { "bankaiguild", "olympo" } -- as they sound: Bankai Guild, Olympo, Bankai Guild, Olympos
 local OTHER = { "olympy[aceoq]", "olympysch", "polyp" } -- as they sound: Olympia, Olympic...
 
@@ -1578,7 +1578,7 @@ local function Federation(guild)
 	return false
 end
 
--- The name rule alone (cached): what IsFederation says without the King's guild or the signed list.
+-- The name rule alone (cached): what IsFederation says without the Shogun's guild or the signed list.
 function ns.NamedBankaiGuild(guild)
 	if type(guild) ~= "string" or guild == "" then return false end
 	local known = federation[guild]
@@ -1592,8 +1592,8 @@ end
 
 function ns.IsFederation(guild)
 	if type(guild) ~= "string" or guild == "" then return false end
-	-- The King's own guild is Bankai Guild whatever its name (the Horde's is <Mudhutters>, 0.9.4).
-	if ns.IsKingGuild(guild) then return true end
+	-- The Shogun's own guild is Bankai Guild whatever its name (the Horde's is <Mudhutters>, 0.9.4).
+	if ns.IsShogunGuild(guild) then return true end
 	-- A guild the author's signed list approves (1.1), whatever its name.
 	if ns.IsApprovedGuild(guild) then return true end
 	-- A guild the High Council removed (1.1.5), whatever its name.
@@ -1717,10 +1717,10 @@ end
 -- Quiet presence (1.2.5.1). An authorized addon (BankaiGuildAPI's SetQuietPresence) may ask, for this
 -- session alone, that this client send nothing that says its character is online or where it is:
 -- the hello, the census it would report, its layer and its dot on the map, layer-hop offers,
--- answers about the King's layer or a player sighting, the King's crown, and the other presence
+-- answers about the Shogun's layer or a player sighting, the Shogun's crown, and the other presence
 -- words Comm.QUIET_WORDS lists. Other clients age it out as they do a logout: no word ever says it
 -- went quiet. What this client reads goes on working, and its Bankai Guild chat lines still go when the
--- player types them. Only the King, a High Councillor (each while a current signed issuer,
+-- player types them. Only the Shogun, a High Councillor (each while a current signed issuer,
 -- Moderation.IsIssuer) and the addon's pinned author may turn it on, for their own character. Never
 -- saved: a /reload or a logout ends it.
 ---------------------------------------------------------------------------
@@ -1728,12 +1728,12 @@ end
 local quiet -- { since, owner } while it is on
 
 -- Who may turn it on: the rule of the profile presentation's sessions (ProfileEffects.lua), kept to
--- the King and the High Council among the signed issuers (a Steward or a Hand alone is not enough).
+-- the Shogun and the High Council among the signed issuers (a Steward or a Hand alone is not enough).
 function ns.QuietPresenceAllowed(name)
 	if type(name) ~= "string" or name == "" then return false end
 	local M = ns.Moderation
 	if type(M) ~= "table" or M.missing or type(M.IsIssuer) ~= "function" then return false end
-	if ns.IsKingCharacter(name) or ns.IsHighCouncillor(name) == true then
+	if ns.IsShogunCharacter(name) or ns.IsHighCouncillor(name) == true then
 		local ok, issuer = pcall(M.IsIssuer, name)
 		if ok and issuer == true then return true end
 	end
@@ -1754,7 +1754,7 @@ function ns.QuietPresenceState() return { on = quiet ~= nil, since = quiet and q
 function ns.QuietPresenceOwnedBy(owner) return quiet ~= nil and owner ~= nil and quiet.owner == owner end
 
 -- on: true or false; owner: who asks (an API handle's own key). Returns true, or false and why:
--- "guild" (outside an Bankai Guild guild), "authority" (not the King, a councillor or the author),
+-- "guild" (outside an Bankai Guild guild), "authority" (not the Shogun, a councillor or the author),
 -- "owner" (another owner turned it on), "state". The owner that turned it on may always turn it off.
 function ns.SetQuietPresence(on, owner)
 	if on ~= true and on ~= false then return false, "state" end
@@ -1801,7 +1801,7 @@ ns.RegisterEvent("ADDON_LOADED", function(name)
 	end
 	-- v0.7.9: demo data is gone (testers took it for real data). Forget the old setting.
 	db.demo = nil
-	-- 1.0.0: the author's letter on the Throne is gone, and with it whether the King read it.
+	-- 1.0.0: the author's letter on the Throne is gone, and with it whether the Shogun read it.
 	db.throneLetterRead = nil
 	if db.configVersion < 3 then db.configVersion = 3 end
 	-- Guild reports and the realm key belong to one realm group (ns.GroupOf): realms whose
@@ -1853,8 +1853,8 @@ local function StandIn(key, say)
 end
 StandIn("Who", { "Search", "SendPlain" })
 StandIn("Channels", { "Send", "ToggleMute" })
-StandIn("King", { "Summon", "Inspect", "AgendaPrompt" })
-StandIn("Hop", { "Ask", "AskKing", "SetHelp", "SetAuto" })
+StandIn("Shogun", { "Summon", "Inspect", "AgendaPrompt" })
+StandIn("Hop", { "Ask", "AskShogun", "SetHelp", "SetAuto" })
 StandIn("Workshop", { "RollCall", "Approved" })
 StandIn("Vox", { "Prompt", "CloseNow", "SetOff" })
 StandIn("Court", { "Toggle" })
@@ -1876,15 +1876,15 @@ StandIn("Letters", { "Slash", "ShowHistory", "Show" }) -- 1.1.5: the version let
 StandIn("Chronicle", { "Slash" }) -- 1.1: the log of acts this client saw (Chronicle.lua)
 StandIn("Filter", { "Slash" }) -- 1.1: block terms (Filter.lua)
 StandIn("Watch", { "Slash" }) -- 1.2: the guild-local moderation desk
-StandIn("Judgment", {}) -- 1.2: a case to the King, the High Council's votes, his final word
+StandIn("Judgment", {}) -- 1.2: a case to the Shogun, the High Council's votes, his final word
 StandIn("Church", { "Slash" }) -- 1.1.6: the Missionary Church of Bankai Guild (Church.lua)
 StandIn("WatchChat", {}) -- 1.1.6: chat moderation (deleted lines, timeouts, sanctions' bars)
 StandIn("ChatStrikes", {}) -- the chat warnings: three in 24 hours (ChatStrikes.lua)
 StandIn("TagFollow", {}) -- a sanction that follows the BattleTag (TagFollow.lua)
 StandIn("Wanted", { "SightingsSlash", "Slash" }) -- 1.2: the Horde Most Wanted ledger and its sightings (1.2.3: /bk wanted)
 StandIn("Board", { "Slash" }) -- (1.1: the Board)
-StandIn("Week", {}) -- (1.1: the King's week)
--- 1.1: net-off (Moderation.lua), alt links (Alts.lua), the King's key rotation (Keys.lua).
+StandIn("Week", {}) -- (1.1: the Shogun's week)
+-- 1.1: net-off (Moderation.lua), alt links (Alts.lua), the Shogun's key rotation (Keys.lua).
 StandIn("Moderation", { "Slash" })
 StandIn("Alts", { "Slash" })
 StandIn("Keys", { "RotatePrompt" })
@@ -2109,7 +2109,7 @@ ns.RegisterEvent("PLAYER_LOGIN", function()
 	local missing = {}
 	-- (1.2: the file of a key named otherwise: the Blood Arena's core is ArenaNet.lua.)
 	local FILES = { Arena = "ArenaNet.lua" }
-	for _, key in ipairs({ "Who", "Channels", "King", "Hop", "Workshop", "Vox", "Court", "Treasury", "Dues", "Acts", "Dialog", "Bank", "Link", "Borders", "Nameplates", "Backup", "Loot", "War", "Crafters", "Board", "Week", "Accord", "Consent", "ViewAs", "TabardsV2", "Chronicle", "Filter", "Watch", "Judgment", "WatchChat", "Wanted", "Members", "Moderation", "Alts", "Keys", "ChatWindow", "Arena", "PlayerMenu", "Versions", "Answers", "Letters", "Nominees", "ChatStrikes", "Record", "TagFollow" }) do
+	for _, key in ipairs({ "Who", "Channels", "Shogun", "Hop", "Workshop", "Vox", "Court", "Treasury", "Dues", "Acts", "Dialog", "Bank", "Link", "Borders", "Nameplates", "Backup", "Loot", "War", "Crafters", "Board", "Week", "Accord", "Consent", "ViewAs", "TabardsV2", "Chronicle", "Filter", "Watch", "Judgment", "WatchChat", "Wanted", "Members", "Moderation", "Alts", "Keys", "ChatWindow", "Arena", "PlayerMenu", "Versions", "Answers", "Letters", "Nominees", "ChatStrikes", "Record", "TagFollow" }) do
 		if ns[key].missing then missing[#missing + 1] = FILES[key] or (key .. ".lua") end
 	end
 	if ns.Gate.missing then missing[#missing + 1] = "Gamepad.lua" end -- (1.1.5, the gamepad gate)
@@ -2222,7 +2222,7 @@ local function Help()
 	print(L.HELP_CMD_ARMS)
 	print(L.HELP_CHAN_ALL)
 	print(L.HELP_CHAN_CAPTAINS)
-	print(L.HELP_CHAN_LORDS)
+	print(L.HELP_CHAN_COUNCIL)
 	print(L.HELP_CHAN_MUTE)
 	print(L.HELP_PIN)
 	print(L.HELP_CHATWIN)
@@ -2241,7 +2241,7 @@ local function Help()
 	print(L.HELP_CMD_KEY)
 	print(L.HELP_CMD_KEY_PUBLIC)
 	print(L.HELP_MAINKEY)
-	if ns.Keys.CanRotate and ns.Keys.CanRotate() then print(L.HELP_KEY_ROTATE) end -- (1.1: the King's alone)
+	if ns.Keys.CanRotate and ns.Keys.CanRotate() then print(L.HELP_KEY_ROTATE) end -- (1.1: the Shogun's alone)
 	print(L.HELP_CMD_BLOCK)
 	print(L.HELP_NETOFF)
 	print(L.HELP_ALT)
@@ -2317,10 +2317,10 @@ local function Slash(input)
 		elseif cmd == "map" then
 			ns.Map.SetEnabled(not ns.db.showMap)
 		elseif cmd == "throne" or cmd == "trono" then
-			if ns.King.Visible and ns.King.Visible() then
+			if ns.Shogun.Visible and ns.Shogun.Visible() then
 				ns.UI.SelectTab("throne")
 			else
-				ns.Print(ns.L.THRONE_ONLY_KING)
+				ns.Print(ns.L.THRONE_ONLY_SHOGUN)
 			end
 		elseif cmd == "vox" then
 			local word = rest:lower()
@@ -2348,14 +2348,14 @@ local function Slash(input)
 				ns.Print(ns.Recruit.NoContactMe() and L.NOCONTACT_ON or L.NOCONTACT_OFF)
 			end
 		elseif cmd == "partyguard" then
-			-- A local, bounded inbox for clear party-invite whispers while the King is online.
+			-- A local, bounded inbox for clear party-invite whispers while the Shogun is online.
 			ns.PartyGuard.Slash(rest)
 		elseif cmd == "inactive" or cmd == "members" or cmd == "recruits" or cmd == "mentors" then
-			-- (1.1: our guild's members offline 7, 14 or 30 days and more; the Lord's recruits and
+			-- (1.1: our guild's members offline 7, 14 or 30 days and more; the Council's recruits and
 			-- their mentors. Members.lua.)
 			local days = tonumber(rest)
-			local lordPage = (cmd == "recruits" or cmd == "mentors") and ns.Members.IsLord and ns.Members.IsLord()
-			ns.Members.Show(lordPage and "recruits" or (days == 14 or days == 30) and days or 7)
+			local councilPage = (cmd == "recruits" or cmd == "mentors") and ns.Members.IsCouncil and ns.Members.IsCouncil()
+			ns.Members.Show(councilPage and "recruits" or (days == 14 or days == 30) and days or 7)
 			ns.UI.SelectTab("realm")
 		elseif cmd == "decrees" then
 			ns.UI.SelectTab("decrees")
@@ -2368,7 +2368,7 @@ local function Slash(input)
 		elseif cmd == "share" then
 			ns.Positions.SetSharing(not ns.db.sharePosition)
 		elseif cmd == "council" then
-			-- The High Council's list (the author's or the King's character): add, remove, list.
+			-- The High Council's list (the author's or the Shogun's character): add, remove, list.
 			local verb, arg = rest:match("^(%S*)%s*(.-)$")
 			verb = (verb or ""):lower()
 			if verb == "help" then
@@ -2386,7 +2386,7 @@ local function Slash(input)
 			local hide = (how == "hide" or how == "off") and true or ((how == "show" or how == "on") and false or not ns.UI.IssueReporterHidden())
 			ns.UI.SetIssueReporterHidden(hide)
 		elseif cmd == "inspection" then
-			-- Taking part in the King's Royal Inspection (a patrol of 2 minutes that reports to him).
+			-- Taking part in the Shogun's Royal Inspection (a patrol of 2 minutes that reports to him).
 			local on = rest:lower()
 			if on == "on" or on == "off" then ns.db.royalInspection = on == "on" end
 			-- (1.1: never answered is off, and says so.)
@@ -2444,8 +2444,8 @@ local function Slash(input)
 			-- 1.2.3 (Wanted.lua): what Most Wanted captured, shared and heard this session, and why
 			-- each kill or death was refused, in the copy window (a chat line cannot be copied).
 			ns.Wanted.Slash(rest)
-		elseif cmd == "kingarrow" or cmd == "setarei" then
-			if ns.KingArrow then ns.KingArrow.Slash(rest) else ns.Print(L.KING_ARROW_STATUS:format(L.KING_ARROW_OFF)) end
+		elseif cmd == "shogunarrow" or cmd == "setarei" then
+			if ns.ShogunArrow then ns.ShogunArrow.Slash(rest) else ns.Print(L.SHOGUN_ARROW_STATUS:format(L.SHOGUN_ARROW_OFF)) end
 		elseif cmd == "filter" or cmd == "filtro" then
 			-- 1.1 (Fern's #31): block terms, the player's own and the shared list (Filter.lua).
 			ns.Filter.Slash(rest)
@@ -2509,7 +2509,7 @@ local function Slash(input)
 				for line in ns.StatusText():gmatch("[^\n]+") do print("  " .. line) end
 			end
 		elseif cmd == "key" then
-			-- 1.1: "rotate" is the King's rotation of the army's key (Keys.lua), never a key: anyone
+			-- 1.1: "rotate" is the Shogun's rotation of the army's key (Keys.lua), never a key: anyone
 			-- else is told so (and a /reload before the restart the new file needs), and no guild is
 			-- sealed with that word.
 			if rest:lower() == "rotate" then
@@ -2518,7 +2518,7 @@ local function Slash(input)
 				elseif ns.Keys.CanRotate() then
 					ns.Keys.RotatePrompt()
 				else
-					ns.Print(L.KEY_ROTATE_ONLY_KING)
+					ns.Print(L.KEY_ROTATE_ONLY_SHOGUN)
 				end
 			elseif rest:lower() == "off" or rest:lower() == "public" then
 				if ns.Keys.missing then ns.Print(L.RESTART_NEEDED) else ns.Keys.Clear() end
@@ -2570,10 +2570,10 @@ local function Slash(input)
 			ns.Print(L.CACHE_CLEARED)
 		elseif cmd == "error" then
 			error("test error from /bk error")   -- to check that bug capture works
-		elseif cmd == "all" or cmd == "captains" or cmd == "lords" then
+		elseif cmd == "all" or cmd == "captains" then -- (the Council's chat is /bgl: /bk council is the High Council's list)
 			ns.Channels.Send(ns.Channels.TierForWord(cmd), rest)
 		elseif cmd == "pin" then
-			-- One line pinned for everyone (1.1, Channels.lua): the King, his Stewards and Hands, the Lords.
+			-- One line pinned for everyone (1.1, Channels.lua): the Shogun, his Stewards and Hands, the Council.
 			ns.Channels.PinCommand(rest)
 		elseif cmd == "mute" then
 			ns.Channels.ToggleMute(rest)
@@ -2594,7 +2594,7 @@ local function Slash(input)
 			local site = rawget(_G, "BankaiGuildSiteAggregateCommand")
 			if type(site) == "function" then site(rest) else ns.Print(L.SITE_NOT_LOADED) end
 		elseif cmd == "lfg" or cmd == "board" or cmd == "camp" or cmd == "camps" or cmd == "week" then
-			-- The Board (Board.lua, 1.1): who is looking for a group, and where; camps; the King's week.
+			-- The Board (Board.lua, 1.1): who is looking for a group, and where; camps; the Shogun's week.
 			ns.Board.Slash(cmd, rest)
 		elseif cmd == "cover" or cmd == "anon" or cmd == "anonimo" then
 			-- Embrace Anonymity: a moderator's cover name, and off the network (Cover.lua).
@@ -2606,12 +2606,12 @@ local function Slash(input)
 			-- 1.1: this account's characters linked as one player (Alts.lua).
 			ns.Alts.Slash(rest)
 		elseif cmd == "bank" then
-			-- 1.1: a sister guild's treasurer shows his guild bank to the King, his Steward and his
+			-- 1.1: a sister guild's treasurer shows his guild bank to the Shogun, his Steward and his
 			-- Hands, by whisper, or not (Bank.lua).
 			local verb, on = rest:lower():match("^(%S*)%s*(%S*)")
 			if verb == "share" and (on == "on" or on == "off") then ns.Bank.SetSisterConsent(on == "on") else ns.Print(L.HELP_BANK) end
 		elseif cmd == "need" then
-			-- 1.1: a Lord or a Captain asks the treasury for an item and a count (Bank.lua).
+			-- 1.1: a Council member or a Captain asks the treasury for an item and a count (Bank.lua).
 			ns.Bank.Slash(rest)
 		elseif cmd == "backup" or cmd == "restore" then
 			-- 1.1: the clipboard backup of this character's book, the channel key and its setup (Backup.lua).

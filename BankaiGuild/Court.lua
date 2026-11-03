@@ -1,30 +1,30 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- Hold Court: the King opens his court where he stands. Every Bankai Guild member with the addon
+-- Hold Court: the Shogun opens his court where he stands. Every Bankai Guild member with the addon
 -- in that zone gets a line on top of the Census and the Realm: one click asks him for an
 -- audience. The requests line up in The Watch's Judgment section; a click on one calls that
 -- player, who gets a popup and a raid warning. His alone (not a Hand's), off until he opens it.
 --   T1~C~<id>~<guild>~<zone mapID>~<zone name>   court open here (resent every 2 minutes)
 --   T1~Z~<id>~<guild>                            court closed
---   T4~<id>~<guild>                              an audience asked (whisper to the King)
---   T5~<id>                                      called (whisper from the King)
+--   T4~<id>~<guild>                              an audience asked (whisper to the Shogun)
+--   T5~<id>                                      called (whisper from the Shogun)
 --   T5~<id>~<server time>~<one line>               optional message, alongside the legacy call
 
 local Court = {}
 ns.Court = Court
 
-Court.RESEND = 120      -- the King's client repeats it for late logins and zone changes
+Court.RESEND = 120      -- the Shogun's client repeats it for late logins and zone changes
 Court.EXPIRE = 330      -- a court not repeated this long is over (he logged off)
 Court.MAX = 50          -- requests kept per court
 Court.CALL_GAP = 10     -- one call every 10 seconds per subject at most
-Court.ASK_AGAIN = 180   -- not called this long (the court was full, the King busy): ask again
+Court.ASK_AGAIN = 180   -- not called this long (the court was full, the Shogun busy): ask again
 Court.DISMISSED = 300   -- sent off: no new request from them this long
 Court.CALL_OPEN = 120   -- a call's popup stays this long (and waits no longer in an instance, 1.1)
 Court.NOTE_MAX = 160    -- bytes; the optional line is a private whisper, never a channel post
 
-local holding           -- the King's court: { id, mapID, zone, sentAt, queue = { { name, guild, t, calledAt } }, by = { [name] = entry }, dismissed = { [name] = t } }
-local court             -- the court seen: { id, king, mapID, zone, t, askedAt, calledAt }
+local holding           -- the Shogun's court: { id, mapID, zone, sentAt, queue = { { name, guild, t, calledAt } }, by = { [name] = entry }, dismissed = { [name] = t } }
+local court             -- the court seen: { id, shogun, mapID, zone, t, askedAt, calledAt }
 
 -- The zone the player is in, as a zone map (a city or a zone, not a building or a floor),
 -- with its name: the same for every client, whatever its language.
@@ -47,7 +47,7 @@ end
 local function ServerNow() return math.floor((GetServerTime and GetServerTime()) or ns.Now()) end
 
 ---------------------------------------------------------------------------
--- The King
+-- The Shogun
 ---------------------------------------------------------------------------
 
 function Court.Holding() return holding end
@@ -65,15 +65,15 @@ local function Send()
 end
 
 function Court.Toggle()
-	local preview = ns.King.Preview()
-	if not ns.King.IsKing() and not preview then return ns.Print(L.THRONE_ONLY_KING) end
+	local preview = ns.Shogun.Preview()
+	if not ns.Shogun.IsShogun() and not preview then return ns.Print(L.THRONE_ONLY_SHOGUN) end
 	if holding then
 		if not holding.preview and not Quiet() then ns.Comm.Send("CHANNEL", ("T1~Z~%d~%s"):format(holding.id, GetGuildInfo("player") or ""), "court") end
 		holding = nil
 		ns.Print(L.COURT_CLOSED)
 	else
 		local mapID, zone = Court.Here()
-		holding = { id = ns.King.NewId(), mapID = mapID, zone = zone, queue = {}, by = {}, dismissed = {}, preview = preview or nil }
+		holding = { id = ns.Shogun.NewId(), mapID = mapID, zone = zone, queue = {}, by = {}, dismissed = {}, preview = preview or nil }
 		if preview then ns.Print(L.THRONE_PREVIEW_NOTE) end
 		Send()
 		ns.Print(L.COURT_OPENED:format(zone ~= "" and zone or "?"))
@@ -89,25 +89,25 @@ local function Moved()
 	if mapID == holding.mapID and zone == holding.zone then return end
 	holding.mapID, holding.zone = mapID, zone
 	Send()
-	ns.King.Changed()
+	ns.Shogun.Changed()
 	ns.Fire("COURT_CHANGED")
 end
 
--- A request (T4), or one made on the King's own client (the preview, tests). What the
--- requester says of their guild shows only when we can place them (our roster, a Lord or
--- Captain the census confirms): anyone else is a name alone on the King's screen.
+-- A request (T4), or one made on the Shogun's own client (the preview, tests). What the
+-- requester says of their guild shows only when we can place them (our roster, a Council member or
+-- Captain the census confirms): anyone else is a name alone on the Shogun's screen.
 function Court.Request(sender, id, guild)
 	if not holding or holding.id ~= id then return end
 	sender = ns.FullName(sender)
 	-- 1.1: a name the moderators took off (net-off, Moderation.lua) is not queued.
 	if ns.Moderation.Hides and ns.Moderation.Hides(sender, guild) then return end
-	local name, clean = ns.King.CleanName(sender), ns.King.CleanGuild(guild)
+	local name, clean = ns.Shogun.CleanName(sender), ns.Shogun.CleanGuild(guild)
 	if not name or not clean or holding.by[sender] or #holding.queue >= Court.MAX then return end
 	local now = ns.Now()
 	if now - (holding.dismissed[sender] or -math.huge) < Court.DISMISSED then return end
 	local shown
 	if ns.Roster.RankOf(sender) then shown = GetGuildInfo("player")
-	elseif ns.King.Verified(sender, clean) then shown = clean end
+	elseif ns.Shogun.Verified(sender, clean) then shown = clean end
 	local entry = { name = sender, guild = shown, t = now }
 	holding.queue[#holding.queue + 1] = entry
 	holding.by[sender] = entry
@@ -118,12 +118,12 @@ function Court.Request(sender, id, guild)
 		ns.Print(L.COURT_REQUEST:format(who) .. (n > 5 and ("  (" .. n .. ")") or ""))
 	end
 	ns.PlayAlert("soft", "court")
-	ns.King.Changed()
+	ns.Shogun.Changed()
 	ns.Fire("COURT_CHANGED")
 end
 
 function Court.HandleRequest(dist, sender, text)
-	if dist ~= "WHISPER" or not ns.King.IsKing() then return end
+	if dist ~= "WHISPER" or not ns.Shogun.IsShogun() then return end
 	local id, guild = text:match("^T4~(%d+)~(.*)$")
 	Court.Request(sender, tonumber(id), guild)
 end
@@ -131,7 +131,7 @@ ns.Comm.Handle("T4", function(...) Court.HandleRequest(...) end)
 
 -- A click on a request: that player is called; a second click, once called, sends them off.
 function Court.Call(name, words)
-	if not holding or (not holding.preview and not ns.King.IsKing()) then return end
+	if not holding or (not holding.preview and not ns.Shogun.IsShogun()) then return end
 	local entry = holding and holding.by[name]
 	if not entry then return end
 	local now = ns.Now()
@@ -142,7 +142,7 @@ function Court.Call(name, words)
 		end
 		holding.by[name] = nil
 		holding.dismissed[name] = now
-		ns.King.Changed()
+		ns.Shogun.Changed()
 		ns.Fire("COURT_CHANGED")
 		return
 	end
@@ -161,19 +161,19 @@ function Court.Call(name, words)
 		end
 	end
 	ns.Print(L.COURT_CALLING:format(ns.DisplayName(name)))
-	ns.King.Changed()
+	ns.Shogun.Changed()
 	ns.Fire("COURT_CHANGED")
 end
 
 function Court.Prompt(name)
 	local e = holding and holding.by[name]
-	if not e or e.calledAt or (not holding.preview and not ns.King.IsKing()) then return end
+	if not e or e.calledAt or (not holding.preview and not ns.Shogun.IsShogun()) then return end
 	return ns.ShowDialog("BANKAIGUILD_COURT_NOTE", ns.DisplayName(name), nil, { name = name, court = holding })
 end
 
 function Court.Confirm(data, words)
 	if type(data) ~= "table" or data.answered or data.court ~= holding then return end
-	if not holding or (not holding.preview and not ns.King.IsKing()) then return end
+	if not holding or (not holding.preview and not ns.Shogun.IsShogun()) then return end
 	local e = holding.by[data.name]
 	if not e or e.calledAt then return end
 	data.answered = true
@@ -211,12 +211,12 @@ local function OnCourt(sender, id, rest, guild)
 	if not mapID then return end
 	local fresh = not court or court.id ~= id
 	court = fresh and { id = id } or court
-	court.king, court.mapID, court.zone, court.t = ns.FullName(sender), mapID, Clean(zone, 40), ns.Now()
+	court.shogun, court.mapID, court.zone, court.t = ns.FullName(sender), mapID, Clean(zone, 40), ns.Now()
 	court.guild = guild
 	-- News to whoever is there, once per court (and again when he comes to our zone).
 	if Court.InMyZone() and court.toldIn ~= mapID then
 		court.toldIn = mapID
-		ns.Print(L.COURT_HERE:format(ns.KingName(sender), court.zone))
+		ns.Print(L.COURT_HERE:format(ns.ShogunName(sender), court.zone))
 		-- (Busy, 1.1: no chime; once back, the court is named in the line of what waited.)
 		local seen = court
 		ns.Alert("court", "soft", { what = L.HELD_COURT:format(court.zone), key = "court" .. tostring(id),
@@ -226,13 +226,13 @@ local function OnCourt(sender, id, rest, guild)
 end
 
 local function OnClosed(sender, id)
-	if not court or court.king ~= ns.FullName(sender) then return end
+	if not court or court.shogun ~= ns.FullName(sender) then return end
 	court = nil
 	ns.Fire("COURT_CHANGED")
 end
 
-ns.King.Register("C", OnCourt)
-ns.King.Register("Z", OnClosed)
+ns.Shogun.Register("C", OnCourt)
+ns.Shogun.Register("Z", OnClosed)
 
 -- The court seen, while it lasts.
 function Court.Current()
@@ -247,7 +247,7 @@ function Court.InMyZone()
 	return mapID ~= nil and mapID == c.mapID
 end
 
--- Asked and not called for a while (a full court, a busy King): the line offers to ask again.
+-- Asked and not called for a while (a full court, a busy Shogun): the line offers to ask again.
 local function CanAsk(c) return not c.calledAt and (not c.askedAt or ns.Now() - c.askedAt >= Court.ASK_AGAIN) end
 
 function Court.Seek()
@@ -255,8 +255,8 @@ function Court.Seek()
 	if not c or not Court.InMyZone() then return end
 	if not CanAsk(c) then return ns.Print(L.COURT_ASKED_ALREADY) end
 	c.askedAt = ns.Now()
-	ns.Comm.Whisper(c.king, ("T4~%d~%s"):format(c.id, GetGuildInfo("player") or ""), "court ask")
-	ns.Print(L.COURT_ASKED:format(ns.KingName(c.king)))
+	ns.Comm.Whisper(c.shogun, ("T4~%d~%s"):format(c.id, GetGuildInfo("player") or ""), "court ask")
+	ns.Print(L.COURT_ASKED:format(ns.ShogunName(c.shogun)))
 	ns.Fire("COURT_CHANGED")
 end
 
@@ -281,8 +281,8 @@ function Court.HandleCall(dist, sender, text)
 		if words == "" then return end
 	else id = text:match("^T5~(%d+)$") end
 	id = tonumber(id)
-	-- Only the court's King calls; asked in an earlier session (a /reload) counts too.
-	if not c or c.id ~= id or c.king ~= ns.FullName(sender) or not ns.King.Authorized("C", sender, c.guild) then return end
+	-- Only the court's Shogun calls; asked in an earlier session (a /reload) counts too.
+	if not c or c.id ~= id or c.shogun ~= ns.FullName(sender) or not ns.Shogun.Authorized("C", sender, c.guild) then return end
 	if words and not c.noteAt then
 		c.noteAt = at
 		if ns.Chronicle and ns.Chronicle.Add then
@@ -301,11 +301,11 @@ function Court.HandleCall(dist, sender, text)
 	c.askedAt = c.askedAt or c.calledAt
 	-- In an instance or on Busy (1.1): the chat line now, the raid warning and the popup once the
 	-- player is out, if the call is still open then (the popup's two minutes).
-	local king, zone = ns.KingName(sender), c.zone
-	ns.King.Warn(L.COURT_CALLED:format(king, zone), true, "court", {
-		what = L.HELD_COURT_CALL:format(king), key = "courtcall" .. tostring(id),
+	local shogun, zone = ns.ShogunName(sender), c.zone
+	ns.Shogun.Warn(L.COURT_CALLED:format(shogun, zone), true, "court", {
+		what = L.HELD_COURT_CALL:format(shogun), key = "courtcall" .. tostring(id),
 		open = function() return ns.Now() - c.calledAt < Court.CALL_OPEN end,
-		show = function() ns.ShowDialog("BANKAIGUILD_COURT_CALLED", king, zone) end,
+		show = function() ns.ShowDialog("BANKAIGUILD_COURT_CALLED", shogun, zone) end,
 	})
 	ns.Fire("COURT_CHANGED")
 end
@@ -324,7 +324,7 @@ end
 -- The line on top of the Census and the Realm, for the players in the court's zone.
 function Court.Line()
 	local c = Court.Current()
-	if not c or not Court.InMyZone() or ns.King.IsKing() then return nil end
+	if not c or not Court.InMyZone() or ns.Shogun.IsShogun() then return nil end
 	local state
 	local ask = CanAsk(c)
 	if c.calledAt then state = "|cff40ff40" .. L.COURT_STATE_CALLED .. "|r"
@@ -332,11 +332,11 @@ function Court.Line()
 	else state = "|cffffd200" .. L.COURT_STATE_ASK .. "|r" end
 	return {
 		header = true,
-		text = "|T" .. ns.CROWN_ICON .. ":0|t " .. L.COURT_LINE:format(ns.KingName(c.king), c.zone),
+		text = "|T" .. ns.CROWN_ICON .. ":0|t " .. L.COURT_LINE:format(ns.ShogunName(c.shogun), c.zone),
 		right = state,
 		onClick = ask and function() Court.Seek() end or nil,
 		tooltip = function(tt)
-			tt:AddLine(L.COURT_LINE:format(ns.KingName(c.king), c.zone), 1, 0.82, 0)
+			tt:AddLine(L.COURT_LINE:format(ns.ShogunName(c.shogun), c.zone), 1, 0.82, 0)
 			tt:AddLine(L.COURT_TIP, 1, 1, 1, true)
 		end,
 		gapAfter = true,
@@ -344,12 +344,12 @@ function Court.Line()
 end
 
 ---------------------------------------------------------------------------
--- The court inside The Watch (the King's), while it is open: the queue, a click calls
+-- The court inside The Watch (the Shogun's), while it is open: the queue, a click calls
 ---------------------------------------------------------------------------
 
 function Court.HomeLines()
 	if not holding then return {} end
-	local Line, INK, TITLE = ns.King.Line, ns.King.INK, ns.King.TITLE
+	local Line, INK, TITLE = ns.Shogun.Line, ns.Shogun.INK, ns.Shogun.TITLE
 	local lines = { Line(L.COURT_TITLE, TITLE) }
 	lines[#lines + 1] = Line(L.COURT_OPEN_IN:format(holding.zone ~= "" and holding.zone or "?"), INK)
 	lines[#lines + 1] = Line(L.COURT_WAITING:format(#holding.queue), TITLE)
@@ -375,7 +375,7 @@ ns.On("LOGIN", function()
 	ns.RegisterEvent("ZONE_CHANGED_NEW_AREA", function() ns.SafeCall("court moved", Moved) end)
 	ns.Every(30, "court", function()
 		if holding and ns.Now() - (holding.sentAt or 0) >= Court.RESEND then Send() end
-		-- The line comes and goes with the zone we are in, and the court with its King.
+		-- The line comes and goes with the zone we are in, and the court with its Shogun.
 		local c = court
 		if c and (ns.Now() - c.t > Court.EXPIRE) then
 			court = nil

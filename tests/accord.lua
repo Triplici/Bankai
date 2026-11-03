@@ -13,7 +13,7 @@ local MEMBER = "Member7-Realm" -- (one of the harness's guild roster)
 
 local GLOBALS = { "BNGetInfo", "BNConnected", "BNFeaturesEnabledAndConnected", "issecretvalue", "GetTime", "GetGuildInfo",
 	"IsInGuild", "InCombatLockdown", "IsInInstance", "C_ChatInfo" }
-local FIELDS = { "Print", "After", "Every", "Now", "Fire", "KingsScreen", "IsKingCharacter", "RegisterEvent", "me", "ACCORD_VERSION" }
+local FIELDS = { "Print", "After", "Every", "Now", "Fire", "ShogunsScreen", "IsShogunCharacter", "RegisterEvent", "me", "ACCORD_VERSION" }
 local COMM = { "Whisper", "Send", "CheckMembership", "JoinSoon", "RequestKey", "Hello", "ChannelName", "QueueRoom", "DeliveredLogged" }
 
 -- A scene: this account's Bankai Guild Accord as opts says (opts.accepted: accepted for TAG), the game's
@@ -25,7 +25,7 @@ local function Scene(fn, opts)
 	local A = ns.Accord
 	local saved = { g = {}, f = {}, c = {}, accord = ns.db.accord, companionAccord = ns.db.companionAccord,
 		companionAttached = BankaiGuildBridge.COMPANION_ATTACHED,
-		kingAccount = ns.db.kingAccount, wc = rawget(ns, "WatchChat"), viewAs = rawget(ns, "ViewAs"),
+		shogunAccount = ns.db.shogunAccount, wc = rawget(ns, "WatchChat"), viewAs = rawget(ns, "ViewAs"),
 		council = ns.rdb.council, tags = ns.rdb.battletags, chatMod = ns.rdb.chatMod, claimed = ns.Data.ClaimedGuild,
 		consentAsk = ns.Consent.Ask }
 	for _, k in ipairs(GLOBALS) do saved.g[k] = rawget(_G, k) end
@@ -44,8 +44,8 @@ local function Scene(fn, opts)
 		ns.Every = function(sec, where, f) w.tickers[#w.tickers + 1] = { sec = sec, where = where, f = f } return { Cancel = function() end } end
 		ns.Fire = function(name, ...) w.fired[#w.fired + 1] = { name, ... } end
 		ns.RegisterEvent = function(event, f) w.events[event] = w.events[event] or {}; table.insert(w.events[event], f) end
-		ns.KingsScreen = function() return w.kingScreen == true end
-		ns.IsKingCharacter = function(name) return w.king == true and name == ns.me end
+		ns.ShogunsScreen = function() return w.shogunScreen == true end
+		ns.IsShogunCharacter = function(name) return w.shogun == true and name == ns.me end
 		BNConnected = function() return w.bn.up end
 		BNGetInfo = function() if not w.bn.up then return nil end return 1, w.bn.tag, nil, "", false, false, false end
 		BNFeaturesEnabledAndConnected, issecretvalue = nil, nil
@@ -76,7 +76,7 @@ local function Scene(fn, opts)
 		assert(loadfile(ROOT .. "BankaiGuild/WatchChat.lua"))("BankaiGuild", wns)
 		ns.WatchChat = wns.WatchChat
 		A.Reset()
-		ns.db.kingAccount = nil
+		ns.db.shogunAccount = nil
 		ns.db.accord = opts.accepted and { v = ns.ACCORD_VERSION, yes = true, at = w.now - 100, fp = A.Fp(TAG), told = {} } or nil
 		ns.db.companionAccord = nil
 		BankaiGuildBridge.COMPANION_ATTACHED = opts.companion == true
@@ -107,8 +107,8 @@ local function Scene(fn, opts)
 	for _, k in ipairs(GLOBALS) do rawset(_G, k, saved.g[k]) end
 	for _, k in ipairs(FIELDS) do rawset(ns, k, saved.f[k]) end
 	for _, k in ipairs(COMM) do ns.Comm[k] = saved.c[k] end
-	ns.db.accord, ns.db.companionAccord, ns.db.kingAccount, ns.WatchChat, ns.ViewAs =
-		saved.accord, saved.companionAccord, saved.kingAccount, saved.wc, saved.viewAs
+	ns.db.accord, ns.db.companionAccord, ns.db.shogunAccount, ns.WatchChat, ns.ViewAs =
+		saved.accord, saved.companionAccord, saved.shogunAccount, saved.wc, saved.viewAs
 	BankaiGuildBridge.COMPANION_ATTACHED = saved.companionAttached
 	ns.rdb.council, ns.rdb.battletags, ns.rdb.chatMod, ns.Data.ClaimedGuild = saved.council, saved.tags, saved.chatMod, saved.claimed
 	ns.Consent.Ask = saved.consentAsk
@@ -478,12 +478,12 @@ test("accord: the follow key: 16 random hex digits made at the first accept, kep
 	end, { accepted = true, team = true })
 end)
 
-test("accord: any character of the King's game account answers the King and the author alone, never a councillor or a moderator (no other team client holds a row of his account)", function()
+test("accord: any character of the Shogun's game account answers the Shogun and the author alone, never a councillor or a moderator (no other team client holds a row of his account)", function()
 	Scene(function(w, A)
 		eq(A.MayTell(COUNCILLOR), true, "an ordinary account answers a councillor")
-		ns.db.kingAccount = true
-		ns.me = "Kings Alt-Realm"
-		eq(A.MayTell(COUNCILLOR), false, "the King's account does not")
+		ns.db.shogunAccount = true
+		ns.me = "Shoguns Alt-Realm"
+		eq(A.MayTell(COUNCILLOR), false, "the Shogun's account does not")
 		eq(select(2, A.HandleAsk("CHANNEL", COUNCILLOR, "BQ~1")), "level")
 		w.Run(A.DELAY_MAX)
 		eq(#w.whispers, 0, "nothing sent")
@@ -616,9 +616,9 @@ test("accord: an ordinary member's client never keeps, sends on or shows a Battl
 end)
 
 -- (Changed on purpose, 1.2.5.1's review: a BattleTag's digits were shown in full on every team
--- screen but the King's; they now stay hidden there too until the page's Show, for REVEAL seconds.
--- On the King's screen no part of a tag shows: a name of four letters or fewer showed whole.)
-test("accord: the team's page groups one player's characters, the digits hidden until its Show (a moment); the King's screen never shows any part of a BattleTag, his eye button included, and masks the names; never in a role preview", function()
+-- screen but the Shogun's; they now stay hidden there too until the page's Show, for REVEAL seconds.
+-- On the Shogun's screen no part of a tag shows: a name of four letters or fewer showed whole.)
+test("accord: the team's page groups one player's characters, the digits hidden until its Show (a moment); the Shogun's screen never shows any part of a BattleTag, his eye button included, and masks the names; never in a role preview", function()
 	Scene(function(w, A)
 		C_ChatInfo = { SendAddonMessageLogged = function() end }
 		A.AskTeam()
@@ -655,12 +655,12 @@ test("accord: the team's page groups one player's characters, the digits hidden 
 		assert(not Page():find("1234", 1, true), "hidden again")
 		eq(A.RevealTeam(), true); eq(A.RevealTeam(), true)
 		assert(not Page():find("1234", 1, true), "Hide")
-		-- The King's screen: no part of any tag, no Show; his eye changes nothing for tags.
-		w.kingScreen = true
+		-- The Shogun's screen: no part of any tag, no Show; his eye changes nothing for tags.
+		w.shogunScreen = true
 		for _, shown in ipairs({ false, true }) do
 			ns.SetCouncilNamesShown(shown)
 			local all = Page()
-			assert(not all:find("1234", 1, true) and not all:find("7777", 1, true), "a tag on the King's screen")
+			assert(not all:find("1234", 1, true) and not all:find("7777", 1, true), "a tag on the Shogun's screen")
 			assert(not all:find("Tester#", 1, true) and not all:find("Bob", 1, true), "no part of a tag, a short one included: " .. all)
 			assert(all:find(L.ACCORD_TEAM_HIDDEN:format(1), 1, true) and all:find(L.ACCORD_TEAM_HIDDEN:format(2), 1, true), all)
 			assert(all:find(L.ACCORD_TEAM_PROFILE:format(L.ACCORD_TAG_HIDDEN_STREAM), 1, true), all)
@@ -669,7 +669,7 @@ test("accord: the team's page groups one player's characters, the digits hidden 
 		end
 		eq(A.RevealTeam(), false, "his screen never reveals")
 		ns.SetCouncilNamesShown(false)
-		w.kingScreen = false
+		w.shogunScreen = false
 		-- The author's role preview: hidden.
 		ns.ViewAs = { Available = function() return true end, Role = function() return "member" end }
 		eq(A.TeamShown(), false); eq(#A.TeamLines(), 0)
@@ -711,8 +711,8 @@ end)
 -- (Changed on purpose, 1.2.5.1's review: the owner asked for a letter "não muito grande, em tópicos
 -- bonitinho, fácil de ler", "com negrito, quando necessário". Its 20 long bullets became short
 -- one-sentence ones (fewer words in all, each bounded below), the key ones in bold; and on the
--- King's screen no part of the tag shows: a short name cut to four letters was the whole name.)
-test("accord: the letter: Bankai Guild's own bronze window over parchment, the Accord's name in the quest title font, every topic and its short bullets, the key ones bold, the version and its date; the tag masked (Show reveals it a moment), and on the King's screen no part of it, with no Show", function()
+-- Shogun's screen no part of the tag shows: a short name cut to four letters was the whole name.)
+test("accord: the letter: Bankai Guild's own bronze window over parchment, the Accord's name in the quest title font, every topic and its short bullets, the key ones bold, the version and its date; the tag masked (Show reveals it a moment), and on the Shogun's screen no part of it, with no Show", function()
 	H.WithUI(function()
 		Scene(function(w, A)
 			local f = A.Show("slash")
@@ -791,9 +791,9 @@ test("accord: the letter: Bankai Guild's own bronze window over parchment, the A
 			f.reveal:Click(); f.reveal:Click()
 			eq(f.tag:GetText(), "Tester#****", "Hide")
 			f:Hide()
-			-- The King's own character, before he accepted (his King's screen not yet his): no part of
+			-- The Shogun's own character, before he accepted (his Shogun's screen not yet his): no part of
 			-- the tag, no Show.
-			w.king = true
+			w.shogun = true
 			f = A.Show("login")
 			eq(f.tag:GetText(), "****#****"); eq(f.reveal:IsShown(), false)
 			eq(f.tagNote:GetText(), L.ACCORD_TAG_HIDDEN_STREAM)
@@ -801,7 +801,7 @@ test("accord: the letter: Bankai Guild's own bronze window over parchment, the A
 			eq(f.tag:GetText(), "****#****")
 			-- Accepted, from /bk accord: the date, and Close alone.
 			eq(A.Accept(), true)
-			w.king = false
+			w.shogun = false
 			f = A.Show("slash")
 			eq(f.close:IsShown(), true); eq(f.accept:IsShown(), false); eq(f.notNow:IsShown(), false)
 			assert(f.footer:GetText():find(L.ACCORD_ACCEPTED_ON:format(date("%Y-%m-%d", ns.db.accord.at)), 1, true))
@@ -1036,27 +1036,27 @@ test("accord: a team client's ask is kept by the server's clock: after a /reload
 	end, { accepted = true, team = true })
 end)
 
-test("accord: a team member's own BattleTag never goes down the team: the King's client answers no councillor (the author, yes), a councillor's answers the council, an ordinary player's any team member; the game's send checks it again", function()
+test("accord: a team member's own BattleTag never goes down the team: the Shogun's client answers no councillor (the author, yes), a councillor's answers the council, an ordinary player's any team member; the game's send checks it again", function()
 	local W = ns.Workshop
 	local savedAuthor = W.IsAuthorName
 	local ok, err = pcall(function()
 		W.IsAuthorName = function(name) return ns.FullName(name) == "Author Person-Realm" end
 		Scene(function(w, A)
 			A.random = function(lo) return lo end
-			w.king = true
-			eq(select(2, A.HandleAsk("CHANNEL", COUNCILLOR, "BQ~1")), "level", "the King's own tag: not to a councillor")
+			w.shogun = true
+			eq(select(2, A.HandleAsk("CHANNEL", COUNCILLOR, "BQ~1")), "level", "the Shogun's own tag: not to a councillor")
 			w.Run(A.DELAY_MAX)
 			eq(#w.whispers, 0)
 			eq(A.HandleAsk("CHANNEL", "Author Person-Realm", "BQ~1"), true, "to the author")
 			w.Run(A.DELAY_MAX)
 			eq(#w.whispers, 1); eq(w.whispers[1].to, "Author Person-Realm")
-			-- An answer that waited from before he was the King (a test of the permit): no send.
-			w.king = false
+			-- An answer that waited from before he was the Shogun (a test of the permit): no send.
+			w.shogun = false
 			eq(A.HandleAsk("CHANNEL", COUNCILLOR, "BQ~1"), true)
-			w.king = true
+			w.shogun = true
 			w.Run(A.DELAY_MAX)
 			eq(#w.whispers, 1, "checked again at the send")
-			w.king = false
+			w.shogun = false
 			assert(A.StatusLine():find("below 1", 1, true), A.StatusLine())
 		end, { accepted = true })
 		Scene(function(w, A)
@@ -1125,19 +1125,19 @@ test("accord: accepted after the login's own asks ran (the letter shows 30 secon
 	end) end)
 end)
 
-test("accord: on any character of the King's game account, once his own was seen there, the letter shows no part of the BattleTag and no Show; another account's alt as before", function()
+test("accord: on any character of the Shogun's game account, once his own was seen there, the letter shows no part of the BattleTag and no Show; another account's alt as before", function()
 	H.WithUI(function() Scene(function(w, A)
-		w.king = true
+		w.shogun = true
 		A.Check() -- (a loading screen on his own character)
-		eq(ns.db.kingAccount, true)
-		w.king = false
-		ns.me = "Kings Alt-Realm"
+		eq(ns.db.shogunAccount, true)
+		w.shogun = false
+		ns.me = "Shoguns Alt-Realm"
 		eq(A.Stream(), true)
 		local f = A.Show("login")
 		eq(f.tag:GetText(), "****#****"); eq(f.reveal:IsShown(), false)
 		eq(f.tagNote:GetText(), L.ACCORD_TAG_HIDDEN_STREAM)
 		f:Hide()
-		ns.db.kingAccount = nil
+		ns.db.shogunAccount = nil
 		f = A.Show("login")
 		eq(f.tag:GetText(), "Tester#****"); eq(f.reveal:IsShown(), true)
 		f:Hide()
@@ -1313,12 +1313,12 @@ test("accord: the Companion's self section lists this character's own roles for 
 		eq(A.Accept(), true)
 		assert(ns.Consent.Choose("companionAccord", true))
 		local R, W = ns.Roster, ns.Workshop
-		local saved = { off = R.IsOfficer, rank = R.MyRank, hc = ns.IsHighCouncillor, king = ns.IsKingCharacter, author = W.IsAuthorName }
+		local saved = { off = R.IsOfficer, rank = R.MyRank, hc = ns.IsHighCouncillor, shogun = ns.IsShogunCharacter, author = W.IsAuthorName }
 		local ok, err = pcall(function()
 			R.IsOfficer = function() return false end
 			R.MyRank = function() return 7 end
 			ns.IsHighCouncillor = function() return false end
-			ns.IsKingCharacter = function() return false end
+			ns.IsShogunCharacter = function() return false end
 			W.IsAuthorName = function() return false end
 			eq(#B.GetSection("self").data.roles, 0, "a plain member: no roles")
 			-- (10-20) His own guild, by the census's name, for the Companion's relay; none outside a guild.
@@ -1332,7 +1332,7 @@ test("accord: the Companion's self section lists this character's own roles for 
 			R.IsOfficer = function() return true end
 			R.MyRank = function() return 0 end
 			ns.IsHighCouncillor = function(n) return n == ns.me end
-			ns.IsKingCharacter = function(n) return n == ns.me end
+			ns.IsShogunCharacter = function(n) return n == ns.me end
 			W.IsAuthorName = function(n) return n == ns.me end
 			eq(table.concat(B.GetSection("self").data.roles, ","), "officer,guildMaster,council,crown,author", "every role he holds, in order")
 			-- Another player's role never counts: the checks ask about this character alone.
@@ -1341,7 +1341,7 @@ test("accord: the Companion's self section lists this character's own roles for 
 			R.IsOfficer = function() error("roster not ready") end
 			eq(table.concat(B.GetSection("self").data.roles, ","), "guildMaster,crown,author", "an error in a check: that role left out")
 		end)
-		R.IsOfficer, R.MyRank, ns.IsHighCouncillor, ns.IsKingCharacter, W.IsAuthorName = saved.off, saved.rank, saved.hc, saved.king, saved.author
+		R.IsOfficer, R.MyRank, ns.IsHighCouncillor, ns.IsShogunCharacter, W.IsAuthorName = saved.off, saved.rank, saved.hc, saved.shogun, saved.author
 		if not ok then error(err, 0) end
 	end, { companion = true }) end)
 end)
@@ -1376,11 +1376,11 @@ test("accord: the Companion's self section carries only this account's own conse
 				end
 				if s.name ~= "self" then assert(not all:find(TAG, 1, true), s.name .. " carries the player's own BattleTag") end
 			end
-			-- The King's screen follows the same contract.
-			w.kingScreen = true
+			-- The Shogun's screen follows the same contract.
+			w.shogunScreen = true
 			eq(B.GetSection("self").data.battleTag, TAG)
 			eq(B.GetSection("self").data.character, ns.me)
-			w.kingScreen = false
+			w.shogunScreen = false
 		end)
 		ns.Log = realLog
 		if not ok then error(err, 0) end

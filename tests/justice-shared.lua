@@ -6,7 +6,7 @@ local function Client(name)
 	local w = { name = name, guild = "Bankai Guild II", now = 1800000000, sent = {}, events = {}, listeners = {}, ranks = {},
 		justice = "Justice-Realm", council = { ["Council-Realm"] = true }, native = {}, dialogs = {} }
 	local n = setmetatable({ me = name, realm = "Realm", group = "Realm", faction = "Alliance", CAPTAIN_RANK = 1,
-		db = { blocked = {} }, rdb = { guilds = {} }, ViewAs = {}, WatchChat = {}, Nominees = {}, King = {}, Workshop = {}, UI = {},
+		db = { blocked = {} }, rdb = { guilds = {} }, ViewAs = {}, WatchChat = {}, Nominees = {}, Shogun = {}, Workshop = {}, UI = {},
 		Moderation = { Blocks = function() return false end }, TabardsV2 = { SurfaceVisible = function() return false end },
 		Judgment = { Visible = function() return false end }, RealmPages = {} }, { __index = base })
 	w.ns = n
@@ -16,12 +16,12 @@ local function Client(name)
 	n.Moderation.CharName = function(s) return type(s) == "string" and n.FullName(s) or nil end
 	n.RealmOf = function(s) return s:match("%-(.+)$") end; n.GroupOf = function(s) return s end
 	n.IsMember = function() return w.guild ~= nil end; n.IsFederation = function(g) return g == "Bankai Guild II" or g == "Bankai Guild III" end
-	n.IsKingCharacter = function(s) return s == "Crown-Realm" end; n.IsHighCouncillor = function(s) return w.council[s] == true end
-	n.KingRealm = function() return "Realm" end; n.IsKingGuild = function() return false end
-	n.King.Preview = function() return w.preview == true end; n.King.IsKing = function() return n.IsKingCharacter(n.me) end
+	n.IsShogunCharacter = function(s) return s == "Crown-Realm" end; n.IsHighCouncillor = function(s) return w.council[s] == true end
+	n.ShogunRealm = function() return "Realm" end; n.IsShogunGuild = function() return false end
+	n.Shogun.Preview = function() return w.preview == true end; n.Shogun.IsShogun = function() return n.IsShogunCharacter(n.me) end
 	n.Workshop.IsAuthor = function() return n.me == "Author-Realm" end; n.Workshop.Visible = function() return false end
 	n.Workshop.IsAuthorName = function(s) return s == "Author-Realm" end
-	n.ViewAs.Previewing = n.King.Preview; n.ViewAs.Available = function() return false end
+	n.ViewAs.Previewing = n.Shogun.Preview; n.ViewAs.Available = function() return false end
 	n.WatchChat.Justice = function() return w.justice end
 	n.WatchChat.IsNamedWatcher = function(s) return s == w.justice end
 	n.WatchChat.PowersBarred = function() return w.barred and "blocked" or nil end
@@ -230,7 +230,7 @@ test("Justice shared: accepted sister-guild ordinary correspondent is addressabl
 	n.Data.AuthorizedRank = function(who, g) if g == guild and who == gm then return 0, "signed" end end
 	n.Data.Guild = function(g) if g == guild then return { leader = gm, realm = "Realm" } end end
 	n.Borders = { Changed = function() end }; n.ChatRooms = {}; n.PlayerMenu = {}
-	n.IsKingGuild = function(g) return g == "Bankai Guild" end; n.KingGuildName = function() return "Bankai Guild" end
+	n.IsShogunGuild = function(g) return g == "Bankai Guild" end; n.ShogunGuildName = function() return "Bankai Guild" end
 	local f = assert(loadfile(ROOT .. "BankaiGuild/Nominees.lua")); setfenv(f, a.env); f("BankaiGuild", n)
 	local packet = ("NM~1~%s~%d~1~1~d=Council of Justice=%s"):format(guild, a.now, b.name)
 	n.Nominees.Handle("CHANNEL", "Other-Realm", packet)
@@ -240,7 +240,7 @@ test("Justice shared: accepted sister-guild ordinary correspondent is addressabl
 	b.guild = guild; b.now = a.now; b.ranks = { [gm] = 0, [b.name] = 3, ["Subject-Realm"] = 9 }; b.scan()
 	b.ns.Data.KnownRank = function() return nil end; b.ns.Data.Guild = function() return nil end
 	b.ns.Borders = { Changed = function() end }; b.ns.ChatRooms = {}; b.ns.PlayerMenu = {}
-	b.ns.IsKingGuild = n.IsKingGuild; b.ns.KingGuildName = n.KingGuildName
+	b.ns.IsShogunGuild = n.IsShogunGuild; b.ns.ShogunGuildName = n.ShogunGuildName
 	local recipient = assert(loadfile(ROOT .. "BankaiGuild/Nominees.lua")); setfenv(recipient, b.env); recipient("BankaiGuild", b.ns)
 	b.ns.Nominees.Handle("CHANNEL", gm, packet)
 	eq(b.ns.Nominees.IsCorrespondent(b.name, guild, "Council of Justice"), true, "the ordinary recipient is named by its actual native guild master")
@@ -353,9 +353,9 @@ test("Justice shared: revoked reader or issuer cannot leave reusable cryptograph
 	c.verify(); assert(c.ns.JusticeTasks.ResponseMetric().by[b.name])
 	local x, y, z = Triple(); local other = Complete(x, y); Enroll(x, z); Enroll(y, z)
 	assert(z.ns.JusticeTasks.Sync(x.name)); Transfer(z, x); Transfer(x, z, nil, true)
-	local wasKing = z.ns.IsKingCharacter; z.ns.IsKingCharacter = function() return false end
+	local wasShogun = z.ns.IsShogunCharacter; z.ns.IsShogunCharacter = function() return false end
 	z.verify(); eq(Row(z, other), nil, "a queued original issuer verdict cannot survive current Crown authority loss")
-	z.ns.IsKingCharacter = wasKing; z.scan()
+	z.ns.IsShogunCharacter = wasShogun; z.scan()
 	for _, packet in ipairs(ProofPackets(Row(x, other).proofs.I)) do z.receive(x.name, packet) end
 	eq(Row(z, other), nil, "restored original issuer authority still requires a fresh verification")
 	z.verify(); assert(Row(z, other))

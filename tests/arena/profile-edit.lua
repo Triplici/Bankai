@@ -27,7 +27,7 @@ test("1.2 the fights part: with the live switch off and the companion not loaded
 	local w, cast = W3.New()
 	local A = cast.A
 	Belt(w, cast, A, cast.B, { A, cast.spectator })
-	W3.Live(w, cast.king, { live = 0 })
+	W3.Live(w, cast.shogun, { live = 0 })
 	w:Run(3)
 	eq(A.ns.ArenaRoles.Live(), false); eq(A.companion.loaded, nil)
 	local before = #w:Sent{ from = A, type = "AP" }
@@ -65,7 +65,7 @@ test("1.2 the fights part: the Edit's view model: the rank's frame, none, every 
 	eq(vm.preview.frame, "arena-champion"); eq(vm.preview.titleText, "Arena Champion")
 	eq(vm.preview.frameTexture, "Interface\\AddOns\\BankaiGuild\\media\\honors\\gryphon-gold")
 	eq(vm.preview.markTexture, "Interface\\AddOns\\BankaiGuild\\media\\honors\\gryphon-gold-mark")
-	eq(#vm.letters, 1, "the King's letter, to read again")
+	eq(#vm.letters, 1, "the Shogun's letter, to read again")
 	-- The nickname: a step through each list, words only from them.
 	eq(PE(w, A).NickStep("a", 1), true)
 	eq(PE(w, A).NickStep("n", 1), true)
@@ -706,7 +706,7 @@ test("1.2.4 My profile, Who sees what: the fight list's choice reads the design'
 	end
 end)
 
-test("1.2.4 My profile, Letters: the King's, newest first, unread in gold, a click opens one in the King's letter window; none: says so", function()
+test("1.2.4 My profile, Letters: the Shogun's, newest first, unread in gold, a click opens one in the Shogun's letter window; none: says so", function()
 	local w, cast = W3.New()
 	local A = cast.A
 	W3.PageUI(w, A)
@@ -721,7 +721,7 @@ test("1.2.4 My profile, Letters: the King's, newest first, unread in gold, a cli
 	eq(Plain(lines[3].text), A.ns.HonorsNet.TitleText("donor-top-1")); eq(lines[3].text:find("|cffffd200", 1, true), nil, "read")
 	w:As(A, lines[2].onClick)
 	local letter = A.ns.HonorsNet.LetterFrame()
-	eq(letter ~= nil and letter:IsShown(), true, "the King's letter window"); eq(letter.key, "arena-champion")
+	eq(letter ~= nil and letter:IsShown(), true, "the Shogun's letter window"); eq(letter.key, "arena-champion")
 	W3.NoErrors(w)
 end)
 

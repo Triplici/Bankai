@@ -819,7 +819,7 @@ function ArenaUI.FindRefresh()
 	local can = type(view.can) == "table" and view.can or {}
 	if can.ok == false and can.text then lines[#lines + 1] = Kit.C("red", ns.Codec.Plain(can.text)) end
 	f.line:SetText(table.concat(lines, "\n"))
-	-- The King's actual ranked offers, if any, use the same Pick action as the search card.
+	-- The Shogun's actual ranked offers, if any, use the same Pick action as the search card.
 	-- Keep them beneath its status words, above the original footer, in this same sheet.
 	local offerY = f.lineAt[2] + levelUp - (tonumber(f.line:GetStringHeight()) or 0) - 8
 	local offerRows = searchModel and searchModel.rows or {}

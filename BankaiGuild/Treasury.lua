@@ -3,8 +3,8 @@ local L = ns.L
 
 -- The Treasury of Bankai Guild (1.0): one treasury kept in several books. Its keepers are the
 -- Treasurer (ns.TREASURER of the guild Bankai Guild) and his mail character (the other name of
--- ns.TREASURER_CHARACTERS, in any guild or none), the King (his character, ns.KING_CHARACTER)
--- and the characters the King adds on the Treasury tab (his word, T1~K, like his switches).
+-- ns.TREASURER_CHARACTERS, in any guild or none), the Shogun (his character, ns.SHOGUN_CHARACTER)
+-- and the characters the Shogun adds on the Treasury tab (his word, T1~K, like his switches).
 -- Each keeper's own client keeps his character's book: gold and items he receives by trade or
 -- mail are a donation, gold and items he gives a payment. What he earns playing is his: a book
 -- is an opening balance, plus what came in, less what went out, never his character's gold. A
@@ -18,16 +18,16 @@ local L = ns.L
 -- change), once he said yes to it; every client puts the keepers' books together: the balance
 -- is their sum, the ranking of donors and the items donated one list (a donor who gave to two
 -- keepers is one line), the book every keeper's lines by time, with who received each. The
--- King sees all of it; what the rest of the army sees is the King's choice, three switches (the
+-- Shogun sees all of it; what the rest of the army sees is the Shogun's choice, three switches (the
 -- balance, the ranking, the book), and with any of them on the Treasury tab appears for every
 -- member with the addon. (The channel is readable by anyone on it: the switches choose what the
--- addon shows, they don't hide the numbers.) The King's word carries the time he gave it; his
+-- addon shows, they don't hide the numbers.) The Shogun's word carries the time he gave it; his
 -- switches, like his list of keepers, count only from his client and his Stewards' (Konig's
 -- review of 1.0.0: the Treasurer's book could name anyone a keeper; of 1.1: it could set the
 -- switches too). The Treasurer's book still carries them, for 1.0's addons alone.
 -- 1.0's fresh start: the books of 0.9 are closed (kept in the saved variables, never shown or
 -- sent) and each keeper's book of 1.0 opens at his character's gold at his first login on 1.0
--- (or when the King names him). The epoch travels in the message: 1.0 clients never read 0.9's
+-- (or when the Shogun names him). The epoch travels in the message: 1.0 clients never read 0.9's
 -- treasury (T8), and a later reset (another epoch) is never merged with 1.0's books.
 --   TB~1.0~<guild>~<opening>~<balance>~<all in>~<all out>~<week in>~<donors this week>~<Name,...>
 --     ~<switches@time|->~-~<Name:copper,...>
@@ -46,9 +46,9 @@ local L = ns.L
 --     account plays one character at a time, and outside an Bankai Guild guild the addon sends
 --     nothing: a mail character in another guild or none never sends its own), with the time
 --     that book last changed; a keeper's own TB always counts over it.
---   T1~T~<id>~<guild>~<balance 0|1><ranking 0|1><book 0|1>~<time>        the King's switches (King.lua)
---   T1~K~<id>~<guild>~<time>~<Name-Realm,...>                              the King's keepers
---     (1.0.0: his Steward's too, in his name; the newest word wins, the King's on the same second)
+--   T1~T~<id>~<guild>~<balance 0|1><ranking 0|1><book 0|1>~<time>        the Shogun's switches (Shogun.lua)
+--   T1~K~<id>~<guild>~<time>~<Name-Realm,...>                              the Shogun's keepers
+--     (1.0.0: his Steward's too, in his name; the newest word wins, the Shogun's on the same second)
 --   TX~<guild>                                                            a keeper withdraws his book
 --   TX~<guild>~<Name-Realm>              the Treasurer withdraws his mail character's (kept private)
 --   TE~<guild>~<time>~<piece>~<pieces>~<Name,...>   the early supporters (0.9's donors), in pieces
@@ -63,7 +63,7 @@ Treasury.MAX = 500           -- lines kept in a book (the sums are kept apart)
 Treasury.DAYS_KEPT = 8       -- days of sums kept (today and the week)
 Treasury.SHARE_EVERY = 300   -- a keeper's client repeats his book for late logins
 Treasury.SHARE_GAP = 60      -- and sends a change once a minute at most
-Treasury.FLAGS_EVERY = 300   -- the King's client repeats his switches and his keepers
+Treasury.FLAGS_EVERY = 300   -- the Shogun's client repeats his switches and his keepers
 Treasury.WORD_FRESH = 120    -- 1.1: a switch given this recently goes out from its giver's client alone
 Treasury.RANK_SENT = 100     -- donors in the ranking sent (0.9.7; the message goes in pieces)
 Treasury.RANK_PAGE = 25      -- ranking lines shown, 25 more a click (the window stays light)
@@ -75,7 +75,7 @@ Treasury.ITEMS_SHOWN = 25    -- items donated listed on the tab
 Treasury.LEGACY_RANK = 25    -- 0.9's treasury, for 0.9 clients: short
 Treasury.LEGACY_BOOK = 5
 Treasury.ROOM = 20 * 220     -- a book goes in 20 pieces at most (pieces waiting live 60 s)
-Treasury.MAX_KEEPERS = 5     -- characters the King adds (each one sends his book)
+Treasury.MAX_KEEPERS = 5     -- characters the Shogun adds (each one sends his book)
 Treasury.PENDING_FOR = 30    -- seconds a mail's gold or item may take to arrive once asked for
 Treasury.MAX_COPPER = 2147483647
 Treasury.MAX_COUNT = 999999
@@ -127,7 +127,7 @@ local function WeekKeys(now)
 	end
 	return keys
 end
--- The clock the King's word is dated by: the server's, the same on every client.
+-- The clock the Shogun's word is dated by: the server's, the same on every client.
 local function Clock() return GetServerTime and GetServerTime() or ns.Now() end
 
 -- 12g 30s 5c, with the coin icons when the client has them (a minus sign when negative).
@@ -237,13 +237,13 @@ function Treasury.SetDevView(on)
 	ns.Fire("DATA_CHANGED")
 end
 
--- The King's view of the treasury: the King, his Steward (1.0.0: the switches and the keepers
--- are his to set in the King's name, never the King's own book or his yes to share it, which
--- are the King's client's alone), and the author's Shobek's view.
-local function IsKingView() return ns.King.IsKing() or ns.King.IsSteward() or ns.King.Preview() end
+-- The Shogun's view of the treasury: the Shogun, his Steward (1.0.0: the switches and the keepers
+-- are his to set in the Shogun's name, never the Shogun's own book or his yes to share it, which
+-- are the Shogun's client's alone), and the author's Shobek's view.
+local function IsShogunView() return ns.Shogun.IsShogun() or ns.Shogun.IsSteward() or ns.Shogun.Preview() end
 
--- The King's list of keepers as this client last heard it (never expires: a keeper's book must
--- not leave the treasury while the King is offline). { at, names = { "Name-Realm", ... } }
+-- The Shogun's list of keepers as this client last heard it (never expires: a keeper's book must
+-- not leave the treasury while the Shogun is offline). { at, names = { "Name-Realm", ... } }
 local function KeeperStore()
 	local k = ns.rdb and ns.rdb.treasuryKeepers
 	return type(k) == "table" and type(k.names) == "table" and k or nil
@@ -253,10 +253,10 @@ local function Listed(name)
 	for _, n in ipairs(k and k.names or {}) do if SameChar(n, name) then return true end end
 	return false
 end
--- The names on the King's list (the author's Shobek's view: its own, on his screen only).
+-- The names on the Shogun's list (the author's Shobek's view: its own, on his screen only).
 function Treasury.Keepers()
 	local k
-	if ns.King.Preview() then k = ns.db and ns.db.previewTreasuryKeepers else k = KeeperStore() end
+	if ns.Shogun.Preview() then k = ns.db and ns.db.previewTreasuryKeepers else k = KeeperStore() end
 	return type(k) == "table" and type(k.names) == "table" and k.names or {}
 end
 
@@ -275,8 +275,8 @@ Treasury.TreasurerPin = TreasurerPin
 -- 1.1 (Fern's #36): a line of someone's dues: gold given to one of the Treasurer's characters, by
 -- trade or mail (the dues' ledger counts every one, Dues.lua). Its name and its time never leave
 -- his client in a book: not on the channel (TB, TR, T8), nor in the whole book whispered to the
--- King, his Steward and the keepers (1.1): with one fixed amount a week, they would be a list of
--- who paid it, and Fern's #36 gives it to the King and that guild's Captains alone (the dues' lists).
+-- Shogun, his Steward and the keepers (1.1): with one fixed amount a week, they would be a list of
+-- who paid it, and Fern's #36 gives it to the Shogun and that guild's Captains alone (the dues' lists).
 -- Here, not in Dues.lua, so that it holds even while that file is missing (a restart owed).
 local function DuesLine(keeper, e)
 	if type(e) ~= "table" or e.out or e.item or e.kind == "transfer" or (tonumber(e.money) or 0) <= 0 then return false end
@@ -285,16 +285,16 @@ end
 Treasury.DuesLine = DuesLine
 
 -- One of the keepers pinned by name (the other side of a trade or a mail: its guild is not
--- known): the Treasurer's characters (his own and his mail's), or the King's character. (The
+-- known): the Treasurer's characters (his own and his mail's), or the Shogun's character. (The
 -- treasury is <Elfcore>'s, the Alliance's.)
 local function PinnedName(name)
 	if ns.faction == "Horde" or type(name) ~= "string" or name == "" then return false end
 	name = ns.FullName(ns.Normal(name))
 	local short = ns.ShortName(name):lower()
 	if TreasurerPin(name) then return true end
-	local king = ns.KingCharacter and ns.KingCharacter()
-	if king and short == king:lower() then
-		local realm = ns.KingRealm and ns.KingRealm()
+	local shogun = ns.ShogunCharacter and ns.ShogunCharacter()
+	if shogun and short == shogun:lower() then
+		local realm = ns.ShogunRealm and ns.ShogunRealm()
 		return realm == nil or SameGroup(name, realm)
 	end
 	return false
@@ -306,14 +306,14 @@ end
 
 -- A keeper speaking (a message's sender, whose name the server sets): the Treasurer of
 -- <Elfcore>, his mail character in any guild or none (Core.lua: its pinned name on his realm
--- group is the check), the King's character of his guild, or a character on the King's list,
+-- group is the check), the Shogun's character of his guild, or a character on the Shogun's list,
 -- of an Bankai Guild guild.
 function Treasury.IsKeeperName(name, guild)
 	if type(name) ~= "string" or ns.faction == "Horde" then return false end
 	if ns.IsTreasurerMail(name) then return true end
 	if type(guild) ~= "string" then return false end
 	if ns.IsTreasurer(name, guild) then return true end
-	if ns.IsKingGuild(guild) and ns.IsKingCharacter(name) then return true end
+	if ns.IsShogunGuild(guild) and ns.IsShogunCharacter(name) then return true end
 	return ns.IsFederation(guild) and Listed(name)
 end
 
@@ -333,12 +333,12 @@ end
 Treasury.RealKeeper = RealKeeper
 function Treasury.IsKeeper() return RealKeeper() or Treasury.DevView() end
 
--- The King's switches: what the army sees (every client keeps the King's last word). The
--- author's Shobek's view keeps its own, on his screen only: the real King's word stays as it is.
+-- The Shogun's switches: what the army sees (every client keeps the Shogun's last word). The
+-- author's Shobek's view keeps its own, on his screen only: the real Shogun's word stays as it is.
 local FLAGS = { "balance", "ranking", "book" }
 function Treasury.Flags()
 	local f
-	if ns.King.Preview() then f = ns.db and ns.db.previewTreasuryFlags else f = ns.rdb and ns.rdb.treasuryFlags end
+	if ns.Shogun.Preview() then f = ns.db and ns.db.previewTreasuryFlags else f = ns.rdb and ns.rdb.treasuryFlags end
 	return type(f) == "table" and f or {}
 end
 function Treasury.Shows(what) return Treasury.Flags()[what] == true end
@@ -352,23 +352,23 @@ function Treasury.AnyShown()
 	return false
 end
 
--- Who has the tab: the keepers, the King and his Steward (where a Treasurer can be, or once a
--- book came; the author's view always), and every member once the King shows the army something.
+-- Who has the tab: the keepers, the Shogun and his Steward (where a Treasurer can be, or once a
+-- book came; the author's view always), and every member once the Shogun shows the army something.
 function Treasury.Visible()
 	if ns.GuildFinance and not ns.GuildFinance.missing and ns.GuildFinance.Visible() then return true end
 	if ns.Bank and ns.Bank.OwnGuildView and ns.Bank.OwnGuildView() then return true end
 	local campaign = ns.Campaign and not ns.Campaign.missing and ns.Campaign.State()
 	if campaign and not campaign.closed and ns.IsMember() then return true end
-	if Treasury.IsKeeper() or ns.King.Preview() then return true end
-	-- (1.1: the King, his Steward or a Hand holding a sister guild's bank, 1.2: any of the Guild
-	-- treasuries' audience, and a Lord or Captain with a request to the treasury: Bank.lua.)
+	if Treasury.IsKeeper() or ns.Shogun.Preview() then return true end
+	-- (1.1: the Shogun, his Steward or a Hand holding a sister guild's bank, 1.2: any of the Guild
+	-- treasuries' audience, and a Council member or Captain with a request to the treasury: Bank.lua.)
 	if ns.Bank and ns.Bank.SeesSisters and ns.Bank.SeesSisters() and #ns.Bank.Sisters() > 0 then return true end
 	if ns.Bank and ns.Bank.MyRequests and ns.IsMember() and #ns.Bank.MyRequests() > 0 then return true end
-	if ns.King.SetsLists() then return (ns.splitNames and ns.faction ~= "Horde") or Treasury.Report() ~= nil end
+	if ns.Shogun.SetsLists() then return (ns.splitNames and ns.faction ~= "Horde") or Treasury.Report() ~= nil end
 	return ns.IsMember() and Treasury.AnyShown() and Treasury.Report() ~= nil
 end
 -- The tab itself (1.1): also for every member who may send the week's dues (Dues.lua), with only
--- what the King shows of the treasury (Visible: nothing while he shows nothing).
+-- what the Shogun shows of the treasury (Visible: nothing while he shows nothing).
 function Treasury.TabVisible() return Treasury.Visible() or ns.Dues.Pays() == true end
 
 ---------------------------------------------------------------------------
@@ -597,7 +597,7 @@ end
 
 -- A keeper's book of this era opens at his character's gold as it is then (1.0's fresh start:
 -- the treasury starts from what its keepers hold), once: at his first login on 1.0, when the
--- King names him, or before his first trade or mail if that comes first.
+-- Shogun names him, or before his first trade or mail if that comes first.
 function Treasury.OpenBook()
 	if not RealKeeper() or not GetMoney then return false end
 	local b = BookOf(ns.me, true)
@@ -633,7 +633,7 @@ function Treasury.Record(name, copper, how, out, o)
 	local CR = ns.CraftRequests
 	-- 1.2 (crafting requests, the guild fee): a mail titled "Bankai Guild craft fee <request>" is a seller's
 	-- 6% of a direct sale, asked first: the fee desk books it against that seller's fee whoever sent
-	-- it, a keeper (the King's character) or one of the desk's own characters included
+	-- it, a keeper (the Shogun's character) or one of the desk's own characters included
 	-- (CraftRequests.lua).
 	local craftFee = kind == nil and not item and type(CR) == "table" and type(CR.FeeMail) == "function" and CR.FeeMail(name, copper, o.note, how, out)
 	if Treasury.KeeperByName(name) and not SameChar(name, b.name) then
@@ -699,7 +699,7 @@ function Treasury.Record(name, copper, how, out, o)
 	-- 1.1: an item given (a counted payment) to a player who asked the treasury for it closes his
 	-- request once he got its count (Bank.lua).
 	if item and out and not e.excluded and kind ~= "transfer" and ns.Bank and ns.Bank.Paid then ns.Bank.Paid(name, item, count) end
-	-- The King (and the army) see it soon (once a minute at most).
+	-- The Shogun (and the army) see it soon (once a minute at most).
 	Treasury.Share()
 	if not o.quiet then
 		local what = item and ItemText(item, count) or Treasury.Coins(copper)
@@ -1306,11 +1306,11 @@ end
 -- Sharing: each keeper's book, and everyone's copy of them
 ---------------------------------------------------------------------------
 
--- Each keeper's yes (0.9.3's Treasurer's, now every keeper's, the King's too): his book and the
+-- Each keeper's yes (0.9.3's Treasurer's, now every keeper's, the Shogun's too): his book and the
 -- guild bank go out only once he chose to share them (ns.db.keeperShares[character], nil until
 -- he answers; the Treasurer's 0.9.3 answer, ns.db.treasurerShares, stays his). They go on the
--- Bankai Guild channel, where every client receives the bytes; the addon shows them to the King,
--- and to the army only with the King's switches. Turned off, his book is withdrawn (TX) from
+-- Bankai Guild channel, where every client receives the bytes; the addon shows them to the Shogun,
+-- and to the army only with the Shogun's switches. Turned off, his book is withdrawn (TX) from
 -- every screen at once.
 local function ConsentKey() return OwnKey(ns.me or "") end
 function Treasury.Consent()
@@ -1451,7 +1451,7 @@ local function LineCode(e)
 	return e.out and "o" or "i"
 end
 
--- The King's word as this client last heard it, with its time.
+-- The Shogun's word as this client last heard it, with its time.
 local function FlagsWord()
 	local f = ns.rdb.treasuryFlags
 	return type(f) == "table" and tonumber(f.at) and (FlagDigits(f) .. "@" .. math.floor(f.at)) or "-"
@@ -1471,18 +1471,18 @@ end
 
 -- This keeper's book as it goes out (TB), each list cut until it fits Treasury.ROOM.
 -- parts (1.1): the army's part alone, as it goes on the channel ({ balance, ranking, book }, what
--- the King's switches show: PublicParts); nil: the whole book, as it goes by whisper to the King,
+-- the Shogun's switches show: PublicParts); nil: the whole book, as it goes by whisper to the Shogun,
 -- his Stewards and the keepers. A part left out is empty in it, and its totals are then the sums
 -- of what it shows (a 1.0 client checks them, and so still takes it): the balance's numbers (the
 -- opening, the balance, the totals, the week, the transfers) with "balance", the ranking with
 -- "ranking", the book's lines and the items donated with "book". Its keepers' field (read by
 -- nobody before 1.1) says which parts it holds: "<balance><ranking><book>@1", "110@1".
--- A 1.0 client takes it as that keeper's whole book: its army shows what the King shows, as
--- before, and the King's switches still reach it from the Treasurer's copy, which 1.0 reads (and
--- which also takes the place of any whole book of 1.0 it kept). But a King's, Steward's or
+-- A 1.0 client takes it as that keeper's whole book: its army shows what the Shogun shows, as
+-- before, and the Shogun's switches still reach it from the Treasurer's copy, which 1.0 reads (and
+-- which also takes the place of any whole book of 1.0 it kept). But a Shogun's, Steward's or
 -- keeper's 1.0 addon, which
 -- shows everything whatever the switches, shows a balance of zero there with the balance hidden
--- (every switch off, as the King starts) or the sums of the lists shown, until it updates: 1.1
+-- (every switch off, as the Shogun starts) or the sums of the lists shown, until it updates: 1.1
 -- whispers the whole book to 1.1 alone. A 1.1 insider's Treasury tab names them
 -- (Treasury.NotUpdated), so they can be told.
 function Treasury.Message(b, parts)
@@ -1490,9 +1490,9 @@ function Treasury.Message(b, parts)
 	local t = Treasury.Totals(b)
 	local whole = parts == nil
 	local showBalance, showRanking, showBook = whole or parts.balance == true, whole or parts.ranking == true, whole or parts.book == true
-	-- The King's switches ride the Treasurer's book alone (not a book of his mail character's he
+	-- The Shogun's switches ride the Treasurer's book alone (not a book of his mail character's he
 	-- passes on), for 1.0's addons, which read them there; 1.1 reads them from nobody's book
-	-- (Konig's review of 1.1: TakeFlags). His keepers never do: they are the King's and his
+	-- (Konig's review of 1.1: TakeFlags). His keepers never do: they are the Shogun's and his
 	-- Stewards' to set, from their own clients (Konig's review of 1.0.0), and the field stays "-"
 	-- (1.1: on the channel, the parts the book holds).
 	local mine = ns.IsTreasurer(ns.me, GetGuildInfo("player") or "") and SameChar(b.name or ns.me, ns.me)
@@ -1505,7 +1505,7 @@ function Treasury.Message(b, parts)
 		-- 1.1 (Fern's #36): the week's donors go out as a count, never by name. With the dues (one
 		-- fixed amount a week, Dues.lua) their names on the channel would be a public list of who
 		-- paid this week, and so of who did not: every client on it receives the bytes, whatever the
-		-- King's switches show. The ranking (all time, which Fern kept) stays, less what may be each
+		-- Shogun's switches show. The ranking (all time, which Fern kept) stays, less what may be each
 		-- giver's dues in the Treasurer's (PublicRanking); so do the book's latest lines, except the
 		-- gold given to the Treasurer's characters: each of those is someone's dues (a name and his
 		-- last payment: DuesLine), and never goes out.
@@ -1562,7 +1562,7 @@ end
 
 -- 0.9's treasury (T8), for 0.9 clients (they read it from the Treasurer alone): the treasury
 -- of 1.0 as his client puts it together, short. 1.0 clients never read it. parts (1.1): it goes
--- on the channel, so only what the King's switches show (Treasury.Message): a part hidden is
+-- on the channel, so only what the Shogun's switches show (Treasury.Message): a part hidden is
 -- zero or empty in it.
 function Treasury.LegacyMessage(parts)
 	local r = Treasury.Report(true)
@@ -1618,14 +1618,14 @@ function Treasury.Share(force)
 	end
 	lastShare = now
 	Treasury.OpenBook()
-	-- On the channel the army's part alone (1.1); the whole book by whisper to the King, his
+	-- On the channel the army's part alone (1.1); the whole book by whisper to the Shogun, his
 	-- Stewards and the keepers heard online (none of it while the switches show all of it).
 	local parts, all = Treasury.PublicParts()
 	if ns.IsTreasurer(ns.me, GetGuildInfo("player")) then Send(Treasury.LegacyMessage(parts), "treasury8") end
 	Send(Treasury.Message(nil, not all and parts or nil), "treasury")
 	Treasury.Relay()
 	Treasury.SendPrivate()
-	-- (1.1: the open bank requests next to the bank, while the King shows it: Bank.lua.)
+	-- (1.1: the open bank requests next to the bank, while the Shogun shows it: Bank.lua.)
 	if ns.Bank and ns.Bank.SharePublic then ns.Bank.SharePublic(force) end
 end
 
@@ -1707,7 +1707,7 @@ end
 --     the transfers out; the week no more than all in; no more donors named than counted; the
 --     ranking in its order, each donor more than nothing, worth no more than all in; the lines
 --     of each kind worth no more than its total (a total at MAX_COPPER, clamped, proves nothing).
--- What can't be a name is left out (the names reach the King's stream), nothing else. nil, nil
+-- What can't be a name is left out (the names reach the Shogun's stream), nothing else. nil, nil
 -- for another era's book (0.9's, a later reset's): never merged with ours. Returns r, f.
 Treasury.FIRST_DAY = 1767225600  -- 2026-01-01 00:00 UTC: no line of a 1.0 book is older
 Treasury.DATE_SLACK = 86400      -- a keeper's clock may run a day ahead of the server's
@@ -1753,7 +1753,7 @@ local function ReadBook(text, from, t)
 	if #entries > Treasury.WEEK_SENT or #entries > donors then return nil, "the week's donors" end
 	for _, name in ipairs(entries) do
 		if name == "" then return nil, "the week's donors" end
-		local clean = ns.King.CleanName(name)
+		local clean = ns.Shogun.CleanName(name)
 		if clean then r.weekNames[#r.weekNames + 1] = clean end
 	end
 	-- The ranking.
@@ -1765,7 +1765,7 @@ local function ReadBook(text, from, t)
 		copper = Amount(copper)
 		if not copper or copper < 1 or copper > last then return nil, "the ranking" end
 		last, sum = copper, sum + copper
-		local clean = ns.King.CleanName(name)
+		local clean = ns.Shogun.CleanName(name)
 		if clean then r.rank[#r.rank + 1] = { name = clean, money = copper } end
 	end
 	if not Within(sum, allIn) then return nil, "a ranking over all in" end
@@ -1784,7 +1784,7 @@ local function ReadBook(text, from, t)
 		copper, when = Amount(copper), When(when)
 		if not (kind and copper and when) or (item and copper ~= 0) or (not item and copper < 1) then return nil, "a line" end
 		sums[kind] = sums[kind] + copper
-		local clean = ns.King.CleanName(name)
+		local clean = ns.Shogun.CleanName(name)
 		if clean then
 			r.book[#r.book + 1] = { out = (kind == "o" or kind == "s") or nil, kind = (kind == "r" or kind == "s") and "transfer" or nil,
 				money = copper, name = clean, how = how == "m" and "mail" or "trade", t = when, item = item, count = count }
@@ -1800,14 +1800,14 @@ local function ReadBook(text, from, t)
 		local id, n, when, name = e:match("^(%d+):(%d+):(%d+):([^:]*)$")
 		id, n, when = Amount(id), Amount(n, Treasury.MAX_COUNT), When(when, true)
 		if not (id and id > 0 and n and n > 0 and when) then return nil, "an item" end
-		local clean = ns.King.CleanName(name)
+		local clean = ns.Shogun.CleanName(name)
 		r.items[#r.items + 1] = { id = id, n = n, t = when, donors = clean and { { name = clean, t = when } } or {} }
 	end
 	return r, f
 end
 
 -- Our copy of a keeper's book, in place of the one we had of that character (however its name
--- was written). 1.1: on the King's, a Steward's or a keeper's client the army's part (the
+-- was written). 1.1: on the Shogun's, a Steward's or a keeper's client the army's part (the
 -- channel's copy, r.part) never replaces a whole copy of that book (a whisper's, or a 1.0
 -- keeper's): the whole one stays until the next whole one comes. Returns whether it was kept.
 local function Keep(r)
@@ -1824,12 +1824,12 @@ local function Keep(r)
 end
 
 -- A keeper's book (TB): from a keeper himself (his name, which the server sets), of this era.
--- The King's keepers never from a book: the Treasurer's could name anyone a keeper, or take the
--- King's off, with a fresh date (Konig's review of 1.0.0); only the King and his Stewards set them
+-- The Shogun's keepers never from a book: the Treasurer's could name anyone a keeper, or take the
+-- Shogun's off, with a fresh date (Konig's review of 1.0.0); only the Shogun and his Stewards set them
 -- (T1~K). 1.1: nor his switches (Konig's review of 1.1: the same fresh date set them): the
 -- Treasurer's copy is only answered when older than ours (TakeFlags).
 -- 1.1: on the channel, or by whisper (put together from its pieces: Treasury.HandlePrivate),
--- whole, to the King, a Steward or a keeper.
+-- whole, to the Shogun, a Steward or a keeper.
 function Treasury.HandleReport(dist, sender, text)
 	if (dist ~= "CHANNEL" and dist ~= "WHISPER") or type(text) ~= "string" then return end
 	local r, f = ReadBook(text, ns.FullName(sender), ns.Now())
@@ -1842,13 +1842,13 @@ function Treasury.HandleReport(dist, sender, text)
 		ns.Log("treasury book from %s (%s) ignored: not a keeper", tostring(sender), tostring(guild))
 		return
 	end
-	-- (A whispered book is whole, and only for the King, a Steward or a keeper.)
+	-- (A whispered book is whole, and only for the Shogun, a Steward or a keeper.)
 	if dist == "WHISPER" and (r.part or not Treasury.IsInsider()) then return end
 	Treasury.Heard(sender)
 	Treasury.Migrate()
 	Keep(r)
-	-- The Treasurer's copy of the King's switches (for 1.0's addons): never taken, answered by the
-	-- King's or a Steward's client when older than theirs (TakeFlags, relayed).
+	-- The Treasurer's copy of the Shogun's switches (for 1.0's addons): never taken, answered by the
+	-- Shogun's or a Steward's client when older than theirs (TakeFlags, relayed).
 	if ns.IsTreasurer(sender, guild) then
 		local b, k, o, at = f[11]:match("^([01])([01])([01])@(%d+)$")
 		if b then Treasury.TakeFlags(b .. k .. o, tonumber(at), sender, true) end
@@ -1879,7 +1879,7 @@ function Treasury.HandleRelay(dist, sender, text)
 		return
 	end
 	if not ns.IsTreasurer(sender, r.guild) or not ns.IsTreasurerMail(whose) then return end
-	-- (1.1: whispered, whole, to the King, a Steward or a keeper; a whole copy as new as the army's
+	-- (1.1: whispered, whole, to the Shogun, a Steward or a keeper; a whole copy as new as the army's
 	-- part we hold takes its place.)
 	if dist == "WHISPER" and (r.part or not Treasury.IsInsider()) then return end
 	Treasury.Migrate()
@@ -1904,7 +1904,7 @@ ns.Comm.Handle("T8", function() end)
 -- books of this account's other keeper characters as this client keeps them (an account plays
 -- one character at a time: theirs never reach it by the channel), and every other keeper's
 -- book as it last reached us. A keeper's book stays while he is one, however old (it says
--- when it came); a character no longer on the King's list is no longer counted.
+-- when it came); a character no longer on the Shogun's list is no longer counted.
 -- public: its ranking as it leaves this client (PublicRanking), never its whole one.
 local function LivePart(b, own, public)
 	local t = Treasury.Totals(b)
@@ -1959,7 +1959,7 @@ local function Parts(shared, public)
 				transIn = nums and r.transIn or 0, transOut = nums and r.transOut or 0 }
 		end
 	end
-	-- The Treasurer first, his mail character next, then the King, then the others by name.
+	-- The Treasurer first, his mail character next, then the Shogun, then the others by name.
 	local function Rank(p)
 		if not PinnedName(p.name) then return #ns.TREASURER_CHARACTERS + 2 end
 		return TreasurerPin(p.name) or #ns.TREASURER_CHARACTERS + 1
@@ -2045,16 +2045,16 @@ function Treasury.Report(shared, public)
 end
 
 ---------------------------------------------------------------------------
--- 1.1: what the King's switches hide never goes on the channel (a promise made to a community
+-- 1.1: what the Shogun's switches hide never goes on the channel (a promise made to a community
 -- reviewer: "the parts Shobek hides won't be sent at all"). On the Bankai Guild channel, which anyone
 -- can read, each keeper's book carries only what the army may see (Treasury.Message: the
 -- balance, the ranking, the book, each with its switch); the guild bank goes there only with the
 -- "book" switch (Bank.lua) and the early supporters only with the "ranking" one. The whole of it
--- goes by whisper, in pieces, to the King, his Stewards and the keepers alone, each one whose
+-- goes by whisper, in pieces, to the Shogun, his Stewards and the keepers alone, each one whose
 -- addon was heard within AUDIENCE_FRESH (the server stamps a whisper's sender and delivers it to
 -- that one character). GUILD is not used for it: it reaches every member of <Elfcore>, the army
 -- too. With every switch on, the whole book goes on the channel as in 1.0, and nothing by whisper.
---   TA~<guild>~<0|1>   on the channel, from the King, a Steward or a keeper (a Hand too, for the
+--   TA~<guild>~<0|1>   on the channel, from the Shogun, a Steward or a keeper (a Hand too, for the
 --                      sister guilds' banks, Bank.lua): "send me what is mine to see" (0: this
 --                      client holds nothing yet, after a login; 1: what changed), ASK_AFTER after
 --                      login and every ASK_EVERY; only its sender's name counts
@@ -2062,8 +2062,8 @@ end
 --                      TS: Bank.lua) in pieces; put together by its receiver and read as if it
 --                      came on the channel, from that sender
 --   TE~...             by whisper too, piece by piece, the early supporters (as on the channel)
--- 1.0 clients leave TA and TW unread: a 1.0 army shows what the King shows, as before. Only a
--- client heard asking (TA: 1.1 or later) is whispered to, so a 1.0 King, Steward or keeper gets
+-- 1.0 clients leave TA and TW unread: a 1.0 army shows what the Shogun shows, as before. Only a
+-- client heard asking (TA: 1.1 or later) is whispered to, so a 1.0 Shogun, Steward or keeper gets
 -- nothing by whisper (what he reads from the channel: Treasury.Message's note).
 -- The keeper's message budget: whispers share Comm's one-message-per-1.2-second budget.
 -- A whole transfer starts only while its queue is nearly empty (PRIVATE_ROOM); Comm reserves
@@ -2072,7 +2072,7 @@ end
 -- the soonest (the latest then: FlushPrivate, every minute).
 ---------------------------------------------------------------------------
 
-Treasury.AUDIENCE_FRESH = 11 * 60  -- the King, a Steward or a keeper heard this recently is online
+Treasury.AUDIENCE_FRESH = 11 * 60  -- the Shogun, a Steward or a keeper heard this recently is online
 Treasury.ASK_AFTER = 40            -- seconds after login such a client asks for what is its to see...
 Treasury.ASK_EVERY = 15 * 60       -- ...and again this often (what changed)
 Treasury.RESET_GAP = 300           -- one player's "I hold nothing" is taken this often at most
@@ -2085,7 +2085,7 @@ Treasury.READERS_FOR = 30 * 86400  -- a client heard asking (TA) is remembered a
 Treasury.PRIVATE_REPEAT = 1800     -- the same one whispered again to the same player this long after at most
                                    -- (a piece lost on the way, a wipe of his: he gets it whole again)
 
-local heard = {}         -- [Name-Realm] = when the King, a Steward or a keeper was last heard
+local heard = {}         -- [Name-Realm] = when the Shogun, a Steward or a keeper was last heard
 local firstHeard = {}    -- [Name-Realm] = when he was first heard this session
 local unavailable = {}   -- [server's displayed lower name] = true after its not-playing reply this session
 local outbox = {}        -- whispers waiting: { to, kind, key, msg, pieces }
@@ -2114,7 +2114,7 @@ function Treasury.Available(name)
 	for who in pairs(unavailable) do if UnavailableMatches(name, who) then unavailable[who] = nil end end
 end
 
--- The King's switches as he last gave them (never the author's Shobek's view): what goes on the
+-- The Shogun's switches as he last gave them (never the author's Shobek's view): what goes on the
 -- channel. Returns the parts, and whether all of them show (the whole book goes there then).
 function Treasury.PublicParts()
 	local f = ns.rdb and ns.rdb.treasuryFlags
@@ -2147,17 +2147,17 @@ function Treasury.PublicSpending()
 	if count > 0 then return amount, count end
 end
 
--- The King, a Steward, a keeper: who may hold the whole treasury (by the name the server stamps).
+-- The Shogun, a Steward, a keeper: who may hold the whole treasury (by the name the server stamps).
 local function Insider(name)
 	if type(name) ~= "string" or name == "" or ns.faction == "Horde" then return false end
-	return ns.IsKingCharacter(name) or ns.King.IsStewardName(name) or Treasury.KeeperByName(name)
+	return ns.IsShogunCharacter(name) or ns.Shogun.IsStewardName(name) or Treasury.KeeperByName(name)
 end
 Treasury.InsiderName = Insider
--- This client is the King's, a Steward's or a keeper's (never the author's views: nothing whole
+-- This client is the Shogun's, a Steward's or a keeper's (never the author's views: nothing whole
 -- is whispered to them).
 function Treasury.IsInsider()
 	if ns.faction == "Horde" then return false end
-	return ns.King.IsKing() or ns.King.IsSteward() or RealKeeper()
+	return ns.Shogun.IsShogun() or ns.Shogun.IsSteward() or RealKeeper()
 end
 
 -- One of them was heard (any message of theirs: his book, his switches, his ask).
@@ -2185,8 +2185,8 @@ function Treasury.MarkReader(name)
 	for n, t in pairs(r) do if type(t) ~= "number" or now - t > Treasury.READERS_FOR then r[n] = nil end end
 end
 
--- The King, the Stewards and the keepers heard within AUDIENCE_FRESH whose addon never asked
--- (1.0: a 1.1 addon asks ASK_AFTER after its login), but us, sorted: while the King hides a part
+-- The Shogun, the Stewards and the keepers heard within AUDIENCE_FRESH whose addon never asked
+-- (1.0: a 1.1 addon asks ASK_AFTER after its login), but us, sorted: while the Shogun hides a part
 -- of the treasury, their addon shows only what the army sees of the books of keepers on 1.1
 -- (Treasury.Message), so a 1.1 insider's Treasury tab names them.
 function Treasury.NotUpdated()
@@ -2201,7 +2201,7 @@ function Treasury.NotUpdated()
 	return out
 end
 
--- The King, the Stewards and the keepers heard within AUDIENCE_FRESH whose addon reads
+-- The Shogun, the Stewards and the keepers heard within AUDIENCE_FRESH whose addon reads
 -- whispers, but us, sorted.
 function Treasury.Online()
 	local now, out = ns.Now(), {}
@@ -2447,7 +2447,7 @@ local function RankRelayNumber(v, hi)
 end
 local function RankRelayWire(row)
 	if type(row) ~= "table" then return nil end
-	local guild = type(row.guild) == "string" and ns.King.CleanGuild(row.guild) or nil
+	local guild = type(row.guild) == "string" and ns.Shogun.CleanGuild(row.guild) or nil
 	local by = type(row.by) == "string" and ns.FullName(row.by) or nil
 	local corr = type(row.correspondent) == "string" and ns.FullName(row.correspondent) or "-"
 	local t = RankRelayNumber(row.t, 2147483647)
@@ -2459,10 +2459,10 @@ local function RankRelayWire(row)
 	local unpriced = RankRelayNumber(row.unpriced, 99999999)
 	local total = RankRelayNumber(row.total, Treasury.MAX_COPPER * 2)
 	local level = RankRelayNumber(row.level or 0, 255)
-	local home = row.home == true or ns.IsKingGuild(guild or "")
+	local home = row.home == true or ns.IsShogunGuild(guild or "")
 	if not guild or not ns.IsFederation(guild) or not by or by:find("[~%^|%c]") or corr:find("[~%^|%c]")
 		or not t or t == 0 or not money or not units or not stacks or not value or not pending or not unpriced or not total
-		or not level or total ~= money + value or home ~= ns.IsKingGuild(guild) then return nil end
+		or not level or total ~= money + value or home ~= ns.IsShogunGuild(guild) then return nil end
 	return ("TY~1~%s~%s~%d~%d~%d~%d~%d~%d~%d~%d~%d~%s~%d"):format(guild, by, t, money, units,
 		stacks, value, pending, unpriced, total, level, corr, home and 1 or 0)
 end
@@ -2543,7 +2543,7 @@ function Treasury.HandleRankRelay(dist, sender, text)
 	if row.t > ns.Now() + 30 then return false, "time" end
 	local B = ns.Bank
 	local source = row.home and Treasury.KeeperByName(row.by)
-		or type(B.LordOrCaptain) == "function" and B.LordOrCaptain(row.by, row.guild)
+		or type(B.CouncilOrCaptain) == "function" and B.CouncilOrCaptain(row.by, row.guild)
 	if not source then return false, "source" end
 	local s = RankRelayRoot(true)
 	if not s then return false, "store" end -- (no realm group or faction yet: nothing to keep it under)
@@ -2609,10 +2609,10 @@ Treasury.OnPrivate("TY", { from = RankRelayAudience, to = RankRelayMe,
 	end,
 	handle = Treasury.HandleRankRelay })
 
--- This client asks for what is its to see (TA): the King's, a Steward's or a keeper's (a Hand's,
+-- This client asks for what is its to see (TA): the Shogun's, a Steward's or a keeper's (a Hand's,
 -- for the sister guilds' banks, Bank.lua; 1.2: any of the Guild treasuries' audience's, a
 -- councillor's, the Treasurer's, the author's). fresh: it holds nothing yet (a login). 1.2: so is
--- its first ask of a session (a Hand's waits for the King's list, which a /reload loses) and its
+-- its first ask of a session (a Hand's waits for the Shogun's list, which a /reload loses) and its
 -- first since it came back into the Guild treasuries' audience (what it held was dropped).
 function Treasury.Ask(fresh)
 	if ns.faction == "Horde" or not ns.rdb or not ns.IsMember() then return false end
@@ -2629,9 +2629,9 @@ function Treasury.Ask(fresh)
 end
 function Treasury.AskDue() return ns.Now() - lastAsk >= Treasury.ASK_EVERY end
 
--- Someone asks: the King, a Steward or a keeper gets what our client whispers (SendPrivate); a
+-- Someone asks: the Shogun, a Steward or a keeper gets what our client whispers (SendPrivate); a
 -- sister guild's treasurer answers whom his yes covers (Bank.lua, 1.2: the Guild treasuries'
--- audience; a yes to 1.1's question: the King, a Steward or a Hand). "I hold nothing"
+-- audience; a yes to 1.1's question: the Shogun, a Steward or a Hand). "I hold nothing"
 -- (0) forgets what was whispered to him, RESET_GAP apart at most (1.2: a sister guild's bank goes
 -- to him again inside it too, PRIVATE_GAP apart: Bank.HeardAsk, Treasury.Resend).
 function Treasury.HandleAsk(dist, sender, text)
@@ -2699,7 +2699,7 @@ function Treasury.ResetPrivate()
 end
 
 ns.On("LOGIN", function()
-	-- The King, a Steward or a keeper asks once after login, then now and then; the pieces of
+	-- The Shogun, a Steward or a keeper asks once after login, then now and then; the pieces of
 	-- whispers never finished are dropped (Codec.Gc, a minute).
 	ns.After(Treasury.ASK_AFTER, "treasury ask", function() Treasury.Ask(true) end)
 	ns.Every(60, "treasury private", function()
@@ -2710,10 +2710,10 @@ ns.On("LOGIN", function()
 end)
 
 ---------------------------------------------------------------------------
--- The King's switches (what the army sees) and his keepers
--- 1.0.0: his Steward sets them too, in his name (King.STEWARD_MAY: T, K). A word carries the
--- time it was given; the newest wins everywhere, and on the same second the King's own over his
--- Steward's: the King's newer word always wins. The King's client and his Steward's take the
+-- The Shogun's switches (what the army sees) and his keepers
+-- 1.0.0: his Steward sets them too, in his name (Shogun.STEWARD_MAY: T, K). A word carries the
+-- time it was given; the newest wins everywhere, and on the same second the Shogun's own over his
+-- Steward's: the Shogun's newer word always wins. The Shogun's client and his Steward's take the
 -- newest word as theirs and repeat it, and answer an older one they hear with theirs (at most
 -- once in WORD_ANSWER). The Treasurer's book carries the switches for 1.0's addons, never the
 -- keepers; 1.1 takes neither from it (Konig's review of 1.1).
@@ -2721,47 +2721,47 @@ end)
 
 Treasury.WORD_ANSWER = 30
 
--- A word dated `at` from `sender` replaces the one kept: newer, or the King's own of the same
+-- A word dated `at` from `sender` replaces the one kept: newer, or the Shogun's own of the same
 -- second over anyone else's.
 local function Replaces(kept, at, sender)
 	local was = type(kept) == "table" and tonumber(kept.at) or nil
 	if not was or at ~= was then return was == nil or at > was end
-	return ns.IsKingCharacter(sender) and not ns.IsKingCharacter(kept.from)
+	return ns.IsShogunCharacter(sender) and not ns.IsShogunCharacter(kept.from)
 end
-Treasury.Replaces = Replaces -- (1.1: the King's dues amount too, Dues.lua)
+Treasury.Replaces = Replaces -- (1.1: the Shogun's dues amount too, Dues.lua)
 
--- Told on the King's screen: his Steward changed one of his words (the name cut short while the
+-- Told on the Shogun's screen: his Steward changed one of his words (the name cut short while the
 -- council's names are hidden there, his stream).
-local function TellKing(sender, text)
-	if ns.King.IsKing() and ns.King.IsStewardName(sender) then ns.Print(text:format(ns.King.StewardLabel(sender))) end
+local function TellShogun(sender, text)
+	if ns.Shogun.IsShogun() and ns.Shogun.IsStewardName(sender) then ns.Print(text:format(ns.Shogun.StewardLabel(sender))) end
 end
 
--- The King's client and his Steward's repeat the word, with the time it was given (a client that
+-- The Shogun's client and his Steward's repeat the word, with the time it was given (a client that
 -- never heard it sends nothing). 1.1 (#12): never
 -- another's word given less than WORD_FRESH ago: a word that new goes out from its giver's client
 -- alone, so the log of acts can name him (TakeFlags); after that it is repeated as before.
 function Treasury.SendFlags(force)
 	local f = ns.rdb and ns.rdb.treasuryFlags
-	if not ns.King.SetsLists() or type(f) ~= "table" or not tonumber(f.at) then return end
+	if not ns.Shogun.SetsLists() or type(f) ~= "table" or not tonumber(f.at) then return end
 	if not SameChar(f.from, ns.me) and Clock() - tonumber(f.at) < Treasury.WORD_FRESH then return end
 	local now = ns.Now()
 	if not force and now - lastFlagsSent < Treasury.FLAGS_EVERY then return end
 	lastFlagsSent = now
-	ns.Comm.Send("CHANNEL", ("T1~T~%d~%s~%s~%d"):format(ns.King.NewId(), GetGuildInfo("player") or "", FlagDigits(f), math.floor(f.at)), "treasuryflags")
+	ns.Comm.Send("CHANNEL", ("T1~T~%d~%s~%s~%d"):format(ns.Shogun.NewId(), GetGuildInfo("player") or "", FlagDigits(f), math.floor(f.at)), "treasuryflags")
 end
 
--- The King's switch, or his Steward's in his name (the author's Shobek's view: its own switches,
+-- The Shogun's switch, or his Steward's in his name (the author's Shobek's view: its own switches,
 -- on his screen only).
 function Treasury.SetFlag(what, on)
-	if not IsKingView() then return ns.Print(L.THRONE_ONLY_KING) end
+	if not IsShogunView() then return ns.Print(L.THRONE_ONLY_SHOGUN) end
 	local f = {}
 	for _, k in ipairs(FLAGS) do f[k] = Treasury.Shows(k) end
 	f[what] = on and true or false
 	-- Each word newer than the last, two clicks in one second too (the army takes the newest).
-	local prev = ns.King.Preview() and ns.db.previewTreasuryFlags or ns.rdb.treasuryFlags
+	local prev = ns.Shogun.Preview() and ns.db.previewTreasuryFlags or ns.rdb.treasuryFlags
 	f.t, f.at, f.from = ns.Now(), math.max(Clock(), (type(prev) == "table" and tonumber(prev.at) or 0) + 1), ns.me
 	ns.Print(L["TREASURY_FLAG_" .. what:upper() .. (on and "_ON" or "_OFF")])
-	if ns.King.Preview() then
+	if ns.Shogun.Preview() then
 		ns.db.previewTreasuryFlags = f
 		ns.Print(L.THRONE_PREVIEW_NOTE)
 	else
@@ -2776,28 +2776,28 @@ function Treasury.SetFlag(what, on)
 	ns.Fire("DATA_CHANGED")
 end
 
--- An older word heard (the King's client or a Steward's after a while away, the Treasurer's
--- book not caught up yet): the King's client and his Steward's answer with the newer one.
+-- An older word heard (the Shogun's client or a Steward's after a while away, the Treasurer's
+-- book not caught up yet): the Shogun's client and his Steward's answer with the newer one.
 local lastWordAnswer = -math.huge
 local function AnswerOlder(send)
-	if not ns.King.SetsLists() or ns.Now() - lastWordAnswer < Treasury.WORD_ANSWER then return end
+	if not ns.Shogun.SetsLists() or ns.Now() - lastWordAnswer < Treasury.WORD_ANSWER then return end
 	lastWordAnswer = ns.Now()
 	send(true)
 end
 
--- The King's word ("101" and the time it was given), from him or his Steward: taken when newer
--- than the one kept (a time ahead of the server's clock by King.DATE_AHEAD at most: a minute, so a
--- modified client never keeps a word over the King's newer one for longer).
+-- The Shogun's word ("101" and the time it was given), from him or his Steward: taken when newer
+-- than the one kept (a time ahead of the server's clock by Shogun.DATE_AHEAD at most: a minute, so a
+-- modified client never keeps a word over the Shogun's newer one for longer).
 -- `relayed`: the Treasurer's copy in his book (1.0's addons read it there). Konig's review of 1.1:
--- only the King and his Stewards set the switches, and a copy can't be told from a word the
--- Treasurer's client made up or dated anew (no signature of the King's travels with it; taken, it
--- was also repeated by the King's and his Stewards' clients as theirs), so it is never taken: an
+-- only the Shogun and his Stewards set the switches, and a copy can't be told from a word the
+-- Treasurer's client made up or dated anew (no signature of the Shogun's travels with it; taken, it
+-- was also repeated by the Shogun's and his Stewards' clients as theirs), so it is never taken: an
 -- older one is only answered with ours, so that his client, and the 1.0 addons reading his book,
--- catch up. Each client keeps the last word it heard from the King or a Steward themselves.
+-- catch up. Each client keeps the last word it heard from the Shogun or a Steward themselves.
 function Treasury.TakeFlags(digits, at, sender, relayed)
 	local b, r, k = tostring(digits or ""):match("^([01])([01])([01])$")
 	at = tonumber(at)
-	if not b or not at or at > Clock() + ns.King.DATE_AHEAD then return end
+	if not b or not at or at > Clock() + ns.Shogun.DATE_AHEAD then return end
 	local kept = ns.rdb.treasuryFlags
 	if relayed or not Replaces(kept, at, sender) then
 		if type(kept) == "table" and at < (tonumber(kept.at) or 0) then AnswerOlder(Treasury.SendFlags) end
@@ -2813,7 +2813,7 @@ function Treasury.TakeFlags(digits, at, sender, relayed)
 	Treasury.LogFlags(sender, f, Clock() - at >= Treasury.WORD_FRESH)
 	Treasury.Heard(sender)
 	if FlagDigits(f) ~= was then
-		TellKing(sender, L.STEWARD_SET_FLAGS)
+		TellShogun(sender, L.STEWARD_SET_FLAGS)
 		-- A keeper is told who sees the treasury now.
 		if CanSend() then ns.Print(Treasury.WhoSees()) end
 		Treasury.SwitchesChanged(was)
@@ -2843,12 +2843,12 @@ function Treasury.SwitchesChanged(was)
 	if ns.Bank and ns.Bank.Share then ns.Bank.Share(true) end
 	if Treasury.PublicShows("ranking") and tostring(was or "000"):sub(2, 2) ~= "1" then Treasury.SendEarly(true) end
 end
-ns.King.Register("T", function(sender, id, rest)
+ns.Shogun.Register("T", function(sender, id, rest)
 	local digits, at = tostring(rest or ""):match("^([01][01][01])~(%d+)$")
 	Treasury.TakeFlags(digits, at, sender)
 end)
 
--- A name the King (or his Steward) typed or targeted (typed: his target when he typed none), as
+-- A name the Shogun (or his Steward) typed or targeted (typed: his target when he typed none), as
 -- the server writes it; nil if it can't be a character.
 local function KeeperName(input, typed)
 	local name = tostring(input or ""):gsub("^%s+", ""):gsub("%s+$", "")
@@ -2856,28 +2856,28 @@ local function KeeperName(input, typed)
 		name = UnitIsPlayer and UnitIsPlayer("target") and ns.UnitFullName("target") or ""
 	end
 	name = ns.Normal(name)
-	local short = ns.King.CleanName(name)
+	local short = ns.Shogun.CleanName(name)
 	local realm = ns.RealmOf(name)
 	if not short or (realm and not realm:match("^[%w\128-\255]+$")) or #(realm or "") > 40 then return nil end
 	return ns.FullName(short, realm)
 end
 
--- The King's list as it goes out (T1~K), from his client or his Steward's: dated, the newest
+-- The Shogun's list as it goes out (T1~K), from his client or his Steward's: dated, the newest
 -- word wins everywhere.
 function Treasury.SendKeepers(force)
 	local k = KeeperStore()
-	if not ns.King.SetsLists() or not (k and tonumber(k.at)) then return end
+	if not ns.Shogun.SetsLists() or not (k and tonumber(k.at)) then return end
 	local now = ns.Now()
 	if not force and now - lastKeepersSent < Treasury.FLAGS_EVERY then return end
 	lastKeepersSent = now
 	local names = {}
 	for i, n in ipairs(k.names) do names[i] = Clean(n) end
-	ns.Comm.Send("CHANNEL", ("T1~K~%d~%s~%d~%s"):format(ns.King.NewId(), GetGuildInfo("player") or "", math.floor(k.at), table.concat(names, ",")), "treasurykeepers")
+	ns.Comm.Send("CHANNEL", ("T1~K~%d~%s~%d~%s"):format(ns.Shogun.NewId(), GetGuildInfo("player") or "", math.floor(k.at), table.concat(names, ",")), "treasurykeepers")
 end
 
--- The King's list changed on his screen (his own, his Steward's, or the author's view's): kept, sent.
+-- The Shogun's list changed on his screen (his own, his Steward's, or the author's view's): kept, sent.
 local function SetKeepers(names)
-	local preview = ns.King.Preview()
+	local preview = ns.Shogun.Preview()
 	local prev = preview and ns.db.previewTreasuryKeepers or KeeperStore()
 	local k = { names = names, t = ns.Now(), at = math.max(Clock(), (type(prev) == "table" and tonumber(prev.at) or 0) + 1), from = ns.me }
 	if preview then
@@ -2893,10 +2893,10 @@ local function SetKeepers(names)
 	ns.Fire("DATA_CHANGED")
 end
 
--- The King adds a character to the treasury: its trades and mail go in its own book (5 at most
--- besides the Treasurer and the King, who always keep one).
+-- The Shogun adds a character to the treasury: its trades and mail go in its own book (5 at most
+-- besides the Treasurer and the Shogun, who always keep one).
 function Treasury.AddKeeper(input)
-	if not IsKingView() then return ns.Print(L.THRONE_ONLY_KING) end
+	if not IsShogunView() then return ns.Print(L.THRONE_ONLY_SHOGUN) end
 	local name = KeeperName(input, true)
 	if not name then return ns.Print(L.TREASURY_KEEPER_WHO) end
 	if PinnedName(name) then return end
@@ -2912,7 +2912,7 @@ function Treasury.AddKeeper(input)
 end
 
 function Treasury.RemoveKeeper(name)
-	if not IsKingView() then return ns.Print(L.THRONE_ONLY_KING) end
+	if not IsShogunView() then return ns.Print(L.THRONE_ONLY_SHOGUN) end
 	local names, found = {}, false
 	for _, n in ipairs(Treasury.Keepers()) do
 		if n == name then found = true else names[#names + 1] = n end
@@ -2922,13 +2922,13 @@ function Treasury.RemoveKeeper(name)
 	SetKeepers(names)
 end
 
--- The King's list (from him or his Steward, T1~K, their names set by the server): taken when newer than
--- the one kept (dated King.DATE_AHEAD ahead of the server's clock at most). A character named sees
+-- The Shogun's list (from him or his Steward, T1~K, their names set by the server): taken when newer than
+-- the one kept (dated Shogun.DATE_AHEAD ahead of the server's clock at most). A character named sees
 -- its book open at its gold now and is asked to share it; the books of characters no longer on it
 -- leave the treasury.
 function Treasury.TakeKeepers(at, text, sender)
 	at = tonumber(at)
-	if not at or at > Clock() + ns.King.DATE_AHEAD then return end
+	if not at or at > Clock() + ns.Shogun.DATE_AHEAD then return end
 	local kept = KeeperStore()
 	if not Replaces(kept, at, sender) then
 		if kept and at < (tonumber(kept.at) or 0) then AnswerOlder(Treasury.SendKeepers) end
@@ -2945,7 +2945,7 @@ function Treasury.TakeKeepers(at, text, sender)
 	ns.rdb.treasuryKeepers = { at = at, names = names, t = ns.Now(), from = ns.FullName(sender) }
 	Treasury.PrunePrivate()
 	Treasury.Heard(sender)
-	if table.concat(names, ",") ~= table.concat(before, ",") then TellKing(sender, L.STEWARD_SET_KEEPERS) end
+	if table.concat(names, ",") ~= table.concat(before, ",") then TellShogun(sender, L.STEWARD_SET_KEEPERS) end
 	-- Books of characters no longer keepers: no longer kept.
 	local reports, gone = Reports(), {}
 	for from, r in pairs(reports) do
@@ -2954,7 +2954,7 @@ function Treasury.TakeKeepers(at, text, sender)
 	for _, from in ipairs(gone) do reports[from] = nil end
 	local now = RealKeeper()
 	if now and not was then
-		ns.Print(L.TREASURY_KEEPER_NAMED:format(ns.KingName(sender)))
+		ns.Print(L.TREASURY_KEEPER_NAMED:format(ns.ShogunName(sender)))
 		Treasury.OpenBook()
 		Treasury.AskConsent()
 		-- (1.1: the other keepers' whole books come to a keeper by whisper: asked for now.)
@@ -2966,7 +2966,7 @@ function Treasury.TakeKeepers(at, text, sender)
 	ns.Fire("TREASURY_CHANGED")
 	ns.Fire("DATA_CHANGED")
 end
-ns.King.Register("K", function(sender, id, rest)
+ns.Shogun.Register("K", function(sender, id, rest)
 	local at, names = tostring(rest or ""):match("^(%d+)~?(.*)$")
 	if at then Treasury.TakeKeepers(tonumber(at), names, sender) end
 end)
@@ -3024,7 +3024,7 @@ StaticPopupDialogs["BANKAIGUILD_TREASURY_UNKEEP"] = {
 -- client that has none asks (TQ), EARLY_GAP apart at the soonest. The list carries the time
 -- 0.9's book was closed: a newer list replaces an older one, taken once every piece is in.
 -- Taken from the Treasurer's pinned characters alone. Shown under the ranking, to whoever may
--- see the ranking (the King's switch; the keepers and the King always). 0.9 clients drop TE and
+-- see the ranking (the Shogun's switch; the keepers and the Shogun always). 0.9 clients drop TE and
 -- TQ unread (messages of one piece, of types they have no handler for).
 
 -- Names in alphabetical order (whatever their case), each once.
@@ -3056,12 +3056,12 @@ local function ArchivedSupporters()
 	local names = {}
 	local sums = type(a.sums) == "table" and a.sums or {}
 	for name, copper in pairs(type(sums.byDonor) == "table" and sums.byDonor or {}) do
-		local clean = (tonumber(copper) or 0) > 0 and ns.King.CleanName(name)
+		local clean = (tonumber(copper) or 0) > 0 and ns.Shogun.CleanName(name)
 		if clean then names[#names + 1] = clean end
 	end
 	for _, e in ipairs(type(a.lines) == "table" and a.lines or {}) do
 		if type(e) == "table" and not e.out and not e.excluded and e.kind ~= "transfer" and (tonumber(e.money) or 0) > 0 then
-			local clean = ns.King.CleanName(e.name)
+			local clean = ns.Shogun.CleanName(e.name)
 			if clean then names[#names + 1] = clean end
 		end
 	end
@@ -3129,7 +3129,7 @@ end
 -- The holder's client sends the list, a piece every EARLY_PACE (the channel's queue stays
 -- light), with its own yes to sharing and the Treasurer's (the names are who gave, as in his
 -- book).
--- 1.1: on the channel only while the King shows the army the ranking; the King, his Stewards and
+-- 1.1: on the channel only while the Shogun shows the army the ranking; the Shogun, his Stewards and
 -- the keepers get it by whisper otherwise (SendEarlyTo).
 function Treasury.SendEarly(force)
 	if not MaySendEarly() or not Treasury.PublicShows("ranking") then return false end
@@ -3154,7 +3154,7 @@ function Treasury.SendEarly(force)
 	return true
 end
 
--- The list for one player alone, by whisper (1.1: the King, a Steward or a keeper, while the
+-- The list for one player alone, by whisper (1.1: the Shogun, a Steward or a keeper, while the
 -- ranking is off the channel), piece by piece as on the channel; not again while he holds it.
 function Treasury.SendEarlyTo(name)
 	if not MaySendEarly() then return false end
@@ -3171,7 +3171,7 @@ Treasury.OnPrivate("TE", { send = function(to) return MaySendEarly() and Insider
 
 -- A piece of the list: from one of the Treasurer's pinned characters (his name, set by the
 -- server). A list as new as ours changes nothing; a newer one replaces ours once all its
--- pieces are in (an older list's piece meanwhile is dropped). By whisper (1.1) only to the King,
+-- pieces are in (an older list's piece meanwhile is dropped). By whisper (1.1) only to the Shogun,
 -- a Steward or a keeper. Each sender's pieces are put together apart: two of his characters
 -- cut the same list where their guild's name leaves room (EarlyPieces), so one's pieces never
 -- fill the gaps of the other's (a name at a cut lost for good once the list is taken).
@@ -3194,7 +3194,7 @@ function Treasury.HandleEarly(dist, sender, text)
 	if p.got[i] then return end
 	local list = {}
 	for name in names:gmatch("[^,]+") do
-		local clean = ns.King.CleanName(name)
+		local clean = ns.Shogun.CleanName(name)
 		if clean then list[#list + 1] = clean end
 	end
 	p.got[i], p.count = list, p.count + 1
@@ -3245,7 +3245,7 @@ function Treasury.HandleEarlyAsk(dist, sender, text)
 	if at <= ours then heardEarlyAsk = ns.Now() end
 	local list = EarlyHolder() and ArchivedSupporters()
 	if not (list and list.at > at) then return end
-	-- (1.1: while the ranking is off the channel, the King, a Steward or a keeper asking gets it
+	-- (1.1: while the ranking is off the channel, the Shogun, a Steward or a keeper asking gets it
 	-- by whisper; nobody else.)
 	if Treasury.PublicShows("ranking") then
 		if Treasury.SendEarly() or earlyAnswer or not MaySendEarly() then return end
@@ -3262,7 +3262,7 @@ function Treasury.HandleEarlyAsk(dist, sender, text)
 end
 ns.Comm.Handle("TQ", function(...) Treasury.HandleEarlyAsk(...) end)
 
--- Every minute: the books, the King's switches and his keepers, repeated for late logins; what
+-- Every minute: the books, the Shogun's switches and his keepers, repeated for late logins; what
 -- PRIVATE_GAP held back.
 function Treasury.Tick()
 	if ns.Now() - lastShare >= Treasury.SHARE_EVERY then Treasury.Share(true) end
@@ -3321,7 +3321,7 @@ ns.On("LOGIN", function()
 	for _, event in ipairs({ "BAG_UPDATE_DELAYED", "MAIL_SUCCESS", "MAIL_INBOX_UPDATE" }) do
 		pcall(ns.RegisterEvent, event, function() ns.SafeCall("treasury mail", Treasury.ItemsChanged) end)
 	end
-	-- The books, the King's switches and his keepers, repeated for late logins.
+	-- The books, the Shogun's switches and his keepers, repeated for late logins.
 	ns.Every(60, "treasury share", function() Treasury.Tick() end)
 	-- The early supporters: sent by the Treasurer's character holding them once after login
 	-- (after his book), asked for by a client without them a little later.
@@ -3331,7 +3331,7 @@ ns.On("LOGIN", function()
 		Treasury.Share(true)
 		Treasury.SendFlags(true)
 		Treasury.SendKeepers(true)
-		-- A keeper is told once who sees the treasury (and again when the King changes it).
+		-- A keeper is told once who sees the treasury (and again when the Shogun changes it).
 		if CanSend() and not ns.rdb.treasuryToldWho then
 			ns.rdb.treasuryToldWho = true
 			ns.Print(Treasury.WhoSees())
@@ -3341,10 +3341,10 @@ end)
 
 ---------------------------------------------------------------------------
 -- 1.1: "taking donations" (the Treasurer's idea: "being able to let everyone know when I'm around to
--- take donations can be helpful too"). A keeper (the Treasurer, the King, a character he named)
+-- take donations can be helpful too"). A keeper (the Treasurer, the Shogun, a character he named)
 -- turns it on with a click on the Treasury tab or /bk donations on: every client shows a line on
 -- the Realm and Treasury tabs, with his zone only if he shares his location (/bk location; the
--- King: his crown on the map), and one line in the [Bankai Guild] chat when he turns it on. It is never
+-- Shogun: his crown on the map), and one line in the [Bankai Guild] chat when he turns it on. It is never
 -- saved: off when he logs out (his addon says so as it logs out; otherwise the others drop it
 -- DONATIONS_FRESH after his last word), and after a /reload.
 --   TD~<guild>~<1|0>~<since>~<uiMapID or empty>   on the channel: at once, then every DONATIONS_EVERY
@@ -3362,7 +3362,7 @@ local lastDonationSent = -math.huge
 
 function Treasury.TakingDonations() return donating ~= nil end
 
--- Where we are, only while we share our location (Layers.Sharing: the King's is his crown).
+-- Where we are, only while we share our location (Layers.Sharing: the Shogun's is his crown).
 local function DonationZone()
 	if not (ns.Layers and ns.Layers.Sharing and ns.Layers.Sharing()) then return nil end
 	local mapID = ns.Court and ns.Court.Here and ns.Court.Here()
@@ -3383,7 +3383,7 @@ function Treasury.SendDonations(force)
 	if not force and now - lastDonationSent < Treasury.DONATIONS_EVERY then return false end
 	lastDonationSent = now
 	-- His zone read again at every send: once he stops sharing his location (/bk location off,
-	-- the King's crown off), no repeat carries the zone he had.
+	-- the Shogun's crown off), no repeat carries the zone he had.
 	donating.mapID = DonationZone()
 	ns.Comm.Send("CHANNEL", DonationMessage(true), "treasurydonations")
 	return true
@@ -3405,7 +3405,7 @@ function Treasury.SetDonations(on)
 	ns.Fire("DATA_CHANGED")
 end
 
--- Our zone changed while on, or we started or stopped sharing it (Layers.SetSharing, the King's
+-- Our zone changed while on, or we started or stopped sharing it (Layers.SetSharing, the Shogun's
 -- crown): said again at once (the zone only while we share it).
 function Treasury.DonationsMoved()
 	if not donating then return end
@@ -3469,9 +3469,9 @@ function Treasury.HandleDonations(dist, sender, text)
 end
 ns.Comm.Handle("TD", function(...) Treasury.HandleDonations(...) end)
 
--- "Pyralis Ashandar is taking donations (in Stormwind City)": the King by the army's name for him.
+-- "Pyralis Ashandar is taking donations (in Stormwind City)": the Shogun by the army's name for him.
 function Treasury.DonationText(name, d)
-	local who = (ns.faction ~= "Horde" and ns.IsKingCharacter(name)) and ns.KING_NAME or (ns.DisplayName(name) or "?")
+	local who = (ns.faction ~= "Horde" and ns.IsShogunCharacter(name)) and ns.SHOGUN_NAME or (ns.DisplayName(name) or "?")
 	local info = d and d.mapID and C_Map and C_Map.GetMapInfo and C_Map.GetMapInfo(d.mapID)
 	local zone = type(info) == "table" and type(info.name) == "string" and info.name ~= "" and info.name or nil
 	return zone and L.DONATIONS_LINE_ZONE:format(who, zone) or L.DONATIONS_LINE:format(who)
@@ -3521,16 +3521,16 @@ local function Para(lines, text, color)
 	return lines
 end
 
--- What the King shows the army now ("the balance, the book").
+-- What the Shogun shows the army now ("the balance, the book").
 local function ShownParts()
 	local shown = {}
 	for _, k in ipairs(FLAGS) do if Treasury.Shows(k) then shown[#shown + 1] = L["TREASURY_PART_" .. k:upper()] end end
 	return shown
 end
--- Who sees the treasury, told to a keeper: the keepers and the King, and what the King shows the army.
+-- Who sees the treasury, told to a keeper: the keepers and the Shogun, and what the Shogun shows the army.
 function Treasury.WhoSees()
 	local shown = ShownParts()
-	return #shown > 0 and L.TREASURY_YOU_AND_KING_BUT:format(table.concat(shown, ", ")) or L.TREASURY_YOU_AND_KING
+	return #shown > 0 and L.TREASURY_YOU_AND_SHOGUN_BUT:format(table.concat(shown, ", ")) or L.TREASURY_YOU_AND_SHOGUN
 end
 -- The book's way back to the summary: what the viewer will find there.
 function Treasury.SummaryTip()
@@ -3568,25 +3568,25 @@ end
 -- The ranking and the book from their first page again (the tab's search changed, Views.lua).
 function Treasury.FirstPage() bookShown, rankShown = Treasury.BOOK_SHOWN, Treasury.RANK_PAGE end
 
--- Who looks at the tab: the King (the treasury, all of it, and his switches), a keeper (the
--- treasury, all of it, his own book's lines his to count), a member (what the King shows).
+-- Who looks at the tab: the Shogun (the treasury, all of it, and his switches), a keeper (the
+-- treasury, all of it, his own book's lines his to count), a member (what the Shogun shows).
 function Treasury.Role()
-	if IsKingView() then return "king" end
+	if IsShogunView() then return "shogun" end
 	if Treasury.IsKeeper() then return "keeper" end
 	return "member"
 end
 
--- What a role may see: everything for the keepers and the King, the King's switches for the army.
+-- What a role may see: everything for the keepers and the Shogun, the Shogun's switches for the army.
 function Treasury.MaySee(what)
 	return Treasury.Role() ~= "member" or Treasury.Shows(what)
 end
 
--- How many keep a book: the Treasurer's characters and the King always, and the King's list.
+-- How many keep a book: the Treasurer's characters and the Shogun always, and the Shogun's list.
 local function KeeperCount() return #ns.TREASURER_CHARACTERS + 1 + #Treasury.Keepers() end
 
--- A keeper's name as the tab shows it (the army's name for the King).
+-- A keeper's name as the tab shows it (the army's name for the Shogun).
 local function KeeperLabel(name)
-	if ns.faction ~= "Horde" and ns.IsKingCharacter(name) then return ns.KING_NAME end
+	if ns.faction ~= "Horde" and ns.IsShogunCharacter(name) then return ns.SHOGUN_NAME end
 	return ns.DisplayName(name) or tostring(name)
 end
 
@@ -3744,7 +3744,7 @@ local function BookLines(role, q)
 	return lines
 end
 
--- The keepers: the Treasurer and the King always, the characters the King added (his to add
+-- The keepers: the Treasurer and the Shogun always, the characters the Shogun added (his to add
 -- and remove), each with his book's balance and when it came.
 local function KeeperLines()
 	local lines = { { text = Gold("< " .. L.TREASURY_TITLE), onClick = function() Treasury.Show("summary") end, gapAfter = true } }
@@ -3766,19 +3766,19 @@ local function KeeperLines()
 	end
 	Row(ns.FullName(ns.TREASURER, ns.TREASURER_REALM), L.TREASURY_KEEPER_TREASURER:format(ns.TREASURER), {
 		tooltip = function(tt) tt:AddLine(L.TREASURY_KEEPER_PINNED, 1, 1, 1, true) end })
-	-- His mail character: his, pinned like him (not the King's to take off).
+	-- His mail character: his, pinned like him (not the Shogun's to take off).
 	for _, pin in ipairs(ns.TREASURER_CHARACTERS) do
 		if pin ~= ns.TREASURER then
 			Row(ns.FullName(pin, ns.TREASURER_REALM), L.TREASURY_KEEPER_TREASURER_MAIL:format(pin), {
 				tooltip = function(tt) tt:AddLine(L.TREASURY_KEEPER_PINNED, 1, 1, 1, true) end })
 		end
 	end
-	local king = ns.KingCharacter and ns.KingCharacter()
-	if king then
-		Row(ns.FullName(king, ns.KingRealm and ns.KingRealm()), L.TREASURY_KEEPER_KING:format(ns.KING_NAME), {
+	local shogun = ns.ShogunCharacter and ns.ShogunCharacter()
+	if shogun then
+		Row(ns.FullName(shogun, ns.ShogunRealm and ns.ShogunRealm()), L.TREASURY_KEEPER_SHOGUN:format(ns.SHOGUN_NAME), {
 			tooltip = function(tt) tt:AddLine(L.TREASURY_KEEPER_PINNED, 1, 1, 1, true) end })
 	end
-	local mine = IsKingView()
+	local mine = IsShogunView()
 	local listed = Treasury.Keepers()
 	for _, name in ipairs(listed) do
 		Row(name, ns.DisplayName(name), mine and {
@@ -3796,8 +3796,8 @@ local function KeeperLines()
 end
 
 -- The guild bank of <Elfcore> as last seen (Bank.lua): its gold, then each tab's items in a
--- grid. The keepers and the King always; the army with the King's "book" switch.
--- Who sees the guild bank: the keepers and the King always, the army with the King's "book".
+-- grid. The keepers and the Shogun always; the army with the Shogun's "book" switch.
+-- Who sees the guild bank: the keepers and the Shogun always, the army with the Shogun's "book".
 local function BankVisible(role) return role ~= "member" or Treasury.Shows("book") end
 
 -- Counts are taken only from the snapshot already held: item units and occupied stacks. (1.2.4:
@@ -3898,9 +3898,9 @@ local function BankLines(lines, role)
 	lines[#lines].gapAfter = true
 end
 
--- 1.1: requests to the treasury (Bank.lua), next to the bank. A keeper, the King or a Steward: every
+-- 1.1: requests to the treasury (Bank.lua), next to the bank. A keeper, the Shogun or a Steward: every
 -- request his client holds, a click to mark it done or declined, what the bank holds of it. The army
--- (with the King's book): the open ones the keepers put on the channel. A Lord or a Captain: his own,
+-- (with the Shogun's book): the open ones the keepers put on the channel. A Council member or a Captain: his own,
 -- where each stands (a click takes it back), and a line to ask for any item.
 local function RequestLines(lines, role)
 	local B = ns.Bank
@@ -3950,7 +3950,7 @@ local function RequestLines(lines, role)
 end
 
 ---------------------------------------------------------------------------
--- 1.2: the Guild treasuries. For the King, the High Council (his Stewards and Hands among them),
+-- 1.2: the Guild treasuries. For the Shogun, the High Council (his Stewards and Hands among them),
 -- the federal Treasurer and the author (Bank.SeesSisters): every Bankai Guild guild's bank this client
 -- holds, in a list with a total, each one opened in place as the guild bank above shows its own
 -- (SnapshotLines: the same tabs, slots, counts, tooltips and stacks gone since), and one search
@@ -3999,7 +3999,7 @@ local function DirectoryBanks(role, ranked, directOnly)
 		at[ns.Fold(own.guild)] = 1
 	end
 	local function Add(s)
-		if type(s) ~= "table" or type(s.guild) ~= "string" or type(s.tabs) ~= "table" or ns.IsKingGuild(s.guild) then return end
+		if type(s) ~= "table" or type(s.guild) ~= "string" or type(s.tabs) ~= "table" or ns.IsShogunGuild(s.guild) then return end
 		local key, folded = s.guild:lower(), ns.Fold(s.guild)
 		local k = at[folded]
 		if k and (tonumber(out[k].snap.t) or 0) >= (tonumber(s.t) or 0) then return end
@@ -4108,7 +4108,7 @@ end
 -- the guild master or an officer who said yes; at home, a keeper).
 local function DirWho(b)
 	local name = ns.DisplayName(b.by) or "?"
-	if b.home and ns.IsKingCharacter(b.by) and ns.faction ~= "Horde" then name = ns.KING_NAME end
+	if b.home and ns.IsShogunCharacter(b.by) and ns.faction ~= "Horde" then name = ns.SHOGUN_NAME end
 	local rank = ns.Data and ns.Data.AuthorizedRank and type(b.by) == "string" and ns.Data.AuthorizedRank(ns.FullName(b.by), b.guild)
 	local what = rank == 0 and L.TREASURY_DIR_GM or (rank and rank <= ns.CAPTAIN_RANK) and L.TREASURY_DIR_OFFICER
 		or b.home and L.TREASURY_DIR_KEEPER or nil
@@ -4148,15 +4148,15 @@ local function DirDetail(b)
 		right = (b.old and Red or Grey)(L.TREASURY_DIR_WHEN:format(DirWho(b), ns.Ago(b.t))), tooltip = DirTip(b) }
 end
 
--- The census's Bankai Guild guilds (but the King's) whose bank this client holds none of: no snapshot
+-- The census's Bankai Guild guilds (but the Shogun's) whose bank this client holds none of: no snapshot
 -- received, which is no refusal (a snapshot comes only while a sharer is online, kept since 1.2.4
--- until a newer one or his no; a yes may be the King's alone, 1.1's).
+-- until a newer one or his no; a yes may be the Shogun's alone, 1.1's).
 local function Unheld(banks)
 	local have, out = {}, {}
 	for _, b in ipairs(banks) do if b.snap then have[b.key] = true end end
 	local now, keep = ns.Now(), ns.Data and ns.Data.KEEP or 7 * 86400
 	for name, g in pairs(ns.rdb and ns.rdb.guilds or {}) do
-		if type(name) == "string" and type(g) == "table" and not have[name:lower()] and not ns.IsKingGuild(name)
+		if type(name) == "string" and type(g) == "table" and not have[name:lower()] and not ns.IsShogunGuild(name)
 			and ns.IsFederation(name) and now - (tonumber(g.t) or 0) <= keep then
 			out[#out + 1] = name
 		end
@@ -4181,7 +4181,7 @@ end
 local function SisterLines(lines, role)
 	if not DirectoryShown() then
 		-- A keeper of the treasury outside its audience learns who sees it, never a guild.
-		if role and role ~= "member" and not ns.King.Preview() then
+		if role and role ~= "member" and not ns.Shogun.Preview() then
 			lines[#lines + 1] = { header = true, text = L.TREASURY_GUILDS }
 			Para(lines, L.TREASURY_GUILDS_APPROVAL)
 			lines[#lines].gapAfter = true
@@ -4402,7 +4402,7 @@ end
 Treasury.BANK_LISTED = 25   -- items found, or gone, listed (the rest counted)
 
 -- The summary while the tab's search holds `q`: the donors it finds in the ranking, the bank's
--- items (1.1: and the sister guilds', for the King, his Steward and his Hands; 1.2: every bank of
+-- items (1.1: and the sister guilds', for the Shogun, his Steward and his Hands; 1.2: every bank of
 -- the Guild treasuries and their guilds, for its audience: DirectoryFound), "No match" for none,
 -- and the way to the book (searched there too). Nothing else.
 local function SummarySearch(role, q)
@@ -4424,7 +4424,7 @@ local function SummarySearch(role, q)
 end
 
 local function TreasuryTitle(role)
-	-- How a book is kept speaks to a keeper ("your book", "your own lines"): the King's Steward and
+	-- How a book is kept speaks to a keeper ("your book", "your own lines"): the Shogun's Steward and
 	-- the author's Shobek's view keep none, so they read who sees it alone (as the book's header).
 	local keeper = Treasury.IsKeeper()
 	return { header = true, text = L.TREASURY_TITLE, tooltip = function(tt)
@@ -4468,9 +4468,9 @@ end
 local function SummaryLines(role, q)
 	if q then return SummarySearch(role, q) end
 	local lines = { TreasuryTitle(role) }
-	-- A member the King shows nothing sees the title and his dues, and what else gives him the tab
+	-- A member the Shogun shows nothing sees the title and his dues, and what else gives him the tab
 	-- (Visible): his own open requests to the treasury, and (1.2) the Guild treasuries for a
-	-- councillor, a Hand or the author whom the King shows nothing of his own treasury; in this order.
+	-- councillor, a Hand or the author whom the Shogun shows nothing of his own treasury; in this order.
 	if role == "member" and not Treasury.AnyShown() then
 		ns.Dues.SummaryLines(lines, role)
 		local mine = ns.Bank and ns.Bank.MyRequests and ns.Bank.MyRequests()
@@ -4506,7 +4506,7 @@ local function SummaryLines(role, q)
 			tooltip = function(tt) tt:AddLine(L.HELP_BACKUP, 1, 1, 1, true) end }
 		lines[#lines + 1] = { text = Gold("> " .. L.BACKUP_RESTORE_LINK), onClick = function() ns.Backup.Slash("restore") end, gapAfter = true }
 	end
-	-- 1.1: the King, a Steward or a keeper still on 1.0, heard lately, while the King hides a part.
+	-- 1.1: the Shogun, a Steward or a keeper still on 1.0, heard lately, while the Shogun hides a part.
 	if Treasury.IsInsider() and not select(2, Treasury.PublicParts()) then
 		local old = {}
 		for _, name in ipairs(Treasury.NotUpdated()) do old[#old + 1] = KeeperLabel(name) end
@@ -4525,7 +4525,7 @@ local function SummaryLines(role, q)
 			lines[#lines + 1] = { text = Gold("> " .. L.TREASURY_KEEPERS_LINK:format(KeeperCount())), onClick = function() Treasury.Show("keepers") end, gapAfter = true }
 		end
 		RequestLines(lines, role)
-		if role == "king" then
+		if role == "shogun" then
 			local shown = ShownParts()
 			lines[#lines + 1] = { text = Grey(#shown > 0 and L.TREASURY_ARMY_SEES:format(table.concat(shown, ", ")) or L.TREASURY_ARMY_SEES_NOTHING), gapAfter = true }
 		end
@@ -4553,13 +4553,13 @@ local function SummaryLines(role, q)
 		lines[#lines].gapAfter = true
 		lines[#lines + 1] = { text = Gold("> " .. L.TREASURY_BOOK), onClick = function() Treasury.Show("book") end, gapAfter = true }
 	end
-	-- The keepers: the King's to name, theirs to see.
+	-- The keepers: the Shogun's to name, theirs to see.
 	if role ~= "member" then
 		lines[#lines + 1] = { text = Gold("> " .. L.TREASURY_KEEPERS_LINK:format(KeeperCount())), onClick = function() Treasury.Show("keepers") end, gapAfter = true }
 	end
 	RequestLines(lines, role)
-	-- The King: what the army sees now (the switches are the buttons in the box).
-	if role == "king" then
+	-- The Shogun: what the army sees now (the switches are the buttons in the box).
+	if role == "shogun" then
 		local shown = ShownParts()
 		lines[#lines + 1] = { text = Grey(#shown > 0 and L.TREASURY_ARMY_SEES:format(table.concat(shown, ", ")) or L.TREASURY_ARMY_SEES_NOTHING), gapAfter = true }
 	end
@@ -4728,7 +4728,7 @@ function Treasury.Build(q)
 				tooltip = function(tt) tt:AddLine(L.MONEY_LINK, 1, 0.82, 0) tt:AddLine(L.MONEY_LINK_TIP, 1, 1, 1, true) end })
 		end
 	end
-	local detail = role == "king" and (ns.King.IsSteward() and L.TREASURY_DETAIL_STEWARD or L.TREASURY_DETAIL_KING)
+	local detail = role == "shogun" and (ns.Shogun.IsSteward() and L.TREASURY_DETAIL_STEWARD or L.TREASURY_DETAIL_SHOGUN)
 		or role == "keeper" and L.TREASURY_DETAIL_TREASURER or L.TREASURY_DETAIL_MEMBER
 	return lines, L.TAB_TREASURY, detail
 end
@@ -4766,15 +4766,15 @@ function Treasury.DiscordText()
 end
 
 -- Next to the soldiers on top of the window (the Treasury tab; 1.1.5: no longer the Throne's): the treasury's
--- balance, for the keepers, the King, and the army when the King shows it.
+-- balance, for the keepers, the Shogun, and the army when the Shogun shows it.
 function Treasury.HeaderText()
-	if not (Treasury.IsKeeper() or IsKingView() or Treasury.Shows("balance")) then return nil end
+	if not (Treasury.IsKeeper() or IsShogunView() or Treasury.Shows("balance")) then return nil end
 	local r = Treasury.Report()
 	if not r then return nil end
 	return "|TInterface\\MoneyFrame\\UI-GoldIcon:0|t " .. Treasury.GoldText(r.balance)
 end
 
--- Under the Treasurer in the Realm, for everyone, when the King shows the balance.
+-- Under the Treasurer in the Realm, for everyone, when the Shogun shows the balance.
 function Treasury.RealmText()
 	if not Treasury.Shows("balance") then return nil end
 	local r = Treasury.Report()
@@ -4810,7 +4810,7 @@ StaticPopupDialogs["BANKAIGUILD_TREASURY_OPENING"] = {
 
 ---------------------------------------------------------------------------
 -- 1.1: the clipboard backup (Backup.lua, Fern's): this character's book, and on the Treasurer's
--- characters the other pinned one's (his account keeps both), and the King's word.
+-- characters the other pinned one's (his account keeps both), and the Shogun's word.
 ---------------------------------------------------------------------------
 
 -- The books a backup holds, as this client keeps them (lines, sums, opening).
@@ -4871,10 +4871,10 @@ function Treasury.RestoreBook(saved)
 	return b, added
 end
 
--- The King's word from a backup (his client's, or a Steward's): his switches and his keepers, given
+-- The Shogun's word from a backup (his client's, or a Steward's): his switches and his keepers, given
 -- again as a new word (dated now, as a click gives it), repeated as ever.
 function Treasury.RestoreWord(flags, keepers)
-	if not ns.King.SetsLists() or not ns.rdb then return false end
+	if not ns.Shogun.SetsLists() or not ns.rdb then return false end
 	if type(flags) == "table" then
 		local prev = ns.rdb.treasuryFlags
 		local f = { balance = flags.balance == true, ranking = flags.ranking == true, book = flags.book == true }

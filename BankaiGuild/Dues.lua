@@ -9,23 +9,23 @@ local L = ns.L
 -- - A gift's guild: the one the game shows on the other side of a trade, the Treasurer's own
 --   roster for his guild, or the note a mail carries ("Bankai Guild fund 2026-09-29 <Bankai Guild II>", the
 --   payer's own word: it only places the payer's own gold); otherwise "guild not known".
--- - The King sets one fixed amount, once (1 gold until he does): his word, or his Steward's in
---   his name, dated like the treasury's switches (the newest wins, the King's on the same
+-- - The Shogun sets one fixed amount, once (1 gold until he does): his word, or his Steward's in
+--   his name, dated like the treasury's switches (the newest wins, the Shogun's on the same
 --   second). Their clients repeat it, and only theirs: the Treasurer's, which receives the dues,
 --   never does (Konig's review of 1.1: his copy, with a date of his, set the amount and this
 --   week's). Never a share of anyone's gold or loot. A new amount starts at the next weekly
 --   reset: the week it is given keeps the amount it had (the word carries it), so nobody who paid
 --   that week's amount falls under it afterwards (Fern's "one fixed amount").
--- - Who sees what: the King, his Steward and the Treasurer see every guild (its members in the
+-- - Who sees what: the Shogun, his Steward and the Treasurer see every guild (its members in the
 --   census, how many paid this week, the gold in, the percentage) and, a click away, a guild's
---   players; each guild's Captains (and its Lord) see their own guild alone: each member's name,
+--   players; each guild's Captains (and its Council) see their own guild alone: each member's name,
 --   last payment, gold this week, above or below the amount. The army's Treasury tab keeps the
---   King's three switches (the balance, the ranking, the book) and nothing of this.
+--   Shogun's three switches (the balance, the ranking, the book) and nothing of this.
 -- - None of it goes on the Bankai Guild channel (Fern's #36: every client on it receives the bytes,
 --   and a switch that only hides them would make it a public list of who is short): not the
 --   week's donors, and not the book's lines of gold given to the Treasurer's characters
 --   (Treasury.DuesLine). The Treasurer's addon works the lists out from his account's books and
---   whispers each to whoever asks and may see it: the King or his Steward (every guild), a
+--   whispers each to whoever asks and may see it: the Shogun or his Steward (every guild), a
 --   guild's Captain (his own guild, his rank by the Treasurer's roster or the census). A player
 --   who paid with no guild on it is never in a list: a guild's Captain asks about his own
 --   roster's members missing from it, by five letters of each name's hash, and hears back about
@@ -35,7 +35,7 @@ local L = ns.L
 --   and the guild's table counts the player once. Never another guild's gold (an alt's with
 --   another guild on it, or with none, stays its own), only an alt of that guild now by the best
 --   word the viewer's addon has (a guild's own roster; the Treasurer's for his guild, else the
---   guild its own payments of this week carry; none on the King's view of another guild's list),
+--   guild its own payments of this week carry; none on the Shogun's view of another guild's list),
 --   and only a link Alts.lua confirms now (both characters said it): an offer not answered, one
 --   character's claim alone or a link taken apart adds nothing. A guild's own page counts each
 --   player once among those at the amount, as the table does. Nothing of it is kept in the books
@@ -45,12 +45,12 @@ local L = ns.L
 --   channel or feature of the addon waits on paying, for a guild or a player; a guild's Captains
 --   may only remove members one click at a time, as the game's Guild window does (#34). No
 --   access switch of the moderators' (1.1) may take anything from here.
---   T1~Y~<id>~<guild>~<copper>~<time>~<before>   the King's amount (his, or his Steward's; King.lua),
+--   T1~Y~<id>~<guild>~<copper>~<time>~<before>   the Shogun's amount (his, or his Steward's; Shogun.lua),
 --                                                from the reset after <time>; <before> until then
 --   (FK, the Treasurer's client's copy of it, is gone: Konig's review of 1.1, Dues.TakeAmount)
 --   FQ~<week>~<Guild, or * for every guild>~<id> an ask to the Treasurer (a whisper), with the id
 --                                                of the list held whole (0: none)
---   FS~<id>~<week>~<copper>~<i>~<n>~<Guild:paid:copper:payers;...>   his answer, every guild (whispers, the King's and his Steward's)
+--   FS~<id>~<week>~<copper>~<i>~<n>~<Guild:paid:copper:payers;...>   his answer, every guild (whispers, the Shogun's and his Steward's)
 --   FA~<id>~<week>~<copper>~<since>~<mail>~<cut 0|1>~<u>~<Guild>~<i>~<n>~<Name:copper:hours,...>
 --                                                his answer, one guild's players (whispers)
 --   FU~<id>~<week>~<Guild, or *>~<u>~<mail>      the list held is his still (one whisper)
@@ -63,7 +63,7 @@ local L = ns.L
 --   payers with no guild on it ("0": none): when it changes, a Captain asks about his roster again.
 --   A code: five letters of a name's hash.)
 --   (FS's and FA's <copper>: the amount his list was counted by. Never the week's amount on the
---   page, which is the King's word as the asker's client holds it; a list whose <copper> differs
+--   page, which is the Shogun's word as the asker's client holds it; a list whose <copper> differs
 --   removes nobody, and its "paid" counts are not known there: the review of Konig's fixes, 1.1.)
 -- Versions before 1.1 have no handler for F? messages and drop them; a Steward's T1~Y is logged
 -- there as ignored.
@@ -79,10 +79,10 @@ ns.Dues = Dues
 
 Dues.WEEK = 7 * 86400
 Dues.RESET_US = 486000       -- Tuesday 15:00 UTC (the US realms' reset) where the client can't say
-Dues.AMOUNT = 10000          -- 1 gold a week, until the King sets his amount
+Dues.AMOUNT = 10000          -- 1 gold a week, until the Shogun sets his amount
 Dues.MAX_AMOUNT = 10000000   -- 1000 gold at most
 Dues.WEEKS_KEPT = 5          -- weeks of each giver's sums a book keeps (this one and the 4 before)
-Dues.AMOUNT_EVERY = 300      -- the King's and his Steward's clients repeat the amount
+Dues.AMOUNT_EVERY = 300      -- the Shogun's and his Steward's clients repeat the amount
 Dues.WORD_ANSWER = 30        -- an older amount heard: answered with the newer one this often at most
 Dues.ASK_EVERY = 300         -- a client asks the Treasurer for one list this often at most
 Dues.ANSWER_GAP = 300        -- the Treasurer's client answers one asker's list this often at most
@@ -211,7 +211,7 @@ function Dues.ReadNote(subject, week)
 		if Dues.DateLabel(w) == day then wk = w end
 	end
 	local guild = rest:match("^%s*<([^>]+)>%s*$")
-	return wk, guild and ns.King.CleanGuild(guild) or nil
+	return wk, guild and ns.Shogun.CleanGuild(guild) or nil
 end
 
 ---------------------------------------------------------------------------
@@ -219,27 +219,27 @@ end
 ---------------------------------------------------------------------------
 
 -- The treasury is <Elfcore>'s, on the Treasurer's realm group (WoW: Forever's, whose names have
--- a surname: ns.splitNames, as the King's view of the treasury, Treasury.Visible), on the Alliance.
+-- a surname: ns.splitNames, as the Shogun's view of the treasury, Treasury.Visible), on the Alliance.
 function Dues.Available()
 	if ns.faction == "Horde" or not ns.splitNames or not ns.IsMember() then return false end
 	return ns.GroupOf(ns.realm or "") == ns.GroupOf(ns.TREASURER_REALM)
 end
--- The King, his Steward, the author's Shobek's view: the amount is theirs to set.
-local function KingView() return ns.King.IsKing() or ns.King.IsSteward() or ns.King.Preview() end
-Dues.KingView = KingView
+-- The Shogun, his Steward, the author's Shobek's view: the amount is theirs to set.
+local function ShogunView() return ns.Shogun.IsShogun() or ns.Shogun.IsSteward() or ns.Shogun.Preview() end
+Dues.ShogunView = ShogunView
 -- The Treasurer himself (or the author's Treasurer's view): his books are the dues' ledger.
 function Dues.IsTreasurer() return ns.Treasury.IsTreasurer() == true end
--- Who sees the dues: the King and his Steward, the Treasurer, and each guild's Captains and Lord.
+-- Who sees the dues: the Shogun and his Steward, the Treasurer, and each guild's Captains and Council.
 function Dues.Sees()
 	if not Dues.Available() then return false end
-	return KingView() or Dues.IsTreasurer() or ns.Roster.IsOfficer() or false
+	return ShogunView() or Dues.IsTreasurer() or ns.Roster.IsOfficer() or false
 end
 -- Every guild's, or only our own.
-local function SeesAll() return KingView() or Dues.IsTreasurer() end
+local function SeesAll() return ShogunView() or Dues.IsTreasurer() end
 
--- A sender the King's word comes from (by name: the server sets it), or his Steward.
-local function KingOrSteward(name) return ns.IsKingCharacter(name) or ns.King.IsStewardName(name) end
--- A Captain (or the Lord) of `guild`: by our own roster when it is our guild. Another guild
+-- A sender the Shogun's word comes from (by name: the server sets it), or his Steward.
+local function ShogunOrSteward(name) return ns.IsShogunCharacter(name) or ns.Shogun.IsStewardName(name) end
+-- A Captain (or the Council) of `guild`: by our own roster when it is our guild. Another guild
 -- keeps the legacy census until explicit enforcement, then uses the signed manifest.
 local function CaptainOf(name, guild)
 	local own = ns.IsMember() and GetGuildInfo("player")
@@ -252,12 +252,12 @@ local function CaptainOf(name, guild)
 end
 
 ---------------------------------------------------------------------------
--- The King's amount
+-- The Shogun's amount
 ---------------------------------------------------------------------------
 
 local function Word()
 	local w
-	if ns.King.Preview() then w = ns.db and ns.db.previewDuesAmount else w = ns.rdb and ns.rdb.duesAmount end
+	if ns.Shogun.Preview() then w = ns.db and ns.db.previewDuesAmount else w = ns.rdb and ns.rdb.duesAmount end
 	return type(w) == "table" and tonumber(w.copper) and tonumber(w.at) and w or nil
 end
 local function Copper(n)
@@ -271,7 +271,7 @@ local function AmountIn(w, week)
 	if week > Dues.WeekOf(w.at) then return w.copper end
 	return Copper(w.before) or Dues.AMOUNT
 end
--- The amount of a week, in copper (this week unless said): the King's, 1 gold until he sets one.
+-- The amount of a week, in copper (this week unless said): the Shogun's, 1 gold until he sets one.
 -- Each week is judged by its own: a new amount never reaches back into the week it was set in.
 function Dues.AmountOf(week) return AmountIn(Word(), week or Dues.Week()) end
 function Dues.Amount() return Dues.AmountOf(Dues.Week()) end
@@ -284,22 +284,22 @@ function Dues.Pending()
 	return nil
 end
 
--- The King's client and his Steward's repeat his word (nothing before one of them gives it).
+-- The Shogun's client and his Steward's repeat his word (nothing before one of them gives it).
 function Dues.SendAmount(force)
 	local w = ns.rdb and ns.rdb.duesAmount
-	if not ns.King.SetsLists() or type(w) ~= "table" or not tonumber(w.at) or not Copper(w.copper) then return false end
+	if not ns.Shogun.SetsLists() or type(w) ~= "table" or not tonumber(w.at) or not Copper(w.copper) then return false end
 	local now = ns.Now()
 	if not force and now - lastAmountSent < Dues.AMOUNT_EVERY then return false end
 	lastAmountSent = now
-	ns.Comm.Send("CHANNEL", ("T1~Y~%d~%s~%d~%d~%d"):format(ns.King.NewId(), GetGuildInfo("player") or "", w.copper, w.at, AmountIn(w, Dues.WeekOf(w.at))),
+	ns.Comm.Send("CHANNEL", ("T1~Y~%d~%s~%d~%d~%d"):format(ns.Shogun.NewId(), GetGuildInfo("player") or "", w.copper, w.at, AmountIn(w, Dues.WeekOf(w.at))),
 		"duesamount")
 	return true
 end
 
--- The King (or his Steward) sets it: one amount for everyone, dated, from the next weekly reset
+-- The Shogun (or his Steward) sets it: one amount for everyone, dated, from the next weekly reset
 -- (this week's stays: the word carries it). The author's Shobek's view: its own, on his screen alone.
 function Dues.SetAmount(input)
-	if not KingView() then return ns.Print(L.THRONE_ONLY_KING) end
+	if not ShogunView() then return ns.Print(L.THRONE_ONLY_SHOGUN) end
 	local copper = ns.Treasury.ParseGold(input)
 	if not copper or copper < 1 or copper > Dues.MAX_AMOUNT then return ns.Print(L.DUES_AMOUNT_USAGE:format(Coins(Dues.MAX_AMOUNT))) end
 	local prev = Word()
@@ -307,7 +307,7 @@ function Dues.SetAmount(input)
 	local week = Dues.WeekOf(at)
 	local w = { copper = copper, at = at, before = AmountIn(prev, week), from = ns.me, t = ns.Now() }
 	ns.Print(L.DUES_AMOUNT_SET:format(Coins(copper), Dues.DateLabel(week + 1), Coins(w.before)))
-	if ns.King.Preview() then
+	if ns.Shogun.Preview() then
 		ns.db.previewDuesAmount = w
 		ns.Print(L.THRONE_PREVIEW_NOTE)
 	else
@@ -320,20 +320,20 @@ function Dues.SetAmount(input)
 end
 
 -- His word (or his Steward's), by their own client alone: taken when newer than ours (a time
--- ahead of the server's clock by King.DATE_AHEAD at most), the King's own on the same second.
+-- ahead of the server's clock by Shogun.DATE_AHEAD at most), the Shogun's own on the same second.
 -- (Konig's review of 1.1: the Treasurer's client repeated it, FK, and a copy can't be told from an
 -- amount it made up or dated anew, which set the next weeks' amount and, by its <before>, this
 -- week's: he receives the dues. No client sends or reads FK now; each keeps the last word it
--- heard from the King or a Steward themselves.)
+-- heard from the Shogun or a Steward themselves.)
 -- `before`, the amount of the week it was given in (a word without it: that week's as we had it).
--- An older one heard on the King's or his Steward's client is answered with the newer one.
+-- An older one heard on the Shogun's or his Steward's client is answered with the newer one.
 function Dues.TakeAmount(copper, at, sender, before)
 	copper, at = Copper(copper), tonumber(at)
 	if not copper or not at then return false end
-	if at > Clock() + ns.King.DATE_AHEAD then return false end
+	if at > Clock() + ns.Shogun.DATE_AHEAD then return false end
 	local kept = ns.rdb.duesAmount
 	if not ns.Treasury.Replaces(kept, at, sender) then
-		if type(kept) == "table" and at < (tonumber(kept.at) or 0) and ns.King.SetsLists() and ns.Now() - lastOlder >= Dues.WORD_ANSWER then
+		if type(kept) == "table" and at < (tonumber(kept.at) or 0) and ns.Shogun.SetsLists() and ns.Now() - lastOlder >= Dues.WORD_ANSWER then
 			lastOlder = ns.Now()
 			Dues.SendAmount(true)
 		end
@@ -345,8 +345,8 @@ function Dues.TakeAmount(copper, at, sender, before)
 	ns.rdb.duesAmount = { copper = copper, at = at, before = before, from = ns.FullName(sender), t = ns.Now() }
 	Dues.KeepAmounts() -- (the running week's amount as known now, into the ledger's books: Konig's review of 1.1)
 	if was ~= copper or wasBefore ~= before then
-		if ns.King.IsKing() and ns.King.IsStewardName(sender) then
-			ns.Print(L.STEWARD_SET_DUES:format(ns.King.StewardLabel(sender), Coins(copper), Dues.DateLabel(week + 1)))
+		if ns.Shogun.IsShogun() and ns.Shogun.IsStewardName(sender) then
+			ns.Print(L.STEWARD_SET_DUES:format(ns.Shogun.StewardLabel(sender), Coins(copper), Dues.DateLabel(week + 1)))
 		end
 		ns.Fire("TREASURY_CHANGED")
 	end
@@ -358,7 +358,7 @@ local function ReadWord(rest)
 	if not copper or #copper > 10 or #at > 12 or #before > 10 then return nil end
 	return copper, at, before ~= "" and before or nil
 end
-ns.King.Register("Y", function(sender, id, rest)
+ns.Shogun.Register("Y", function(sender, id, rest)
 	local copper, at, before = ReadWord(rest)
 	if copper then Dues.TakeAmount(copper, at, sender, before) end
 end)
@@ -396,7 +396,7 @@ function Dues.Stamp(e, name, o)
 	local noted, claimed = Dues.ReadNote(o.note, week)
 	-- (e.noted: sent with the dues' note, his dues all of it: Dues.DuesPart, Konig's review of 1.1.)
 	if noted then e.wk, e.noted = noted, true end
-	local guild, verified = ns.King.CleanGuild(o.guild), true
+	local guild, verified = ns.Shogun.CleanGuild(o.guild), true
 	if not guild and ns.IsMember() and ns.Roster.RankOf(ns.FullName(ns.Normal(name))) then guild = GetGuildInfo("player") end
 	if not guild then guild, verified = claimed, false end
 	if guild then e.guild, e.gv = guild, verified or nil end
@@ -784,7 +784,7 @@ function Dues.GuildMessages(led, guild)
 	local named = {}
 	for _, x in pairs(led.players) do
 		if x.g and x.g:lower() == want then
-			local name = ns.King.CleanName(x.n)
+			local name = ns.Shogun.CleanName(x.n)
 			if name then named[#named + 1] = { name = name, c = x.c, last = x.last } end
 		end
 	end
@@ -811,10 +811,10 @@ function Dues.GuildMessages(led, guild)
 	return out, id, u, mail
 end
 
--- Who may ask for `what`: the King or his Steward, any guild or every guild (all);
--- a guild's Captain or Lord, his own guild alone. Rechecked at the actual send as well.
+-- Who may ask for `what`: the Shogun or his Steward, any guild or every guild (all);
+-- a guild's Captain or Council, his own guild alone. Rechecked at the actual send as well.
 local function May(sender, what, all)
-	return KingOrSteward(sender) or (not all and CaptainOf(sender, what)) or false
+	return ShogunOrSteward(sender) or (not all and CaptainOf(sender, what)) or false
 end
 local function AnswerGuard(to, what, all)
 	local me, guild = ns.me, GetGuildInfo("player")
@@ -877,8 +877,8 @@ local function Tell(to, msg, key, what, all)
 		{ owner = replyOwner, guard = AnswerGuard(to, what, all) })
 end
 
--- An ask (a whisper): every guild from the King or his Steward; a guild's list from them, or
--- from that guild's Captain or Lord. This week's or last week's. Each asker's list once every
+-- An ask (a whisper): every guild from the Shogun or his Steward; a guild's list from them, or
+-- from that guild's Captain or Council. This week's or last week's. Each asker's list once every
 -- ANSWER_GAP; the list he holds whole (its id) is not sent again, one whisper says so.
 function Dues.HandleAsk(dist, sender, text)
 	if dist ~= "WHISPER" or type(text) ~= "string" or not Dues.Answers() then return end
@@ -887,10 +887,10 @@ function Dues.HandleAsk(dist, sender, text)
 	local now = Dues.Week()
 	if not week or not held or (week ~= now and week ~= now - 1) then return end
 	local all = what == "*"
-	if not all then what = ns.King.CleanGuild(what) end
+	if not all then what = ns.Shogun.CleanGuild(what) end
 	if not what then return end
 	if not May(sender, what, all) then
-		return ns.Log("dues ask from %s for %s refused: not the King, his Steward nor its Captain", tostring(sender), tostring(what))
+		return ns.Log("dues ask from %s for %s refused: not the Shogun, his Steward nor its Captain", tostring(sender), tostring(what))
 	end
 	local key = ns.FullName(sender) .. "|" .. what:lower() .. "|" .. week
 	if ns.Now() - (answered[key] or -math.huge) < Dues.ANSWER_GAP then return end
@@ -919,10 +919,10 @@ function Dues.HandleCodeAsk(dist, sender, text)
 	if dist ~= "WHISPER" or type(text) ~= "string" or not Dues.Answers() then return end
 	local week, what, ask, i, n, body = text:match("^FC~(%d+)~([^~]+)~(%d+)~(%d+)~(%d+)~(.*)$")
 	week, ask, i, n = tonumber(week), tonumber(ask), tonumber(i), tonumber(n)
-	what = what and ns.King.CleanGuild(what)
+	what = what and ns.Shogun.CleanGuild(what)
 	if not (week and ask and i and n and what) or week ~= Dues.Week() or i < 1 or i > n or n > Dues.MAX_CODE_PIECES then return end
 	if not May(sender, what, false) then
-		return ns.Log("dues roster ask from %s for %s refused: not the King, his Steward nor its Captain", tostring(sender), tostring(what))
+		return ns.Log("dues roster ask from %s for %s refused: not the Shogun, his Steward nor its Captain", tostring(sender), tostring(what))
 	end
 	local key, now = ns.FullName(sender) .. "|" .. what:lower(), ns.Now()
 	local q = codeAsks[key]
@@ -1032,7 +1032,7 @@ local function MailAt(mail)
 end
 
 function Dues.HandleSummary(dist, sender, text)
-	if type(text) ~= "string" or not FromTreasurer(dist, sender) or not KingView() then return end
+	if type(text) ~= "string" or not FromTreasurer(dist, sender) or not ShogunView() then return end
 	local id, week, amount, i, n, body = text:match("^FS~(%d+)~(%d+)~([0-9a-z]+)~(%d+)~(%d+)~(.*)$")
 	id, week, amount, i, n = tonumber(id), tonumber(week), N36(amount), tonumber(i), tonumber(n)
 	if not (id and week and amount and i and n) or i < 1 or i > n or n > 99 then return end
@@ -1048,7 +1048,7 @@ function Dues.HandleSummary(dist, sender, text)
 	for row in body:gmatch("[^;]+") do
 		local name, paid, copper, payers = row:match("^([^:]+):(%d+):([0-9a-z]+):(%d+)$")
 		copper = N36(copper)
-		local guild = name == "?" and "" or (name and ns.King.CleanGuild(name))
+		local guild = name == "?" and "" or (name and ns.Shogun.CleanGuild(name))
 		if guild and copper then
 			summary.guilds[guild:lower()] = { name = guild ~= "" and guild or nil, paid = math.min(tonumber(paid), ns.Codec.GUILD_CAP),
 				copper = math.min(copper, MAX_COPPER), payers = math.min(tonumber(payers), ns.Codec.GUILD_CAP) }
@@ -1063,11 +1063,11 @@ function Dues.HandleGuild(dist, sender, text)
 	local id, week, amount, since, mail, cut, u, guild, i, n, body =
 		text:match("^FA~(%d+)~(%d+)~([0-9a-z]+)~([0-9a-z]+)~([0-9a-z%-]+)~([01])~([0-9a-z]+)~([^~]+)~(%d+)~(%d+)~(.*)$")
 	id, week, amount, since, i, n = tonumber(id), tonumber(week), N36(amount), N36(since), tonumber(i), tonumber(n)
-	guild = guild and ns.King.CleanGuild(guild)
+	guild = guild and ns.Shogun.CleanGuild(guild)
 	if not (id and week and amount and since and guild and i and n) or i < 1 or i > n or n > Dues.MAX_PIECES or #u > 8 then return end
-	-- Only our own guild's, unless ours is the King's view.
+	-- Only our own guild's, unless ours is the Shogun's view.
 	local own = ns.IsMember() and GetGuildInfo("player")
-	if not (KingView() or (own and own:lower() == guild:lower())) then return end
+	if not (ShogunView() or (own and own:lower() == guild:lower())) then return end
 	Heard(sender)
 	local key = guild:lower()
 	busy[key] = nil
@@ -1085,7 +1085,7 @@ function Dues.HandleGuild(dist, sender, text)
 	a.got[i], a.count = true, a.count + 1
 	for row in body:gmatch("[^,]+") do
 		local name, c, h = row:match("^([^:]+):([0-9a-z]+):([0-9a-z]+)$")
-		local clean = name and ns.King.CleanName(name)
+		local clean = name and ns.Shogun.CleanName(name)
 		c, h = N36(c), N36(h)
 		if clean and c and h then a.rows[Dues.Key(clean)] = { n = clean, c = math.min(c, MAX_COPPER), last = a.t - h * 3600 } end
 	end
@@ -1101,7 +1101,7 @@ function Dues.HandleSame(dist, sender, text)
 	if not (id and week) or #u > 8 then return end
 	Heard(sender)
 	local held
-	if what == "*" then held = summary else held = answers[(ns.King.CleanGuild(what) or ""):lower()] end
+	if what == "*" then held = summary else held = answers[(ns.Shogun.CleanGuild(what) or ""):lower()] end
 	if not held or held.id ~= id or held.week ~= week or held.count < held.n then return end
 	held.t = ns.Now()
 	if what ~= "*" then held.u, held.mailAt = u, MailAt(mail) end
@@ -1127,7 +1127,7 @@ function Dues.HandleCodes(dist, sender, text)
 	if type(text) ~= "string" or not FromTreasurer(dist, sender) then return end
 	local week, guild, ask, i, n, body = text:match("^FD~(%d+)~([^~]+)~(%d+)~(%d+)~(%d+)~(.*)$")
 	week, ask, i, n = tonumber(week), tonumber(ask), tonumber(i), tonumber(n)
-	guild = guild and ns.King.CleanGuild(guild)
+	guild = guild and ns.Shogun.CleanGuild(guild)
 	if not (week and ask and i and n and guild) or i < 1 or i > n or n > 99 then return end
 	local a = answers[guild:lower()]
 	local cs = a and a.cs
@@ -1158,7 +1158,7 @@ ns.Comm.Handle("FD", function(...) Dues.HandleCodes(...) end)
 -- count, n, t, mine, mailAt, guild, roster (1.1.5: our roster's keys, on our own guild's list
 -- from the Treasurer) }, or nil. The Treasurer's own client from his books (every player,
 -- whatever the guild); anyone else as the Treasurer sent it. Its amount, what above and below go
--- by, is the week's by the King's word as this client holds it (Dues.AmountOf), never the one the
+-- by, is the week's by the Shogun's word as this client holds it (Dues.AmountOf), never the one the
 -- Treasurer's list came with (listAmount): his client, which receives the dues, sets none of it,
 -- stale or modified (the review of Konig's fixes, 1.1).
 local function GuildData(guild)
@@ -1191,14 +1191,14 @@ local function GuildData(guild)
 		listAmount = a.listAmount, since = a.since, complete = a.count >= a.n, cut = a.cut, count = a.count, n = a.n, t = a.t, mailAt = a.mailAt,
 		guild = guild, roster = roster }
 end
--- The Treasurer's list came counted by another amount than the week's here (the King's word as
--- this client holds it): one of the two clients has not heard the King's latest, or his is not
--- the addon it says. The page says so and goes by the King's.
+-- The Treasurer's list came counted by another amount than the week's here (the Shogun's word as
+-- this client holds it): one of the two clients has not heard the Shogun's latest, or his is not
+-- the addon it says. The page says so and goes by the Shogun's.
 local function Differs(data)
 	return data ~= nil and data.listAmount ~= nil and data.listAmount ~= data.amount
 end
 -- A list recent enough to remove anyone by (#34): the Treasurer's own books, or his list of the
--- last REMOVE_FRESH, counted by the King's amount for the week (one that differs removes nobody).
+-- last REMOVE_FRESH, counted by the Shogun's amount for the week (one that differs removes nobody).
 local function Fresh(data)
 	return data ~= nil and (data.mine or (ns.Now() - (tonumber(data.t) or -math.huge) <= Dues.REMOVE_FRESH and not Differs(data)))
 end
@@ -1211,7 +1211,7 @@ end
 -- change of its links): on our own guild's list from the Treasurer, our roster (the server's
 -- word); in the Treasurer's own books, his word (the ledger's `now`: his roster for his guild,
 -- else the guild its payments of this week carry). On another guild's list from the Treasurer (the
--- King's and his Steward's view) there is no such word here: none counts. Never a payment with no
+-- Shogun's and his Steward's view) there is no such word here: none counts. Never a payment with no
 -- guild on it (found by its code). A character that is an alt takes nothing of its main's: its
 -- line is its own. `name`: the member's name (nil: nobody's alts).
 local function AltsGold(data, key, name)
@@ -1426,7 +1426,7 @@ local function OwnGuildLines(lines, q)
 	local data = GuildData(guild)
 	local roster, rows, above, below = Dues.Roster(), {}, 0, 0
 	local amount = data and data.amount or Dues.Amount()
-	-- (1.1.5) The count of those at the amount counts each player once, as the King's table does (a
+	-- (1.1.5) The count of those at the amount counts each player once, as the Shogun's table does (a
 	-- payment never twice, the review of 1.1.5): a confirmed alt of a main on this roster goes with
 	-- him, and the player is at the amount when a line of his is (an alt that paid it alone keeps its
 	-- own line, and its main's is at the amount with its gold).
@@ -1502,7 +1502,7 @@ local function OwnGuildLines(lines, q)
 	end
 end
 
--- Another guild (the King's and the Treasurer's view): its players who paid in the weeks kept
+-- Another guild (the Shogun's and the Treasurer's view): its players who paid in the weeks kept
 -- with that guild on it (those with no guild on it: the table's "guild not known" row).
 local function GuildLines(lines, guild, q)
 	local data = GuildData(guild)
@@ -1533,7 +1533,7 @@ local function GuildLines(lines, guild, q)
 	end
 end
 
--- Every guild (the King's and the Treasurer's view): its members, how many paid this week, the
+-- Every guild (the Shogun's and the Treasurer's view): its members, how many paid this week, the
 -- gold in, the percentage. A click opens its players.
 local function TableLines(lines, q)
 	local led, complete
@@ -1549,7 +1549,7 @@ local function TableLines(lines, q)
 		return
 	end
 	if not complete then lines[#lines + 1] = { text = Grey(L.DUES_RECEIVING:format(led.count or 0, led.n or 0)) } end
-	-- The week's amount by the King's word as this client holds it, never the Treasurer's list's
+	-- The week's amount by the Shogun's word as this client holds it, never the Treasurer's list's
 	-- (the review of Konig's fixes, 1.1). His "paid" counts go by his list's amount: when it is
 	-- another, they are not known here ("?"), and the page says why.
 	local amount = Dues.AmountOf(led.week)
@@ -1615,7 +1615,7 @@ function Dues.Build(q)
 	lines[#lines].gapAfter = true
 	local history = ns.DuesHistory and ns.DuesHistory.Link()
 	if history then lines[#lines + 1] = history end
-	if KingView() then
+	if ShogunView() then
 		lines[#lines + 1] = { text = Gold("> " .. L.DUES_SET_AMOUNT:format(Coins(amount))), gapAfter = true,
 			onClick = function() ns.ShowDialog("BANKAIGUILD_DUES_AMOUNT") end,
 			tooltip = function(tt) tt:AddLine(L.DUES_SET_AMOUNT_TIP, 1, 1, 1, true) end }
@@ -1780,7 +1780,7 @@ function Dues.PayerMailFailed() payerMail = nil end
 
 local function ReceiptSender()
 	local T = ns.Treasury
-	if ns.faction == "Horde" or T.DevView() or ns.King.Preview()
+	if ns.faction == "Horde" or T.DevView() or ns.Shogun.Preview()
 		or not (ns.IsTreasurer(ns.me, GetGuildInfo("player")) or ns.IsTreasurerMail(ns.me)) then return nil end
 	return T.TreasurerPin(ns.me)
 end
@@ -2090,7 +2090,7 @@ StaticPopupDialogs["BANKAIGUILD_DUES_AMOUNT"] = {
 	OnShow = function(self)
 		local eb = self.editBox or self.EditBox
 		if eb then
-			local copper = Dues.Pending() or Dues.Amount() -- (the King's latest word)
+			local copper = Dues.Pending() or Dues.Amount() -- (the Shogun's latest word)
 			local g, s = math.floor(copper / 10000), math.floor(copper / 100) % 100
 			eb:SetText(s > 0 and ("%dg %ds"):format(g, s) or tostring(g))
 			ns.Focus(eb)

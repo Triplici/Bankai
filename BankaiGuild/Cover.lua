@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- Embrace Anonymity: a moderator's cover name. The King, a High Councillor or the addon's author
+-- Embrace Anonymity: a moderator's cover name. The Shogun, a High Councillor or the addon's author
 -- turns it on when they need to (/bk cover), picking a first name and a surname. Two things follow.
 --
 -- Their name. Every client whose player accepted moderator protection on the privacy page (an
@@ -9,7 +9,7 @@ local L = ns.L
 -- the game's target and focus frames and nameplates (below, the gate's "cover-names"), the player's
 -- tooltip (Inspect.lua) and Bankai Guild's own pages (Cover.Swap: the census, the person card, the
 -- chats, the Board, the map's dots), without the Bankai Guild marks a moderator carries (the council's
--- colour, skull and border, the King's, the dev's: Borders.lua, ChatWindow.lua, Channels.lua). A
+-- colour, skull and border, the Shogun's, the dev's: Borders.lua, ChatWindow.lua, Channels.lua). A
 -- fake name rather than a masked one: a hidden name draws the eye, and the character's looks would
 -- give the rest away. The game's guild list, /who and chat keep the real name: only this addon
 -- does it, only for those who said Yes, and turning the addon off shows the real name again. The
@@ -26,7 +26,7 @@ local L = ns.L
 --
 -- How it travels: MC~<cover name> on the Bankai Guild channel or the guild, from the moderator's own
 -- client, at once and again every ANNOUNCE_EVERY; MC~0 when it ends, repeated for OFF_REPEAT. The
--- sender is the server's name: a receiver takes it only from the King, a councillor of the signed
+-- sender is the server's name: a receiver takes it only from the Shogun, a councillor of the signed
 -- list or the author (Cover.Eligible), as the councillors' icons (Workshop.HandleIcon). Kept a while
 -- (KEEP) in the realm's saved data, so a login before the next announcement still shows the cover.
 -- Anyone reading the addon messages themselves can tie the two names: this protects what players
@@ -40,7 +40,7 @@ Cover.CONSENT_VERSION = 1
 Cover.ANNOUNCE_EVERY = 300 -- the moderator's client says it again this often (the ticker runs every 60 s)
 Cover.OFF_REPEAT = 3600    -- and says it ended for this long after
 Cover.KEEP = 12 * 3600     -- a cover heard is kept this long after it was last heard
-Cover.MAX = 40             -- covers kept at most (the King, the signed council of 30, the author)
+Cover.MAX = 40             -- covers kept at most (the Shogun, the signed council of 30, the author)
 Cover.QUIET_OWNER = "cover" -- our name as quiet presence's owner (Core.lua)
 
 Cover.random = math.random -- tests
@@ -54,7 +54,7 @@ function Cover.Version() return version end
 
 function Cover.Eligible(name)
 	if type(name) ~= "string" or name == "" then return false end
-	if ns.IsKingCharacter(name) or ns.IsHighCouncillor(name) then return true end
+	if ns.IsShogunCharacter(name) or ns.IsHighCouncillor(name) then return true end
 	local W = ns.Workshop
 	return type(W) == "table" and type(W.IsAuthorName) == "function" and W.IsAuthorName(name) == true
 end
@@ -110,13 +110,13 @@ end
 local function Lower(s) return ns.Fold and ns.Fold(s) or s:lower() end
 
 -- Is this cover name someone's real name we know, or another holder's cover? (`holder`: the one
--- whose cover it would be.) The King, the signed council, the author, our own name, our guild's
+-- whose cover it would be.) The Shogun, the signed council, the author, our own name, our guild's
 -- roster, and the covers kept.
 function Cover.Taken(alias, holder)
 	local key = Lower(alias)
 	local function Same(name) return type(name) == "string" and Lower(ns.ShortName(name)) == key end
 	if Same(ns.me) or Same(ns.AUTHOR) then return true end
-	for _, pin in pairs(ns.KING_CHARACTER or {}) do if Same(pin) then return true end end
+	for _, pin in pairs(ns.SHOGUN_CHARACTER or {}) do if Same(pin) then return true end end
 	local c = ns.rdb and ns.rdb.council
 	if type(c) == "table" and type(c.names) == "table" and c.names[key] then return true end
 	local R = ns.Roster

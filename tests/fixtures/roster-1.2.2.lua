@@ -246,7 +246,7 @@ function Roster.TryScan()
 	lastScan = ns.Now()
 	local r = Roster.Scan()
 	if not r or not ns.IsFederation(r.guild) then return end
-	-- (1.1, Members.lua: who joined since login, for the Lord's recruits; our Lord away past
+	-- (1.1, Members.lua: who joined since login, for the Council's recruits; our Council away past
 	-- warnDays, one line to our officers.)
 	ns.SafeCall("members scan", ns.Members.OnScan, r)
 	-- Our guild lives on another realm: that realm shares our guilds, so it shares our census

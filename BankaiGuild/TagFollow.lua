@@ -28,9 +28,9 @@ local L = ns.L
 -- Who gives one: a moderation team member's client (Accord.TeamMember) that holds the sanctioned
 -- player's BattleTag and may give that sanction itself (N: Moderation.CanIssue; T: an Bankai Guild
 -- moderator's level, WatchChat.ActorLevel), at most at the weight of the sanction and of its own,
--- and only when every character of that code it knows is within that reach (never the King's: his
--- game account's tag reaches only the King and the author, Accord.MayTell, and a code with the
--- King's own character on it is never followed). It gives it right after its own sanction (G1),
+-- and only when every character of that code it knows is within that reach (never the Shogun's: his
+-- game account's tag reaches only the Shogun and the author, Accord.MayTell, and a code with the
+-- Shogun's own character on it is never followed). It gives it right after its own sanction (G1),
 -- when the BattleTag arrives later (G2), and for the others' sanctions (G3: a sweep, once online
 -- WARMUP, one a minute), always on that player's own code. Such an automatic follow never re-dates,
 -- raises or replaces a word kept here, and is dated at the sanction's own time, so a stop or a
@@ -62,8 +62,8 @@ local L = ns.L
 -- here (sent or heard) within ONLINE_WINDOW after such a line (he was online to receive it; the
 -- giver's client sends it again on his first such line), then still another line EVADE_AFTER
 -- later. At most DERIVE_HOUR an hour, never above the weight the follow reaches him with, never a
--- guild's timeout, and taken back once the follow ends. Never on the King's game account
--- (ns.db.kingAccount), never on anyone whose own rank or protection reaches the follow's weight
+-- guild's timeout, and taken back once the follow ends. Never on the Shogun's game account
+-- (ns.db.shogunAccount), never on anyone whose own rank or protection reaches the follow's weight
 -- (his own client also remembers it for the account, ns.db.tagShield). An "on" word or a lift on
 -- the followed character's own name frees him until the sanction he was freed of changes. Never
 -- logged: a tag or a code; the log names the kind, the sanctioned character and the outcome.
@@ -107,7 +107,7 @@ local refusedWhy = {}
 local rates, rateAll = {}, {}
 local buffer = {}       -- words heard while this client's own BattleTag could not be read (memory only)
 local memo, memoN = {}, 0 -- [raw name] = code or false: a team client's lookups (TagFollow.Bump empties it)
-local kingMemo = {}     -- [code] = true when a row of it is the King's own character (TagFollow.Bump empties it)
+local shogunMemo = {}     -- [code] = true when a row of it is the Shogun's own character (TagFollow.Bump empties it)
 local index             -- the kept words by code, rebuilt after any change
 local busy = 0          -- a resolver running (Guarded): a nested one resolves no follow
 local sentNow = {}      -- keys this client sent this session
@@ -217,7 +217,7 @@ function TF.Any(kind) return (Index()[kind] or 0) > 0 end
 -- After a change of the BattleTags or the follows: the lookups start again.
 function TF.Bump()
 	wipe(memo)
-	wipe(kingMemo)
+	wipe(shogunMemo)
 	memoN = 0
 	Dirty()
 end
@@ -233,22 +233,22 @@ local function HashFor(name)
 	return h
 end
 
--- A code one of whose rows here is the King's own character: his game account's, never followed
+-- A code one of whose rows here is the Shogun's own character: his game account's, never followed
 -- (his alts' rows reach only the author's client, which holds his own row too).
-local function KingCode(h)
-	local m = kingMemo[h]
+local function ShogunCode(h)
+	local m = shogunMemo[h]
 	if m ~= nil then return m end
 	local A, M = ns.Accord, ns.Moderation
 	local yes = false
 	if type(A) == "table" and not A.missing and type(A.Rows) == "function" and type(M) == "table" and not M.missing then
 		for _, r in ipairs(A.Rows(h)) do
-			if M.IsKing(r.name) then yes = true break end
+			if M.IsShogun(r.name) then yes = true break end
 		end
 	end
-	kingMemo[h] = yes
+	shogunMemo[h] = yes
 	return yes
 end
-TF.KingCode = KingCode
+TF.ShogunCode = ShogunCode
 
 ---------------------------------------------------------------------------
 -- This account's own code (never on disk on an ordinary client)
@@ -349,13 +349,13 @@ function TF.Sources(name, kind)
 		if mine then Add(x.byHash[mine]) end
 	elseif team then
 		local h = HashFor(full)
-		if h and not KingCode(h) then Add(x.byHash[h]) end
+		if h and not ShogunCode(h) then Add(x.byHash[h]) end
 	end
 	return out or NONE
 end
 
 -- How high `name` stands against a follow of `kind` (a follow applies only above it): his own
--- rank or protection; on his own client also the King's game account (always) and the highest a
+-- rank or protection; on his own client also the Shogun's game account (always) and the highest a
 -- character of this account held within the last TEAM_GRACE (ns.db.tagShield).
 function TF.Shield(name, kind)
 	local M, W = Mod(), WC()
@@ -363,7 +363,7 @@ function TF.Shield(name, kind)
 	if kind == "N" then level = M and tonumber(M.TargetRank(name)) or 0
 	else level = W and tonumber(W.ProtectLevel(name)) or 0 end
 	if not Me(name) or type(ns.db) ~= "table" then return level end
-	if ns.db.kingAccount == true then return math.max(level, 99) end
+	if ns.db.shogunAccount == true then return math.max(level, 99) end
 	local m = ns.db.tagShield
 	local age = type(m) == "table" and Now() - (tonumber(m.at) or -math.huge) or math.huge
 	local keep = Acc() and ns.Accord.TEAM_GRACE or 2 * 86400
@@ -424,7 +424,7 @@ TF.Direct = Direct
 local function Reaches(kind, name, weight)
 	local M, W = Mod(), WC()
 	if not M or not W then return false end
-	if M.IsKing(name) then return false end
+	if M.IsShogun(name) then return false end
 	if kind == "N" then
 		local t = tonumber(M.TargetRank(name)) or 0
 		return t == 0 or weight > t
@@ -649,7 +649,7 @@ function TF.Handle(dist, sender, text)
 	-- First hand only: the server stamps the sender, and nobody passes another's word on.
 	if not Same(giver, sender) then return Refuse("relay", sender) end
 	local M = Mod()
-	if not M or M.IsKing(src) or Same(src, sender) then return Refuse("source", sender) end
+	if not M or M.IsShogun(src) or Same(src, sender) then return Refuse("source", sender) end
 	if not Rate(sender) then return false, "rate" end
 	local weight = Standing(kind, sender)
 	if not weight then return Refuse("standing", sender) end
@@ -722,12 +722,12 @@ function TF.Give(kind, source, opts)
 	if not source then return false, "name" end
 	if not MayGive(kind) then return false, "authority" end
 	local A, M = Acc(), Mod()
-	if M.IsKing(source) or Me(source) then return false, "source" end
+	if M.IsShogun(source) or Me(source) then return false, "source" end
 	local own = A.HashOf and A.HashOf(source)
 	local hash = opts.hash or own
 	if not IsCode(hash) then return false, "tag" end
 	if hash ~= own and not opts.manual and not opts.moved then return false, "contested" end
-	if KingCode(hash) then return false, "reach" end
+	if ShogunCode(hash) then return false, "reach" end
 	local sanction, sw = Direct(kind, source)
 	if not sanction then return false, "none" end
 	if not opts.manual and Derived(source, sanction) then return false, "derived" end
@@ -969,7 +969,7 @@ end
 
 -- Gives `sender` the sanction a follow (`kind`, of `source`'s) reaches him with here, by name, when
 -- this client may (once for him, at most DERIVE_HOUR an hour). onMatch: without the evidence (the
--- caller, Evidence, holds that). Never on a code of the King's account (TagFollow.Sources holds
+-- caller, Evidence, holds that). Never on a code of the Shogun's account (TagFollow.Sources holds
 -- none), never a guild's timeout (it binds inside that guild alone, and a by-name word from here
 -- would bind everywhere), never above the weight the follow reaches him with (a by-name word weighs
 -- its giver's standing on every client: a client standing higher leaves it to one that does not),
@@ -1310,7 +1310,7 @@ function TF.GroupLines(g, shown)
 			for kind in pairs(TF.KINDS) do
 				if MayGive(kind) and Direct(kind, r.name) then
 					for _, hash in ipairs(codes) do
-						if not followed[kind .. Fold(r.name) .. "|" .. hash] and not KingCode(hash) then
+						if not followed[kind .. Fold(r.name) .. "|" .. hash] and not ShogunCode(hash) then
 							local name = r.name
 							followed[kind .. Fold(r.name) .. "|" .. hash] = true
 							out[#out + 1] = { indent = 1, text = Gold(L.ACCORD_FOLLOW_CONTESTED), wrap = true,

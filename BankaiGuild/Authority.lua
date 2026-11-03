@@ -4,7 +4,7 @@ local ADDON, ns = ...
 -- source until the author's signed material explicitly carries an enforcing manifest. Early 1.2
 -- test builds put a small manifest inside HT1:
 --
---   ^leaders^<faction>^enforce^<epoch>^<issued>^<expires>^<Guild>=<Lord-Realm>,...!...
+--   ^leaders^<faction>^enforce^<epoch>^<issued>^<expires>^<Guild>=<Council-Realm>,...!...
 --
 -- A body of "-" is an empty manifest (a tombstone).  Once an enforcing marker for this realm
 -- group and faction has been accepted under the author's signature, this client records that
@@ -765,7 +765,7 @@ function Authority.HandleAsk(dist, sender, text)
 	if not Current(bundle) then return false end -- (1.2.1: an expired set is no answer; TakePart drops it)
 	local author = ns.Workshop and ns.Workshop.IsAuthor and ns.Workshop.IsAuthor()
 	local users = dist == "GUILD" and (ns.Comm.PeerCount and ns.Comm.PeerCount() or 1)
-		or (ns.King and ns.King.AddonsOnline and ns.King.AddonsOnline() or 1)
+		or (ns.Shogun and ns.Shogun.AddonsOnline and ns.Shogun.AddonsOnline() or 1)
 	if not author and math.random() > math.min(1, 3 / math.max(1, users)) then return false end
 	local delay = author and 1 or 2 + math.random() * 10
 	ns.After(delay, "signed authority answer", function()

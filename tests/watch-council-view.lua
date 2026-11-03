@@ -1,4 +1,4 @@
--- Presentation parity never grants guild-local moderation or the King's final word.
+-- Presentation parity never grants guild-local moderation or the Shogun's final word.
 local ns, test, eq = ...
 local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]watch%-council%-view%.lua$") or "./"
 local function Client(fn)
@@ -15,7 +15,7 @@ local function Client(fn)
 		Authority = { Enforced = function() return false end },
 		Alts = { Linked = function() return {} end },
 		Filter = { SharedOn = function() return true end },
-		KingArrow = { ControlLines = function() return {} end },
+		ShogunArrow = { ControlLines = function() return {} end },
 		TabardsV2 = { SurfaceVisible = function() return w.published == true end, Collector = function() return nil end },
 	}, { __index = ns })
 	c.Now = function() return w.epoch end
@@ -25,11 +25,11 @@ local function Client(fn)
 	c.IsFederation = function(guild) return guild == "Bankai Guild II" end
 	c.IsMember = function() return w.member end
 	c.IsHighCouncillor = function(name) return name == c.me and w.role == "council" end
-	c.IsKingCharacter = function(name) return name == c.me and w.role == "king" end
+	c.IsShogunCharacter = function(name) return name == c.me and w.role == "shogun" end
 	c.IsSteward = function() return false end
 	c.CouncilMasked = function() return w.masked == true end
 	c.MaskName = function() return "MASKED" end
-	c.Moderation = { IsKing = c.IsKingCharacter, SelfOff = function() return w.off end,
+	c.Moderation = { IsShogun = c.IsShogunCharacter, SelfOff = function() return w.off end,
 		Hides = function() return w.off end, Hidden = function() return w.off end,
 		CharName = c.FullName, Lines = function() return {} end }
 	c.Roster = { complete = true, byName = {}, online = {}, guild = "Bankai Guild II", group = c.group,
@@ -37,7 +37,7 @@ local function Client(fn)
 		RankOf = function(name) return c.Roster.byName[name] end, MyRank = function() return w.rank end }
 	c.Comm = { Handle = function() end, Send = function() w.sent = w.sent + 1 end,
 		Whisper = function() w.sent = w.sent + 1 end }
-	c.King = { IsKing = function() return c.IsKingCharacter(c.me) end,
+	c.Shogun = { IsShogun = function() return c.IsShogunCharacter(c.me) end,
 		Preview = function() return false end, Register = function() end }
 	GetGuildInfo = function() return "Bankai Guild II", "Member", w.rank end
 	IsInGuild = function() return w.member end
@@ -58,19 +58,19 @@ local function Nav(c)
 	return table.concat(keys, "|")
 end
 
-test("watch: council view: King and High Council share desk navigation without local officer authority", function()
+test("watch: council view: Shogun and High Council share desk navigation without local officer authority", function()
 	Client(function(w, c)
 		local W = c.Watch
 		eq(W.DeskShown(), true); eq(W.PageId(), "desk"); eq(W.CanRead(), false); eq(W.CanManage(), false)
 		local council = Nav(c)
-		w.role = "king"
-		eq(W.DeskShown(), true); eq(Nav(c), council, "same permitted sections as the King's")
+		w.role = "shogun"
+		eq(W.DeskShown(), true); eq(Nav(c), council, "same permitted sections as the Shogun's")
 		w.role = "council"
 		for _, mode in ipairs({ "reports", "cases" }) do W.Show(mode); eq(W.PageId(), mode); assert(W.Build()) end
 		eq(#W.Records(), 0); eq(#W.Audit(), 0); eq(#W.Cases(), 0)
 		eq(W.IsAuthorized(c.me), false); eq(W.IsAuthorized("OtherGuildOfficer-Realm"), false)
 		local ok = W.Mark("Member", "reason"); eq(ok, false)
-		local decided, why = c.Judgment.Decide("missing", "U"); eq(decided, false); eq(why, "king")
+		local decided, why = c.Judgment.Decide("missing", "U"); eq(decided, false); eq(why, "shogun")
 		c.Court.Toggle(); eq(c.Court.Holding(), nil); eq(w.sent, 0)
 		eq(W.TabardsShown(), false, "the publication gate is independent")
 	end)
@@ -108,7 +108,7 @@ test("watch: council view: author role preview shares layout but grants no priva
 		w.author = true; assert(c.ViewAs.Set("councillor"))
 		eq(c.ViewAs.Allows("watch"), true); eq(c.Watch.DeskShown(), true)
 		eq(c.Watch.CanRead(), false); eq(#c.Watch.Cases(), 0)
-		local ok, why = c.Judgment.Decide("missing", "U"); eq(ok, false); eq(why, "king")
+		local ok, why = c.Judgment.Decide("missing", "U"); eq(ok, false); eq(why, "shogun")
 		assert(c.ViewAs.Set("member")); eq(c.Watch.DeskShown(), false); eq(c.WatchChat.PageShown(), false)
 		eq(#c.WatchChat.PageLines(), 0); eq(w.sent, 0)
 	end)

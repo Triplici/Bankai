@@ -42,7 +42,7 @@ local function Scan(w)
 end
 local function Setup()
 	local w = World.New({ council = false, arenaFiles = {}, compliance = "shipped" })
-	local treasurer, king, steward = Client(w, "treasurer"), Client(w, "king"), Client(w, "steward")
+	local treasurer, shogun, steward = Client(w, "treasurer"), Client(w, "shogun"), Client(w, "steward")
 	Scan(w)
 	w:As(treasurer, function()
 		treasurer.db.keeperShares = { [treasurer.name:lower()] = true }
@@ -52,41 +52,41 @@ local function Setup()
 			b.opening = 0 -- an already opened book; Share must not open it again on the first receipt
 		end
 	end)
-	return w, treasurer, king, steward
+	return w, treasurer, shogun, steward
 end
 
-test("Dues history: actual King and pinned Treasurer only; previews, Steward, wrong faction and mail character have no historical view", function()
-	local w, treasurer, king, steward = Setup()
+test("Dues history: actual Shogun and pinned Treasurer only; previews, Steward, wrong faction and mail character have no historical view", function()
+	local w, treasurer, shogun, steward = Setup()
 	local mail = Client(w, "treasurerMail")
 	w:As(mail, function() eq(mail.ns.DuesHistory.Sees(), false); eq(mail.ns.DuesHistory.Data(), nil) end)
 	w:As(treasurer, function() eq(treasurer.ns.DuesHistory.Sees(), true); assert(treasurer.ns.DuesHistory.Link()) end)
-	w:As(king, function() eq(king.ns.DuesHistory.Sees(), true) end)
+	w:As(shogun, function() eq(shogun.ns.DuesHistory.Sees(), true) end)
 	w:As(steward, function()
-		steward.db.devKingView, steward.db.devTreasurerView = true, true
+		steward.db.devShogunView, steward.db.devTreasurerView = true, true
 		eq(steward.ns.DuesHistory.Sees(), false); eq(steward.ns.DuesHistory.Ask(), false); eq(steward.ns.DuesHistory.Link(), nil)
 		eq(#steward.ns.DuesHistory.Build(), 0)
 	end)
-	king.rank = 1
-	w:As(king, function() eq(king.ns.DuesHistory.Sees(), false) end)
+	shogun.rank = 1
+	w:As(shogun, function() eq(shogun.ns.DuesHistory.Sees(), false) end)
 	treasurer.ns.faction = "Horde"
 	w:As(treasurer, function() eq(treasurer.ns.DuesHistory.Sees(), false) end)
 end)
 
 test("Dues history: duplicate private wire reply preserves accepted history", function()
-	local w, t, king = Setup()
+	local w, t, shogun = Setup()
 	local query, message
-	w:As(king, function()
-		local private = king.ns.Treasury.Private
-		king.ns.Treasury.Private = function(_, _, text) query = text; return true end
-		assert(king.ns.DuesHistory.Ask()); king.ns.Treasury.Private = private
+	w:As(shogun, function()
+		local private = shogun.ns.Treasury.Private
+		shogun.ns.Treasury.Private = function(_, _, text) query = text; return true end
+		assert(shogun.ns.DuesHistory.Ask()); shogun.ns.Treasury.Private = private
 	end)
 	w:As(t, function() message = t.ns.DuesHistory.Message(tonumber(query:match("Q~(%d+)"))) end)
-	w:As(king, function()
-		local pieces = king.ns.Codec.Chunk(message, "test1")
-		for _, piece in ipairs(pieces) do king.ns.Treasury.HandlePrivate("WHISPER", t.name, "TW~DH~" .. piece) end
-		local held = assert(king.ns.DuesHistory.Held())
-		for _, piece in ipairs(pieces) do king.ns.Treasury.HandlePrivate("WHISPER", t.name, "TW~DH~" .. piece) end
-		eq(king.ns.DuesHistory.Held(), held, "a replay has no pending request but does not erase a good answer")
+	w:As(shogun, function()
+		local pieces = shogun.ns.Codec.Chunk(message, "test1")
+		for _, piece in ipairs(pieces) do shogun.ns.Treasury.HandlePrivate("WHISPER", t.name, "TW~DH~" .. piece) end
+		local held = assert(shogun.ns.DuesHistory.Held())
+		for _, piece in ipairs(pieces) do shogun.ns.Treasury.HandlePrivate("WHISPER", t.name, "TW~DH~" .. piece) end
+		eq(shogun.ns.DuesHistory.Held(), held, "a replay has no pending request but does not erase a good answer")
 	end)
 end)
 
@@ -126,7 +126,7 @@ test("Dues history: current receipts, observed opening denominator and frozen cl
 		eq(data.guilds["bankaiguild ember"].weeks[2].paid, 1)
 		eq(data.guilds.bankaiguild.weeks[2].members, 2)
 		local saved = t.ns.rdb.duesHistory.weeks[closed].closed
-		t.ns.rdb.duesAmount = { copper = 9000000, before = 9000000, at = w.clock, from = World.NAMES.king }
+		t.ns.rdb.duesAmount = { copper = 9000000, before = 9000000, at = w.clock, from = World.NAMES.shogun }
 		eq(t.ns.DuesHistory.Data().guilds["bankaiguild ember"].weeks[2].paid, 1)
 		eq(t.ns.rdb.duesHistory.weeks[closed].closed.amount, saved.amount)
 	end)
@@ -172,35 +172,35 @@ test("Dues history: an empty own roster never creates a zero denominator", funct
 end)
 
 test("Dues history: private replies reject unknown rank sources, previews and public delivery", function()
-	local w, t, king, steward = Setup()
+	local w, t, shogun, steward = Setup()
 	Receipt(w, t, "Lida Fenn-Emberfall", 5000000, "Bankai Guild Ember")
 	w:As(t, function()
 		local DH = t.ns.DuesHistory
 		local message = DH.Message(w.clock * 1000)
 		assert(not message:find("Lida", 1, true), "history never serializes payer names")
 		local q = ("DH~1~Q~%.0f~%d"):format(w.clock * 1000, t.ns.Dues.Week())
-		eq(DH.Handle("CHANNEL", king.name, q), false)
+		eq(DH.Handle("CHANNEL", shogun.name, q), false)
 		eq(DH.Handle("WHISPER", steward.name, q), false)
 		local rank = t.ns.Data.AuthorizedRank
 		for _, source in ipairs({ false, "unknown", "enforced" }) do
 			t.ns.Data.AuthorizedRank = function() return 0, source or nil end
-			eq(DH.Handle("WHISPER", king.name, q), false)
+			eq(DH.Handle("WHISPER", shogun.name, q), false)
 		end
 		t.ns.Data.AuthorizedRank = rank
-		eq(DH.Handle("WHISPER", king.name, q), true)
-		eq(DH.Handle("WHISPER", king.name, q), false, "replay")
+		eq(DH.Handle("WHISPER", shogun.name, q), true)
+		eq(DH.Handle("WHISPER", shogun.name, q), false, "replay")
 	end)
 	w:Run(2)
 	for _, item in ipairs(w:Sent({ type = "TW" })) do eq(item.dist, "WHISPER") end
 end)
 
 test("Dues history: chunk bounds reject oversized data before the shared assembler", function()
-	local w, t, king = Setup()
+	local w, t, shogun = Setup()
 	w:As(t, function()
 		local feed, calls = t.ns.Codec.Feed, 0
 		t.ns.Codec.Feed = function(...) calls = calls + 1; return feed(...) end
 		for _, piece in ipairs({ "Cx:1:1:" .. string.rep("a", 221), "Cx:1:29:a", "Cx:0:1:a", "Ctoolongid:1:1:a" }) do
-			t.ns.Treasury.HandlePrivate("WHISPER", king.name, "TW~DH~" .. piece)
+			t.ns.Treasury.HandlePrivate("WHISPER", shogun.name, "TW~DH~" .. piece)
 		end
 		eq(calls, 0)
 		t.ns.Codec.Feed = feed
@@ -209,25 +209,25 @@ end)
 
 test("Dues history: correlated replies expire, cannot replay and do not cross stores", function()
 	for _, mode in ipairs({ "valid", "store", "faction", "realm", "guild", "stale", "wrong" }) do
-		local w, t, king = Setup()
+		local w, t, shogun = Setup()
 		local q
-		w:As(king, function()
-			local private = king.ns.Treasury.Private
-			king.ns.Treasury.Private = function(_, _, text) q = text; return true end
-			eq(king.ns.DuesHistory.Ask(), true)
-			king.ns.Treasury.Private = private
+		w:As(shogun, function()
+			local private = shogun.ns.Treasury.Private
+			shogun.ns.Treasury.Private = function(_, _, text) q = text; return true end
+			eq(shogun.ns.DuesHistory.Ask(), true)
+			shogun.ns.Treasury.Private = private
 		end)
 		local id = tonumber(q:match("Q~(%d+)")); local msg
 		w:As(t, function() msg = t.ns.DuesHistory.Message(id) end)
-		if mode == "store" then king.ns.rdb = World.Copy(king.ns.rdb) end
-		if mode == "faction" then king.ns.faction = "Horde" end
-		if mode == "realm" then king.ns.realm = "Emberfall2" end
-		if mode == "guild" then king.guild = "Bankai Guild Ember" end
+		if mode == "store" then shogun.ns.rdb = World.Copy(shogun.ns.rdb) end
+		if mode == "faction" then shogun.ns.faction = "Horde" end
+		if mode == "realm" then shogun.ns.realm = "Emberfall2" end
+		if mode == "guild" then shogun.guild = "Bankai Guild Ember" end
 		if mode == "stale" then w.clock = w.clock + 181 end
 		if mode == "wrong" then msg = msg:gsub("D~" .. tostring(id), "D~" .. tostring(id + 1), 1) end
-		w:As(king, function()
-			eq(king.ns.DuesHistory.Handle("WHISPER", t.name, msg), mode == "valid", mode)
-			eq(king.ns.DuesHistory.Handle("WHISPER", t.name, msg), false, "cannot replay")
+		w:As(shogun, function()
+			eq(shogun.ns.DuesHistory.Handle("WHISPER", t.name, msg), mode == "valid", mode)
+			eq(shogun.ns.DuesHistory.Handle("WHISPER", t.name, msg), false, "cannot replay")
 		end)
 	end
 end)
@@ -257,10 +257,10 @@ end)
 
 test("Dues history: queued private replies cancel after store or realm changes", function()
 	for _, mode in ipairs({ "store", "realm", "faction", "guild", "role" }) do
-		local w, t, king = Setup()
+		local w, t, shogun = Setup()
 		w:As(t, function()
 			local q = ("DH~1~Q~%.0f~%d"):format(w.clock * 1000, t.ns.Dues.Week())
-			eq(t.ns.DuesHistory.Handle("WHISPER", king.name, q), true)
+			eq(t.ns.DuesHistory.Handle("WHISPER", shogun.name, q), true)
 		end)
 		if mode == "store" then t.ns.rdb = World.Copy(t.ns.rdb) end
 		if mode == "realm" then t.ns.realm = "Emberfall2" end
@@ -273,7 +273,7 @@ test("Dues history: queued private replies cancel after store or realm changes",
 end)
 
 test("Dues history: local and wire guild bounds disclose truncation and keep five cells", function()
-	local w, t, king = Setup()
+	local w, t, shogun = Setup()
 	local message, id
 	w:As(t, function()
 		local D, DH, b = t.ns.Dues, t.ns.DuesHistory, t.ns.Treasury.Book()
@@ -290,15 +290,15 @@ test("Dues history: local and wire guild bounds disclose truncation and keep fiv
 		for _, line in ipairs(DH.Build()) do words[#words + 1] = line.text or "" end
 		assert(table.concat(words, " "):find(t.ns.L.DUESHISTORY_CUT, 1, true), "local truncation is visible")
 	end)
-	w:As(king, function()
-		local private = king.ns.Treasury.Private
-		king.ns.Treasury.Private = function(_, _, q) id = tonumber(q:match("Q~(%d+)")); return true end
-		assert(king.ns.DuesHistory.Ask()); king.ns.Treasury.Private = private
+	w:As(shogun, function()
+		local private = shogun.ns.Treasury.Private
+		shogun.ns.Treasury.Private = function(_, _, q) id = tonumber(q:match("Q~(%d+)")); return true end
+		assert(shogun.ns.DuesHistory.Ask()); shogun.ns.Treasury.Private = private
 	end)
 	w:As(t, function() message = t.ns.DuesHistory.Message(id) end)
-	w:As(king, function()
-		assert(king.ns.DuesHistory.Handle("WHISPER", t.name, message))
-		local held, count = king.ns.DuesHistory.Held(), 0
+	w:As(shogun, function()
+		assert(shogun.ns.DuesHistory.Handle("WHISPER", t.name, message))
+		local held, count = shogun.ns.DuesHistory.Held(), 0
 		eq(held.cut, true)
 		for _, g in pairs(held.guilds) do count = count + 1; eq(#g.weeks, 5) end
 		eq(count, 30)
@@ -312,7 +312,7 @@ test("Dues history: local and wire guild bounds disclose truncation and keep fiv
 		for i = 1, 151 do
 			for j = 1, 2 do
 				local r = assert(c.Codec.DecodeReport(c.Codec.EncodeReport({ guild = ("Bankai Guild Census %03d"):format(i),
-					total = 2, online = 1, leader = ("Lord %03d"):format(i), faction = "Alliance" })))
+					total = 2, online = 1, leader = ("Council %03d"):format(i), faction = "Alliance" })))
 				assert(c.Data.Receive(r, ("Scout %03d %d-Emberfall"):format(i, j)))
 			end
 		end
@@ -323,24 +323,24 @@ test("Dues history: local and wire guild bounds disclose truncation and keep fiv
 end)
 
 test("Dues history: reply parser rejects invalid cells, extra rows and oversize payloads", function()
-	local w, t, king = Setup()
-	w:As(king, function()
-		local private, id = king.ns.Treasury.Private
-		king.ns.Treasury.Private = function(_, _, q) id = tonumber(q:match("Q~(%d+)")); return true end
-		assert(king.ns.DuesHistory.Ask()); king.ns.Treasury.Private = private
-		local head = ("DH~1~D~%.0f~%d~%d~0~"):format(id, king.ns.Dues.Week(), w.clock)
+	local w, t, shogun = Setup()
+	w:As(shogun, function()
+		local private, id = shogun.ns.Treasury.Private
+		shogun.ns.Treasury.Private = function(_, _, q) id = tonumber(q:match("Q~(%d+)")); return true end
+		assert(shogun.ns.DuesHistory.Ask()); shogun.ns.Treasury.Private = private
+		local head = ("DH~1~D~%.0f~%d~%d~0~"):format(id, shogun.ns.Dues.Week(), w.clock)
 		local cell = "-/-/0/0/-/p"
 		local cells = table.concat({ cell, cell, cell, cell, cell }, ",")
 		local invalid = { cells .. "," .. cell, table.concat({ cell, cell, cell, cell }, ","),
 			cells:gsub("^%-/%-", "0/-"), cells:gsub("^%-/%-", "-/0"),
 			cells:gsub("p", "s", 1), cells:gsub("p", "z", 1), cells:gsub("p", "l", 1),
 			cells:gsub("/%-/p", "/0/p", 1), (cells:gsub("/0/0/", "/-1/0/", 1)) }
-		for _, value in ipairs(invalid) do eq(king.ns.DuesHistory.Handle("WHISPER", t.name, head .. "Bankai Guild=" .. value), false) end
+		for _, value in ipairs(invalid) do eq(shogun.ns.DuesHistory.Handle("WHISPER", t.name, head .. "Bankai Guild=" .. value), false) end
 		local rows = {}; for i = 1, 31 do rows[i] = "Bankai Guild " .. i .. "=" .. cells end
-		eq(king.ns.DuesHistory.Handle("WHISPER", t.name, head .. table.concat(rows, ";")), false)
-		eq(king.ns.DuesHistory.Handle("WHISPER", t.name, head .. string.rep("x", 6001)), false)
-		eq(king.ns.DuesHistory.Handle("WHISPER", t.name, head .. "Bankai Guild=" .. cells .. ";Bankai Guild=" .. cells), false)
-		eq(king.ns.DuesHistory.Handle("WHISPER", t.name, head .. "Bankai Guild=" .. cells), true, "invalid replies do not consume the pending request")
+		eq(shogun.ns.DuesHistory.Handle("WHISPER", t.name, head .. table.concat(rows, ";")), false)
+		eq(shogun.ns.DuesHistory.Handle("WHISPER", t.name, head .. string.rep("x", 6001)), false)
+		eq(shogun.ns.DuesHistory.Handle("WHISPER", t.name, head .. "Bankai Guild=" .. cells .. ";Bankai Guild=" .. cells), false)
+		eq(shogun.ns.DuesHistory.Handle("WHISPER", t.name, head .. "Bankai Guild=" .. cells), true, "invalid replies do not consume the pending request")
 	end)
 end)
 
@@ -348,24 +348,24 @@ test("Dues history: actual two-way Treasury private transport and shared Dues na
 	for _, gamepad in ipairs({ false, true }) do
 		H.WithUI(function()
 			H.WithGamepadUI(gamepad, function()
-				local w, t, king = Setup()
+				local w, t, shogun = Setup()
 				Receipt(w, t, "Lida Fenn-Emberfall", 5000000, "Bankai Guild Ember")
-				w:As(king, function() assert(king.ns.DuesHistory.Ask()) end)
+				w:As(shogun, function() assert(shogun.ns.DuesHistory.Ask()) end)
 				w:Run(5)
-				w:As(king, function()
-					eq(king.ns.GamepadUI(), gamepad)
-					local DH, D = king.ns.DuesHistory, king.ns.Dues
+				w:As(shogun, function()
+					eq(shogun.ns.GamepadUI(), gamepad)
+					local DH, D = shogun.ns.DuesHistory, shogun.ns.Dues
 					local held = assert(DH.Held(), "the Treasurer answered through real TW handlers")
 					eq(held.guilds["bankaiguild ember"].weeks[1].copper, 5000000)
-					D.Open(); eq(king.ns.Treasury.mode, "dues")
+					D.Open(); eq(shogun.ns.Treasury.mode, "dues")
 					local link
-					for _, line in ipairs(D.Build()) do if line.text == king.ns.L.DUESHISTORY_LINK then link = line end end
+					for _, line in ipairs(D.Build()) do if line.text == shogun.ns.L.DUESHISTORY_LINK then link = line end end
 					assert(link); link.onClick()
 					eq(DH.shown, true)
-					local lines = D.Build(); eq(lines[2].text, king.ns.L.DUESHISTORY_TITLE)
-					lines[1].onClick(); eq(DH.shown, nil); eq(king.ns.Treasury.mode, "dues")
-					DH.Open(); D.Back(); eq(DH.shown, nil); eq(king.ns.Treasury.mode, "dues")
-					D.Back(); eq(king.ns.Treasury.mode, "summary")
+					local lines = D.Build(); eq(lines[2].text, shogun.ns.L.DUESHISTORY_TITLE)
+					lines[1].onClick(); eq(DH.shown, nil); eq(shogun.ns.Treasury.mode, "dues")
+					DH.Open(); D.Back(); eq(DH.shown, nil); eq(shogun.ns.Treasury.mode, "dues")
+					D.Back(); eq(shogun.ns.Treasury.mode, "summary")
 				end)
 				local messages = w:Sent({ type = "TW" }); assert(#messages >= 2)
 				for _, s in ipairs(messages) do eq(s.dist, "WHISPER"); assert(not s.msg:find("Lida", 1, true)) end

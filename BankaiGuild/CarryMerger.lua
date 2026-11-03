@@ -21,7 +21,7 @@ end
 local function Same(a, b) return Name(a) and Name(b) and ns.Fold(Name(a)) == ns.Fold(Name(b)) end
 local function Scope() return tostring(ns.faction) .. ":" .. tostring(ns.group or ns.GroupOf(ns.realm)):lower() end
 local function Sha(s) return ns.Ed25519.ToHex(ns.Sign.SHA256(s)) end
-local function Preview() return ns.ViewAs and ns.ViewAs.Previewing and ns.ViewAs.Previewing() or ns.King and ns.King.Preview and ns.King.Preview() end
+local function Preview() return ns.ViewAs and ns.ViewAs.Previewing and ns.ViewAs.Previewing() or ns.Shogun and ns.Shogun.Preview and ns.Shogun.Preview() end
 local function Fresh() return ns.IsMember() and ns.Roster and ns.Roster.Fresh and ns.Roster.Fresh() ~= nil end
 local function Live(actor, scope)
 	return Same(actor, ns.me) and scope == Scope() and Fresh() and not Preview()
@@ -38,10 +38,10 @@ local function Master(name, guild)
 	end
 	return rank == 0 and (source == "signed" or source == "pinned")
 end
-local function King(name)
-	-- FromKing's legacy census fallback is intentionally not a merger authorization.
-	local pin, realm = ns.KingCharacter(), ns.KingRealm()
-	return pin ~= nil and realm ~= nil and Same(name, ns.FullName(pin, realm)) and ns.IsKingCharacter(name) == true
+local function Shogun(name)
+	-- FromShogun's legacy census fallback is intentionally not a merger authorization.
+	local pin, realm = ns.ShogunCharacter(), ns.ShogunRealm()
+	return pin ~= nil and realm ~= nil and Same(name, ns.FullName(pin, realm)) and ns.IsShogunCharacter(name) == true
 end
 local function OwnGuid()
 	local guid = UnitGUID and UnitGUID("player")
@@ -76,8 +76,8 @@ function M.Parse(body)
 	local d = type(body) == "string" and #body <= 1800 and H().ReadPayload(body)
 	if not d or Count(d) ~= 14 or d.scope ~= Scope() or not Hex(d.id, 16) or not Hex(d.root, 64)
 		or not H().GuildShape(d.source) or not H().GuildShape(d.destination) or d.source == d.destination
-		or not Name(d.sourceMaster) or not Name(d.destinationMaster) or not Name(d.king)
-		or Same(d.sourceMaster, d.destinationMaster) or not Guid(d.sourceGuid) or not Guid(d.destinationGuid) or not Guid(d.kingGuid) then return nil end
+		or not Name(d.sourceMaster) or not Name(d.destinationMaster) or not Name(d.shogun)
+		or Same(d.sourceMaster, d.destinationMaster) or not Guid(d.sourceGuid) or not Guid(d.destinationGuid) or not Guid(d.shogunGuid) then return nil end
 	d.count, d.created, d.expires = tonumber(d.count), tonumber(d.created), tonumber(d.expires)
 	if not Whole(d.count) or d.count > M.ROWS or not Whole(d.created) or d.created > Clock() + 60
 		or not Whole(d.expires) or d.expires ~= d.created + M.LIFE or Body(d) ~= body then return nil end
@@ -107,16 +107,16 @@ end
 local function Slot(d, role)
 	if role == "S" then return d.sourceMaster, d.sourceGuid end
 	if role == "D" then return d.destinationMaster, d.destinationGuid end
-	if role == "K" then return d.king, d.kingGuid end
+	if role == "K" then return d.shogun, d.shogunGuid end
 end
 local function RoleNow(d, role, who)
 	local name = Slot(d, role)
 	if not Same(name, who) then return false end
-	if role == "K" then return King(who) and (not Same(who, ns.me) or ns.King.IsKing()) end
+	if role == "K" then return Shogun(who) and (not Same(who, ns.me) or ns.Shogun.IsShogun()) end
 	return Master(who, role == "S" and d.source or d.destination)
 end
 local function Participant(d)
-	return Same(ns.me, d.sourceMaster) or Same(ns.me, d.destinationMaster) or Same(ns.me, d.king)
+	return Same(ns.me, d.sourceMaster) or Same(ns.me, d.destinationMaster) or Same(ns.me, d.shogun)
 end
 local function Approving(p)
 	return p and not p.revoked and Live(p.actor, p.data.scope) and Participant(p.data)
@@ -126,7 +126,7 @@ local function ApprovalLive(p)
 	return p and not p.revoked and Live(p.actor, p.data.scope) and Participant(p.data) and Clock() <= p.data.created + M.APPROVAL
 end
 local function AllRoles(d)
-	return RoleNow(d, "S", d.sourceMaster) and RoleNow(d, "D", d.destinationMaster) and RoleNow(d, "K", d.king)
+	return RoleNow(d, "S", d.sourceMaster) and RoleNow(d, "D", d.destinationMaster) and RoleNow(d, "K", d.shogun)
 end
 local function Target(p)
 	return p and not p.revoked and p.approved and not p.retired and Live(p.actor, p.data.scope)
@@ -208,7 +208,7 @@ end
 local function SendApproval(p, role, approval)
 	local payload = table.concat({ role, p.body, approval.pk, approval.sig }, "^")
 	local targets, sent = {}, true
-	for _, name in ipairs({ p.data.sourceMaster, p.data.destinationMaster, p.data.king }) do
+	for _, name in ipairs({ p.data.sourceMaster, p.data.destinationMaster, p.data.shogun }) do
 		if not Same(name, ns.me) and not targets[ns.Fold(name)] then
 			targets[ns.Fold(name)] = true
 			local ok = SendData(name, p.data.id, "A", role == "S" and 1 or role == "D" and 2 or 3, payload,
@@ -277,13 +277,13 @@ function M.Prepare(destination)
 	if not destination or not Live(actor, Scope()) or not Master(actor, source) then return false, "source-master" end
 	local guild, rank, how = ns.Authority.Role(destination)
 	if rank ~= 0 or how ~= "signed" or guild == source or not Master(destination, guild) then return false, "destination-master" end
-	local king = ns.KingCharacter() and ns.KingRealm() and ns.FullName(ns.KingCharacter(), ns.KingRealm())
-	if not king or not King(king) then return false, "king-pin" end
+	local shogun = ns.ShogunCharacter() and ns.ShogunRealm() and ns.FullName(ns.ShogunCharacter(), ns.ShogunRealm())
+	if not shogun or not Shogun(shogun) then return false, "shogun-pin" end
 	local toPin = H().KeyPin(destination)
-	local kingPin = Same(king, actor) and { guid = OwnGuid() } or H().KeyPin(king)
-	if not toPin or not kingPin then
+	local shogunPin = Same(shogun, actor) and { guid = OwnGuid() } or H().KeyPin(shogun)
+	if not toPin or not shogunPin then
 		if not toPin then H().RequestKey(destination) end
-		if not kingPin then H().RequestKey(king) end
+		if not shogunPin then H().RequestKey(shogun) end
 		return false, "firsthand-keys-pending"
 	end
 	local scope, guid = Scope(), OwnGuid()
@@ -294,7 +294,7 @@ function M.Prepare(destination)
 		local s = Store(); if not index or not s or Count(s.policies) >= M.MAX or Count(s.floors) >= M.FLOORS or Count(drafts) >= M.PENDING then return end
 		s.seq = s.seq + 1
 		local d = { id = Sha(actor .. scope .. Clock() .. s.seq):sub(1, 16), scope = scope, source = source, sourceMaster = actor, sourceGuid = guid,
-			destination = guild, destinationMaster = destination, destinationGuid = toPin.guid, king = king, kingGuid = kingPin.guid,
+			destination = guild, destinationMaster = destination, destinationGuid = toPin.guid, shogun = shogun, shogunGuid = shogunPin.guid,
 			root = Sha(table.concat(index, "^")), count = #index, created = Clock(), expires = Clock() + M.LIFE }
 		local body = Body(d); if not M.Parse(body) then return end
 		local p = { actor = actor, body = body, data = d, index = index, capsules = frozen, subjects = subjects,
@@ -435,7 +435,7 @@ function M.Revoke(id)
 	end, function(a)
 		if not a or not Live(p.actor, p.data.scope) then return end
 		p.revoked, s.floors[id] = true, Sha(p.body)
-		for _, who in ipairs({ p.data.sourceMaster, p.data.destinationMaster, p.data.king }) do if not Same(who, ns.me) then
+		for _, who in ipairs({ p.data.sourceMaster, p.data.destinationMaster, p.data.shogun }) do if not Same(who, ns.me) then
 			SendData(who, id, "R", 1, role .. "^" .. p.body .. "^" .. a.pk .. "^" .. a.sig, function() return Live(p.actor, p.data.scope) end)
 		end end
 		Changed()

@@ -12,7 +12,7 @@ local L = ns.L
 -- zone and layer, layer help, a treasury keeper's book (keepers only), the Royal Inspection, the
 -- author's roll call, the Bankai Guild chats and an officer's patrol findings (officers only). Each
 -- stays off until its Yes: nil, never answered, is off (Layers.Sharing, Hop.Helps,
--- Treasury.Consent, King's OnInspect, Workshop.Answers, Channels.ChatOn, Inspect.Sharing).
+-- Treasury.Consent, Shogun's OnInspect, Workshop.Answers, Channels.ChatOn, Inspect.Sharing).
 -- The page also says what always goes out once the Bankai Guild Accord (Accord.lua, 1.2.5.1) was
 -- accepted, while the player is in an Bankai Guild guild (the census the elected member sends, names
 -- included, the hello, and the BattleTag to the moderation team alone in game), so it never promises that
@@ -171,7 +171,7 @@ local function MarkAsked(item)
 	if store then store[AskedKey(item)] = Version(item) end
 end
 
--- (1.2.3, the King's stream: the page opened by itself again right after the update to 1.2.2,
+-- (1.2.3, the Shogun's stream: the page opened by itself again right after the update to 1.2.2,
 -- though he had always closed it without answering.) Up to 1.2.1 the page kept the lines it showed for
 -- the session alone (each login asked again), but its games notice for good (Consent.Show:
 -- ns.db.consentNotices.games). An account with that notice and no record of the lines yet was
@@ -687,18 +687,18 @@ end
 -- The lines of 1.1
 ---------------------------------------------------------------------------
 
-local function IsKing() return ns.King ~= nil and ns.King.IsKing ~= nil and ns.King.IsKing() == true end
+local function IsShogun() return ns.Shogun ~= nil and ns.Shogun.IsShogun ~= nil and ns.Shogun.IsShogun() == true end
 
--- The King's zone and layer are his crown on the Throne, and he is never asked for layer help.
+-- The Shogun's zone and layer are his crown on the Throne, and he is never asked for layer help.
 Consent.Register({
 	key = "location", section = "profile", label = "CONSENT_LOCATION", text = "CONSENT_LOCATION_TEXT",
-	shown = function() return not IsKing() end,
+	shown = function() return not IsShogun() end,
 	get = function() return ns.db.shareLocation end,
 	set = function(on) ns.Layers.SetSharing(on) end,
 })
 Consent.Register({
 	key = "layerhelp", label = "CONSENT_LAYERHELP", text = "CONSENT_LAYERHELP_TEXT",
-	shown = function() return not IsKing() end,
+	shown = function() return not IsShogun() end,
 	get = function() return ns.db.layerHelp end,
 	set = function(on) ns.Hop.SetHelp(on) end,
 	note = function() return not ns.Layers.Sharing() and L.CONSENT_NEEDS_LOCATION or nil end,

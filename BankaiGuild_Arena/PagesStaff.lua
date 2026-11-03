@@ -1,7 +1,7 @@
 local _, own = ...; local ns = own.host; if not ns then return end
 
 -- Bankai Guild Arena (the load-on-demand companion): PagesStaff.lua. A stub the arena's core created for the screens to
--- fill. Arbiter (with the King's block: banks, arbiters, settings, the delay line), Bank,
+-- fill. Arbiter (with the Shogun's block: banks, arbiters, settings, the delay line), Bank,
 -- Ledgers (auditors only), Director: each an ArenaUI.RegisterStaffTab(key, spec).
 -- Frames are named BankaiGuildArena... (so /bk photo keeps them); no OnUpdate, no game popup, no
 -- UISpecialFrames but through ns.EscapeCloses, no edit box focused but through ns.Focus.
@@ -14,14 +14,14 @@ local Home = ns.ArenaHome
 local C = Kit.C
 
 -- The staff's side tabs, each shown only to its role (the design):
--- - Arbiter: a listed arbiter, a public one, the King's view, a councillor, and in a rehearsal the
+-- - Arbiter: a listed arbiter, a public one, the Shogun's view, a councillor, and in a rehearsal the
 --   a, p and k stand-ins. His cap meter, his fights (open, close, the Bell, declare with the
---   game's own duel line as a hint, correct and void in the grace), a new fight; the King's block
---   on the King's screen (Show on screen, the stream delay with its presets, the delay line).
+--   game's own duel line as a hint, correct and void in the grace), a new fight; the Shogun's block
+--   on the Shogun's screen (Show on screen, the stream delay with its presets, the delay line).
 -- - Bank: the bank character on the signed list on its duty, or the b stand-in. What it has now
 --   (a trade's intent, mails to take), withdrawals and fees to send (Fill next, or what to send
 --   with the gamepad UI), its health, the rehearsal's refunds.
--- - Ledgers: auditors only (the King's character, a High Councillor, a signed arbiter with the
+-- - Ledgers: auditors only (the Shogun's character, a High Councillor, a signed arbiter with the
 --   audit flag): the banks' replicas, the arbiters' books, the debts with their amounts.
 -- - Director: a test build, or whoever directs a rehearsal or may: the roster, the roles, Start
 --   and Stop, the checklist and its report.
@@ -50,7 +50,7 @@ local function Sim() return ns.Arena.Sim() end
 function ArenaUI.ArbiterVisible()
 	if not Home.ArbitersOn() then return false end -- (1.1.6: no arbiters without a wager)
 	if Sim() then return true end
-	return RoleIn("IsArbiter", Me(), "L") or RoleIn("IsArbiter", Me(), "T") or Kit.KingsView("L") or Kit.KingsView("T")
+	return RoleIn("IsArbiter", Me(), "L") or RoleIn("IsArbiter", Me(), "T") or Kit.ShogunsView("L") or Kit.ShogunsView("T")
 		or (ns.IsHighCouncillor and ns.IsHighCouncillor(Me()) == true) or StandIn("a") or StandIn("p") or StandIn("k")
 end
 
@@ -110,10 +110,10 @@ local function ArbiterLines(st)
 		lines[#lines + 1] = { text = text, right = Home.StateWord(ev), indent = 1, onClick = function() ArenaUI.Select("staff.arbiter", id) end }
 	end
 	lines[#lines + 1] = { text = C("gold", L.ARENA_ARB_NEW), indent = 1, onClick = function() ArenaUI.NewFight() end }
-	-- The King's block (his screen, or the author's view of it).
-	if Kit.KingsView("L") or Kit.KingsView("T") then
-		lines[#lines + 1] = { header = true, text = L.ARENA_KING_BLOCK }
-		lines[#lines + 1] = { text = C("gold", L.ARENA_KING_SHOW), indent = 1, onClick = function() if ArenaUI.Overlay then ArenaUI.Overlay.Show() end end }
+	-- The Shogun's block (his screen, or the author's view of it).
+	if Kit.ShogunsView("L") or Kit.ShogunsView("T") then
+		lines[#lines + 1] = { header = true, text = L.ARENA_SHOGUN_BLOCK }
+		lines[#lines + 1] = { text = C("gold", L.ARENA_SHOGUN_SHOW), indent = 1, onClick = function() if ArenaUI.Overlay then ArenaUI.Overlay.Show() end end }
 		local line = ArenaUI.DelayLine and ArenaUI.DelayLine()
 		if line then lines[#lines + 1] = { text = C("grey", line), indent = 1 } end
 	end
@@ -150,9 +150,9 @@ local function ArbiterDetail(canvas, st)
 		canvas.delayText:SetPoint("TOPLEFT", 8, -204)
 		canvas.delayText:SetWidth(418)
 	end
-	local king = Kit.KingsView("L") or Kit.KingsView("T")
-	for _, b in ipairs(canvas.delays) do b:SetShown(king) end
-	canvas.delayText:SetText(king and (L.ARENA_KING_DELAY .. " " .. C("grey", ArenaUI.DelayLine and ArenaUI.DelayLine() or "")) or "")
+	local shogun = Kit.ShogunsView("L") or Kit.ShogunsView("T")
+	for _, b in ipairs(canvas.delays) do b:SetShown(shogun) end
+	canvas.delayText:SetText(shogun and (L.ARENA_SHOGUN_DELAY .. " " .. C("grey", ArenaUI.DelayLine and ArenaUI.DelayLine() or "")) or "")
 	for _, b in ipairs(canvas.buttons) do b:Hide() end
 	if not ev then
 		canvas.title:SetText(C("grey", L.ARENA_ARB_PICK))
@@ -231,7 +231,7 @@ ArenaUI.RegisterStaffTab("staff.arbiter", { label = L.ARENA_STAFF_ARBITER, tip =
 -- A new fight (the arbiter's pop-up): the two fighters (Use target for each), public or private,
 -- the crowd's bets on a public one (on by default, 2026-10-04: off sends markets = false, so the
 -- fight opens no winner market), best of; the markets and the close time are the fight's owner's
--- defaults (the fights part, the markets), the shortest window the King's delay allows (Arena.OpenMin).
+-- defaults (the fights part, the markets), the shortest window the Shogun's delay allows (Arena.OpenMin).
 local newFight
 function ArenaUI.NewFight()
 	if not newFight then

@@ -15,7 +15,7 @@ local ADDON, ns = ...
 --   Cards: Card.New, AddBout, SetArbiter, SetFotN
 --   (the fights part's review) this character's own fights: MyFights(mode); the weigh-in's unit: TokenOf(gk,
 --     name); a staked challenge's checks: CheckIou(oid, payer, wire, stake, salt), CheckChallenger(c)
--- Promoters: ArenaRoles.MayPromote (the King, his Stewards and Hands, public arbiters: the owner's
+-- Promoters: ArenaRoles.MayPromote (the Shogun, his Stewards and Hands, public arbiters: the owner's
 -- answer). The duel itself starts with the game's own Duel button (the design).
 local ArenaFights = {}
 ns.ArenaFights = ArenaFights
@@ -129,7 +129,7 @@ local function Wire(name)
 	if (ns.RealmOf(full) or ns.realm) == ns.realm then return ns.ShortName(full) end
 	return full
 end
--- ...and back: a name through King.CleanName (Arena.Name), on the sender's realm when it gives none.
+-- ...and back: a name through Shogun.CleanName (Arena.Name), on the sender's realm when it gives none.
 local function Unwire(s, sender)
 	if type(s) ~= "string" or s == "" or s == "-" then return nil end
 	if not s:find("-", 1, true) then s = s .. "-" .. Arena.RealmOf(sender or ns.me) end
@@ -1196,7 +1196,7 @@ local function SendAG(f, side)
 	local x = f.facts[side]
 	if not x or not Has(f.fl, "p") then return end
 	local function S(v) return v ~= nil and tostring(v) or "-" end
-	local guild = x.guild and ns.King and ns.King.CleanGuild and ns.King.CleanGuild(x.guild) or "-"
+	local guild = x.guild and ns.Shogun and ns.Shogun.CleanGuild and ns.Shogun.CleanGuild(x.guild) or "-"
 	Arena.Send("AG", f.mode, table.concat({ f.fid, side, x.gk or "-", S(x.class), S(x.race), S(x.sex), S(x.level),
 		x.faction == "Horde" and "H" or "A", guild or "-", S(x.rankIdx), S(x.hp), B36(x.t), x.fp or "-" }, "~"), { key = "ag " .. f.fid .. side })
 end
@@ -1336,7 +1336,7 @@ local function Close(f, st, w, m, code, noAF)
 	if m then f.m = m end
 	f.graceEnd = f.graceEnd or Now()
 	SendAR(f, f.round > 0 and f.round or 1, code)
-	-- (The King's void of a fight he does not write goes as his AR only: every client takes that,
+	-- (The Shogun's void of a fight he does not write goes as his AR only: every client takes that,
 	-- while an AF is taken from its writer alone.)
 	if not noAF then SendAF(f, true) end
 	Changed(f, was)
@@ -1359,7 +1359,7 @@ function F.Void(fid, code)
 	local f = Find("fights", fid)
 	if not f then return false, "fight" end
 	local writes = Me(f.writer) or Me(Promoter(f))
-	if not (writes or ns.ArenaRoles.IsKing(ns.me)) then return false, "writer" end
+	if not (writes or ns.ArenaRoles.IsShogun(ns.me)) then return false, "writer" end
 	if ENDED[f.st] and f.st ~= "W" then return false, "state" end
 	if f.st == "F" then return false, "state" end
 	if Has(f.fl, "d") and not writes then return false, "direct" end
@@ -1398,11 +1398,11 @@ function F.Disqualify(fid, side, code)
 	return true
 end
 
--- A correction during the grace (the design): by the writer, the card's promoter, or the King.
+-- A correction during the grace (the design): by the writer, the card's promoter, or the Shogun.
 function F.Correct(fid, round, side, method)
 	local f = Find("fights", fid)
 	if not f then return false, "fight" end
-	if not (Me(f.writer) or Me(Promoter(f)) or ns.ArenaRoles.IsKing(ns.me)) then return false, "writer" end
+	if not (Me(f.writer) or Me(Promoter(f)) or ns.ArenaRoles.IsShogun(ns.me)) then return false, "writer" end
 	if Has(f.fl, "d") then return false, "direct" end
 	if f.st ~= "R" or Now() > (f.graceEnd or 0) then return false, "grace" end
 	if side ~= "A" and side ~= "B" then return false, "side" end
@@ -2226,9 +2226,9 @@ local function OnWeigh(dist, sender, mode, body)
 	if not fp then return Refuse("shape") end
 	local f = Find("fights", fid)
 	if not f or not Same(sender, f.arb) or (side ~= "A" and side ~= "B") then return Refuse("sender") end
-	-- (The guild's name through King.CleanGuild here too: nothing another player sends reaches a
+	-- (The guild's name through Shogun.CleanGuild here too: nothing another player sends reaches a
 	-- screen unchecked, the design.)
-	local K = ns.King
+	local K = ns.Shogun
 	local clean = guild ~= "-" and K and type(K.CleanGuild) == "function" and K.CleanGuild(guild) or nil
 	local x = { gk = Gk(gk), class = class ~= "-" and class:sub(1, 2) or nil, race = tonumber(race), sex = tonumber(sex),
 		level = tonumber(level), faction = faction == "H" and "Horde" or "Alliance", guild = clean,
@@ -2368,7 +2368,7 @@ local function OnWitness(dist, sender, mode, body)
 end
 ns.Comm.Handle("AW", ns.Arena.Handle("AW", OnWitness))
 
--- AR: a round's or the fight's result, from its writer, the card's promoter or the King (grace).
+-- AR: a round's or the fight's result, from its writer, the card's promoter or the Shogun (grace).
 local function OnResult(dist, sender, mode, body)
 	local fid, round, sc, w, m, dur, nW, src, final, graceEnd, code = Arena.Fields(body, 11)
 	if not code then return Refuse("shape") end
@@ -2376,13 +2376,13 @@ local function OnResult(dist, sender, mode, body)
 	if not f then return Refuse("fight") end
 	-- A direct fight's result is each fighter's own (his line and the other's AW): never a word.
 	if Has(f.fl, "d") then return Refuse("direct") end
-	-- The King: a correction in the grace, or a void of a fight not yet over (whatever its state,
+	-- The Shogun: a correction in the grace, or a void of a fight not yet over (whatever its state,
 	-- The design: his AR is the void every client applies; its writer then voids its markets
 	-- and refunds its stakes, F.Ended).
-	local isKing = ns.ArenaRoles.IsKing(sender)
-	local kingVoid = isKing and final == "1" and m == "V" and f.st ~= "F" and f.st ~= "V" and f.st ~= "N"
-	local king = isKing and (f.st == "R" or kingVoid)
-	if not (Same(sender, f.writer) or Same(sender, Promoter(f)) or king) then return Refuse("sender") end
+	local isShogun = ns.ArenaRoles.IsShogun(sender)
+	local shogunVoid = isShogun and final == "1" and m == "V" and f.st ~= "F" and f.st ~= "V" and f.st ~= "N"
+	local shogun = isShogun and (f.st == "R" or shogunVoid)
+	if not (Same(sender, f.writer) or Same(sender, Promoter(f)) or shogun) then return Refuse("sender") end
 	if Has(f.fl, "p") and dist ~= "CHANNEL" and dist ~= "RAID" and dist ~= "PARTY" then return Refuse("lane") end
 	-- (1.2.1) A round's or the fight's result (never a void) of a private fight this client has no
 	-- part in: the record goes (OwnPart).
@@ -3034,7 +3034,7 @@ local function SendAN(c, urgent)
 end
 Card.Send = SendAN
 
--- A card (a numbered Fight Night): by a promoter (the King, his Stewards and Hands, a public arbiter).
+-- A card (a numbered Fight Night): by a promoter (the Shogun, his Stewards and Hands, a public arbiter).
 -- opts: { t0, mapID, zone, rehearsal }
 function Card.New(title, t0, opts)
 	opts = opts or {}
@@ -3214,11 +3214,11 @@ local function OnCard(dist, sender, mode, body)
 end
 ns.Comm.Handle("AN", ns.Arena.Handle("AN", OnCard))
 
--- The title a card shows on the King's screen: its own only when the King set it (the design).
+-- The title a card shows on the Shogun's screen: its own only when the Shogun set it (the design).
 function Card.ScreenTitle(cid)
 	local c = Find("cards", cid)
 	if not c then return nil end
-	if ns.ArenaRoles.IsKing(c.promoter) and c.title ~= "" then return c.title end
+	if ns.ArenaRoles.IsShogun(c.promoter) and c.title ~= "" then return c.title end
 	return L.ARENA_CARD_NO:format(c.no or 0)
 end
 
@@ -3404,8 +3404,8 @@ end
 
 -- The events list (the owner's ask, 2026-09-30, for the Arena window's one switchable view): the
 -- Fight Nights and tournaments, and the standalone public fights: live first, then upcoming by
--- time, then the ended ones newest first. Titles are the King's-screen ones (Card.ScreenTitle,
--- ArenaTourney.ScreenTitle): a promoter's own words only when he is the King.
+-- time, then the ended ones newest first. Titles are the Shogun's-screen ones (Card.ScreenTitle,
+-- ArenaTourney.ScreenTitle): a promoter's own words only when he is the Shogun.
 --   F.Events(opts) -> { { kind = "card"|"tourney"|"fight", id, title, at, state, live, upcoming, ended,
 --     promoter, count (bouts or entrants), mode }, ... }; opts: { mode, limit (default 20), kinds = set }
 function F.Events(opts)

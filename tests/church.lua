@@ -8,13 +8,13 @@ local Key = World.Key
 
 local APOSTLES = { "Aldric Vane-Realm", "Bera Stone-Realm", "Cato Reed-Realm" }
 
--- The usual cast: the author, the King, the Head (the signed Church department's first councillor),
+-- The usual cast: the author, the Shogun, the Head (the signed Church department's first councillor),
 -- a councillor of another department, three signed Apostles, a plain member, another guild's master.
 local function Cast(opts)
 	opts = opts or {}
 	local w = World.New({ apostles = opts.apostles or APOSTLES, head = opts.head })
 	local cast = {
-		author = w:Client(World.AUTHOR), king = w:Client(World.KING), head = w:Client(World.HEAD),
+		author = w:Client(World.AUTHOR), shogun = w:Client(World.SHOGUN), head = w:Client(World.HEAD),
 		councillor = w:Client(World.COUNCILLOR),
 		a1 = w:Client(APOSTLES[1]), a2 = w:Client(APOSTLES[2]), a3 = w:Client(APOSTLES[3]),
 		member = w:Client("Plain Member"), gm = w:Client("Vale Master", { guild = World.GUILD2, rank = 0 }),
@@ -28,9 +28,9 @@ local function Everyone(w, fn)
 	for _, cl in ipairs(w.clients) do if cl.Church then fn(cl) end end
 end
 
-test("Church publication authority: King and council publish, Church duties alone do not", function()
+test("Church publication authority: Shogun and council publish, Church duties alone do not", function()
 	local w, c = Cast()
-	for _, publisher in ipairs({ c.king, c.councillor, c.author }) do
+	for _, publisher in ipairs({ c.shogun, c.councillor, c.author }) do
 		eq(w:Act(publisher, publisher.Church.SetPublic, true), true)
 		eq(w:As(c.member, c.member.Church.Public), true, "authenticated switch reaches ordinary member")
 		eq(w:Act(publisher, publisher.Church.SetPublic, false), true)
@@ -55,26 +55,26 @@ test("Church publication authority: all ingress, resend and equal-stamp closes f
 		return w:As(c.member, c.member.Church.Receive, lane or "CHANNEL", who, "NB~1~s~" .. (on and "1" or "0") .. "~" .. B(at))
 	end
 	local at = w.clock
-	eq(Switch(c.king.name, true, at, "WHISPER"), false, "lane guard")
-	eq(Switch(c.king.name, true, at + c.king.Church.DATE_AHEAD + 1), false, "future guard")
+	eq(Switch(c.shogun.name, true, at, "WHISPER"), false, "lane guard")
+	eq(Switch(c.shogun.name, true, at + c.shogun.Church.DATE_AHEAD + 1), false, "future guard")
 	eq(Switch(c.member.name, true, at), false, "forged publisher")
-	eq(Switch(c.king.name, true, at), true)
+	eq(Switch(c.shogun.name, true, at), true)
 	eq(Switch(c.councillor.name, false, at), true, "same-stamp close wins")
-	eq(Switch(c.king.name, true, at), false, "equal opening cannot undo close")
+	eq(Switch(c.shogun.name, true, at), false, "equal opening cannot undo close")
 	-- The opposite delivery order converges on the same closed stamp too.
 	eq(w:As(c.gm, c.gm.Church.Receive, "CHANNEL", c.councillor.name, "NB~1~s~0~" .. B(at)), true)
-	eq(w:As(c.gm, c.gm.Church.Receive, "CHANNEL", c.king.name, "NB~1~s~1~" .. B(at)), false)
+	eq(w:As(c.gm, c.gm.Church.Receive, "CHANNEL", c.shogun.name, "NB~1~s~1~" .. B(at)), false)
 	eq(w:As(c.gm, c.gm.Church.Public), false)
 	w:As(c.member, c.member.Church.TakePresence, "CHANNEL", c.member.name, "NK~1~p~N~-~-~1" .. B(at + 1))
 	eq(w:As(c.member, c.member.Church.Public), false, "claimed council role grants nothing")
 	w:As(c.member, c.member.Church.TakePresence, "CHANNEL", c.councillor.name, "NK~1~p~N~-~-~1" .. B(at + 1))
 	eq(w:As(c.member, c.member.Church.Public), true, "actual councillor's presence carries switch")
-	w.off[c.king.key] = true
-	eq(Switch(c.king.name, false, at + 2), false, "moderated sender cannot issue switch")
-	w:As(c.member, c.member.Church.TakePresence, "CHANNEL", c.king.name, "NK~1~p~K~-~-~0" .. B(at + 2))
+	w.off[c.shogun.key] = true
+	eq(Switch(c.shogun.name, false, at + 2), false, "moderated sender cannot issue switch")
+	w:As(c.member, c.member.Church.TakePresence, "CHANNEL", c.shogun.name, "NK~1~p~K~-~-~0" .. B(at + 2))
 	eq(w:As(c.member, c.member.Church.Public), true, "moderated presence cannot alter it")
-	w.off[c.king.key] = nil
-	w:As(c.member, c.member.Church.TakePresence, "CHANNEL", c.king.name, "NK~1~p~K~-~-~0" .. B(at + 2))
+	w.off[c.shogun.key] = nil
+	w:As(c.member, c.member.Church.TakePresence, "CHANNEL", c.shogun.name, "NK~1~p~K~-~-~0" .. B(at + 2))
 	eq(w:As(c.member, c.member.Church.Public), false)
 	w:Act(c.councillor, c.councillor.Church.SetPublic, true)
 	local _, held = w:As(c.councillor, c.councillor.Church.Public)
@@ -112,9 +112,9 @@ end)
 
 test("1.1.6 Church: Shobek heads the Church; a historical starred Apostle retains only his Apostle and council duties", function()
 	local w, c = Cast()
-	eq(Role(w, c.member, World.AUTHOR), "W"); eq(Role(w, c.member, World.KING), "K")
+	eq(Role(w, c.member, World.AUTHOR), "W"); eq(Role(w, c.member, World.SHOGUN), "K")
 	eq(Role(w, c.member, World.HEAD), "A", "a historical marker grants only the signed Apostle place")
-	eq(w:As(c.member, c.member.Church.HeadName), World.KING)
+	eq(w:As(c.member, c.member.Church.HeadName), World.SHOGUN)
 	-- (The owner's word: the Head of the Church is one of the Twelve Apostles. He keeps an Apostle's
 	-- place and network, and counts among the twelve.)
 	eq(Place(w, c.member, World.HEAD).role, "A", "his Apostle's place")
@@ -124,19 +124,19 @@ test("1.1.6 Church: Shobek heads the Church; a historical starred Apostle retain
 	eq(Role(w, c.member, APOSTLES[1]), "A", "another signed Apostle")
 	eq(Role(w, c.member, "Plain Member"), nil)
 	-- Only a newer signed list ends his place: no root's act in game removes him.
-	eq(w:As(c.king, c.king.Church.MayAct, "-", "A", World.HEAD, nil, nil, World.KING), true, "the marker grants no protection against normal Apostle removal")
+	eq(w:As(c.shogun, c.shogun.Church.MayAct, "-", "A", World.HEAD, nil, nil, World.SHOGUN), true, "the marker grants no protection against normal Apostle removal")
 	eq(w:As(c.author, c.author.Church.MayAct, "-", "A", World.HEAD, nil, nil, World.AUTHOR), true)
-	eq(w:As(c.king, c.king.Church.MayAct, "-", "A", APOSTLES[1], nil, nil, World.KING), true, "another Apostle, yes")
-	-- Apostles signed, none marked: no Head (nobody is Head for being signed first); the King and the
+	eq(w:As(c.shogun, c.shogun.Church.MayAct, "-", "A", APOSTLES[1], nil, nil, World.SHOGUN), true, "another Apostle, yes")
+	-- Apostles signed, none marked: no Head (nobody is Head for being signed first); the Shogun and the
 	-- author still act.
 	local w2, c2 = Cast({ head = false })
-	eq(w2:As(c2.member, c2.member.Church.HeadName), World.KING, "no marker cannot remove Shobek")
+	eq(w2:As(c2.member, c2.member.Church.HeadName), World.SHOGUN, "no marker cannot remove Shobek")
 	eq(Role(w2, c2.member, APOSTLES[1]), "A", "the first signed is an Apostle, no more")
 	local w3, c3 = World.New({ head = false }), {}
-	c3.member, c3.king, c3.author, c3.head = w3:Client("Plain Member"), w3:Client(World.KING), w3:Client(World.AUTHOR), w3:Client(World.HEAD)
-	eq(w3:As(c3.member, c3.member.Church.HeadName), World.KING)
+	c3.member, c3.shogun, c3.author, c3.head = w3:Client("Plain Member"), w3:Client(World.SHOGUN), w3:Client(World.AUTHOR), w3:Client(World.HEAD)
+	eq(w3:As(c3.member, c3.member.Church.HeadName), World.SHOGUN)
 	eq(Role(w3, c3.member, World.HEAD), "N")
-	eq(w3:As(c3.king, c3.king.Church.MayAct, "+", "A", "New Apostle-Realm", nil, nil, World.KING), true)
+	eq(w3:As(c3.shogun, c3.shogun.Church.MayAct, "+", "A", "New Apostle-Realm", nil, nil, World.SHOGUN), true)
 	eq(w3:As(c3.author, c3.author.Church.MayAct, "+", "A", "New Apostle-Realm", nil, nil, World.AUTHOR), true)
 	eq(w3:As(c3.head, c3.head.Church.MayAct, "+", "A", "New Apostle-Realm", nil, nil, World.HEAD), true, "his signed council seat may name an Apostle even without the Head's place")
 end)
@@ -160,7 +160,7 @@ test("1.1.6 Church: the Twelve Apostles come from the author's signed titles lis
 		eq(#list, 3)
 		eq(list[1].n, "Aldric Vane-Realm"); eq(list[3].n, "Cato Reed-Realm")
 		eq(w:As(cl, cl.Church.Role, "Bera Stone-Realm"), "A")
-		eq(w:As(cl, cl.Church.HeadName), ns.KingCharacter(), "the Apostle list does not nominate Shobek")
+		eq(w:As(cl, cl.Church.HeadName), ns.ShogunCharacter(), "the Apostle list does not nominate Shobek")
 		eq(w:As(cl, cl.Church.Role, "Forger Name-Realm"), nil)
 		-- The newer lists: twelve; then one without Bera; then one with no Church department at all (no
 		-- matter: the Head is the Apostle a list marks, and these mark none).
@@ -168,10 +168,10 @@ test("1.1.6 Church: the Twelve Apostles come from the author's signed titles lis
 		eq(#w:As(cl, cl.Church.SignedApostles), 12)
 		eq(w:As(cl, cl.Church.State).apostles, 12)
 		ns.Sign.WithKey(K.N, K.MU, K.K, function() assert(ns.Workshop.TakeTitles(K.titles3)) end)
-		eq(w:As(cl, cl.Church.HeadName), ns.KingCharacter(), "department order cannot replace Shobek")
+		eq(w:As(cl, cl.Church.HeadName), ns.ShogunCharacter(), "department order cannot replace Shobek")
 		eq(w:As(cl, cl.Church.Role, "Bera Stone-Realm"), nil, "a newer signed list without him: no longer an Apostle")
 		ns.Sign.WithKey(K.N, K.MU, K.K, function() assert(ns.Workshop.TakeTitles(K.titles4)) end)
-		eq(w:As(cl, cl.Church.HeadName), ns.KingCharacter(), "removing a department does not remove Shobek")
+		eq(w:As(cl, cl.Church.HeadName), ns.ShogunCharacter(), "removing a department does not remove Shobek")
 	end)
 	ns.rdb.council, ns.rdb.councilTitles, ns.me, ns.Fire = saved.council, saved.titles, saved.me, saved.fire
 	if not ok then error(err, 0) end
@@ -184,7 +184,7 @@ test("1.1.6 Church: who may name an Apostle, and the cap of twelve", function()
 		eq(w:As(who, who.Church.MayAct, "+", "A", "New One-Realm", nil, nil, who.name), false, who.name)
 	end
 	-- Each root names one; every client takes it from the act itself.
-	for i, root in ipairs({ c.author, c.king, c.councillor }) do
+	for i, root in ipairs({ c.author, c.shogun, c.councillor }) do
 		eq(w:Act(root, root.Church.NameApostle, "Root Pick" .. ("x"):rep(i) .. "-Realm"), true, root.name)
 	end
 	-- (Three signed, the Head among them, and the three the roots named.)
@@ -194,8 +194,8 @@ test("1.1.6 Church: who may name an Apostle, and the cap of twelve", function()
 	eq(w:As(c.member, c.member.Church.State).apostles, 12)
 	eq(w:Act(c.author, c.author.Church.NameApostle, "Thirteenth One-Realm"), false, "the thirteenth refused by the actor's own client")
 	-- A modified client's thirteenth act is refused by every receiver.
-	local text = w:As(c.king, c.king.Church.ActText, "+", "A", "Thirteenth One-Realm", nil, nil, w.clock)
-	w:As(c.member, c.member.Church.Receive, "CHANNEL", World.KING, text)
+	local text = w:As(c.shogun, c.shogun.Church.ActText, "+", "A", "Thirteenth One-Realm", nil, nil, w.clock)
+	w:As(c.member, c.member.Church.Receive, "CHANNEL", World.SHOGUN, text)
 	eq(w:As(c.member, c.member.Church.Role, "Thirteenth One-Realm"), nil)
 	eq(w:As(c.member, c.member.Church.Stats).dropped.full, 1)
 	-- Removal: a root, or the Apostle himself; nobody else.
@@ -232,8 +232,8 @@ test("1.1.6 Church: missionaries: an Apostle names under himself, a missionary u
 	eq(w:Act(c.a1, c.a1.Church.NameMissionary, "Mira Wells"), true)
 	eq(w:Act(m1, m1.Church.NameMissionary, "Nils Ford"), true, "a missionary names one more: the network grows")
 	eq(w:Act(c.head, c.head.Church.NameMissionary, "Olga Rhys", APOSTLES[2]), false, "a legacy starred Apostle cannot name in another network")
-	eq(w:Act(c.king, c.king.Church.NameMissionary, "Olga Rhys", APOSTLES[2]), true, "Shobek under an Apostle he picks")
-	eq(w:Act(c.king, c.king.Church.NameMissionary, "Pell Grant", "Mira Wells"), true, "the King under a missionary")
+	eq(w:Act(c.shogun, c.shogun.Church.NameMissionary, "Olga Rhys", APOSTLES[2]), true, "Shobek under an Apostle he picks")
+	eq(w:Act(c.shogun, c.shogun.Church.NameMissionary, "Pell Grant", "Mira Wells"), true, "the Shogun under a missionary")
 	eq(w:Act(c.author, c.author.Church.NameMissionary, "Quin Hart"), false, "a root must say under whom")
 	Everyone(w, function(cl)
 		local p = Place(w, cl, "Nils Ford")
@@ -247,7 +247,7 @@ test("1.1.6 Church: missionaries: an Apostle names under himself, a missionary u
 	end
 	eq(w:Act(c.a2, c.a2.Church.NameMissionary, "Mira Wells"), false, "already a missionary")
 	eq(w:Act(c.a2, c.a2.Church.NameMissionary, APOSTLES[3]), false, "an Apostle")
-	eq(w:Act(c.a2, c.a2.Church.NameMissionary, World.KING), false, "a root")
+	eq(w:Act(c.a2, c.a2.Church.NameMissionary, World.SHOGUN), false, "a root")
 	eq(w:Act(m2, m2.Church.NameMissionary, "Nils Ford"), false, "oneself")
 	-- A forged act: a plain member claiming to name, or naming under someone else's network.
 	local forged = w:As(c.member, c.member.Church.ActText, "+", "M", "Forged Pick-Realm", nil, nil, w.clock)
@@ -329,13 +329,13 @@ test("1.2.4 Church: five thousand saved missionaries stay valid and cached; the 
 	eq(S.valid, 5000, "the full saved tree counts")
 	eq(#S.invalid, 1); eq(S.invalid[1].why, "full", "a saved 5,001st place grants nothing")
 	for _ = 1, 20 do eq(w:As(keeper, keeper.Church.State), S, "an unchanged tree is derived once") end
-	local can, why = w:As(keeper, keeper.Church.MayAct, "+", "M", "One More", APOSTLES[2], nil, World.KING)
+	local can, why = w:As(keeper, keeper.Church.MayAct, "+", "M", "One More", APOSTLES[2], nil, World.SHOGUN)
 	eq(can, false); eq(why, "full", "the 5,001st naming is refused")
 	-- A newer page with a self-cycle grants nothing. Surplus invalid entries must not push an
 	-- older accepted parent out of the saved book, which would break the whole branch below it.
 	for i = 1, 40 do
 		local name = TreeName(i, "Surplus")
-		local _, key, entry = keeper.Church.ParseEntry(("NB~1~p~M~%s~%s~%s~K~-~%s"):format(name, name, World.KING, ns.Codec.Base36(w.clock + i)))
+		local _, key, entry = keeper.Church.ParseEntry(("NB~1~p~M~%s~%s~%s~K~-~%s"):format(name, name, World.SHOGUN, ns.Codec.Base36(w.clock + i)))
 		b.p[key] = entry
 	end
 	w:As(keeper, keeper.Church.Changed)
@@ -402,7 +402,7 @@ test("1.1.6 Church: a namer who loses his place: his nominees stay, marked, one 
 	eq(w:As(c.a1, c.a1.Church.MayAct, "-", "M", "Odo Lark", nil, nil, c.a1.name), true, "the Apostle above")
 	eq(w:As(c.a2, c.a2.Church.MayAct, "-", "M", "Odo Lark", nil, nil, c.a2.name), false, "another network's Apostle")
 	eq(w:As(c.head, c.head.Church.MayAct, "-", "M", "Odo Lark", nil, nil, c.head.name), false, "starred Apostle has no cross-network root power")
-	eq(w:As(c.king, c.king.Church.MayAct, "-", "M", "Odo Lark", nil, nil, c.king.name), true)
+	eq(w:As(c.shogun, c.shogun.Church.MayAct, "-", "M", "Odo Lark", nil, nil, c.shogun.name), true)
 	-- The namer goes: his two stay, under the Apostle now, marked for review, on every client.
 	eq(w:Act(c.a1, c.a1.Church.Remove, "M", "Mira Wells"), true)
 	Everyone(w, function(cl)
@@ -415,9 +415,9 @@ test("1.1.6 Church: a namer who loses his place: his nominees stay, marked, one 
 	local p = Place(w, c.member, "Nils Ford")
 	eq(p.valid, true); eq(p.parent, nil); eq(p.net, nil); eq(p.adopted, true)
 	-- The Head keeps one (the mark goes) and moves the other under another Apostle.
-	eq(w:Act(c.king, c.king.Church.Keep, "Nils Ford"), true)
+	eq(w:Act(c.shogun, c.shogun.Church.Keep, "Nils Ford"), true)
 	eq(Place(w, c.member, "Nils Ford").adopted, nil)
-	eq(w:Act(c.king, c.king.Church.Move, "Odo Lark", APOSTLES[2]), true)
+	eq(w:Act(c.shogun, c.shogun.Church.Move, "Odo Lark", APOSTLES[2]), true)
 	eq(Place(w, c.member, "Odo Lark").net, Key(APOSTLES[2]))
 	eq(w:Act(c.a2, c.a2.Church.Keep, "Nils Ford"), false, "only a root keeps or moves")
 end)
@@ -496,7 +496,7 @@ test("Church correspondent authority: another guild's master appoints by his cen
 	eq(Role(w, c.member, "Vale Helper"), nil, "the census gives him another rank: it ends at once")
 	-- A trusted root can issue a new appointment; local guild masters still use the real roster.
 	w:Run(1)
-	eq(w:Act(c.king, c.king.Church.NameCorrespondent, "Root Helper", World.GUILD2), true)
+	eq(w:Act(c.shogun, c.shogun.Church.NameCorrespondent, "Root Helper", World.GUILD2), true)
 	eq(Role(w, c.member, "Root Helper"), "C")
 	local master = w:Client("Ember Master", { rank = 0 })
 	eq(w:Act(master, master.Church.NameCorrespondent, "Plain Member"), true)
@@ -548,7 +548,7 @@ test("1.1.6 Church: correspondents: a guild master for his own guild, a root for
 	eq(w:As(c.member, c.member.Church.State).corr[ns.Fold(World.GUILD2)].n, "Vale Helper-Realm")
 	eq(#w:As(c.member, c.member.Church.Pending), 0, "taken when the census report came (DATA_CHANGED)")
 	-- A newer naming replaces; the correspondent himself may step down.
-	w:Act(c.king, c.king.Church.NameCorrespondent, "Other Helper", World.GUILD)
+	w:Act(c.shogun, c.shogun.Church.NameCorrespondent, "Other Helper", World.GUILD)
 	eq(w:As(c.member, c.member.Church.State).corr[ns.Fold(World.GUILD)].n, "Other Helper-Realm")
 	eq(Role(w, c.member, "Plain Member"), nil)
 	eq(w:As(helper, helper.Church.MayAct, "-", "C", nil, nil, World.GUILD, helper.name), true)
@@ -557,7 +557,7 @@ end)
 
 -- (1.2.4, the author's ask: "the Church shows no correspondent named, but I doubt no GM named one ... if
 -- the GM isn't online, it has to be kept".) Fails before: no client outside his guild took his naming
--- (the signed leadership alone, which nobody enforces), so the author, the King and every Apostle of
+-- (the signed leadership alone, which nobody enforces), so the author, the Shogun and every Apostle of
 -- another guild showed "none", the GM online or not.
 test("1.2.4 Church: another guild's master names his correspondent: every client takes it once his census proves him, and keeps it while he is offline, across a reload, 30 days after it last proved him", function()
 	local w, c = Cast()
@@ -565,7 +565,7 @@ test("1.2.4 Church: another guild's master names his correspondent: every client
 	Census(w, World.GUILD2, c.gm.name, 0)
 	eq(w:Act(c.gm, c.gm.Church.NameCorrespondent, "Vale Helper"), true, "his own guild, by his own rank")
 	local gkey = ns.Fold(World.GUILD2)
-	for _, cl in ipairs({ c.author, c.king, c.a1, c.member, vale, c.gm }) do
+	for _, cl in ipairs({ c.author, c.shogun, c.a1, c.member, vale, c.gm }) do
 		eq(Role(w, cl, "Vale Helper"), "C", cl.name)
 		eq(w:As(cl, cl.Church.State).corr[gkey].n, "Vale Helper-Realm", cl.name)
 	end
@@ -604,7 +604,7 @@ test("1.2.4 Church: a kept correspondent ends at once when he takes it back, whe
 	-- He takes it back while his census is quiet: every client showing it takes his word.
 	eq(Role(w, c.member, "Vale Helper"), "C")
 	eq(w:Act(c.gm, c.gm.Church.RemoveCorrespondent, World.GUILD2), true)
-	for _, cl in ipairs({ c.author, c.king, c.a1, c.member }) do eq(Role(w, cl, "Vale Helper"), nil, cl.name) end
+	for _, cl in ipairs({ c.author, c.shogun, c.a1, c.member }) do eq(Role(w, cl, "Vale Helper"), nil, cl.name) end
 	eq(w:As(c.author, c.author.Church.Book).cx[gkey] ~= nil, true, "his removal, in the book")
 	-- Named again, kept again; then another master proven (the report's leader, two senders naming him).
 	w:Run(60)
@@ -677,7 +677,7 @@ end
 
 -- (1.2.4, the review: since a guild master is known by his census, two characters can name a made-up
 -- guild's correspondent.) Fails before: the book kept the 64 newest namings, whoever made them, so 64
--- made-up guilds named after the King pushed his naming (and a guild master's by our roster) out of every
+-- made-up guilds named after the Shogun pushed his naming (and a guild master's by our roster) out of every
 -- book, the keepers' too, and real guilds past 64 lost theirs the same way.
 test("1.2.4 Church: past the cap, the namings that no longer hold go first, then the census's (the one confirmed longest ago, then the oldest), never a root's or a roster's; every guild the signed leadership can name fits", function()
 	local w, c = Cast()
@@ -685,7 +685,7 @@ test("1.2.4 Church: past the cap, the namings that no longer hold go first, then
 	local MAX = obs.Church.CORRESPONDENTS_MAX
 	eq(MAX >= ns.Authority.MAX_GUILDS, true, "as many guilds as the author's signed leadership can name")
 	w:Run(1)
-	eq(w:Act(c.king, c.king.Church.NameCorrespondent, "Root Helper", World.GUILD2), true)
+	eq(w:Act(c.shogun, c.shogun.Church.NameCorrespondent, "Root Helper", World.GUILD2), true)
 	w:Run(10)
 	local master = w:Client("Ember Master", { rank = 0 })
 	eq(w:Act(master, master.Church.NameCorrespondent, "Plain Member"), true)
@@ -714,7 +714,7 @@ test("1.2.4 Church: past the cap, the namings that no longer hold go first, then
 	n = 0
 	for _ in pairs(book.c) do n = n + 1 end
 	eq(n, MAX, "the cap")
-	eq(book.c[ns.Fold(World.GUILD2)] and book.c[ns.Fold(World.GUILD2)].n, "Root Helper-Realm", "the King's naming stays")
+	eq(book.c[ns.Fold(World.GUILD2)] and book.c[ns.Fold(World.GUILD2)].n, "Root Helper-Realm", "the Shogun's naming stays")
 	eq(book.c[ns.Fold(World.GUILD)] and book.c[ns.Fold(World.GUILD)].n, "Plain Member-Realm", "our guild master's, by our roster, stays")
 	eq(Role(w, obs, "Root Helper"), "C"); eq(Role(w, obs, "Plain Member"), "C")
 	eq(book.c[ns.Fold(Guild(60))], nil, "the deposed master's naming goes first")
@@ -876,26 +876,26 @@ test("1.1.6 Church: a late client gets the book from a keeper's pages; pages fro
 	eq(w:As(c.member, c.member.Church.Stats).dropped.unasked, 1)
 	w:As(late, late.Church.Receive, "WHISPER", c.member.name, line)
 	eq(w:As(late, late.Church.Stats).dropped.keeper, 1)
-	-- The King's client answers no page.
-	eq(select(2, w:As(c.king, c.king.Church.AnswerAsk, late.name, "NB~1~q~-,-,-,-,-,-,-,-,-")), "not keeper")
+	-- The Shogun's client answers no page.
+	eq(select(2, w:As(c.shogun, c.shogun.Church.AnswerAsk, late.name, "NB~1~q~-,-,-,-,-,-,-,-,-")), "not keeper")
 end)
 
-test("1.1.6 Church: presence: the desk is the Head, then the Apostles by name, then the author, never the King; a claim grants nothing", function()
+test("1.1.6 Church: presence: the desk is the Head, then the Apostles by name, then the author, never the Shogun; a claim grants nothing", function()
 	local w, c = Cast()
 	w:Presence()
 	eq(w:As(c.member, c.member.Church.Desk), APOSTLES[1], "Shobek remains excluded from keeper work; Apostles are ordered by name")
 	c.head.online = false
 	w:Run(c.head.Church.KEEPER_EVERY * 2.3)
-	w:Presence({ c.a1, c.a2, c.a3, c.author, c.king })
+	w:Presence({ c.a1, c.a2, c.a3, c.author, c.shogun })
 	eq(w:As(c.member, c.member.Church.Desk), APOSTLES[1])
 	for _, a in ipairs({ c.a1, c.a2, c.a3 }) do a.online = false end
 	w:Run(c.head.Church.KEEPER_EVERY * 2.3)
-	w:Presence({ c.author, c.king })
+	w:Presence({ c.author, c.shogun })
 	eq(w:As(c.member, c.member.Church.Desk), World.AUTHOR)
 	c.author.online = false
 	w:Run(c.head.Church.KEEPER_EVERY * 2.3)
-	w:Presence({ c.king })
-	eq(w:As(c.member, c.member.Church.Desk), nil, "the King's client is never the desk")
+	w:Presence({ c.shogun })
+	eq(w:As(c.member, c.member.Church.Desk), nil, "the Shogun's client is never the desk")
 	-- A plain member's presence claiming "A" is heard, and grants nothing.
 	w:As(c.a1, c.a1.Church.Receive, "CHANNEL", c.member.name, "NB~1~x")
 	w:As(c.a1, c.a1.Church.ReceivePresence, "CHANNEL", c.member.name, "NK~1~p~A~abcd1234~Bankai Guild Ember")
@@ -917,7 +917,7 @@ test("1.1.6 Church: the room: the Church's audience only, one logged whisper to 
 		for _, t in ipairs(w:As(cl, cl.c.ChatRooms.Options, "role")) do if t.id == "church" then return true end end
 		return false
 	end
-	eq(HasTab(c.a1), true); eq(HasTab(m1), true); eq(HasTab(c.king), true); eq(HasTab(c.councillor), true)
+	eq(HasTab(c.a1), true); eq(HasTab(m1), true); eq(HasTab(c.shogun), true); eq(HasTab(c.councillor), true)
 	eq(HasTab(c.member), false); eq(HasTab(c.gm), false)
 	-- A line: one logged whisper to each audience member heard online, nobody else.
 	w:ClearSent()
@@ -928,7 +928,7 @@ test("1.1.6 Church: the room: the Church's audience only, one logged whisper to 
 		got[Key(e.target)] = true
 	end
 	eq(got[Key("Plain Member")], nil); eq(got[Key("Vale Master")], nil)
-	eq(got[Key("Mira Wells")], true); eq(got[Key(World.HEAD)], true); eq(got[Key(World.KING)], true); eq(got[Key(World.COUNCILLOR)], true)
+	eq(got[Key("Mira Wells")], true); eq(got[Key(World.HEAD)], true); eq(got[Key(World.SHOGUN)], true); eq(got[Key(World.COUNCILLOR)], true)
 	w:Flush()
 	eq(#w:As(m1, m1.c.ChatRooms.History, "church"), 1)
 	-- A line from outside the audience is dropped; so is a broadcast one.
@@ -940,7 +940,7 @@ test("1.1.6 Church: the room: the Church's audience only, one logged whisper to 
 		local n = "Fan " .. string.char(65 + math.floor(i / 26)) .. string.char(97 + i % 26) .. "x"
 		local under = i <= 9 and APOSTLES[1] or (i <= 19 and APOSTLES[2] or (i <= 29 and APOSTLES[3] or "Mira Wells"))
 		w:Run(11)
-		eq(w:Act(c.king, c.king.Church.NameMissionary, n, under), true, n)
+		eq(w:Act(c.shogun, c.shogun.Church.NameMissionary, n, under), true, n)
 		w:As(c.a1, c.a1.Church.TakePresence, "CHANNEL", n .. "-Realm", "NK~1~p~M~-~Bankai Guild Ember")
 	end
 	eq(#w:As(c.a1, c.a1.Church.RoomRecipients), 30)
@@ -1062,10 +1062,10 @@ test("1.1.6 Church: a naming made while no keeper is online reaches the keepers 
 	for _, k in ipairs(keepers) do k.online = false end
 	w:Run(c.a1.Church.KEEPER_EVERY * 3)
 	eq(#w:As(m1, m1.Church.KeepersOnline, false), 0, "no keeper online")
-	-- A missionary's naming (the network growing) and the King's in-game Apostle, heard by nobody who keeps the book.
+	-- A missionary's naming (the network growing) and the Shogun's in-game Apostle, heard by nobody who keeps the book.
 	eq(w:Act(m1, m1.Church.NameMissionary, "Nils Ford"), true)
 	eq(Role(w, nils, "Nils Ford"), "M", "his own client heard it")
-	eq(w:Act(c.king, c.king.Church.NameApostle, "Kings Pick"), true)
+	eq(w:Act(c.shogun, c.shogun.Church.NameApostle, "Shoguns Pick"), true)
 	-- The keepers come back: once each one's presence is heard, the actors' ticks hand them the acts.
 	for _, k in ipairs(keepers) do k.online = true end
 	w:Presence()
@@ -1073,20 +1073,20 @@ test("1.1.6 Church: a naming made while no keeper is online reaches the keepers 
 	w:Tick(); w:Run(30); w:Tick(); w:Run(30)
 	for _, k in ipairs(keepers) do
 		eq(Role(w, k, "Nils Ford"), "M", k.name)
-		eq(Role(w, k, "Kings Pick-Realm"), "A", k.name)
+		eq(Role(w, k, "Shoguns Pick-Realm"), "A", k.name)
 	end
 	eq(#w:Sent(m1, "NB", "WHISPER", "a"), #keepers, "the act itself, a logged whisper to each keeper")
 	for _, e in ipairs(w:Sent(m1, "NB", "WHISPER", "a")) do eq(e.logged, true) end
 	-- Once each: the next ticks hand nothing again.
 	w:ClearSent()
 	w:Tick(); w:Run(30)
-	eq(#w:Sent(m1, "NB", "WHISPER", "a"), 0); eq(#w:Sent(c.king, "NB", "WHISPER", "a"), 0)
+	eq(#w:Sent(m1, "NB", "WHISPER", "a"), 0); eq(#w:Sent(c.shogun, "NB", "WHISPER", "a"), 0)
 	-- A client named later gets both from a keeper's pages (an Apostle's place from a root's).
 	local late = w:Client("Late Comer")
 	w:Act(c.a1, c.a1.Church.NameMissionary, "Late Comer")
 	w:Presence({ c.author })
 	w:Run(30)
-	eq(Role(w, late, "Nils Ford"), "M"); eq(Role(w, late, "Kings Pick-Realm"), "A")
+	eq(Role(w, late, "Nils Ford"), "M"); eq(Role(w, late, "Shoguns Pick-Realm"), "A")
 	-- Only a keeper takes an act by whisper, and none older than OWN_ACT_KEEP.
 	local text = w:As(m1, m1.Church.ActText, "+", "M", "Odd Pick-Realm", nil, nil, w.clock)
 	eq(select(2, w:As(c.member, c.member.Church.Receive, "WHISPER", m1.name, text)), "lane")
@@ -1143,17 +1143,17 @@ test("1.1.6 Church: the Head's keep: never past the new parent's quota, none in 
 	end
 	-- Hours later the Head keeps one: Aldric's twelfth own again. A second keep would be his thirteenth.
 	w:Run(3 * 3600)
-	eq(w:Act(c.king, c.king.Church.Keep, "Grand Kid"), true)
+	eq(w:Act(c.shogun, c.shogun.Church.Keep, "Grand Kid"), true)
 	w:Run(11)
-	eq(w:Act(c.king, c.king.Church.Keep, "Grand Kidb"), false, "past Aldric's quota")
-	eq(w:Printed(c.king), ns.L.CHURCH_NO_QUOTA)
+	eq(w:Act(c.shogun, c.shogun.Church.Keep, "Grand Kidb"), false, "past Aldric's quota")
+	eq(w:Printed(c.shogun), ns.L.CHURCH_NO_QUOTA)
 	Everyone(w, function(cl)
 		local p = Place(w, cl, "Grand Kidb")
 		eq(p.valid, true, cl.name); eq(p.adopted, true, "still marked for the review")
 		eq(Place(w, cl, "Grand Kid").valid, true, cl.name)
 	end)
 	-- The Head moves him instead.
-	eq(w:Act(c.king, c.king.Church.Move, "Grand Kidb", APOSTLES[2]), true)
+	eq(w:Act(c.shogun, c.shogun.Church.Move, "Grand Kidb", APOSTLES[2]), true)
 	eq(Place(w, c.member, "Grand Kidb").net, Key(APOSTLES[2]))
 	-- The kept one's place counts from when he was first named: his invite before the keep is his.
 	local p = Place(w, c.a1, "Grand Kid")
@@ -1203,7 +1203,7 @@ test("1.1.6 Church: the room past thirty: the sender's own network and the Churc
 	eq(got[Key("Nils Ford")], true, "her own network")
 	eq(got[Key(APOSTLES[1])], true, "her Apostle")
 	eq(got[Key("Olga Rhys")], true, "another network's missionary before the council")
-	eq(got[Key(World.HEAD)], true); eq(got[Key(World.KING)], true); eq(got[Key(World.AUTHOR)], true)
+	eq(got[Key(World.HEAD)], true); eq(got[Key(World.SHOGUN)], true); eq(got[Key(World.AUTHOR)], true)
 	eq(left, 5, "35 online in the audience")
 	-- Her line says so, on her screen alone.
 	eq(w:As(m1, m1.c.ChatRooms.Send, "church", "brothers"), true)
@@ -1224,7 +1224,7 @@ end)
 test("1.2.1 Church: a keeper's page can't take a guild's correspondent away: its removal only from a root, the guild's master or the correspondent himself", function()
 	local w, c = Cast()
 	local B = ns.Codec.Base36
-	eq(w:Act(c.king, c.king.Church.NameCorrespondent, "Vale Helper", World.GUILD2), true)
+	eq(w:Act(c.shogun, c.shogun.Church.NameCorrespondent, "Vale Helper", World.GUILD2), true)
 	eq(Role(w, c.councillor, "Vale Helper"), "C")
 	w:Run(1)
 	eq(w:As(c.councillor, c.councillor.Church.AskPages, c.a1.name), true)
@@ -1235,9 +1235,9 @@ test("1.2.1 Church: a keeper's page can't take a guild's correspondent away: its
 	eq(w:As(c.councillor, c.councillor.Church.TakeEntry, c.a1.name, Y("Vale Helper-Realm", "M")), true, "his own removal")
 	eq(Role(w, c.councillor, "Vale Helper"), nil)
 	w:Run(1)
-	eq(w:Act(c.king, c.king.Church.NameCorrespondent, "Vale Second", World.GUILD2), true)
+	eq(w:Act(c.shogun, c.shogun.Church.NameCorrespondent, "Vale Second", World.GUILD2), true)
 	w:Run(1)
-	eq(w:As(c.councillor, c.councillor.Church.TakeEntry, c.a1.name, Y(c.king.name, "K")), true, "a root's")
+	eq(w:As(c.councillor, c.councillor.Church.TakeEntry, c.a1.name, Y(c.shogun.name, "K")), true, "a root's")
 	eq(Role(w, c.councillor, "Vale Second"), nil)
 end)
 
@@ -1246,10 +1246,10 @@ test("1.2.1 Church: listing the keepers online rechecks the correspondents once,
 	local calls = 0
 	local root = c.member.Church.RootCode
 	c.member.Church.RootCode = function(name, ...)
-		if type(name) == "string" and name:find(c.king.name, 1, true) then calls = calls + 1 end
+		if type(name) == "string" and name:find(c.shogun.name, 1, true) then calls = calls + 1 end
 		return root(name, ...)
 	end
-	eq(w:Act(c.king, c.king.Church.NameCorrespondent, "Root Helper", World.GUILD2), true)
+	eq(w:Act(c.shogun, c.shogun.Church.NameCorrespondent, "Root Helper", World.GUILD2), true)
 	local H, cn = w:As(c.member, c.member.Church.Heard), c.member.ns
 	for i = 1, 40 do
 		local name = "Heard" .. i .. "-Realm"
@@ -1278,7 +1278,7 @@ test("1.2.4 Church: the Apostles' room and the Apostles' and missionaries' room:
 		end
 		return table.concat(out, ",")
 	end
-	for _, cl in ipairs({ c.a1, c.a2, c.author, c.king, c.head }) do eq(Rooms(cl), "apostles,missionaries,church", cl.name) end
+	for _, cl in ipairs({ c.a1, c.a2, c.author, c.shogun, c.head }) do eq(Rooms(cl), "apostles,missionaries,church", cl.name) end
 	eq(Rooms(m1), "missionaries,church", "a missionary")
 	eq(Rooms(c.councillor), "church", "a councillor: the whole Church's alone")
 	eq(Rooms(c.member), ""); eq(Rooms(c.gm), "")
@@ -1303,13 +1303,13 @@ test("1.2.4 Church: the Apostles' room and the Apostles' and missionaries' room:
 		table.sort(out)
 		return table.concat(out, ",")
 	end
-	eq(Targets(c.a1, "apostles", "the twelve meet tonight"), Keys({ c.a2, c.a3, c.author, c.king, c.head }))
-	for _, cl in ipairs({ c.a2, c.author, c.king }) do
+	eq(Targets(c.a1, "apostles", "the twelve meet tonight"), Keys({ c.a2, c.a3, c.author, c.shogun, c.head }))
+	for _, cl in ipairs({ c.a2, c.author, c.shogun }) do
 		local h = w:As(cl, cl.c.ChatRooms.History, "apostles")
 		eq(#h, 1, cl.name); eq(h[1].text, "the twelve meet tonight")
 	end
 	w:Run(2)
-	eq(Targets(c.a1, "missionaries", "and our missionaries"), Keys({ c.a2, c.a3, c.author, c.king, c.head, m1 }))
+	eq(Targets(c.a1, "missionaries", "and our missionaries"), Keys({ c.a2, c.a3, c.author, c.shogun, c.head, m1 }))
 	eq(w:As(m1, m1.c.ChatRooms.History, "missionaries")[1].text, "and our missionaries")
 	-- Heard from the room's members alone: a missionary's line to the Apostles' room is dropped.
 	local msg = "M2~1~apostles~77~~" .. World.GUILD .. "~let me in"
@@ -1319,8 +1319,8 @@ test("1.2.4 Church: the Apostles' room and the Apostles' and missionaries' room:
 	eq(w:As(c.a2, c.a2.c.ChatRooms.Receive, "WHISPER", m1.name, "M2~1~missionaries~78~~" .. World.GUILD .. "~I am here"), true)
 	-- A missionary or a councillor cannot write in the Apostles' room.
 	eq(w:As(m1, m1.c.ChatRooms.Send, "apostles", "no"), false); eq(w:As(c.councillor, c.councillor.c.ChatRooms.Send, "missionaries", "no"), false)
-	-- The King's preview names them (View as), inert.
-	c.author.c.ViewAs = { Previewing = function() return true end, Role = function() return "king" end }
+	-- The Shogun's preview names them (View as), inert.
+	c.author.c.ViewAs = { Previewing = function() return true end, Role = function() return "shogun" end }
 	eq(Rooms(c.author), "apostles,missionaries,church")
 	for _, t in ipairs(w:As(c.author, c.author.c.ChatRooms.Options, "role")) do eq(t.disabled, true) end
 end)

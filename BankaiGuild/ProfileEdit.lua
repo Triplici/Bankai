@@ -699,7 +699,7 @@ local function PrivacyLines(lines, facts)
 	end
 end
 
--- Letters: the King's, newest first, unread in gold; a click opens one in the King's letter window.
+-- Letters: the Shogun's, newest first, unread in gold; a click opens one in the Shogun's letter window.
 local function LetterLines(lines, vm)
 	if #vm.letters == 0 then
 		Words(lines, L.MYPROFILE_LETTERS_NONE)
@@ -802,7 +802,7 @@ function PE.Open(what, opts)
 	-- (After the window opened: its opening let go of an older page's section and Games return.)
 	PE.SetSection(to[1], to[2])
 	gamesReturn = type(opts) == "table" and opts.from == "games" and { shown = wasShown } or nil
-	-- A King's letter waiting (the gamepad UI shows none by itself): this click opens it.
+	-- A Shogun's letter waiting (the gamepad UI shows none by itself): this click opens it.
 	local HN = H()
 	if HN and HN.QueuedLetters and HN.QueuedLetters()[1] then HN.ShowLetter(nil, true) end
 	return true

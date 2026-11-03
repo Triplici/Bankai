@@ -4,13 +4,13 @@ local ns = H.ns
 
 print("Codec.lua: a full buffer of open pieces makes room instead of refusing everyone")
 
--- Codec.lua in a namespace of its own: guildmates (the roster), the pinned King and a signed
+-- Codec.lua in a namespace of its own: guildmates (the roster), the pinned Shogun and a signed
 -- councillor as this world has them.
 local function Fresh()
 	local kin = {}
 	local cns = setmetatable({
 		Roster = { RankOf = function(name) return kin[name] end },
-		IsKingCharacter = function(name) return name == "Crowned-Realm" end,
+		IsShogunCharacter = function(name) return name == "Crowned-Realm" end,
 		IsHighCouncillor = function(name) return name == "Sage-Realm" end,
 	}, { __index = ns })
 	assert(loadfile(H.ADDON_DIR .. "Codec.lua"))("BankaiGuild", cns)
@@ -59,7 +59,7 @@ test("1.2.1 leaks: a hundred characters holding their open pieces no longer keep
 	eq(b.open, C.OPEN_PER_SENDER); eq(b.refused, 10 - C.OPEN_PER_SENDER)
 end)
 
-test("1.2.1 leaks: a buffer full of strangers' single messages lets in our guildmates, the King and a councillor, never another stranger over them; theirs are never closed", function()
+test("1.2.1 leaks: a buffer full of strangers' single messages lets in our guildmates, the Shogun and a councillor, never another stranger over them; theirs are never closed", function()
 	local C, kin = Fresh()
 	kin["Kinsman-Realm"] = 3
 	local asm, now = C.NewAssembler(), 1000

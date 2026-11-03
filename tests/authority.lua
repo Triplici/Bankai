@@ -170,20 +170,20 @@ local ns, test, eq, extra = ...
 		WithState(function()
 			Census("Bankai Guild Zeus", "Forger-Realm", 0)
 			eq(D.AuthorizedRank("Forger-Realm", "Bankai Guild Zeus"), 0, "legacy before activation")
-			Install(Entry("Bankai Guild Zeus=Real Lord-Realm,Real Captain-Other", 4), T0)
+			Install(Entry("Bankai Guild Zeus=Real Council-Realm,Real Captain-Other", 4), T0)
 			eq(D.AuthorizedRank("Forger-Realm", "Bankai Guild Zeus"), nil, "census loses authority on activation")
-			eq(D.AuthorizedRank("Real Lord-Realm", "Bankai Guild Zeus"), 0)
+			eq(D.AuthorizedRank("Real Council-Realm", "Bankai Guild Zeus"), 0)
 			eq(D.AuthorizedRank("Real Captain-Other", "Bankai Guild Zeus"), 1)
 			local forgedLevel, forgedVerified = ns.Channels.VerifiedLevel("Forger-Realm", "Bankai Guild Zeus")
-			eq(forgedLevel, 1); eq(forgedVerified, false, "a forged Lord cannot write privileged chat")
-			local signedLevel, signedVerified = ns.Channels.VerifiedLevel("Real Lord-Realm", "Bankai Guild Zeus")
-			eq(signedLevel, 3); eq(signedVerified, true, "the signed Lord can write it")
-			eq(ns.Bank.LordOrCaptain("Forger-Realm", "Bankai Guild Zeus"), false, "nor issue a bank request")
-			eq(ns.Bank.LordOrCaptain("Real Captain-Other", "Bankai Guild Zeus"), true)
-			eq(ns.King.Verified("Forger-Realm", "Bankai Guild Zeus"), false, "nor write names onto the King's page")
-			eq(ns.King.Verified("Real Captain-Other", "Bankai Guild Zeus"), true)
+			eq(forgedLevel, 1); eq(forgedVerified, false, "a forged Council cannot write privileged chat")
+			local signedLevel, signedVerified = ns.Channels.VerifiedLevel("Real Council-Realm", "Bankai Guild Zeus")
+			eq(signedLevel, 3); eq(signedVerified, true, "the signed Council can write it")
+			eq(ns.Bank.CouncilOrCaptain("Forger-Realm", "Bankai Guild Zeus"), false, "nor issue a bank request")
+			eq(ns.Bank.CouncilOrCaptain("Real Captain-Other", "Bankai Guild Zeus"), true)
+			eq(ns.Shogun.Verified("Forger-Realm", "Bankai Guild Zeus"), false, "nor write names onto the Shogun's page")
+			eq(ns.Shogun.Verified("Real Captain-Other", "Bankai Guild Zeus"), true)
 			eq(ns.Hop.Trusted("Forger-Realm"), false, "nor auto-accept a layer invite")
-			-- (1.2.3: another guild's signed Captain no more either: the King's guild's alone.)
+			-- (1.2.3: another guild's signed Captain no more either: the Shogun's guild's alone.)
 			eq(ns.Hop.Trusted("Real Captain-Other"), false)
 			Install(Entry("Bankai Guild Zeus=Rollback-Realm", 3), T0 + 1)
 			eq(D.AuthorizedRank("Rollback-Realm", "Bankai Guild Zeus"), nil, "lower epoch")
@@ -199,32 +199,32 @@ local ns, test, eq, extra = ...
 	end)
 
 	-- (1.2.3, Daniel: a guild master has nothing at the level of the whole army.) Under signed
-	-- enforcement Hop.Trusted vouched for any guild's signed Lord or Captain on every client: his
+	-- enforcement Hop.Trusted vouched for any guild's signed Council or Captain on every client: his
 	-- invite accepted for the player, "Always invite" and "For Bankai Guild!" inviting him without a
-	-- click. Now only the King's guild's signed Lord and Captains, beside our roster, the King, his
+	-- click. Now only the Shogun's guild's signed Council and Captains, beside our roster, the Shogun, his
 	-- Steward and his Hands.
-	test("authority: under enforcement layer-hop trust is the King's guild's signed Lord and Captains', never another guild's (1.2.3)", function()
+	test("authority: under enforcement layer-hop trust is the Shogun's guild's signed Council and Captains', never another guild's (1.2.3)", function()
 		WithState(function()
-			Install(Entry("Bankai Guild Zeus=Zeus Lord-Realm,Zeus Captain-Other!Bankai Guild=Crown Lord-Realm,Crown Captain-Other", 4), T0)
+			Install(Entry("Bankai Guild Zeus=Zeus Council-Realm,Zeus Captain-Other!Bankai Guild=Crown Council-Realm,Crown Captain-Other", 4), T0)
 			eq(A.Enforced(), true)
-			eq(D.AuthorizedRank("Zeus Lord-Realm", "Bankai Guild Zeus"), 0, "signed, as the author's list has him")
+			eq(D.AuthorizedRank("Zeus Council-Realm", "Bankai Guild Zeus"), 0, "signed, as the author's list has him")
 			eq(D.AuthorizedRank("Crown Captain-Other", "Bankai Guild"), 1)
-			eq(ns.Hop.Trusted("Zeus Lord-Realm"), false, "another guild's signed master")
+			eq(ns.Hop.Trusted("Zeus Council-Realm"), false, "another guild's signed master")
 			eq(ns.Hop.Trusted("Zeus Captain-Other"), false, "another guild's signed Captain")
-			eq(ns.Hop.Trusted("Crown Lord-Realm"), true, "the King's guild's signed master")
-			eq(ns.Hop.Trusted("Crown Captain-Other"), true, "the King's guild's signed Captain")
+			eq(ns.Hop.Trusted("Crown Council-Realm"), true, "the Shogun's guild's signed master")
+			eq(ns.Hop.Trusted("Crown Captain-Other"), true, "the Shogun's guild's signed Captain")
 			-- Our own roster still vouches for our guild's master, whichever guild it is.
-			ns.Roster.byName = { ["Zeus Lord-Realm"] = 0 }
-			eq(ns.Hop.Trusted("Zeus Lord-Realm"), true, "a guildmate")
+			ns.Roster.byName = { ["Zeus Council-Realm"] = 0 }
+			eq(ns.Hop.Trusted("Zeus Council-Realm"), true, "a guildmate")
 		end)
 	end)
 
 	-- (1.2.3) No census rank calls the whole army to arms or musters it (Decree.lua: one report
 	-- named anyone an officer of <Elfcore> on the clients its members did not report to). Once
-	-- the author's signed enforcement is on, the King's guild's signed officers call it on every
+	-- the author's signed enforcement is on, the Shogun's guild's signed officers call it on every
 	-- other guild's client, as its roster's do on its own members'; another guild's signed master
 	-- and officers never do, and a name the signed list lacks is nobody.
-	test("authority: under enforcement the King's guild's signed Captain calls the whole army to arms on another guild's client; another guild's signed master never does (1.2.3)", function()
+	test("authority: under enforcement the Shogun's guild's signed Captain calls the whole army to arms on another guild's client; another guild's signed master never does (1.2.3)", function()
 		WithState(function()
 			local saved = { guild = GetGuildInfo, notice = RaidNotice_AddMessage, frame = RaidWarningFrame, alert = ns.PlayAlert,
 				print = ns.Print, chat = C_ChatInfo }
@@ -242,15 +242,15 @@ local ns, test, eq, extra = ...
 				local function Call(sender, kind, guild)
 					Deliver("CHANNEL", sender, ns.Codec.EncodeDecree(kind, 1453, 0.5, 0.5, guild, 1, "x"))
 				end
-				Install(Entry("Bankai Guild Zeus=Zeus Lord-Realm,Zeus Captain-Other!Bankai Guild=Crown Lord-Realm,Crown Captain-Other", 4), T0)
+				Install(Entry("Bankai Guild Zeus=Zeus Council-Realm,Zeus Captain-Other!Bankai Guild=Crown Council-Realm,Crown Captain-Other", 4), T0)
 				eq(A.Enforced(), true)
-				Call("Zeus Lord-Realm", "ARMS", "Bankai Guild Zeus")
+				Call("Zeus Council-Realm", "ARMS", "Bankai Guild Zeus")
 				Call("Zeus Captain-Other", "MUSTER", "Bankai Guild Zeus")
 				eq(#cns.Decree.Active(), 0, "another guild's signed master and Captain: never the whole army's")
 				Call("Crown Captain-Other", "ARMS", "Bankai Guild")
-				eq(#cns.Decree.Active(), 1, "the King's guild's signed Captain: the whole army's Call to Arms")
+				eq(#cns.Decree.Active(), 1, "the Shogun's guild's signed Captain: the whole army's Call to Arms")
 				eq(cns.Decree.Active()[1].kind, "ARMS"); eq(cns.Decree.Active()[1].scope, nil); eq(#warnings, 1, "its raid warning")
-				Call("Crown Lord-Realm", "MUSTER", "Bankai Guild")
+				Call("Crown Council-Realm", "MUSTER", "Bankai Guild")
 				eq(#cns.Decree.Active(), 2, "and its signed master's Muster")
 				Call("Nobody Signed-Realm", "ARMS", "Bankai Guild")
 				eq(#cns.Decree.Active(), 2, "a name the signed list lacks")
@@ -272,12 +272,12 @@ local ns, test, eq, extra = ...
 		end)
 	end)
 
-	test("authority: local roster and pinned King remain authoritative after enforcement", function()
+	test("authority: local roster and pinned Shogun remain authoritative after enforcement", function()
 		WithState(function()
 			Install(Entry("-", 1))
 			ns.Roster.byName["Local Captain-Realm"] = 1
 			eq(select(2, D.AuthorizedRank("Local Captain-Realm", "Bankai Guild II")), "roster")
-			eq(select(2, D.AuthorizedRank(ns.KING_CHARACTER.Alliance .. "-Realm", "Bankai Guild")), "pinned")
+			eq(select(2, D.AuthorizedRank(ns.SHOGUN_CHARACTER.Alliance .. "-Realm", "Bankai Guild")), "pinned")
 		end)
 	end)
 
@@ -293,14 +293,14 @@ local ns, test, eq, extra = ...
 				GetChannelName = function() return 7 end
 				assert(loadfile("BankaiGuild/Comm.lua"))("BankaiGuild", cns)
 				cns.Comm.JoinChannel()
-				Install(Entry("Bankai Guild Zeus=Remote Lord-Realm", 1), T0)
-				local function Guard() return D.AuthorizedRank("Remote Lord-Realm", "Bankai Guild Zeus") == 0 end
+				Install(Entry("Bankai Guild Zeus=Remote Council-Realm", 1), T0)
+				local function Guard() return D.AuthorizedRank("Remote Council-Realm", "Bankai Guild Zeus") == 0 end
 				eq(cns.Comm.SendChat("M1~L~Bankai Guild Zeus~1~~held", function(ok2, why) done[#done + 1] = { ok2, why } end, {}, Guard), true)
 				Install(Entry("-", 1), T0 + 1)
 				cns.Comm.Pump()
 				eq(#sent, 0, "revoked bytes never reach Blizzard's send API")
 				eq(done[1][1], false); eq(done[1][2], "invalid")
-				Install(Entry("Bankai Guild Zeus=Remote Lord-Realm", 2), T0 + 2)
+				Install(Entry("Bankai Guild Zeus=Remote Council-Realm", 2), T0 + 2)
 				eq(cns.Comm.SendChat("M1~L~Bankai Guild Zeus~2~~current", function(ok2) done[#done + 1] = { ok2 } end, {}, Guard), true)
 				cns.Comm.Pump()
 				eq(#sent, 1); eq(done[2][1], true, "unchanged authority sends")
@@ -313,7 +313,7 @@ local ns, test, eq, extra = ...
 	test("authority: signed multipart bundles activate atomically and reverify after reload", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local parts = Parts({ "Bankai Guild Zeus=Signed Lord-Realm", "Bankai Guild Ares=Signed Captain-Other" },
+				local parts = Parts({ "Bankai Guild Zeus=Signed Council-Realm", "Bankai Guild Ares=Signed Captain-Other" },
 					{ at = T0 + 10, epoch = 7 })
 				local ok, why = A.TakePart(parts[2], nil, "LOCAL")
 				eq(ok, true); eq(why, "partial")
@@ -328,12 +328,12 @@ local ns, test, eq, extra = ...
 				ok, why = A.TakePart(parts[1], nil, "LOCAL")
 				eq(ok, true); eq(why, "complete")
 				eq(A.Enforced(), true, "the whole verified set establishes the fail-closed boundary")
-				eq(A.Rank("Signed Lord-Realm", "Bankai Guild Zeus"), 0)
+				eq(A.Rank("Signed Council-Realm", "Bankai Guild Zeus"), 0)
 				eq(A.Rank("Signed Captain-Other", "Bankai Guild Ares"), 0,
-					"the first identity in each guild is that guild's Lord")
+					"the first identity in each guild is that guild's Council")
 				assert(ns.rdb.authorityBundles["other+realm|Alliance"], "the complete raw signed set is scoped to the realm group and faction")
 				A.Reset()
-				eq(A.Rank("Signed Lord-Realm", "Bankai Guild Zeus"), 0, "the stored blobs are reverified after reload")
+				eq(A.Rank("Signed Council-Realm", "Bankai Guild Zeus"), 0, "the stored blobs are reverified after reload")
 				local verify = ns.Sign.Verify
 				ns.Sign.Verify = function() return false end
 				A.Reset()
@@ -346,25 +346,25 @@ local ns, test, eq, extra = ...
 	test("authority: partial replacement, conflict, replay, bad digest and tombstone all fail closed", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local old = Parts({ "Bankai Guild Zeus=Old Lord-Realm" }, { at = T0 + 10, epoch = 3 })
+				local old = Parts({ "Bankai Guild Zeus=Old Council-Realm" }, { at = T0 + 10, epoch = 3 })
 				eq(select(2, A.TakePart(old[1], nil, "LOCAL")), "complete")
-				eq(A.Rank("Old Lord-Realm", "Bankai Guild Zeus"), 0)
+				eq(A.Rank("Old Council-Realm", "Bankai Guild Zeus"), 0)
 
-				local replacement = Parts({ "Bankai Guild Zeus=New Lord-Realm", "Bankai Guild Ares=New Ares-Other" },
+				local replacement = Parts({ "Bankai Guild Zeus=New Council-Realm", "Bankai Guild Ares=New Ares-Other" },
 					{ at = T0 + 20, epoch = 4 })
 				eq(select(2, A.TakePart(replacement[2], nil, "LOCAL")), "partial")
 				-- (1.2.1: the first newer part used to revoke the older set at once, by moving the
 				-- account-wide boundary; a part alone no longer moves it, so the older set stands until
 				-- the newer one is whole.)
-				eq(A.Rank("Old Lord-Realm", "Bankai Guild Zeus"), 0, "a partial newer set moves nothing")
+				eq(A.Rank("Old Council-Realm", "Bankai Guild Zeus"), 0, "a partial newer set moves nothing")
 				eq(select(2, A.TakePart(replacement[1], nil, "LOCAL")), "complete")
-				eq(A.Rank("New Lord-Realm", "Bankai Guild Zeus"), 0, "the newer set, once whole")
-				eq(A.Rank("Old Lord-Realm", "Bankai Guild Zeus"), nil, "revokes the older complete set")
-				local conflict = Parts({ "Bankai Guild Zeus=Other Lord-Realm" }, { at = T0 + 20, epoch = 4, sig = "b" })
+				eq(A.Rank("New Council-Realm", "Bankai Guild Zeus"), 0, "the newer set, once whole")
+				eq(A.Rank("Old Council-Realm", "Bankai Guild Zeus"), nil, "revokes the older complete set")
+				local conflict = Parts({ "Bankai Guild Zeus=Other Council-Realm" }, { at = T0 + 20, epoch = 4, sig = "b" })
 				local ok, why = A.TakePart(conflict[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "conflict")
-				eq(A.Rank("Other Lord-Realm", "Bankai Guild Zeus"), nil, "another set of the same time never replaces it")
-				eq(A.Rank("New Lord-Realm", "Bankai Guild Zeus"), 0)
+				eq(A.Rank("Other Council-Realm", "Bankai Guild Zeus"), nil, "another set of the same time never replaces it")
+				eq(A.Rank("New Council-Realm", "Bankai Guild Zeus"), 0)
 
 				local downgrade = Parts({ "Bankai Guild Zeus=Downgrade-Realm" }, { at = T0 + 30, epoch = 2 })
 				ok, why = A.TakePart(downgrade[1], nil, "LOCAL")
@@ -397,7 +397,7 @@ local ns, test, eq, extra = ...
 	test("authority: bundle answers are private and net-off is rechecked at the actual send", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm", "Bankai Guild Ares=Answer Ares-Other" },
+				local parts = Parts({ "Bankai Guild Zeus=Answer Council-Realm", "Bankai Guild Ares=Answer Ares-Other" },
 					{ at = T0 + 10, epoch = 2 })
 				eq(select(2, A.TakePart(parts[1], nil, "LOCAL")), "partial")
 				eq(select(2, A.TakePart(parts[2], nil, "LOCAL")), "complete")
@@ -458,7 +458,7 @@ local ns, test, eq, extra = ...
 				for i = 1, A.VERIFY_EACH or 4 do eq(select(2, A.HandlePart("WHISPER", "Spammer-Realm", "H2~" .. Junk(i))), "signature") end
 				eq(select(2, A.HandlePart("WHISPER", "Spammer-Realm", "H2~" .. Junk(99))), "budget", "past his share")
 				-- Another sender's part is still checked, and a real holder's set completes.
-				local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm" }, { at = T0 + 10, epoch = 2 })
+				local parts = Parts({ "Bankai Guild Zeus=Answer Council-Realm" }, { at = T0 + 10, epoch = 2 })
 				eq(select(2, A.HandlePart("WHISPER", "Holder-Realm", "H2~" .. parts[1])), "complete")
 			end)
 		end)
@@ -481,7 +481,7 @@ local ns, test, eq, extra = ...
 				eq(A.Ask(false), false, "dormant: no ask after the burst")
 				-- Past the boundary (a verified first part), the client keeps asking for the rest.
 				WithFakeSign(function(Parts)
-					local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm", "Bankai Guild Ares=Answer Ares-Other" }, { at = T0 + 10, epoch = 2 })
+					local parts = Parts({ "Bankai Guild Zeus=Answer Council-Realm", "Bankai Guild Ares=Answer Ares-Other" }, { at = T0 + 10, epoch = 2 })
 					eq(select(2, A.TakePart(parts[1], nil, "LOCAL")), "partial")
 				end)
 				-- (1.2.1: a part alone no longer moves the boundary; holding it, the client still asks.)
@@ -501,17 +501,17 @@ local ns, test, eq, extra = ...
 		WithState(function()
 			WithFakeSign(function(Parts)
 				Census("Bankai Guild Zeus", "Legacy-Realm", 0)
-				local expired = Parts({ "Bankai Guild Zeus=Old Lord-Realm" }, { at = T0 + 10, epoch = 3, issued = T0 - 2000, expires = T0 - 1000 })
+				local expired = Parts({ "Bankai Guild Zeus=Old Council-Realm" }, { at = T0 + 10, epoch = 3, issued = T0 - 2000, expires = T0 - 1000 })
 				local ok, why = A.TakePart(expired[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "window")
-				local early = Parts({ "Bankai Guild Zeus=Early Lord-Realm" }, { at = T0 + 11, epoch = 3, issued = T0 + A.CLOCK_SKEW + 100, expires = T0 + 5000 })
+				local early = Parts({ "Bankai Guild Zeus=Early Council-Realm" }, { at = T0 + 11, epoch = 3, issued = T0 + A.CLOCK_SKEW + 100, expires = T0 + 5000 })
 				ok, why = A.TakePart(early[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "window")
 				eq(A.Enforced(), false, "an expired or future set sets no boundary")
 				eq(next(ns.db.authorityEnforced), nil, "nothing account-wide is written")
 				eq(select(2, D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus")), "census", "the documented census behaviour stays")
 				-- A set whose window ends before its last part comes: never whole, never a boundary.
-				local slow = Parts({ "Bankai Guild Zeus=Slow Lord-Realm", "Bankai Guild Ares=Slow Ares-Other" }, { at = T0 + 12, epoch = 3 })
+				local slow = Parts({ "Bankai Guild Zeus=Slow Council-Realm", "Bankai Guild Ares=Slow Ares-Other" }, { at = T0 + 12, epoch = 3 })
 				eq(select(2, A.TakePart(slow[1], nil, "LOCAL")), "partial")
 				eq(A.Enforced(), false, "a part alone moves nothing")
 				ns.Now = function() return T0 + 1001 end
@@ -520,9 +520,9 @@ local ns, test, eq, extra = ...
 				eq(A.Enforced(), false); eq(next(ns.db.authorityEnforced), nil)
 				-- The same kind of set, whole and current: the boundary, and its roles.
 				ns.Now = function() return T0 end
-				local current = Parts({ "Bankai Guild Zeus=Current Lord-Realm" }, { at = T0 + 13, epoch = 3 })
+				local current = Parts({ "Bankai Guild Zeus=Current Council-Realm" }, { at = T0 + 13, epoch = 3 })
 				eq(select(2, A.TakePart(current[1], nil, "LOCAL")), "complete")
-				eq(A.Enforced(), true); eq(A.Rank("Current Lord-Realm", "Bankai Guild Zeus"), 0)
+				eq(A.Enforced(), true); eq(A.Rank("Current Council-Realm", "Bankai Guild Zeus"), 0)
 			end)
 		end)
 	end)
@@ -546,20 +546,20 @@ local ns, test, eq, extra = ...
 	test("authority: whispered H2 parts count only as answers to this client's own H3 ask", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm" }, { at = T0 + 10, epoch = 2 })
+				local parts = Parts({ "Bankai Guild Zeus=Answer Council-Realm" }, { at = T0 + 10, epoch = 2 })
 				local ok, why = A.HandlePart("WHISPER", "Stranger-Realm", "H2~" .. parts[1])
 				eq(ok, false); eq(why, "unasked", "nobody asked: an unsolicited whisper is dropped unread")
 				eq(A.Enforced(), false); eq(next(ns.db.authorityEnforced), nil)
 				AskOnce()
-				local horde = Parts({ "Bankai Guild Zeus=Horde Lord-Realm" }, { at = T0 + 11, epoch = 2, faction = "Horde" })
+				local horde = Parts({ "Bankai Guild Zeus=Horde Council-Realm" }, { at = T0 + 11, epoch = 2, faction = "Horde" })
 				eq(select(2, A.HandlePart("WHISPER", "Stranger-Realm", "H2~" .. horde[1])), "unasked", "not the faction asked for")
 				eq(select(2, A.HandlePart("WHISPER", "Holder-Realm", "H2~" .. parts[1])), "complete", "an answer to our ask")
-				eq(A.Enforced(), true); eq(A.Rank("Answer Lord-Realm", "Bankai Guild Zeus"), 0)
+				eq(A.Enforced(), true); eq(A.Rank("Answer Council-Realm", "Bankai Guild Zeus"), 0)
 				-- The next ask says what we hold: the same set again is no answer to it.
 				AskOnce()
 				eq(select(2, A.HandlePart("WHISPER", "Stranger-Realm", "H2~" .. parts[1])), "unasked", "not newer than the set held")
 				-- Past the window of our last ask: nothing, however new.
-				local newer = Parts({ "Bankai Guild Zeus=Newer Lord-Realm" }, { at = T0 + 20, epoch = 3 })
+				local newer = Parts({ "Bankai Guild Zeus=Newer Council-Realm" }, { at = T0 + 20, epoch = 3 })
 				ns.Now = function() return T0 + A.ANSWER_WINDOW + 1 end
 				eq(select(2, A.HandlePart("WHISPER", "Holder-Realm", "H2~" .. newer[1])), "unasked", "too long after our ask")
 				ns.Now = function() return T0 end
@@ -573,7 +573,7 @@ local ns, test, eq, extra = ...
 	test("authority: a holder answers no ask with a set past its window, and stops a transfer when it expires", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm", "Bankai Guild Ares=Answer Ares-Other" },
+				local parts = Parts({ "Bankai Guild Zeus=Answer Council-Realm", "Bankai Guild Ares=Answer Ares-Other" },
 					{ at = T0 + 10, epoch = 2, expires = T0 + 1000 })
 				eq(select(2, A.TakePart(parts[1], nil, "LOCAL")), "partial")
 				eq(select(2, A.TakePart(parts[2], nil, "LOCAL")), "complete")
@@ -621,7 +621,7 @@ local ns, test, eq, extra = ...
 				assert(FLOOR and FLOOR < T0 - 10, "this file's material is issued after the floor")
 				-- A clock just past the floor: material signed just before it is still inside its window.
 				ns.Now = function() return FLOOR + 100 end
-				local old = Parts({ "Bankai Guild Zeus=Old Lord-Realm" }, { at = FLOOR - 50, epoch = 9, issued = FLOOR - 200, expires = FLOOR + 1000 })
+				local old = Parts({ "Bankai Guild Zeus=Old Council-Realm" }, { at = FLOOR - 50, epoch = 9, issued = FLOOR - 200, expires = FLOOR + 1000 })
 				local ok, why = A.TakePart(old[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "window", "issued before the floor")
 				eq(A.Enforced(), false); eq(next(ns.db.authorityEnforced), nil)
@@ -629,9 +629,9 @@ local ns, test, eq, extra = ...
 				eq(A.Enforced(), false, "nor an HT1 marker issued before it")
 				eq(next(ns.db.authorityEnforced), nil)
 				-- Material issued after the floor still does, at a lower epoch than the old one.
-				local new = Parts({ "Bankai Guild Zeus=New Lord-Realm" }, { at = FLOOR + 60, epoch = 1, issued = FLOOR + 50, expires = FLOOR + 5000 })
+				local new = Parts({ "Bankai Guild Zeus=New Council-Realm" }, { at = FLOOR + 60, epoch = 1, issued = FLOOR + 50, expires = FLOOR + 5000 })
 				eq(select(2, A.TakePart(new[1], nil, "LOCAL")), "complete")
-				eq(A.Enforced(), true); eq(A.Rank("New Lord-Realm", "Bankai Guild Zeus"), 0)
+				eq(A.Enforced(), true); eq(A.Rank("New Council-Realm", "Bankai Guild Zeus"), 0)
 			end)
 		end)
 		WithState(function()
@@ -643,9 +643,9 @@ local ns, test, eq, extra = ...
 			eq(A.Enforced(), false, "a boundary recorded from older material no longer locks the client")
 			eq(select(2, D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus")), "census", "the documented census behaviour is back")
 			WithFakeSign(function(Parts)
-				local fresh = Parts({ "Bankai Guild Zeus=Fresh Lord-Realm" }, { at = T0 - 50, epoch = 1 })
+				local fresh = Parts({ "Bankai Guild Zeus=Fresh Council-Realm" }, { at = T0 - 50, epoch = 1 })
 				eq(select(2, A.TakePart(fresh[1], nil, "LOCAL")), "complete", "a current set is not a replay of it")
-				eq(A.Rank("Fresh Lord-Realm", "Bankai Guild Zeus"), 0)
+				eq(A.Rank("Fresh Council-Realm", "Bankai Guild Zeus"), 0)
 				eq(D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus"), nil)
 			end)
 		end)

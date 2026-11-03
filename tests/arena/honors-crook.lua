@@ -1,7 +1,7 @@
 -- 1.2.3 (the owner's call, "Cajado entra na 1.2.3"): the missionaries' crook, the first honour's frame
 -- worn after the cornucopia. The Church's top 3 missionaries (ChurchCount.Top3: the NR~1~t word taken
--- from the Head's, the King's or the author's client; in the game only the author's sends one, and the
--- tests hand each client the King's) hold the shepherd's crook in gold, silver and bronze and
+-- from the Head's, the Shogun's or the author's client; in the game only the author's sends one, and the
+-- tests hand each client the Shogun's) hold the shepherd's crook in gold, silver and bronze and
 -- its title, and see it on their own portraits; the 4th holds nothing. A frame not released yet (the
 -- koi) never takes the place of the cornucopia worn; a released one may switch on by itself, and the
 -- player picks back any released frame he holds, and it stays. The profile's pickers offer only the
@@ -24,7 +24,7 @@ end)()
 local function Short(name) return (name:gsub("%-.*$", "")) end
 
 -- The real Church.lua and ChurchCount.lua in a namespace of their own over client c's (its saved
--- data, its roots: the world's King and author), their message handlers kept to hand messages to.
+-- data, its roots: the world's Shogun and author), their message handlers kept to hand messages to.
 local function LoadChurch(w, c)
 	local handlers = {}
 	local cns = setmetatable({ Comm = { Handle = function(kind, fn) handlers[kind] = fn end, Send = function() end, Whisper = function() end },
@@ -79,7 +79,7 @@ end
 -- `names` the last month's best predictors, as client c takes it; the world needs a bank (Banked).
 local function Banked()
 	local w, cast = W3.New({ more = { { "bank", N.bank } } })
-	eq(cast.king.Roles.SetBanks({ N.bank }), true)
+	eq(cast.shogun.Roles.SetBanks({ N.bank }), true)
 	w:Run(0)
 	return w, cast
 end
@@ -145,7 +145,7 @@ end
 
 print("HonorsNet: the missionaries' crook (1.2.3)")
 
-test("1.2.3 the missionaries' crook: the Church's top 3 (the King's word) hold the crook in gold, silver and bronze and its title, switched on and seen round their own portraits and by others; the 4th, and a word from anyone but a root, nothing", function()
+test("1.2.3 the missionaries' crook: the Church's top 3 (the Shogun's word) hold the crook in gold, silver and bronze and its title, switched on and seen round their own portraits and by others; the 4th, and a word from anyone but a root, nothing", function()
 	local w, cast = W3.New({ more = { { "m4", "Wenna Crale" } } })
 	local m1, m2, m3, m4, viewer = cast.A, cast.B, cast.spectator, cast.m4, cast.arbiter
 	local all = { m1, m2, m3, m4, viewer }
@@ -153,11 +153,11 @@ test("1.2.3 the missionaries' crook: the Church's top 3 (the King's word) hold t
 	-- (The released frames are the cornucopia and, now, the crook.)
 	eq(m1.ns.Honors.FrameShipped({ family = "missionary" }), true, "the crook is worn in this version")
 	-- A plain member's forged top 3 naming the 4th: refused; he holds nothing.
-	for _, r in ipairs(Top(w, all, m4.name, { m4, m1, m2 })) do eq(r[2], "root", "only the Head's, the King's or the author's word") end
+	for _, r in ipairs(Top(w, all, m4.name, { m4, m1, m2 })) do eq(r[2], "root", "only the Head's, the Shogun's or the author's word") end
 	w:Run(3)
 	for _, c in ipairs(all) do eq(c.ns.HonorsNet.ChurchTop(), nil, c.short .. ": no top 3 taken") end
-	-- The King's: m1, m2, m3 (the 4th, Wenna, ranked after them, is not in it).
-	for _, r in ipairs(Top(w, all, N.king, { m1, m2, m3 })) do eq(r[1], true, "the King's word taken") end
+	-- The Shogun's: m1, m2, m3 (the 4th, Wenna, ranked after them, is not in it).
+	for _, r in ipairs(Top(w, all, N.shogun, { m1, m2, m3 })) do eq(r[1], true, "the Shogun's word taken") end
 	w:Run(3)
 	local want = { { m1, "missionary-1", "crook-gold", "Good Shepherd" }, { m2, "missionary-2", "crook-silver", "Faithful Shepherd" },
 		{ m3, "missionary-3", "crook-bronze", "Shepherd" } }
@@ -178,7 +178,7 @@ test("1.2.3 the missionaries' crook: the Church's top 3 (the King's word) hold t
 		-- Round his own portrait.
 		local r = Frames(w, c)
 		eq(r.Shown("player"), MEDIA .. art, where .. ": round his own portrait")
-		-- The King's letter: its family's words with the title; once.
+		-- The Shogun's letter: its family's words with the title; once.
 		local letters = c.ns.HonorsNet.Letters()
 		eq(#letters, 1, where .. ": one letter"); eq(letters[1].key, key, where)
 		local text = w:As(c, c.ns.HonorsNet.LetterText, key)
@@ -228,7 +228,7 @@ end)
 -- pode escolher no perfil entre elas". 1.2.2 switched the pick to any frame newly earned: the koi, not
 -- released, took the cornucopia's place and his rank's frame showed. (1.2.4: the koi is released, the
 -- owner's call; the Oracle's raven, still not, stands in for it here: the same rule.)
-test("1.2.3 honours: wearing the cornucopia, a frame not released yet (1.2.4: the raven) leaves it worn, and its King's letter's Wear it wears its title alone; a released one (the crook) switches on, the cornucopia can be picked back in the profile and stays picked; a pick 1.2.2 left on a frame not released wears the cornucopia again", function()
+test("1.2.3 honours: wearing the cornucopia, a frame not released yet (1.2.4: the raven) leaves it worn, and its Shogun's letter's Wear it wears its title alone; a released one (the crook) switches on, the cornucopia can be picked back in the profile and stays picked; a pick 1.2.2 left on a frame not released wears the cornucopia again", function()
 	local w, cast = Banked()
 	local A, viewer = cast.A, cast.arbiter
 	Ready(w, A); Ready(w, viewer)
@@ -262,7 +262,7 @@ test("1.2.3 honours: wearing the cornucopia, a frame not released yet (1.2.4: th
 	eq(A.ns.ArenaProfile.Pick().frame, "donor-top-1", "Wear it keeps the cornucopia"); eq(A.ns.ArenaProfile.Pick().title, "oracle-1")
 	-- The crook (released): switches on by itself.
 	Later()
-	Top(w, { A, viewer }, N.king, { A })
+	Top(w, { A, viewer }, N.shogun, { A })
 	w:Run(3)
 	eq(A.ns.ArenaProfile.Pick().frame, "missionary-1", "a released frame switches on")
 	w:As(A, A.ns.HonorsNet.CloseLetter, false)
@@ -276,13 +276,13 @@ test("1.2.3 honours: wearing the cornucopia, a frame not released yet (1.2.4: th
 	eq(rv.Shown("target"), MEDIA .. "cornucopia-gold", "others see his pick")
 	Both({ A })
 	Raven({ A })
-	Top(w, { A, viewer }, N.king, { A }, w.clock + 10)
+	Top(w, { A, viewer }, N.shogun, { A }, w.clock + 10)
 	w:Run(3)
 	eq(A.ns.ArenaProfile.Pick().frame, "donor-top-1", "his pick sticks")
 	Ready(w, A)
 	Donors(w, A, t + 5, { A })
 	Ravens(w, A, { A }, t + 6)
-	Top(w, { A }, N.king, { A }, w.clock + 20)
+	Top(w, { A }, N.shogun, { A }, w.clock + 20)
 	w:Run(A.ns.HonorsNet.REFRESH_DELAY + 5)
 	eq(A.ns.ArenaProfile.Pick().frame, "donor-top-1", "after a relog too")
 	-- A pick 1.2.2 left on a frame not released (it switched it on by itself): the cornucopia again.
@@ -306,7 +306,7 @@ test("1.2.3 the profile's Edit: its frame rows and its icon picker offer only th
 	Ready(w, A)
 	Donors(w, A, w.clock, { A }, Short(A.name))
 	Ravens(w, A, { A })
-	Top(w, { A }, N.king, { A })
+	Top(w, { A }, N.shogun, { A })
 	w:Run(3)
 	local held = {}
 	for _, h in ipairs(A.ns.HonorsNet.Holdings(A.name)) do held[#held + 1] = h.key end
@@ -356,7 +356,7 @@ end)
 -- 1.2.3, after review. The crook is the first released frame a 30-day moving ranking gives: its holders
 -- drop out of the top 3 and come back routinely. The owner's rule again: a released frame may switch
 -- on by itself when earned, the player picks any released frame he holds, and his pick sticks.
--- The world as the tests above: A and a viewer (another client), the King's words of the top 3, each
+-- The world as the tests above: A and a viewer (another client), the Shogun's words of the top 3, each
 -- newer than the last (ChurchCount.TakeTop keeps the newest).
 local function Crook(w, cast, extra)
 	local A, viewer = cast.A, cast.arbiter
@@ -366,10 +366,10 @@ local function Crook(w, cast, extra)
 	viewer.target = A.name
 	-- (A profile's word saying something new is taken a minute after the last: ArenaProfile.RATE_CHANGED.)
 	function x.Later() w:Run(A.ns.ArenaProfile.RATE_CHANGED + 1) end
-	-- The King's top 3 (newer each time) to `to` (A and the viewer), then the refresh it causes.
+	-- The Shogun's top 3 (newer each time) to `to` (A and the viewer), then the refresh it causes.
 	function x.Word(names, to)
 		x.at = x.at + 1
-		Top(w, to or { A, viewer }, N.king, names, x.at)
+		Top(w, to or { A, viewer }, N.shogun, names, x.at)
 		w:Run(3)
 	end
 	-- The Treasurer's word: A 1st of all time (and of the month closed when month is given).
@@ -390,7 +390,7 @@ end
 test("1.2.3 the missionaries' crook: switched on over the cornucopia, then a fresh top 3 without him: the cornucopia and its title show again round his own portrait and as another client sees him, never his rank's frame; named again the same month, the crook again with no second letter", function()
 	local w, cast = W3.New()
 	local x = Crook(w, cast)
-	local A, others = x.A, { cast.B, cast.spectator, cast.king }
+	local A, others = x.A, { cast.B, cast.spectator, cast.shogun }
 	x.Donors()
 	eq(x.Pick().frame, "donor-top-1")
 	w:As(A, A.ns.HonorsNet.CloseLetter, false)
@@ -427,7 +427,7 @@ test("1.2.3 the missionaries' crook: the cornucopia picked back in the profile s
 	local w, cast = W3.New()
 	local x = Crook(w, cast)
 	local A, PE = x.A, W3.M(w, x.A, "ProfileEdit")
-	local B, S, K = cast.B, cast.spectator, cast.king
+	local B, S, K = cast.B, cast.spectator, cast.shogun
 	x.Donors()
 	w:As(A, A.ns.HonorsNet.CloseLetter, false)
 	x.Later()
@@ -469,13 +469,13 @@ test("1.2.3 the missionaries' crook: the cornucopia picked back in the profile s
 	W3.NoErrors(w)
 end)
 
--- The King gets no letter (1.2.1), and nothing was told for him: every return switched his crook on.
-test("1.2.3 the missionaries' crook: the King's honours are told without a letter, so his pick sticks as anyone's: the rank's frame picked back stays when he is named 3rd again the same month", function()
+-- The Shogun gets no letter (1.2.1), and nothing was told for him: every return switched his crook on.
+test("1.2.3 the missionaries' crook: the Shogun's honours are told without a letter, so his pick sticks as anyone's: the rank's frame picked back stays when he is named 3rd again the same month", function()
 	local w, cast = W3.New()
-	local K = cast.king
+	local K = cast.shogun
 	Ready(w, K)
 	local at = w.clock
-	local function Word(names) at = at + 1 Top(w, { K }, N.king, names, at) w:Run(3) end
+	local function Word(names) at = at + 1 Top(w, { K }, N.shogun, names, at) w:Run(3) end
 	Word({ cast.B, cast.spectator, K })
 	eq(K.ns.ArenaProfile.Pick().frame, "missionary-3", "switched on")
 	eq(#K.ns.HonorsNet.Letters(), 0, "no letter from himself")
@@ -488,7 +488,7 @@ test("1.2.3 the missionaries' crook: the King's honours are told without a lette
 end)
 
 -- 1.2.2 switched a frame not released on by itself; the first 1.2.3 mend took only one held now, on an
--- unlocked pick. And the title's click, or the King's letter's Wear it, on such a pick did nothing
+-- unlocked pick. And the title's click, or the Shogun's letter's Wear it, on such a pick did nothing
 -- (Choose refused the frame kept). (1.2.4: the owl and the koi are released now; the comet he never
 -- won and the raven, not released, stand in for them.)
 test("1.2.3 honours: a pick 1.2.2 left on a frame not released, locked or not held now (1.2.4: a comet he never won), wears the cornucopia; the Wear it of a frame not released (1.2.4: the raven) on a locked pick of it wears its title; the title's click with a crook not held now takes", function()

@@ -27,10 +27,10 @@ local L = ns.L
 --   than a minute ahead; while one director's rehearsal is open another's is ignored. Repeated
 --   every 120 s for late joiners; parts of one word (the same rid and time) are merged.
 -- - The testers' hello, EH~T1~build~base~flags (flags: g gamepad UI, r rules accepted, k the
---   King's view, o the arena off), on the group lane only: the Director tab's roster (memory only,
+--   Shogun's view, o the arena off), on the group lane only: the Director tab's roster (memory only,
 --   60 names, gone after 10 minutes without one).
 -- - The roles of the rehearsal (T only, never the live lists): d co-director, b bank, a arbiter,
---   p public arbiter, k the King's stand-in, t the fee receiver's stand-in, s spectator, through
+--   p public arbiter, k the Shogun's stand-in, t the fee receiver's stand-in, s spectator, through
 --   ArenaRoles.standIn.
 -- - Copper mode's gold record (the design): every gold movement of a copper rehearsal is a line of
 --   the account-wide ns.db.arenaCopper (counterparty, copper, trade or mail, direction, time,
@@ -405,7 +405,7 @@ local function OnWord(dist, sender, mode, body)
 	local rid, time, rest = ns.Arena.Fields(body, 3)
 	rid, time = ns.Arena.N(rid, 1, ArenaTest.RID_MAX), ns.Arena.N(time, 1)
 	if not rid or not time then return false, "shape" end
-	local K = ns.King
+	local K = ns.Shogun
 	if time > Now() + (K and K.DATE_AHEAD or 60) then return false, "ahead" end
 	local s, held = Peek(), Word()
 	if rest == "0" then
@@ -479,7 +479,7 @@ function ArenaTest.Flags()
 	local f = {}
 	if ns.GamepadUI and ns.GamepadUI() then f[#f + 1] = "g" end
 	if ns.Arena.RulesAccepted() then f[#f + 1] = "r" end
-	if ns.KingsScreen and ns.KingsScreen() then f[#f + 1] = "k" end
+	if ns.ShogunsScreen and ns.ShogunsScreen() then f[#f + 1] = "k" end
 	if ns.Arena.Off() then f[#f + 1] = "o" end
 	return table.concat(f)
 end
@@ -725,7 +725,7 @@ ArenaTest.CHECKLIST = {
 	Item("T03", "S3", "The bracket near and far", "Near: live portraits; far: emblems or class icons; tier medallions"),
 	Item("T04", "S3", "The arbiter advances winners", "Slots and gold paths update everywhere; how far settles per stage"),
 	Item("T05", "S3", "Final", "Champion banner; the belt frame for viewers once verified (T only, gone after close)"),
-	Item("T06", "S3", "The King stand-in shows the bracket on the overlay", "Readable at 1080p"),
+	Item("T06", "S3", "The Shogun stand-in shows the bracket on the overlay", "Readable at 1080p"),
 	Item("K01", "S1", "A Bones table; opponent not in the group", "\"Invite\" offered; the board on both once grouped"),
 	Item("K02", "S1", "Roll", "One /roll 1-46656; the same six dice on both"),
 	Item("K03", "S1", "The wrong player rolls, or rolls twice", "Ignored with a line; the turn unchanged"),
@@ -740,8 +740,8 @@ ArenaTest.CHECKLIST = {
 	Item("X03", "S3", "One tester pastes 10 lines fast", "Slowed down; others see a flood notice"),
 	Item("X04", "S1", "A block term", "Hidden for the one who set it"),
 	Item("X05", "S3", "Moderator net-offs a tester", "His lines, bets and cards vanish; he cannot bet"),
-	Item("X06", "S2", "The King stand-in's client", "Chat panel closed by default; overlay without chat or bettor names"),
-	Item("S01", "S2", "The King's view: announce, open, close bets, overlay", "The delay line on each; not on a spectator's screen"),
+	Item("X06", "S2", "The Shogun stand-in's client", "Chat panel closed by default; overlay without chat or bettor names"),
+	Item("S01", "S2", "The Shogun's view: announce, open, close bets, overlay", "The delay line on each; not on a spectator's screen"),
 	Item("S02", "S2", "Delay 120 s; open bets with 60 s", "Window raised to 195 s with a line"),
 	Item("S03", "S4", "Overlay on a private stream at 1080p", "Readable; REHEARSAL watermark"),
 	Item("S04", "S2", "Overlay modes Card, Closed, Result, Payouts", "Each switches on the state"),
@@ -752,7 +752,7 @@ ArenaTest.CHECKLIST = {
 	Item("H03", "S3", "A Treasurer stand-in's ID", "A donor frame pickable"),
 	Item("H04", "S3", "A level-up to a multiple of 10", "IL sent, vouched after the next census report"),
 	Item("H05", "S3", "The title on the person card", "\"Rank · Title\""),
-	Item("H06", "S3", "A newly earned honour", "Switches on by itself; the King's letter"),
+	Item("H06", "S3", "A newly earned honour", "Switches on by itself; the Shogun's letter"),
 	Item("H07", "S3", "A category's 2nd and 3rd", "Silver and bronze podium frames pickable"),
 	Item("H08", "S3", "The Oracle after a month of T markets", "Its frames (a bank stand-in's IO)"),
 	Item("H09", "S3", "A chat mark (after check 13)", "Before the name in guild, whisper, party, say and Bankai Guild lines"),

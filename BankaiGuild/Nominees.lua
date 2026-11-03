@@ -11,8 +11,8 @@ local L = ns.L
 -- special portrait border: the native guild rank and separately earned honours still apply.
 --
 -- Where (1.1.5, the author's call on seeing the page): a tab of its own, in the Throne's place
--- (King.lua's Build; UI.lua's "throne" key). A guild master of an Bankai Guild guild (not the King's)
--- has it as his Guild tab, his guild's page: the King's Hands page's look and flow (King.lua's HandsLines, the
+-- (Shogun.lua's Build; UI.lua's "throne" key). A guild master of an Bankai Guild guild (not the Shogun's)
+-- has it as his Guild tab, his guild's page: the Shogun's Hands page's look and flow (Shogun.lua's HandsLines, the
 -- Throne's parchment and ink), a title, a one-line hint, "+ Name a centurion (your target, or type
 -- a name)", his list with a click that takes the title back (asked first), the departments'
 -- correspondents (the role picker: a line per department, a click names its correspondent) and the
@@ -20,11 +20,11 @@ local L = ns.L
 -- `/bk nominees [centurion <name> | correspondent <n> <name> | remove <name>]` (alone: the tab).
 --
 -- The current manual rank is Legate. Existing centurion/c wire and save keys are compatibility
--- aliases, not a different role. The King's guild has manual appointments too, by the actual
--- King or a signed High Councillor; a council seat alone never appoints its holder. No automatic
--- retirement or deletion of the earlier manual lists. No correspondents in the King's guild.
+-- aliases, not a different role. The Shogun's guild has manual appointments too, by the actual
+-- Shogun or a signed High Councillor; a council seat alone never appoints its holder. No automatic
+-- retirement or deletion of the earlier manual lists. No correspondents in the Shogun's guild.
 --
--- How it travels, as the King's list of Hands (King.lua): the guild master's own client keeps his
+-- How it travels, as the Shogun's list of Hands (Shogun.lua): the guild master's own client keeps his
 -- list (ns.rdb.nominees, under his character) and sends it on the Bankai Guild channel a few seconds
 -- after each change and every EVERY seconds while he is online. Every client takes it only from
 -- that guild's master as the census proves him, the very proof the borders ask for a guild
@@ -213,8 +213,8 @@ end
 local function RealMaster()
 	if ns.IsMember() ~= true then return false end
 	local guild, _, rank = GetGuildInfo("player")
-	-- (The King's own guild has no centurions or correspondents: the author's call.)
-	if type(guild) == "string" and ns.IsKingGuild and ns.IsKingGuild(guild) then return false end
+	-- (The Shogun's own guild has no centurions or correspondents: the author's call.)
+	if type(guild) == "string" and ns.IsShogunGuild and ns.IsShogunGuild(guild) then return false end
 	return rank == 0 and type(guild) == "string", guild
 end
 
@@ -251,17 +251,17 @@ function Nominees.IsMaster()
 	return false
 end
 
--- The King's own guild: its centurions are the High Council (1.2.4), nobody's list.
-local function IsMain(guild) return type(guild) == "string" and ns.IsKingGuild(guild) == true end
+-- The Shogun's own guild: its centurions are the High Council (1.2.4), nobody's list.
+local function IsMain(guild) return type(guild) == "string" and ns.IsShogunGuild(guild) == true end
 Nominees.IsMain = IsMain
-function Nominees.MainGuild() return ns.KingGuildName() end
+function Nominees.MainGuild() return ns.ShogunGuildName() end
 
 -- `sender` is `guild`'s master as Borders proves the bronze: our own guild's from our roster (the
 -- server's), another guild's from its census (two senders naming him, one of them someone else).
--- The King's guild's (1.1.5's list, from an older client: Retired below): the King's character or
+-- The Shogun's guild's (1.1.5's list, from an older client: Retired below): the Shogun's character or
 -- a signed High Councillor.
 local function Proven(sender, guild)
-	if IsMain(guild) then return ns.IsKingCharacter(sender) == true or ns.IsHighCouncillor(sender) == true end
+	if IsMain(guild) then return ns.IsShogunCharacter(sender) == true or ns.IsHighCouncillor(sender) == true end
 	local mine = GetGuildInfo("player")
 	if mine and guild == mine then return ns.Roster.RankOf(sender) == 0 end
 	if mine and guild:lower() == mine:lower() then return false end -- (our guild spelled another way)
@@ -275,7 +275,7 @@ Nominees.Proven = Proven
 -- him another rank. Nothing known (a census gone quiet): not that.
 local function Deposed(l)
 	if l.main then
-		if ns.IsKingCharacter(l.by) or ns.IsHighCouncillor(l.by) then return false end
+		if ns.IsShogunCharacter(l.by) or ns.IsHighCouncillor(l.by) then return false end
 		local c = ns.rdb and ns.rdb.council
 		return type(c) == "table" and type(c.names) == "table" -- missing council: unknown, not removal
 	end
@@ -344,23 +344,23 @@ local function OwnEntries(s)
 end
 
 ---------------------------------------------------------------------------
--- The King's manual Legates (legacy centurion save/wire identifiers)
+-- The Shogun's manual Legates (legacy centurion save/wire identifiers)
 ---------------------------------------------------------------------------
 
 -- Council authority permits manual naming; it does not itself appoint the councillor. A preview
 -- edits only its own local sample. Earlier manual saves and the unchanged c= wire are retained.
 
--- The King's character, or a signed High Councillor: the clients older ones take that list from.
+-- The Shogun's character, or a signed High Councillor: the clients older ones take that list from.
 function Nominees.MainEditor()
 	if ns.IsMember() ~= true then return false end
-	local K = ns.King
+	local K = ns.Shogun
 	local V = ns.ViewAs
 	if not K or (K.Preview and K.Preview()) or (V and V.Previewing and V.Previewing())
 		or (V and V.Available and V.Available() and V.Role and V.Role() ~= "my") then return false end
-	return (type(K.IsKing) == "function" and K.IsKing() == true) or ns.IsHighCouncillor(ns.me) == true
+	return (type(K.IsShogun) == "function" and K.IsShogun() == true) or ns.IsHighCouncillor(ns.me) == true
 end
 function Nominees.MainPreview()
-	local K = ns.King
+	local K = ns.Shogun
 	return K and K.Preview and K.Preview() == true and ns.Workshop and ns.Workshop.Visible and ns.Workshop.Visible() == true or false
 end
 function Nominees.MainNames() return Nominees.MainEditor() or Nominees.MainPreview() end
@@ -388,26 +388,26 @@ local function MainEntries(s)
 	return out
 end
 
--- Whom the Throne shows them to as the King's centurions, and /bk nominees names nobody for: the
--- King, a councillor, and the author's preview of the King (King.Preview).
-local function KingsSide()
-	local K = ns.King
+-- Whom the Throne shows them to as the Shogun's centurions, and /bk nominees names nobody for: the
+-- Shogun, a councillor, and the author's preview of the Shogun (Shogun.Preview).
+local function ShogunsSide()
+	local K = ns.Shogun
 	if type(K) == "table" and type(K.Preview) == "function" and K.Preview() == true then return true end
 	return Nominees.MainEditor()
 end
 
 -- Legacy API name; only the manually appointed names, in appointment order.
-function Nominees.KingsCenturions()
+function Nominees.ShogunsCenturions()
 	local out = {}
 	local l = Nominees.ListOf(Nominees.MainGuild())
 	for _, e in ipairs(l and l.entries or {}) do if e.role == "centurion" then out[#out + 1] = e.name end end
 	return out
 end
-Nominees.KingsLegates = Nominees.KingsCenturions
+Nominees.ShogunsLegates = Nominees.ShogunsCenturions
 
 -- The list that counts for `guild` here: his own on the guild master's client; else the one
 -- heard from its master. Silence is not revocation. Main appointments have the same getter, but
--- their actual pinned King/signed council issuer is checked independently of the census.
+-- their actual pinned Shogun/signed council issuer is checked independently of the census.
 local function ListOf(guild)
 	if type(guild) ~= "string" or guild == "" then return nil end
 	if IsMain(guild) then
@@ -565,7 +565,7 @@ end
 Nominees.NOTICES_MAX = 50
 Nominees.NOTICE_RULE = 2 -- the High Council's role-badge change, shown once to existing appointments too
 function Nominees.AppointmentNotice(l)
-	local V, K = ns.ViewAs, ns.King
+	local V, K = ns.ViewAs, ns.Shogun
 	if Nominees.DevView() or (K and K.Preview and K.Preview()) or (V and V.Previewing and V.Previewing())
 		or (V and V.Available and V.Available() and V.Role and V.Role() ~= "my") then return false end
 	if type(l) ~= "table" or not ns.db or not ns.me or not Revision(l.rev) then return false end
@@ -786,7 +786,7 @@ local function Read(parts, n, realm, main)
 					c = c + 1
 					e = { role = "centurion", name = name }
 				end
-			elseif kind == "d" and b ~= "" and not main then -- (none for the King's guild: 1.1.5)
+			elseif kind == "d" and b ~= "" and not main then -- (none for the Shogun's guild: 1.1.5)
 				local dept, name = DeptName(a), Person(b, realm)
 				local count = 0
 				for _ in pairs(depts) do count = count + 1 end
@@ -977,7 +977,7 @@ end
 local function DeposedInputs(l)
 	if l.main then
 		local c = ns.rdb and ns.rdb.council
-		return c, type(c) == "table" and c.names or nil, ns.KingCharacter()
+		return c, type(c) == "table" and c.names or nil, ns.ShogunCharacter()
 	end
 	local mine = GetGuildInfo("player")
 	if mine and l.guild:lower() == mine:lower() then return ns.Roster.byName, ns.Roster.lastStats, mine end
@@ -1008,7 +1008,7 @@ function Nominees.Prune()
 end
 
 ---------------------------------------------------------------------------
--- The pages: a guild master's Guild tab, the King's guild's centurions on the Throne (King.lua), and
+-- The pages: a guild master's Guild tab, the Shogun's guild's centurions on the Throne (Shogun.lua), and
 -- the command
 ---------------------------------------------------------------------------
 
@@ -1057,8 +1057,8 @@ local function TakenBack(data)
 	return Nominees.Remove(data)
 end
 
--- The Throne's look (King.lua's Line, Para: dark ink on the parchment), as the Hands page's.
-local function Ink() local K = ns.King return K.Line, K.INK, K.TITLE, K.Para end
+-- The Throne's look (Shogun.lua's Line, Para: dark ink on the parchment), as the Hands page's.
+local function Ink() local K = ns.Shogun return K.Line, K.INK, K.TITLE, K.Para end
 
 -- A named one's line: a click takes the title back (asked first), when this client may.
 local function Row(e, text, editable, roster, main)
@@ -1099,7 +1099,7 @@ local function AddLine(count, main)
 	})
 end
 
--- The guild master's section, as the King's Hands page (King.lua's HandsLines): a title, a
+-- The guild master's section, as the Shogun's Hands page (Shogun.lua's HandsLines): a title, a
 -- one-line hint, "+ Name a centurion (your target, or type a name)", his centurions (a click takes
 -- the title back, asked first), then the correspondents' departments, one line each (the role
 -- picker: a click names that department's correspondent, or takes the title back), and the note
@@ -1153,7 +1153,7 @@ function Nominees.PageLines(lines)
 	return Para(lines, L.NOMINEES_NOTE, INK)
 end
 
--- A guild master's Guild tab (1.1.5): the tab in the Throne's place, his guild's page (King.Build).
+-- A guild master's Guild tab (1.1.5): the tab in the Throne's place, his guild's page (Shogun.Build).
 function Nominees.GuildLines()
 	local allowed, guild = Nominees.GuildAccess()
 	if not allowed then return {} end
@@ -1255,9 +1255,9 @@ function Nominees.StatusLine()
 end
 
 -- `/bk nominees [centurion <name> | correspondent <n> <name> | remove <name>]`: alone, the tab
--- (a guild master's Guild tab; the Throne, with the King's centurions, for the King's people).
--- A guild master names in his own guild; the King, a councillor and the King preview are told that the
--- High Council are the King's centurions, nobody named (1.2.4). Anyone else is told whose it is.
+-- (a guild master's Guild tab; the Throne, with the Shogun's centurions, for the Shogun's people).
+-- A guild master names in his own guild; the Shogun, a councillor and the Shogun preview are told that the
+-- High Council are the Shogun's centurions, nobody named (1.2.4). Anyone else is told whose it is.
 function Nominees.Slash(rest)
 	rest = Trim(rest)
 	local verb, arg = rest:match("^(%S*)%s*(.-)$")
@@ -1268,20 +1268,20 @@ function Nominees.Slash(rest)
 		if Nominees.DevView() then verb = "" else return end
 	end
 	local master = Nominees.IsMaster()
-	local kings = not master and KingsSide()
+	local shoguns = not master and ShogunsSide()
 	if verb == "" then
-		local K = ns.King
+		local K = ns.Shogun
 		if not (K and K.TabVisible and K.TabVisible()) then return ns.Print(L.NOMINEES_ONLY_MASTER) end
-		K.mode = "home" -- (the Throne Room, or his Guild tab: never the King's Hands page)
+		K.mode = "home" -- (the Throne Room, or his Guild tab: never the Shogun's Hands page)
 		if ns.UI and ns.UI.SelectTab then ns.UI.SelectTab("throne") end
 		return
 	end
 	local centurion = verb == "legate" or verb == "legatus" or verb == "legado" or verb == "centurion" or verb == "centuriao" or verb == "centurião"
 	local remove = verb == "remove" or verb == "remover"
-	if kings and centurion then return Nominees.NameMain(arg) end
-	if kings and remove then return Nominees.RemoveMain(arg) end
+	if shoguns and centurion then return Nominees.NameMain(arg) end
+	if shoguns and remove then return Nominees.RemoveMain(arg) end
 	if centurion then return Nominees.Name("centurion", arg) end
-	if (verb == "correspondent" or verb == "correspondente") and (master or not kings) then
+	if (verb == "correspondent" or verb == "correspondente") and (master or not shoguns) then
 		local n, name = arg:match("^(%d+)%s*(.-)$")
 		local d = n and Nominees.Departments()[tonumber(n)]
 		if not d then

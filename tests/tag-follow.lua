@@ -36,7 +36,7 @@ end
 
 local GLOBALS = { "GetGuildInfo", "IsInGuild", "UnitIsPlayer", "C_ChatInfo", "GetTime", "GetChannelName", "DEFAULT_CHAT_FRAME", "IsCombatLog",
 	"issecretvalue", "UnitClass", "C_FriendList", "BNGetInfo", "BNConnected", "BNFeaturesEnabledAndConnected", "InCombatLockdown", "IsInInstance",
-	"SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDLORDS1" }
+	"SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDCOUNCIL1" }
 
 local function Full(name)
 	name = tostring(name or ""):gsub("^%s+", ""):gsub("%s+$", "")
@@ -139,7 +139,7 @@ local function World(fn)
 		end
 
 		-- opts: tag (its BattleTag), aat (its game account's Accord accept time), key (its game
-		-- account's follow key: KeyFor(tag) by default, so one BattleTag is one account), kingAccount, standIn
+		-- account's follow key: KeyFor(tag) by default, so one BattleTag is one account), shogunAccount, standIn
 		-- (TagFollow.lua not loaded: Core.lua's stand-in, as a client updated without a restart),
 		-- realDialogs (the harness's ns.ShowDialog: Bankai Guild's own window under the gamepad UI).
 		function w.Client(short, guild, rank, opts)
@@ -154,7 +154,7 @@ local function World(fn)
 			c.me, c.realm, c.group, c.faction = name, "Realm", "RealmGroup", "Alliance"
 			c.CAPTAIN_RANK = 1
 			c.db = { addonChat = true, chatRooms = true, chatWarned = { A = true, C = true, L = true }, blocked = {}, log = {},
-				kingAccount = opts.kingAccount or nil,
+				shogunAccount = opts.shogunAccount or nil,
 				accord = { v = ns.ACCORD_VERSION, yes = true, at = opts.aat or AAT, told = {}, key = opts.key or KeyFor(opts.tag) } }
 			c.rdb = { guilds = {} }
 			c.Now = function() return w.epoch end
@@ -172,17 +172,17 @@ local function World(fn)
 			c.DisplayName = function(n) return (tostring(n or ""):gsub("%-Realm$", "")) end
 			c.IsMember = function() return cl.guild ~= nil and ns.IsFederation(cl.guild) end
 			c.CouncilMasked = function() return cl.masked == true end
-			c.KingsScreen = function() return cl.kingScreen == true end
+			c.ShogunsScreen = function() return cl.shogunScreen == true end
 			c.GamepadUI = function() return w.gamepad == true end
-			c.IsKingCharacter = function(n) return w.king ~= nil and type(n) == "string" and Fold(c.FullName(n)) == Fold(w.king) end
-			c.KingCharacter = function() return w.king and (w.king:gsub("%-.*$", "")) or nil end
+			c.IsShogunCharacter = function(n) return w.shogun ~= nil and type(n) == "string" and Fold(c.FullName(n)) == Fold(w.shogun) end
+			c.ShogunCharacter = function() return w.shogun and (w.shogun:gsub("%-.*$", "")) or nil end
 			c.IsHighCouncillor = function(n) return type(n) == "string" and w.council[Fold(c.FullName(n))] == true end
 			c.IsSteward = function(n) return type(n) == "string" and w.stewards[Fold(c.FullName(n))] == true end
 			c.Workshop = { IsAuthorName = function() return false end }
-			-- (The real King.lua's name checks: Moderation.CharName reads them.)
-			c.King = { CleanName = ns.King.CleanName, CleanGuild = ns.King.CleanGuild,
+			-- (The real Shogun.lua's name checks: Moderation.CharName reads them.)
+			c.Shogun = { CleanName = ns.Shogun.CleanName, CleanGuild = ns.Shogun.CleanGuild,
 				IsHandName = function(n) return type(n) == "string" and w.hands[Fold(c.FullName(n))] == true end,
-				IsStewardName = function(n) return c.IsSteward(n) end, IsKing = function() return c.IsKingCharacter(name) end,
+				IsStewardName = function(n) return c.IsSteward(n) end, IsShogun = function() return c.IsShogunCharacter(name) end,
 				IsSteward = function() return false end, IsHand = function() return false end, Preview = function() return false end }
 			c.Alts = { Linked = function(n) return w.links[Fold(c.FullName(n))] or {} end }
 			c.ChatWindow = ReplyCodec()
@@ -778,10 +778,10 @@ end)
 -- Forged and misdirected words
 ---------------------------------------------------------------------------
 
-test("accord: tag follow: a forged follow is refused and the other character stays free: from a random member, a Hand off the team, passed on, over GUILD or a whisper, unlogged, a malformed code, a sanctioned councillor, aimed at the King or by a councillor at a Steward", function()
+test("accord: tag follow: a forged follow is refused and the other character stays free: from a random member, a Hand off the team, passed on, over GUILD or a whisper, unlogged, a malformed code, a sanctioned councillor, aimed at the Shogun or by a councillor at a Steward", function()
 	World(function(w)
 		local HC, S, V = Basic(w)
-		w.king = "Crownhold-Realm"
+		w.shogun = "Crownhold-Realm"
 		local K = w.Client("Crownhold", "Bankai Guild", 0, { tag = "Crown#0001" })
 		w.hands[Fold("Palmguard-Realm")] = true
 		w.stewards[Fold("Highreeve-Realm")] = true
@@ -790,10 +790,10 @@ test("accord: tag follow: a forged follow is refused and the other character sta
 		local Hd = w.Client("Palmguard", X, 3, { tag = "Palm#6666" })
 		local St = w.Client("Highreeve", X, 2, { tag = "Reeve#2222" })
 		local BC = w.Client("Ironbrow", Y, 3, { tag = "Brow#7777" })
-		-- Sootfang off by the King's word (every client holds it), so a wrongly taken follow would bite.
+		-- Sootfang off by the Shogun's word (every client holds it), so a wrongly taken follow would bite.
 		assert(w.As(K, K.M.Set, "c", S.name, true, "spam"))
 		w.Run()
-		-- The King times the councillor out: he gives nothing while it lasts.
+		-- The Shogun times the councillor out: he gives nothing while it lasts.
 		assert(w.As(K, K.WC.Act, "T", BC.name, { seconds = 3600, reason = "abuse" }))
 		w.Run()
 		local function Word(kind, source, by, code) return ("TF~1~%s~1~%d~%s~%s~%s"):format(kind, w.epoch, code or CODE, source, by) end
@@ -808,7 +808,7 @@ test("accord: tag follow: a forged follow is refused and the other character sta
 			{ "an uppercase code", "CHANNEL", HC.name, Word("N", S.name, HC.name, CODE:upper()), true, "shape" },
 			{ "a code with #", "CHANNEL", HC.name, Word("N", S.name, HC.name, "afc28b0e#8b84eab"), true, "shape" },
 			{ "a sanctioned councillor", "CHANNEL", BC.name, Word("N", S.name, BC.name), true, "standing" },
-			{ "aimed at the King", "CHANNEL", HC.name, Word("N", K.name, HC.name), true, "source" },
+			{ "aimed at the Shogun", "CHANNEL", HC.name, Word("N", K.name, HC.name), true, "source" },
 			{ "a councillor at a Steward (net-off)", "CHANNEL", HC.name, Word("N", St.name, HC.name), true, "rank" },
 			{ "a councillor at a Steward (timeout)", "CHANNEL", HC.name, Word("T", St.name, HC.name), true, "rank" },
 		}
@@ -865,12 +865,12 @@ end)
 -- Who a follow never reaches
 ---------------------------------------------------------------------------
 
-test("accord: tag follow: never the King's game account, nor a councillor's own client; an account's remembered Steward protects its alts for two days and not after; a moderator's follow of the King's timeout never reaches a Hand", function()
+test("accord: tag follow: never the Shogun's game account, nor a councillor's own client; an account's remembered Steward protects its alts for two days and not after; a moderator's follow of the Shogun's timeout never reaches a Hand", function()
 	World(function(w)
 		local HC, S = Basic(w)
-		w.king = "Crownhold-Realm"
+		w.shogun = "Crownhold-Realm"
 		local K = w.Client("Crownhold", "Bankai Guild", 0, { tag = "Crown#0001" })
-		local KA = w.Client("Crownalt", X, 3, { tag = TAG, kingAccount = true })
+		local KA = w.Client("Crownalt", X, 3, { tag = TAG, shogunAccount = true })
 		w.council[Fold("Ironbrow-Realm")] = true
 		local C2 = w.Client("Ironbrow", Y, 3, { tag = TAG })
 		local RS = w.Client("Reevealt", Y, 3, { tag = TAG })
@@ -891,8 +891,8 @@ test("accord: tag follow: never the King's game account, nor a councillor's own 
 		local _, _, via = w.As(RS, RS.M.SelfOff)
 		eq(via, "tag", "after TEAM_GRACE the alt is reached")
 		_, _, via = w.As(KA, KA.M.SelfOff)
-		eq(via, nil, "the King's account always shielded")
-		-- The King's timeout, followed by a moderator: never a Hand.
+		eq(via, nil, "the Shogun's account always shielded")
+		-- The Shogun's timeout, followed by a moderator: never a Hand.
 		local M = w.Client("Gloomwatch", Y, 3, { tag = "Gloom#1111" })
 		w.Mods(HC, M)
 		w.TagTo(M, S)
@@ -977,10 +977,10 @@ end)
 -- Privacy
 ---------------------------------------------------------------------------
 
-test("accord: tag follow: the plain BattleTag never leaves: only BT carries it; TF on the channel, logged; no tag or code in any log, nor on an ordinary client's disk; on the King's screen the Watch shows no tag and masks the names", function()
+test("accord: tag follow: the plain BattleTag never leaves: only BT carries it; TF on the channel, logged; no tag or code in any log, nor on an ordinary client's disk; on the Shogun's screen the Watch shows no tag and masks the names", function()
 	World(function(w)
 		local HC, S, V, B = Basic(w)
-		w.king = "Crownhold-Realm"
+		w.shogun = "Crownhold-Realm"
 		local K = w.Client("Crownhold", "Bankai Guild", 0, { tag = "Crown#0001" })
 		local M = w.Client("Gloomwatch", Y, 3, { tag = "Gloom#1111" })
 		w.Mods(HC, M)
@@ -1013,7 +1013,7 @@ test("accord: tag follow: the plain BattleTag never leaves: only BT carries it; 
 		end
 		local disk = table.concat(Dump(V.ns.db), "\n") .. table.concat(Dump(V.ns.rdb), "\n")
 		assert(not disk:find(CODE, 1, true) and not disk:lower():find("lantern", 1, true), "a tag or code on an ordinary client's disk")
-		-- The King's screen: the follow marked, no part of a tag, the names masked.
+		-- The Shogun's screen: the follow marked, no part of a tag, the names masked.
 		K.masked = true
 		local page = Shown(w.As(K, K.A.TeamLines)) .. "\n" .. Shown(w.As(K, K.A.ProfileLines, V.name))
 		assert(page:find(L.ACCORD_FOLLOW_SAME, 1, true), "the mark: " .. page)
@@ -1111,7 +1111,7 @@ test("accord: tag follow: its giver repeats it while the sanction stands and sto
 	end)
 	World(function(w)
 		local HC, S, V = Basic(w)
-		w.king = "Crownhold-Realm"
+		w.shogun = "Crownhold-Realm"
 		local K = w.Client("Crownhold", "Bankai Guild", 0, { tag = "Crown#0001" })
 		w.council[Fold("Ironbrow-Realm")] = true
 		local C2 = w.Client("Ironbrow", Y, 3, { tag = "Brow#7777" })
@@ -1128,7 +1128,7 @@ test("accord: tag follow: its giver repeats it while the sanction stands and sto
 		eq(ok, false); eq(why, "stopped", "an automatic follow of the same weight is held off")
 		w.epoch = w.epoch + 5
 		ok = w.As(K, K.TF.Give, "N", S.name, { manual = true })
-		eq(ok, true, "the King's own click follows it again")
+		eq(ok, true, "the Shogun's own click follows it again")
 		w.Run()
 		_, _, via = w.As(V, V.M.SelfOff)
 		eq(via, "tag")
@@ -1300,22 +1300,22 @@ test("accord: tag follow: a sanctioned player's addon that sends someone else's 
 	end)
 end)
 
--- The King's account: his alts' tag reaches the King and the author alone; a forged King's tag
+-- The Shogun's account: his alts' tag reaches the Shogun and the author alone; a forged Shogun's tag
 -- reaches none of his characters; a code with his own character on it never resolves.
-test("accord: tag follow: never the King's game account: his alts answer no councillor or moderator; a player who sends the King's BattleTag reaches no character of his, and no by-name word reaches his alt; a code holding the King's own row never resolves on the King's client", function()
+test("accord: tag follow: never the Shogun's game account: his alts answer no councillor or moderator; a player who sends the Shogun's BattleTag reaches no character of his, and no by-name word reaches his alt; a code holding the Shogun's own row never resolves on the Shogun's client", function()
 	World(function(w)
 		local HC, S = Basic(w)
 		local CROWN = "Crown#0001"
-		w.king = "Crownhold-Realm"
-		local K = w.Client("Crownhold", X, 3, { tag = CROWN, kingAccount = true })
-		local KA = w.Client("Crownalt", X, 3, { tag = CROWN, kingAccount = true })
+		w.shogun = "Crownhold-Realm"
+		local K = w.Client("Crownhold", X, 3, { tag = CROWN, shogunAccount = true })
+		local KA = w.Client("Crownalt", X, 3, { tag = CROWN, shogunAccount = true })
 		local M = w.Client("Gloomwatch", Y, 3, { tag = "Gloom#1111" })
 		w.Mods(HC, M)
 		w.Asked(HC)
-		eq(w.As(KA, KA.A.SendTag, HC.name), false, "no councillor gets the King's alt's tag")
+		eq(w.As(KA, KA.A.SendTag, HC.name), false, "no councillor gets the Shogun's alt's tag")
 		w.Asked(M)
 		eq(w.As(KA, KA.A.SendTag, M.name), false, "nor a moderator")
-		-- S sends the King's BattleTag (with his own account's key) and is timed out.
+		-- S sends the Shogun's BattleTag (with his own account's key) and is timed out.
 		w.TagOf(M, S.name, CROWN, AAT + 5, X, KEY)
 		w.epoch = w.epoch + 5
 		assert(w.As(M, M.WC.Act, "T", S.name, { seconds = 3600, reason = "spam" }))
@@ -1327,24 +1327,24 @@ test("accord: tag follow: never the King's game account: his alts answer no coun
 		w.Pass(HC.TF.EVADE_AFTER + 5)
 		w.As(KA, KA.C.Send, "A", "hello again")
 		w.Run()
-		eq(#DerivedOn(w, KA.name, "MD~"), 0, "never a by-name sanction on the King's account")
+		eq(#DerivedOn(w, KA.name, "MD~"), 0, "never a by-name sanction on the Shogun's account")
 		eq(w.As(KA, KA.WC.SelfTimeout), nil)
-		-- The King's own client holds his rows (his main's and his alts', one code): a follow on that
+		-- The Shogun's own client holds his rows (his main's and his alts', one code): a follow on that
 		-- code (here sent by hand) never resolves there.
 		w.TagOf(K, K.name, CROWN, AAT, X, KeyFor(CROWN))
 		w.TagOf(K, "Crownbit", CROWN, AAT, X, KeyFor(CROWN))
 		w.Asked(K)
-		assert(w.As(KA, KA.A.SendTag, K.name), "the King gets it")
+		assert(w.As(KA, KA.A.SendTag, K.name), "the Shogun gets it")
 		w.Run()
 		local code = w.As(K, K.A.HashOf, KA.name)
-		assert(code, "a code on the King's client")
-		eq(w.As(K, K.TF.KingCode, code), true)
+		assert(code, "a code on the Shogun's client")
+		eq(w.As(K, K.TF.ShogunCode, code), true)
 		w.epoch = w.epoch + 5
 		assert(w.As(M, M.WC.Act, "T", "Crownbit-Realm", { seconds = 3600, reason = "spam" }))
 		w.Run()
 		local word = ("TF~1~T~1~%d~%s~Crownbit-Realm~%s"):format(w.epoch, code, M.name)
 		eq(w.TF(K, "CHANNEL", M.name, word, true), true, "kept")
-		eq(w.As(K, K.WC.TimeoutOf, KA.name), nil, "but it never reaches the King's alt there")
+		eq(w.As(K, K.WC.TimeoutOf, KA.name), nil, "but it never reaches the Shogun's alt there")
 		eq(#w.As(K, K.TF.Sources, KA.name, "T"), 0)
 	end)
 end)
@@ -1430,7 +1430,7 @@ end)
 test("accord: tag follow: an on word that freed the alt lasts through another team client's sweep and a later follow by hand, until the sanctioned character's own word changes", function()
 	World(function(w)
 		local HC, S, V = Basic(w)
-		w.king = "Crownhold-Realm"
+		w.shogun = "Crownhold-Realm"
 		local K = w.Client("Crownhold", X, 3, { tag = "Crown#0001" })
 		w.TagTo(HC, S); w.TagTo(HC, V); w.TagTo(K, S)
 		w.epoch = w.epoch + 5
@@ -1445,7 +1445,7 @@ test("accord: tag follow: an on word that freed the alt lasts through another te
 		w.epoch = w.epoch + 700
 		w.As(K, K.TF.Tick)
 		w.Run()
-		eq(#w.Sent("TF~1~N~1~"), before, "the King's sweep leaves the kept follow alone")
+		eq(#w.Sent("TF~1~N~1~"), before, "the Shogun's sweep leaves the kept follow alone")
 		eq(w.As(V, V.M.SelfOff), nil, "still free after the sweep")
 		w.epoch = w.epoch + 5
 		eq(w.As(K, K.A.Slash, "follow Sootfang"), true, "a follow by hand, newer than the on word")
@@ -1464,7 +1464,7 @@ end)
 test("accord: tag follow: a stop given while a higher team member was away holds against his automatic follow when he comes back, everywhere, the stop's giver's client included; his follow by hand passes it", function()
 	World(function(w)
 		local HC, S, V = Basic(w)
-		w.king = "Crownhold-Realm"
+		w.shogun = "Crownhold-Realm"
 		local K = w.Client("Crownhold", X, 3, { tag = "Crown#0001" })
 		w.TagTo(HC, S); w.TagTo(K, S)
 		K.online = false
@@ -1475,8 +1475,8 @@ test("accord: tag follow: a stop given while a higher team member was away holds
 		eq(w.As(HC, HC.TF.Stop, "N", S.name), true)
 		w.Run()
 		eq(w.As(V, V.M.SelfOff), nil, "stopped")
-		-- Back on, the King's client hears Sootfang's word and, after WARMUP, its sweep follows it by
-		-- itself (it never heard the stop), at the King's weight, above the councillor's stop.
+		-- Back on, the Shogun's client hears Sootfang's word and, after WARMUP, its sweep follows it by
+		-- itself (it never heard the stop), at the Shogun's weight, above the councillor's stop.
 		K.online = true
 		w.Inject("CHANNEL", HC.name, K, w.Sent("O1~c~1~")[1].msg)
 		local before = #w.Sent("TF~1~N~1~")
@@ -1488,15 +1488,15 @@ test("accord: tag follow: a stop given while a higher team member was away holds
 		local stops = 0
 		for _, k in ipairs(w.Kept(HC)) do if k.F.on == false then stops = stops + 1 end end
 		eq(stops, 1, "and on the stop's giver's client")
-		-- The stop's next repeat reaches the King's client, which takes it (every client orders the
+		-- The stop's next repeat reaches the Shogun's client, which takes it (every client orders the
 		-- two words the same way) and stops repeating its own follow.
 		w.epoch = w.epoch + HC.TF.STOP_EVERY + HC.TF.JITTER + 1
 		w.As(HC, HC.TF.Repeat)
 		w.Run()
 		local kept
 		for _, k in ipairs(w.Kept(K)) do if k.F.hash == CODE then kept = k.F end end
-		eq(kept and kept.on, false, "the King's client keeps the stop")
-		-- The King's own click: a follow given after the stop, so it passes it.
+		eq(kept and kept.on, false, "the Shogun's client keeps the stop")
+		-- The Shogun's own click: a follow given after the stop, so it passes it.
 		w.epoch = w.epoch + 5
 		eq(w.As(K, K.A.Slash, "follow Sootfang"), true)
 		w.Run()
@@ -1508,7 +1508,7 @@ end)
 test("accord: tag follow: a councillor removed from the council: his follow goes on every client within a minute; a team client takes a code only of the sanctioned player's own BattleTag", function()
 	World(function(w)
 		local HC, S, V, B = Basic(w)
-		w.king = "Crownhold-Realm"
+		w.shogun = "Crownhold-Realm"
 		local K = w.Client("Crownhold", X, 3, { tag = "Crown#0001" })
 		w.TagTo(HC, S)
 		assert(w.As(K, K.M.Set, "c", S.name, true, "spam"))
@@ -1598,7 +1598,7 @@ end)
 test("accord: tag follow: two moderators' clients that see the same evasion give one by-name timeout, not two", function()
 	World(function(w)
 		local HC, S = Basic(w)
-		w.king = "Crownhold-Realm"
+		w.shogun = "Crownhold-Realm"
 		local K = w.Client("Crownhold", "Bankai Guild", 0, { tag = "Crown#0001" })
 		local M = w.Client("Gloomwatch", Y, 3, { tag = "Gloom#1111" })
 		local M2 = w.Client("Dusktally", Y, 3, { tag = "Dusk#3333" })

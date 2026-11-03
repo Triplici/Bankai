@@ -27,9 +27,9 @@ local L = ns.L
 -- characters, where the fee mail goes) of the sale, so the seller's own client alone cannot hide
 -- it; the desk sees the fee mail land in its treasury book. A sale the buyer never confirms owes
 -- it all the same, CONFIRM_WAIT on (the delivery the seller recorded, or a trade both addons saw),
--- unless a party disputed it. The Treasurer's characters and the King's, the High Council and the
+-- unless a party disputed it. The Treasurer's characters and the Shogun's, the High Council and the
 -- author (the real ones, never a preview of anyone's view) read the debtors' ranking and every fee
--- owed, for the collection (the Treasurer's and the King's reminders) and the Watch's own ladder;
+-- owed, for the collection (the Treasurer's and the Shogun's reminders) and the Watch's own ladder;
 -- nothing here removes anyone. Only a fee the seller's own word confirms (or the desk confirmed by
 -- hand) is ranked: the buyer's word alone, or a buyer's figure above the seller's, waits apart for
 -- a human, the higher figure kept as the fee.
@@ -42,7 +42,7 @@ local L = ns.L
 --                                     hand) and d (the buyer's figure is above the seller's)
 --   CK~1~fees~<seq>~debtend~<sent>~<open>
 --   CK~1~fees~<seq>~debtwait~<seconds>   or, asked too soon, when to ask again
---   CK~1~<id>~<seq>~feeremind~<owed>~<due>   the desk's or the King's reminder to a debtor
+--   CK~1~<id>~<seq>~feeremind~<owed>~<due>   the desk's or the Shogun's reminder to a debtor
 -- The guarantee fund is postponed (the owner's answer): there is no insurance, claim or guarantee payout here.
 
 local Requests = {}
@@ -106,8 +106,8 @@ Requests.FEES_BUYER_ONLY = 20         -- open fees on the buyer's word alone, pe
 Requests.FEES_PER_SELLER = 50         -- open fees on a seller's own word or fee mail alone, per seller, at most (the same)
 Requests.FEES_KEEP = 30 * 86400       -- a paid or waived fee stays on the ledger this long
 Requests.FEES_GONE_MAX = 250          -- open fees evicted for room kept for their return, at most
-Requests.DEBTS_ANSWER_MAX = 40        -- fees one answer to the King names at most
-Requests.DEBTS_ASK_GAP = 300          -- the King asks the desk, and is answered, this often at most
+Requests.DEBTS_ANSWER_MAX = 40        -- fees one answer to the Shogun names at most
+Requests.DEBTS_ASK_GAP = 300          -- the Shogun asks the desk, and is answered, this often at most
 Requests.DEBTS_RETRY = 150            -- an ask the desk never answered may go again this soon (an answer takes 2 min at most)
 Requests.DEBTS_PACE = 1.5             -- one word of that answer each 1.5 seconds...
 Requests.DEBTS_QUEUE = 10             -- ...while the desk's send queue holds this many at most
@@ -141,7 +141,7 @@ local asked = {}         -- the mediated deals whose custodian this session alre
 local PublicAdvance, DisputeSettlement, InstallMoneyWatch, InstallExchangeHooks, FinishRequest, Owing, LateGold
 local QueueFeeReport, SendFeeReport, FeeOpen
 -- The guild fees' section: its session state and the functions the rest of the file calls.
---   view: a reader's copy of the desk's last answer (the King's, a councillor's, the author's);
+--   view: a reader's copy of the desk's last answer (the Shogun's, a councillor's, the author's);
 --   seq: the fee words' sequence; warned: the overdue fees warned of this session; reminded,
 --   answered: when each debtor was reminded and each reader answered; jobs, pumping: the desk's
 --   answers going out, paced.
@@ -660,7 +660,7 @@ end
 --------------------------------------------------------------------------
 
 -- Nil when Bankai Guild may hold or owe gold for a request, else why not: the Arena's own switches for
--- live gold (the Wallet's: the King's live switch on gold, saved data that survives, the arena
+-- live gold (the Wallet's: the Shogun's live switch on gold, saved data that survives, the arena
 -- not off, no test build). The direct rail never needs it: there Bankai Guild only records.
 function Requests.GoldGate()
 	local A, R = ns.Arena, ns.ArenaRoles
@@ -726,7 +726,7 @@ function Requests.FeeBreakdown(total, postage)
 		postageShortfall = math.max(0, postage - fee) }
 end
 
--- A keeper by name, as every client knows the list (the Treasurer's pins, the King's list).
+-- A keeper by name, as every client knows the list (the Treasurer's pins, the Shogun's list).
 local function CustodianKnown(name)
 	local T = ns.Treasury
 	return type(name) == "string" and type(T) == "table" and type(T.KeeperByName) == "function"
@@ -750,7 +750,7 @@ end
 -- The guild's fees: where they go (the Arena's fee receiver: on the Treasurer's realm group
 -- his mail character, Dues.MailTo), and who keeps their ledger, the desk: a fee receiver's
 -- character (the Treasurer's characters there). By the names the server stamps on a message, and
--- this client's own name: never the author's preview of the Treasurer's or the King's view.
+-- this client's own name: never the author's preview of the Treasurer's or the Shogun's view.
 local function FeeReceiver()
 	local R = ns.ArenaRoles
 	return Full(type(R) == "table" and type(R.FeeReceiver) == "function" and R.FeeReceiver() or nil)
@@ -760,10 +760,10 @@ local function FeeDeskName(name)
 	return type(name) == "string" and type(R) == "table" and type(R.IsFeeReceiver) == "function" and R.IsFeeReceiver(Full(name)) == true
 end
 local function FeeDesk() return FeeDeskName(ns.me) end
--- The collection is the desk's characters' and the King's (the owner's answer): their reminders
+-- The collection is the desk's characters' and the Shogun's (the owner's answer): their reminders
 -- alone reach a debtor.
 local function Collects(name)
-	return FeeDeskName(name) or (type(name) == "string" and ns.IsKingCharacter(Full(name)) == true)
+	return FeeDeskName(name) or (type(name) == "string" and ns.IsShogunCharacter(Full(name)) == true)
 end
 -- The debtors' ranking and every fee owed are read by them, the High Council and the author (the
 -- owner's answer), by their own names (the signed council list, the author's name on his realm
@@ -1692,7 +1692,7 @@ function Requests.PrivilegeStatus(name, now)
 	for _, r in pairs(Store().records) do
 		local s = r.settlement
 		-- A guild fee: the crafter's own (his client sees it mailed; the desk tells it paid). Its
-		-- ladder elsewhere is the Treasurer's and the King's (Requests.Debtors), by hand.
+		-- ladder elsewhere is the Treasurer's and the Shogun's (Requests.Debtors), by hand.
 		if s and Same(name, ns.me) and Same(r.crafter, ns.me) and FeeOpen(s, now) then
 			Take(Ladder(s.feeDue or now, now), { request = r.id, amount = s.guildFee, due = s.feeDue, reason = "guild-fee" })
 		end
@@ -1707,7 +1707,7 @@ end
 
 --------------------------------------------------------------------------
 -- The guild's 6% of direct sales: each party's word of the sale to the fee desk, the desk's
--- ledger and the fee mails that reached it, the debtors for the Treasurer and the King.
+-- ledger and the fee mails that reached it, the debtors for the Treasurer and the Shogun.
 --------------------------------------------------------------------------
 
 -- (One block: its helpers are its own; what the rest of the file calls is in Fee.)
@@ -1750,7 +1750,7 @@ do
 	-- A fee the ladder may count: the seller's own word, with no buyer's figure above his, or the
 	-- desk's confirmation by hand. Anything else (the buyer's word alone: anyone may name himself the
 	-- buyer of a sale that never was; a buyer's figure above the seller's) waits apart for a human.
-	-- (The King's copy has the desk's own flags: checked, differ.)
+	-- (The Shogun's copy has the desk's own flags: checked, differ.)
 	function Fee.Confirmed(e)
 		if type(e) ~= "table" then return false end
 		if e.checkedBy or e.checked then return true end
@@ -2138,7 +2138,7 @@ do
 		return true
 	end
 
-	-- The fees still owed, as this client holds them (the desk's ledger, or the King's copy of its last
+	-- The fees still owed, as this client holds them (the desk's ledger, or the Shogun's copy of its last
 	-- answer), and the debtors ranked: the most gold overdue first, then the most owed. Each debtor's
 	-- step on the ladder is the moderation's to take, by hand: late, no new claims (his own client);
 	-- a deadline more, a Watch warning; two more, his guild's decision, up to removing him. Only a
@@ -2177,12 +2177,12 @@ do
 		end)
 		table.sort(entries, ByDue)
 		table.sort(toCheck, ByDue)
-		-- (The King's copy: how many fees the desk held when it answered, and how many it sent.)
+		-- (The Shogun's copy: how many fees the desk held when it answered, and how many it sent.)
 		return { ranking = ranking, entries = entries, toCheck = toCheck, own = own, at = own and now or Fee.view.at, from = Fee.view.from,
 			open = not own and Fee.view.open or nil, got = not own and Fee.view.got or nil }
 	end
 
-	-- A reader's ask (the King's, a councillor's, the author's): the desk's answer replaces his copy
+	-- A reader's ask (the Shogun's, a councillor's, the author's): the desk's answer replaces his copy
 	-- once it all came (a word each DEBTS_PACE).
 	-- The desk answers a reader once each DEBTS_ASK_GAP, so an ask it answered goes again only after
 	-- that, forced or not (it would go unanswered, and the page wait for nothing); one it never
@@ -2294,7 +2294,7 @@ do
 		return true
 	end
 
-	-- The collection's reminder (the desk's or the King's, Collects), by whisper, to a debtor: once a
+	-- The collection's reminder (the desk's or the Shogun's, Collects), by whisper, to a debtor: once a
 	-- day at most per debtor, for a confirmed fee alone (one waiting apart may be a sale that never
 	-- was). The council and the author read the list; they remind nobody.
 	function Requests.RemindDebtor(key)
@@ -2438,7 +2438,7 @@ do
 		if not Same(r.crafter, ns.me) or not FeeOpen(s, now) or now < (s.feeDue or now) then return false end
 		if Fee.warned[r.id] and now - (tonumber(s.feeWarnedAt) or 0) < Requests.FEE_WARN_GAP then return false end
 		Fee.warned[r.id], s.feeWarnedAt = true, now
-		-- (The Treasurer's and the King's list has it only once the desk heard of the sale.)
+		-- (The Treasurer's and the Shogun's list has it only once the desk heard of the sale.)
 		local listed = type(s.feeReport) == "table" and s.feeReport.acked and L.CRAFT_FEE_OVERDUE_LISTED or ""
 		ns.Print(L.CRAFT_FEE_OVERDUE:format(r.itemName, Coins(s.guildFee), DateText(s.feeDue), ns.DisplayName(s.feeTo or FeeReceiver() or "?"), FEE_SUBJECT .. r.id) .. listed)
 		if ns.PlayAlert then ns.PlayAlert("soft", "craft") end
@@ -2994,7 +2994,7 @@ function Requests.ReceiveMediation(dist, sender, text)
 	local id, seq, verb = f[3], Clamp(f[4], 1, 2147483647), f[5]
 	sender = Full(sender)
 	if type(id) ~= "string" or #id < 3 or #id > 24 or not id:match("^[0-9a-z]+$") or not seq or not sender or Same(sender, ns.me) then return false, "shape" end
-	-- (The desk's answer to the King's own ask comes paced, DEBTS_ANSWER_MAX words at most: its own count.)
+	-- (The desk's answer to the Shogun's own ask comes paced, DEBTS_ANSWER_MAX words at most: its own count.)
 	if verb == "debt" or verb == "debtend" or verb == "debtwait" then return Fee.TakeDebt(id, sender, verb, f) end
 	if not Bucket(actionBuckets, "ck:" .. Lower(sender), 60, Requests.ACTION_PER_MIN) then return false, "rate" end
 	if verb == "invite" then return TakeInvite(id, sender, f) end
@@ -4291,12 +4291,12 @@ function Fee.Item(id)
 	local info = id and ItemInfo(id)
 	return info and info.name or (id and ("#" .. id) or "?")
 end
--- The gap between the two parties' figures, as this client holds it (the King's copy: the desk's flag).
+-- The gap between the two parties' figures, as this client holds it (the Shogun's copy: the desk's flag).
 function Fee.Gap(e)
 	if e.grossS and e.grossB and e.grossS ~= e.grossB then return L.CRAFT_FEES_MISMATCH:format(Money(e.grossS), Money(e.grossB)) end
 	if e.differ then return L.CRAFT_FEES_HIGHER_BUYER end
 end
--- The King's copy holds the desk's first DEBTS_ANSWER_MAX fees: said when it holds part of them.
+-- The Shogun's copy holds the desk's first DEBTS_ANSWER_MAX fees: said when it holds part of them.
 function Fee.Partial(d)
 	if d.open and d.got and d.open > d.got then return L.CRAFT_FEES_PARTIAL:format(d.got, d.open) end
 end
@@ -4424,7 +4424,7 @@ function Requests.BoardLines(q)
 	local duty = false
 	for _, r in pairs(Store().records) do if Custody(r) or Reviewing(r) then duty = true break end end
 	if pageMode == "duty" and not duty then pageMode = "board" end
-	-- (The guild's debtors: the Treasurer's characters and the King's, the High Council's and the
+	-- (The guild's debtors: the Treasurer's characters and the Shogun's, the High Council's and the
 	-- author's, by their own names.)
 	local readsFees = WalletShown() and ReadsDebtors(ns.me)
 	if pageMode == "fees" and not readsFees then pageMode = "board" end

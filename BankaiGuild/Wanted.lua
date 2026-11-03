@@ -17,7 +17,7 @@ local L = ns.L
 -- a guild rank it can verify), about that member's own death or killing blow (the Elf side is
 -- the server-stamped sender; his GUID only where this client can prove it is his), of this realm
 -- group and faction, fresh, once, within per-sender and per-Horde-player rate limits and caps. A
--- reviewer (the King, a signed High Councillor or the author) relays what his client admitted, so
+-- reviewer (the Shogun, a signed High Councillor or the author) relays what his client admitted, so
 -- members of other guilds hear it too, and answers a late login's catch-up ask (W4) with the
 -- recent rows. A reviewer can only take an abusive entry off afterwards, or void one row (WV): it
 -- stops counting on every client, and a later event does not bring the entry back.
@@ -29,7 +29,7 @@ local L = ns.L
 --
 -- The signed top three (WY) is the publisher's own Slayers board, by verified GUID: GUIDs and
 -- scores only, never victims, locations or rows. It is signed with the existing Arena account key
--- and accepted only when the server-stamped sender is currently the King, a signed High
+-- and accepted only when the server-stamped sender is currently the Shogun, a signed High
 -- Councillor, or the author. The receivers keep the last word they accepted live, and after a
 -- reload check it again (its signature, the key pinned for its issuer, its expiry, and that its
 -- issuer still holds the role) before it shows any frame. A saved word is only ever used by the
@@ -836,7 +836,7 @@ function Wanted.AddTarget(value, guid, realm)
 	return true, t.key
 end
 
--- 1.2.3: who may take an abusive entry off, or void one row: the King, a signed High Councillor
+-- 1.2.3: who may take an abusive entry off, or void one row: the Shogun, a signed High Councillor
 -- or the author (the roles every client checks on his word, WV), never a member, nor a review.
 function Wanted.CanRemove() return Wanted.CanPublish(ns.me) == true end
 
@@ -1435,7 +1435,7 @@ local function ReadSelfDeathRecap()
 	return ok, e, horde.name
 end
 
--- A reviewer voids one row he finds wrong (the King, a signed High Councillor or the author:
+-- A reviewer voids one row he finds wrong (the Shogun, a signed High Councillor or the author:
 -- Wanted.CanRemove), with a reason: here, and on every client through his word (WV), as long as
 -- the row is still live (not yet folded into the base: Checkpoint).
 function Wanted.Correct(id, reason)
@@ -1565,7 +1565,7 @@ function Wanted.CanPublish(name)
 	if WC and WC.PowersBarred and WC.PowersBarred(name) then return false end
 	local W = ns.Workshop
 	if W and W.IsAuthorName and W.IsAuthorName(name) == true then return true end
-	if ns.IsKingCharacter and ns.IsKingCharacter(name) == true then return true end
+	if ns.IsShogunCharacter and ns.IsShogunCharacter(name) == true then return true end
 	if ns.IsHighCouncillor and ns.IsHighCouncillor(name) == true then return true end
 	return false
 end
@@ -1628,14 +1628,14 @@ end
 local function AuthorityWeight(name)
 	local W = ns.Workshop
 	if W and W.IsAuthorName and W.IsAuthorName(name) == true then return 3 end
-	if ns.IsKingCharacter and ns.IsKingCharacter(name) == true then return 2 end
+	if ns.IsShogunCharacter and ns.IsShogunCharacter(name) == true then return 2 end
 	return 1
 end
 
 -- Between publishers the newer word wins (its issue time), then the higher role, then a fixed
 -- name order; the epoch and sequence come last, and one publisher's own words also follow his
 -- pins (NewerSnapshot). (It was the epoch first: a publisher whose key generation began earlier,
--- the King say, could then never replace or revoke the word of a councillor who began later.)
+-- the Shogun say, could then never replace or revoke the word of a councillor who began later.)
 local function Order(snapshot)
 	return { snapshot.issued, AuthorityWeight(snapshot.issuer), ns.Fold(snapshot.issuer), snapshot.epoch, snapshot.seq }
 end
@@ -2492,7 +2492,7 @@ function Wanted.OpenTarget(value, guid, realm)
 	return true
 end
 
--- The frames page (the King, a signed High Councillor or the author): the top three he would
+-- The frames page (the Shogun, a signed High Councillor or the author): the top three he would
 -- sign from his own Slayers board, and his last word.
 function Wanted.OpenReview()
 	if not Wanted.CanPublish(ns.me) then return false end
@@ -2790,7 +2790,7 @@ local function PromptRemove()
 end
 
 -- 1.2.3: the one reviewer this member's sightings are whispered to. He was the one the member sent
--- his evidence to; there is no evidence to send any more, so the member names him here: the King,
+-- his evidence to; there is no evidence to send any more, so the member names him here: the Shogun,
 -- a signed High Councillor or the author, typed, or nobody (empty). Returns true, or false and why.
 function Wanted.SetReviewer(name)
 	name = type(name) == "string" and name:gsub("^%s+", ""):gsub("%s+$", "") or ""
@@ -2935,11 +2935,11 @@ Wanted.buttons = buttons -- (tests)
 -- knows it. "Seen nearby": never the Horde player's own coordinates. Off until the member's own
 -- Yes on its line of the privacy page (1.2.0), off again by his No (/bk sightings off), which
 -- stops collecting, cancels what waits in Comm and takes back what reached a reviewer, at once.
--- Nothing goes while he keeps his zone and layer private (Layers.Sharing). The King's position is
--- his crown on the map (King.SharingLocation, as for his layer): while it is hidden his client
+-- Nothing goes while he keeps his zone and layer private (Layers.Sharing). The Shogun's position is
+-- his crown on the map (Shogun.SharingLocation, as for his layer): while it is hidden his client
 -- sends none, and hiding it takes back what went. Nothing is collected in an instance, nor by a
 -- client the moderators took off (net-off).
--- It shows on this client's own map, and goes to the one reviewer (the King, a signed High
+-- It shows on this client's own map, and goes to the one reviewer (the Shogun, a signed High
 -- Councillor, the author) the member chose (Sightings to on the Most Wanted page:
 -- Wanted.SetReviewer; until 1.2.3, the one he sent his evidence to), by whisper only, never on
 -- the channel, and only while that reviewer's client says it takes sightings (its lease: no place
@@ -3014,18 +3014,18 @@ local function TakesSightings()
 		and SightingsOn() and Wanted.CanPublish(ns.me) and not NetOff()
 end
 
--- The King's position goes out only while his crown shows on the map (King.SharingLocation), as
+-- The Shogun's position goes out only while his crown shows on the map (Shogun.SharingLocation), as
 -- his zone and layer do (Layers.Sharing): while it is hidden, his client sends no sighting (it
--- still pins what it saw on his own map). Not known (King.lua missing, or failing): hidden for a
--- King's character.
+-- still pins what it saw on his own map). Not known (Shogun.lua missing, or failing): hidden for a
+-- Shogun's character.
 function Sight.CrownHidden()
-	local K = ns.King
-	if type(K) ~= "table" or K.missing or type(K.IsKing) ~= "function" or type(K.SharingLocation) ~= "function" then
-		return ns.IsKingCharacter ~= nil and ns.me ~= nil and ns.IsKingCharacter(ns.me) == true
+	local K = ns.Shogun
+	if type(K) ~= "table" or K.missing or type(K.IsShogun) ~= "function" or type(K.SharingLocation) ~= "function" then
+		return ns.IsShogunCharacter ~= nil and ns.me ~= nil and ns.IsShogunCharacter(ns.me) == true
 	end
-	local ok, king = pcall(K.IsKing)
+	local ok, shogun = pcall(K.IsShogun)
 	if not ok then return true end
-	if king ~= true then return false end
+	if shogun ~= true then return false end
 	local okShown, shown = pcall(K.SharingLocation)
 	return not okShown or shown ~= true
 end
@@ -3193,7 +3193,7 @@ end
 -- The server's "No player named <reviewer> is currently playing" that answers a whisper this
 -- client sent him on its own (a sighting, or taking them back): kept out of the chat frames for
 -- SIGHT_QUIET seconds after it went (Wanted.NotFound still reads it, and drops him). The player
--- typed nothing, and a line naming the King out of nowhere says nothing to him. A line for anyone
+-- typed nothing, and a line naming the Shogun out of nowhere says nothing to him. A line for anyone
 -- else, or later, shows as ever.
 function Wanted.QuietLine(_, _, text)
 	if not ns.Gate.Allowed("system-filters") then return false end
@@ -3229,7 +3229,7 @@ function Sight.Told(job)
 end
 
 -- Takes this client's sightings off the maps of the reviewers they reached this session (a No,
--- the King's crown hidden): one whisper each. (A reviewer who logged out since kept none: his
+-- the Shogun's crown hidden): one whisper each. (A reviewer who logged out since kept none: his
 -- pins are his session's.) Returns how many were asked.
 function Sight.Withdraw()
 	local C = ns.Comm
@@ -3570,7 +3570,7 @@ local function TakeSighting(dist, sender, text)
 	return true, e
 end
 
--- The sender takes his sightings back (his No, or the King's crown hidden): his pins leave this
+-- The sender takes his sightings back (his No, or the Shogun's crown hidden): his pins leave this
 -- map, whatever this client's own answer. (Only his own: the server stamps the sender.)
 function Sight.TakeBack(dist, sender, text)
 	if dist ~= "WHISPER" or text ~= "WS~X~1" then return false, "shape" end
@@ -3930,7 +3930,7 @@ end
 -- proved it, refused where this client sees him as no Horde player (a unit, an Alliance race) or
 -- as an Elf. Once (its id: the sender and the digest), unless voided, SHARE_RATE_MAX a window
 -- from one member and SHARE_TARGET_MAX about one Horde player from everyone. A relay only from a
--- reviewer (the King, a signed High Councillor, the author), on whose word a client before 1.2.4
+-- reviewer (the Shogun, a signed High Councillor, the author), on whose word a client before 1.2.4
 -- counts a member it cannot verify (one of another guild, whose rank no census names), unless this
 -- client knows him no member (Share.Disowned), SHARE_RELAY_MAX a window from one. A mark (WV) only
 -- from a reviewer, on his own word. A client before 1.2.3 has
@@ -4456,7 +4456,7 @@ end
 ---------------------------------------------------------------------------
 -- The bounty (1.2.3, Daniel's decisions of 2026-10-11)
 --
--- A death adds to the Horde player's open bounty the victim's office (his highest only: the King
+-- A death adds to the Horde player's open bounty the victim's office (his highest only: the Shogun
 -- 100, a High Councillor 50, the master of an Bankai Guild guild 30, a centurion 20, any other office
 -- 10, a member 0) and his level. The same member killed by the same Horde player counts once in
 -- REPEAT_GAP (corpse camping: the deaths in between stay, worth nothing), and one cycle's bounty
@@ -4478,12 +4478,12 @@ end
 -- (WK~1, the combat-log adapter's, a saved row from before them) counts as it always did: 1 a
 -- death, its open bounty for a kill, no level, no revenge.
 --
--- Offices come only from what this client can trust (Bounty.OfficeOf): the pinned King (where none
--- is pinned, the master of the King's guild, as Borders.lua's rule says); the author-signed High
+-- Offices come only from what this client can trust (Bounty.OfficeOf): the pinned Shogun (where none
+-- is pinned, the master of the Shogun's guild, as Borders.lua's rule says); the author-signed High
 -- Council list; for a guild master the game's own rank on his own client, else Data.AuthorizedRank
 -- (the roster of this client's guild, the signed leadership manifest, or the Crown's census rule of
 -- two senders); a centurion or a correspondent from his guild master's own list (Nominees); the
--- signed titles (a Steward, an arbiter), the King's Hands, the Treasurer's characters, the author's.
+-- signed titles (a Steward, an arbiter), the Shogun's Hands, the Treasurer's characters, the author's.
 -- Never a census rank alone, a guild officer's rank, or an office a row says that is not verified.
 --
 -- Levels: the member's own from his client at the moment (UnitLevel), never above what a receiver
@@ -4911,7 +4911,7 @@ end
 -- role UI, but never enter a relayed score because another honest client may not hold that session
 -- evidence.  The base level, bounty and revenge remain unchanged.
 -- The deterministic sources are: the pinned
--- King, the signed High Council list, the signed titles (a Steward, an arbiter), the Treasurer's
+-- Shogun, the signed High Council list, the signed titles (a Steward, an arbiter), the Treasurer's
 -- and the author's characters, and for a guild master the signed leadership manifest (Authority).
 Bounty.LOCAL_OFFICES = false
 -- (A member's level on this client's own guild's roster, which is at most Roster.AUTHORITY_FRESH
@@ -4956,11 +4956,11 @@ function Bounty.OfficeOf(name, guild)
 		return ok and yes == true
 	end
 	local master = Bounty.GuildMaster(name, guild)
-	if Is(ns.IsKingCharacter, name) then return "K" end
-	if master and Is(ns.IsKingGuild, master) and type(ns.KingCharacter) == "function" and ns.KingCharacter() == nil then return "K" end
+	if Is(ns.IsShogunCharacter, name) then return "K" end
+	if master and Is(ns.IsShogunGuild, master) and type(ns.ShogunCharacter) == "function" and ns.ShogunCharacter() == nil then return "K" end
 	if Is(ns.IsHighCouncillor, name) then return "H" end
 	if master then return "G" end
-	local N, K, W, role = ns.Nominees, ns.King, ns.Workshop, nil
+	local N, K, W, role = ns.Nominees, ns.Shogun, ns.Workshop, nil
 	if Bounty.LOCAL_OFFICES and guild and type(N) == "table" and not N.missing and type(N.RoleOf) == "function" then
 		local ok, r = pcall(N.RoleOf, name, guild)
 		role = ok and r or nil
@@ -5482,7 +5482,7 @@ end
 -- The notices (1.2.4). Daniel: "quando ela morrer por um player da Horda, toda vez devia aparecer
 -- uma mensagem para ela"; "quando os players que morreram para aquele jogador forem mortos,
 -- deveria aparecer uma mensagem avisando que o cara que matou eles foi morto, que eles foram
--- vingados e explicando quem matou ele"; and the Slayer letter, in the King's letter's model.
+-- vingados e explicando quem matou ele"; and the Slayer letter, in the Shogun's letter's model.
 --
 -- The death. At each own death to a Horde player that counts (ReadSelfDeathRecap: the recap's
 -- gate, outside an instance; the retries' second success is a replay, so once a death), a toast:
@@ -5504,7 +5504,7 @@ end
 -- player's own Send or Enter), Whisper (that window, empty), See (the avenger's Bankai Guild profile;
 -- the dialog stays) and Close. It carries no point (the points are the rows') and names the member
 -- whose own kill it was. It waits out combat, an instance, a death, the privacy page, the update
--- letter and the King's letter, one at a time; with the gamepad UI nothing of Bankai Guild opens by
+-- letter and the Shogun's letter, one at a time; with the gamepad UI nothing of Bankai Guild opens by
 -- itself, so it waits for the Bankai Guild window, and chat says so once.
 -- (1.2.4 repair: the rows come in any order. A death heard after the claim that avenged it, its
 -- recap read at a retry or by the earlier deaths' reader, is avenged at once by that claim's
@@ -5512,7 +5512,7 @@ end
 -- next login, W7, "The avenged ask" below.)
 --
 -- The Slayer letter. At this client's own killing blow that paid points (Share.PartyKill), the
--- King's letter (HonorsNet: its window, the profile Edit's list to read it again, never to the King
+-- Shogun's letter (HonorsNet: its window, the profile Edit's list to read it again, never to the Shogun
 -- himself), its words Wanted's (Wanted.LetterText) and made of its key alone (Bounty.LetterKey), so
 -- they read the same after any reload, in the reader's language: whom he slew, how many of ours
 -- that one had slain in the bounty paid, the bounty, his level's points, the revenge and the total,
@@ -5522,7 +5522,7 @@ end
 -- saved (s.slayerLetters), and goes to HonorsNet when nothing is in the way, one at a time, and with
 -- the gamepad UI only while the Bankai Guild window is open (chat says once that one waits:
 -- HonorsNet.WaitForWindow), so it shows as it goes, once (this queue's: HonorsNet keeps no mark of
--- it). Its first button is Slayers (the Wanted tab), its portrait his rank's frame. The King: a
+-- it). Its first button is Slayers (the Wanted tab), its portrait his rank's frame. The Shogun: a
 -- toast instead.
 ---------------------------------------------------------------------------
 
@@ -5534,7 +5534,7 @@ Bounty.MINE_DEATHS = 8     -- ...and this many of them each, the newest
 Bounty.AVENGED_MAX = 5     -- avenged notices waiting at most (the oldest drop)
 Bounty.LETTERS_MAX = 20    -- Slayer letters waiting at most (HonorsNet keeps 20 to read again)
 Bounty.NOTICE_LOGIN = 90   -- what waited is tried this long after login (the privacy page asks at 45, the update letter at 60)
-Bounty.WINDOW_TICK = 2     -- a notice waiting for a window (the Bankai Guild window, a dialog, the King's letter) looks this often
+Bounty.WINDOW_TICK = 2     -- a notice waiting for a window (the Bankai Guild window, a dialog, the Shogun's letter) looks this often
 
 -- The toast: Bankai Guild's own window (ns.Window: the Bankai Guild window's bronze metal, "Wanted" in its
 -- title bar), the words in ink on a parchment, at the bottom centre; the newest takes the place of
@@ -5908,10 +5908,10 @@ function Bounty.SettledKey(s, r)
 	return parts and parts.points > 0 and key or nil
 end
 
--- A letter to HonorsNet's queue (it shows, and keeps it to read again); to the King, or where
+-- A letter to HonorsNet's queue (it shows, and keeps it to read again); to the Shogun, or where
 -- HonorsNet is not there, the toast. true when it went (or there was none to send), else false
 -- and why it waits.
--- (1.2.4 repair: one at a time, with nothing of the King's letter's open or waiting in its queue,
+-- (1.2.4 repair: one at a time, with nothing of the Shogun's letter's open or waiting in its queue,
 -- so it shows as it goes; with the gamepad UI it stays here, saved, until the Bankai Guild window is
 -- open (chat says once that a letter waits, HonorsNet.WaitForWindow), then shows at once. Before,
 -- it went to HonorsNet's queue at once, which marked it told: a /reload or a logout before the
@@ -5923,14 +5923,14 @@ function Bounty.SendLetter(key)
 	local toast = L.WANTED_LETTER_TOAST:format(Display({ name = r.name }), r.points)
 	local HN = ns.HonorsNet
 	if type(HN) ~= "table" or HN.missing or type(HN.QueueLetter) ~= "function" then Bounty.Say(toast) return true end
-	local okK, king = pcall(function() return type(HN.LetterToSender) == "function" and HN.LetterToSender() == true end)
-	if not okK or king then Bounty.Say(toast) return true end
+	local okK, shogun = pcall(function() return type(HN.LetterToSender) == "function" and HN.LetterToSender() == true end)
+	if not okK or shogun then Bounty.Say(toast) return true end
 	local okB, busy = pcall(function()
 		local f = type(HN.LetterFrame) == "function" and HN.LetterFrame() or nil
 		local queued = type(HN.QueuedLetters) == "function" and HN.QueuedLetters() or nil
 		return f and f.IsShown and f:IsShown() or type(queued) == "table" and queued[1] ~= nil
 	end)
-	if not okB or busy then return false, "kings-letter" end
+	if not okB or busy then return false, "shoguns-letter" end
 	local UI = ns.UI
 	if ns.GamepadUI() and not (type(UI) == "table" and type(UI.IsShown) == "function" and UI.IsShown()) then
 		if type(HN.WaitForWindow) == "function" then pcall(HN.WaitForWindow) end
@@ -5997,7 +5997,7 @@ function Bounty.See(r)
 end
 
 -- The one-way score-v2 balancing note. It is personal to the character that saw a lower total,
--- never a broadcast or a reusable King's letter. Its saved row is removed only after this
+-- never a broadcast or a reusable Shogun's letter. Its saved row is removed only after this
 -- parchment reports itself shown, so a missing UI or a reload before then cannot consume it.
 function Bounty.ScoreMigration(s, me)
 	local r = type(s) == "table" and s.scoreMigrationLetter or nil
@@ -6104,7 +6104,7 @@ end
 -- The notices for this character shown, when nothing is in the way (NOTICE_LOGIN after login, and
 -- Bounty.Blocked): the letters waiting whose numbers settled, one at a time (Bounty.SendLetters),
 -- then one avenged dialog, unless one of ours is up already (an avenged one, a whisper window it
--- opened), the King's letter shows or, with the gamepad UI, the Bankai Guild window is closed. Returns
+-- opened), the Shogun's letter shows or, with the gamepad UI, the Bankai Guild window is closed. Returns
 -- how many went, and why the rest wait (nil: none waits; of the letters' and the dialog's, the one
 -- looked at again soonest).
 Bounty.DIALOGS_UP = { "BANKAIGUILD_WANTED_AVENGED", "BANKAIGUILD_WHISPER_TEXT", "BANKAIGUILD_WHISPER" }
@@ -6139,7 +6139,7 @@ function Bounty.Notices()
 		local f = type(HN) == "table" and not HN.missing and type(HN.LetterFrame) == "function" and HN.LetterFrame() or nil
 		return f and f.IsShown and f:IsShown() or false
 	end)
-	if not okL or letter then return n, Sooner("kings-letter") end
+	if not okL or letter then return n, Sooner("shoguns-letter") end
 	if ns.GamepadUI() and not (type(UI) == "table" and type(UI.IsShown) == "function" and UI.IsShown()) then
 		if not Bounty.session.toldAvenged then
 			Bounty.session.toldAvenged = true
@@ -6174,7 +6174,7 @@ function Bounty.NoticeWait(why)
 		local left = (tonumber(Bounty.session.settleAt) or 0) - math.floor(Clock())
 		return math.max(1, math.min(Bounty.LETTER_SETTLE, left))
 	end
-	return (why == "window" or why == "dialog" or why == "kings-letter" or why == "score-letter")
+	return (why == "window" or why == "dialog" or why == "shoguns-letter" or why == "score-letter")
 		and Bounty.WINDOW_TICK or Bounty.NOTICE_TICK
 end
 function Bounty.NoticesSoon()
@@ -6770,8 +6770,8 @@ end)
 -- A newly applied location bar must remove both fresh and historical pins at once, and the open
 -- Wanted page must stop showing its location rows without waiting for the pin ticker.
 ns.On("WATCHCHAT_CHANGED", function() Wanted.RefreshPins(true) end)
--- The King hid his crown: what waits for a reviewer is cancelled, what went is taken back.
-ns.On("KING_LOCATION_CHANGED", function()
+-- The Shogun hid his crown: what waits for a reviewer is cancelled, what went is taken back.
+ns.On("SHOGUN_LOCATION_CHANGED", function()
 	if Sight.CrownHidden() and (sightJobCount > 0 or next(told.by) ~= nil) then
 		CancelSightings("crown")
 		Sight.Withdraw()

@@ -17,7 +17,7 @@ local MAX_VOUCH = 8            -- votes kept per guild (the newest)
 -- Bankai Guild guild, so characters to spare (one guild each every CLAIM_TTL) could fill the saved
 -- variables with guilds that do not exist, each kept for KEEP. Past it the report heard longest ago
 -- goes (Data.Trim): a real guild reports every few minutes while anyone of it is on, so a forger's
--- old names go first. Never our own guild's, nor the King's guild or one the author's signed list
+-- old names go first. Never our own guild's, nor the Shogun's guild or one the author's signed list
 -- approves while another can go. Several times the guilds any realm group has.
 Data.MAX_GUILDS = 300
 
@@ -102,7 +102,7 @@ local function Forget(row)
 end
 
 -- (1.2.1) The store at MAX_GUILDS reports less `room` (0, or 1 before a new guild goes in): the
--- reports heard longest ago go, the King's guild and the approved ones only once no other is
+-- reports heard longest ago go, the Shogun's guild and the approved ones only once no other is
 -- left, our own never. Returns how many went.
 local trimmed = 0
 function Data.Trim(room)
@@ -115,7 +115,7 @@ function Data.Trim(room)
 	local list = {}
 	for name, g in pairs(guilds) do
 		if not (type(g) == "table" and g.mine) then
-			local kept = type(name) == "string" and (ns.IsKingGuild(name) or (ns.IsApprovedGuild ~= nil and ns.IsApprovedGuild(name)))
+			local kept = type(name) == "string" and (ns.IsShogunGuild(name) or (ns.IsApprovedGuild ~= nil and ns.IsApprovedGuild(name)))
 			list[#list + 1] = { name = name, t = type(g) == "table" and tonumber(g.t) or -math.huge, kept = kept and 1 or 0 }
 		end
 	end
@@ -135,10 +135,10 @@ function Data.Trim(room)
 end
 function Data.Trimmed() return trimmed end -- (this session: /bk status)
 
--- Where the King is pinned by name (ns.KING_CHARACTER), a report of his guild that names
+-- Where the Shogun is pinned by name (ns.SHOGUN_CHARACTER), a report of his guild that names
 -- anyone else as its leader (or nobody) is not his guild's: forged, or out of date.
-function Data.OtherKing(guild, leader)
-	return ns.IsKingGuild(guild) and ns.KingCharacter() ~= nil and not ns.IsKingCharacter(leader)
+function Data.OtherShogun(guild, leader)
+	return ns.IsShogunGuild(guild) and ns.ShogunCharacter() ~= nil and not ns.IsShogunCharacter(leader)
 end
 
 -- (1.2.3) Every report's vote stays in its row until the guild's next report counts the votes again
@@ -169,9 +169,9 @@ ns.On("INIT", function()
 			-- Comm.lua) takes its place, and ours comes back from the roster.
 			ns.Log("dropped guild %s: escape codes in its report", ns.Codec.Plain(name))
 			ns.rdb.guilds[name] = nil
-		elseif not g.mine and Data.OtherKing(name, g.leader) then
-			-- Kept from before the King was pinned: the next real report takes its place.
-			ns.Log("dropped guild %s: names %s its leader, not the King", name, tostring(g.leader))
+		elseif not g.mine and Data.OtherShogun(name, g.leader) then
+			-- Kept from before the Shogun was pinned: the next real report takes its place.
+			ns.Log("dropped guild %s: names %s its leader, not the Shogun", name, tostring(g.leader))
 			ns.rdb.guilds[name] = nil
 		end
 	end
@@ -520,11 +520,11 @@ local function Take(r, sender, h)
 		ns.Log("ignored %s from %s: a %s guild", r.guild, who, tostring(r.faction))
 		return false
 	end
-	-- The King's guild is led by the King: where he is pinned by name, a report naming anyone
+	-- The Shogun's guild is led by the Shogun: where he is pinned by name, a report naming anyone
 	-- else at its head counts for nothing, not even as a vote. It can't replace the row
 	-- everyone sees, nor outvote the real reporters (GitHub issue #18).
-	if Data.OtherKing(r.guild, r.leader) then
-		ns.Log("ignored %s from %s: names %s its leader, not the King", r.guild, who, tostring(r.leader))
+	if Data.OtherShogun(r.guild, r.leader) then
+		ns.Log("ignored %s from %s: names %s its leader, not the Shogun", r.guild, who, tostring(r.leader))
 		return false
 	end
 	if not Data.ClaimGuild(who, r.guild) then
@@ -572,7 +572,7 @@ local function Take(r, sender, h)
 	votes[who] = vote
 	local top, _, tops = Majority(votes, now)
 	-- Against the picture most senders give while that picture is fresh: the vote counts, the
-	-- row everyone sees (and the King's guild's leader with it) stays the majority's.
+	-- row everyone sees (and the Shogun's guild's leader with it) stays the majority's.
 	if previous and top and vote.sig ~= top and now - (previous.t or 0) <= Data.FRESH then
 		previous.vouch = votes
 		if not previous.outvoted then ns.Log("conflict on %s: %s's report is not what the other senders say", r.guild, who) end
@@ -648,7 +648,7 @@ end
 
 -- What rank does this sender really have in that guild? Our own guild: from our roster.
 -- Other guilds: from that guild's report (leader = 0, officers = 1). nil = unknown.
--- soft: for what only shows (the King's layer line and crown), one report naming them is
+-- soft: for what only shows (the Shogun's layer line and crown), one report naming them is
 -- enough while no other one disagrees; the Crown's powers need two. Both wait CROWN_AFTER
 -- after login, when the real reports have come in (a lone forged one would be alone then).
 -- Another guild's rank comes with the number of senders of the leading picture naming them,
@@ -665,7 +665,7 @@ function Data.KnownRank(sender, guild, soft)
 	local _, _, tops = Majority(votes, now)
 	-- The rank the leading picture gives (every leading picture, if they tie: then only what
 	-- they all agree on counts), named by someone else too: a report never proves its own
-	-- sender's rank. The Lords (every guild master, the officers of <Elfcore>: ns.IsLordRank)
+	-- sender's rank. The Council (every guild master, the officers of <Elfcore>: ns.IsCouncilRank)
 	-- need two senders naming them (theirs may be one).
 	-- A sender is itself by its name alone: "Shobek-OtherRealm" can't vouch for "Shobek-Realm".
 	local self = ns.ShortName(who)
@@ -696,7 +696,7 @@ function Data.KnownRank(sender, guild, soft)
 			if sig:sub(-2) == ",+" then return nil end
 		end
 	end
-	if ns.IsLordRank(guild, rank) then
+	if ns.IsCouncilRank(guild, rank) then
 		if named < 2 and not soft then return nil end
 		if now - (ns.Comm and ns.Comm.loginAt or 0) < Data.CROWN_AFTER then return nil end
 	end
@@ -719,7 +719,7 @@ function Data.Names(sender, guild, rank)
 end
 
 -- A rank that may grant a capability. Our own guild comes from Blizzard's roster and the pinned
--- King from Core.lua. The existing census trust model remains byte-for-byte compatible until the
+-- Shogun from Core.lua. The existing census trust model remains byte-for-byte compatible until the
 -- author's signed list explicitly activates Authority.lua's one-way enforcement boundary. From
 -- then on every other guild requires the signed, time-bounded leadership manifest and a missing,
 -- expired or revoked entry fails closed. The third result is the census support count in legacy
@@ -745,7 +745,7 @@ function Data.AuthorizedRank(sender, guild)
 	end
 	-- A guildmate cannot simultaneously exercise a stale signed role in another guild.
 	if ns.Roster.RankOf(who) ~= nil or NetOff(guild) or not ns.IsFederation(guild) then return nil end
-	if ns.IsKingGuild(guild) and ns.IsKingCharacter(who) then return 0, "pinned" end
+	if ns.IsShogunGuild(guild) and ns.IsShogunCharacter(who) then return 0, "pinned" end
 	local rank = ns.Authority.Rank(who, guild)
 	return rank, rank ~= nil and "signed" or "enforced"
 end
@@ -855,7 +855,7 @@ end
 -- That made the army total depend on login time even though several trusted desks still held
 -- the same last verified sizes.  Keep a second, deliberately narrow anti-entropy store.  It is
 -- used for display and totals only: it never enters ns.rdb.guilds, elects a reporter, proves a
--- rank, changes a leader, or authorizes anything.  Church keepers, the King and signed High
+-- rank, changes a leader, or authorizes anything.  Church keepers, the Shogun and signed High
 -- Council may retain and repeat these normalized rows; the original observation time travels
 -- with each row, so a relay cannot make old information fresh.
 Data.GLOBAL_PROTOCOL = 1

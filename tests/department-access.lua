@@ -12,9 +12,9 @@ local function World(fn)
 		IsInGuild = function() return true end
 		c.Now = function() return w.now end
 		c.IsMember = function() return c.IsFederation(w.guild) end
-		c.IsKingGuild = function(g) return g == "Bankai Guild" end
-		c.KingGuildName = function() return "Bankai Guild" end
-		c.IsHighCouncillor, c.IsKingCharacter = function() return false end, function() return false end
+		c.IsShogunGuild = function(g) return g == "Bankai Guild" end
+		c.ShogunGuildName = function() return "Bankai Guild" end
+		c.IsHighCouncillor, c.IsShogunCharacter = function() return false end, function() return false end
 		c.FullName = function(n) if not n then return nil end return n:find("-", 1, true) and n or n .. "-Realm" end
 		c.ShortName = function(n) return n and n:match("^[^-]+") end
 		c.RealmOf = function(n) return n and n:match("%-([^%-]+)$") or "Realm" end
@@ -32,7 +32,7 @@ local function World(fn)
 		c.Workshop = { Visible = function() return false end }
 		c.ChatRooms, c.PlayerMenu = {}, {}
 		c.Moderation = { CharName = c.FullName, IsIssuer = function() return false end, Hides = function() return nil end,
-			Hidden = function() return false end, SelfOff = function() return nil end, IsKing = function() return false end }
+			Hidden = function() return false end, SelfOff = function() return nil end, IsShogun = function() return false end }
 		c.UI = { SelectTab = function(key) w.selected = key end }
 		c.Comm = { Handle = function(kind, fn) w.handlers[kind] = fn end, Send = function(dist, msg, _, _, _, _, options)
 			w.packets[#w.packets + 1] = { dist = dist, msg = msg, options = options }; return true end }
@@ -46,15 +46,15 @@ local function World(fn)
 		function w.agenda()
 			c.Gate = { Allowed = function() return true end, Hooks = function() end }
 			c.IsSteward = function() return false end
-			c.KingCharacter = function() return "Pinned King-Realm" end
-			c.IsKingCharacter = function(name) return name == "Pinned King-Realm" end
+			c.ShogunCharacter = function() return "Pinned Shogun-Realm" end
+			c.IsShogunCharacter = function(name) return name == "Pinned Shogun-Realm" end
 			c.Workshop.IsAuthorName = function(name) return name == "Royal Dev-Realm" end
 			c.CouncilTitle = function(name) return w.titles and w.titles[name] end
 			c.IsHighCouncillor = function(name) return w.council and w.council[name] == true or false end
 			c.Alert = function() end
 			c.ShowDialog = function(which, _, _, data) w.dialog = { which = which, data = data } end
 			c.Comm.SendChunked = function(msg, _, dist, _, options) return c.Comm.Send(dist or "CHANNEL", msg, nil, nil, nil, nil, options) end
-			assert(loadfile(ROOT .. "BankaiGuild/King.lua"))("BankaiGuild", c)
+			assert(loadfile(ROOT .. "BankaiGuild/Shogun.lua"))("BankaiGuild", c)
 			assert(loadfile(ROOT .. "BankaiGuild/Week.lua"))("BankaiGuild", c)
 		end
 		function w.decrees()
@@ -93,10 +93,10 @@ test("1.2.4 Heraldry: old nominations keep their wire and duties under the corre
 	end)
 end)
 
-test("1.2.4 Heraldry Agenda: army authority is the King, author and actual Heraldry council; guild masters and other titles never command the army", function()
+test("1.2.4 Heraldry Agenda: army authority is the Shogun, author and actual Heraldry council; guild masters and other titles never command the army", function()
 	World(function(w, c)
 		w.agenda()
-		local K, W = c.King, c.Week
+		local K, W = c.Shogun, c.Week
 		w.titles = { [c.me] = { dept = "Department of Heritage" }, ["War Head-Realm"] = { dept = "Department of War" } }
 		w.council = { [c.me] = true, ["War Head-Realm"] = true }
 		eq(K.SetAgenda("30 Army gathering", "army"), true)
@@ -110,7 +110,7 @@ test("1.2.4 Heraldry Agenda: army authority is the King, author and actual Heral
 		K.SendAgenda(); eq(#w.packets, count, "revocation stops repeats")
 		eq(K.SetAgenda("30 Forged", "army"), false)
 		eq(K.AgendaAuthorized("War Head-Realm", w.guild, false), false, "another council portfolio is not Heraldry")
-		for _, root in ipairs({ "Pinned King-Realm", "Royal Dev-Realm" }) do eq(K.AgendaAuthorized(root, w.guild, false), true) end
+		for _, root in ipairs({ "Pinned Shogun-Realm", "Royal Dev-Realm" }) do eq(K.AgendaAuthorized(root, w.guild, false), true) end
 		c.me = "Royal Dev-Realm"
 		c.ViewAs = { Available = function() return true end, Is = function() return false end, Previewing = function() return true end }
 		eq(K.SetAgenda("30 Preview intrusion", "army"), false, "another role's preview is inert even for the author")
@@ -126,7 +126,7 @@ end)
 test("1.2.4 Heraldry Agenda repeats: only the same admitted setter can adjust the current event's time", function()
 	World(function(w, c)
 		w.agenda()
-		local K = c.King
+		local K = c.Shogun
 		w.titles = { [c.me] = { dept = "Department of Heraldry" } }; w.council = { [c.me] = true }
 		eq(K.SetAgenda("30 Army gathering", "army"), true)
 		local a = K.Agenda()
@@ -140,7 +140,7 @@ end)
 test("1.2.4 Heraldry Agenda: the own guild's master and verified correspondent schedule, sign, cancel and resend only to that guild; revocation and a guild change stop every path", function()
 	World(function(w, c)
 		w.agenda(); w.name("Department of Heritage")
-		local K, W = c.King, c.Week
+		local K, W = c.Shogun, c.Week
 		eq(K.SetAgenda("30 Guild gathering"), true, "default scope for a guild correspondent is his guild")
 		eq(K.CanAgenda("guild"), true); eq(K.CanAgenda("army"), false)
 		local e = W.Entries()[1]
@@ -186,7 +186,7 @@ end)
 test("1.2.4 Heraldry Agenda: guild ingress cannot become army data or cancel an army entry; the scoped actions and restored entries keep their audience", function()
 	World(function(w, c)
 		w.agenda(); w.name("Department of Heraldry")
-		local K, W = c.King, c.Week
+		local K, W = c.Shogun, c.Week
 		local message = ("T1~D~812~%s~1800~1~~Guild raid"):format(w.guild)
 		K.HandleCommand("CHANNEL", "Guildmaster-Realm", message)
 		eq(W.Entry(812), nil, "a guild master has no army ingress")

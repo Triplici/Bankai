@@ -43,8 +43,8 @@ local function Destination(name)
 	local guild, rank, source
 	if A and A.Role then guild, rank, source = A.Role(name) end
 	if rank == 0 and source == "signed" and Master(name, guild) then return guild end
-	local kingGuild = ns.KingGuildName and ns.KingGuildName()
-	if ns.IsKingCharacter and ns.IsKingCharacter(name) and Master(name, kingGuild) then return kingGuild end
+	local shogunGuild = ns.ShogunGuildName and ns.ShogunGuildName()
+	if ns.IsShogunCharacter and ns.IsShogunCharacter(name) and Master(name, shogunGuild) then return shogunGuild end
 end
 local function Store()
 	if not ns.rdb then return nil end
@@ -90,7 +90,7 @@ function Carry.Gather()
 			Add(Row("C", e.id, e.by, original or 0, "", e.words, "", e.st or e.t))
 		end
 	end
-	-- Ordinary readers retain the time they first heard a pardon, not the King's deadline.
+	-- Ordinary readers retain the time they first heard a pardon, not the Shogun's deadline.
 	-- Preserve that observation only. Never turn it into an end date or apply a pardon.
 	local heard = ns.rdb and ns.rdb.pardons and ns.rdb.pardons[ns.ShortName(ns.me):lower()]
 	if Number(heard) and ns.Acts and ns.Acts.Pardoned(ns.me) then

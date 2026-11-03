@@ -271,7 +271,7 @@ Answers.PAGES = {
 	chat = { "feat-chat-tab", "feat-chat-settings", "feat-channels", "feat-bankaiguild-tab", "feat-chat-off", "feat-block-terms" },
 	decrees = { "feat-decrees", "feat-alert-sounds", "feat-writs", "feat-net-off", "feat-acts-log" },
 	["watch/tabards"] = { "feat-patrol", "feat-gear-seen", "feat-patrolshare", "feat-untabarded" }, -- (1.2: The Watch's Tabards)
-	throne = { "feat-throne", "feat-agenda", "feat-summon-lords", "feat-hold-court", "feat-royal-inspection", "feat-steward-hands", "feat-nominees" },
+	throne = { "feat-throne", "feat-agenda", "feat-summon-council", "feat-hold-court", "feat-royal-inspection", "feat-steward-hands", "feat-nominees" },
 	["throne/hands"] = { "feat-steward-hands" },
 	["throne/guild"] = { "feat-nominees" }, -- (1.1.5: a guild master's Guild tab, the tab in the Throne's place)
 	vox = { "feat-vox" },
@@ -296,7 +296,7 @@ end
 local function TabLabel(tab)
 	if tab == "join" then return L.MEMBERS_ONLY end
 	-- (1.1.5: the Throne's place is a guild master's Guild tab for him.)
-	if tab == "throne" and ns.King and ns.King.TabLabel then return rawget(L, ns.King.TabLabel()) or L.TAB_THRONE end
+	if tab == "throne" and ns.Shogun and ns.Shogun.TabLabel then return rawget(L, ns.Shogun.TabLabel()) or L.TAB_THRONE end
 	local label = rawget(L, "TAB_" .. tostring(tab):upper())
 	return label or L.TITLE
 end

@@ -354,7 +354,7 @@ end
 --   Before any handler, here: K0 K1 (the realm key), H1 (hello), R1 R2 (census reports), and
 --   C<id>:<n>:<of>: (pieces)
 --   Comm.lua Q1 | Positions P1 | Layers L0 L1 | Hop LN LO LQ LR LX | HopSightings LY | Decree D1 | Channels M1 | ChatRooms M2
---   Inspect S1 U0 U1 | TabardsV2 U2 U3 U4 | King T1 T2 T3 | Court T4 T5 | Acts T6 T7 | Treasury T8 TB TE TQ TR TX
+--   Inspect S1 U0 U1 | TabardsV2 U2 U3 U4 | Shogun T1 T2 T3 | Court T4 T5 | Acts T6 T7 | Treasury T8 TB TE TQ TR TX
 --   Bank T9 | Vox Y1 Y3 | Loot X1 XQ XB | Crafters W0 W1 WA WL WQ WR
 --   Workshop HA HI HK HQ HR HS HT V1 V2 V3 V4 V5 V6 | Link DA DB DC DE DK DR DV DW
 --   Authority H2 H3
@@ -369,10 +369,10 @@ end
 --   now), WX (1.2.0 to 1.2.2's evidence whispered to a reviewer, read by nobody now).
 --   Bank UP UQ UG (the guild keeper's grant, reader's ask and own-guild snapshot).
 --   1.2 guild operations: War WZ (GUILD only; its bounded recovery snapshot may be chunked).
---   1.2, the King's minimap arrow: KingArrow K6 (the switch's lease, logged).
+--   1.2, the Shogun's minimap arrow: ShogunArrow K6 (the switch's lease, logged).
 --   1.2, crafting requests: CraftRequests CQ (the board card, logged) CR (a claim and the parties'
 --   words) CJ (the request's private chat) CK (the mediated rail, the review and the guild's fees
---   on direct sales: the parties' words to the fee desk, its answers, the debtors for the King),
+--   on direct sales: the parties' words to the fee desk, its answers, the debtors for the Shogun),
 --   all logged.
 --   1.2, the Blood Arena (each one enveloped, <type>~<mode>1~<body>, and registered through
 --   Arena.Handle): ArenaNet EP | ArenaChat EC EM | ArenaTest ER EH | Wallet ZH ZE ZN ZG ZD ZK ZC
@@ -388,14 +388,14 @@ end
 --   (Records', 1.2.4: the shared records of the games and duels that count, any holder's; 1.2.6's
 --   last one, a live holder's signed validation of one record, so two holders relay it once both
 --   original players are offline.)
---   (The King's arena words are kinds of the King's type, King.Register in ArenaRoles.lua.)
+--   (The Shogun's arena words are kinds of the Shogun's type, Shogun.Register in ArenaRoles.lua.)
 --   1.1.2, the right-click menus: Versions V7 V8 V9 | Workshop VR (the author asks for a bug report).
 --   1.1.5, the guild masters' centurions and correspondents: Nominees NM (a list in parts, never chunked;
---   1.2.4: for the King's guild only the empty list the King's or a councillor's client sends to end
+--   1.2.4: for the Shogun's guild only the empty list the Shogun's or a councillor's client sends to end
 --   1.1.5's list of its centurions on older clients).
 --   1.1.6, moderation: Moderation O2 (a guild's word with notice) | The Watch MR (the players' reports).
---   1.2, The Watch's judgments: Judgment MJ (a case to the King, the High Council's votes, his final
---   word; logged whispers between an officer's or a councillor's client and the King's).
+--   1.2, The Watch's judgments: Judgment MJ (a case to the Shogun, the High Council's votes, his final
+--   word; logged whispers between an officer's or a councillor's client and the Shogun's).
 --   1.1.6, the Missionary Church: Church NB NK | ChurchCount NV NS NL NR (whole messages, version 1).
 --   1.1.6, chat moderation: WatchChat MD (lines deleted, recent lines deleted, timeouts and their
 --   lifts, a guild master's Watchers, the Bankai Guild moderators, a target's own word, appeals and their
@@ -403,8 +403,8 @@ end
 --   The chat warnings: ChatStrikes MS (from a third warning, the player's own report of the lines his
 --   client refused to the moderation team, and its decisions; logged whispers only).
 --   1.1.6, the War Room's squads: WarSquads WU (a guild's squad assignments, over GUILD) SC (a squad's chat, logged whispers).
---   1.2.4, voluntary Campaign VG (the King's public aggregate and keepers' private reports).
---   1.2.4, JusticeTasks JT (original signatures; private recovery by actual King, Council and verified author).
+--   1.2.4, voluntary Campaign VG (the Shogun's public aggregate and keepers' private reports).
+--   1.2.4, JusticeTasks JT (original signatures; private recovery by actual Shogun, Council and verified author).
 --   1.2.4, Carry XC (bounded consented historical quotes to the destination guild master, private only).
 --   1.2.4, Dues FP FR (a payer's private receipt ask and the pinned Treasurer's observed receipt).
 --   1.2.4, ChurchFullness NF (private coverage recovery between a current nominee and the guild desk).
@@ -430,15 +430,15 @@ end
 -- either, and what was told before expires on the other clients as after a logout. A read (a
 -- census, sighting or layer request) and a chat line the player types still go. The words a
 -- player's own click posts (a muster call, a decree, a list he changed) go too; only their timed
--- repeats stay home, each in its module (King.lua, KingArrow.lua, Acts.lua, OfficerMuster.lua).
+-- repeats stay home, each in its module (Shogun.lua, ShogunArrow.lua, Acts.lua, OfficerMuster.lua).
 Comm.QUIET_WORDS = {
 	"^H1~",         -- the hello
 	"^P1~",         -- a dot on the guildmates' maps (Positions.lua)
 	"^L[01]~",      -- a layer announced or taken back (Layers.lua)
 	"^L[ON]~",      -- a layer-hop offer, or its "not now" (Hop.lua)
-	"^LY~[RX]~",    -- an answer about the King's layer, or its withdrawal (HopSightings.lua)
+	"^LY~[RX]~",    -- an answer about the Shogun's layer, or its withdrawal (HopSightings.lua)
 	"^PS~[RBXW]~",  -- a player-sighting answer, or its withdrawal (PlayerSightings.lua)
-	"^T1~[PQ]~",    -- the King's crown on the map, or its removal (King.lua)
+	"^T1~[PQ]~",    -- the Shogun's crown on the map, or its removal (Shogun.lua)
 	"^CG~%d+~S~",   -- a global census snapshot (Data.lua)
 	"^V[248]~",     -- a roll call's answer, the author's presence, a version check's answer (Workshop.lua, Versions.lua)
 	"^NK~1~p~",     -- the Church's presence (Church.lua)
@@ -447,12 +447,12 @@ Comm.QUIET_WORDS = {
 	-- snapshot (ZQ~<mode>~H~<epoch>~<seq>, Wallet.CheckSnapshot), which marks him as heard too: a
 	-- check held back is not sent again, and the bank prunes at the next snapshot (Wallet.lua).
 	"^ZQ~%u%d+~H~",
-	"^T1~[CZ]~",    -- the King's court where he stands, or its closing (Court.lua)
+	"^T1~[CZ]~",    -- the Shogun's court where he stands, or its closing (Court.lua)
 	"^WS~[RSX]~",   -- a Wanted reviewer's lease or its No, a sighting, or its taking back (Wanted.lua)
 	"^H[AK]~",      -- a councillor's "available for help", or his "got it" to an ask (Workshop.lua)
 	"^TD~",         -- a keeper's "taking donations", with his zone (Treasury.lua)
 	"^ZV~%u%d+~",   -- an arbiter's availability, with his zone (Stakes.lua)
-	"^U[234]~",     -- the King's tabard collector lease, and the tabard reports whispered to it (TabardsV2.lua)
+	"^U[234]~",     -- the Shogun's tabard collector lease, and the tabard reports whispered to it (TabardsV2.lua)
 	"^FX~",         -- a profile presentation or its session: heartbeats, stop and close (ProfileEffects.lua)
 	"^W[01AL]~",    -- a crafter's listing or its removal, his answer to an ask, his recipe list (Crafters.lua)
 }
@@ -487,7 +487,7 @@ function Comm.Send(dist, msg, key, urgent, logged, done, options)
 	if QuietHolds(msg) then return Refuse(done, "quiet") end
 	return Enqueue(dist, { msg }, key, nil, urgent, logged, done, options)
 end
--- An addon message to one player only (answers to the King, Throne tab). logged (1.1): a
+-- An addon message to one player only (answers to the Shogun, Throne tab). logged (1.1): a
 -- player's own words (a Board note), with the logged API, as Comm.Send. done: see Enqueue.
 function Comm.Whisper(target, msg, key, urgent, logged, done, options)
 	options = NormalizeOptions(options)
@@ -552,7 +552,7 @@ end
 function Comm.QueueSize()
 	return queueSize
 end
--- How many more fit before the oldest waiting message is dropped (1.1: the King's key rotation
+-- How many more fit before the oldest waiting message is dropped (1.1: the Shogun's key rotation
 -- hands out no more than that, Keys.lua).
 function Comm.QueueRoom()
 	return MAX_QUEUE - queueSize
@@ -868,7 +868,7 @@ end
 -- player in owns it, and when the owner leaves WoW hands it (and a moderator's seat) to
 -- another member, so any player with the addon can end up owning it. An owner could /password
 -- it (nobody who logs in afterwards gets in, and the network dies as people relog), /ban or
--- /ckick players (the King, the Treasurer), make a friend /moderator or give it away with
+-- /ckick players (the Shogun, the Treasurer), make a friend /moderator or give it away with
 -- /owner. Bankai Guild never uses these powers against anyone. It follows the channel's notices,
 -- tells a player who was handed the channel what that means, and while the channel is ours it
 -- only undoes harm (Comm.HealChannel). A channel locked against us is tried again, slower and
@@ -934,7 +934,7 @@ end
 local function Mine(g) return g.mine.owner or g.mine.moderator end
 
 -- Players the channel must never lose, the way the server finds them: the Treasurer, and the
--- King's character when our client knows it (our own roster in his guild, or a character
+-- Shogun's character when our client knows it (our own roster in his guild, or a character
 -- pinned in Core.lua).
 local function Protected()
 	local out, seen = {}, {}
@@ -946,10 +946,10 @@ local function Protected()
 		end
 	end
 	Add(ns.TREASURER)
-	local pinned = ns.KING_CHARACTER
+	local pinned = ns.SHOGUN_CHARACTER
 	if type(pinned) == "table" then pinned = pinned[ns.faction or "Alliance"] end
 	Add(pinned)
-	if ns.IsKingGuild and ns.IsKingGuild(GetGuildInfo("player")) and ns.Roster and type(ns.Roster.byName) == "table" then
+	if ns.IsShogunGuild and ns.IsShogunGuild(GetGuildInfo("player")) and ns.Roster and type(ns.Roster.byName) == "table" then
 		for name, rank in pairs(ns.Roster.byName) do
 			if rank == 0 then Add(name) break end
 		end
@@ -981,7 +981,7 @@ end
 -- Only while the channel is ours (owner or moderator), only to undo harm, never against
 -- anyone: the password it should have (none on the public channel, the key on the sealed
 -- one), no moderation, and whoever was banned or muted while we were on it let back in, the
--- Treasurer and the King always. Only for the channel we are meant to be on: what we saw on
+-- Treasurer and the Shogun always. Only for the channel we are meant to be on: what we saw on
 -- another one (the public channel once we have a key) changes nothing.
 -- What someone does with the channel from our own client is not undone here: the next owner's
 -- client does it.
@@ -1263,7 +1263,7 @@ function Comm.SetRealmKey(secret)
 	local was = ns.rdb.realmKey
 	ns.rdb.realmKey = secret
 	Enqueue("GUILD", { "K1~" .. secret }, "key")
-	-- 1.1 (Keys.lua): dated now, so our guild's 1.1 clients take it over a key the King rotated
+	-- 1.1 (Keys.lua): dated now, so our guild's 1.1 clients take it over a key the Shogun rotated
 	-- before; the key it replaces named with it (a plain K1 of that one no longer pulls them back).
 	if ns.Keys.Typed then ns.Keys.Typed(secret, was) end
 	ns.Print(ns.L.KEY_SET)
@@ -1735,7 +1735,7 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 	-- Nothing another player sends reaches a screen, a tooltip, the map, a popup or a copy box
 	-- with an escape code in it (0.9.2): every message but a chat line loses its "|" and its
 	-- control bytes here, before the pieces are put together or any handler reads it (a census
-	-- report, a layer, a decree, the King's word, a hello...). No message of ours needs either
+	-- report, a layer, a decree, the Shogun's word, a hello...). No message of ours needs either
 	-- (a bug report travels with its pipes as "!" and its line breaks as "\n"). A chat line
 	-- keeps the links Codec.SanitizeChat allows, and nothing else (Channels.lua).
 	if text:sub(1, 3) ~= "M1~" and text:sub(1, 3) ~= "M2~" then text = Codec.Plain(text) end
@@ -1798,7 +1798,7 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 		if rank and rank <= ns.CAPTAIN_RANK then
 			local key = text:sub(4)
 			if key ~= "" and key ~= ns.rdb.realmKey then
-				-- 1.1 (Keys.lua): a key a newer one replaced here (the King's rotation, an officer's
+				-- 1.1 (Keys.lua): a key a newer one replaced here (the Shogun's rotation, an officer's
 				-- 1.1 /bk key) no longer comes back without an epoch; any other still does.
 				if ns.Keys.TakesLegacy and ns.Keys.TakesLegacy(key) == false then
 					ns.Log("realm key from officer %s ignored: a key a newer one replaced", sender)

@@ -28,7 +28,7 @@ local L = ns.L
 --   needs none, the design), and never load the companion; a 1v1 match only its three
 --   people; a rehearsal its participants. Held in an instance or while Busy (ns.Alert).
 -- - Small windows of Bankai Guild's own a player may need before the companion is loaded: the alert
---   window (BankaiGuildArenaCall), the toasts (BankaiGuildArenaToast) and the King's letters for honours
+--   window (BankaiGuildArenaCall), the toasts (BankaiGuildArenaToast) and the Shogun's letters for honours
 --   (BankaiGuildArenaLetter, the design). Each is made the first time it shows (the weight rule), goes
 --   on the escape list only through ns.EscapeCloses, and never takes the keyboard.
 -- - The right-click lines on a player (the design) through PlayerMenu.lua's shared hook when this
@@ -80,7 +80,7 @@ function ArenaHome.Clock(seconds)
 	return ("%d:%02d"):format(m, s)
 end
 
--- A name as the screens show it: plain, King.CleanName'd, masked on the King's screen.
+-- A name as the screens show it: plain, Shogun.CleanName'd, masked on the Shogun's screen.
 function ArenaHome.Name(name)
 	if type(name) ~= "string" or name == "" then return "?" end
 	local shown = ns.DisplayName(name) or name
@@ -398,7 +398,7 @@ function Data.MyTable()
 	return t
 end
 -- This player's own games, both modes, newest first (1.2.3: a free game counts in L whatever the
--- King's live switch says, Arena.GameMode; a rehearsal's and a test build's are T).
+-- Shogun's live switch says, Arena.GameMode; a rehearsal's and a test build's are T).
 function Data.BoneHistory()
 	local sim = From("BoneHistory")
 	if sim ~= false then return sim or {} end
@@ -700,8 +700,8 @@ end
 function ArenaHome.EventTitle(ev)
 	if type(ev) ~= "table" then return "?" end
 	if ev.A and ev.B then return L.ARENA_VS:format(ArenaHome.Name(ev.A), ArenaHome.Name(ev.B)) end
-	-- (A card's or a tournament's own title is the one its owner shows on the King's screen: the
-	-- King's own words, else the plain word, ArenaFights.Events.)
+	-- (A card's or a tournament's own title is the one its owner shows on the Shogun's screen: the
+	-- Shogun's own words, else the plain word, ArenaFights.Events.)
 	if (ev.kind == "tourney" or ev.kind == "card") and type(ev.title) == "string" and ev.title ~= "" then return ns.Codec.Plain(ev.title) end
 	if ev.kind == "tourney" then return L.ARENA_TOURNEY_TITLE:format(ev.size or ev.count or "?") end
 	if ev.kind == "card" then return L.ARENA_CARD_TITLE end
@@ -793,7 +793,7 @@ function ArenaHome.TabLines()
 		lines[#lines + 1] = { indent = 1, text = Gold("> " .. L.MYPROFILE_TITLE), onClick = function() ns.ProfileEdit.Open() end }
 	end
 	lines[#lines].gapAfter = true
-	-- The games' rankings (the staff always; everyone once the King switches them on), then the
+	-- The games' rankings (the staff always; everyone once the Shogun switches them on), then the
 	-- staff's own section.
 	local staff = ArenaHome.GamesStaff()
 	-- (1.2.4: a member holding no publish word for a game asks the members who hold one, once a
@@ -851,7 +851,7 @@ function ArenaHome.TabLines()
 	return lines, L.ARENA_TAB_TITLE, WalletShown() and L.ARENA_TAB_TEXT or L.ARENA_TAB_TEXT_FREE
 end
 
--- The Games tab's staff (the owner's call, 2026-09-30): the King (his Stewards, the author's
+-- The Games tab's staff (the owner's call, 2026-09-30): the Shogun (his Stewards, the author's
 -- view of his), the High Council, and the author's own client (its Workshop). They see the games'
 -- rankings always and the section "Games & bets": the Director, the Ledgers, the arbiters.
 function ArenaHome.GamesStaff()
@@ -859,8 +859,8 @@ function ArenaHome.GamesStaff()
 	-- than the author's own staff view below shows him.
 	local V = ns.ViewAs
 	if type(V) == "table" and not V.missing and type(V.Previewing) == "function" and V.Previewing() then return V.Allows("games-staff") == true end
-	if ns.KingsScreen and ns.KingsScreen() then return true end
-	if ns.King and ns.King.IsSteward and ns.King.IsSteward() then return true end
+	if ns.ShogunsScreen and ns.ShogunsScreen() then return true end
+	if ns.Shogun and ns.Shogun.IsSteward and ns.Shogun.IsSteward() then return true end
 	if ns.IsHighCouncillor and ns.IsHighCouncillor(ns.me) then return true end
 	return ns.Workshop ~= nil and type(ns.Workshop.Visible) == "function" and ns.Workshop.Visible() == true
 end
@@ -875,9 +875,9 @@ local function ShowRules(key)
 	if ns.UI and ns.UI.Refresh then ns.UI.Refresh() end
 	return true
 end
--- The games' rankings for everyone, one game at a time (the owner's answer, 2026-10-04: the King
+-- The games' rankings for everyone, one game at a time (the owner's answer, 2026-10-04: the Shogun
 -- and the councillors he names publish, per game): each game's publish word (ArenaRoles.RankPublic),
--- else the King's settings' rankPub. game nil: any of them.
+-- else the Shogun's settings' rankPub. game nil: any of them.
 function ArenaHome.RankingsPublic(game)
 	if game == "lottery" then return false end
 	local R = ns.ArenaRoles
@@ -886,7 +886,7 @@ function ArenaHome.RankingsPublic(game)
 	for _, g in ipairs(RANK_GAMES) do if R.RankPublic(g) == true then return true end end
 	return false
 end
--- Who may flip a game's switch (the shown one by default): the King, or a councillor the King names
+-- Who may flip a game's switch (the shown one by default): the Shogun, or a councillor the Shogun names
 -- for that game (ArenaRoles.MayPublish). The rest of the staff see it read-only.
 function ArenaHome.MaySetRankings(game)
 	if (game or ArenaHome.rankGame) == "lottery" then return false end
@@ -900,11 +900,11 @@ function ArenaHome.SetRankingsPublic(on, game)
 	ns.Fire("ARENA_CHANGED")
 	return ok
 end
--- Whether this client names the publishers (the King's word T1~J: his character alone).
+-- Whether this client names the publishers (the Shogun's word T1~J: his character alone).
 function ArenaHome.NamesPublishers()
-	return ns.King ~= nil and type(ns.King.IsKing) == "function" and ns.King.IsKing() == true
+	return ns.Shogun ~= nil and type(ns.Shogun.IsShogun) == "function" and ns.Shogun.IsShogun() == true
 end
--- The King names a councillor for game, or no more (on false): his T1~J again, that one changed.
+-- The Shogun names a councillor for game, or no more (on false): his T1~J again, that one changed.
 function ArenaHome.SetPublisher(name, game, on)
 	if game == "lottery" then return false, "private" end
 	local R = ns.ArenaRoles
@@ -1010,7 +1010,7 @@ local function ChangeText(e)
 	return L.ARENA_GAMES_LAST_CHANGE:format(e.on and L.ARENA_GAMES_SHOWN or L.ARENA_GAMES_HIDDEN, ArenaHome.Name(e.from or "?"), ns.Ago(tonumber(e.at)))
 end
 ArenaHome.ChangeText = ChangeText
--- The King's lines: the High Council, each named or not for the shown game; a click names him,
+-- The Shogun's lines: the High Council, each named or not for the shown game; a click names him,
 -- or no more.
 local function PublisherLines(lines, game)
 	local R = ns.ArenaRoles
@@ -1029,8 +1029,8 @@ local function PublisherLines(lines, game)
 			onClick = function() ArenaHome.SetPublisher(name, game, not on) end }
 	end
 end
--- The staff's section: the shown game's switch (the King's and the councillors he names for it to
--- flip, read-only to the rest; its last change and the log in its tooltip), whom the King names,
+-- The staff's section: the shown game's switch (the Shogun's and the councillors he names for it to
+-- flip, read-only to the rest; its last change and the log in its tooltip), whom the Shogun names,
 -- the Director, the Ledgers, the arbiters.
 local function StaffLines(lines)
 	lines[#lines + 1] = { header = true, text = L.ARENA_GAMES_STAFF }
@@ -1723,9 +1723,9 @@ ns.On("WALLET_REFUSED", function(bank, what) ns.SafeCall("arena toast", OnWallet
 function ArenaHome.ResetAlerts() raised, opened, lastState = {}, {}, {} end -- (tests)
 
 ---------------------------------------------------------------------------
--- The King's letters (the design): when this player earns an honour, a letter on parchment from
--- the King naming it and its title, the new frame on the player's own portrait, "Wear it" and
--- "Later". Queued when several come; kept to read again (the profile). Signed "The King", never a
+-- The Shogun's letters (the design): when this player earns an honour, a letter on parchment from
+-- the Shogun naming it and its title, the new frame on the player's own portrait, "Wear it" and
+-- "Later". Queued when several come; kept to read again (the profile). Signed "The Shogun", never a
 -- name. Its words are one locale table (L.ARENA_LETTER_*), so the moderators can edit them.
 ---------------------------------------------------------------------------
 
@@ -1789,7 +1789,7 @@ local letter -- the frame
 local ShowNext -- (below)
 
 -- The letter (the owner's look, 2026-09-30): letter paper, the game's own letter font, "To <name>,"
--- then his portrait inside the frame he won, big and centred, the title under it, the King's
+-- then his portrait inside the frame he won, big and centred, the title under it, the Shogun's
 -- words, his signature and a seal; Wear it and Later in the footer.
 local LETTER_W, LETTER_H, LETTER_PORTRAIT = 460, 580, 96
 local INK_R, INK_G, INK_B = 0.18, 0.10, 0.02
@@ -1940,7 +1940,7 @@ function ArenaHome.Letter(key)
 	if not (InCombatLockdown and InCombatLockdown()) then ShowNext() end
 	return e
 end
--- The letters kept, newest first (the profile's "Letters from the King", to read again).
+-- The letters kept, newest first (the profile's "Letters from the Shogun", to read again).
 function ArenaHome.Letters()
 	if HonorsLetters() and type(ns.HonorsNet.Letters) == "function" then
 		local ok, list = pcall(ns.HonorsNet.Letters)
@@ -2168,14 +2168,14 @@ function ArenaHome.ProfileShares(make) return ProfileShares(make) end
 function ArenaHome.RegisterConsent()
 	local C = ns.Consent
 	if type(C) ~= "table" or type(C.Register) ~= "function" then return false end
-	local shown = function() return ArenaHome.TabVisible() and not (ns.IsKingCharacter and ns.IsKingCharacter(ns.me)) end
+	local shown = function() return ArenaHome.TabVisible() and not (ns.IsShogunCharacter and ns.IsShogunCharacter(ns.me)) end
 	C.Register({ key = "arenaProfileStats", section = "profile", label = "ARENA_CONSENT_PROFILE_STATS", text = "ARENA_CONSENT_PROFILE_STATS_TEXT", shown = shown,
 		readonly = true, status = function() return "derived" end })
 	C.Register({ key = "arenaProfileHours", section = "profile", label = "ARENA_CONSENT_PROFILE_HOURS", text = "ARENA_CONSENT_PROFILE_HOURS_TEXT", shown = shown,
 		readonly = true, status = function() return "unavailable" end })
 	return C.Register({
 		key = "arenaHistory", section = "profile", label = "ARENA_CONSENT_HISTORY", text = "ARENA_CONSENT_HISTORY_TEXT",
-		shown = function() return ArenaHome.TabVisible() and not (ns.IsKingCharacter and ns.IsKingCharacter(ns.me)) end,
+		shown = function() return ArenaHome.TabVisible() and not (ns.IsShogunCharacter and ns.IsShogunCharacter(ns.me)) end,
 		get = HistoryPublic,
 		set = function(on) Call("ArenaProfile", "SetPublic", on and true or false) end,
 		pending = function() return false end,

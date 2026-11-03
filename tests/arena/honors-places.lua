@@ -1,7 +1,7 @@
--- 1.2.4 (the owner's calls, after the honours audit of 10-11): the frames the King's letters already
+-- 1.2.4 (the owner's calls, after the honours audit of 10-11): the frames the Shogun's letters already
 -- named are worn now (the month's donors' koi, the best guild's owl), three families more are honours
 -- (the Church's top 3 Apostles' cross, the last month's top 3 of Bone Throw's lucky charm, the signed
--- Slayers top 3's skeletal horse, which respects the player's pick now), the King's letter comes the
+-- Slayers top 3's skeletal horse, which respects the player's pick now), the Shogun's letter comes the
 -- first time a member reaches each place of each list per cycle (a month's list: once a month; for
 -- life: once), and every later move is a small notice of Bankai Guild's own: a strip at the top of the
 -- screen and a line in chat, never a pop-up, never a burst. On the test world, the frames Honors.lua
@@ -51,12 +51,12 @@ local function Ready(w, c)
 	c.ns.Honors.FRAMES_SHIPPED = SHIPPED
 	return LoadChurch(w, c)
 end
--- The Church's top 3 (the King's word, NR~1~t): its Apostles, then its missionaries, as each client
+-- The Church's top 3 (the Shogun's word, NR~1~t): its Apostles, then its missionaries, as each client
 -- of `to` takes it.
 local function Top(w, to, apostles, missionaries, at)
 	for _, c in ipairs(to) do
 		local text = ("NR~1~t~%s~%s~%s"):format(c.ns.Arena.B36(at or w.clock), Names(apostles or {}), Names(missionaries or {}))
-		eq(w:As(c, c.ns.ChurchCount.Receive, "NR", "CHANNEL", N.king, text), true, "the King's top 3 taken")
+		eq(w:As(c, c.ns.ChurchCount.Receive, "NR", "CHANNEL", N.shogun, text), true, "the Shogun's top 3 taken")
 	end
 end
 -- The Treasurer's donors word (ID): all time's top 3, and the month closed's (names, or nil).
@@ -159,7 +159,7 @@ print("HonorsNet: the places told, the koi, the owl, the cross, the charm, the s
 -- não a primeira vez da vida". 1.2.3 told the koi's place once a month only when a refresh fell
 -- between the month's turn and the Treasurer's first word of it: the same place two months running
 -- (the common case) got no second letter.
-test("1.2.4 the koi: the month's top 3 donors hold it through the next month, worn (it switches on by itself over the cornucopia; picked back, the cornucopia stays); the same place two months running is a King's letter each month (1.2.3: the second month's never came), never two in one month", function()
+test("1.2.4 the koi: the month's top 3 donors hold it through the next month, worn (it switches on by itself over the cornucopia; picked back, the cornucopia stays); the same place two months running is a Shogun's letter each month (1.2.3: the second month's never came), never two in one month", function()
 	local w, cast = W3.New()
 	local A = Ready(w, cast.A)
 	local r = Frames(w, A)
@@ -200,7 +200,7 @@ end)
 -- (The test above moves every timer with the clock, so that look never fell in between: before this
 -- fix it ended the koi as lost there, and the new month's word made it new again, switched on by
 -- itself over the cornucopia or "none" picked: "expected donor-top-1, got donor-month-1".)
-test("1.2.4 the koi over the month's turn: the look at the next month's first minute ends it in silence; the new month's list naming him at the same place is its King's letter, and his pick stays (the cornucopia picked, or none; 1.2.4's first cut switched the koi back on every month); the koi he wore stands in for the cornucopia meanwhile and comes back", function()
+test("1.2.4 the koi over the month's turn: the look at the next month's first minute ends it in silence; the new month's list naming him at the same place is its Shogun's letter, and his pick stays (the cornucopia picked, or none; 1.2.4's first cut switched the koi back on every month); the koi he wore stands in for the cornucopia meanwhile and comes back", function()
 	local w, cast = W3.New()
 	-- (An hour before this month's end, the clock and every timer moved together.)
 	local Hs = cast.A.ns.Honors
@@ -258,11 +258,11 @@ test("1.2.4 the koi over the month's turn: the look at the next month's first mi
 	W3.NoErrors(w)
 end)
 
--- 1.2.4's first cut opened the King's letter by itself wherever the player stood: at the month's
+-- 1.2.4's first cut opened the Shogun's letter by itself wherever the player stood: at the month's
 -- turn (the look at 00:01 UTC, 21:01 in Brazil: raid time) for the crook, the cross and the charm,
 -- or at a new Slayers word, over a dungeon or a raid between pulls (only combat lockdown and the
 -- gamepad UI made it wait). Bankai Guild's popups wait in an instance or Busy (ns.Alert): so does it now.
-test("1.2.4 the King's letter in an instance or Busy: one that would open by itself waits (his honour switched on all the same; a chat line; one line on the Decrees tab's held list for every letter waiting), opens by itself once he is out and not Busy, and at once on his own click (the Bankai Guild window, the held line); the month's turn in a raid the same", function()
+test("1.2.4 the Shogun's letter in an instance or Busy: one that would open by itself waits (his honour switched on all the same; a chat line; one line on the Decrees tab's held list for every letter waiting), opens by itself once he is out and not Busy, and at once on his own click (the Bankai Guild window, the held line); the month's turn in a raid the same", function()
 	local w, cast = W3.New()
 	-- (An hour before this month's end, the clock and every timer moved together.)
 	local Hs = cast.A.ns.Honors
@@ -289,14 +289,14 @@ test("1.2.4 the King's letter in an instance or Busy: one that would open by its
 		eq(Pick(c).frame:find("^donor%-top%-") ~= nil, true, c.short .. ": his honour switched on all the same")
 		eq(#Letters(c), 1, c.short .. ": kept to read")
 		eq(Shown(c), false, c.short .. ": no letter over his game")
-		eq(Held(c), "a letter from the King", c.short .. ": on the Decrees tab's held list")
+		eq(Held(c), "a letter from the Shogun", c.short .. ": on the Decrees tab's held list")
 	end
-	assert(table.concat(A.printed, "\n", printed + 1):find("A letter from the King awaits you", 1, true), "its chat line")
+	assert(table.concat(A.printed, "\n", printed + 1):find("A letter from the Shogun awaits you", 1, true), "its chat line")
 	-- A second letter meanwhile (the koi): still one held line.
 	Later(w, A)
 	for _, c in ipairs(all) do Donors(w, c, w.clock, { A, B, C }, { A }) end
 	w:Run(3)
-	eq(#Letters(A), 2) eq(Shown(A), false) eq(Held(A), "a letter from the King", "one line for both")
+	eq(#Letters(A), 2) eq(Shown(A), false) eq(Held(A), "a letter from the Shogun", "one line for both")
 	-- B opens the Bankai Guild window himself, in the instance: his letter at once. D, Busy nowhere, none.
 	eq(w:As(B, B.ns.HonorsNet.WindowShown), true) eq(Shown(B), true, "his own click")
 	eq(Held(D), "", "no letter: nothing held")
@@ -317,7 +317,7 @@ test("1.2.4 the King's letter in an instance or Busy: one that would open by its
 	A.instance = true
 	w:Run(turn - w.clock + 120)
 	eq(#Letters(A), 4, "the new month's cross") eq(Letters(A)[4].key, "apostle-1")
-	eq(Shown(A), false, "not over his raid") eq(Held(A), "a letter from the King")
+	eq(Shown(A), false, "not over his raid") eq(Held(A), "a letter from the Shogun")
 	-- The held line clicked in the raid (his own click): it opens.
 	local line
 	for _, l in ipairs(w:As(A, A.ns.HeldLines)) do if l.onClick then line = l end end
@@ -330,7 +330,7 @@ end)
 -- The owner (1.2.4): "... uns avisos menores ... menos intrusiva, tipo um aviso na tela, não um
 -- pop-up, falando que ele caiu de posição para segundo, que ele perdeu porque ele saiu da lista, que
 -- ele voltou para a lista, que ele recuperou".
-test("1.2.4 notices: after the King's first letter for a place, a drop, leaving the list, coming back and a place won back are each a strip of Bankai Guild's own at the top of the screen (no button, no mouse, no keyboard, gone in seconds) and a line in chat, once the move held two minutes, one family's 15 minutes apart; a swap back within them says nothing; dropping to 2nd is no letter", function()
+test("1.2.4 notices: after the Shogun's first letter for a place, a drop, leaving the list, coming back and a place won back are each a strip of Bankai Guild's own at the top of the screen (no button, no mouse, no keyboard, gone in seconds) and a line in chat, once the move held two minutes, one family's 15 minutes apart; a swap back within them says nothing; dropping to 2nd is no letter", function()
 	local w, cast = W3.New()
 	local A, B = Ready(w, cast.A), cast.B
 	Strips(A)
@@ -435,7 +435,7 @@ test("1.2.4 notices: never a burst at login or when a list first loads: a list f
 	W3.NoErrors(w)
 end)
 
-test("1.2.4 the Apostles' cross: the Church's top 3 Apostles (the same word as the missionaries') hold the cross in gold, silver and bronze and its title, worn: switched on by itself with the King's letter, round his own portrait and as others see him; the 4th nothing; told once per place per calendar month", function()
+test("1.2.4 the Apostles' cross: the Church's top 3 Apostles (the same word as the missionaries') hold the cross in gold, silver and bronze and its title, worn: switched on by itself with the Shogun's letter, round his own portrait and as others see him; the 4th nothing; told once per place per calendar month", function()
 	local w, cast = W3.New({ more = { { "m4", "Wenna Crale" } } })
 	local a1, a2, a3, a4, viewer = cast.A, cast.B, cast.spectator, cast.m4, cast.arbiter
 	local all = { a1, a2, a3, a4, viewer }
@@ -490,10 +490,10 @@ local function Slayers(w, c, get)
 	w:As(c, c.ns.Fire, "WANTED_CHANGED")
 end
 
-test("1.2.4 the slayers' frame: the signed Slayers top 3 hold the skeletal horse in gold, silver and bronze by GUID (its title, its King's letter once in his life), switched on by itself; his pick decides it as any frame's (1.2.3: the horse went over it): none shows none and the cornucopia he picked shows, round his own portrait and as others see him; a newer word without him is a notice; an expired one changes nothing", function()
+test("1.2.4 the slayers' frame: the signed Slayers top 3 hold the skeletal horse in gold, silver and bronze by GUID (its title, its Shogun's letter once in his life), switched on by itself; his pick decides it as any frame's (1.2.3: the horse went over it): none shows none and the cornucopia he picked shows, round his own portrait and as others see him; a newer word without him is a notice; an expired one changes nothing", function()
 	local w, cast = W3.New()
 	local A, B, viewer = Ready(w, cast.A), Ready(w, cast.B), Ready(w, cast.arbiter)
-	local snap = { issuer = N.king, epoch = 1, seq = 1, issued = w.clock, rows = { { guid = A.guid, points = 9 }, { guid = B.guid, points = 7 } } }
+	local snap = { issuer = N.shogun, epoch = 1, seq = 1, issued = w.clock, rows = { { guid = A.guid, points = 9 }, { guid = B.guid, points = 7 } } }
 	local current = snap
 	for _, c in ipairs({ A, B, viewer }) do Slayers(w, c, function() return current end) end
 	w:Run(3)
@@ -525,7 +525,7 @@ test("1.2.4 the slayers' frame: the signed Slayers top 3 hold the skeletal horse
 	eq(rv.Shown("target"), MEDIA .. "cornucopia-gold", "as others see him")
 	-- A newer word without him: a notice, two minutes on; his pick as it is; no second letter.
 	Strips(A)
-	current = { issuer = N.king, epoch = 1, seq = 2, issued = w.clock, rows = { { guid = B.guid, points = 9 } } }
+	current = { issuer = N.shogun, epoch = 1, seq = 2, issued = w.clock, rows = { { guid = B.guid, points = 9 } } }
 	for _, c in ipairs({ A, B, viewer }) do w:As(c, c.ns.Fire, "WANTED_CHANGED") end
 	w:Run(A.ns.HonorsNet.NOTICE_SETTLE + 5)
 	eq(table.concat(Said(A), " | "), "Slayers: you are off the list, and its frame is no longer yours.")

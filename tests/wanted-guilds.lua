@@ -135,7 +135,7 @@ local function WithGuilds(fn)
 			-- (c.Channels, c.Roster, c.Data, c.Moderation, c.Authority: the real modules, by __index.)
 			c.Workshop = { IsAuthor = function() return cl.role == "author" end, IsAuthorName = function(name)
 				local o = world:Find(name) return o ~= nil and o.role == "author" end }
-			c.IsKingCharacter = function() return false end
+			c.IsShogunCharacter = function() return false end
 			c.IsHighCouncillor = function(name) local o = world:Find(name) return o ~= nil and o.role == "council" end
 			c.Ed25519 = { ToB64 = realEd.ToB64, FromB64 = realEd.FromB64, ValidPublicKey = realEd.ValidPublicKey,
 				Verify = realEd.Verify, Busy = function() return 0 end,

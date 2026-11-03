@@ -1,14 +1,14 @@
 -- 1.1.6, the games' ledger (ArenaLedger.lua's AY; the owner's ask of 2026-10-05: "a ledger of every
--- game, for me, the council and the King to see, besides each player seeing his own"): every kind
+-- game, for me, the council and the Shogun to see, besides each player seeing his own"): every kind
 -- of game without a bet goes into it. A duel and a fight its arbiter judges, Bones against the
 -- House and the lesson (the rules' tips), the Lottery's practice draws (free practice tickets);
 -- a tournament's and a Fight Night's bouts named as such. Each player sees his own games; the
--- auditors (the King's character, a High Councillor, the author's own character: a signed arbiter
+-- auditors (the Shogun's character, a High Councillor, the author's own character: a signed arbiter
 -- with "+a" in the test council) every game, with a search and the filters (player, game, date);
--- nobody else (a member, a rehearsal's stand-in King). An auditor offline gets a game later from
+-- nobody else (a member, a rehearsal's stand-in Shogun). An auditor offline gets a game later from
 -- the games' clerk. The privacy page says so in one line. No message of a bet goes. On the 1.1.6
 -- package's TOC (without scripts/bets-only.txt's files), the compliance gate as it ships, the
--- King's live switch off (every game in T, as in 1.1.6). Bones between players:
+-- Shogun's live switch off (every game in T, as in 1.1.6). Bones between players:
 -- tests/arena/farkle-ledger.lua. Every name is invented.
 local H = ...
 local test, eq = H.test, H.eq
@@ -53,7 +53,7 @@ local function NoBets(w, c)
 	end
 end
 
--- The 1.1.6 world: two players (their companion's saved data handed over), the King, a High
+-- The 1.1.6 world: two players (their companion's saved data handed over), the Shogun, a High
 -- Councillor, the author's own character, the signed arbiter and a member; every hello heard (40 s
 -- after login). o.offline(cast) names one logged out first.
 local function World116(o)
@@ -62,7 +62,7 @@ local function World116(o)
 	local a = w:Player(N.fighterA)
 	local b = w:Player(N.fighterB)
 	local cast = { a = a, b = b }
-	cast.king = w:Role("king", { companion = { state = "missing" } })
+	cast.shogun = w:Role("shogun", { companion = { state = "missing" } })
 	cast.councillor = w:Role("councillor", { companion = { state = "missing" } })
 	cast.author = w:Role("author", { companion = { state = "missing" } })
 	cast.arb = w:Player(N.arbiter)
@@ -78,7 +78,7 @@ local function World116(o)
 	w:Run(41)
 	return w, cast
 end
-local function Auditors(cast) return { cast.king, cast.councillor, cast.author } end
+local function Auditors(cast) return { cast.shogun, cast.councillor, cast.author } end
 local function Rows(w, c) return M(w, c, "ArenaLedger").AllGames() end
 
 -- A duel without a stake: a's challenge, b's yes, the game's duel line (winner first). Its fid.
@@ -98,7 +98,7 @@ end
 
 print("1.1.6: the games' ledger, every kind of game")
 
-test("1.1.6 games ledger: a duel without a stake: each fighter sees his own game, won or lost; the King, a councillor and the author get both fighters' words, agreed; a member nothing; no bet's message", function()
+test("1.1.6 games ledger: a duel without a stake: each fighter sees his own game, won or lost; the Shogun, a councillor and the author get both fighters' words, agreed; a member nothing; no bet's message", function()
 	local w, c = World116()
 	local a, b = c.a, c.b
 	eq(a.ns.Markets, nil, "the 1.1.6 package")
@@ -106,9 +106,9 @@ test("1.1.6 games ledger: a duel without a stake: each fighter sees his own game
 	w:Run(5) -- (the records go on the low lane)
 	local okA, f = Final(w, a, fid)
 	assert(okA, "final on the challenger's client"); assert((Final(w, b, fid)), "and on the other's")
-	-- (1.2.3, the owner's decision: a free duel counts with the King's live switch off, so it is L;
+	-- (1.2.3, the owner's decision: a free duel counts with the Shogun's live switch off, so it is L;
 	-- it was a rehearsal's T from 1.1.6 to 1.2.2.)
-	eq(f.mode, "L", "the King's live switch is off: a free duel counts all the same")
+	eq(f.mode, "L", "the Shogun's live switch is off: a free duel counts all the same")
 	eq(f.stake, nil, "no stake")
 	local aSide = f.A.name:lower() == a.name:lower() and "1" or "2"
 	for _, aud in ipairs(Auditors(c)) do
@@ -247,13 +247,13 @@ test("1.1.6 games ledger: the page: a player sees his own games only; an auditor
 	w:Run(0)
 	assert(M(w, b, "FarkleTable").Concede(bh))
 	w:Run(5)
-	-- An older game a player told the King (12 days ago: in the month maybe, never in the week).
-	local LGk = M(w, c.king, "ArenaLedger")
-	local B36 = c.king.ns.Arena.B36
-	local now = w:As(c.king, c.king.ns.Arena.Now)
+	-- An older game a player told the Shogun (12 days ago: in the month maybe, never in the week).
+	local LGk = M(w, c.shogun, "ArenaLedger")
+	local B36 = c.shogun.ns.Arena.B36
+	local now = w:As(c.shogun, c.shogun.ns.Arena.Now)
 	local old = table.concat({ "Gold1aa", "h", B36(now - 12 * 86400), "3c", a.short, "-", "-", "1", B36(2000), "0", "t", "2", "-" }, "~")
 	assert(LGk.TakeGame(a.name, "T", old))
-	-- The King: every game.
+	-- The Shogun: every game.
 	local all = LGk.GamesView({ scope = "all" })
 	eq(all.scope, "all"); eq(all.may, true); eq(all.total, 4)
 	eq(LGk.GamesView({ scope = "all", game = "arena" }).total, 1, "the Arena's games")
@@ -267,16 +267,16 @@ test("1.1.6 games ledger: the page: a player sees his own games only; an auditor
 	for _, r in ipairs(hale.list) do assert(r.p1:lower() == a.name:lower() or (r.p2 and r.p2:lower() == a.name:lower()), r.id) end
 	eq(LGk.GamesView({ scope = "all", player = "nobody" }).total, 0)
 	assert(#all.players >= 2, "the names offered"); eq(all.players[1].name:lower(), a.name:lower(), "the most games first")
-	eq(LGk.GamesView({ scope = "mine" }).total, 0, "the King's own: none")
+	eq(LGk.GamesView({ scope = "mine" }).total, 0, "the Shogun's own: none")
 	-- A player: his own, whatever he asks for.
 	local va = M(w, a, "ArenaLedger").GamesView({ scope = "all" })
 	eq(va.scope, "mine"); eq(va.may, false); eq(va.total, 2, "his duel and his House game")
 	for _, r in ipairs(va.list) do assert(r.side ~= nil, "a game of his own") end
 	eq(M(w, c.member, "ArenaLedger").GamesView({ scope = "all" }).total, 0, "a member: nothing")
-	-- The screens: the King's page, every game, then the Arena's only, then one player's.
-	local own = w:As(c.king, function() return H.LoadCompanion(c.king.ns) end)
-	local UI, L = own.ArenaUI, c.king.ns.L
-	w:As(c.king, function()
+	-- The screens: the Shogun's page, every game, then the Arena's only, then one player's.
+	local own = w:As(c.shogun, function() return H.LoadCompanion(c.shogun.ns) end)
+	local UI, L = own.ArenaUI, c.shogun.ns.L
+	w:As(c.shogun, function()
 		local spec = GamesSpec(UI)
 		UI.ShowGames("all")
 		local lines = spec.lines({ key = "staff.games" })
@@ -312,39 +312,39 @@ test("1.1.6 games ledger: the page: a player sees his own games only; an auditor
 	NoErrors(w)
 end)
 
-test("1.1.6 games ledger: the King offline when a duel ends, its fighters gone too: at his hello the games' clerk (the first councillor by name) passes on both words, once", function()
-	local w, c = World116({ offline = function(cast) return cast.king end })
+test("1.1.6 games ledger: the Shogun offline when a duel ends, its fighters gone too: at his hello the games' clerk (the first councillor by name) passes on both words, once", function()
+	local w, c = World116({ offline = function(cast) return cast.shogun end })
 	local a, b = c.a, c.b
 	local fid = Duel(w, a, b, a, b)
 	w:Run(5)
-	eq(#w:Sent({ type = "AY", to = c.king.name }), 0, "the King was offline")
+	eq(#w:Sent({ type = "AY", to = c.shogun.name }), 0, "the Shogun was offline")
 	eq(#Rows(w, c.councillor), 1)
 	w:Logout(a); w:Logout(b)
-	w:Login(c.king)
+	w:Login(c.shogun)
 	w:Run(45)
-	eq(#w:Sent({ from = c.councillor, type = "AY", to = c.king.name }), 2, "the clerk passed on both fighters' words")
-	eq(#w:Sent({ from = c.author, type = "AY", to = c.king.name }), 0, "one clerk only")
-	local e = Rows(w, c.king)[1]
+	eq(#w:Sent({ from = c.councillor, type = "AY", to = c.shogun.name }), 2, "the clerk passed on both fighters' words")
+	eq(#w:Sent({ from = c.author, type = "AY", to = c.shogun.name }), 0, "one clerk only")
+	local e = Rows(w, c.shogun)[1]
 	eq(e.id, fid); eq(e.reports, 2); eq(e.state, "agreed")
-	local told = #w:Sent({ type = "AY", to = c.king.name })
+	local told = #w:Sent({ type = "AY", to = c.shogun.name })
 	w:Run(900)
-	eq(#w:Sent({ type = "AY", to = c.king.name }), told, "not again at his next hello")
+	eq(#w:Sent({ type = "AY", to = c.shogun.name }), told, "not again at his next hello")
 	NoErrors(w)
 end)
 
-test("1.1.6 games ledger: a rehearsal's stand-in King is no auditor of it: told nothing, refuses a word, sees only his own", function()
+test("1.1.6 games ledger: a rehearsal's stand-in Shogun is no auditor of it: told nothing, refuses a word, sees only his own", function()
 	local w, c = World116()
 	local a, b, member = c.a, c.b, c.member
 	for _, x in ipairs(w.clients) do
 		x.ns.ArenaRoles.standIn = function(name, letter) return letter == "k" and type(name) == "string" and name:lower() == member.name:lower() end
 	end
-	eq(w:As(a, a.ns.ArenaRoles.Auditor, member.name, "T"), true, "a rehearsal's King in T")
+	eq(w:As(a, a.ns.ArenaRoles.Auditor, member.name, "T"), true, "a rehearsal's Shogun in T")
 	eq(w:As(a, a.ns.ArenaLedger.GamesAuditor, member.name), false, "never the games' ledger's")
 	w:As(a, function() a.ns.Debts.HeardAuditor(member.name) end)
 	Duel(w, a, b, a, b)
 	w:Run(5)
 	eq(#w:Sent({ type = "AY", to = member.name }), 0, "told nothing")
-	local body = w:Sent({ from = a, type = "AY", to = c.king.name })[1].msg:match("^AY~T%d+~(.*)$")
+	local body = w:Sent({ from = a, type = "AY", to = c.shogun.name })[1].msg:match("^AY~T%d+~(.*)$")
 	eq(select(2, M(w, member, "ArenaLedger").TakeGame(a.name, "T", body)), "auditor")
 	eq(M(w, member, "ArenaLedger").GamesView({ scope = "all" }).scope, "mine")
 	NoErrors(w)
@@ -356,7 +356,7 @@ test("1.1.6 games ledger: the privacy page says in one line that game results ar
 	local L = a.ns.L
 	local intro = w:As(a, a.ns.Consent.Intro)
 	assert(intro:find(L.CONSENT_GAMES_RECORDED, 1, true), "the line on the page")
-	for _, who in ipairs({ "King", "High Council", "author" }) do assert(L.CONSENT_GAMES_RECORDED:find(who, 1, true), who) end
+	for _, who in ipairs({ "Shogun", "High Council", "author" }) do assert(L.CONSENT_GAMES_RECORDED:find(who, 1, true), who) end
 	-- (pt-BR: the arena's fights' words in that language)
 	local pt = setmetatable({}, { __index = function(_, k) return k end })
 	local saved = GetLocale
@@ -365,23 +365,23 @@ test("1.1.6 games ledger: the privacy page says in one line that game results ar
 	GetLocale = saved
 	if not ok then error(err, 0) end
 	local line = rawget(pt, "CONSENT_GAMES_RECORDED")
-	assert(type(line) == "string" and line ~= L.CONSENT_GAMES_RECORDED and line:find("Rei", 1, true) and line:find("Alto Conselho", 1, true), tostring(line))
+	assert(type(line) == "string" and line ~= L.CONSENT_GAMES_RECORDED and line:find("Xogum", 1, true) and line:find("Alto Conselho", 1, true), tostring(line))
 	NoErrors(w)
 end)
 
 -- (Review of 1.1.6: the games were kept in the rehearsal store, which a new rehearsal's word, its
--- end 7 days on and `test clear` empty: the King's every game and each player's own went with it.)
-test("1.1.6 games ledger: a rehearsal never empties it: a group rehearsal's word, `test clear` and a rehearsal's store dropped 7 days after it closed leave every player's games and the King's every game", function()
+-- end 7 days on and `test clear` empty: the Shogun's every game and each player's own went with it.)
+test("1.1.6 games ledger: a rehearsal never empties it: a group rehearsal's word, `test clear` and a rehearsal's store dropped 7 days after it closed leave every player's games and the Shogun's every game", function()
 	local w, c = World116()
-	local a, b, king = c.a, c.b, c.king
+	local a, b, shogun = c.a, c.b, c.shogun
 	Duel(w, a, b, a, b)
 	w:Run(5)
-	eq(#M(w, a, "ArenaLedger").MyGames(), 1); eq(#Rows(w, king), 1)
+	eq(#M(w, a, "ArenaLedger").MyGames(), 1); eq(#Rows(w, shogun), 1)
 	-- (1.2.3: a free duel is L whatever the live switch says, so its game is in this realm's live
 	-- store; a T game's own store, ns.rdb.arenaGames, is the one a rehearsal's T games keep.)
-	local live = w:As(king, king.ns.Arena.Store, "L")
+	local live = w:As(shogun, shogun.ns.Arena.Store, "L")
 	eq(type(live.gamesLedger), "table", "the games' own store: the live one")
-	eq(king.rdb.arenaTest and king.rdb.arenaTest.gamesLedger, nil, "not the rehearsal store")
+	eq(shogun.rdb.arenaTest and shogun.rdb.arenaTest.gamesLedger, nil, "not the rehearsal store")
 	-- The signed arbiter starts a rehearsal in the fighters' group: only clients whose players
 	-- explicitly opted in may join it; preserving the actual ledger assertions below.
 	a.Arena.RunSlash("rehearsals on")
@@ -389,17 +389,17 @@ test("1.1.6 games ledger: a rehearsal never empties it: a group rehearsal's word
 	assert(w:As(c.arb, c.arb.ns.ArenaTest.Start, "group"))
 	w:Run(1)
 	assert(w:As(a, a.ns.ArenaTest.Running), "the fighter joined the rehearsal")
-	-- The King: `test clear`, then a rehearsal he joined, closed 8 days ago, dropped at login.
-	eq(w:As(king, king.ns.ArenaTest.Clear), true)
-	local s = w:As(king, king.ns.Arena.Store, "T")
-	s.rid, s.closedAt = 5, w:As(king, king.ns.Arena.Now) - 8 * 86400
-	eq(select(2, w:As(king, king.ns.ArenaTest.CheckStore)), "old", "the rehearsal's store dropped")
-	-- Another duel: each list holds both games, the King's ledger too.
+	-- The Shogun: `test clear`, then a rehearsal he joined, closed 8 days ago, dropped at login.
+	eq(w:As(shogun, shogun.ns.ArenaTest.Clear), true)
+	local s = w:As(shogun, shogun.ns.Arena.Store, "T")
+	s.rid, s.closedAt = 5, w:As(shogun, shogun.ns.Arena.Now) - 8 * 86400
+	eq(select(2, w:As(shogun, shogun.ns.ArenaTest.CheckStore)), "old", "the rehearsal's store dropped")
+	-- Another duel: each list holds both games, the Shogun's ledger too.
 	Duel(w, a, b, b, a)
 	w:Run(5)
 	eq(#M(w, a, "ArenaLedger").MyGames(), 2, "the fighter's own games")
 	eq(#M(w, b, "ArenaLedger").MyGames(), 2)
-	eq(#Rows(w, king), 2, "the King's every game")
+	eq(#Rows(w, shogun), 2, "the Shogun's every game")
 	NoErrors(w)
 end)
 
@@ -407,7 +407,7 @@ end)
 -- shared one cap with the games between players.)
 test("1.1.6 games ledger: practice never crowds out a game between players: a player tells the auditors only so many games played alone a day (the rest his own list's, never told, nor at a hello); his list and the auditors' keep games played alone apart", function()
 	local w, c = World116()
-	local a, b, king = c.a, c.b, c.king
+	local a, b, shogun = c.a, c.b, c.shogun
 	-- (small caps: a few draws stand for a day of clicks)
 	local LGa = a.ns.ArenaLedger
 	LGa.GAMES_SOLO_DAY, LGa.GAMES_MINE_MAX, LGa.GAMES_MINE_SOLO_MAX = 3, 3, 3
@@ -443,7 +443,7 @@ test("1.1.6 games ledger: practice never crowds out a game between players: a pl
 	end
 	-- An auditor's next hellos: the draws never told are never resent.
 	w:Run(900)
-	eq(Draws(king), 3, "not at his hello")
+	eq(Draws(shogun), 3, "not at his hello")
 	NoErrors(w)
 end)
 
@@ -482,7 +482,7 @@ test("1.1.6 games ledger: with the gamepad UI the auditor's page offers its play
 			local w = FW.New({ compliance = "shipped", arenaFiles = Files116() })
 			local a = w:Player(N.fighterA)
 			local b = w:Player(N.fighterB)
-			local king = w:Role("king")
+			local shogun = w:Role("shogun")
 			for _, x in ipairs(w.clients) do W3.Rules(w, x) end
 			w:Group({ a, b })
 			w:Run(41)
@@ -490,10 +490,10 @@ test("1.1.6 games ledger: with the gamepad UI the auditor's page offers its play
 			w:Run(5)
 			-- (Opened the way the Arena's button does: with the gamepad UI, 1.1.5's gate installs no typed
 			-- /bk command.)
-			w:As(king, function() king.ns.Arena.RunSlash("") end)
-			local UI = king.companion.own.ArenaUI
-			eq(w:As(king, UI.Kit.Gamepad), gamepad)
-			w:As(king, function() UI.Open("games.all") end)
+			w:As(shogun, function() shogun.ns.Arena.RunSlash("") end)
+			local UI = shogun.companion.own.ArenaUI
+			eq(w:As(shogun, UI.Kit.Gamepad), gamepad)
+			w:As(shogun, function() UI.Open("games.all") end)
 			local f = UI.Frame()
 			local head = f.heads["staff.games"]
 			assert(head, "the filters over the list")

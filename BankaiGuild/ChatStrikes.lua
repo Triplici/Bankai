@@ -19,11 +19,11 @@ local L = ns.L
 -- days, as every hold. A line typed while paused or held is refused before its words are read:
 -- warnings never stack. Chats only: the block is never a moderator's timeout (WatchChat's
 -- timeouts), so no power, game, map, Crafting or wallet bar comes with it and no other client
--- silences him. The King and the author have the line refused and counted, nothing more (nobody
+-- silences him. The Shogun and the author have the line refused and counted, nothing more (nobody
 -- could decide their hold); The Watch's own room is not checked (staff quote what was said).
 -- What is kept: the struck lines alone, on this client, 30 days (ns.rdb.chatStrikes: the
 -- account's characters of this realm group and faction share it). Ordinary chat is never kept or
--- relayed. The team: the author while online, the King, the signed High Council and the Bankai Guild
+-- relayed. The team: the author while online, the Shogun, the signed High Council and the Bankai Guild
 -- moderators named (ChatRooms' "watch" audience, WatchChat.RoomRecipients). From the third
 -- warning his client (the character that typed it) sends each of them, by logged whisper:
 --   MS~1~H~<id>~<n>~<c24>~<c30>~<k>~<guild>               the head (id: the hold's time)
@@ -458,11 +458,11 @@ function S.StripText()
 	return L.WATCHCHAT_STRIP_STRIKE:format(Hour(b.ends))
 end
 
--- Nobody could decide the hold of the King or the author (WatchChat.Authority: nobody above them).
+-- Nobody could decide the hold of the Shogun or the author (WatchChat.Authority: nobody above them).
 local function Exempt()
 	local W = WC()
 	return ns.me ~= nil and W ~= nil and type(W.ProtectLevel) == "function" and type(W.LEVEL) == "table"
-		and W.ProtectLevel(ns.me) >= W.LEVEL.king
+		and W.ProtectLevel(ns.me) >= W.LEVEL.shogun
 end
 
 local function Clean(s, max)
@@ -1109,7 +1109,7 @@ local function StateText(c)
 end
 
 -- The copy pop-up's text of these cases ("pop-ups, not chat": the author copies it): each line
--- with when, where and its words. On the King's stream the words and lines are hidden.
+-- with when, where and its words. On the Shogun's stream the words and lines are hidden.
 function S.CopyText(keys)
 	local s = Store()
 	local out = {}

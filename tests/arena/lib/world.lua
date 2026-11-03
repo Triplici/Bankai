@@ -10,7 +10,7 @@
 --   w:Run(30)                    -- the clock moves: timers fire, queued messages go out
 --   w:Sent{ from = a, type = "AF", dist = "CHANNEL" }, w:ChannelText()
 --
--- Every name here is invented. The world overrides the King's, the Treasurer's and the author's
+-- Every name here is invented. The world overrides the Shogun's, the Treasurer's and the author's
 -- constants in each client, so no fixture holds a real name.
 local H = ...
 local World = {}
@@ -19,12 +19,12 @@ World.__index = World
 World.REALMS = { "Emberfall", "Emberfall2" }
 World.GROUP = "Emberfall+Emberfall2"
 World.GUILD = "Bankai Guild Ember"          -- an Bankai Guild guild (ns.IsFederation)
-World.KING_GUILD = "Bankai Guild"           -- the Alliance King's guild (ns.KING_GUILD.Alliance)
-World.KING_GUILD_HORDE = "Bankai Guild Horde" -- the Horde King's, in this world
+World.SHOGUN_GUILD = "Bankai Guild"           -- the Alliance Shogun's guild (ns.SHOGUN_GUILD.Alliance)
+World.SHOGUN_GUILD_HORDE = "Bankai Guild Horde" -- the Horde Shogun's, in this world
 World.CLOCK = 1790000000
 -- The cast (the design's invented names where it has them).
 World.NAMES = {
-	king = "Aldric Crownhall-Emberfall", kingHorde = "Grom Tuskbane-Emberfall",
+	shogun = "Aldric Crownhall-Emberfall", shogunHorde = "Grom Tuskbane-Emberfall",
 	steward = "Marrek Oakhand-Emberfall", councillor = "Brannoc Weald-Emberfall", councillor2 = "Idris Vane-Emberfall",
 	arbiter = "Oswin Marrow-Emberfall", auditor = "Hesta Quill-Emberfall", author = "Quillon Scribe-Emberfall",
 	treasurer = "Tamsin Ledger-Emberfall", treasurerMail = "Tamsin Coinwell-Emberfall",
@@ -60,7 +60,7 @@ end
 World.FromArena = FromArena
 
 -- The existing modules a scenario asserts on (the design), in TOC order, loaded into each client.
-World.MODULES = { "Channels", "King", "Treasury", "Dues", "Moderation", "Alts", "Workshop", "Consent" }
+World.MODULES = { "Channels", "Shogun", "Treasury", "Dues", "Moderation", "Alts", "Workshop", "Consent" }
 -- Loaded into each client too, before them, never shared: Ed25519.lua's job queue (one client's
 -- signature checks never count against another's limit, nor run with its globals).
 World.OWN = { "Ed25519", "RankingRules" }
@@ -505,7 +505,7 @@ end
 
 -- What loading Core.lua and Channels.lua writes to the game's tables: put back after each client.
 local SAVED_GLOBALS = { "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARENA1", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1",
-	"SLASH_BANKAIGUILDLORDS1", "BankaiGuildDB" }
+	"SLASH_BANKAIGUILDCOUNCIL1", "BankaiGuildDB" }
 local function Short(name) return (name:gsub("%-.*$", "")) end
 
 local function Globals(w, c)
@@ -735,10 +735,10 @@ local function Load(w, c)
 		cns.me, cns.realm, cns.group, cns.faction = c.name, c.realm, World.GROUP, c.faction
 		cns.db, cns.rdb = c.db, c.rdb
 		-- Invented names in place of the real constants (the design).
-		cns.KING_CHARACTER = { Alliance = Short(World.NAMES.king), Horde = Short(World.NAMES.kingHorde) }
-		cns.KING_GUILD = { Alliance = World.KING_GUILD:lower(), Horde = World.KING_GUILD_HORDE:lower() }
-		cns.KING_REALM, cns.KING_REALM_HORDE = World.REALMS[1], World.REALMS[1]
-		cns.KING_NAME = "the King"
+		cns.SHOGUN_CHARACTER = { Alliance = Short(World.NAMES.shogun), Horde = Short(World.NAMES.shogunHorde) }
+		cns.SHOGUN_GUILD = { Alliance = World.SHOGUN_GUILD:lower(), Horde = World.SHOGUN_GUILD_HORDE:lower() }
+		cns.SHOGUN_REALM, cns.SHOGUN_REALM_HORDE = World.REALMS[1], World.REALMS[1]
+		cns.SHOGUN_NAME = "the Shogun"
 		cns.TREASURER = Short(World.NAMES.treasurer)
 		cns.TREASURER_CHARACTERS = { Short(World.NAMES.treasurer), Short(World.NAMES.treasurerMail) }
 		cns.TREASURER_REALM = World.REALMS[1]
@@ -772,7 +772,7 @@ local function Load(w, c)
 	wipe(StaticPopupDialogs)
 	for k, v in pairs(popups) do StaticPopupDialogs[k] = v end
 	-- The modules, as the client's: c.Arena.Send(...) runs as c.
-	for _, m in ipairs({ "Arena", "ArenaRoles", "Comm", "King", "Treasury", "Dues", "Moderation", "Alts", "Workshop", "Channels", "Consent" }) do
+	for _, m in ipairs({ "Arena", "ArenaRoles", "Comm", "Shogun", "Treasury", "Dues", "Moderation", "Alts", "Workshop", "Channels", "Consent" }) do
 		if rawget(cns, m) then c[m] = Proxy(w, c, cns[m]) end
 	end
 	c.Roles = c.ArenaRoles
@@ -821,15 +821,15 @@ function World:Client(name, where)
 	self:Login(c)
 	return c
 end
--- A role of the cast, in the right guild (the King: guild master of the King's guild).
+-- A role of the cast, in the right guild (the Shogun: guild master of the Shogun's guild).
 function World:Role(role, where)
 	where = where or {}
 	local name = assert(World.NAMES[role], "no role " .. tostring(role))
-	if role == "king" and where.guild == nil then where.guild, where.rank = World.KING_GUILD, 0 end
-	if role == "treasurer" and where.guild == nil then where.guild = World.KING_GUILD end
-	if role == "kingHorde" then
+	if role == "shogun" and where.guild == nil then where.guild, where.rank = World.SHOGUN_GUILD, 0 end
+	if role == "treasurer" and where.guild == nil then where.guild = World.SHOGUN_GUILD end
+	if role == "shogunHorde" then
 		where.faction = "Horde"
-		if where.guild == nil then where.guild, where.rank = World.KING_GUILD_HORDE, 0 end
+		if where.guild == nil then where.guild, where.rank = World.SHOGUN_GUILD_HORDE, 0 end
 	end
 	return self:Client(name, where)
 end

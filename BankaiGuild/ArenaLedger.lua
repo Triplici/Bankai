@@ -6,7 +6,7 @@ local ADDON, ns = ...
 -- The results ledger (AE), clerk sync (AB, AQ), ratings and tiers through ArenaRating, belts and
 -- their words (AV), seasons (AH), the Hall, and the games' ledger (AY, 1.1.6: every game played,
 -- for the auditors and each player's own). Registers AE AB AQ AV AH AY. The ledger lives in the
--- core's saved data (1.2.4; the companion's, Arena.Heavy, before); the clerk is never the King's
+-- core's saved data (1.2.4; the companion's, Arena.Heavy, before); the clerk is never the Shogun's
 -- character.
 -- API (the design): Table(cat), Rating(gk), Record(gk), Tier(gk), Belts(), BeltOf(gk), Lineage(cat),
 --   Season(), Hall(n), Clerk()
@@ -183,17 +183,17 @@ function LG.SeasonOf(t, mode)
 end
 
 -- A season word: refused unless it starts no earlier than 7 days before the last one ends and lasts
--- 4 to 16 weeks. The newest counts; on the same second the King's.
+-- 4 to 16 weeks. The newest counts; on the same second the Shogun's.
 function LG.TakeSeason(sender, mode, n, start, stop, vac, def, brackets, t)
 	local R = ns.ArenaRoles
-	if not (R.IsKing(sender) or R.IsPublicArbiter(sender, mode)) then return Count("sender") end
+	if not (R.IsShogun(sender) or R.IsPublicArbiter(sender, mode)) then return Count("sender") end
 	if not (n and start and stop and vac and def and t) then return Count("shape") end
 	if t > Now() + LG.AHEAD then return Count("time") end
 	local len = stop - start
 	if len < 4 * LG.WEEK or len > 16 * LG.WEEK then return Count("length") end
 	local kept = LG.Season(mode)
 	if n == kept.n then
-		if kept.at and (t < kept.at or (t == kept.at and not R.IsKing(sender))) then return Count("older") end
+		if kept.at and (t < kept.at or (t == kept.at and not R.IsShogun(sender))) then return Count("older") end
 	elseif n < kept.n then
 		return Count("older")
 	elseif n > kept.n + 1 + math.floor(math.max(0, Now() - (tonumber(kept.start) or Now())) / (4 * LG.WEEK)) then
@@ -218,7 +218,7 @@ function LG.TakeSeason(sender, mode, n, start, stop, vac, def, brackets, t)
 	return true
 end
 
--- The King or a public arbiter gives a season word (and his client repeats it every 30 minutes).
+-- The Shogun or a public arbiter gives a season word (and his client repeats it every 30 minutes).
 function LG.SetSeason(n, start, weeks, vac, def, brackets)
 	local mode = "L"
 	local t = Now()
@@ -566,7 +566,7 @@ end
 --   his own level; opp: the other fighter's level as he saw it (- never seen); pk: his account
 --   key, sig: its signature over "OLYH1|" and every field before pk, both base64url.
 -- Taken from its signer (the server-stamped sender is the fighter it names), or relayed by a clerk
--- (a public arbiter or a High Councillor, never the King: the carousel's own rule), and then only
+-- (a public arbiter or a High Councillor, never the Shogun: the carousel's own rule), and then only
 -- when its key is the one its signer gave first-hand here, if he did.
 --
 -- (1.2.3, the review of the two halves) What a half may not do on its own word:
@@ -696,7 +696,7 @@ end
 -- A clerk may relay halves (the carousel's rule, OnBook).
 function LG.MayRelay(sender, mode)
 	local R = ns.ArenaRoles
-	if type(sender) ~= "string" or R.IsKing(sender) then return false end
+	if type(sender) ~= "string" or R.IsShogun(sender) then return false end
 	return R.IsPublicArbiter(sender, mode) == true or ns.IsHighCouncillor(ns.FullName(sender)) == true
 end
 
@@ -1430,7 +1430,7 @@ function LG.TakeWord(sender, mode, w)
 	-- The podium (2, 3) is the clerk's word; a client holding the whole ledger (the clerk's last
 	-- digest heard matches its own: LG.Synced) checks it against its own table, the others take
 	-- the public arbiter's word.
-	if (w.kind == "2" or w.kind == "3") and LG.Synced(mode) and not ns.ArenaRoles.IsKing(sender) then
+	if (w.kind == "2" or w.kind == "3") and LG.Synced(mode) and not ns.ArenaRoles.IsShogun(sender) then
 		local b = LG.Built(mode)
 		if b and b.log and b.log[1] then
 			local own = ns.ArenaRating.Podium(b, LG.BeltState(mode), w.cat, { now = Now() })
@@ -1443,7 +1443,7 @@ function LG.TakeWord(sender, mode, w)
 	if had and EncodeWord(had) == EncodeWord(w) then return false, "again" end
 	if had then return Count("conflict") end
 	w.by = ns.FullName(sender):lower()
-	w.king = R.IsKing(sender) or nil
+	w.shogun = R.IsShogun(sender) or nil
 	-- A podium word replaces the older one of its category and place (Prunable's rule).
 	words[w.id] = w
 	local n = 0
@@ -1490,11 +1490,11 @@ local clerks = {}    -- [name lower] = last heard (a public arbiter's AB)
 local candidateSince -- when this client could first clerk
 local clerking = false
 
--- Whether this client may clerk: a public arbiter or a High Councillor, never the King's character,
+-- Whether this client may clerk: a public arbiter or a High Councillor, never the Shogun's character,
 -- with the companion loaded (the ledger), on a release (a test build sends nothing on the channel).
 function LG.MayClerk()
 	local R = ns.ArenaRoles
-	if R.IsKing(ns.me) or Arena.TestBuild() then return false end
+	if R.IsShogun(ns.me) or Arena.TestBuild() then return false end
 	if not (R.IsPublicArbiter(ns.me, "L") or ns.IsHighCouncillor(ns.me)) then return false end
 	return Arena.Heavy("L") ~= nil
 end
@@ -1710,7 +1710,7 @@ local function OnBook(dist, sender, mode, body)
 	if not rest then return Count("shape") end
 	local R = ns.ArenaRoles
 	if not R.IsPublicArbiter(sender, mode) and not ns.IsHighCouncillor(ns.FullName(sender)) then return Count("sender") end
-	if R.IsKing(sender) then return Count("king") end
+	if R.IsShogun(sender) then return Count("shogun") end
 	clerks[ns.FullName(sender):lower()] = Now()
 	-- (1.2.3, the review) A clerk heard: this fighter's own halves he may not have (LG.HalvesToClerk).
 	if mode == "L" then LG.HalvesToClerk(sender) end
@@ -2112,7 +2112,7 @@ end
 
 ---------------------------------------------------------------------------
 -- The games' ledger (AY; 1.1.6, the owner's ask of 2026-10-05: "a ledger of every game, for me,
--- the council and the King to see, besides each player seeing his own")
+-- the council and the Shogun to see, besides each player seeing his own")
 ---------------------------------------------------------------------------
 -- Every game a player plays, whatever its kind (LG.GAMES): Bones against a player (b),
 -- against the House (h), against the House with the rules' hints (p, the learning mode), a duel
@@ -2121,7 +2121,7 @@ end
 -- table's stake, 0 while the compliance gate allows none).
 -- Who sees what: each player his own games (LG.MyGames: his own list in the core's store, whether
 -- or not anyone is told); the auditors everyone's (LG.AllGames): ArenaRoles.Auditor in L, the
--- real roles only whatever the game's mode (never a rehearsal's stand-in): the King's character,
+-- real roles only whatever the game's mode (never a rehearsal's stand-in): the Shogun's character,
 -- a High Councillor, a signed arbiter with "+a", which is how the author's own character is one.
 -- Nobody else: a record goes only by whisper to an auditor, a client that is no auditor refuses
 -- it, and nothing of it is said on the channel.
@@ -2131,9 +2131,9 @@ end
 -- (Debts.Auditors: their hello, ZQ~H), and to an auditor heard later at his hello
 -- (LG.GamesHello, from Wallet.lua): the games of the last GAMES_RESEND_DAYS days not told to him
 -- yet. And the games' clerk (as the results' clerk: the first by sorted name of the auditors heard
--- lately, this one included, never the King's character, never the auditor saying hello) passes on
+-- lately, this one included, never the Shogun's character, never the auditor saying hello) passes on
 -- to an auditor, at his hello, the words it holds that he was not given (the relay names whose
--- word it is), so the King gets a game a councillor was told even when none of its players is
+-- word it is), so the Shogun gets a game a councillor was told even when none of its players is
 -- online with him. GAMES_RESEND_MAX whispers a hello, on the low lane.
 -- An auditor keeps each participant's word (the result, the scores, how it ended, the detail), so
 -- the screens say whether the words agree, differ, or only one came.
@@ -2197,7 +2197,7 @@ local function Low(name)
 end
 
 -- The games' ledger's auditors: the real roles (ArenaRoles.Auditor in L), whatever the game's mode,
--- so a rehearsal's stand-in King never gets a real player's game.
+-- so a rehearsal's stand-in Shogun never gets a real player's game.
 function LG.GamesAuditor(name)
 	local R = ns.ArenaRoles
 	return type(name) == "string" and type(R) == "table" and type(R.Auditor) == "function" and R.Auditor(name, "L") == true
@@ -2255,7 +2255,7 @@ local function DecodeGame(body, sender)
 end
 
 -- The games' ledger's own store of a mode (a read never makes it). L: this realm's live store. T
--- (every game while the King's live switch is off, as in 1.1.6): ns.rdb.arenaGames, never the
+-- (every game while the Shogun's live switch is off, as in 1.1.6): ns.rdb.arenaGames, never the
 -- rehearsal store, which a new rehearsal's word, its end KEEP_DAYS on and `test clear` empty
 -- (ArenaTest.lua). The sim's memory store while it runs.
 local function GamesT(mode, key, make)
@@ -2467,14 +2467,14 @@ local function RelayBody(rec, word)
 end
 
 -- The games' clerk for an auditor's hello: the first by sorted name of the auditors heard lately
--- (Debts.Auditors) and this one, never the King's character nor `except` (the one saying hello);
+-- (Debts.Auditors) and this one, never the Shogun's character nor `except` (the one saying hello);
 -- nil when none.
 function LG.GamesClerk(except)
 	local R = ns.ArenaRoles
 	local D = ns.Debts
 	local list = {}
 	local function Add(name)
-		if IsAud(name) and not (except and Same(name, except)) and not (R and R.IsKing and R.IsKing(name)) then list[#list + 1] = Low(name) end
+		if IsAud(name) and not (except and Same(name, except)) and not (R and R.IsShogun and R.IsShogun(name)) then list[#list + 1] = Low(name) end
 	end
 	for _, name in ipairs(type(D) == "table" and type(D.Auditors) == "function" and D.Auditors("L") or {}) do Add(name) end
 	Add(ns.me)
@@ -2706,7 +2706,7 @@ ns.On("LOGIN", Watch)
 
 Arena.Action("ledger.word", function() return ns.ArenaRoles.IsPublicArbiter(ns.me, "L") end,
 	function(kind, cat, gk, reason, ref) local id = LG.Word(kind, cat, gk, reason, ref) Watch() return id end)
-Arena.Action("ledger.season", function() return ns.ArenaRoles.IsKing(ns.me) or ns.ArenaRoles.IsPublicArbiter(ns.me, "L") end,
+Arena.Action("ledger.season", function() return ns.ArenaRoles.IsShogun(ns.me) or ns.ArenaRoles.IsPublicArbiter(ns.me, "L") end,
 	function(...) local ok, why = LG.SetSeason(...) Watch() return ok, why end)
 
 function LG.ReadRecord(body)

@@ -44,7 +44,7 @@ Letters.LIST = { "1.3.3", "1.3.2", "1.3.0", "1.2.5.1", "1.2.5", "1.2.4", "1.2.3"
 -- after login, once the loading screen is gone; a privacy question still to ask comes first
 -- (PageFirst: the letter waits for the page, then HANDOFF after it closes).
 Letters.LOGIN_WAIT = 8
--- (1.2.3, the King's stream: the letter came long after the privacy page he closed, on the
+-- (1.2.3, the Shogun's stream: the letter came long after the privacy page he closed, on the
 -- minute's next try.) Kept back after LOGIN_WAIT (combat, an instance, the privacy page), it is
 -- tried again every RETRY, and HANDOFF after the privacy page closes.
 Letters.RETRY = 10
@@ -129,7 +129,7 @@ end
 
 -- The letters a release's letter carries before it for a player who never read them, oldest
 -- first (1.2.2 already tells 1.2.1's changes itself, so it carries 1.2.0's, like 1.2.1; 1.2.3
--- carries 1.2.2's, the fixes before the King's stream, and 1.2.0's): a version or a list.
+-- carries 1.2.2's, the fixes before the Shogun's stream, and 1.2.0's): a version or a list.
 Letters.CATCH_UP = { ["1.2.1"] = "1.2.0", ["1.2.2"] = "1.2.0", ["1.2.3"] = { "1.2.2", "1.2.0" },
 	["1.2.4"] = { "1.2.3", "1.2.0" }, ["1.2.5"] = "1.2.4", ["1.2.5.1"] = "1.2.5", ["1.3.0"] = "1.2.5.1",
 	["1.3.2"] = { "1.3.0", "1.2.5.1" }, ["1.3.3"] = { "1.3.2", "1.3.0" } }

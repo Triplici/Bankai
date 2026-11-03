@@ -74,10 +74,10 @@ end
 
 -- 1.2.1 (an officer: his guild master "has been online for hours" while the census showed him away).
 -- A guild's report is its word when it was made; /who's is this quarter-hour's. Seen in that guild
--- by /who now (its own search when its row was opened, or the round), a Lord or Captain of another
+-- by /who now (its own search when its row was opened, or the round), a Council member or Captain of another
 -- guild is online whatever an old report said; otherwise a report older than Data.FRESH says what it
 -- said, grey (Presence's `dim`), never in red as if it were today's; where it said online, he is not
--- known to be online now: nil, and when it said so (Presence's `at`), as Members.CheckLords counts him
+-- known to be online now: nil, and when it said so (Presence's `at`), as Members.CheckCouncil counts him
 -- away from then. Our own guild is our roster, the server's word. `e`: a guild of Data.Summary's
 -- list; returns online, days, dim, at.
 local roundIndex = {} -- the round's players as "<guild>\0<name folded>", made again when the round grows
@@ -113,7 +113,7 @@ end
 
 -- (1.2.4, the author's ask: the guild's average level in a column of its own, sorted by its title
 -- like the others; its title is short, "Avg lvl" / "Nv. méd.". The Online column gives up some room,
--- its numbers being the smaller, and the Guild and Lord columns some; before, the four columns
+-- its numbers being the smaller, and the Guild and Council columns some; before, the four columns
 -- were 0.40, 0.20, 0.16 and 0.24.)
 -- (1.2.4's review: the Online and Avg lvl titles a little more room, from the Guild's, and the three
 -- numbers' a short title each, `short`: a title wider than its column takes it, and one still too
@@ -126,7 +126,7 @@ Views.COLUMNS = {
 		{ key = "COL_MEMBERS", short = "COL_MEMBERS_SHORT", sort = "members", x = 0.30, w = 0.18, justify = "RIGHT" },
 		{ key = "COL_ONLINE", short = "COL_ONLINE_SHORT", sort = "online", x = 0.48, w = 0.15, justify = "RIGHT" },
 		{ key = "COL_AVG_LEVEL", short = "COL_AVG_LEVEL_SHORT", sort = "level", x = 0.63, w = 0.18, justify = "RIGHT" },
-		{ key = "COL_LORD", sort = "lord", x = 0.81, w = 0.19 },
+		{ key = "COL_COUNCIL", sort = "council", x = 0.81, w = 0.19 },
 	},
 	heraldry = {
 		{ key = "COL_NAME", x = 0.00, w = 0.30 },
@@ -251,7 +251,7 @@ local function ItemButton(r, k)
 	end
 	b:RegisterForClicks("LeftButtonUp")
 	b:SetScript("OnClick", function(self)
-		-- 1.1: a grid whose line takes a click on an item (the Treasury's bank: a Lord or a
+		-- 1.1: a grid whose line takes a click on an item (the Treasury's bank: a Council member or a
 		-- Captain asks the treasury for it, Bank.lua), a plain click.
 		local it = self.item
 		local row = self.GetParent and self:GetParent()
@@ -753,8 +753,8 @@ end
 -- where their icon and name are. A right text up to a third of the row keeps its words whole, as
 -- before: a long name still gives way to a short count.
 -- (1.2.4) A line with `rightWide` keeps its right text whole up to half the row: the Realm's guilds,
--- whose right text is their Lord's online or offline and their average level after it, a long
--- guild name and Lord giving way to both.
+-- whose right text is their Council's online or offline and their average level after it, a long
+-- guild name and Council giving way to both.
 local RIGHT_INSET, RIGHT_GAP = 2, 6
 local function FitRight(r, width, leftX, share)
 	local rw = math.ceil(StringWidth(r.right))
@@ -1118,7 +1118,7 @@ function Views.GuildId(name) return "guild:" .. tostring(name) end
 local filters = {} -- [tab] = the text in its box, as typed
 local realmGroupOpen -- the Realm projection groups, declared here so the test reset below can clear them
 local folded = {}  -- [guild name or COUNCIL_ROW] = true: opened by the search, closed by a click (until the text changes)
--- The Realm's search opens the guilds where it finds a Lord, a Captain or a member a page of
+-- The Realm's search opens the guilds where it finds a Council member, a Captain or a member a page of
 -- rows at a time (a first letter is in someone of nearly every guild: all of them opened would
 -- be thousands of rows, as Expand all), the rest on a click; a new text, its first page.
 Views.SEARCH_ROWS = 200
@@ -1127,7 +1127,7 @@ local searchRows = Views.SEARCH_ROWS
 local function Trim(s) return (tostring(s or ""):gsub("^%s+", ""):gsub("%s+$", "")) end
 
 -- A name as the search reads it (ns.Searchable) as its row shows it (Plain), and a /who name as
--- its row shows it (Views.MembersOf), kept: the Realm's search reads every Lord, Captain and
+-- its row shows it (Views.MembersOf), kept: the Realm's search reads every Council, Captain and
 -- player seen at each letter typed and at each redraw, and a name reads the same each time.
 -- Emptied past SEARCH_NAMES_KEPT, a long session's worth.
 Views.SEARCH_NAMES_KEPT = 20000
@@ -1162,7 +1162,7 @@ end
 -- 1.2.1: the Census's search reads letters that look alike as one: l, I and 1, and 0 and O (a
 -- guild's name may mix them, "Bankai Guild XIlI", and the player types what he sees). A folded text
 -- (ns.Fold: I and O are i and o already) with l and 1 as i and 0 as o. CR-08 (the author's ask):
--- the Realm's search too, the same guilds of the same census, their Lords, Captains and members,
+-- the Realm's search too, the same guilds of the same census, their Council, Captains and members,
 -- and the people of its classes, races and professions.
 local function Lookalike(s) return (s:gsub("[l1]", "i"):gsub("0", "o")) end
 -- Does `name` hold the Census's or the Realm's search `lq` (Lookalike of the query), as its row
@@ -1285,7 +1285,7 @@ local function GuildTooltip(e)
 		tt:AddLine("<" .. Plain(e.name) .. ">", 0.25, 1, 0.25)
 		tt:AddDoubleLine(L.COL_MEMBERS, ns.FormatNumber(g.total), 1, 0.82, 0, 1, 1, 1)
 		tt:AddDoubleLine(L.COL_ONLINE, ns.FormatNumber(g.online), 1, 0.82, 0, 1, 1, 1)
-		tt:AddDoubleLine(L.LORD, Plain(g.leader or "?"), 1, 0.82, 0, 1, 1, 1)
+		tt:AddDoubleLine(L.COUNCIL, Plain(g.leader or "?"), 1, 0.82, 0, 1, 1, 1)
 		tt:AddDoubleLine(L.VACANCIES, ns.FormatNumber(math.max(0, 1000 - (g.total or 0))), 1, 0.82, 0, 1, 1, 1)
 		-- (1.2.4: to the tenth as every client has it, Data.AvgLevelText: the Census's column too.)
 		local avg = ns.Data.AvgLevelText(g)
@@ -1433,7 +1433,7 @@ Views.sort = { key = "members", desc = true }
 
 -- 1.2.4: a guild's average level as its rows show it (Data.AvgLevelText: to the tenth, as every
 -- client has it). The Census's cell, "-" for none (no report of it yet, an older version's); and
--- in parentheses after another number or word (the Realm: its Lord's online or offline, the
+-- in parentheses after another number or word (the Realm: its Council's online or offline, the
 -- free slots), the number white and its words grey, all grey for an old report; nothing for none.
 local function AvgCell(g) return ns.Data.AvgLevelText(g) or Grey("-") end
 local function AvgTag(g, dim)
@@ -1452,7 +1452,7 @@ local SORTERS = {
 	members = function(e) return e.g.total or 0 end,
 	online = function(e) return e.g.online or 0 end,
 	level = function(e) return ns.Data.AvgTenths(e.g) or 0 end, -- (1.2.4; 0: none, last whichever way)
-	lord = function(e) return (e.g.leader or ""):lower() end,
+	council = function(e) return (e.g.leader or ""):lower() end,
 }
 
 -- A first click on a count's title, the highest first (1.2.4: the average level's too); on a name's, A to Z.
@@ -1464,7 +1464,7 @@ function Views.SortBy(key)
 	end
 end
 
--- A reported guild's row: its name, members, online and Lord; a click opens it in the Realm,
+-- A reported guild's row: its name, members, online and Council; a click opens it in the Realm,
 -- whose box it empties: a search left there could miss that guild and show nothing of it.
 local function CensusRow(e)
 	local g = e.g
@@ -1483,7 +1483,7 @@ local function CensusRow(e)
 end
 
 -- A guild seen with /who that nobody reports: grey, after every reported guild, and in no
--- total (Data.Summary keeps them apart). Members, average level and Lord are unknown.
+-- total (Data.Summary keeps them apart). Members, average level and Council are unknown.
 local function SeenRow(e)
 	local online = ns.FormatNumber(e.online) .. (e.capped and "+" or "")
 	return { cols = { Grey(e.name), Grey("?"), Grey(online), Grey("?"), Grey(L.NO_ADDON) }, tooltip = SeenTooltip(e) }
@@ -1666,7 +1666,7 @@ local function CensusSwept()
 	return out
 end
 
--- The players of a guild the Census's search finds, its Lord aside (his match shows the row
+-- The players of a guild the Census's search finds, its Council aside (his match shows the row
 -- alone): its Captains, its highest levels (the report's top five) and who of it was seen online
 -- (our roster for our own guild, /who's round for the others). Each once, as its row shows it.
 -- (lq: the search, Lookalike)
@@ -1706,9 +1706,9 @@ local function PersonLine(e, p)
 end
 
 -- `q`, the search (Views.Query): "recruiting" (every guild with room), the zones whose name holds
--- it (1.1), then the guilds whose name or Lord holds it, and those where it finds a Captain, a
+-- it (1.1), then the guilds whose name or Council holds it, and those where it finds a Captain, a
 -- player of the top five or one seen online (under its row), the reported ones then the ones only
--- seen (by name: nobody knows their Lord), in the same order as ever. Letters that look alike
+-- seen (by name: nobody knows their Council), in the same order as ever. Letters that look alike
 -- read as one (Lookalike, 1.2.1).
 local function CensusLines(s, q)
 	local lines = {}
@@ -1742,27 +1742,27 @@ local function CensusLines(s, q)
 	QuietLine(lines)
 	-- Recruits asking to join our guild (1.1, Recruit.lua): an officer's Invite and Decline.
 	for _, l in ipairs(ns.Recruit and ns.Recruit.RequestLines and ns.Recruit.RequestLines() or {}) do lines[#lines + 1] = l end
-	-- Clear party-invite whispers while the King is online (1.2.5.1): local, short-lived and
+	-- Clear party-invite whispers while the Shogun is online (1.2.5.1): local, short-lived and
 	-- manually verified. Nothing interrupts the game or trusts what the whisper claimed.
 	for _, l in ipairs(ns.PartyGuard and ns.PartyGuard.Lines and ns.PartyGuard.Lines() or {}) do lines[#lines + 1] = l end
-	-- The King's Agenda, for the whole army (King.lua).
-	local a = ns.King and ns.King.Agenda and ns.King.Agenda()
+	-- The Shogun's Agenda, for the whole army (Shogun.lua).
+	local a = ns.Shogun and ns.Shogun.Agenda and ns.Shogun.Agenda()
 	if a then
 		lines[#lines + 1] = { text = Gold(L.THRONE_AGENDA_LINE:format(a.title, math.max(0, math.ceil((a.at - ns.Now()) / 60)), a.zone)), gapAfter = true }
 	end
-	-- The King holds court in our zone: one click asks for an audience (Court.lua).
+	-- The Shogun holds court in our zone: one click asks for an audience (Court.lua).
 	local court = ns.Court and ns.Court.Line and ns.Court.Line()
 	if court then lines[#lines + 1] = court end
-	-- While the King is online: one click asks for an invite to his layer (Hop.lua).
-	for _, hop in ipairs(ns.Hop and ns.Hop.KingLines and ns.Hop.KingLines() or {}) do lines[#lines + 1] = hop end
-	local kings = #lines -- (the King's lines above: "No reports yet" counts what comes below them)
+	-- While the Shogun is online: one click asks for an invite to his layer (Hop.lua).
+	for _, hop in ipairs(ns.Hop and ns.Hop.ShogunLines and ns.Hop.ShogunLines() or {}) do lines[#lines + 1] = hop end
+	local shoguns = #lines -- (the Shogun's lines above: "No reports yet" counts what comes below them)
 	-- Above the guilds (1.1): the channel is public (who can read it), and right after login the
 	-- census being rebuilt (said instead of "No reports yet").
 	PublicLines(lines)
 	local rebuilding = RebuildLines(lines)
 	local top = #lines
 	for _, e in ipairs(SortedGuilds(s.guilds)) do lines[#lines + 1] = CensusRow(e) end
-	if #lines == top and kings == 0 and not rebuilding then lines[#lines + 1] = { text = Grey(L.EMPTY) } end
+	if #lines == top and shoguns == 0 and not rebuilding then lines[#lines + 1] = { text = Grey(L.EMPTY) } end
 	for _, e in ipairs(s.seen or {}) do lines[#lines + 1] = SeenRow(e) end
 	if #(s.seen or {}) > 0 then
 		lines[#lines].gapAfter = true
@@ -1821,16 +1821,16 @@ end
 -- The Realm
 ---------------------------------------------------------------------------
 
--- The King's guild: the one named exactly "Bankai Guild" (the addon's King everywhere else, the
--- Throne, the layer hop). No such guild reporting: no King line, never another guild's Lord.
-local function King(guilds)
+-- The Shogun's guild: the one named exactly "Bankai Guild" (the addon's Shogun everywhere else, the
+-- Throne, the layer hop). No such guild reporting: no Shogun line, never another guild's Council.
+local function Shogun(guilds)
 	for _, e in ipairs(guilds) do
-		if ns.IsKingGuild(e.name) and e.g.leader then return e end
+		if ns.IsShogunGuild(e.name) and e.g.leader then return e end
 	end
 	return nil
 end
 
--- The members of a guild online now, besides its Lord and Captains: our own guild from our
+-- The members of a guild online now, besides its Council and Captains: our own guild from our
 -- roster, any other from /who (the round, and the guild's own search when its row was
 -- opened, Who.SearchGuild). Reports carry no member lists: a thousand names per guild would
 -- not fit on the channel. { name, level, class (code), zone (key), rank } each, by rank then
@@ -1937,17 +1937,17 @@ function Views.ShowBoard(on, quiet)
 end
 
 ---------------------------------------------------------------------------
--- The High Council in the Realm (0.9.9, Max's): under the King and the Treasurer, the
+-- The High Council in the Realm (0.9.9, Max's): under the Shogun and the Treasurer, the
 -- moderators by department with their titles (Workshop.CouncilTree), for whoever may see them
 -- (ns.CouncilVisible: until launch, the councillors and the author alone).
 ---------------------------------------------------------------------------
 
 local COUNCIL_ROW = {} -- its open/closed key in `expanded`: no guild's name can be a table
--- The eye that shows the councillors' names on the King's screen (a game icon, Interface\Icons).
+-- The eye that shows the councillors' names on the Shogun's screen (a game icon, Interface\Icons).
 Views.EYE_ICON = "Interface\\Icons\\INV_Misc_Eye_01"
 
--- What the census knows of these names (a set of short names, lower case): each guild's Lord
--- and Captains from a fresh report, then who was seen online (our roster, /who), then the Lords
+-- What the census knows of these names (a set of short names, lower case): each guild's Council
+-- and Captains from a fresh report, then who was seen online (our roster, /who), then the Council
 -- and Captains of older reports, the first found. (An old report last: days old, it must not
 -- hide someone seen online now.) Short name -> a person as the rows open them, and the set of
 -- those only an old report knows.
@@ -1966,7 +1966,7 @@ local function Known(s, wanted)
 			if e.fresh == fresh then
 				if g.leader then
 					Add(e.name, { name = g.leader, realm = g.realm, class = g.leaderClass, level = g.leaderLevel, zone = g.leaderZone,
-						rank = L.LORD, online = g.leaderOnline, days = g.leaderDays }, not fresh)
+						rank = L.COUNCIL, online = g.leaderOnline, days = g.leaderDays }, not fresh)
 				end
 				for _, o in ipairs(g.officers or {}) do
 					Add(e.name, { name = o.name, realm = g.realm, class = o.class, level = o.level, zone = o.zone, rank = L.CAPTAIN,
@@ -2000,14 +2000,14 @@ end
 local function Council(s) return "|c" .. ns.HIGH_COUNCIL_COLOR .. s .. "|r" end
 
 -- `q`, the Realm's search (Views.Query): only the councillors whose name as their row shows it
--- holds it (on the King's stream, the first four characters: never what is hidden), under the
+-- holds it (on the Shogun's stream, the first four characters: never what is hidden), under the
 -- council's header (opened for it) and their department's; how many, 0 for none (nothing drawn).
 local function CouncilLines(lines, s, q)
 	local loose, depts = ns.Workshop.CouncilTree()
 	local n = #loose
 	for _, d in ipairs(depts) do n = n + #d.members end
 	if n == 0 then return 0 end
-	-- The King's screen (his stream): the names hidden until he clicks the eye, and hidden again
+	-- The Shogun's screen (his stream): the names hidden until he clicks the eye, and hidden again
 	-- on the next click (ns.CouncilMasked, Core.lua).
 	local masked = ns.CouncilMasked()
 	local function Hit(m)
@@ -2037,7 +2037,7 @@ local function CouncilLines(lines, s, q)
 		end,
 	}
 	if not open then return hits end
-	if ns.KingsScreen() and not q then
+	if ns.ShogunsScreen() and not q then
 		local label = masked and L.COUNCIL_NAMES_SHOW or L.COUNCIL_NAMES_HIDE
 		lines[#lines + 1] = {
 			indent = 1,
@@ -2059,7 +2059,7 @@ local function CouncilLines(lines, s, q)
 	for _, d in ipairs(depts) do for _, m in ipairs(d.members) do wanted[m.name:lower()] = true end end
 	local known, old = Known(s, wanted)
 	-- "<mark><own icon> Name - Title": where the census knows them, when they were last on, and a
-	-- click opens what it knows. Hidden (the King's stream): "<mark> Name****", the title, where
+	-- click opens what it knows. Hidden (the Shogun's stream): "<mark> Name****", the title, where
 	-- they are, and no click (the card would carry the whole name).
 	local function Member(m, indent)
 		local p = known[m.name:lower()]
@@ -2122,7 +2122,7 @@ local function SeenHits(lq, own)
 	return hit
 end
 
--- What of a guild the Realm's search finds, its name aside: its Lord, its Captains and the
+-- What of a guild the Realm's search finds, its name aside: its Council, its Captains and the
 -- members seen online (our roster, /who), each by name as its row shows it. `ctx`: the search
 -- (lq: Lookalike of it, own, hits: SeenHits, swept: SweptByGuild once needed). The member list
 -- (Views.MembersOf makes a table for each player and sorts them) is made only for a guild where
@@ -2130,7 +2130,7 @@ end
 -- as one.
 local function GuildMatches(e, ctx, rows)
 	local g, lq = e.g, ctx.lq
-	local found = { lord = LookHolds(lq, g.leader), officers = {}, members = {}, all = {} }
+	local found = { council = LookHolds(lq, g.leader), officers = {}, members = {}, all = {} }
 	for _, o in ipairs(g.officers or {}) do
 		if LookHolds(lq, o.name) then found.officers[#found.officers + 1] = o end
 	end
@@ -2151,7 +2151,7 @@ local function GuildMatches(e, ctx, rows)
 		end
 		found.all, found.fromWho = members, fromWho
 	end
-	found.n = (found.lord and 1 or 0) + #found.officers + (rows and #found.members or seen and 1 or 0)
+	found.n = (found.council and 1 or 0) + #found.officers + (rows and #found.members or seen and 1 or 0)
 	return found
 end
 
@@ -2163,7 +2163,7 @@ end
 Views.realmSort = "members"
 Views.REALM_ORDERS = {
 	{ key = "members", label = "COL_MEMBERS" }, { key = "online", label = "COL_ONLINE" }, { key = "level", label = "AVG_LEVEL" },
-	{ key = "name", label = "COL_GUILD" }, { key = "lord", label = "COL_LORD" },
+	{ key = "name", label = "COL_GUILD" }, { key = "council", label = "COL_COUNCIL" },
 }
 local function RealmOrder()
 	for _, o in ipairs(Views.REALM_ORDERS) do if o.key == Views.realmSort then return o end end
@@ -2173,7 +2173,7 @@ end
 function Views.RealmOrdered(guilds)
 	local key = RealmOrder().key
 	if key == "members" then return guilds end
-	return SortedGuilds(guilds, { key = key, desc = key ~= "name" and key ~= "lord" })
+	return SortedGuilds(guilds, { key = key, desc = key ~= "name" and key ~= "council" })
 end
 local function RealmOrderLine()
 	local current, options = RealmOrder(), {}
@@ -2189,11 +2189,11 @@ local function RealmOrderLine()
 end
 
 -- `q`, the search (Views.Query): the High Council's names (for whoever may see it), then each
--- guild whose name holds it, whole, and each whose Lord, Captains or members seen do, opened on
+-- guild whose name holds it, whole, and each whose Council, Captains or members seen do, opened on
 -- those alone, the guilds and their people with look-alike letters as one, as in the Census
 -- (Lookalike, CR-08); "No match" for none. The chats' link stays (the Chat tab it opens has a
 -- search of its own). Nothing
--- else: the King's lines, the level race, recruiting and the layers show once it is emptied.
+-- else: the Shogun's lines, the level race, recruiting and the layers show once it is emptied.
 local function RealmLines(s, q)
 	if boardShown and ns.Board and not ns.Board.missing and ns.Board.Lines then return ns.Board.Lines(q) end
 	local page = pageShown and RealmPage(pageShown)
@@ -2202,7 +2202,7 @@ local function RealmLines(s, q)
 	if ns.Members and ns.Members.Shown and ns.Members.Shown() then return ns.Members.Lines(q) end
 	local lines = {}
 	-- A councillor's mark and own icon after their name in the rows below (0.9.9), for whoever
-	-- may see the council here; none on the King's screen while the names are hidden (his
+	-- may see the council here; none on the Shogun's screen while the names are hidden (his
 	-- stream: a whole name next to the mark would give the councillor away).
 	local councilShown = ns.CouncilVisible()
 	local councilTagged = councilShown and not ns.CouncilMasked()
@@ -2212,34 +2212,34 @@ local function RealmLines(s, q)
 		return " " .. ns.CouncilMark(full)
 	end
 	local function Mark(name, home, online)
-		return ns.King and ns.King.RollCallMark and ns.King.RollCallMark(ns.FullName(name, home), online) or ""
+		return ns.Shogun and ns.Shogun.RollCallMark and ns.Shogun.RollCallMark(ns.FullName(name, home), online) or ""
 	end
 	-- The pinned line on top (1.1), for everyone; the quiet presence's under it (1.2.5.1).
 	if not q then PinLine(lines) QuietLine(lines) end
-	-- The King holds court in our zone (Court.lua), then his layer (Hop.lua).
+	-- The Shogun holds court in our zone (Court.lua), then his layer (Hop.lua).
 	local court = not q and ns.Court and ns.Court.Line and ns.Court.Line()
 	if court then lines[#lines + 1] = court end
-	for _, hop in ipairs(not q and ns.Hop and ns.Hop.KingLines and ns.Hop.KingLines() or {}) do lines[#lines + 1] = hop end
-	-- The King (and his Hands): Summon the Lords, and who answered (King.lua). While it is
-	-- fresh, each Lord and Captain in the tree carries a ready-check mark.
-	for _, l in ipairs(not q and ns.King and ns.King.RollCallLines and ns.King.RollCallLines() or {}) do lines[#lines + 1] = l end
-	local king = not q and King(s.guilds)
-	if king then
+	for _, hop in ipairs(not q and ns.Hop and ns.Hop.ShogunLines and ns.Hop.ShogunLines() or {}) do lines[#lines + 1] = hop end
+	-- The Shogun (and his Hands): Summon the Council, and who answered (Shogun.lua). While it is
+	-- fresh, each Council and Captain in the tree carries a ready-check mark.
+	for _, l in ipairs(not q and ns.Shogun and ns.Shogun.RollCallLines and ns.Shogun.RollCallLines() or {}) do lines[#lines + 1] = l end
+	local shogun = not q and Shogun(s.guilds)
+	if shogun then
 		lines[#lines + 1] = {
 			header = true,
-			text = CROWN .. L.KING .. ": " .. Gold(Plain(king.g.leader or "?")),
-			right = Presence(Views.PresenceNow(king, king.g.leader, king.g.leaderOnline, king.g.leaderDays)),
-			tooltip = GuildTooltip(king),
+			text = CROWN .. L.SHOGUN .. ": " .. Gold(Plain(shogun.g.leader or "?")),
+			right = Presence(Views.PresenceNow(shogun, shogun.g.leader, shogun.g.leaderOnline, shogun.g.leaderDays)),
+			tooltip = GuildTooltip(shogun),
 		}
-		-- The Treasurer of Bankai Guild, under the King: when that guild's report has him (the
+		-- The Treasurer of Bankai Guild, under the Shogun: when that guild's report has him (the
 		-- Horde's <Elfcore> and other realms' have no Treasurer of theirs).
 		local t
-		for _, o in ipairs(king.name:lower() == "bankaiguild" and king.g.officers or {}) do -- (the Treasurer: <Elfcore>, the Alliance's)
-			if ns.IsTreasurer(o.name, king.name) then t = o end
+		for _, o in ipairs(shogun.name:lower() == "bankaiguild" and shogun.g.officers or {}) do -- (the Treasurer: <Elfcore>, the Alliance's)
+			if ns.IsTreasurer(o.name, shogun.name) then t = o end
 		end
 		if t then
-			local on, days, dim, at = Views.PresenceNow(king, t.name, t.online, t.days)
-			local person = { name = t.name, realm = king.g.realm, guild = king.name, class = t.class, level = t.level, zone = t.zone,
+			local on, days, dim, at = Views.PresenceNow(shogun, t.name, t.online, t.days)
+			local person = { name = t.name, realm = shogun.g.realm, guild = shogun.name, class = t.class, level = t.level, zone = t.zone,
 				rank = L.CAPTAIN, online = on, days = days }
 			lines[#lines + 1] = {
 				key = t.name, player = t.name, offline = not on,
@@ -2252,7 +2252,7 @@ local function RealmLines(s, q)
 			if type(shared) == "string" then lines[#lines + 1] = { indent = 1, text = Grey(shared) } end
 		end
 	end
-	-- 1.1: the treasury's keepers taking donations now (Treasury.lua), under the King and the Treasurer.
+	-- 1.1: the treasury's keepers taking donations now (Treasury.lua), under the Shogun and the Treasurer.
 	for _, l in ipairs(not q and ns.Treasury and ns.Treasury.DonationLines and ns.Treasury.DonationLines() or {}) do lines[#lines + 1] = l end
 	-- The High Council, under them (0.9.9).
 	local found = councilShown and CouncilLines(lines, s, q) or 0
@@ -2293,13 +2293,13 @@ local function RealmLines(s, q)
 	-- closes and opens what the search opened, instead of the guild itself.
 	local function Guild(e, open, only, folds)
 		local g = e.g
-		local lordOn, lordDays, lordDim, lordAt = Views.PresenceNow(e, g.leader, g.leaderOnline, g.leaderDays)
+		local councilOn, councilDays, councilDim, councilAt = Views.PresenceNow(e, g.leader, g.leaderOnline, g.leaderDays)
 		lines[#lines + 1] = {
 			id = Views.GuildId(e.name),
 			text = (open and "[-] " or "[+] ") .. Views.DisputeMark(g) .. Green("<" .. Plain(e.name) .. ">") .. " " .. Plain(g.leader or "?"),
-			-- (1.2.4, the author's ask: its average level too, in parentheses after its Lord's online
+			-- (1.2.4, the author's ask: its average level too, in parentheses after its Council's online
 			-- or offline, both kept whole up to half the row.)
-			right = Presence(lordOn, lordDays, lordDim, lordAt) .. AvgTag(g, not e.fresh),
+			right = Presence(councilOn, councilDays, councilDim, councilAt) .. AvgTag(g, not e.fresh),
 			rightWide = true,
 			onClick = function()
 				if folds then
@@ -2316,15 +2316,15 @@ local function RealmLines(s, q)
 			color = e.fresh and "GameFontHighlightSmall" or "GameFontDisableSmall",
 		}
 		if not open then return end
-		if g.leader and (not only or only.lord) then
-			local lord = { name = g.leader, realm = g.realm, class = g.leaderClass, level = g.leaderLevel, zone = g.leaderZone,
-				guild = e.name, rank = L.LORD, online = lordOn, days = lordDays }
+		if g.leader and (not only or only.council) then
+			local council = { name = g.leader, realm = g.realm, class = g.leaderClass, level = g.leaderLevel, zone = g.leaderZone,
+				guild = e.name, rank = L.COUNCIL, online = councilOn, days = councilDays }
 			lines[#lines + 1] = {
-				key = g.leader, player = g.leader, offline = not lordOn,
-				indent = 1, text = Mark(g.leader, g.realm, lordOn) .. CROWN .. Gold(L.LORD) .. "  " .. ClassColored(g.leader, lord.class and ns.CLASS_FILES[lord.class])
+				key = g.leader, player = g.leader, offline = not councilOn,
+				indent = 1, text = Mark(g.leader, g.realm, councilOn) .. CROWN .. Gold(L.COUNCIL) .. "  " .. ClassColored(g.leader, council.class and ns.CLASS_FILES[council.class])
 					.. Tag(g.leader, g.realm),
-				right = Presence(lordOn, lordDays, lordDim, lordAt),
-				onClick = function() ns.UI.ShowPerson(lord) end,
+				right = Presence(councilOn, councilDays, councilDim, councilAt),
+				onClick = function() ns.UI.ShowPerson(council) end,
 			}
 		end
 		local officers = g.officers or {}
@@ -2419,7 +2419,7 @@ local function RealmLines(s, q)
 			end or nil,
 		}
 	end
-	-- (The guilds opened for a Lord, Captain or member found: `searchRows` of their rows, the
+	-- (The guilds opened for a Council member, Captain or member found: `searchRows` of their rows, the
 	-- guilds past them counted in `more`, shown on a click.)
 	local ctx, rows, more
 	if q then
@@ -2502,9 +2502,9 @@ local function RealmLines(s, q)
 		tt:AddLine(L.RECRUITING, 1, 0.82, 0)
 		Why(tt, "count-other-guild-report")
 	end }
-	-- The gates the King (or a Hand) opened: where new recruits go now (Acts.lua).
+	-- The gates the Shogun (or a Hand) opened: where new recruits go now (Acts.lua).
 	local gates = ns.Acts and ns.Acts.Gates and ns.Acts.Gates()
-	local commands = ns.King and (ns.King.CanCommand() or ns.King.Preview())
+	local commands = ns.Shogun and (ns.Shogun.CanCommand() or ns.Shogun.Preview())
 	if gates then
 		local left = math.max(0, gates.at - ns.Now())
 		lines[#lines + 1] = {
@@ -2527,7 +2527,7 @@ local function RealmLines(s, q)
 		lines[#lines + 1] = {
 			text = mark .. Green("<" .. name .. ">"), right = L.FREE_SLOTS:format(ns.FormatNumber(open[i].free)) .. AvgTag(open[i].e.g),
 			rightWide = true, -- (1.2.4's review: its average level kept whole, a long name giving way)
-			-- The King and his Hands open a guild's gates from here.
+			-- The Shogun and his Hands open a guild's gates from here.
 			onClick = commands and function() ns.Acts.GatesClick(name) end or nil,
 			tooltip = function(tt)
 				tt:AddLine("<" .. name .. ">", 0.25, 1, 0.25)
@@ -2597,7 +2597,7 @@ local function RealmLines(s, q)
 end
 
 -- One identity model for the Realm's class/race projections. Our own guild is complete from the
--- guild roster. Other guilds are necessarily partial: their reports name the Lord, Captains and
+-- guild roster. Other guilds are necessarily partial: their reports name the Council, Captains and
 -- five highest-level members, and /who contributes only people actually seen online. Missing
 -- fields remain missing; the Arena profile and crafter board are consented addon self-reports.
 local function RealmPeople(s)
@@ -2629,7 +2629,7 @@ local function RealmPeople(s)
 		if g.leader then
 			local on, days = Views.PresenceNow(e, g.leader, g.leaderOnline, g.leaderDays)
 			Add({ name = g.leader, realm = g.realm, guild = e.name, class = g.leaderClass,
-				level = g.leaderLevel, zone = g.leaderZone, rank = L.LORD, online = on, days = days, source = "report" })
+				level = g.leaderLevel, zone = g.leaderZone, rank = L.COUNCIL, online = on, days = days, source = "report" })
 		end
 		for _, o in ipairs(g.officers or {}) do
 			local on, days = Views.PresenceNow(e, o.name, o.online, o.days)
@@ -2866,15 +2866,15 @@ local function RealmNavigation()
 end
 
 local function RealmDetail(s)
-	local lords, captains, inactive = 0, 0, 0
+	local council, captains, inactive = 0, 0, 0
 	for _, e in ipairs(s.guilds) do
 		if e.fresh then
-			lords = lords + 1
+			council = council + 1
 			captains = captains + #(e.g.officers or {})
 			inactive = inactive + (e.g.inactive30 or 0)
 		end
 	end
-	return L.TAB_REALM, L.REALM_DETAIL:format(lords, captains, ns.FormatNumber(inactive)) .. "\n" .. Grey(L.CLICK_EXPAND)
+	return L.TAB_REALM, L.REALM_DETAIL:format(council, captains, ns.FormatNumber(inactive)) .. "\n" .. Grey(L.CLICK_EXPAND)
 end
 
 -- (While a search is typed, the guilds it opened close and open with them.)
@@ -2914,13 +2914,13 @@ end
 function Views.CloseDecreePage() decreePageShown = nil end
 
 local function DecreeLines(q)
-	-- The shared army agenda owns this page's top: the King's current appointment and week,
+	-- The shared army agenda owns this page's top: the Shogun's current appointment and week,
 	-- consented guild-calendar rows, and read-only Arena providers all keep the one Week identity,
 	-- signup and cancellation model.  It moved here from the Realm's Board; do not fork it into a
 	-- second event protocol.
 	local lines = {}
 	if ns.Week and ns.Week.Section then ns.Week.Section(lines, q) end
-	-- What waits in an instance or on Busy follows the agenda (1.1, ns.Alert); then the King's
+	-- What waits in an instance or on Busy follows the agenda (1.1, ns.Alert); then the Shogun's
 	-- writs, for whoever they are for (Acts.lua).
 	for _, l in ipairs(ns.HeldLines()) do lines[#lines + 1] = l end
 	for _, l in ipairs(ns.Acts and ns.Acts.WritLines and ns.Acts.WritLines() or {}) do lines[#lines + 1] = l end
@@ -3133,14 +3133,14 @@ function Views.CloseGear() wipe(gearOpen) end -- (tests)
 -- holds it, each list under its header, a page as ever; "No match" for none. Nothing else.
 local function HeraldryLines(q)
 	local s = ns.Inspect.Summary()
-	-- The King (and his Hands): the Royal Inspection, and what the patrols reported (King.lua).
+	-- The Shogun (and his Hands): the Royal Inspection, and what the patrols reported (Shogun.lua).
 	local lines = {}
-	for _, l in ipairs(not q and ns.King and ns.King.InspectionLines and ns.King.InspectionLines() or {}) do lines[#lines + 1] = l end
-	-- The untabarded: the King sees his own list (and whether the army sees it); everyone else
+	for _, l in ipairs(not q and ns.Shogun and ns.Shogun.InspectionLines and ns.Shogun.InspectionLines() or {}) do lines[#lines + 1] = l end
+	-- The untabarded: the Shogun sees his own list (and whether the army sees it); everyone else
 	-- sees it only while he shares it.
-	local king = ns.King and (ns.King.IsKing() or ns.King.Preview())
+	local shogun = ns.Shogun and (ns.Shogun.IsShogun() or ns.Shogun.Preview())
 	local shame = ns.Inspect.Shame()
-	if king then
+	if shogun then
 		shame = { list = ns.Inspect.ShameList(), mine = true }
 	end
 	local players = s.players
@@ -3166,19 +3166,19 @@ local function HeraldryLines(q)
 		lines[#lines + 1] = { header = true, text = Red(L.WALL_OF_SHAME), right = Grey(L.SHAME_OPENS:format(wait)) }
 		lines[#lines].gapAfter = true
 	elseif not (shame and #shame.list > 0) then
-		-- A fresh empty publication is meaningful: the King published that nobody currently
+		-- A fresh empty publication is meaningful: the Shogun published that nobody currently
 		-- meets the evidence rule. It is not the same as no publication lease.
-		local right = king and L.SHAME_EMPTY or (shame and L.UNTABARDED_PUBLISHED_EMPTY or L.UNTABARDED_NOT_SHARED)
+		local right = shogun and L.SHAME_EMPTY or (shame and L.UNTABARDED_PUBLISHED_EMPTY or L.UNTABARDED_NOT_SHARED)
 		lines[#lines + 1] = { header = true, text = Red(L.WALL_OF_SHAME), right = Grey(right) }
 		lines[#lines].gapAfter = true
 	else
-		local right = shame.mine and (ns.King.SharingUntabarded() and L.UNTABARDED_SHARED or L.UNTABARDED_ONLY_KING)
+		local right = shame.mine and (ns.Shogun.SharingUntabarded() and L.UNTABARDED_SHARED or L.UNTABARDED_ONLY_SHOGUN)
 			or L.PUBLISHED_BY:format(shame.by, ns.Ago(shame.t))
 		lines[#lines + 1] = { header = true, text = Red(L.WALL_OF_SHAME), right = Grey(right) }
-		-- The King pardons with a click (Acts.lua); anyone else opens the person.
+		-- The Shogun pardons with a click (Acts.lua); anyone else opens the person.
 		for i = 1, math.min(12, #shame.list) do
 			local p = shame.list[i]
-			local pardon = king and ns.King.CleanName(p.name) ~= nil
+			local pardon = shogun and ns.Shogun.CleanName(p.name) ~= nil
 			lines[#lines + 1] = { indent = 1, key = p.name, text = p.name .. "  " .. Grey("<" .. (p.guild or "?") .. ">"),
 				onClick = pardon and function() ns.ShowDialog("BANKAIGUILD_PARDON", p.name, nil, p.name) end
 					or function() ns.UI.ShowPerson({ name = p.name, guild = p.guild }) end,
@@ -3419,8 +3419,8 @@ local BUILD = {
 		return Searched(lines, "crafters", "CRAFTER"), L.CRAFTER_TITLE, L.CRAFTER_ABOUT
 	end,
 	throne = function(s)
-		if not (ns.King and ns.King.Build) then return {}, nil, nil end
-		local lines, title, text = ns.King.Build(s)
+		if not (ns.Shogun and ns.Shogun.Build) then return {}, nil, nil end
+		local lines, title, text = ns.Shogun.Build(s)
 		return lines or {}, title, text
 	end,
 	vox = function()

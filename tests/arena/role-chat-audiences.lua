@@ -17,9 +17,9 @@ local function WithRoles(fn)
 	c.Fire, c.On, c.Print, c.Log = function() end, function() end, function() end, function() end
 	c.RealmOf = function(name) return tostring(name):match("%-([^%-]+)$") or "Realm" end
 	c.IsMember, c.IsFederation = function() return true end, function(g) return g == own or g == foreign end
-	c.IsKingGuild = function() return false end
-	c.KingCharacter = function() return "Crown Owl-Realm" end
-	c.IsKingCharacter = function(name) return c.FullName(name) == c.KingCharacter() end
+	c.IsShogunGuild = function() return false end
+	c.ShogunCharacter = function() return "Crown Owl-Realm" end
+	c.IsShogunCharacter = function(name) return c.FullName(name) == c.ShogunCharacter() end
 	c.TREASURER = "Ledger Owl"
 	c.Treasury = { TreasurerPin = function(name) return c.FullName(name) == "Ledger Owl-Realm" and 1 or nil end }
 	c.IsHighCouncillor = function(name) return w.council[c.FullName(name)] == true end
@@ -78,7 +78,7 @@ test("Role audiences: council includes actual crown and federal treasurer, never
 	WithRoles(function(R, c, w)
 		eq(R.CanAccess("council"), false, "author status is not council membership")
 		eq(R.Send("council", "private"), false); eq(#w.jobs, 0)
-		eq(R.CanAccess("council", c.KingCharacter()), true)
+		eq(R.CanAccess("council", c.ShogunCharacter()), true)
 		eq(R.CanAccess("council", "Ledger Owl"), true)
 		w.council[c.me], c.rdb.council.names[c.me:lower()] = true, c.me
 		eq(R.CanAccess("council"), true)
@@ -160,7 +160,7 @@ test("Role audiences (1.2.4): a guild master sits with his centurions, in his gu
 		eq(R.CanAccess(corr, "Head Owl"), true)
 		eq(R.CanAccess("allcenturions", "Head Owl"), true, "every guild's masters")
 		eq(R.CanAccess("allcenturions", "Head Wren"), true)
-		eq(R.CanAccess("allcenturions", c.KingCharacter()), true, "the King")
+		eq(R.CanAccess("allcenturions", c.ShogunCharacter()), true, "the Shogun")
 		eq(R.CanAccess(mine, "Wren Thistle"), false, "another guild's centurion")
 		eq(R.CanAccess(mine, "Head Wren"), false, "another guild's master")
 		eq(R.CanAccess("allcenturions", "Wren Thistle"), true)

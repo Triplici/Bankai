@@ -30,9 +30,9 @@ M.CUTS = {
 	{ title = "Channels", keep = 2 }, -- what each channel is, and its table
 	{ title = "The Chat tab (1.1.1)", keep = 1 }, -- (1.1.6: the page grew past the budget with 1.2's sections)
 	{ title = "Net-off (1.1): the moderators hide a character or take a guild off the network", keep = 1 },
-	{ title = "The Throne (the King and his Hands)", keep = 1 },
-	{ title = "The King's Steward (1.0.0)", keep = 2 }, -- his opening and what he does (what he never does: the README)
-	{ title = "The Treasury (its keepers, the King, and the army when the King says so)", keep = 1 },
+	{ title = "The Throne (the Shogun and his Hands)", keep = 1 },
+	{ title = "The Shogun's Steward (1.0.0)", keep = 2 }, -- his opening and what he does (what he never does: the README)
+	{ title = "The Treasury (its keepers, the Shogun, and the army when the Shogun says so)", keep = 1 },
 	{ title = "Privacy", keep = 1 },
 	{ title = "Security and trust", keep = 2 },
 	{ title = "What colluding characters can reach", keep = 1 },
@@ -48,7 +48,7 @@ M.CUTS = {
 	{ title = "Role rooms (1.2.4)", keep = 1 },
 	-- (1.2.5: the hostile-area API disclosure pushed the store page past its editor budget; keep
 	-- layer hop's complete player flow here and leave its discovery/security detail in the README.)
-	{ title = "Layer hop: join the King's layer without begging in chat", keep = 4 },
+	{ title = "Layer hop: join the Shogun's layer without begging in chat", keep = 3 },
 	-- (1.2.5: the API's leader presence and wider area scope pushed it past the budget again: the
 	-- API's opening paragraph stays; its page-surface paragraph and the authors' link are the README's.)
 	{ title = "Other addons: the Bankai Guild API (1.2.4)", keep = 1 },
@@ -66,7 +66,7 @@ M.CUTS = {
 -- page past the budget with the role rooms' section: /bk approved's row is the README's.)
 M.COMMANDS_TITLE = "Commands"
 M.COMMANDS = {
-	"/bk", "/bk realm", "/bk privacy", "/bk chat on\\|off", "/bg <text>", "/bk talk [bankaiguild\\|captains\\|lords]",
+	"/bk", "/bk realm", "/bk privacy", "/bk chat on\\|off", "/bg <text>", "/bk talk [bankaiguild\\|captains\\|council]",
 	"/bk mute bankaiguild", "/bk chatwindow tab", "/bk hop", "/bk lfg", "/bk week", "/bk craft [item or name]",
 	"/bk loot", "/bk helpme [text]", "/bk location on", "/bk borders on",
 	"/bk nameplates on", "/bk chatmarks on", "/bk block <name>", "/bk filter add\\|remove <word>",

@@ -12,7 +12,7 @@ local L = ns.L
 --     about a roll is believed, and scores are never sent;
 --   - the clocks (the turn timer, HIC!'s own, the combat pause of the design, the tavern pause of
 --     the design), the handshake, resync (KQ, KR) and the divergence rule of the design;
---   - the stake glue (the design: direct o/o, arbiter t/t or w/w, the King w/w), against the
+--   - the stake glue (the design: direct o/o, arbiter t/t or w/w, the Shogun w/w), against the
 --     documented interfaces of Stakes, Wallet, Markets, Debts and ArenaMoney;
 --   - the tavern rule (the design; 1.1.6: a tavern or a camp, for every game that counts, staked or
 --     not): played in one party, within about 10 yd, both at one inn (IsResting and Places.InnAt by
@@ -26,7 +26,7 @@ local L = ns.L
 --     live record, so a /reload keeps announcing the table (1.2.3). A game against the House is
 --     never announced (nothing of practice is sent: the House's dice are this client's own);
 --   - what counts (1.2.3, the owner's decision 1): a free game between players (no gold, the only
---     kind 1.2.x allows) counts for the history and the ranking whatever the King's live switch,
+--     kind 1.2.x allows) counts for the history and the ranking whatever the Shogun's live switch,
 --     which stays off and is the 2.0 bets' alone; a test build's never (FreeCounts). Both players'
 --     clients must count it (each says so: "c" on KI and KA): against a test build or a 1.2.2
 --     client, it is a rehearsal on both sides. Its records are the live realm's (L), its messages
@@ -50,7 +50,7 @@ local L = ns.L
 --     log (/bk farkle log);
 --   - the games' ledger (1.1.6, the owner's ask 2026-10-05): every game that ended, between players
 --     (staked or not) or against the House, goes to ArenaLedger.Played (its AY: the auditors, the
---     King's character, a High Councillor, a signed arbiter with "+a", the author's own character's
+--     Shogun's character, a High Councillor, a signed arbiter with "+a", the author's own character's
 --     entry among them, get every game; each player keeps his own), and Bones's own history
 --     keeps the table's details (History, MyGames).
 -- The screens are the companion's (BankaiGuild_Arena/FarkleBoard.lua): this file fires FARKLE_TABLE
@@ -195,7 +195,7 @@ FT.REASONS = { b = true, d = true, l = true, n = true, a = true, g = true, c = t
 FT.INVITES_BURST = 2      -- invitations from this many different players...
 FT.INVITES_WINDOW = 600   -- ...within this many seconds: one question, stop receiving them?
 
--- The stake sources by kind (the design): direct o/o; arbiter t/t or w/w; the King w/w.
+-- The stake sources by kind (the design): direct o/o; arbiter t/t or w/w; the Shogun w/w.
 FT.SOURCES = { d = { o = true }, a = { t = true, w = true } }
 
 -- (agreed: the invitation accepted, the table not yet open: the host waits for the party or the
@@ -233,11 +233,11 @@ FT.Wagers = Wagers
 local function Arbiters() return Call("Compliance", "Arbiters") == true end
 FT.Arbiters = Arbiters
 -- Decision 1 (1.2.3, the owner's): a free game (no gold) counts for the history and the ranking
--- whatever the King's live switch (ArenaRoles' live, which stays off: it is the 2.0 bets' alone);
+-- whatever the Shogun's live switch (ArenaRoles' live, which stays off: it is the 2.0 bets' alone);
 -- a test build's never, nor the sim's. The duels' lane gives this switch in ArenaNet/Compliance;
 -- until that is merged, this local helper says the same, and it is the one line to point there.
 local function FreeCounts() return not A().Sim() and not A().TestBuild() end
--- The King's live switch, as this client has his word.
+-- The Shogun's live switch, as this client has his word.
 local function LiveOn()
 	local Ro = ns.ArenaRoles
 	return type(Ro) == "table" and type(Ro.Live) == "function" and Ro.Live() == true
@@ -392,7 +392,7 @@ local function HistoryRecord(r)
 	return entry
 end
 -- This character's games of both modes, newest first (the screens' "Your games"): the live realm's
--- and the rehearsals', where every game goes while the King's live switch is off (1.1.6's case).
+-- and the rehearsals', where every game goes while the Shogun's live switch is off (1.1.6's case).
 function FT.MyGames()
 	local all, seen = {}, {}
 	for _, mode in ipairs({ "L", "T" }) do
@@ -2802,7 +2802,7 @@ function FT.CanCreate(opts)
 		if not FT.SOURCES[kind][src] then return false, "source" end
 		if kind == "a" then
 			if not opts.arbiter then return false, "arbiter" end
-			if ns.ArenaRoles.IsKing(opts.arbiter) and src ~= "w" then return false, "king" end
+			if ns.ArenaRoles.IsShogun(opts.arbiter) and src ~= "w" then return false, "shogun" end
 		end
 		local why = FT.StakeWhy(src, stake, opts.arbiter)
 		if why then return false, why end
@@ -2942,8 +2942,8 @@ function FT.AskArbiter(id, name)
 	name = Full(name)
 	if not name then return false, "name" end
 	if name ~= t.arbiter then
-		-- a new arbiter: the same agreed terms but him (the King needs the wallet on both sides)
-		if ns.ArenaRoles.IsKing(name) and t.src[1] ~= "w" then return false, "king" end
+		-- a new arbiter: the same agreed terms but him (the Shogun needs the wallet on both sides)
+		if ns.ArenaRoles.IsShogun(name) and t.src[1] ~= "w" then return false, "shogun" end
 		t.arbiter = name
 	end
 	t.state, t.askedAt = "asked", Clock()
@@ -3424,7 +3424,7 @@ local function OnInvite(dist, sender, mode, body)
 		if Call("Debts", "SameOwner", Me(), sender) then return Refuse(t, sender, "a") end
 		if Call("Debts", "Blocked", sender) then return Refuse(t, sender, "n") end
 		if (hostSrc == "o" or hostSrc == "t") and not A().Persists() then return Refuse(t, sender, "g") end
-		if kind == "a" and ns.ArenaRoles.IsKing(arbiter) and hostSrc ~= "w" then return Refuse(t, sender, "k") end
+		if kind == "a" and ns.ArenaRoles.IsShogun(arbiter) and hostSrc ~= "w" then return Refuse(t, sender, "k") end
 		if kind == "d" and A().Counts(mode) then
 			-- the host's standing token and IOU (the design): checked by the money package
 			if (token or "") == "" or Call("Standing", "CheckToken", token) == false then return Refuse(t, sender, "l") end
@@ -3526,7 +3526,7 @@ local function OnOfficiate(dist, sender, mode, body)
 	if not ns.ArenaRoles.IsArbiter(Me(), mode) then return No("n") end
 	if IsPlayer(t, Me()) or Call("Debts", "SameOwner", Me(), host) or Call("Debts", "SameOwner", Me(), guest) then return No("a") end
 	if Arbitrating() >= FT.ARBITRATE_MAX or FT.Live() then return No("b") end
-	if ns.ArenaRoles.IsKing(Me()) and stake > 0 and srcs ~= "ww" then return No("k") end
+	if ns.ArenaRoles.IsShogun(Me()) and stake > 0 and srcs ~= "ww" then return No("k") end
 	if stake > 0 and srcs == "tt" and 2 * stake > ns.ArenaRoles.ArbiterCap(Me()) then return No("l") end
 	if stake > 0 and srcs ~= "tt" and srcs ~= "ww" then return No("s") end
 	tables[id] = t

@@ -2,7 +2,7 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- Logical rooms on the Chat page. They are deliberately not extra Channels tiers:
--- [Bankai Guild], [Captains] and [Lords] keep their public wire, consent, chat-window routing and
+-- [Bankai Guild], [Captains] and [Council] keep their public wire, consent, chat-window routing and
 -- Chattynator integration unchanged. These rooms use a versioned whole message of their own:
 --
 --   M2~1~<room>~<id>~<class>~<guild>~<text>
@@ -17,8 +17,8 @@ local L = ns.L
 -- 1.2.4, the role rooms the author asked for ("a gente me ajuda a repensar quais são todos os chats
 -- de função que precisam"), each one check for who reads, sends and is heard (Rooms.CanAccess; the
 -- kinds below, in the Roles menu's order):
---   council          the High Council: the signed councillors, the King, the Federal Treasurer
---   secretariat      the King and his Stewards
+--   council          the High Council: the signed councillors, the Shogun, the Federal Treasurer
+--   secretariat      the Shogun and his Stewards
 --   masters          the guild masters of every Bankai Guild guild
 --   allcenturions    the guild masters and their centurions (officers and named), every guild
 --   dept:<d>         one per department: its titled councillors and every guild's correspondent of it
@@ -52,7 +52,7 @@ Rooms.GUILD_KEYS_MAX = 512  -- guild keys remembered (the census keeps 300 guild
 Rooms.REFRESH_EVERY = 60
 Rooms.RECIPIENTS_EVERY = 180
 -- A line goes to FANOUT members of a room at most (one whisper each, 1.2 s apart: 40 take about 48 s;
--- Comm's queue holds 60): the author, the King, the High Council, the guild masters, those heard in the
+-- Comm's queue holds 60): the author, the Shogun, the High Council, the guild masters, those heard in the
 -- room in the last HEARD_FOR seconds, then the others by name; the sender is told how many it missed.
 Rooms.FANOUT = 40
 Rooms.HEARD_FOR = 10 * 60
@@ -125,11 +125,11 @@ local function DepartmentFor(name)
 end
 
 local function IsSecretariat(name)
-	return (ns.IsKingCharacter and ns.IsKingCharacter(name) == true)
+	return (ns.IsShogunCharacter and ns.IsShogunCharacter(name) == true)
 		or (ns.IsSteward and ns.IsSteward(name) == true)
 end
 
-local function IsKing(name) return ns.IsKingCharacter and ns.IsKingCharacter(name) == true or false end
+local function IsShogun(name) return ns.IsShogunCharacter and ns.IsShogunCharacter(name) == true or false end
 
 -- 1.2.4, the author ("Em relação à minha visão de suas outras salas, deixa fora a do High Council.
 -- Todas as outras, eu preciso estar. Eu preciso poder ver e, se precisar, mandar mensagem como
@@ -205,7 +205,7 @@ local function Guilds()
 		end
 	end
 	Add(OwnGuild())
-	if ns.KingGuildName then Add(ns.KingGuildName()) end
+	if ns.ShogunGuildName then Add(ns.ShogunGuildName()) end
 	for guild in pairs(ns.rdb and ns.rdb.guilds or {}) do Add(guild) end
 	-- (1.2.4: and the signed list's guilds, which the census may not have heard yet.)
 	local m = Manifest()
@@ -245,7 +245,7 @@ local function Rank(name, guild)
 		if not known then known = {}; listing.rank[who] = known end
 		if known[guild] ~= nil then return known[guild] or nil end
 	end
-	-- Our own roster, the pinned King or the signed list; never the census (two characters could
+	-- Our own roster, the pinned Shogun or the signed list; never the census (two characters could
 	-- otherwise invent a guild and vouch for each other into these rooms).
 	local rank, source = D.AuthorizedRank(ns.FullName(name), guild)
 	if source == "census" then rank = nil end
@@ -260,8 +260,8 @@ local function Nomination(name, guild)
 	if not N or not N.ListOf or not N.RoleOf then return nil end
 	local list = N.ListOf(guild)
 	if not list or type(list.by) ~= "string" then return nil end
-	if ns.IsKingGuild(guild) then
-		if not ((ns.IsKingCharacter and ns.IsKingCharacter(list.by)) or ns.IsHighCouncillor(list.by)) then return nil end
+	if ns.IsShogunGuild(guild) then
+		if not ((ns.IsShogunCharacter and ns.IsShogunCharacter(list.by)) or ns.IsHighCouncillor(list.by)) then return nil end
 	elseif Rank(list.by, guild) ~= 0 or not N.Proven or N.Proven(list.by, guild) ~= true then return nil end
 	if OwnGuild() == guild then
 		local R = ns.Roster
@@ -298,7 +298,7 @@ local function Correspondent(name, department)
 end
 
 -- The historical room ids and role token remain compatible. Legates of every guild, including
--- the King's, are appointed explicitly; a signed High Council title never appoints its holder.
+-- the Shogun's, are appointed explicitly; a signed High Council title never appoints its holder.
 -- Native officers retain their existing guild-room oversight, not an automatic Legate title.
 local function Centurion(name, guild)
 	local rank = Rank(name, guild)
@@ -306,11 +306,11 @@ local function Centurion(name, guild)
 		or Nomination(name, guild) == "centurion"
 end
 
--- 1.2.4: a guild's master: rank 0 by our roster or the signed list, and the pinned King for his own
+-- 1.2.4: a guild's master: rank 0 by our roster or the signed list, and the pinned Shogun for his own
 -- guild (without the signed list another guild's client knows him only from the census, which
--- Rank refuses: the King's guild's rooms would refuse the King).
+-- Rank refuses: the Shogun's guild's rooms would refuse the Shogun).
 local function Master(name, guild)
-	if ns.IsKingGuild(guild) and IsKing(name) then return true end
+	if ns.IsShogunGuild(guild) and IsShogun(name) then return true end
 	return Rank(name, guild) == 0
 end
 
@@ -344,7 +344,7 @@ local function GuildKey(guild)
 end
 Rooms.GuildKey = GuildKey
 
--- The guilds this client lists: ours, the King's, the approved ones, the census's and the signed
+-- The guilds this client lists: ours, the Shogun's, the approved ones, the census's and the signed
 -- list's (each an Bankai Guild guild).
 local function KnownGuilds()
 	local out, seen = {}, {}
@@ -354,7 +354,7 @@ local function KnownGuilds()
 		end
 	end
 	Add(OwnGuild())
-	if ns.KingGuildName then Add(ns.KingGuildName()) end
+	if ns.ShogunGuildName then Add(ns.ShogunGuildName()) end
 	if ns.ApprovedGuilds then
 		local ok, list = pcall(ns.ApprovedGuilds)
 		for _, guild in ipairs(ok and type(list) == "table" and list or {}) do Add(guild) end
@@ -403,23 +403,23 @@ end
 local Candidates = {} -- shared candidate sources, below (Members)
 
 KINDS[#KINDS + 1] = { id = "council", kind = "authority", label = function() return Text("CHATROOM_COUNCIL", "High Council") end,
-	preview = { king = true, councillor = true, treasurer = true },
-	Access = function(name) return ns.IsHighCouncillor(name) == true or IsKing(name) or FederalTreasurer(name) end,
+	preview = { shogun = true, councillor = true, treasurer = true },
+	Access = function(name) return ns.IsHighCouncillor(name) == true or IsShogun(name) or FederalTreasurer(name) end,
 	Candidates = function(add) Candidates.Council(add) end }
 KINDS[#KINDS + 1] = { id = "secretariat", kind = "authority", label = function() return Text("CHATROOM_SECRETARIAT", "Secretariat") end,
-	preview = { king = true },
+	preview = { shogun = true },
 	Access = function(name) return IsSecretariat(name) end,
 	Candidates = function(add)
-		if ns.KingCharacter then add(ns.KingCharacter(), 2) end
+		if ns.ShogunCharacter then add(ns.ShogunCharacter(), 2) end
 		for _, name in ipairs(ns.Stewards and ns.Stewards() or {}) do add(name) end
 	end }
 KINDS[#KINDS + 1] = { id = "masters", kind = "role", label = function() return Text("CHATROOM_MASTERS", "Guild Masters") end,
-	preview = { king = true, gm = true }, author = true,
-	Access = function(name) return IsAuthor(name) or IsKing(name) or AnyGuild(name, function(n, g) return Rank(n, g) == 0 end) end,
+	preview = { shogun = true, gm = true }, author = true,
+	Access = function(name) return IsAuthor(name) or IsShogun(name) or AnyGuild(name, function(n, g) return Rank(n, g) == 0 end) end,
 	Candidates = function(add) Candidates.Leaders(add) end }
 KINDS[#KINDS + 1] = { id = "allcenturions", kind = "role", label = function() return Text("CHATROOM_ALLCENTURIONS", "Masters & Legates") end,
-	preview = { king = true, gm = true, officer = true }, author = true,
-	Access = function(name) return IsAuthor(name) or IsKing(name) or ns.IsHighCouncillor(name) == true or AnyGuild(name, function(n, g) return Master(n, g) or Centurion(n, g, false) end) end,
+	preview = { shogun = true, gm = true, officer = true }, author = true,
+	Access = function(name) return IsAuthor(name) or IsShogun(name) or ns.IsHighCouncillor(name) == true or AnyGuild(name, function(n, g) return Master(n, g) or Centurion(n, g, false) end) end,
 	Candidates = function(add) Candidates.Leaders(add); Candidates.Council(add) end }
 KINDS[#KINDS + 1] = { prefix = "dept", kind = "department", group = "dept", author = true,
 	groupLabel = function() return Text("CHATROOM_GROUP_DEPARTMENTS", "Departments") end,
@@ -443,8 +443,8 @@ KINDS[#KINDS + 1] = { prefix = "gcorr", kind = "role", group = "gcorr", perGuild
 		if Same(guild, OwnGuild()) then return Text("CHATROOM_GCORR", "Master & Correspondents") end
 		return Text("CHATROOM_GCORR_OF", "%s: Master & Correspondents"):format(guild)
 	end,
-	-- (The King's guild has no correspondents, Nominees.lua: no such room for it.)
-	Has = function(guild) return not ns.IsKingGuild(guild) end,
+	-- (The Shogun's guild has no correspondents, Nominees.lua: no such room for it.)
+	Has = function(guild) return not ns.IsShogunGuild(guild) end,
 	preview = { gm = true, correspondent = true },
 	Access = function(name, guild)
 		return IsAuthor(name) or not Abroad(name, guild) and (Master(name, guild) or Nomination(name, guild) == "correspondent")
@@ -456,7 +456,7 @@ KINDS[#KINDS + 1] = { prefix = "gcent", kind = "role", group = "gcent", perGuild
 		if Same(guild, OwnGuild()) then return Text("CHATROOM_GCENT", "Master & Legates") end
 		return Text("CHATROOM_GCENT_OF", "%s: Master & Legates"):format(guild)
 	end,
-	preview = { king = true, gm = true, officer = true },
+	preview = { shogun = true, gm = true, officer = true },
 	Access = function(name, guild)
 		return IsAuthor(name) or not Abroad(name, guild) and (Master(name, guild) or Centurion(name, guild, true))
 	end,
@@ -495,13 +495,13 @@ end
 -- 1.2.4: a room whose people of other guilds this client verifies from the author's signed
 -- leadership list alone (Authority.lua: another guild's ranks come from the census until it counts,
 -- and the rooms never take the census): the masters', every guild's masters and centurions', the
--- departments', another guild's own rooms (the author's view; the King's guild's are the pinned King
--- and the list the King and the High Council name). While it does not count, such a room reaches
+-- departments', another guild's own rooms (the author's view; the Shogun's guild's are the pinned Shogun
+-- and the list the Shogun and the High Council name). While it does not count, such a room reaches
 -- this character's own guild and the signed people alone: the page says so (Rooms.StatusText).
 local function NeedsLeaders(k, arg)
 	if not k or Rooms.Enforced() then return false end
 	if k.id == "masters" or k.id == "allcenturions" or k.prefix == "dept" then return true end
-	return k.perGuild == true and not Same(arg, OwnGuild()) and not ns.IsKingGuild(arg)
+	return k.perGuild == true and not Same(arg, OwnGuild()) and not ns.IsShogunGuild(arg)
 end
 
 local function Restricted(id)
@@ -617,7 +617,7 @@ function Rooms.PreviewOnly(id)
 	return info ~= nil and info.scope == "restricted" and PreviewRole() ~= nil
 end
 
--- 1.2.4: the guilds whose own rooms the author's menu offers: his own, the King's, then the signed
+-- 1.2.4: the guilds whose own rooms the author's menu offers: his own, the Shogun's, then the signed
 -- leadership list's guilds while it counts; until it does, the approved guilds and the census's (their
 -- people reach him only once it counts: Rooms.NeedsLeaders).
 local function AuthorGuilds()
@@ -629,7 +629,7 @@ local function AuthorGuilds()
 		end
 	end
 	Add(out, OwnGuild())
-	if ns.KingGuildName then Add(out, ns.KingGuildName()) end
+	if ns.ShogunGuildName then Add(out, ns.ShogunGuildName()) end
 	local m = Manifest()
 	if m then
 		for _, g in pairs(m.guilds) do if type(g) == "table" then Add(rest, g.name) end end
@@ -916,10 +916,10 @@ local function Offline(full, roster)
 end
 
 -- 1.2.4: where each kind's candidates come from (Members). Candidate discovery grants nothing:
--- Members' Add checks each candidate's current access again. add(name, order): order 2 the King,
+-- Members' Add checks each candidate's current access again. add(name, order): order 2 the Shogun,
 -- 3 a councillor, 4 a guild master (who goes first when a room has more than its share).
 function Candidates.Council(add)
-	if ns.KingCharacter then add(ns.KingCharacter(), 2) end
+	if ns.ShogunCharacter then add(ns.ShogunCharacter(), 2) end
 	if ns.TREASURER then add(ns.TREASURER, 3) end
 	local c = ns.rdb and ns.rdb.council
 	for key, display in pairs(type(c) == "table" and type(c.names) == "table" and c.names or {}) do
@@ -940,9 +940,9 @@ local function RosterLeaders(add)
 end
 
 -- Every guild's master and officers (our roster, the census's word for a candidate, the signed list),
--- every guild's nominees, the King.
+-- every guild's nominees, the Shogun.
 function Candidates.Leaders(add)
-	if ns.KingCharacter then add(ns.KingCharacter(), 2) end
+	if ns.ShogunCharacter then add(ns.ShogunCharacter(), 2) end
 	RosterLeaders(add)
 	-- (The census's word for another guild's master and officers is only a candidate, and only one
 	-- that can pass while the signed list counts.)
@@ -965,8 +965,8 @@ end
 
 -- One guild's master, its officers when `officers`, and its nominees.
 function Candidates.Guild(add, guild, officers)
-	if ns.IsKingGuild(guild) and ns.KingCharacter then add(ns.KingCharacter(), 2) end
-	if officers and ns.IsKingGuild(guild) then Candidates.Council(add) end
+	if ns.IsShogunGuild(guild) and ns.ShogunCharacter then add(ns.ShogunCharacter(), 2) end
+	if officers and ns.IsShogunGuild(guild) then Candidates.Council(add) end
 	if Same(guild, OwnGuild()) then RosterLeaders(add) end
 	local g = Enforced() and ns.Data and ns.Data.Guild and ns.Data.Guild(guild)
 	if g then
@@ -1008,7 +1008,7 @@ local function Members(id)
 		if not seen[key] and not IsMe(full) and Rooms.CanAccess(id, full) then
 			seen[key] = true
 			if not Offline(full, roster) then
-				order = IsAuthor(full) and 1 or IsKing(full) and 2 or (ns.IsHighCouncillor and ns.IsHighCouncillor(full) == true) and 3
+				order = IsAuthor(full) and 1 or IsShogun(full) and 2 or (ns.IsHighCouncillor and ns.IsHighCouncillor(full) == true) and 3
 					or (order == 3 or order == 4) and order or heard[key] and 5 or 6
 				list[#list + 1] = { name = full, order = order }
 			end
@@ -1068,7 +1068,7 @@ local function NotReached(id, left)
 		local ok, text = pcall(a.notReached, left)
 		if ok and type(text) == "string" then return text end
 	end
-	return Text("CHATROOM_NOT_REACHED", "%d members of this room online were not reached: a line goes to %d at most (the author, the King, the High Council and the guild masters first)."):format(left, Rooms.FANOUT)
+	return Text("CHATROOM_NOT_REACHED", "%d members of this room online were not reached: a line goes to %d at most (the author, the Shogun, the High Council and the guild masters first)."):format(left, Rooms.FANOUT)
 end
 
 local function CleanGuild(guild)
@@ -1553,7 +1553,7 @@ local function Arrive(m, key, title)
 	Try = function()
 		local spec, live = MatterNow(m)
 		if not live then why = "over" return end
-		-- (1.2.3, the King's stream: "the window opened by itself".) A matter the player did not
+		-- (1.2.3, the Shogun's stream: "the window opened by itself".) A matter the player did not
 		-- just start (m.ifOpen: another member's claim on his request) comes only into the Bankai Guild
 		-- window he has open: closed, it stays closed (its line and sound tell it; its page opens it).
 		local UI = rawget(ns, "UI")

@@ -465,7 +465,7 @@ end
 
 local function ChatRow(at, room, isSelf, author, text)
 	at = Whole(at, MAX_TIME)
-	room = CHAT_ROOMS[room] and room or nil -- the exact native BankaiGuild/Captains/Lords lane
+	room = CHAT_ROOMS[room] and room or nil -- the exact native BankaiGuild/Captains/Council lane
 	author = Plain(author, 64)
 	if author and author:find("~", 1, true) then author = nil end
 	text = ChatText(text)

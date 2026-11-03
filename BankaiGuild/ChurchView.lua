@@ -66,7 +66,7 @@ end
 
 local function Audience()
 	local role = PreviewRole()
-	if role then return role == "king" or role == "councillor" end
+	if role then return role == "shogun" or role == "councillor" end
 	return Church.InAudience(ns.me)
 end
 
@@ -78,7 +78,7 @@ end
 local function Rights()
 	local role = PreviewRole()
 	if not role then return Church.Rights() end
-	if role == "king" then return { root = "K", apostle = Church.APOSTLES_MAX - Church.State().apostles, correspondent = Church.OwnGuild() } end
+	if role == "shogun" then return { root = "K", apostle = Church.APOSTLES_MAX - Church.State().apostles, correspondent = Church.OwnGuild() } end
 	if role == "councillor" then return { apostle = Church.APOSTLES_MAX - Church.State().apostles } end
 	if role == "gm" then return { correspondent = Church.OwnGuild() } end
 	return {}
@@ -167,7 +167,7 @@ local function Filters(who)
 	return { filters = filters, id = "church-filters", gapAfter = true }
 end
 
-local ROLE_LABEL = { W = "CHURCH_ROLE_AUTHOR", K = "CHURCH_ROLE_KING", H = "CHURCH_HEAD", A = "CHURCH_APOSTLE", M = "CHURCH_MISSIONARY",
+local ROLE_LABEL = { W = "CHURCH_ROLE_AUTHOR", K = "CHURCH_ROLE_SHOGUN", H = "CHURCH_HEAD", A = "CHURCH_APOSTLE", M = "CHURCH_MISSIONARY",
 	C = "CHURCH_CORRESPONDENT", N = "CHURCH_ROLE_COUNCIL" }
 function View.RoleLabel(role) return role and L[ROLE_LABEL[role]] or "" end
 

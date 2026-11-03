@@ -20,7 +20,7 @@ test("Chat picker anchor: Arena and role menus retain their right edge placement
 		local V, preview, role = ns.ViewAs, ns.ViewAs.Previewing, ns.ViewAs.Role
 		local ok, why = pcall(function()
 			V.Previewing = function() return true end
-			V.Role = function() return "king" end
+			V.Role = function() return "shogun" end
 			w.fire("DATA_CHANGED"); w.CW.Render()
 			local owner = Tab(f, "role")
 			owner:Click()

@@ -56,9 +56,9 @@ end
 
 local function Live(native)
 	local w = FW.New()
-	local king = w:Role("king", { companion = { state = "missing" } })
+	local shogun = w:Role("shogun", { companion = { state = "missing" } })
 	local a, b, s = w:Player(N.fighterA), w:Player(N.fighterB), w:Player(N.bettor1)
-	assert(king.Roles.SetSettings({ live = 1 })); w:Run(0)
+	assert(shogun.Roles.SetSettings({ live = 1 })); w:Run(0)
 	for _, c in ipairs({ a, b, s }) do c.Arena.SetRules(true) end
 	w:Group({ a, b }); w:AtInn(a.name, b.name)
 	local id = assert(w:As(a, a.ns.FarkleTable.Create, { guest = b.name, target = 2000, secs = 120 }))
@@ -152,15 +152,15 @@ end)
 
 test("Bones chat core: even a known legacy arbiter table's Players audience is exactly the two players", function()
 	local w, a, b, _, id, rooms = Live()
-	local king = w:Find(N.king)
-	eq(w:As(a, a.ns.ArenaRoles.IsArbiter, king.name, "L"), true, "real pinned King's existing arbiter role")
+	local shogun = w:Find(N.shogun)
+	eq(w:As(a, a.ns.ArenaRoles.IsArbiter, shogun.name, "L"), true, "real pinned Shogun's existing arbiter role")
 	-- A legacy known table model can carry an arbiter although current free-table creation
 	-- needs none. The field cannot extend the requested two-player conversation audience.
-	a.ns.FarkleTable.Get(id).arbiter = king.name
-	b.ns.FarkleTable.Get(id).arbiter = king.name
+	a.ns.FarkleTable.Get(id).arbiter = shogun.name
+	b.ns.FarkleTable.Get(id).arbiter = shogun.name
 	eq(#w:As(a, a.ns.ArenaChat.Party, w:As(a, a.ns.ArenaChat.Event, rooms.players)), 2)
-	eq(w:As(a, a.ns.ArenaChat.MayRead, rooms.players, king.name), false)
-	eq(w:As(a, a.ns.ArenaChat.MayRead, rooms.everyone, king.name), true)
+	eq(w:As(a, a.ns.ArenaChat.MayRead, rooms.players, shogun.name), false)
+	eq(w:As(a, a.ns.ArenaChat.MayRead, rooms.everyone, shogun.name), true)
 	eq(w:As(a, a.ns.ArenaChat.Send, rooms.players, "two players only"), true); Drain(w, a)
 	eq(Count(w, "EC"), 1); eq(w.sent[1].target, b.short)
 end)

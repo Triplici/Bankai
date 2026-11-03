@@ -494,7 +494,7 @@ function Codec.SanitizeChat(s)
 			i = j + (len or 1)
 		end
 	end
-	-- Runs of spaces become one: padding could push a fake "[Lords] [Shobek] ..." to the start
+	-- Runs of spaces become one: padding could push a fake "[Council] [Shobek] ..." to the start
 	-- of a wrapped line.
 	return (table.concat(out):gsub("%s%s+", " "):gsub("^%s+", ""):gsub("%s+$", ""))
 end
@@ -628,7 +628,7 @@ end
 -- 1.2.1 (a security review): a full buffer refused every new message, so about a hundred characters
 -- holding OPEN_PER_SENDER messages open each kept multi-piece messages from everyone, the census's
 -- reports among them. A full buffer now makes room (Room): for those a stranger can't be (Trusted:
--- our guildmates, as the server's roster has them, the pinned King, the signed High Council) the
+-- our guildmates, as the server's roster has them, the pinned Shogun, the signed High Council) the
 -- oldest open message of the stranger holding the most goes; for a stranger, the same, while that
 -- one holds more than he would then hold himself. A flood then needs OPEN_MAX characters with one
 -- message open each, and never keeps out those trusted. A stranger's look that found nothing to
@@ -638,7 +638,7 @@ function Codec.Trusted(sender)
 	local ok, yes = pcall(function()
 		local R = ns.Roster
 		if type(R) == "table" and type(R.RankOf) == "function" and R.RankOf(sender) ~= nil then return true end
-		if type(ns.IsKingCharacter) == "function" and ns.IsKingCharacter(sender) then return true end
+		if type(ns.IsShogunCharacter) == "function" and ns.IsShogunCharacter(sender) then return true end
 		return type(ns.IsHighCouncillor) == "function" and ns.IsHighCouncillor(sender) == true
 	end)
 	return ok and yes == true

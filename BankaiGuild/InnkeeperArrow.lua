@@ -1,6 +1,6 @@
 local ADDON, ns = ...
 
--- Local, explicitly requested guidance to an existing training inn. No player location, King
+-- Local, explicitly requested guidance to an existing training inn. No player location, Shogun
 -- policy, crown, waypoint, consent or network state is read or changed. The registry's world
 -- coordinates describe an inn's rest area (a capital's keeper spot), not live NPC GPS or a route.
 local Arrow = {}
@@ -107,7 +107,7 @@ local function Atan2(y, x)
 end
 
 -- HereBeDragons positions the pin, including the rotating minimap. Read that screen vector,
--- as KingArrow does, instead of guessing player facing/map axes. Show inside minimap range too.
+-- as ShogunArrow does, instead of guessing player facing/map axes. Show inside minimap range too.
 local function UpdateDirection() -- gp:minimap
 	if not ns.Gate.Allowed("minimap") then return Arrow.Cancel("gamepad") end
 	if not active or not drawn or not frame then return false end

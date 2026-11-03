@@ -7,8 +7,8 @@ local L = ns.L
 -- chat room. Counting the people they bring in is ChurchCount.lua's; the tab is ChurchView.lua's.
 --
 -- Who is who, as every client works it out from what it holds itself, never from a message:
--- - The roots: the author (Workshop.IsAuthorName) and Shobek, the King and immutable Head of
---   the Church (ns.IsKingCharacter, with the existing faction and realm identity guards).
+-- - The roots: the author (Workshop.IsAuthorName) and Shobek, the Shogun and immutable Head of
+--   the Church (ns.IsShogunCharacter, with the existing faction and realm identity guards).
 -- - The Twelve Apostles: the author's signed titles list names them in an entry of its own, one
 --   per faction, with three "^" as the Steward's, so older clients leave it out unread:
 --     ^apostles^<Alliance|Horde>^[*]<First Surname-Realm>,...     (Church.APOSTLES_MAX at most;
@@ -31,7 +31,7 @@ local L = ns.L
 --   still gains nothing beyond his own guild's correspondent (Church.MayAct).
 -- - The audience (the room, the tab, the numbers): the roots, the Apostles, the missionaries, the
 --   correspondents and the High Council. The keepers (they serve the book and keep the ledger):
---   the Head, the Apostles and the author. The King's client does no background work beyond
+--   the Head, the Apostles and the author. The Shogun's client does no background work beyond
 --   handing his own acts to the keepers who were away (Church.DeliverActs).
 --
 -- A removal leaves a tombstone with the parent the person had. A missionary whose parent is a
@@ -247,34 +247,34 @@ function Church.IsAuthor(name)
 	local W = ns.Workshop
 	return type(name) == "string" and type(W) == "table" and type(W.IsAuthorName) == "function" and W.IsAuthorName(ns.FullName(name)) == true
 end
-function Church.IsKing(name)
-	return type(name) == "string" and ns.IsKingCharacter and ns.IsKingCharacter(ns.FullName(name)) == true or false
+function Church.IsShogun(name)
+	return type(name) == "string" and ns.IsShogunCharacter and ns.IsShogunCharacter(ns.FullName(name)) == true or false
 end
 
 -- Shobek himself heads the Church. Resolve his actual character through the existing
 -- faction/realm-qualified Crown identity, never through an Apostle marker or a display label.
 -- Old signed Apostle lists remain readable, but their '*' cannot delegate the Head's powers.
 function Church.HeadName()
-	return type(ns.KingCharacter) == "function" and ns.KingCharacter() or nil
+	return type(ns.ShogunCharacter) == "function" and ns.ShogunCharacter() or nil
 end
 function Church.IsHead(name)
-	return Church.IsKing(name)
+	return Church.IsShogun(name)
 end
 
 -- W, K or H for a root, else nil.
 function Church.RootCode(name)
 	if type(name) ~= "string" or name == "" then return nil end
 	if Church.IsAuthor(name) then return "W" end
-	if Church.IsKing(name) then return "K" end
+	if Church.IsShogun(name) then return "K" end
 	if Church.IsHead(name) then return "H" end
 	return nil
 end
 
--- Naming an Apostle belongs to the King, the author and the signed High Council.
+-- Naming an Apostle belongs to the Shogun, the author and the signed High Council.
 -- Being the Head alone does not grant a council seat.
 function Church.MayNameApostle(name)
 	if type(name) ~= "string" or name == "" then return false end
-	return Church.IsAuthor(name) or Church.IsKing(name) or ns.IsHighCouncillor(ns.FullName(name)) == true
+	return Church.IsAuthor(name) or Church.IsShogun(name) or ns.IsHighCouncillor(ns.FullName(name)) == true
 end
 
 -- The Apostles a titles list's departments field names: { Alliance = { { key, n }, ... }, ... }.
@@ -474,15 +474,15 @@ end
 function Church.InAudience(name) return AUDIENCE_ROLES[Church.Role(name or ns.me) or ""] == true end
 function Church.IsKeeper(name) return KEEPER_ROLES[Church.Role(name or ns.me) or ""] == true end
 -- A durable ledger relay is deliberately narrower than the whole Church audience.  Keepers still
--- create and verify records; the King and signed High Council may retain and retransmit the
+-- create and verify records; the Shogun and signed High Council may retain and retransmit the
 -- verified ledger so it does not disappear merely because the Apostle that saw it logged out.
 -- This is also the trust boundary a future companion must use instead of becoming another source
 -- of Church facts. (The Church ledger itself, ChurchCount.lua: a keeper takes its lines only from
--- keepers, a council client keeps a copy, and the King's client, as in 1.2.5.1, does no background
+-- keepers, a council client keeps a copy, and the Shogun's client, as in 1.2.5.1, does no background
 -- Church work: no catch-up, no copy.)
 function Church.IsLedgerRelay(name)
 	name = name or ns.me
-	return Church.IsKeeper(name) or Church.IsKing(name)
+	return Church.IsKeeper(name) or Church.IsShogun(name)
 		or (type(ns.IsHighCouncillor) == "function" and ns.IsHighCouncillor(ns.FullName(name)) == true)
 end
 -- A Church person: one who holds a place and whose recruits count (the Head, an Apostle, a
@@ -850,7 +850,7 @@ local function ActText(op, role, target, under, guild, at)
 end
 Church.ActText = ActText
 
--- A word of mine that changed my own place: told once, as the King's Hands are.
+-- A word of mine that changed my own place: told once, as the Shogun's Hands are.
 local function TellMine(before)
 	local after = Church.Role(ns.me)
 	if before == after then return end
@@ -1142,12 +1142,12 @@ function Church.Rights()
 end
 
 ---------------------------------------------------------------------------
--- Public ranking: the author, the King and the actual signed High Council. A claimed wire
+-- Public ranking: the author, the Shogun and the actual signed High Council. A claimed wire
 -- role, Church title or role preview grants no authority. The desk still publishes opted-in rows.
 
 function Church.MayPublish(name)
 	if type(name) ~= "string" or name == "" then return false end
-	return Church.IsAuthor(name) or Church.IsKing(name)
+	return Church.IsAuthor(name) or Church.IsShogun(name)
 		or (type(ns.IsHighCouncillor) == "function" and ns.IsHighCouncillor(ns.FullName(name)) == true)
 end
 
@@ -1336,7 +1336,7 @@ Church.Pump = Pump
 function Church.AnswerAsk(sender, text)
 	local list = tostring(text or ""):match("^NB~1~q~([%w%-,]+)$")
 	if not list then return Drop("shape") end
-	if not Church.IsKeeper(ns.me) or Church.IsKing(ns.me) or Off() then return Drop("not keeper") end
+	if not Church.IsKeeper(ns.me) or Church.IsShogun(ns.me) or Off() then return Drop("not keeper") end
 	if not Church.InAudience(sender) then return Drop("asker") end
 	local now = Now()
 	local k = Key(sender)
@@ -1388,7 +1388,7 @@ function Church.SendPresence(force)
 	if not force and now - lastPresence < Church.PresenceEvery(role) then return false end
 	lastPresence = now
 	local guild = OwnGuild() or "-"
-	local keeper = KEEPER_ROLES[role] and not Church.IsKing(ns.me)
+	local keeper = KEEPER_ROLES[role] and not Church.IsShogun(ns.me)
 	local dig = keeper and Church.BookDigest() or "-"
 	local on, at = Church.Public()
 	local switch = (keeper or SwitchAllowed(ns.me)) and at > 0 and ((on and "1" or "0") .. B36(at)) or "-"
@@ -1452,7 +1452,7 @@ end
 function Church.Heard() return heard end
 
 -- The keepers online (by their presence) and this client when it is one, in the desk's order:
--- the Head, the Apostles by name, the author. Never the King's client.
+-- the Head, the Apostles by name, the author. Never the Shogun's client.
 function Church.KeepersOnline(withSelf)
 	if not held then
 		held = Church.State()
@@ -1466,12 +1466,12 @@ function Church.KeepersOnline(withSelf)
 	for _, h in pairs(heard) do
 		local ok = Church.Online(h.name)
 		local role = ok and Church.Role(h.name)
-		if ok and KEEPER_ROLES[role or ""] and not Church.IsKing(h.name) and not Same(h.name, ns.me) then
+		if ok and KEEPER_ROLES[role or ""] and not Church.IsShogun(h.name) and not Same(h.name, ns.me) then
 			out[#out + 1] = { name = h.name, role = role }
 		end
 	end
 	local mine = Church.Role(ns.me)
-	if withSelf ~= false and KEEPER_ROLES[mine or ""] and not Church.IsKing(ns.me) then out[#out + 1] = { name = ns.me, role = mine, self = true } end
+	if withSelf ~= false and KEEPER_ROLES[mine or ""] and not Church.IsShogun(ns.me) then out[#out + 1] = { name = ns.me, role = mine, self = true } end
 	table.sort(out, function(a, b)
 		if Order(a.role) ~= Order(b.role) then return Order(a.role) < Order(b.role) end
 		return Key(a.name) < Key(b.name)
@@ -1557,7 +1557,7 @@ function Church.Receive(dist, sender, text)
 		-- (By whisper: an act its actor's client hands a keeper who was away. Only a keeper takes it.)
 		local later = dist == "WHISPER"
 		if dist ~= "CHANNEL" and dist ~= "GUILD" and not later then return Drop("lane") end
-		if later and (not Church.IsKeeper(ns.me) or Church.IsKing(ns.me)) then return Drop("lane") end
+		if later and (not Church.IsKeeper(ns.me) or Church.IsShogun(ns.me)) then return Drop("lane") end
 		local seen = Key(sender) .. ":" .. text
 		local now = Now()
 		if actSeen[seen] and now - actSeen[seen] < 600 then return false, "seen" end
@@ -1795,7 +1795,7 @@ end
 
 -- 1.2.4 (the author: "Da igreja: precisa de um dos apóstolos, um do de toda a igreja, de todo mundo
 -- falando sobre igreja, e precisa de um dos apóstolos com os missionários"): the Apostles' room (the
--- author, the King, the Head and the signed Apostles) and the Apostles' and missionaries' room, beside
+-- author, the Shogun, the Head and the signed Apostles) and the Apostles' and missionaries' room, beside
 -- the whole Church's. Folded together in a long Roles menu (group "church").
 local APOSTLES_ROOM = { W = true, K = true, H = true, A = true }
 local MISSION_ROOM = { W = true, K = true, H = true, A = true, M = true }
@@ -1806,7 +1806,7 @@ if ns.ChatRooms and ns.ChatRooms.RegisterAudience then
 	ns.ChatRooms.RegisterAudience("apostles", {
 		label = function() return L.CHURCH_ROOM_APOSTLES end,
 		group = "church", groupLabel = function() return L.CHURCH_ROOM end,
-		preview = { king = true },
+		preview = { shogun = true },
 		CanAccess = RoomOf(APOSTLES_ROOM),
 		Recipients = function() return Church.RoomRecipients(APOSTLES_ROOM) end,
 		notReached = function(left) return L.CHURCH_ROOM_NOT_REACHED:format(left) end,
@@ -1814,7 +1814,7 @@ if ns.ChatRooms and ns.ChatRooms.RegisterAudience then
 	ns.ChatRooms.RegisterAudience("missionaries", {
 		label = function() return L.CHURCH_ROOM_MISSIONARIES end,
 		group = "church", groupLabel = function() return L.CHURCH_ROOM end,
-		preview = { king = true },
+		preview = { shogun = true },
 		CanAccess = RoomOf(MISSION_ROOM),
 		Recipients = function() return Church.RoomRecipients(MISSION_ROOM) end,
 		notReached = function(left) return L.CHURCH_ROOM_NOT_REACHED:format(left) end,
@@ -1822,8 +1822,8 @@ if ns.ChatRooms and ns.ChatRooms.RegisterAudience then
 	ns.ChatRooms.RegisterAudience("church", {
 		label = function() return L.CHURCH_ROOM end,
 		group = "church", groupLabel = function() return L.CHURCH_ROOM end,
-		-- (1.2.4: the King's and a councillor's previews list it, View as.)
-		preview = { king = true, councillor = true },
+		-- (1.2.4: the Shogun's and a councillor's previews list it, View as.)
+		preview = { shogun = true, councillor = true },
 		CanAccess = function(name) return Church.InAudience(name or ns.me) end,
 		-- (1.2.4: the list and how many it left out; the sender is told that when he writes, ChatRooms'
 		-- Send, never when he only picks the room.)

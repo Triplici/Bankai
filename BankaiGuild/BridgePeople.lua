@@ -6,7 +6,7 @@ local ADDON, ns = ...
 -- reads what the page that shows it reads, through that module's public functions, and builds its
 -- rows field by field (Bridge.lua's registry copies them again within its limits). The same
 -- audience as the page: our own guild's members for our own guild alone, the Church's numbers of
--- this character alone, the games' rankings only while the King made them public. Never another
+-- this character alone, the games' rankings only while the Shogun made them public. Never another
 -- player's BattleTag, chat text or chat-strike line, a staff or council view, treasury items, the
 -- Church's or the Watch's detail meant for fewer people, nor a GUID. Nothing before this account
 -- accepted the Bankai Guild Accord, nor for anyone but a member (BridgeKit.Open).
@@ -38,17 +38,17 @@ end
 
 ---------------------------------------------------------------------------
 -- realm: the Realm tab's guilds (Data.Summary, the shared order), as their rows and tooltips show
--- them: members, online while fresh, average level, Captains, inactive members, the Lord and
--- whether he is online now (Views.PresenceNow, as the row), and the King's name (the Realm's line).
+-- them: members, online while fresh, average level, Captains, inactive members, the Council and
+-- whether he is online now (Views.PresenceNow, as the row), and the Shogun's name (the Realm's line).
 -- The census's faction and realm group once, for every guild.
--- The Lord's presence as the row says it: online (lordOnline 1, lordDays 0), offline for lordDays
--- whole days (lordOnline 0), or not known now (lordOnline and lordDays empty): an old report had
--- him online and nobody sees him now, the row's "online <age> ago", lordSeenAt that report's time.
+-- The Council's presence as the row says it: online (councilOnline 1, councilDays 0), offline for councilDays
+-- whole days (councilOnline 0), or not known now (councilOnline and councilDays empty): an old report had
+-- him online and nobody sees him now, the row's "online <age> ago", councilSeenAt that report's time.
 ---------------------------------------------------------------------------
 
--- The Lord's three fields from Views.PresenceNow's online, days and at: nil, nil and the old
+-- The Council's three fields from Views.PresenceNow's online, days and at: nil, nil and the old
 -- report's time while he is not known now.
-local function LordPresence(on, days, at)
+local function CouncilPresence(on, days, at)
 	if on == true then return true, 0, nil end
 	if on == nil and type(at) == "number" then return nil, nil, Whole(at) end
 	return false, Whole(days), nil
@@ -61,22 +61,22 @@ BankaiGuildBridge.RegisterSection("realm", 1, function()
 	if type(s) ~= "table" or type(s.guilds) ~= "table" then return nil end
 	local V = ns.Views
 	local out = { at = Now(), faction = Text(ns.faction, 16), realmGroup = Text(ns.group or ns.realm, 96),
-		fields = "members~online~avgLevel~captains~inactive7~inactive30~lordOnline~lordDays~lordSeenAt~fresh~name~lord", guilds = {} }
+		fields = "members~online~avgLevel~captains~inactive7~inactive30~councilOnline~councilDays~councilSeenAt~fresh~name~council", guilds = {} }
 	for _, e in ipairs(s.guilds) do
 		if #out.guilds >= REALM_GUILDS then break end
 		local g = type(e) == "table" and e.g
 		if type(g) == "table" and type(e.name) == "string" then
-			if not out.king and type(g.leader) == "string" and ns.IsKingGuild(e.name) then out.king = Text(g.leader) end
+			if not out.shogun and type(g.leader) == "string" and ns.IsShogunGuild(e.name) then out.shogun = Text(g.leader) end
 			local on, days, at = g.leaderOnline, g.leaderDays, nil
 			if type(V) == "table" and type(V.PresenceNow) == "function" then
 				local okP, pOn, pDays, _, pAt = pcall(V.PresenceNow, e, g.leader, g.leaderOnline, g.leaderDays)
 				if okP then on, days, at = pOn, pDays, pAt end
 			end
-			local lordOnline, lordDays, lordSeenAt = LordPresence(on, days, at)
+			local councilOnline, councilDays, councilSeenAt = CouncilPresence(on, days, at)
 			local tenths = Safe(D.AvgTenths, g)
 			local fresh = e.fresh == true
 			out.guilds[#out.guilds + 1] = Row(Whole(g.total), fresh and Whole(g.online) or 0, tenths and ("%.1f"):format(tenths / 10) or "",
-				type(g.officers) == "table" and #g.officers or 0, Whole(g.inactive7), Whole(g.inactive30), lordOnline, lordDays, lordSeenAt,
+				type(g.officers) == "table" and #g.officers or 0, Whole(g.inactive7), Whole(g.inactive30), councilOnline, councilDays, councilSeenAt,
 				fresh, e.name, g.leader)
 		end
 	end
@@ -220,7 +220,7 @@ end)
 -- ArenaFights.Events), the recent public duels' results (ArenaLedger.History, the Arena profile's),
 -- the Bone Throw tables live to watch (FarkleTable.LiveTables), names as those pages show them;
 -- and this character's own record: his duels (his row of the arena's ranking), his Bone Throw
--- games (FarkleTable.MyGames, the live realm's), and his places only while the King made that
+-- games (FarkleTable.MyGames, the live realm's), and his places only while the Shogun made that
 -- game's ranking public. The live realm's alone: never a rehearsal's, never the showcase's samples
 -- (the modules themselves, not the screens' view models).
 ---------------------------------------------------------------------------

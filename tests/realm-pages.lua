@@ -11,7 +11,7 @@ local INK = { QuestFont = true, QuestTitleFont = true }
 -- The client: every module with a Realm page, in BankaiGuild.toc's order, its own registry, locale
 -- words and saved data; the harness's census, roster and the rest under it. Nothing it loads
 -- registers with the harness (its events, comm handlers and dialogs are its own or put back).
--- The author's Workshop is open (the King's letters' previews are his alone: HonorsNet.PreviewKeys).
+-- The author's Workshop is open (the Shogun's letters' previews are his alone: HonorsNet.PreviewKeys).
 -- (ProfileEdit's "myprofile" entry is a link alone, no page: it opens the person page, whose Back
 -- is UI.BackFromPlayerProfile; tests/arena/profile-edit.lua has it.)
 local function Client()
@@ -81,12 +81,12 @@ local function RowWith(frame, text)
 	return nil
 end
 
--- 2026-10-19, the author on the King's letters page in the Realm: "O King's Letters tá com as
+-- 2026-10-19, the author on the Shogun's letters page in the Realm: "O Shogun's Letters tá com as
 -- letras brancas em cima do parchment, não dá para ler direito. É melhor preta ou cinza escuro."
 -- Fails before: the page sat on the window's parchment (parchment = true) with its title in the
 -- list's gold header font and every other row in its white (GameFontHighlightSmall), the note one
 -- row far wider than the page.
-test("King's letters page on the Realm's parchment: every row of the honour letters' previews in the dark quest ink, the title in QuestTitleFont, the note wrapped to the page; the Realm's other rows keep the list's fonts", function()
+test("Shogun's letters page on the Realm's parchment: every row of the honour letters' previews in the dark quest ink, the title in QuestTitleFont, the note wrapped to the page; the Realm's other rows keep the list's fonts", function()
 	WithRealm(function(ui, frame, w, c)
 		local L, HN = c.L, c.HonorsNet
 		local link = assert(RowWith(frame, "> " .. L.HONOR_LETTER_PREVIEW_HEAD), "the Realm's link to the page")
@@ -126,8 +126,8 @@ end)
 -- as the player opens it (its own row in the Realm; the level race's rules link for the rules page;
 -- the Board's link for the weekly summary) and its first drawn row must be its Back, which leads
 -- where it was opened from: the Realm's guilds (the weekly summary: the Board). Fails before on
--- the King's letters (honorletters) and Carried history (carry) pages, which had none.
-test("Realm pages: every page of the Realm tab has a Back as its first row and it returns to the Realm overview, the King's letters' and Carried history's too", function()
+-- the Shogun's letters (honorletters) and Carried history (carry) pages, which had none.
+test("Realm pages: every page of the Realm tab has a Back as its first row and it returns to the Realm overview, the Shogun's letters' and Carried history's too", function()
 	WithRealm(function(ui, frame, w, c)
 		local brief = ns.WeeklyBrief -- (the harness's Board links the brief of the namespace it was loaded in)
 		local ok, err = pcall(function()

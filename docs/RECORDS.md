@@ -63,7 +63,7 @@ enough for the client's paced transport.
 ## Client checks still required
 
 Use two players and an ordinary observer. Complete one free Bones game and one direct duel with
-the King's live switch off; each result should appear once, survive reload, and remain ranked.
+the Shogun's live switch off; each result should appear once, survive reload, and remain ranked.
 Join a later observer that has heard the players' keys; a holder's digest should bring the signed
 results over the low lane while the ordinary chat and invitations stay responsive. A later
 observer without those keys should show pending records and accept them only after the players'

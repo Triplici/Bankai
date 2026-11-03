@@ -14,7 +14,7 @@ local ADDON, ns = ...
 --   ChurchTop() (1.2.3: the Church's top 3 as ChurchCount.Top3 holds it, or nil);
 --   NewPortrait(parent, size) and DressPortrait(rig, key): the player's own portrait with a frame;
 --   (1.2.4) PickKnown(name), Standing(), Tell(held, known, told), Notices(), NoticeFrames().
--- The King's letter (the design) when an honour is earned: a popup of Bankai Guild's own, queued.
+-- The Shogun's letter (the design) when an honour is earned: a popup of Bankai Guild's own, queued.
 -- (1.2.4) Once per place of each list per cycle; any other move a small notice (below). In an
 -- instance or Busy one that would open by itself waits as Bankai Guild's other popups do (ns.Alert's held
 -- list), opened once he is out or by his own click.
@@ -42,7 +42,7 @@ ns.HonorsNet = HonorsNet
 --                                 by that GUID or by his name).
 --   ID t~monthKey~m1,m2,m3~a1,a2,a3   names only: the month's top 3 donors and all time's (the
 --                                 the design dropped the week's), from the Treasurer's characters'
---                                 client (or the King's), on the channel and on GUILD; the newest
+--                                 client (or the Shogun's), on the channel and on GUILD; the newest
 --                                 wins; sent whatever the Treasury's ranking switches say.
 --   IO monthKey~t~n1,n2,n3        the Oracle's gold, silver and bronze for that month, from a bank of
 --                                 this realm's T1~B (the first open bank by sorted name); IO R~month~
@@ -51,10 +51,10 @@ ns.HonorsNet = HonorsNet
 -- The podium (the belts' silver and bronze) is the clerk's AV 2 and 3 (ArenaLedger); the best guild
 -- is the census's (Honors.GuildTop, its leader vouched by two senders). (1.2.3) The missionaries'
 -- top 3 (the crook) is the Church's: ChurchCount.Top3, the newest NR~1~t word taken from the Head's,
--- the King's or the author's client (the server stamps its sender; ChurchCount.TakeTop refuses anyone
+-- the Shogun's or the author's client (the server stamps its sender; ChurchCount.TakeTop refuses anyone
 -- else's), held while the Church's public ranking is open and the word no older than
 -- Honors.CHURCH_MAX_AGE. In this version only the author's client sends it (ChurchCount.SendTop: a
--- keeper whose root is W or H; the King's client is no keeper, and the Head is the King, root K), so
+-- keeper whose root is W or H; the Shogun's client is no keeper, and the Head is the Shogun, root K), so
 -- the crooks move only while the author's client is online with the ranking open, and every client
 -- shows none 30 days after his last word. No word of its own here: the Church's comes on CHANNEL and
 -- GUILD, and CHURCH_TOP_CHANGED (or the ranking's switch, CHURCH_PUBLIC_CHANGED) looks at the
@@ -67,10 +67,10 @@ ns.HonorsNet = HonorsNet
 --
 -- A newly earned honour switches on by itself (Honors.Update, unless the player locked his pick; 1.2.3:
 -- only when told for the first time, so an honour earned again, its letter told already, leaves his
--- pick as it is), and the King's letter tells him: a parchment in a window of Bankai Guild's own naming the
+-- pick as it is), and the Shogun's letter tells him: a parchment in a window of Bankai Guild's own naming the
 -- honour and its title, the new frame on his own portrait, "Wear it" and "Later"; queued when several come,
 -- re-readable from the profile's Edit (ProfileEdit); once per honour per character (a month's honour:
--- once per month), never by itself where the save did not come back, and never to the King himself
+-- once per month), never by itself where the save did not come back, and never to the Shogun himself
 -- (1.2.1). Honours count only in the live arena (Arena.Counts).
 -- (1.2.4, the owner: "they must get the letter the first time they get it, and then smaller
 -- notices ... less intrusive, a notice on the screen, not a pop-up, saying he dropped to second, that
@@ -103,8 +103,8 @@ H.LETTERS_MAX = 20
 H.LETTER_PORTRAIT = 60          -- the letter's portrait: the size of his own on his unit frame
 H.LETTER_W = 440                -- the letter's window across (its height follows its words)
 H.LETTER_PAD = 16               -- the parchment's margin
-H.SEAL_RED = { 0.78, 0.13, 0.11 } -- the King's wax seal, red (1.2.4, the author's ask)
--- (1.2.4, the author's ask: "use vermelho no selo de cera do rei": red wax, whatever the faction's
+H.SEAL_RED = { 0.78, 0.13, 0.11 } -- the Shogun's wax seal, red (1.2.4, the author's ask)
+-- (1.2.4, the author's ask: "use vermelho no selo de cera do xogum": red wax, whatever the faction's
 -- seal's own colour; its drawing kept, greyed, then tinted.)
 function H.TintSeal(tex)
 	if type(tex) ~= "table" then return end
@@ -433,7 +433,7 @@ function H.ChatMark(key)
 	return "|T" .. tex .. ":0|t"
 end
 
--- The player's own portrait with a frame on it, in the core's windows (the King's letter, the
+-- The player's own portrait with a frame on it, in the core's windows (the Shogun's letter, the
 -- profile's Edit, the Arena's own letter): Borders.NewPortrait, the builder of the Arena's
 -- portraits too (1.2, the owner's ask: every Bankai Guild portrait identical to his own on his unit
 -- frame: the same picture, mask and ring, and the same art at the same offsets, turned round as
@@ -1160,7 +1160,7 @@ local function IdBody(w, t)
 end
 local lastId
 function H.SendDonors(force)
-	if not (ns.IsTreasurerCharacter and ns.IsTreasurerCharacter(ns.me)) and not ns.ArenaRoles.IsKing(ns.me) then return false, "who" end
+	if not (ns.IsTreasurerCharacter and ns.IsTreasurerCharacter(ns.me)) and not ns.ArenaRoles.IsShogun(ns.me) then return false, "who" end
 	local w = H.DonorWord()
 	if not w then return false, "book" end
 	local sig = w.monthNo .. "|" .. table.concat(w.month, ",") .. "|" .. table.concat(w.all, ",")
@@ -1173,7 +1173,7 @@ function H.SendDonors(force)
 	return true
 end
 function H.TakeDonors(sender, body)
-	if not (ns.IsTreasurerCharacter(ns.FullName(sender)) or ns.ArenaRoles.IsKing(sender)) then return Count("sender") end
+	if not (ns.IsTreasurerCharacter(ns.FullName(sender)) or ns.ArenaRoles.IsShogun(sender)) then return Count("sender") end
 	local t, month, m, a = Arena.Fields(body, 4)
 	if not a then return Count("shape") end
 	t, month = N(t, 0, 4294967295), N(month, 0, 99999)
@@ -1301,7 +1301,7 @@ end
 ns.Comm.Handle("IO", ns.Arena.Handle("IO", OnOracle))
 
 ---------------------------------------------------------------------------
--- Our own honours: the automatic switch-on and the King's letter
+-- Our own honours: the automatic switch-on and the Shogun's letter
 ---------------------------------------------------------------------------
 
 -- The sources loaded (Honors.Update's known): a family is forgotten only once its source is here.
@@ -1394,7 +1394,7 @@ function H.Refresh()
 			P.Send(true)
 			sent = true
 		end
-		-- (1.2.4) Each place against what he was last told: the King's letter the first time he reaches
+		-- (1.2.4) Each place against what he was last told: the Shogun's letter the first time he reaches
 		-- it in its cycle, a notice for any other move (H.Tell); then, as before, a letter for anything
 		-- newly earned that has none yet (QueueLetter: once per mark).
 		H.Tell(held, known, H.Lettered())
@@ -1411,15 +1411,15 @@ function H.Refresh()
 	if not ok then error(err, 0) end
 end
 
--- The letter is the King's (L.HONOR_LETTER_SIGN): never to the King himself (1.2.1, the owner's
--- ask, after the King's stream: a letter from himself about a frame he holds). The King is his
--- character (ns.IsKingCharacter) or, where none is pinned by name, the guild master of his guild
--- (King.IsKing). His honours switch on as anyone's; no letter comes, none is kept to read again.
+-- The letter is the Shogun's (L.HONOR_LETTER_SIGN): never to the Shogun himself (1.2.1, the owner's
+-- ask, after the Shogun's stream: a letter from himself about a frame he holds). The Shogun is his
+-- character (ns.IsShogunCharacter) or, where none is pinned by name, the guild master of his guild
+-- (Shogun.IsShogun). His honours switch on as anyone's; no letter comes, none is kept to read again.
 -- (1.2.3: each is marked told all the same, QueueLetter, so they switch on once, as anyone's.)
 function H.LetterToSender()
-	if ns.IsKingCharacter(ns.me) then return true end
-	local K = ns.King
-	return type(K) == "table" and not K.missing and type(K.IsKing) == "function" and K.IsKing() == true
+	if ns.IsShogunCharacter(ns.me) then return true end
+	local K = ns.Shogun
+	return type(K) == "table" and not K.missing and type(K.IsShogun) == "function" and K.IsShogun() == true
 end
 
 -- Each honour's letter comes once per character, ever (1.2.1, the owner's ask: never again after
@@ -1511,7 +1511,7 @@ function H.QueueLetter(key, period, now)
 	else
 		told[mark] = true
 	end
-	-- (1.2.3: the King's honours are told too, with no letter, so they switch on as anyone's: once.)
+	-- (1.2.3: the Shogun's honours are told too, with no letter, so they switch on as anyone's: once.)
 	if H.LetterToSender() then return end
 	m.letters = type(m.letters) == "table" and m.letters or {}
 	m.letters[#m.letters + 1] = { key = key, t = Now() }
@@ -1546,7 +1546,7 @@ function H.LetterFamily(key)
 	if key:find("^wanted%-slayer%-") then return "wanted-slayer" end
 	return nil
 end
--- The letter's words: the King's, naming the honour and its title (never a real name).
+-- The letter's words: the Shogun's, naming the honour and its title (never a real name).
 function H.LetterText(key)
 	-- (1.2.4: the Slayer letter's words, and its title, are Wanted.lua's, from its key alone:
 	-- Wanted.LetterText. It is queued, shown once and kept to read again as every letter is.)
@@ -1612,15 +1612,15 @@ local function TextHeight(fs, width)
 	return lines * 18
 end
 
--- The letter (1.2.1, the owner's ask after the King's stream: its words ran off the paper and its
+-- The letter (1.2.1, the owner's ask after the Shogun's stream: its words ran off the paper and its
 -- buttons under it, no window round it): a window of Bankai Guild's own (ns.Window: the Bankai Guild
 -- window's bronze metal without its portrait or logo, as the update letter), the head in its
 -- title bar, the parchment (the game's QuestBG, its paper's part alone) inside it, his own
--- portrait with the new frame in its top left corner, the King's words right of it in the game's
+-- portrait with the new frame in its top left corner, the Shogun's words right of it in the game's
 -- letter font (15 px at least), wrapped inside the paper; the wax seal and the signature under
 -- both, "Wear it" and "Later" at its foot. Its height follows the words. Never the game's popups.
 local function Build()
-	local f = ns.Window("BankaiGuildKingsLetter", UIParent, { title = L.HONOR_LETTER_HEAD, inset = false, close = false })
+	local f = ns.Window("BankaiGuildShogunsLetter", UIParent, { title = L.HONOR_LETTER_HEAD, inset = false, close = false })
 	f:SetSize(H.LETTER_W, 300)
 	f:SetPoint("CENTER", UIParent, "CENTER", 0, 60)
 	f:SetFrameStrata("DIALOG")
@@ -1666,7 +1666,7 @@ local function Build()
 	f.sign:SetText(L.HONOR_LETTER_SIGN)
 	f.seal = f:CreateTexture(nil, "ARTWORK")
 	f.seal:SetSize(40, 40)
-	-- The game's own wax seal (its quest letters from the King, QuestInfo.lua), the faction's.
+	-- The game's own wax seal (its quest letters from the Shogun, QuestInfo.lua), the faction's.
 	local atlas = ns.faction == "Horde" and "Quest-Horde-WaxSeal" or "Quest-Alliance-WaxSeal"
 	local info = C_Texture and C_Texture.GetAtlasInfo
 	local okA, has = false, nil
@@ -1688,7 +1688,7 @@ local function Build()
 	-- cinematic: still shown itself, as Dialog.lua's) is no answer: it is there again with it.
 	f:SetScript("OnHide", function()
 		if f:IsShown() then return end
-		if f.key ~= nil then ns.SafeCall("kings letter", H.CloseLetter, false) end
+		if f.key ~= nil then ns.SafeCall("shoguns letter", H.CloseLetter, false) end
 	end)
 	return f
 end
@@ -1741,7 +1741,7 @@ function H.ShowLetter(key, prompted)
 	end
 	H.toldWaiting = nil
 	if InCombatLockdown and InCombatLockdown() then
-		ns.After(5, "kings letter", function() H.ShowLetter(nil, prompted) end)
+		ns.After(5, "shoguns letter", function() H.ShowLetter(nil, prompted) end)
 		return false
 	end
 	frame = frame or Build()
@@ -1888,7 +1888,7 @@ table.insert(ns.RealmPages, { key = "honorletters", parchment = true, Lines = H.
 	Link = function() if #H.PreviewKeys() > 0 then return { text = "> " .. L.HONOR_LETTER_PREVIEW_HEAD, onClick = function() H.PreviewSlash("") end } end end })
 
 ---------------------------------------------------------------------------
--- (1.2.4) The places told: the King's letter the first time, a notice after
+-- (1.2.4) The places told: the Shogun's letter the first time, a notice after
 ---------------------------------------------------------------------------
 
 H.NOTICE_SETTLE = 120  -- a move is said once it held this long (a swap back meanwhile says nothing)
@@ -2078,7 +2078,7 @@ end
 
 -- After a look at our honours (H.Refresh): each family where he stands against what he was last
 -- told (Honors.Moves). The first time he reaches a place in its cycle (a first look, a new cycle, a
--- place up or back, its mark not in told: H.Lettered), the King's letter, at once (QueueLetter's
+-- place up or back, its mark not in told: H.Lettered), the Shogun's letter, at once (QueueLetter's
 -- rules). A first look or a new cycle at a place told before, a closed month's end, a family the
 -- notices don't name: nothing, his standing kept as it is now. Anything else (down a place, off the
 -- list, back on it or a place won back, told before) is a notice once it held NOTICE_SETTLE and

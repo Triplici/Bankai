@@ -12,7 +12,7 @@ local A1, A2 = "Aldric Vane-Realm", "Bera Stone-Realm"
 local function Cast()
 	local w = World.New({ apostles = { A1, A2 } })
 	local c = {
-		author = w:Client(World.AUTHOR, { view = true }), king = w:Client(World.KING, { view = true }), head = w:Client(World.HEAD, { view = true }),
+		author = w:Client(World.AUTHOR, { view = true }), shogun = w:Client(World.SHOGUN, { view = true }), head = w:Client(World.HEAD, { view = true }),
 		councillor = w:Client(World.COUNCILLOR, { view = true }),
 		a1 = w:Client(A1, { view = true }), a2 = w:Client(A2, { view = true }),
 		m1 = w:Client("Mira Wells", { view = true }), member = w:Client("Plain Member", { view = true }),
@@ -157,9 +157,9 @@ test("Church discoverability: missionaries are the third visible group with exis
 	eq(Find(lines, L.CHURCH_NAME_MISSIONARY:format(10, 12)), nil, "ordinary member gets no appointment action")
 end)
 
-test("Church publication authority UI: actual King/council switches, no preview action", function()
+test("Church publication authority UI: actual Shogun/council switches, no preview action", function()
 	local w, c = Cast()
-	for _, publisher in ipairs({ c.king, c.councillor }) do
+	for _, publisher in ipairs({ c.shogun, c.councillor }) do
 		local switch = Find(Build(w, publisher, "ranking"), L.CHURCH_PUBLIC_SWITCH)
 		assert(switch and switch.onClick, "actual publisher sees the existing switch")
 		w:Act(publisher, switch.onClick)
@@ -191,20 +191,20 @@ test("1.1.6 Church member view: people only, no naming or personal results, and 
 	eq(#w.sent, before, "a stale preview callback sends nothing")
 	role = "councillor"
 	eq(Pages(w, c.author), "ranking,people,name")
-	role = "king"
+	role = "shogun"
 	eq(Pages(w, c.author), "ranking,people,name,review")
 end)
 
 test("1.1.6 member view: a legacy throne preview cannot expose Royal Inspection in an explicit member preview", function()
-	local saved = { view = ns.ViewAs, king = ns.King.IsKing, dev = ns.devThrone, db = ns.db.devKingView }
+	local saved = { view = ns.ViewAs, shogun = ns.Shogun.IsShogun, dev = ns.devThrone, db = ns.db.devShogunView }
 	local ok, err = pcall(function()
-		ns.King.IsKing = function() return false end
-		ns.devThrone, ns.db.devKingView = true, nil
+		ns.Shogun.IsShogun = function() return false end
+		ns.devThrone, ns.db.devShogunView = true, nil
 		ns.ViewAs = { Is = function() return false end, Previewing = function() return true end, Role = function() return "member" end }
-		eq(ns.King.Preview(), false)
-		eq(#ns.King.InspectionLines(), 0)
+		eq(ns.Shogun.Preview(), false)
+		eq(#ns.Shogun.InspectionLines(), 0)
 	end)
-	ns.ViewAs, ns.King.IsKing, ns.devThrone, ns.db.devKingView = saved.view, saved.king, saved.dev, saved.db
+	ns.ViewAs, ns.Shogun.IsShogun, ns.devThrone, ns.db.devShogunView = saved.view, saved.shogun, saved.dev, saved.db
 	if not ok then error(err, 0) end
 end)
 
@@ -212,7 +212,7 @@ test("1.1.6 Church: everyone sees the people, private numbers and duties follow 
 	local w, c = Cast()
 	eq(#c.a1.tabs, 1); eq(c.a1.tabs[1].key, "church"); eq(c.a1.tabs[1].after, "crafters")
 	local function Visible(cl) return w:As(cl, cl.tabs[1].visible) end
-	for _, cl in ipairs({ c.author, c.king, c.head, c.councillor, c.a1, c.m1 }) do eq(Visible(cl), true, cl.name) end
+	for _, cl in ipairs({ c.author, c.shogun, c.head, c.councillor, c.a1, c.m1 }) do eq(Visible(cl), true, cl.name) end
 	eq(Visible(c.member), true); eq(Visible(c.other), true)
 	eq(Visible(c.gm), true, "a guild master: to name his guild's correspondent")
 	eq(Pages(w, c.gm), "people,name")

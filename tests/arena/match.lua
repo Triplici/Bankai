@@ -580,40 +580,40 @@ end)
 test("1.2 matchmaking Find reuse: ranked results act in the original sheet and acceptance hands off without overlapping it", function()
 	local BoardUI = assert(loadfile(H.ROOT .. "tests/arena/lib/board-ui.lua"))(H)
 	local w = World.New({ compliance = "shipped" })
-	local king = MW.Client(w, World.NAMES.king, { guild = World.KING_GUILD, rank = 0, pos = SEEKER })
+	local shogun = MW.Client(w, World.NAMES.shogun, { guild = World.SHOGUN_GUILD, rank = 0, pos = SEEKER })
 	local b = MW.Client(w, "Parric Stowe", { pos = OTHER, findable = true })
-	king.db.throneLocation = true
-	king.trusted[b.name] = true
-	rawset(king.ns, "CouncilMasked", function() return true end)
-	king.K = BoardUI.New(function() return w.clock end); king.K.Install(king.globals)
+	shogun.db.throneLocation = true
+	shogun.trusted[b.name] = true
+	rawset(shogun.ns, "CouncilMasked", function() return true end)
+	shogun.K = BoardUI.New(function() return w.clock end); shogun.K.Install(shogun.globals)
 	local find, UI
-	w:As(king, function()
-		assert(king.ns.Arena.LoadUI()); UI = king.ns.Arena.ui
+	w:As(shogun, function()
+		assert(shogun.ns.Arena.LoadUI()); UI = shogun.ns.Arena.ui
 		find = assert(UI.OpenFind("d"))
-		MW.Click(w, king, find.go:GetScript("OnClick"), find.go)
+		MW.Click(w, shogun, find.go:GetScript("OnClick"), find.go)
 	end)
 	w:Run(10)
-	w:As(king, function()
-		local offers = king.Match.View().offers
+	w:As(shogun, function()
+		local offers = shogun.Match.View().offers
 		eq(#offers, 1); eq(#find.offers, 1)
 		local row = find.offers[1]
 		assert(row:IsVisible(), "ranked results are visible in the original Find")
-		assert(row:GetText():find("Parr****", 1, true), "the existing King masking is preserved")
+		assert(row:GetText():find("Parr****", 1, true), "the existing Shogun masking is preserved")
 		eq(row.pick, offers[1].id)
-		local _, y, _, h = king.K.Within(row, find)
-		local _, footerY = king.K.Within(find.go, find)
+		local _, y, _, h = shogun.K.Within(row, find)
+		local _, footerY = shogun.K.Within(find.go, find)
 		assert(y + h + 8 <= footerY, "results remain above the original actions")
-		MW.Click(w, king, row:GetScript("OnClick"), row)
+		MW.Click(w, shogun, row:GetScript("OnClick"), row)
 		eq(find.offers[1]:IsShown(), false, "an offer already requested is not actionable twice")
 		assert(find.line:GetText():find("Parr****", 1, true), "asking progress remains in Find")
 	end)
 	w:Run(0)
-	assert(MW.Last(w, king, "R"), "the original result row invokes the real request")
+	assert(MW.Last(w, shogun, "R"), "the original result row invokes the real request")
 	assert(b.Match.View().state == "popup", "the incoming acceptance popup is unchanged")
 	MW.Answer(w, b, "yes"); w:Run(0)
-	eq(king.Match.View().state, "match")
+	eq(shogun.Match.View().state, "match")
 	assert(not find:IsShown(), "the original Find hides before the accepted-match card appears")
-	assert(king.Match.Card():IsShown(), "the existing accepted match remains accessible")
+	assert(shogun.Match.Card():IsShown(), "the existing accepted match remains accessible")
 	MW.NoErrors(w)
 end)
 
@@ -1408,70 +1408,70 @@ test("1.2 matchmaking: the group: the invite only inside Let's go or [Invite]; t
 	MW.NoErrors(w); MW.NoErrors(w2); MW.NoErrors(w3); MW.NoErrors(w4)
 end)
 
-test("1.2 matchmaking: the King: never found, no privacy line on any character of his account, a search only with his crown, offers only from trusted names, masked; the crown off ends it", function()
+test("1.2 matchmaking: the Shogun: never found, no privacy line on any character of his account, a search only with his crown, offers only from trusted names, masked; the crown off ends it", function()
 	local w = World.New()
-	local king = MW.Client(w, World.NAMES.king, { guild = World.KING_GUILD, rank = 0, pos = SEEKER })
+	local shogun = MW.Client(w, World.NAMES.shogun, { guild = World.SHOGUN_GUILD, rank = 0, pos = SEEKER })
 	local b = MW.Client(w, "Parric Stowe", { pos = OTHER, findable = true })
 	local c = MW.Client(w, "Wenna Crale", { pos = OTHER, findable = true })
-	eq(king.King.IsKing(), true)
-	eq(select(2, king.Match.Start(CASUAL)), "crown")
-	eq(king.Match.WhyText("crown"), "Show your crown on the map to search.")
-	king.db.throneLocation = true
-	king.trusted[b.name] = true
-	rawset(king.ns, "CouncilMasked", function() return true end)
+	eq(shogun.Shogun.IsShogun(), true)
+	eq(select(2, shogun.Match.Start(CASUAL)), "crown")
+	eq(shogun.Match.WhyText("crown"), "Show your crown on the map to search.")
+	shogun.db.throneLocation = true
+	shogun.trusted[b.name] = true
+	rawset(shogun.ns, "CouncilMasked", function() return true end)
 	rawset(c.ns.Hop, "OFFER_GAP", 0)
-	assert(king.Match.Start(CASUAL))
+	assert(shogun.Match.Start(CASUAL))
 	w:Run(10)
 	-- Both answered; only Parric (trusted) is listed, masked; nobody is asked for him.
-	local v = king.Match.View()
+	local v = shogun.Match.View()
 	eq(#v.offers, 1)
 	eq(v.offers[1].name, "Parr****")
-	eq(#MW.AM(w, king), 1, "the ask alone: no request")
-	assert(MW.Card(king).rows[1].shown and MW.Card(king).rows[1].text:find("Parr****", 1, true))
-	MW.Row(w, king, 1)
+	eq(#MW.AM(w, shogun), 1, "the ask alone: no request")
+	assert(MW.Card(shogun).rows[1].shown and MW.Card(shogun).rows[1].text:find("Parr****", 1, true))
+	MW.Row(w, shogun, 1)
 	w:Run(0)
-	assert(MW.Last(w, king, "R"), "his pick asks Parric")
+	assert(MW.Last(w, shogun, "R"), "his pick asks Parric")
 	MW.Answer(w, b, "yes")
 	w:Run(0)
-	eq(king.Match.View().state, "match")
+	eq(shogun.Match.View().state, "match")
 	-- His client never answers an ask or a request, searching or not.
 	c.qid = 8
 	c.Match.SetFindable(false)
 	assert(c.Match.Start(CASUAL))
 	w:Run(6)
-	eq(#MW.AM(w, king, c.name), 0)
-	w:As(king, function() king.ns.Arena.Inject("WHISPER", c.name, "AM~L1~R~Mk1~8~d~c~0~0~1o~1~h~1e~0") end)
+	eq(#MW.AM(w, shogun, c.name), 0)
+	w:As(shogun, function() shogun.ns.Arena.Inject("WHISPER", c.name, "AM~L1~R~Mk1~8~d~c~0~0~1o~1~h~1e~0") end)
 	w:Run(0)
-	eq(#MW.AM(w, king, c.name), 0)
-	eq(king.Match.Findable(), false)
-	eq(select(2, king.Match.Findable()), "off")
-	king.Match.SetFindable(true)
-	eq(select(2, king.Match.Findable()), "king")
+	eq(#MW.AM(w, shogun, c.name), 0)
+	eq(shogun.Match.Findable(), false)
+	eq(select(2, shogun.Match.Findable()), "off")
+	shogun.Match.SetFindable(true)
+	eq(select(2, shogun.Match.Findable()), "shogun")
 	-- The crown off: his match ends (C~c) and the group it formed goes.
-	w:Group({ b, king })
-	king.db.throneLocation = false
+	w:Group({ b, shogun })
+	shogun.db.throneLocation = false
 	w:Run(2)
-	eq(king.Match.View().ended.why, "crown")
-	eq(king.left, 1)
+	eq(shogun.Match.View().ended.why, "crown")
+	eq(shogun.left, 1)
 	eq(b.Match.View().ended.why, "cancel")
 	-- No privacy line for him, nor for another character of his account.
 	local keys = {}
-	for _, item in ipairs(king.Consent.Items()) do keys[item.key] = true end
+	for _, item in ipairs(shogun.Consent.Items()) do keys[item.key] = true end
 	eq(keys.arenaFind, nil)
 	local alt = MW.Client(w, "Aldric Stone", {})
-	alt.db.myCharacters = { [World.NAMES.king:lower()] = true }
+	alt.db.myCharacters = { [World.NAMES.shogun:lower()] = true }
 	keys = {}
 	for _, item in ipairs(alt.Consent.Items()) do keys[item.key] = true end
 	eq(keys.arenaFind, nil)
 	alt.Match.SetFindable(true)
-	eq(select(2, alt.Match.Findable()), "king")
-	eq(select(2, alt.Match.Start(CASUAL)), "king")
+	eq(select(2, alt.Match.Findable()), "shogun")
+	eq(select(2, alt.Match.Start(CASUAL)), "shogun")
 	keys = {}
 	for _, item in ipairs(b.Consent.Items()) do keys[item.key] = true end
 	eq(keys.arenaFind, true)
 	-- While he searches too: Wenna's ask gets no answer from him.
 	local w2 = World.New()
-	local k2 = MW.Client(w2, World.NAMES.king, { guild = World.KING_GUILD, rank = 0, pos = SEEKER })
+	local k2 = MW.Client(w2, World.NAMES.shogun, { guild = World.SHOGUN_GUILD, rank = 0, pos = SEEKER })
 	local c2 = MW.Client(w2, "Wenna Crale", { pos = OTHER })
 	k2.db.throneLocation = true
 	assert(k2.Match.Start(CASUAL))
@@ -2280,43 +2280,43 @@ test("1.2 matchmaking review: Let's go that cannot go through (a chat lockdown) 
 	MW.NoErrors(w); MW.NoErrors(w2)
 end)
 
-test("1.2 matchmaking review: the King's search asks once more after 20 s, and his card says when nobody answered", function()
+test("1.2 matchmaking review: the Shogun's search asks once more after 20 s, and his card says when nobody answered", function()
 	local w = World.New()
-	local king = MW.Client(w, World.NAMES.king, { guild = World.KING_GUILD, rank = 0, pos = SEEKER })
-	king.db.throneLocation = true
-	assert(king.Match.Start(CASUAL))
+	local shogun = MW.Client(w, World.NAMES.shogun, { guild = World.SHOGUN_GUILD, rank = 0, pos = SEEKER })
+	shogun.db.throneLocation = true
+	assert(shogun.Match.Start(CASUAL))
 	w:Run(19)
-	eq(#w:Sent{ from = king, type = "AM", dist = "CHANNEL" }, 1)
-	assert(MW.HasLine(king, "No answer yet from a guildmate or an officer the census knows."))
+	eq(#w:Sent{ from = shogun, type = "AM", dist = "CHANNEL" }, 1)
+	assert(MW.HasLine(shogun, "No answer yet from a guildmate or an officer the census knows."))
 	w:Run(2)
-	eq(#w:Sent{ from = king, type = "AM", dist = "CHANNEL" }, 2, "the second ask")
+	eq(#w:Sent{ from = shogun, type = "AM", dist = "CHANNEL" }, 2, "the second ask")
 	w:Run(5)
-	assert(MW.HasLine(king, "Nobody nearby right now. Answers that still come in show here."), table.concat(MW.Lines(king), " | "))
-	eq(MW.HasLine(king, "No answer yet from a guildmate or an officer the census knows."), false, "said once")
-	eq(Printed(king, "Nobody nearby"), 0, "on his card, not in chat")
+	assert(MW.HasLine(shogun, "Nobody nearby right now. Answers that still come in show here."), table.concat(MW.Lines(shogun), " | "))
+	eq(MW.HasLine(shogun, "No answer yet from a guildmate or an officer the census knows."), false, "said once")
+	eq(Printed(shogun, "Nobody nearby"), 0, "on his card, not in chat")
 	MW.NoErrors(w)
 end)
 
-test("1.2 matchmaking review: the King's chat shows names masked (his request's line with the card closed, a block)", function()
+test("1.2 matchmaking review: the Shogun's chat shows names masked (his request's line with the card closed, a block)", function()
 	local w = World.New()
-	local king = MW.Client(w, World.NAMES.king, { guild = World.KING_GUILD, rank = 0, pos = SEEKER })
+	local shogun = MW.Client(w, World.NAMES.shogun, { guild = World.SHOGUN_GUILD, rank = 0, pos = SEEKER })
 	local b = MW.Client(w, "Parric Stowe", { pos = OTHER, findable = true })
-	king.db.throneLocation = true
-	king.trusted[b.name] = true
-	rawset(king.ns, "CouncilMasked", function() return true end)
-	assert(king.Match.Start(CASUAL))
+	shogun.db.throneLocation = true
+	shogun.trusted[b.name] = true
+	rawset(shogun.ns, "CouncilMasked", function() return true end)
+	assert(shogun.Match.Start(CASUAL))
 	w:Run(10)
-	local id = king.Match.View().offers[1].id
+	local id = shogun.Match.View().offers[1].id
 	-- His card closed (its X): the request's line goes to chat.
-	MW.Card(king):Hide()
-	eq(king.Match.Pick(id), true)
-	eq(Printed(king, "Asking Parr****..."), 1)
+	MW.Card(shogun):Hide()
+	eq(shogun.Match.Pick(id), true)
+	eq(Printed(shogun, "Asking Parr****..."), 1)
 	w:Run(0)
 	MW.Answer(w, b, "yes")
 	w:Run(0)
-	MW.Press(w, king, "block")
-	eq(Printed(king, "Parr**** is blocked."), 1)
-	eq(Printed(king, "Parric"), 0, "the name never in his chat")
+	MW.Press(w, shogun, "block")
+	eq(Printed(shogun, "Parr**** is blocked."), 1)
+	eq(Printed(shogun, "Parric"), 0, "the name never in his chat")
 	MW.NoErrors(w)
 end)
 
@@ -2370,14 +2370,14 @@ test("1.2 matchmaking review: the privacy line asks ArenaHome's rule while the c
 	end
 	eq(Shown(), true, "the stub's rule: a member, the arena on")
 	b.ns.ArenaHome.TabVisible = function() return false end
-	eq(Shown(), false, "ArenaHome's rule: the tab hidden (the King's switch, say)")
+	eq(Shown(), false, "ArenaHome's rule: the tab hidden (the Shogun's switch, say)")
 	b.ns.ArenaHome.TabVisible = function() return true end
 	eq(Shown(), true)
 	b.ns.ArenaHome.TabVisible = nil
 	MW.NoErrors(w)
 end)
 
-test("1.2 matchmaking review: the checks no test reached: the answer's range inside the seeker's, a group of more than the match's two, the King's account and a request, the 2-min window, Bone Throw's group on the found side, free-for-all ground", function()
+test("1.2 matchmaking review: the checks no test reached: the answer's range inside the seeker's, a group of more than the match's two, the Shogun's account and a request, the 2-min window, Bone Throw's group on the found side, free-for-all ground", function()
 	-- An answer whose range is not inside the seeker's (50g-100g asked; 40g-100g answered, 4000
 	-- silver = "334"): refused with C~c, and the search goes on.
 	local w, a, b = Pair({ findable = false })
@@ -2400,7 +2400,7 @@ test("1.2 matchmaking review: the checks no test reached: the answer's range ins
 	MW.Press(w2, c, "done")
 	w2:Run(0)
 	eq(c.left + d.left, 0)
-	-- A character of the King's account that offered before the account knew it (the King's name
+	-- A character of the Shogun's account that offered before the account knew it (the Shogun's name
 	-- added to it since): a request then gets no answer at all, not even a no.
 	local w3 = World.New()
 	local alt = MW.Client(w3, "Aldric Stone", { pos = OTHER, findable = true })
@@ -2408,7 +2408,7 @@ test("1.2 matchmaking review: the checks no test reached: the answer's range ins
 	assert(e.Match.Start(CASUAL))
 	w3:Run(1)
 	eq(#MW.AM(w3, alt, e.name), 1, "his offer")
-	alt.db.myCharacters = { [World.NAMES.king:lower()] = true }
+	alt.db.myCharacters = { [World.NAMES.shogun:lower()] = true }
 	w3:Run(5)
 	assert(MW.Last(w3, e, "R"), "her request")
 	eq(#MW.AM(w3, alt, e.name), 1, "no answer to it")

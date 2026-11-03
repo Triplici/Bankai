@@ -23,7 +23,7 @@ local function Raw(s, n)
 	return ok and type(v) == "string" and #v == n and v or nil
 end
 local function Safe()
-	local V, K, M, W = ns.ViewAs, ns.King, ns.Moderation, ns.WatchChat
+	local V, K, M, W = ns.ViewAs, ns.Shogun, ns.Moderation, ns.WatchChat
 	return ns.IsMember() == true and not (V and V.Previewing and V.Previewing())
 		and not (K and K.Preview and K.Preview()) and not (M and M.SelfOff and M.SelfOff())
 		and not (W and W.Barred and W.Barred("powers", ns.me))
@@ -330,7 +330,7 @@ end
 function R.Observe()
 	local s, now, week = Store(), Clock(), D.Week(); if not s then return false end
 	-- A frozen global amount is independent of primary-guild roster completeness. Missing
-	-- this real reset never permits reconstruction from a later King's word.
+	-- this real reset never permits reconstruction from a later Shogun's word.
 	if Keeper() and now >= D.WeekStart(week) and now <= D.WeekStart(week) + R.BOUNDARY and not s.amounts[week] then
 		s.amounts[week] = { at = now, amount = D.Amount() }
 	end

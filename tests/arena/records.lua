@@ -41,7 +41,7 @@ end)
 
 -- The weight rule (the design): 1.2.6's first build loaded the records on every login and sent an
 -- empty digest of each type (RD letter~~) from clients that hold nothing, so a practice game, a
--- client that only heard the King's word, or any idle member sent RD and ran a records timer.
+-- client that only heard the Shogun's word, or any idle member sent RD and ran a records timer.
 test("records: the weight rule: a client that holds nothing loads nothing at login, runs no records timer and sends no records message", function()
 	local w, _, _, c = Setup()
 	w:Run(3600)

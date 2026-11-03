@@ -18,7 +18,7 @@ local function Client(saved, savedDB)
 	c.Every = function(seconds, key, fn) w.timers[key] = { seconds = seconds, fn = fn, repeating = true } end
 	c.Comm = setmetatable({ loginAt = w.clock - 500, Handle = function() end,
 		Send = function() w.sent = w.sent + 1 end, Whisper = function() w.sent = w.sent + 1 end }, { __index = ns.Comm })
-	c.King = setmetatable({ Preview = function() return false end, Register = function() end }, { __index = ns.King })
+	c.Shogun = setmetatable({ Preview = function() return false end, Register = function() end }, { __index = ns.Shogun })
 	-- The brief-only fixture holds no payer proof. Actual Dues observations and its private
 	-- receipt adapter are exercised on separate real clients in dues-payer-loop.lua.
 	c.Dues = setmetatable({ Week = function() return w.week end,
@@ -88,9 +88,9 @@ test("Weekly personal brief: member navigation uses the existing scroll icon and
 	eq(c.WeeklyBrief.PersonalLink(), nil, "the icon does not widen membership")
 end)
 
-test("Weekly personal brief: member page uses existing fonts without a King dependency, popup or native Close global", function()
+test("Weekly personal brief: member page uses existing fonts without a Shogun dependency, popup or native Close global", function()
 	local w, c = Client()
-	c.King = false
+	c.Shogun = false
 	local constructor = assert(loadfile(ROOT .. "BankaiGuild/WeeklyBrief.lua"))
 	setfenv(constructor, setmetatable({}, { __index = function(_, key)
 		assert(key ~= "CLOSE", "the brief must not require an unverified native CLOSE global")
@@ -203,7 +203,7 @@ test("Weekly personal brief: ordinary members open and reopen the main Realm par
 			c.Layers = setmetatable(c.Layers, { __index = ns.Layers })
 			assert(loadfile(ROOT .. "BankaiGuild/Views.lua"))("BankaiGuild", c)
 			local ui, uns = H.LoadUI()
-			c.UI, uns.Views, uns.Data, uns.King = ui, c.Views, c.Data, K
+			c.UI, uns.Views, uns.Data, uns.Shogun = ui, c.Views, c.Data, K
 			local capture, captured = c.WeeklyBrief.Capture, 0
 			c.WeeklyBrief.Capture = function(...) captured = captured + 1; return capture(...) end
 			-- A later module's link stays after the Board; only the member brief moves ahead.
@@ -262,7 +262,7 @@ end)
 
 test("Weekly personal brief: actual Throne home and an old personal mode have no personal brief link or page", function()
 	H.WithThrone(function(_, K)
-		H.AsKing()
+		H.AsShogun()
 		local w, c = Client()
 		local held, mode = ns.WeeklyBrief, K.mode
 		ns.WeeklyBrief = c.WeeklyBrief

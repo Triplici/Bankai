@@ -11,18 +11,18 @@ local A1, A2 = "Aldric Vane-Realm", "Bera Stone-Realm"
 
 -- Two guilds: Aldric (an Apostle, the desk) and his missionary Mira in Bankai Guild Ember with Wes (a
 -- plain member, a witness); Bera (an Apostle) and Vik (a plain member) in Bankai Guild Vale. The Head,
--- the King and the author are offline unless a test brings them in.
+-- the Shogun and the author are offline unless a test brings them in.
 local function Cast()
 	local w = World.New({ apostles = { A1, A2 } })
 	local c = {
-		head = w:Client(World.HEAD), king = w:Client(World.KING), author = w:Client(World.AUTHOR),
+		head = w:Client(World.HEAD), shogun = w:Client(World.SHOGUN), author = w:Client(World.AUTHOR),
 		a1 = w:Client(A1), a2 = w:Client(A2, { guild = World.GUILD2 }),
 		m1 = w:Client("Mira Wells"), m2 = w:Client("Nils Ford"),
 		wes = w:Client("Wes Brook"), vik = w:Client("Vik Stone", { guild = World.GUILD2 }),
 	}
 	w:Act(c.a1, c.a1.Church.NameMissionary, "Mira Wells")
 	w:Act(c.m1, c.m1.Church.NameMissionary, "Nils Ford")
-	c.head.online, c.king.online, c.author.online = false, false, false
+	c.head.online, c.shogun.online, c.author.online = false, false, false
 	-- (Invites before a naming don't count: the log's events below are some hours after it.)
 	w:Run(8 * 3600)
 	w:Presence()
@@ -207,8 +207,8 @@ test("1.1.6 Church: a seen-check only from a keeper, answered only with a fact, 
 	eq(select(2, w:As(c.a1, c.a1.Count.TakeAnswer, "Wes Brook-Realm", "NS~1~a~q1~Bankai Guild Ember~1~1~1")), "twice")
 	for i = 2, 8 do w:As(c.a1, c.a1.Count.TakeAnswer, responders[i].name, "NS~1~a~q1~Bankai Guild Ember~1~1~1") end
 	eq(checks.q1, nil, "closed at eight answers")
-	-- The King's client answers no check.
-	eq(select(2, w:As(c.king, c.king.Count.TakeCheck, A1, "NS~1~q~2~Known Guy~j")), "king")
+	-- The Shogun's client answers no check.
+	eq(select(2, w:As(c.shogun, c.shogun.Count.TakeCheck, A1, "NS~1~q~2~Known Guy~j")), "shogun")
 end)
 
 local function SeenCheck(w, c)
@@ -437,7 +437,7 @@ test("1.1.6 Church: the rankings: Apostles by network score, missionaries by own
 	eq(#rows, 2); eq(rows[1].score, 22.5); eq(rows[1].name, "Mira Wells")
 	-- A plain member's ask is refused.
 	eq(select(2, w:As(K, K.Count.Answer, "Wes Brook-Realm", "m", "w")), "audience")
-	-- Detail: the person himself, the Head, the Apostles, the council, the King, the author; not another missionary.
+	-- Detail: the person himself, the Head, the Apostles, the council, the Shogun, the author; not another missionary.
 	eq(w:As(K, K.Count.MaySeeDetail, "Nils Ford-Realm", "Mira Wells-Realm"), false)
 	eq(w:As(K, K.Count.MaySeeDetail, "Mira Wells-Realm", "Mira Wells-Realm"), true)
 	eq(w:As(K, K.Count.MaySeeDetail, A2, "Mira Wells-Realm"), true)
@@ -479,7 +479,7 @@ test("1.1.6 Church: the public view: nothing while closed; switch requires a pub
 	eq(w:As(c.wes, c.wes.Count.PublicView), nil)
 end)
 
-test("1.1.6 Church: the top 3 of each ranking: from the Head's, the King's or the author's client only, opted-in people, while the ranking is open", function()
+test("1.1.6 Church: the top 3 of each ranking: from the Head's, the Shogun's or the author's client only, opted-in people, while the ranking is open", function()
 	local w, c = Cast()
 	c.author.online = true
 	w:Presence()
@@ -502,8 +502,8 @@ test("1.1.6 Church: the top 3 of each ranking: from the Head's, the King's or th
 	local forged = "NR~1~t~" .. ns.Codec.Base36(w.clock + 5) .. "~Aldric Vane~Mira Wells"
 	eq(select(2, w:As(c.wes, c.wes.Count.TakeTop, A1, forged)), "root")
 	eq(w:As(c.wes, c.wes.Church.Top3).missionaries[1], "Nils Ford")
-	-- From the King's: taken.
-	eq(w:As(c.wes, c.wes.Count.TakeTop, World.KING, forged), true)
+	-- From the Shogun's: taken.
+	eq(w:As(c.wes, c.wes.Count.TakeTop, World.SHOGUN, forged), true)
 	eq(w:As(c.wes, c.wes.Church.Top3).apostles[1], "Aldric Vane")
 end)
 
@@ -607,7 +607,7 @@ test("global Church ledger: signed council preserves verified rankings after the
 	eq(Rec(w, c.author, "Relay Recruit", "Mira Wells"), nil, "not from a council relay")
 end)
 
-test("1.1.6 Church: reading the log: never in combat, at most every minute, drawn among guildmates, never on the King's client; the event registered once, on first use", function()
+test("1.1.6 Church: reading the log: never in combat, at most every minute, drawn among guildmates, never on the Shogun's client; the event registered once, on first use", function()
 	local w, c = Cast()
 	-- ChatRooms independently registers CHAT_MSG_GUILD. Count only this module's log event;
 	-- Cast has already run eight hours, so test load on a genuinely fresh world.
@@ -627,7 +627,7 @@ test("1.1.6 Church: reading the log: never in combat, at most every minute, draw
 	eq(w:As(c.m1, c.m1.Count.Read), true)
 	eq(LogRegistrations(c.m1), 1, "log event registered exactly once, independently of chat's event")
 	eq(c.m1.queries, 2)
-	eq(select(2, w:As(c.king, c.king.Count.Read)), "king")
+	eq(select(2, w:As(c.shogun, c.shogun.Count.Read)), "shogun")
 	-- A plain member reads only where a Church person was heard over GUILD, and then with a chance
 	-- of 2 / his guild's addon users.
 	local lone = w:Client("Lone Wolf", { guild = "Bankai Guild Lone" })
@@ -1374,7 +1374,7 @@ test("1.2.1 Church: a witness is one the keeper can vouch for in the pair's guil
 	-- officer the Bankai Guild chats verify there; not for a member they could not.
 	eq(w:As(c.a2, c.a2.Count.TakeEvidence, World.COUNCILLOR, PairText(w, "Mira Wells", "Sig Ned", 2)), true)
 	eq(StateOf(w, c.a2, "Sig Ned", "Mira Wells"), "credited")
-	eq(w:Act(c.king, c.king.Church.NameCorrespondent, "Cora Penn", World.GUILD), true)
+	eq(w:Act(c.shogun, c.shogun.Church.NameCorrespondent, "Cora Penn", World.GUILD), true)
 	eq(w:As(c.a2, c.a2.Count.TakeEvidence, "Cora Penn-Realm", PairText(w, "Mira Wells", "Cor Ned", 2)), true)
 	eq(StateOf(w, c.a2, "Cor Ned", "Mira Wells"), "credited")
 	c.a2.c.Channels.VerifiedLevel = function(n, g)
@@ -2046,22 +2046,22 @@ test("1.2.3 Church: the top 3 is worked out again only when the ledger, the book
 	w.clock = w.clock + A.Count.TOP_EVERY
 	eq(Send(), true); eq(computed, 5)
 	-- Another root's top 3 held here: ours, which differs, goes at once.
-	eq(w:As(A, A.Count.TakeTop, World.KING, "NR~1~t~" .. ns.Codec.Base36(w.clock + 1) .. "~Aldric Vane~Mira Wells"), true)
+	eq(w:As(A, A.Count.TakeTop, World.SHOGUN, "NR~1~t~" .. ns.Codec.Base36(w.clock + 1) .. "~Aldric Vane~Mira Wells"), true)
 	w.clock = w.clock + 30
 	eq(Send(), true); eq(computed, 6); eq(Top(), "Nils Ford,Mira Wells")
 end)
 
 -- 1.2.3, after review: the missionaries' crook comes of this top 3, and the comments (and the handoff)
--- said the Head's or the King's client sends it too. SendTop takes a keeper whose root is H or W, but
--- the Head is the King (Church.IsHead), whose root is K, and the King is no keeper (Count.Tick leaves
+-- said the Head's or the Shogun's client sends it too. SendTop takes a keeper whose root is H or W, but
+-- the Head is the Shogun (Church.IsHead), whose root is K, and the Shogun is no keeper (Count.Tick leaves
 -- him out): only the author's client sends it, while it is online with the ranking open. A word from
--- the King's is still taken (the 1.1.6 test above). Whether the King's client should send it too is
--- the owner's call (the King's screen's weight), not this test's.
-test("1.2.3 Church: the top 3 goes out from the author's client alone: the King's, online with the ranking open, sends none (root K, no keeper; the Head is the King); the author's sends it, and the King's client takes it", function()
+-- the Shogun's is still taken (the 1.1.6 test above). Whether the Shogun's client should send it too is
+-- the owner's call (the Shogun's screen's weight), not this test's.
+test("1.2.3 Church: the top 3 goes out from the author's client alone: the Shogun's, online with the ranking open, sends none (root K, no keeper; the Head is the Shogun); the author's sends it, and the Shogun's client takes it", function()
 	local w, c = Cast()
-	c.author.online, c.king.online = true, true
+	c.author.online, c.shogun.online = true, true
 	w:Presence()
-	local A, K = c.author, c.king
+	local A, K = c.author, c.shogun
 	for i, by in ipairs({ "Mira Wells", "Nils Ford" }) do
 		for j = 1, i do
 			w:As(A, A.Count.MergeIn, "r " .. i .. j .. ":" .. Key(by), { n = "R B" .. i .. j, bn = by, g = World.GUILD, kind = "i",
@@ -2071,22 +2071,22 @@ test("1.2.3 Church: the top 3 goes out from the author's client alone: the King'
 	w:Act(c.m1, c.m1.Count.SetPublicRow, true)
 	w:Act(c.m2, c.m2.Count.SetPublicRow, true)
 	w:Act(A, A.Church.SetPublic, true)
-	eq(w:As(K, K.Church.IsHead, World.KING), true, "the Head is the King")
-	eq(w:As(K, K.Church.RootCode, World.KING), "K", "his root: K, never H")
-	eq(w:As(K, K.Church.IsKeeper, World.KING), false, "no keeper")
+	eq(w:As(K, K.Church.IsHead, World.SHOGUN), true, "the Head is the Shogun")
+	eq(w:As(K, K.Church.RootCode, World.SHOGUN), "K", "his root: K, never H")
+	eq(w:As(K, K.Church.IsKeeper, World.SHOGUN), false, "no keeper")
 	eq(w:As(A, A.Church.RootCode, World.AUTHOR), "W")
 	w:ClearSent()
-	-- The King's client: its ticks, past TOP_EVERY, send none; SendTop itself refuses.
+	-- The Shogun's client: its ticks, past TOP_EVERY, send none; SendTop itself refuses.
 	w:Tick({ K })
 	w:Run(K.Count.TOP_EVERY + 1)
 	w:Tick({ K })
-	eq(w:As(K, K.Count.SendTop, w.clock), false, "the King's client sends no top 3")
+	eq(w:As(K, K.Count.SendTop, w.clock), false, "the Shogun's client sends no top 3")
 	eq(#w:Sent(K, "NR", nil, "t"), 0)
 	eq(w:As(c.wes, c.wes.Church.Top3), nil, "nobody holds one yet")
-	-- The author's: sent on CHANNEL, and taken everywhere, the King's client too.
+	-- The author's: sent on CHANNEL, and taken everywhere, the Shogun's client too.
 	w:Tick({ A })
 	eq(#w:Sent(A, "NR", "CHANNEL", "t"), 1, "the author's client sends it")
-	eq(w:As(K, K.Church.Top3).missionaries[1], "Nils Ford", "the King's client holds it")
+	eq(w:As(K, K.Church.Top3).missionaries[1], "Nils Ford", "the Shogun's client holds it")
 	eq(w:As(c.wes, c.wes.Church.Top3).missionaries[1], "Nils Ford")
 end)
 
@@ -2129,7 +2129,7 @@ test("1.2.3 Church: a keeper's first upkeep of its ledger comes PRUNE_AFTER afte
 	if not ok then error(err, 0) end
 end)
 
--- The global ledger's relays (the keepers, the King, the signed High Council): what a relay's pages
+-- The global ledger's relays (the keepers, the Shogun, the signed High Council): what a relay's pages
 -- show, whom a catch-up asks, and where a keeper's verified word goes.
 
 -- A /reload, or a login the next day: the same character's saved data (its SavedVariables), nothing
@@ -2295,8 +2295,8 @@ test("global Church ledger: a keeper's verified word goes to the keepers online,
 end)
 
 -- The review of the relays' catch-up (2026-10-19): when a session's first catch-up goes, whom a
--- keeper that never answers leaves first, what a keeper takes from a council or King client, and the
--- King's client, which does no background Church work.
+-- keeper that never answers leaves first, what a keeper takes from a council or Shogun client, and the
+-- Shogun's client, which does no background Church work.
 
 test("global Church ledger: just logged in, a keeper's first catch-up waits until every keeper online has been heard: not the one heard first, the one it never caught up from", function()
 	local w, c = Cast()
@@ -2355,10 +2355,10 @@ test("global Church ledger: a keeper that never answers a catch-up is not asked 
 	eq(table.concat(asked, ", "), table.concat({ Key(A1), Key(A2), Key(A1), Key(A2) }, ", "), "each in turn, not Aldric first every session")
 end)
 
-test("global Church ledger: on a keeper, record, person and archive lines only from a keeper: a council or King client adds no recruit and raises no count (1.2.5.1)", function()
+test("global Church ledger: on a keeper, record, person and archive lines only from a keeper: a council or Shogun client adds no recruit and raises no count (1.2.5.1)", function()
 	local w, c = Cast()
 	w:Client(World.COUNCILLOR)
-	c.king.online = true
+	c.shogun.online = true
 	w:Presence()
 	local K, B = c.a1, c.a1.Church.B36
 	local u, hour = B(w.clock), B(math.floor(w.clock / 3600) * 3600 - 3600)
@@ -2370,7 +2370,7 @@ test("global Church ledger: on a keeper, record, person and archive lines only f
 	}
 	local function Counts() return Joins(w, K, "Mira Wells", "m") .. " in 30 days, " .. Joins(w, K, "Mira Wells", "a") .. " all time" end
 	eq(Counts(), "0 in 30 days, 0 all time")
-	for _, from in ipairs({ World.COUNCILLOR, World.KING }) do
+	for _, from in ipairs({ World.COUNCILLOR, World.SHOGUN }) do
 		for _, line in ipairs(lines) do eq(w:As(K, K.Count.TakeLine, from, line), false, from .. ": " .. line) end
 	end
 	eq(Counts(), "0 in 30 days, 0 all time", "nothing added, nothing raised")
@@ -2380,53 +2380,53 @@ test("global Church ledger: on a keeper, record, person and archive lines only f
 	eq(Counts(), "2 in 30 days, 5001 all time")
 end)
 
-test("global Church ledger: the King's client does no background Church work: it asks for no catch-up, a keeper answers none of its asks and pushes nothing to it", function()
+test("global Church ledger: the Shogun's client does no background Church work: it asks for no catch-up, a keeper answers none of its asks and pushes nothing to it", function()
 	local w, c = Cast()
-	c.king.online = true
+	c.shogun.online = true
 	w:Presence()
-	local id = Key("King Recb") .. ":" .. Key("Mira Wells")
-	Give(w, c.a1, "King Recb", "Mira Wells", 2)
+	local id = Key("Shogun Recb") .. ":" .. Key("Mira Wells")
+	Give(w, c.a1, "Shogun Recb", "Mira Wells", 2)
 	w:ClearSent()
-	-- No catch-up from the King's client, on its tick or asked for.
-	w:Tick({ c.king })
-	eq(#w:Sent(c.king, "NL"), 0, "nothing on its tick")
-	eq(w:As(c.king, c.king.Count.CatchUp, true), false)
-	-- An ask in the King's name: Aldric answers none of it.
-	w:As(c.a1, c.a1.Count.TakeLine, World.KING, "NL~1~q~0")
+	-- No catch-up from the Shogun's client, on its tick or asked for.
+	w:Tick({ c.shogun })
+	eq(#w:Sent(c.shogun, "NL"), 0, "nothing on its tick")
+	eq(w:As(c.shogun, c.shogun.Count.CatchUp, true), false)
+	-- An ask in the Shogun's name: Aldric answers none of it.
+	w:As(c.a1, c.a1.Count.TakeLine, World.SHOGUN, "NL~1~q~0")
 	w:Run(60)
 	local n = 0
-	for _, e in ipairs(w:Sent(c.a1, "NL", "WHISPER")) do if Key(e.target) == Key(World.KING) then n = n + 1 end end
-	eq(n, 0, "no ledger line to the King")
-	-- A keeper's verified word goes to the keepers, not to the King's client.
+	for _, e in ipairs(w:Sent(c.a1, "NL", "WHISPER")) do if Key(e.target) == Key(World.SHOGUN) then n = n + 1 end end
+	eq(n, 0, "no ledger line to the Shogun")
+	-- A keeper's verified word goes to the keepers, not to the Shogun's client.
 	w:ClearSent()
 	w:As(c.a1, c.a1.Count.Push, id)
 	local to = {}
 	for _, e in ipairs(w:Sent(c.a1, "NL", "WHISPER", "r")) do to[Key(e.target)] = true end
 	eq(to[Key(A2)], true, "Bera")
-	eq(to[Key(World.KING)], nil, "not the King")
-	-- A ledger line whispered to the King's client anyway is not kept there, and its page shows no
+	eq(to[Key(World.SHOGUN)], nil, "not the Shogun")
+	-- A ledger line whispered to the Shogun's client anyway is not kept there, and its page shows no
 	-- copy of its own (with no keeper online and no answer kept, nothing).
-	local line = w:As(c.a1, c.a1.Count.RecordLine, id, Rec(w, c.a1, "King Recb", "Mira Wells"))
-	eq(w:As(c.king, c.king.Count.TakeLine, A1, line), false)
-	eq(Rec(w, c.king, "King Recb", "Mira Wells"), nil)
+	local line = w:As(c.a1, c.a1.Count.RecordLine, id, Rec(w, c.a1, "Shogun Recb", "Mira Wells"))
+	eq(w:As(c.shogun, c.shogun.Count.TakeLine, A1, line), false)
+	eq(Rec(w, c.shogun, "Shogun Recb", "Mira Wells"), nil)
 	c.a1.online, c.a2.online = false, false
 	w:Run(c.a1.Church.KEEPER_EVERY * 3)
 	w:Presence()
-	eq(#(w:As(c.king, c.king.Count.RankingView, "m", "a")), 0)
+	eq(#(w:As(c.shogun, c.shogun.Count.RankingView, "m", "a")), 0)
 end)
 
-test("global Church ledger: a council client catches up only while no keeper is online, from a council relay, never the King's client", function()
+test("global Church ledger: a council client catches up only while no keeper is online, from a council relay, never the Shogun's client", function()
 	local w, c = Cast()
 	w:Client(World.COUNCILLOR)
 	local other = w:Client("Dela Moss-Realm")
-	c.king.online = true
+	c.shogun.online = true
 	w:Presence()
 	-- Keepers online: its pages ask them (Count.Ask); no catch-up.
 	w:ClearSent()
 	eq(w:As(other, other.Count.CatchUp, true), false)
 	w:Tick({ other })
 	eq(#w:Sent(other, "NL", "WHISPER", "q"), 0, "none on its tick")
-	-- Every keeper offline: it asks the council relay online, not the King's client (sorted first).
+	-- Every keeper offline: it asks the council relay online, not the Shogun's client (sorted first).
 	c.a1.online, c.a2.online = false, false
 	w:Run(c.a1.Church.KEEPER_EVERY * 3)
 	w:Presence()

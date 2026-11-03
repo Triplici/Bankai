@@ -10,7 +10,7 @@ local DIALOGS = { "BANKAIGUILD_WANTED_ADD", "BANKAIGUILD_WANTED_REMOVE", "BANKAI
 
 -- 1.2.4, the notices: Bankai Guild's own windows as stand-ins that keep what they show (ns.Window: the
 -- death's toast), Bankai Guild's dialogs (Dialog.Show and Find: the avenged notice and the whisper
--- windows its buttons open), the King's letter (HonorsNet's QueueLetter, LetterToSender and
+-- windows its buttons open), the Shogun's letter (HonorsNet's QueueLetter, LetterToSender and
 -- LetterFrame) and the Bankai Guild window's whisper window, profile and state (UI.WhisperText,
 -- ShowPerson, IsShown), each kept in `into` (a test world, or a world's client).
 local function StandInFrame(kind)
@@ -53,7 +53,7 @@ local function NoticeStandIns(c, into)
 	-- letter waited for the Bankai Guild window, WaitForWindow, in into.windowWaits.)
 	into.letterNow, into.windowWaits = into.letterNow or {}, into.windowWaits or 0
 	c.HonorsNet = { QueueLetter = function(key, _, now) into.letters[#into.letters + 1] = key into.letterNow[#into.letters] = now end,
-		LetterToSender = function() return into.kingLetter == true end, LetterFrame = function() return into.letterFrame end,
+		LetterToSender = function() return into.shogunLetter == true end, LetterFrame = function() return into.letterFrame end,
 		WaitForWindow = function() into.windowWaits = into.windowWaits + 1 end }
 	c.UI = c.UI or {}
 	c.UI.WhisperText = function(name, text) into.whispers[#into.whispers + 1] = { name = name, text = text } return true end
@@ -123,7 +123,7 @@ local function WithWanted(fn)
 		c.Moderation = { CanIssue = function() return w.manager end }
 		c.Workshop = { IsAuthor = function() return false end,
 			IsAuthorName = function(name) return w.authorities[c.Fold(c.FullName(name))] == "author" end }
-		c.IsKingCharacter = function(name) return w.authorities[c.Fold(c.FullName(name))] == "king" end
+		c.IsShogunCharacter = function(name) return w.authorities[c.Fold(c.FullName(name))] == "shogun" end
 		c.IsHighCouncillor = function(name) return w.authorities[c.Fold(c.FullName(name))] == "council" end
 		local realEd = ns.Ed25519
 		local function Signature(text) return c.Sign.SHA256(text) .. c.Sign.SHA256("wanted:" .. text) end
@@ -584,9 +584,9 @@ test("wanted: bounded history, correction and reload preserve the checkpoint wit
 		local t = W.Target("Collector-Realm")
 		eq(t.current, 3); eq(t.lifetimeKills, 3); eq(#t.victims, 2); eq(t.victimOverflow, 1)
 		assert(#c.rdb.wanted.evidence <= W.MAX_EVIDENCE); eq(W.Stats().checkpointed, 1)
-		-- (1.2.3: a void is a reviewer's, the King's, a High Councillor's or the author's: the roles
+		-- (1.2.3: a void is a reviewer's, the Shogun's, a High Councillor's or the author's: the roles
 		-- every client checks on his word, WV; no longer a Watch moderator's alone.)
-		w.authority(c.me, "king")
+		w.authority(c.me, "shogun")
 		eq(select(2, W.Correct(firstId, "too old")), "expired", "checkpointed evidence is intentionally immutable")
 		assert(W.Correct(lastId, "duplicate server row"))
 		t = W.Target("Collector-Realm")
@@ -681,7 +681,7 @@ test("wanted publication through real Comm: publish and repeat enter the guarded
 			assert(loadfile(ROOT .. "BankaiGuild/Comm.lua"))("BankaiGuild", c)
 			w.listeners.LOGIN()
 			c.Comm.JoinChannel()
-			w.authority(c.me, "king")
+			w.authority(c.me, "shogun")
 			local published, why = W.PublishGlobal()
 			assert(published, "actual queue rejected publication: " .. tostring(why))
 			assert(c.Comm.QueueSize() > 0)
@@ -704,7 +704,7 @@ test("wanted publication through real Comm: publish and repeat enter the guarded
 			assert(W.RepeatGlobal())
 			w.authorities[c.Fold(c.me)] = nil
 			Drain(); eq(#sent, before, "revocation after admission blocks every delayed repeat part")
-			w.authority(c.me, "king")
+			w.authority(c.me, "shogun")
 			assert(W.PublishGlobal())
 			w.authorities[c.Fold(c.me)] = nil
 			Drain(); eq(#sent, before, "revocation after admission blocks publication too")
@@ -746,17 +746,17 @@ test("wanted global: only a fresh directly signed authority snapshot awards GUID
 		eq(W.GlobalBorder("WrongName-Realm", "Player-1-DA000001"), nil, "signed-role revocation removes the frame")
 		eq(W.GlobalSnapshot(), nil)
 
-		local king = w.authority("King-Realm", "king")
-		c.me, c.db.wantedPublisher = king, nil
+		local shogun = w.authority("Shogun-Realm", "shogun")
+		c.me, c.db.wantedPublisher = shogun, nil
 		local _, _, replacement = w.publish(rows, 99)
-		assert(W.HandleGlobalSnapshot("CHANNEL", king, replacement),
+		assert(W.HandleGlobalSnapshot("CHANNEL", shogun, replacement),
 			"revocation releases the old issuer's floor so another authority can recover without /reload")
-		eq(W.GlobalSnapshot().issuer, king)
-		-- This client is the King's: his revocation takes effect here as he sends it.
+		eq(W.GlobalSnapshot().issuer, shogun)
+		-- This client is the Shogun's: his revocation takes effect here as he sends it.
 		assert(W.RevokeGlobal())
 		eq(W.GlobalBorder(nil, "Player-1-DA000001"), nil, "an authority can explicitly revoke every frame")
-		eq(W.GlobalSnapshot().issuer, king); eq(#W.GlobalSnapshot().rows, 0)
-		eq(select(2, W.HandleGlobalSnapshot("CHANNEL", king, w.sent[#w.sent].text)), "replay", "the word it holds already")
+		eq(W.GlobalSnapshot().issuer, shogun); eq(#W.GlobalSnapshot().rows, 0)
+		eq(select(2, W.HandleGlobalSnapshot("CHANNEL", shogun, w.sent[#w.sent].text)), "replay", "the word it holds already")
 	end)
 end)
 
@@ -890,21 +890,21 @@ end)
 test("wanted global: deterministic issuer conflicts and a newer empty snapshot revoke every border", function()
 	WithWanted(function(w, W, c)
 		local council = w.authority("Council-Realm", "council")
-		local king = w.authority("King-Realm", "king")
+		local shogun = w.authority("Shogun-Realm", "shogun")
 		local rows = { { guid = "Player-1-BB000011", points = 2, claims = 1, reachedAt = w.epoch } }
 		c.me = council; c.db.wantedPublisher = nil
 		local _, _, councilWord = w.publish(rows, 500)
-		c.me = king; c.db.wantedPublisher = nil
-		local _, _, kingWord = w.publish(rows, 500)
+		c.me = shogun; c.db.wantedPublisher = nil
+		local _, _, shogunWord = w.publish(rows, 500)
 		assert(W.HandleGlobalSnapshot("CHANNEL", council, councilWord))
-		assert(W.HandleGlobalSnapshot("CHANNEL", king, kingWord), "the King wins an otherwise equal generation")
-		eq(W.GlobalSnapshot().issuer, king)
+		assert(W.HandleGlobalSnapshot("CHANNEL", shogun, shogunWord), "the Shogun wins an otherwise equal generation")
+		eq(W.GlobalSnapshot().issuer, shogun)
 		eq(select(2, W.HandleGlobalSnapshot("CHANNEL", council, councilWord)), "replay")
 
 		w.advance(1)
 		c.db.wantedPublisher = nil
 		local _, _, revoke = w.publish({}, 501)
-		assert(W.HandleGlobalSnapshot("CHANNEL", king, revoke))
+		assert(W.HandleGlobalSnapshot("CHANNEL", shogun, revoke))
 		eq(W.GlobalBorder(nil, "Player-1-BB000011"), nil)
 		eq(#W.GlobalSnapshot().rows, 0)
 	end)
@@ -1087,17 +1087,17 @@ test("wanted: native PARTY_KILL credits only our verified killing blow and close
 		issecretvalue = function(value) return rawequal(value, secret) end
 		eq(event(secret, guid), false); eq(event(mine, secret), false)
 		issecretvalue = nil
-		-- (1.2.3: taking an entry off is a reviewer's: the King here.)
-		w.authority(c.me, "king")
+		-- (1.2.3: taking an entry off is a reviewer's: the Shogun here.)
+		w.authority(c.me, "shogun")
 		assert(W.RemoveTarget(nil, guid)); w.advance(); eq(select(2, event(mine, guid)), "removed")
 		eq(W.Stats().accepted, before, "invalid, secret and removed identities never record a kill")
 		-- (1.2.3, changed on purpose, Daniel's "that list should never have existed": each native kill
 		-- this client counted went to the Bankai Guild channel at once, for every member's client to count
-		-- too; the removal went as the King's word. Before, nothing left this client by itself.)
+		-- too; the removal went as the Shogun's word. Before, nothing left this client by itself.)
 		-- (1.2.3, changed on purpose, Daniel's bounty: an own row goes as WK~2, what it is worth after the
 		-- GUIDs: the member's office and level, the Horde player's level.)
 		eq(#w.wire("WK~2~"), 3, "one row for each of the three native kills counted")
-		eq(#w.wire("WV~T~1~"), 1, "and the King's removal")
+		eq(#w.wire("WV~T~1~"), 1, "and the Shogun's removal")
 		for _, m in ipairs(w.sent) do eq(m.dist, "CHANNEL"); assert(not m.text:find("Warsong", 1, true), "never where") end
 	end)
 end)
@@ -1130,7 +1130,7 @@ test("wanted native autoadd: own fatal recap adds a Horde killer this client pro
 		w.handlers.PLAYER_DEAD(); eq(W.Target(nil, guid).current, 1, "repeated recap cannot add a second bounty")
 		-- (1.2.3: a reviewer takes an abusive entry off, and what it counted stops counting with it:
 		-- before, a Watch moderator's removal left his bounty standing.)
-		w.authority(c.me, "king"); assert(W.RemoveTarget(nil, guid)); w.authorities[c.Fold(c.me)] = nil
+		w.authority(c.me, "shogun"); assert(W.RemoveTarget(nil, guid)); w.authorities[c.Fold(c.me)] = nil
 		w.advance(); row.timestamp = w.epoch; w.handlers.PLAYER_DEAD()
 		eq(W.Target(nil, guid).active, false); eq(W.Target(nil, guid).current, 0, "removal is never undone by capture, nor counts")
 		local function Refused(id, faction)
@@ -1352,27 +1352,27 @@ test("wanted PLAYER_DEAD: only Forever's C_DeathRecap is read (HasRecapEvents, t
 	end)
 end)
 
-test("wanted global: the King's newer word replaces a councillor's whose key epoch began later (the epoch orders one publisher's own words only)", function()
+test("wanted global: the Shogun's newer word replaces a councillor's whose key epoch began later (the epoch orders one publisher's own words only)", function()
 	WithWanted(function(w, W, c)
 		local council = w.authority("Council-Realm", "council")
-		local king = w.authority("King-Realm", "king")
+		local shogun = w.authority("Shogun-Realm", "shogun")
 		local rows = { { guid = "Player-1-BB000021", points = 3, claims = 1, reachedAt = w.epoch } }
-		c.me = king; c.db.wantedPublisher = nil
-		local _, _, kingFirst = w.publish(rows, 1000)
-		local kingState = c.db.wantedPublisher
-		assert(W.HandleGlobalSnapshot("CHANNEL", king, kingFirst))
-		eq(W.GlobalSnapshot().issuer, king)
+		c.me = shogun; c.db.wantedPublisher = nil
+		local _, _, shogunFirst = w.publish(rows, 1000)
+		local shogunState = c.db.wantedPublisher
+		assert(W.HandleGlobalSnapshot("CHANNEL", shogun, shogunFirst))
+		eq(W.GlobalSnapshot().issuer, shogun)
 		w.advance(60)
 		c.me = council; c.db.wantedPublisher = nil
 		local _, _, councilWord = w.publish({ { guid = "Player-1-BB000022", points = 5, claims = 2, reachedAt = w.epoch } }, 2000)
 		assert(W.HandleGlobalSnapshot("CHANNEL", council, councilWord))
-		eq(W.GlobalSnapshot().issuer, council, "the newer word replaces the King's")
+		eq(W.GlobalSnapshot().issuer, council, "the newer word replaces the Shogun's")
 		w.advance(60)
-		c.me, c.db.wantedPublisher = king, kingState
+		c.me, c.db.wantedPublisher = shogun, shogunState
 		local _, _, revoke = w.publish({})
-		local ok, why = W.HandleGlobalSnapshot("CHANNEL", king, revoke)
+		local ok, why = W.HandleGlobalSnapshot("CHANNEL", shogun, revoke)
 		eq(ok, true, tostring(why))
-		eq(W.GlobalSnapshot().issuer, king, "the King's later revocation wins, whatever his key's epoch")
+		eq(W.GlobalSnapshot().issuer, shogun, "the Shogun's later revocation wins, whatever his key's epoch")
 		eq(#W.GlobalSnapshot().rows, 0)
 		eq(W.GlobalBorder(nil, "Player-1-BB000022"), nil)
 		eq(select(2, W.HandleGlobalSnapshot("CHANNEL", council, councilWord)), "replay", "the councillor's word, heard again, changes nothing")
@@ -1832,10 +1832,10 @@ test("wanted 1.2.3 intake: a shared row counts only from a verified member, abou
 		-- A relay only from a reviewer; our own row coming back in one is ours already.
 		local relay = ("WK~R~1~%s~%s~1~%016x~%d~%d~P~1.0f000049~1.cc000041~Relayed-Realm"):format(scope, sender, 0xbeef, w.epoch, W.MonthNow())
 		eq(Why(other, relay), "authority")
-		local king = w.authority("Kingly-Realm", "king")
+		local shogun = w.authority("Shogunly-Realm", "shogun")
 		local mine = ("WK~R~1~%s~%s~1~%016x~%d~%d~P~1.0f000049~1.aa000001~Relayed-Realm"):format(scope, c.me, 0xbeef, w.epoch, W.MonthNow())
-		eq(Why(king, mine), "own")
-		assert(H("CHANNEL", king, relay), "a reviewer's relay of a member's row")
+		eq(Why(shogun, mine), "own")
+		assert(H("CHANNEL", shogun, relay), "a reviewer's relay of a member's row")
 		eq(W.Target(nil, "Player-1-0F000049").claims[1].slayer, sender)
 		-- A Horde client keeps none of it.
 		c.faction = "Horde"
@@ -1861,20 +1861,20 @@ test("wanted 1.2.3 marks: a reviewer's removal reaches every client (what the Ho
 		local off = ("WV~T~1~%s~1.0f000051~%d"):format(scope, w.epoch)
 		eq(select(2, Mark("Plain-Realm", off)), "authority", "a member's word takes nobody off")
 		eq(select(2, V("WHISPER", "Plain-Realm", off)), "lane")
-		local king = w.authority("Kingly-Realm", "king")
-		eq(select(2, Mark(king, off:gsub(scope, "ffffffffffffffff"))), "scope")
-		eq(select(2, Mark(king, ("WV~T~1~%s~1.0f000051~%d"):format(scope, w.epoch - W.SHARE_AGE - 1))), "stale")
-		eq(select(2, Mark(king, off .. "~x")), "shape")
-		assert(Mark(king, off))
+		local shogun = w.authority("Shogunly-Realm", "shogun")
+		eq(select(2, Mark(shogun, off:gsub(scope, "ffffffffffffffff"))), "scope")
+		eq(select(2, Mark(shogun, ("WV~T~1~%s~1.0f000051~%d"):format(scope, w.epoch - W.SHARE_AGE - 1))), "stale")
+		eq(select(2, Mark(shogun, off .. "~x")), "shape")
+		assert(Mark(shogun, off))
 		local t = W.Target(nil, "Player-1-0F000051")
-		eq(t.active, false); eq(t.removedBy, king); eq(t.current, 0); eq(#t.claims, 0)
+		eq(t.active, false); eq(t.removedBy, shogun); eq(t.current, 0); eq(#t.claims, 0)
 		eq(#W.Rankings().all, 0, "the points paid for him stop counting")
 		eq(#W.Targets(true), 0)
-		eq(select(2, Mark(king, off)), "held")
+		eq(select(2, Mark(shogun, off)), "held")
 		w.advance(60)
 		eq(select(2, K("CHANNEL", sender, Row("S", "1.0f000051", "1.cc000051", "00000000000000c3"))), "removed", "he does not come back")
 		-- One this client never had: kept off all the same.
-		assert(Mark(king, ("WV~T~1~%s~1.0f000052~%d"):format(scope, w.epoch)))
+		assert(Mark(shogun, ("WV~T~1~%s~1.0f000052~%d"):format(scope, w.epoch)))
 		eq(W.Target(nil, "Player-1-0F000052").active, false)
 		w.advance(6)
 		eq(select(2, K("CHANNEL", sender, Row("S", "1.0f000052", "1.cc000051", "00000000000000c4"))), "removed")
@@ -1888,7 +1888,7 @@ test("wanted 1.2.3 marks: a reviewer's removal reaches every client (what the Ho
 		eq(W.Target(nil, "Player-1-0F000053").current, 0, "voided")
 		eq(select(2, K("CHANNEL", sender, Row("S", "1.0f000053", "1.cc000051", "00000000000000c5"))), "void")
 		-- A void heard before its row: the row is refused when it comes.
-		assert(Mark(king, ("WV~V~1~%s~%s~00000000000000c6~%d"):format(scope, sender, w.epoch)))
+		assert(Mark(shogun, ("WV~V~1~%s~%s~00000000000000c6~%d"):format(scope, sender, w.epoch)))
 		eq(select(2, K("CHANNEL", sender, Row("S", "1.0f000054", "1.cc000051", "00000000000000c6"))), "void")
 		-- Saved: after a reload the removal and the void still hold.
 		assert(loadfile(ROOT .. "BankaiGuild/Wanted.lua"))("BankaiGuild", c)
@@ -1915,9 +1915,9 @@ test("wanted 1.2.3: a full Most Wanted never refuses a Horde killer: the least a
 		w.advance(W.DEATH_WINDOW + 1)
 		assert(w.handlers.PARTY_KILL(me, paid))
 		w.advance(W.DEATH_WINDOW + 1)
-		local _, abusive = Horde(4) -- taken off by the King
+		local _, abusive = Horde(4) -- taken off by the Shogun
 		assert(w.handlers.PARTY_KILL(me, abusive))
-		w.authority(c.me, "king"); assert(W.RemoveTarget(nil, abusive)); w.authorities[c.Fold(c.me)] = nil
+		w.authority(c.me, "shogun"); assert(W.RemoveTarget(nil, abusive)); w.authorities[c.Fold(c.me)] = nil
 		eq(#W.Targets(true), 3); eq(#W.Targets(), 4)
 		local fifth = Death(5)
 		eq(W.Target(nil, fifth).current, 1)
@@ -1973,8 +1973,8 @@ test("wanted 1.2.3 regression: with the real cap, the 201st Horde killer of 200 
 		eq(t.current, 1); eq(#W.Targets(true), 200)
 		eq(W.Target(nil, first), nil, "the least active one made room")
 		eq(W.ShareState().log[#W.ShareState().log].ok, true, "counted, and noted so in /bk wanted status")
-		-- The King takes ten off: they are kept off apart, and ten places are free.
-		w.authority(c.me, "king")
+		-- The Shogun takes ten off: they are kept off apart, and ten places are free.
+		w.authority(c.me, "shogun")
 		local off = {}
 		for i = 2, 11 do off[#off + 1] = ("Player-1-0E%06X"):format(0x100000 + i); assert(W.RemoveTarget(nil, off[#off])) end
 		w.authorities[c.Fold(c.me)] = nil
@@ -1983,8 +1983,8 @@ test("wanted 1.2.3 regression: with the real cap, the 201st Horde killer of 200 
 		eq(W.Target(nil, later).current, 1); eq(#W.Targets(true), 191, "a free place, nobody dropped")
 		for _, guid in ipairs(off) do eq(W.Target(nil, guid).active, false) end
 		-- A reviewer's removal of a Horde player this client never had: kept off, and no place taken.
-		local king = w.authority("Kingly-Realm", "king")
-		assert(w.commHandlers.WV("CHANNEL", king, ("WV~T~1~%s~1.0e2fffff~%d"):format(ScopeOf(c), w.epoch)))
+		local shogun = w.authority("Shogunly-Realm", "shogun")
+		assert(w.commHandlers.WV("CHANNEL", shogun, ("WV~T~1~%s~1.0e2fffff~%d"):format(ScopeOf(c), w.epoch)))
 		eq(W.Target(nil, "Player-1-0E2FFFFF").active, false); eq(#W.Targets(true), 191)
 		eq(W.ShareState().why.full, nil)
 	end)
@@ -2003,7 +2003,7 @@ test("wanted 1.2.3 regression: one forged row naming a Horde player under a made
 		-- under a made-up GUID, which no client's game can check.
 		assert(K("CHANNEL", forger, Row("1.0d0000aa", "Grom-Realm", "00000000000000e1")))
 		eq(W.Target(nil, "Player-1-0D0000AA").name, "Grom-Realm")
-		w.authority(c.me, "king"); assert(W.RemoveTarget(nil, "Player-1-0D0000AA")); w.authorities[c.Fold(c.me)] = nil
+		w.authority(c.me, "shogun"); assert(W.RemoveTarget(nil, "Player-1-0D0000AA")); w.authorities[c.Fold(c.me)] = nil
 		-- The real Grom (an Orc, by the game's lookup of his own GUID) kills our member, then dies to him.
 		local real = "Player-1-0D0000BB"
 		w.hordePlayer("Grom-Realm", real)
@@ -2048,10 +2048,10 @@ test("wanted 1.2.3 regression: one forged row naming a Horde player under a made
 		-- guild's, heard in a reviewer's relay) never stands for him: his own row counts.
 		w.advance(W.DEATH_WINDOW + 1)
 		assert(K("CHANNEL", forger, Row("1.0d000103", "Faraway-Realm", "00000000000000e6")))
-		local king = w.authority("Kingly-Realm", "king")
+		local shogun = w.authority("Shogunly-Realm", "shogun")
 		w.advance(W.DEATH_WINDOW + 1)
 		local relay = ("WK~R~1~%s~Faraway-Realm~0~%016x~%d~%d~S~1.0d000104~-~Victor-Realm"):format(scope, 0xe7, w.epoch, W.MonthNow())
-		local relayed, row = K("CHANNEL", king, relay)
+		local relayed, row = K("CHANNEL", shogun, relay)
 		assert(relayed, tostring(row)); eq(row.victimName, "Faraway-Realm")
 		eq(W.Target(nil, "Player-1-0D000104").current, 1, "(was refused: ambiguous)")
 		-- And after a reload: his name still finds the real one.
@@ -2090,10 +2090,10 @@ test("wanted 1.2.3 regression: a reviewer's Take off cancels the points the entr
 		assert(W.Stats().checkpointed >= 2, "both claims folded into the base")
 		eq(#c.rdb.wanted.evidence, 1)
 		for _, r in ipairs(rows) do assert(other.HandleShared("CHANNEL", r[1], r[2])) end
-		-- The King's word: the made-up entry off, on both clients.
-		local king = w.authority("Kingly-Realm", "king")
+		-- The Shogun's word: the made-up entry off, on both clients.
+		local shogun = w.authority("Shogunly-Realm", "shogun")
 		local off = ("WV~T~1~%s~1.0f0000a1~%d"):format(scope, w.epoch)
-		assert(w.commHandlers.WV("CHANNEL", king, off)); assert(other.HandleMark("CHANNEL", king, off))
+		assert(w.commHandlers.WV("CHANNEL", shogun, off)); assert(other.HandleMark("CHANNEL", shogun, off))
 		eq(W.Target(nil, "Player-1-0F0000A1").active, false)
 		for _, client in ipairs({ W, other }) do
 			local all = client.Rankings().all
@@ -2560,7 +2560,7 @@ local function WithWorld(fn)
 				Hides = function(sender) return world.hidden[Fold(sender)] end }
 			local function Role(name) return (cl.authorities or world.authorities)[Fold(name)] end
 			c.Workshop = { IsAuthor = function() return false end, IsAuthorName = function(name) return Role(name) == "author" end }
-			c.IsKingCharacter = function(name) return Role(name) == "king" end
+			c.IsShogunCharacter = function(name) return Role(name) == "shogun" end
 			c.IsHighCouncillor = function(name) return Role(name) == "council" end
 			c.Ed25519 = { ToB64 = realEd.ToB64, FromB64 = realEd.FromB64, ValidPublicKey = realEd.ValidPublicKey,
 				Verify = realEd.Verify, Busy = function() return 0 end,
@@ -2828,16 +2828,16 @@ end
 
 test("wanted relay: a late independently anchored peer recovers an unchanged word with its publisher offline", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000001", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000001", "shogun")
 		local council = world:Client("Council-Realm", "Player-1-0A000002", "council")
 		local late = world:Client("Late-Realm", "Player-1-0A000003")
-		assert(world:As(king, king.W.PublishGlobal)); world:Deliver()
+		assert(world:As(shogun, shogun.W.PublishGlobal)); world:Deliver()
 		local old = world:As(late, late.W.GlobalSnapshot)
 		world:Offline(late)
 		world.epoch = world.epoch + 10
-		assert(world:As(king, king.W.PublishGlobal)); world:Deliver()
+		assert(world:As(shogun, shogun.W.PublishGlobal)); world:Deliver()
 		local held = council.rdb.wanted.global.text
-		world:Offline(king)
+		world:Offline(shogun)
 		world:Load(late); world:Deliver()
 		eq(world:As(late, late.W.GlobalSnapshot).seq, old.seq)
 		world:Run(45)
@@ -2861,14 +2861,14 @@ end)
 
 test("wanted relay: authority, expiry, pin rotation and mixed versions fail closed before and after queued verification", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000001", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000001", "shogun")
 		local council = world:Client("Council-Realm", "Player-1-0A000002", "council")
 		local late = world:Client("Late-Realm", "Player-1-0A000003")
-		assert(world:As(king, king.W.PublishGlobal)); world:Deliver()
+		assert(world:As(shogun, shogun.W.PublishGlobal)); world:Deliver()
 		world:Offline(late); world.epoch = world.epoch + 10
-		assert(world:As(king, king.W.PublishGlobal)); world:Deliver()
+		assert(world:As(shogun, shogun.W.PublishGlobal)); world:Deliver()
 		local held = council.rdb.wanted.global.text
-		world:Offline(king); world:Load(late); world:Deliver()
+		world:Offline(shogun); world:Load(late); world:Deliver()
 		local before = world:As(late, late.W.GlobalSnapshot).seq
 		local function Receive(sender, text)
 			return world:As(late, late.W.HandleGlobalRelay, "CHANNEL", sender, text or ("W5~2~" .. held))
@@ -2889,24 +2889,24 @@ test("wanted relay: authority, expiry, pin rotation and mixed versions fail clos
 		world:Deliver()
 		eq(world:As(late, late.W.GlobalSnapshot).seq, before, "delayed send checks the relay's real authority")
 		world.authorities[ns.Fold(council.name)] = "council"
-		world.authorities[ns.Fold(king.name)] = nil
+		world.authorities[ns.Fold(shogun.name)] = nil
 		accepted, why = Receive(council.name); eq(accepted, false); eq(why, "authority")
-		world.authorities[ns.Fold(king.name)] = "king"
-		king.online = true
-		king.seed = ns.Sign.SHA256("rotated issuer seed")
-		king.pk = ns.Ed25519.PublicKey(king.seed)
+		world.authorities[ns.Fold(shogun.name)] = "shogun"
+		shogun.online = true
+		shogun.seed = ns.Sign.SHA256("rotated issuer seed")
+		shogun.pk = ns.Ed25519.PublicKey(shogun.seed)
 		world:Offline(late)
 		world.epoch = world.epoch + 10
-		assert(world:As(king, king.W.PublishGlobal)); world:Deliver()
+		assert(world:As(shogun, shogun.W.PublishGlobal)); world:Deliver()
 		held = council.rdb.wanted.global.text
 		world:Load(late); world:Deliver()
 		accepted, why = Receive(council.name); eq(accepted, false); eq(why, "unanchored", "relay cannot rotate a directly anchored key")
-		assert(world:As(king, king.W.RepeatGlobal)); world:Deliver()
+		assert(world:As(shogun, shogun.W.RepeatGlobal)); world:Deliver()
 		-- The direct word reaches this peer, so it can now accept a later relay under the new key.
 		world:Offline(late); world.epoch = world.epoch + 10
-		assert(world:As(king, king.W.PublishGlobal)); world:Deliver()
+		assert(world:As(shogun, shogun.W.PublishGlobal)); world:Deliver()
 		held = council.rdb.wanted.global.text
-		world:Offline(king); world:Load(late); world:Deliver()
+		world:Offline(shogun); world:Load(late); world:Deliver()
 		assert(Receive(council.name)); world:Deliver()
 		eq(late.rdb.wanted.global.text, held)
 		world.epoch = world.epoch + late.W.GLOBAL_LIFE + 1
@@ -2916,22 +2916,22 @@ end)
 
 test("wanted relay through real Comm: late recovery reassembles sender-bound chunks and rechecks authority on their unsent tail", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000001", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000001", "shogun")
 		local council = world:Client("Council-Realm", "Player-1-0A000002", "council", true)
 		local late = world:Client("Late-Realm", "Player-1-0A000003", nil, true)
 		-- Populate the real reviewed ledger before switching its publisher to the native wire.
 		for i = 1, 3 do
 			local slayer = world:Client("Slayer" .. i .. "-Realm", "Player-1-0A00001" .. i)
-			world:Hunt(slayer, king, "Hordeling" .. i .. "-Realm", "Player-1-0B00001" .. i, late, slayer)
+			world:Hunt(slayer, shogun, "Hordeling" .. i .. "-Realm", "Player-1-0B00001" .. i, late, slayer)
 		end
-		king.realComm = true; world:Load(king); world:Deliver()
-		assert(world:As(king, king.W.PublishGlobal)); world:PumpComm()
+		shogun.realComm = true; world:Load(shogun); world:Deliver()
+		assert(world:As(shogun, shogun.W.PublishGlobal)); world:PumpComm()
 		local initial = world:As(late, late.W.GlobalSnapshot)
 		assert(initial, "direct original native messages anchor the publisher key")
 		world:Offline(late); world.epoch = world.epoch + 10
-		assert(world:As(king, king.W.PublishGlobal)); world:PumpComm()
+		assert(world:As(shogun, shogun.W.PublishGlobal)); world:PumpComm()
 		local body = council.rdb.wanted.global.text
-		world:Offline(king); world:Load(late); world:Deliver()
+		world:Offline(shogun); world:Load(late); world:Deliver()
 		assert(world:As(council, council.W.AnswerGlobal, "CHANNEL", late.name, "W4~1"))
 		assert(council.ns.Comm.QueueSize() > 1, "an actual native-size chunk transfer")
 		world.epoch = world.epoch + 2
@@ -2973,12 +2973,12 @@ test("wanted relay: queue refusal remains retryable and login requests stop at t
 	end)
 end)
 
-test("wanted world: a published top three (the King's own board, every member's shared kills, no review) reaches every client, outlives the old 30-minute word and survives their reloads", function()
+test("wanted world: a published top three (the Shogun's own board, every member's shared kills, no review) reaches every client, outlives the old 30-minute word and survives their reloads", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000001", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000001", "shogun")
 		local alpha = world:Client("Alpha-Realm", "Player-1-0A000002")
 		local beta = world:Client("Beta-Realm", "Player-1-0A000003")
-		world:Hunt(alpha, king, "Hordeling-Realm", "Player-1-0B000001", beta, alpha)
+		world:Hunt(alpha, shogun, "Hordeling-Realm", "Player-1-0B000001", beta, alpha)
 		-- (1.2.3, changed on purpose: no whisper to a reviewer any more. Each member's own row went to
 		-- the channel at once, the Horde player's name with it, never where it happened.)
 		local whispers, rows = 0, 0
@@ -2988,9 +2988,9 @@ test("wanted world: a published top three (the King's own board, every member's 
 			assert(not m.text:find("Arathi", 1, true), "never where it happened")
 		end
 		eq(whispers, 0); assert(rows >= 2, "the death and the kill, each from its own member")
-		local mine = world:As(king, king.W.SignableRankings)
+		local mine = world:As(shogun, shogun.W.SignableRankings)
 		eq(#mine, 1); eq(mine[1].guid, alpha.guid); eq(mine[1].points, 1)
-		assert(world:As(king, king.W.PublishGlobal))
+		assert(world:As(shogun, shogun.W.PublishGlobal))
 		world:Deliver()
 		eq(world:Border(alpha, alpha.guid), "wanted-slayer-1")
 		eq(world:Border(beta, alpha.guid), "wanted-slayer-1")
@@ -3005,27 +3005,27 @@ test("wanted world: a published top three (the King's own board, every member's 
 		eq(world:Border(beta, alpha.guid), "wanted-slayer-1", "the saved word, checked again")
 		eq(beta.W.Stats().globalRestored, 1)
 
-		local body = king.db.wantedPublisher.last.body
-		king = world:Load(king)
-		rows = world:As(king, king.W.SignableRankings)
-		eq(#rows, 1, "the King's board did not start over"); eq(rows[1].points, 1)
+		local body = shogun.db.wantedPublisher.last.body
+		shogun = world:Load(shogun)
+		rows = world:As(shogun, shogun.W.SignableRankings)
+		eq(#rows, 1, "the Shogun's board did not start over"); eq(rows[1].points, 1)
 		local before = #world.log
-		world:Run(king.W.GLOBAL_LOGIN_REPEAT + 1)
+		world:Run(shogun.W.GLOBAL_LOGIN_REPEAT + 1)
 		local repeated
-		for i = before + 1, #world.log do if world.log[i].from == king and world.log[i].dist == "CHANNEL" then repeated = world.log[i].text end end
-		eq(repeated, body, "after his login the King repeats the same word, its expiry unchanged")
+		for i = before + 1, #world.log do if world.log[i].from == shogun and world.log[i].dist == "CHANNEL" then repeated = world.log[i].text end end
+		eq(repeated, body, "after his login the Shogun repeats the same word, its expiry unchanged")
 		eq(world:Border(alpha, alpha.guid), "wanted-slayer-1")
 	end)
 end)
 
 test("wanted world: replace and revoke reach every client; a client that missed the revocation takes it from the repeat, and a reload keeps it", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000011", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000011", "shogun")
 		local council = world:Client("Seraphel-Realm", "Player-1-0A000012", "council")
 		local alpha = world:Client("Alpha-Realm", "Player-1-0A000013")
 		local beta = world:Client("Beta-Realm", "Player-1-0A000014")
-		world:Hunt(alpha, king, "Hordeling-Realm", "Player-1-0B000011", beta, alpha)
-		assert(world:As(king, king.W.PublishGlobal))
+		world:Hunt(alpha, shogun, "Hordeling-Realm", "Player-1-0B000011", beta, alpha)
+		assert(world:As(shogun, shogun.W.PublishGlobal))
 		world:Deliver()
 		eq(world:Border(beta, alpha.guid), "wanted-slayer-1")
 
@@ -3033,7 +3033,7 @@ test("wanted world: replace and revoke reach every client; a client that missed 
 		world:Hunt(beta, council, "Raider-Realm", "Player-1-0B000012", alpha, beta, 2)
 		assert(world:As(council, council.W.PublishGlobal))
 		world:Deliver()
-		for _, cl in ipairs({ alpha, beta, king }) do
+		for _, cl in ipairs({ alpha, beta, shogun }) do
 			eq(world:As(cl, cl.W.GlobalSnapshot).issuer, council.name, cl.name .. " holds the newer word")
 			eq(world:Border(cl, beta.guid), "wanted-slayer-1")
 			-- (1.2.3, changed on purpose: the councillor's board holds every member's shared kills,
@@ -3043,30 +3043,30 @@ test("wanted world: replace and revoke reach every client; a client that missed 
 
 		world:Offline(beta)
 		world:Run(60)
-		assert(world:As(king, king.W.RevokeGlobal))
+		assert(world:As(shogun, shogun.W.RevokeGlobal))
 		world:Deliver()
-		eq(world:Border(alpha, beta.guid), nil, "revoked: the King's newer empty word wins, whatever his key's epoch")
+		eq(world:Border(alpha, beta.guid), nil, "revoked: the Shogun's newer empty word wins, whatever his key's epoch")
 		eq(#world:As(alpha, alpha.W.GlobalSnapshot).rows, 0)
 
 		beta = world:Load(beta)
 		world:Deliver()
 		eq(world:Border(beta, beta.guid), "wanted-slayer-1", "back online, Beta still holds the word it heard last")
-		world:Run(king.W.GLOBAL_BURST_GAP + 1)
-		eq(world:Border(beta, beta.guid), nil, "the King's repeat brings the revocation")
+		world:Run(shogun.W.GLOBAL_BURST_GAP + 1)
+		eq(world:Border(beta, beta.guid), nil, "the Shogun's repeat brings the revocation")
 		beta = world:Load(beta)
 		world:Deliver()
 		eq(world:Border(beta, beta.guid), nil, "and a reload keeps it")
-		eq(world:As(beta, beta.W.GlobalSnapshot).issuer, king.name)
+		eq(world:As(beta, beta.W.GlobalSnapshot).issuer, shogun.name)
 	end)
 end)
 
 test("wanted world: a saved word shows again only while it holds: edited rows, another key, a lost role and its end", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000021", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000021", "shogun")
 		local alpha = world:Client("Alpha-Realm", "Player-1-0A000022")
 		local beta = world:Client("Beta-Realm", "Player-1-0A000023")
-		world:Hunt(alpha, king, "Hordeling-Realm", "Player-1-0B000021", beta, alpha)
-		assert(world:As(king, king.W.PublishGlobal))
+		world:Hunt(alpha, shogun, "Hordeling-Realm", "Player-1-0B000021", beta, alpha)
+		assert(world:As(shogun, shogun.W.PublishGlobal))
 		world:Deliver()
 		local good = alpha.rdb.wanted.global
 		local goodHeads = alpha.rdb.wanted.globalHeads
@@ -3081,7 +3081,7 @@ test("wanted world: a saved word shows again only while it holds: edited rows, a
 		eq(world:Border(alpha, alpha.guid), nil, "an edited row breaks the signature")
 		eq(alpha.rdb.wanted.global, nil, "and the saved word is dropped")
 
-		-- Alpha's own key signs a word in the King's name: the King's pin refuses it.
+		-- Alpha's own key signs a word in the Shogun's name: the Shogun's pin refuses it.
 		local fields = {}
 		for part in (good.text .. "~"):gmatch("([^~]*)~") do fields[#fields + 1] = part end
 		fields[9] = alpha.guid:gsub("^Player%-(%d+)%-(%x+)$", function(server, id) return server .. "." .. id:lower() end) .. ":99:9:" .. world.epoch
@@ -3105,8 +3105,8 @@ test("wanted world: a saved word shows again only while it holds: edited rows, a
 		world:Deliver()
 		eq(world:Border(alpha, alpha.guid), "wanted-slayer-1", "the role is known again")
 
-		world:Offline(king)
-		world:Run(king.W.GLOBAL_LIFE + 1)
+		world:Offline(shogun)
+		world:Run(shogun.W.GLOBAL_LIFE + 1)
 		eq(world:Border(alpha, alpha.guid), nil, "a month later, unrepublished: gone")
 		eq(alpha.rdb.wanted.global, nil, "and dropped from the saved data")
 		alpha = world:Load(alpha); world:Deliver()
@@ -3119,7 +3119,7 @@ end)
 -- void the one counted when it is the forged one.)
 test("wanted world: two members' clients that name themselves the killer of one death: every client counts the first account it hears and refuses the other; a reviewer's void takes the counted one off everywhere", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000031", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000031", "shogun")
 		local alpha = world:Client("Alpha-Realm", "Player-1-0A000032")
 		local beta = world:Client("Beta-Realm", "Player-1-0A000033")
 		local gamma = world:Client("Gamma-Realm", "Player-1-0A000034")
@@ -3140,18 +3140,18 @@ test("wanted world: two members' clients that name themselves the killer of one 
 			claims[#claims + 1] = e
 		end
 		world:Deliver()
-		for _, cl in ipairs({ king, gamma }) do
+		for _, cl in ipairs({ shogun, gamma }) do
 			local t = world:As(cl, cl.W.Target, nil, targetGuid)
 			eq(#t.claims, 1, cl.name .. ": one death, one claim"); eq(t.claims[1].slayer, alpha.name, "the first account heard")
 			eq(world:As(cl, cl.W.Rankings).all[1].guid, alpha.guid); eq(#world:As(cl, cl.W.Rankings).all, 1)
 		end
 		eq(world:As(beta, beta.W.Target, nil, targetGuid).claims[1].slayer, beta.name, "the other client counts its own")
-		-- The King voids Alpha's account: on every client.
+		-- The Shogun voids Alpha's account: on every client.
 		local id
-		for _, e in ipairs(king.rdb.wanted.evidence) do if e.action == "claim" then id = e.id end end
-		assert(world:As(king, king.W.Correct, id, "two killers named"))
+		for _, e in ipairs(shogun.rdb.wanted.evidence) do if e.action == "claim" then id = e.id end end
+		assert(world:As(shogun, shogun.W.Correct, id, "two killers named"))
 		world:Deliver()
-		for _, cl in ipairs({ king, gamma, beta }) do
+		for _, cl in ipairs({ shogun, gamma, beta }) do
 			eq(#world:As(cl, cl.W.Rankings).all, cl == beta and 1 or 0, cl.name)
 		end
 		eq(world:As(gamma, gamma.W.Target, nil, targetGuid).current, 1, "the bounty is open again")
@@ -3166,42 +3166,42 @@ end)
 
 test("wanted world: the publisher's repeat starts at his login, once his client knows his name: a client that never had the word gets it 90 seconds later, and from every 30-minute repeat", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000041", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000041", "shogun")
 		local alpha = world:Client("Alpha-Realm", "Player-1-0A000042")
 		local beta = world:Client("Beta-Realm", "Player-1-0A000043")
-		world:Hunt(alpha, king, "Hordeling-Realm", "Player-1-0B000041", beta, alpha)
-		assert(world:As(king, king.W.PublishGlobal))
+		world:Hunt(alpha, shogun, "Hordeling-Realm", "Player-1-0B000041", beta, alpha)
+		assert(world:As(shogun, shogun.W.PublishGlobal))
 		world:Deliver()
-		world:Run(king.W.GLOBAL_BURST * king.W.GLOBAL_BURST_GAP + 60) -- past the first burst
-		king = world:Load(king) -- he logs out and in again: INIT, then LOGIN
+		world:Run(shogun.W.GLOBAL_BURST * shogun.W.GLOBAL_BURST_GAP + 60) -- past the first burst
+		shogun = world:Load(shogun) -- he logs out and in again: INIT, then LOGIN
 		local gamma = world:Client("Gamma-Realm", "Player-1-0A000044")
 		eq(world:Border(gamma, alpha.guid), nil, "a client that never had the word")
-		world:Run(king.W.GLOBAL_LOGIN_REPEAT + 1)
-		eq(world:Border(gamma, alpha.guid), "wanted-slayer-1", "90 seconds after the King's login")
+		world:Run(shogun.W.GLOBAL_LOGIN_REPEAT + 1)
+		eq(world:Border(gamma, alpha.guid), "wanted-slayer-1", "90 seconds after the Shogun's login")
 		local delta = world:Client("Delta-Realm", "Player-1-0A000045")
-		world:Run(king.W.GLOBAL_REPEAT_EVERY + 1)
+		world:Run(shogun.W.GLOBAL_REPEAT_EVERY + 1)
 		eq(world:Border(delta, alpha.guid), "wanted-slayer-1", "and from his 30-minute repeat")
 	end)
 end)
 
 test("wanted world: a publisher's own client holds the word he publishes and drops the frames as he revokes, though the channel never echoes his own words", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000051", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000051", "shogun")
 		local council = world:Client("Seraphel-Realm", "Player-1-0A000052", "council")
 		local alpha = world:Client("Alpha-Realm", "Player-1-0A000053")
 		local beta = world:Client("Beta-Realm", "Player-1-0A000054")
-		world:Hunt(alpha, king, "Hordeling-Realm", "Player-1-0B000051", beta, alpha)
+		world:Hunt(alpha, shogun, "Hordeling-Realm", "Player-1-0B000051", beta, alpha)
 		-- His client's checks are busy as he publishes: everyone else holds the word, then his own
 		-- client from his first repeat.
-		king.ns.Ed25519.Busy = function() return 40 end
-		assert(world:As(king, king.W.PublishGlobal))
+		shogun.ns.Ed25519.Busy = function() return 40 end
+		assert(world:As(shogun, shogun.W.PublishGlobal))
 		world:Deliver()
 		eq(world:Border(alpha, alpha.guid), "wanted-slayer-1")
-		eq(world:Border(king, alpha.guid), nil)
-		king.ns.Ed25519.Busy = function() return 0 end
-		world:Run(king.W.GLOBAL_BURST_GAP + 1)
-		eq(world:Border(king, alpha.guid), "wanted-slayer-1", "the King's own client shows the frame he signed")
-		local lines, _, detail = world:As(king, king.W.Build)
+		eq(world:Border(shogun, alpha.guid), nil)
+		shogun.ns.Ed25519.Busy = function() return 0 end
+		world:Run(shogun.W.GLOBAL_BURST_GAP + 1)
+		eq(world:Border(shogun, alpha.guid), "wanted-slayer-1", "the Shogun's own client shows the frame he signed")
+		local lines, _, detail = world:As(shogun, shogun.W.Build)
 		assert(table.concat(Headers(lines), "\n"):find(ns.L.WANTED_SIGNED, 1, true), "and the signed top three on his own list")
 		assert(not detail:find(ns.L.WANTED_AUTHORITY_OFF, 1, true), detail)
 
@@ -3210,84 +3210,84 @@ test("wanted world: a publisher's own client holds the word he publishes and dro
 		assert(world:As(council, council.W.PublishGlobal))
 		world:Deliver()
 		eq(world:Border(council, beta.guid), "wanted-slayer-1", "the councillor's own client too")
-		eq(world:Border(king, beta.guid), "wanted-slayer-1", "the King heard the newer word")
+		eq(world:Border(shogun, beta.guid), "wanted-slayer-1", "the Shogun heard the newer word")
 		local councilWord = council.db.wantedPublisher.last.body
 
 		world:Run(60)
-		assert(world:As(king, king.W.RevokeGlobal))
+		assert(world:As(shogun, shogun.W.RevokeGlobal))
 		world:Deliver()
-		for _, cl in ipairs({ king, council, alpha, beta }) do
+		for _, cl in ipairs({ shogun, council, alpha, beta }) do
 			eq(world:Border(cl, beta.guid), nil, cl.name .. " drops the councillor's frame")
 		end
-		eq(world:As(king, king.W.GlobalSnapshot).issuer, king.name)
+		eq(world:As(shogun, shogun.W.GlobalSnapshot).issuer, shogun.name)
 		-- On his client his revocation is the word held, with its order: the older word heard again
 		-- changes nothing there, and after his reload neither.
-		world:As(king, king.handlers.WY, "CHANNEL", council.name, councilWord)
+		world:As(shogun, shogun.handlers.WY, "CHANNEL", council.name, councilWord)
 		world:Deliver()
-		eq(world:Border(king, beta.guid), nil)
-		king = world:Load(king)
+		eq(world:Border(shogun, beta.guid), nil)
+		shogun = world:Load(shogun)
 		world:Deliver()
-		eq(world:Border(king, beta.guid), nil)
-		eq(world:As(king, king.W.GlobalSnapshot).issuer, king.name, "his saved word is his revocation")
+		eq(world:Border(shogun, beta.guid), nil)
+		eq(world:As(shogun, shogun.W.GlobalSnapshot).issuer, shogun.name, "his saved word is his revocation")
 	end)
 end)
 
 test("wanted world: a word replaced by a newer one is not repeated by its publisher any more, so a client that logs in later never takes the older word", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000061", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000061", "shogun")
 		local council = world:Client("Seraphel-Realm", "Player-1-0A000062", "council")
 		local alpha = world:Client("Alpha-Realm", "Player-1-0A000063")
 		local beta = world:Client("Beta-Realm", "Player-1-0A000064")
-		world:Hunt(alpha, king, "Hordeling-Realm", "Player-1-0B000061", beta, alpha)
-		assert(world:As(king, king.W.PublishGlobal))
+		world:Hunt(alpha, shogun, "Hordeling-Realm", "Player-1-0B000061", beta, alpha)
+		assert(world:As(shogun, shogun.W.PublishGlobal))
 		world:Deliver()
-		local replacedWord = king.db.wantedPublisher.last.body
+		local replacedWord = shogun.db.wantedPublisher.last.body
 		world:Run(60)
 		world:Hunt(beta, council, "Raider-Realm", "Player-1-0B000062", alpha, beta, 2)
 		assert(world:As(council, council.W.PublishGlobal))
 		world:Deliver()
-		eq(world:As(king, king.W.GlobalSnapshot).issuer, council.name, "the King's client holds the newer word")
+		eq(world:As(shogun, shogun.W.GlobalSnapshot).issuer, council.name, "the Shogun's client holds the newer word")
 		world:Offline(council)
 
-		local function KingSent(from)
+		local function ShogunSent(from)
 			for i = from, #world.log do
 				local m = world.log[i]
 				-- A catch-up request or an unchanged relay of the newer word is not a repeat
 				-- of the old publisher's replaced word.
-				if m.from == king and m.dist == "CHANNEL" and (m.text == replacedWord or m.text == "W5~2~" .. replacedWord) then return true end
+				if m.from == shogun and m.dist == "CHANNEL" and (m.text == replacedWord or m.text == "W5~2~" .. replacedWord) then return true end
 			end
 			return false
 		end
 		local gamma = world:Client("Gamma-Realm", "Player-1-0A000065")
 		local before = #world.log + 1
-		world:Run(king.W.GLOBAL_BURST * king.W.GLOBAL_BURST_GAP + king.W.GLOBAL_REPEAT_EVERY + 1)
-		eq(KingSent(before), false, "the King repeats no replaced word")
+		world:Run(shogun.W.GLOBAL_BURST * shogun.W.GLOBAL_BURST_GAP + shogun.W.GLOBAL_REPEAT_EVERY + 1)
+		eq(ShogunSent(before), false, "the Shogun repeats no replaced word")
 		eq(world:As(gamma, gamma.W.GlobalSnapshot), nil, "a later client never takes the older word")
 		eq(world:Border(gamma, alpha.guid), nil)
 		eq(world:Border(beta, beta.guid), "wanted-slayer-1", "the newer word holds where it was heard")
 
-		king = world:Load(king)
+		shogun = world:Load(shogun)
 		world:Deliver()
 		local delta = world:Client("Delta-Realm", "Player-1-0A000066")
 		before = #world.log + 1
-		world:Run(king.W.GLOBAL_LOGIN_REPEAT + king.W.GLOBAL_REPEAT_EVERY + 1)
-		eq(KingSent(before), false, "nor after his login")
+		world:Run(shogun.W.GLOBAL_LOGIN_REPEAT + shogun.W.GLOBAL_REPEAT_EVERY + 1)
+		eq(ShogunSent(before), false, "nor after his login")
 		eq(world:As(delta, delta.W.GlobalSnapshot), nil)
 
 		-- A word of his own published later is repeated as before.
-		assert(world:As(king, king.W.RevokeGlobal))
+		assert(world:As(shogun, shogun.W.RevokeGlobal))
 		world:Deliver()
 		local epsilon = world:Client("Epsilon-Realm", "Player-1-0A000067")
-		world:Run(king.W.GLOBAL_BURST_GAP + 1)
-		eq(world:As(epsilon, epsilon.W.GlobalSnapshot).issuer, king.name)
+		world:Run(shogun.W.GLOBAL_BURST_GAP + 1)
+		eq(world:As(epsilon, epsilon.W.GlobalSnapshot).issuer, shogun.name)
 	end)
 end)
 
--- 1.2.3: what Daniel's own test will show (two members, the King, a late login): fails on 1.2.2,
+-- 1.2.3: what Daniel's own test will show (two members, the Shogun, a late login): fails on 1.2.2,
 -- where the death stayed on the victim's client and the kill was refused as "unlisted".
 test("wanted 1.2.3 world: a member's own death to a Horde player nobody listed reaches every member's client at once, another member's killing blow claims it everywhere and scores, and a late login catches up from a reviewer", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000071", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000071", "shogun")
 		local alpha = world:Client("Alpha-Realm", "Player-1-0A000072")
 		local beta = world:Client("Beta-Realm", "Player-1-0A000073")
 		local late = world:Client("Late-Realm", "Player-1-0A000074")
@@ -3301,7 +3301,7 @@ test("wanted 1.2.3 world: a member's own death to a Horde player nobody listed r
 		world:As(beta, beta.events.PLAYER_DEAD)
 		beta.dead, beta.recap = false, nil
 		world:Deliver()
-		for _, cl in ipairs({ king, alpha, beta }) do
+		for _, cl in ipairs({ shogun, alpha, beta }) do
 			local t = world:As(cl, cl.W.Target, nil, horde)
 			assert(t, cl.name .. " has him at once")
 			eq(t.current, 1, cl.name); eq(t.victims[1].name, beta.name); eq(t.name, "Hordeling-Realm")
@@ -3314,57 +3314,57 @@ test("wanted 1.2.3 world: a member's own death to a Horde player nobody listed r
 		world.epoch = world.epoch + 30
 		assert(world:As(alpha, alpha.events.PARTY_KILL, alpha.guid, horde))
 		world:Deliver()
-		for _, cl in ipairs({ king, alpha, beta }) do
+		for _, cl in ipairs({ shogun, alpha, beta }) do
 			local t = world:As(cl, cl.W.Target, nil, horde)
 			eq(t.current, 0, cl.name); eq(t.claims[1].slayer, alpha.name); eq(t.claims[1].points, 1)
 			local r = world:As(cl, cl.W.Rankings).all[1]
 			eq(r.name, alpha.name, cl.name); eq(r.points, 1); eq(r.guid, alpha.guid, "his GUID, proven his on " .. cl.name)
 		end
-		-- The King's relays (members of other guilds count on them) change nothing where both are held.
+		-- The Shogun's relays (members of other guilds count on them) change nothing where both are held.
 		world:Run(15)
 		eq(world:As(beta, beta.W.Rankings).all[1].points, 1)
-		-- Late logs in: his catch-up ask (W4, 45 seconds after login) and the King's answer.
+		-- Late logs in: his catch-up ask (W4, 45 seconds after login) and the Shogun's answer.
 		world:Load(late)
 		eq(world:As(late, late.W.Target, nil, horde), nil)
 		world:Run(late.W.GLOBAL_ASK_FIRST + 30)
 		local t = world:As(late, late.W.Target, nil, horde)
 		assert(t, "caught up"); eq(t.current, 0); eq(#t.claims, 1); eq(t.claims[1].points, 1)
 		eq(world:As(late, late.W.Rankings).all[1].name, alpha.name)
-		-- What the King signs is his own board: Alpha, with no review.
-		eq(world:As(king, king.W.SignableRankings)[1].guid, alpha.guid)
+		-- What the Shogun signs is his own board: Alpha, with no review.
+		eq(world:As(shogun, shogun.W.SignableRankings)[1].guid, alpha.guid)
 	end)
 end)
 
 -- (1.2.4, changed on purpose, the author's report "nobody on the Most Wanted list": an ordinary
 -- member of another guild, whom no client can prove, counts at once on his own word as the
 -- [Bankai Guild] chat's member, Share.Member; before, every other client refused him and only a reviewer
--- of his own guild's relay carried his rows. The King still relays both rows, for clients before
+-- of his own guild's relay carried his rows. The Shogun still relays both rows, for clients before
 -- 1.2.4. tests/wanted-guilds.lua has this with the real Channels, Data and Roster.)
-test("wanted 1.2.4 world: a member of another guild whom this client cannot prove counts on his own word at once, the King's relay changes nothing here; a removal reaches a late login in the catch-up", function()
+test("wanted 1.2.4 world: a member of another guild whom this client cannot prove counts on his own word at once, the Shogun's relay changes nothing here; a removal reaches a late login in the catch-up", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000081", "king", nil, "Bankai Guild II")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A000081", "shogun", nil, "Bankai Guild II")
 		local here = world:Client("Here-Realm", "Player-1-0A000082", nil, nil, "Bankai Guild III")
 		local far = world:Client("Far-Realm", "Player-1-0A000083", nil, nil, "Bankai Guild II")
 		local horde = "Player-1-0B000081"
 		world:Hunt(nil, nil, "Distant-Realm", horde, far, far)
 		-- (1.2.3, changed on purpose, Daniel's revenge: Far killed the very Horde player who killed him,
 		-- so his claim pays his death's point and 100 more, on every client alike.)
-		local revenge = 1 + king.W.Bounty.SCORE.REVENGE
+		local revenge = 1 + shogun.W.Bounty.SCORE.REVENGE
 		local t = world:As(here, here.W.Target, nil, horde)
 		assert(t, "an ordinary member of another guild: his own word counts here")
 		eq(#t.victims, 0, "the cycle his own kill closed"); eq(#t.claims, 1)
 		eq(t.claims[1].slayer, far.name); eq(t.claims[1].points, revenge, "the same points on his own word")
-		eq(world:As(king, king.W.Target, nil, horde).claims[1].points, revenge, "his guild's King verifies him")
+		eq(world:As(shogun, shogun.W.Target, nil, horde).claims[1].points, revenge, "his guild's Shogun verifies him")
 		world:Run(15)
 		t = world:As(here, here.W.Target, nil, horde)
-		eq(#t.claims, 1, "the King's relay: a replay"); eq(t.claims[1].points, revenge)
+		eq(#t.claims, 1, "the Shogun's relay: a replay"); eq(t.claims[1].points, revenge)
 		eq(world:As(here, here.W.Rankings).all[1].guid, far.guid, "this client's lookup proved the GUID his")
 		local relays = 0
-		for _, m in ipairs(world.log) do if m.from == king and m.text:find("^WK~R~4~") then relays = relays + 1 end end
+		for _, m in ipairs(world.log) do if m.from == shogun and m.text:find("^WK~R~4~") then relays = relays + 1 end end
 		eq(relays, 2, "the death and the kill, once each")
-		-- The King takes him off; a member offline then gets it in the catch-up.
+		-- The Shogun takes him off; a member offline then gets it in the catch-up.
 		world:Offline(here)
-		assert(world:As(king, king.W.RemoveTarget, nil, horde))
+		assert(world:As(shogun, shogun.W.RemoveTarget, nil, horde))
 		world:Deliver()
 		eq(world:As(far, far.W.Target, nil, horde).active, false, "on every client online")
 		eq(#world:As(far, far.W.Rankings).all, 0)
@@ -3372,7 +3372,7 @@ test("wanted 1.2.4 world: a member of another guild whom this client cannot prov
 		world:Load(here)
 		eq(world:As(here, here.W.Target, nil, horde).active, true)
 		world:Run(here.W.GLOBAL_ASK_FIRST + 30)
-		eq(world:As(here, here.W.Target, nil, horde).active, false, "the removal came in the King's answer")
+		eq(world:As(here, here.W.Target, nil, horde).active, false, "the removal came in the Shogun's answer")
 		eq(#world:As(here, here.W.Rankings).all, 0)
 	end)
 end)
@@ -3544,8 +3544,8 @@ test("wanted 1.2.4 bounty: the rebalance keeps bounty and revenge weights while 
 		eq(S.KILL_GAP, 3600); eq(S.REVENGE_GAP, 86400)
 		assert(S.KILL_GAP >= S.REPEAT_GAP, "a kill's gap at least a death's")
 		eq(S.MAX_POINTS, 100000); eq(S.MAX_POINTS, W.MAX_POINTS, "what WY carries: 1.2.2's receivers refuse a word above it")
-		eq(B.DeathPoints("K", 60) + B.DeathPoints("M", 40) + B.DeathPoints("M", 40), 240, "the King (60) and two members (40, 40)")
-		eq(B.ClaimPoints(B.ClaimLevel(55, true, 60), 240, false), 246, "a '??' (55 at least) and the King's row's exact 60")
+		eq(B.DeathPoints("K", 60) + B.DeathPoints("M", 40) + B.DeathPoints("M", 40), 240, "the Shogun (60) and two members (40, 40)")
+		eq(B.ClaimPoints(B.ClaimLevel(55, true, 60), 240, false), 246, "a '??' (55 at least) and the Shogun's row's exact 60")
 		eq(B.ClaimPoints(B.ClaimLevel(55, true, nil), 240, false), 246, "no exact level seen in the cycle: the rounded-up floor")
 		-- (Daniel's revenge is 100, the spec's table's 50 gave 410: one of the level-40 victims, who
 		-- sees him as 50 at least, kills him.)
@@ -3824,14 +3824,14 @@ end)
 
 test("wanted 1.2.4 bounty world: a 240 bounty dominates the level-60 base on every client, including hidden-level claims", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A0000C1", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A0000C1", "shogun")
 		local first = world:Client("First-Realm", "Player-1-0A0000C2")
 		local second = world:Client("Second-Realm", "Player-1-0A0000C3")
 		local slayer = world:Client("Slayer-Realm", "Player-1-0A0000C4")
 		local watcher = world:Client("Watcher-Realm", "Player-1-0A0000C5")
-		king.units.player.level, first.units.player.level, second.units.player.level = 60, 40, 40
+		shogun.units.player.level, first.units.player.level, second.units.player.level = 60, 40, 40
 		slayer.units.player.level, watcher.units.player.level = 45, 30
-		local everyone = { king, first, second, slayer, watcher }
+		local everyone = { shogun, first, second, slayer, watcher }
 		local function Die(cl, horde, name, seen)
 			cl.units.target = seen and { name = name, guid = horde, faction = "Horde", level = seen } or nil
 			cl.dead, cl.recap = true, { { event = "SPELL_DAMAGE", sourceGUID = horde, sourceName = name, sourceFlags = 0x548,
@@ -3847,12 +3847,12 @@ test("wanted 1.2.4 bounty world: a 240 bounty dominates the level-60 base on eve
 			cl.units.target = nil
 			assert(ok, tostring(claim))
 			world:Deliver()
-			world:Run(15) -- (the King relays what he took from members: held already everywhere)
+			world:Run(15) -- (the Shogun relays what he took from members: held already everywhere)
 			return claim
 		end
 		local horde = "Player-1-0B0000C1"
 		world.horde[horde] = "Ganker-Realm"
-		Die(king, horde, "Ganker-Realm", 60) -- he had him targeted: level 60, exactly
+		Die(shogun, horde, "Ganker-Realm", 60) -- he had him targeted: level 60, exactly
 		Die(first, horde, "Ganker-Realm") -- nothing of his in view
 		Die(second, horde, "Ganker-Realm")
 		for _, cl in ipairs(everyone) do
@@ -3864,7 +3864,7 @@ test("wanted 1.2.4 bounty world: a 240 bounty dominates the level-60 base on eve
 		for _, line in ipairs(world:As(watcher, watcher.W.Build)) do if line.id == "wanted:g:" .. horde then row = line end end
 		eq(RowCounts(row), ns.L.WANTED_ROW_COUNTS:format(240, 3))
 		local claim = Kill(slayer, horde, "Ganker-Realm", -1) -- 15 levels above him: "??"
-		eq(claim.hl, 55); eq(claim.hf, true); eq(claim.level, 60, "the King's row's exact 60"); eq(claim.points, 246)
+		eq(claim.hl, 55); eq(claim.hf, true); eq(claim.level, 60, "the Shogun's row's exact 60"); eq(claim.points, 246)
 		for _, cl in ipairs(everyone) do
 			local t = world:As(cl, cl.W.Target, nil, horde)
 			eq(t.current, 0, cl.name .. ": a new cycle"); eq(t.claims[#t.claims].points, 246, cl.name)
@@ -3874,10 +3874,10 @@ test("wanted 1.2.4 bounty world: a 240 bounty dominates the level-60 base on eve
 		-- /bk wanted status, on a client that only heard it all: his bounty, the Slayer's points.
 		local status = world:As(watcher, watcher.W.StatusText)
 		assert(status:find(ns.L.WANTED_STATUS_SLAYER_ROW:format(1, ns.DisplayName(slayer.name), 246, 1), 1, true), status)
-		-- No exact level in the cycle (the King saw him as "??" too, a floor): the claim's own floor.
+		-- No exact level in the cycle (the Shogun saw him as "??" too, a floor): the claim's own floor.
 		local other = "Player-1-0B0000C2"
 		world.horde[other] = "Hidden-Realm"
-		Die(king, other, "Hidden-Realm", -1)
+		Die(shogun, other, "Hidden-Realm", -1)
 		Die(first, other, "Hidden-Realm")
 		Die(second, other, "Hidden-Realm")
 		status = world:As(watcher, watcher.W.StatusText)
@@ -3958,7 +3958,7 @@ test("wanted 1.2.4 bounty: the revenge remains 100 once a claim while the kill l
 	end)
 end)
 
-test("wanted 1.2.3 bounty: an office comes only from what the client trusts (the pinned King, the signed council, the game's or the authorized rank for a guild master, his master's list, the signed titles, the author), his highest alone; a row's word never raises the office or the levels", function()
+test("wanted 1.2.3 bounty: an office comes only from what the client trusts (the pinned Shogun, the signed council, the game's or the authorized rank for a guild master, his master's list, the signed titles, the author), his highest alone; a row's word never raises the office or the levels", function()
 	WithWanted(function(w, W, c)
 		local B = W.Bounty
 		-- (1.2.3: these are the offices with LOCAL_OFFICES, Daniel's option (b), the shipped default, which this
@@ -3972,7 +3972,7 @@ test("wanted 1.2.3 bounty: an office comes only from what the client trusts (the
 			return function(name) return set[c.Fold(c.FullName(name))] == true end
 		end
 		eq(Office("Plain-Realm"), "M")
-		w.authority("Crowned-Realm", "king"); eq(Office("Crowned-Realm"), "K")
+		w.authority("Crowned-Realm", "shogun"); eq(Office("Crowned-Realm"), "K")
 		w.authority("Councillor-Realm", "council"); eq(Office("Councillor-Realm"), "H")
 		w.authority("Author-Realm", "author"); eq(Office("Author-Realm"), "O", "the author's characters: another office")
 		-- A guild master: on his own client the game's own rank; elsewhere Data.AuthorizedRank, never a
@@ -3988,22 +3988,22 @@ test("wanted 1.2.3 bounty: an office comes only from what the client trusts (the
 		eq(Office("Master-Realm"), "G")
 		w.authority("Master-Realm", "council"); eq(Office("Master-Realm"), "H", "a guild master who is a councillor: the highest")
 		eq(B.DeathPoints(Office("Master-Realm"), 58), 108)
-		-- Where no King is pinned: the master of the King's guild (Borders' rule).
-		c.KingCharacter = function() return nil end
-		c.IsKingGuild = function(guild) return guild == "Bankai Guild" end
+		-- Where no Shogun is pinned: the master of the Shogun's guild (Borders' rule).
+		c.ShogunCharacter = function() return nil end
+		c.IsShogunGuild = function(guild) return guild == "Bankai Guild" end
 		ranks[c.Fold(c.FullName("Founder-Realm")) .. "@Bankai Guild"] = 0
 		eq(Office("Founder-Realm", "Bankai Guild"), "K")
-		c.KingCharacter = function() return "Someone" end
-		eq(Office("Founder-Realm", "Bankai Guild"), "G", "a King pinned: the master is a guild master")
+		c.ShogunCharacter = function() return "Someone" end
+		eq(Office("Founder-Realm", "Bankai Guild"), "G", "a Shogun pinned: the master is a guild master")
 		-- A centurion or a correspondent from his master's own list (a stale list gives nobody).
 		local roles = {}
 		c.Nominees = { RoleOf = function(name) return roles[c.Fold(c.FullName(name))] end }
 		roles[c.Fold(c.FullName("Centurion-Realm"))] = "centurion"; eq(Office("Centurion-Realm"), "C")
 		roles[c.Fold(c.FullName("Writer-Realm"))] = "correspondent"; eq(Office("Writer-Realm"), "O")
 		roles[c.Fold(c.FullName("Centurion-Realm"))] = nil; eq(Office("Centurion-Realm"), "M")
-		-- The signed titles, the King's Hands, the Treasurer's characters.
+		-- The signed titles, the Shogun's Hands, the Treasurer's characters.
 		c.IsSteward, c.IsSignedArbiter = Named("Steward-Realm"), Named("Arbiter-Realm")
-		c.IsTreasurerCharacter, c.King = Named("Treasurer-Realm"), { IsHandName = Named("Hand-Realm") }
+		c.IsTreasurerCharacter, c.Shogun = Named("Treasurer-Realm"), { IsHandName = Named("Hand-Realm") }
 		for _, who in ipairs({ "Steward-Realm", "Arbiter-Realm", "Treasurer-Realm", "Hand-Realm" }) do eq(Office(who), "O", who) end
 		-- What a shared row says, taken no higher than this client verifies and sees.
 		local K = w.commHandlers.WK
@@ -4018,13 +4018,13 @@ test("wanted 1.2.3 bounty: an office comes only from what the client trusts (the
 			assert(ok, tostring(e))
 			return W.Target(nil, horde), e
 		end
-		eq(Row(boaster, "1.cc00d001", "K~40~0").current, 40, "a member who says he is the King: his level alone")
+		eq(Row(boaster, "1.cc00d001", "K~40~0").current, 40, "a member who says he is the Shogun: his level alone")
 		c.Roster.Fresh = function() return { members = { { full = boaster, level = 40 } } } end
 		-- (1.2.3 repair, changed on purpose: the roster is up to Roster.AUTHORITY_FRESH old, so a
 		-- member who levelled since counts his level, as on every client without the roster: 41.)
 		eq(Row(boaster, "1.cc00d001", "M~60~0").current, 40 + B.ROSTER_SLACK, "60 said, 40 on this client's own guild's fresh roster: 41 at most")
 		local crowned = w.participant("Crowned-Realm", "Player-1-CC00D002")
-		eq(Row(crowned, "1.cc00d002", "M~60~0").current, 60, "the King who says less counts less: never above the row")
+		eq(Row(crowned, "1.cc00d002", "M~60~0").current, 60, "the Shogun who says less counts less: never above the row")
 		eq(Row(crowned, "1.cc00d002", "K~60~0").current, 160)
 		-- The Horde player's level no higher than this client sees of him now (a nameplate).
 		w.hordePlayer("Horde5-Realm", "Player-1-0D00D005")
@@ -4224,8 +4224,8 @@ test("wanted 1.2.4: an entry with nothing counted is not on Most Wanted: one lis
 		assert(w.commHandlers.WK("CHANNEL", sender, BountyRow(c, W, { digest = "00000000000e3001", at = w.epoch,
 			horde = "1.0d00e302", own = "1.cc00e301", worth = "M~20~0", name = "Voided Horde-Realm" })))
 		eq(RowCounts(WantedRow(W, "Player-1-0D00E302")), ns.L.WANTED_ROW_COUNTS:format(20, 1))
-		local king = w.authority("Kingly-Realm", "king")
-		assert(w.commHandlers.WV("CHANNEL", king, ("WV~V~1~%s~%s~00000000000e3001~%d"):format(ScopeOf(c), sender, w.epoch)))
+		local shogun = w.authority("Shogunly-Realm", "shogun")
+		assert(w.commHandlers.WV("CHANNEL", shogun, ("WV~V~1~%s~%s~00000000000e3001~%d"):format(ScopeOf(c), sender, w.epoch)))
 		eq(W.Target(nil, "Player-1-0D00E302").current, 0, "voided")
 		eq(WantedRow(W, "Player-1-0D00E302"), nil, "nothing counted any more: off the list")
 	end)
@@ -4459,7 +4459,7 @@ end)
 
 test("wanted 1.2.3 earlier deaths world: a member back with this session's deaths in the game's recaps counts them on every client at once, the same points everywhere", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A0000D1", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A0000D1", "shogun")
 		local back = world:Client("Back-Realm", "Player-1-0A0000D2")
 		local horde = "Player-1-0B0000D1"
 		world.horde[horde] = "Recapped-Realm"
@@ -4470,12 +4470,12 @@ test("wanted 1.2.3 earlier deaths world: a member back with this session's death
 			overkill = 12, timestamp = world.epoch - 900 } }
 		world:Load(back) -- (a /reload: the recaps are the game's, still there)
 		world:Run(back.W.Bounty.EARLIER_WAIT + 1)
-		for _, cl in ipairs({ king, back }) do
+		for _, cl in ipairs({ shogun, back }) do
 			local t = world:As(cl, cl.W.Target, nil, horde)
 			assert(t, cl.name); eq(t.current, 35, cl.name); eq(t.victims[1].name, back.name)
 		end
 		eq(#(back.copies or {}), 1, "told once"); eq(back.copies[1].title, ns.L.WANTED_EARLIER_TITLE); eq(back.copies[1].opts.auto, true)
-		eq(king.copies, nil, "nobody else is told")
+		eq(shogun.copies, nil, "nobody else is told")
 	end)
 end)
 
@@ -4834,7 +4834,7 @@ end)
 ---------------------------------------------------------------------------
 -- 1.2.4, the notices (Daniel: a message at every death to a Horde player; one, when that player
 -- is killed, saying who avenged it, with See, Whisper and Thank; the Slayer letter to the killer,
--- in the King's letter's model). Each of these fails on the build before it (release/1.2.3: no
+-- in the Shogun's letter's model). Each of these fails on the build before it (release/1.2.3: no
 -- toast, no avenged notice, no letter).
 ---------------------------------------------------------------------------
 
@@ -5018,7 +5018,7 @@ test("wanted 1.2.4 notices: a death avenged: another member's own kill of that H
 	end)
 end)
 
-test("wanted 1.2.4 notices: the avenged notice waits out combat, an instance, a death, the privacy page (shown or waiting), the update letter and the King's letter, saved across a reload, then shows once, one at a time; with the gamepad UI it waits for the Bankai Guild window and chat says so once; five at most wait, the oldest go", function()
+test("wanted 1.2.4 notices: the avenged notice waits out combat, an instance, a death, the privacy page (shown or waiting), the update letter and the Shogun's letter, saved across a reload, then shows once, one at a time; with the gamepad UI it waits for the Bankai Guild window and chat says so once; five at most wait, the oldest go", function()
 	WithWanted(function(w, W, c)
 		w.manager, w.dead = false, false
 		w.units.player.level = 40
@@ -5098,7 +5098,7 @@ test("wanted 1.2.4 notices: the avenged notice waits out combat, an instance, a 
 	end)
 end)
 
-test("wanted 1.2.4 notices: the Slayer letter, the King's letter at this member's own kill that paid points: whom he slew, how many of ours that one had slain, his bounty, his level's points, the revenge and the total, as this client counted them with every member's rows; never in combat, an instance, a death, over the privacy page or the update letter (it waits, saved); once; a '??' as its floor; none for a kill that paid nothing; the King a toast instead", function()
+test("wanted 1.2.4 notices: the Slayer letter, the Shogun's letter at this member's own kill that paid points: whom he slew, how many of ours that one had slain, his bounty, his level's points, the revenge and the total, as this client counted them with every member's rows; never in combat, an instance, a death, over the privacy page or the update letter (it waits, saved); once; a '??' as its floor; none for a kill that paid nothing; the Shogun a toast instead", function()
 	WithWanted(function(w, W, c)
 		w.manager, w.dead = false, false
 		w.units.player.level = 45
@@ -5150,7 +5150,7 @@ test("wanted 1.2.4 notices: the Slayer letter, the King's letter at this member'
 		eq(#w.letters, 0, "its numbers still settling"); eq(#c.rdb.wanted.slayerLetters, 1)
 		Settle()
 		eq(#w.letters, 1)
-		eq(#c.rdb.wanted.slayerLetters, 0, "handed to the King's letter")
+		eq(#c.rdb.wanted.slayerLetters, 0, "handed to the Shogun's letter")
 		local key = w.letters[1]
 		eq(key:sub(1, 7), "wanted@")
 		local text, title = W.LetterText(key)
@@ -5189,15 +5189,15 @@ test("wanted 1.2.4 notices: the Slayer letter, the King's letter at this member'
 		assert(ok, tostring(e)); eq(e.points, 0)
 		Settle()
 		eq(#w.letters, 4, "nothing paid, no letter"); eq(#c.rdb.wanted.slayerLetters, 0, "and none waits")
-		-- The King: no letter from himself, a toast.
-		w.kingLetter = true
+		-- The Shogun: no letter from himself, a toast.
+		w.shogunLetter = true
 		w.advance(W.DEATH_WINDOW + 1)
 		Corpse("Royal Ganker-Realm", "Player-1-0D00E306", 50)
 		assert(w.handlers.PARTY_KILL(me, "Player-1-0D00E306"))
 		Settle()
-		eq(#w.letters, 4, "the King: no letter")
+		eq(#w.letters, 4, "the Shogun: no letter")
 		eq(w.windows.BankaiGuildWantedToast.text.text, ns.L.WANTED_LETTER_TOAST:format(Name("Royal Ganker-Realm"), 5))
-		w.kingLetter = nil
+		w.shogunLetter = nil
 		-- Once: a reload sends none again; the words still read from the key alone.
 		w.units.target = nil
 		assert(loadfile(ROOT .. "BankaiGuild/Wanted.lua"))("BankaiGuild", c)
@@ -5211,9 +5211,9 @@ test("wanted 1.2.4 notices: the Slayer letter, the King's letter at this member'
 	end)
 end)
 
-test("wanted 1.2.4 notices world: the killer's client knows the whole bounty at the kill (every member's own deaths reached it) and its letter says so; each member he had killed who is online is told at once who avenged him; one offline then is told at his next login (the King's catch-up answer), once", function()
+test("wanted 1.2.4 notices world: the killer's client knows the whole bounty at the kill (every member's own deaths reached it) and its letter says so; each member he had killed who is online is told at once who avenged him; one offline then is told at his next login (the Shogun's catch-up answer), once", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A0000F1", "king")
+		local shogun = world:Client("Varrick-Realm", "Player-1-0A0000F1", "shogun")
 		local online = world:Client("Online-Realm", "Player-1-0A0000F2")
 		local away = world:Client("Away-Realm", "Player-1-0A0000F3")
 		local slayer = world:Client("Slayer-Realm", "Player-1-0A0000F4")
@@ -5231,7 +5231,7 @@ test("wanted 1.2.4 notices world: the killer's client knows the whole bounty at 
 		end
 		Die(online); Die(away)
 		eq(online.windows.BankaiGuildWantedToast.text.text, ns.L.WANTED_DEATH_TOAST:format(name, 40), "the toast on his own client")
-		eq(king.windows.BankaiGuildWantedToast, nil, "on nobody else's")
+		eq(shogun.windows.BankaiGuildWantedToast, nil, "on nobody else's")
 		world:Offline(away)
 		-- The slayer kills him: the whole bounty (40 + 30) on his client at the kill.
 		slayer.units.target = { name = "Ganker-Realm", guid = horde, faction = "Horde", level = 60 }
@@ -5242,13 +5242,13 @@ test("wanted 1.2.4 notices world: the killer's client knows the whole bounty at 
 		-- (1.2.4 repair, changed on purpose: the letter goes LETTER_SETTLE after the kill, its
 		-- numbers settled; it is read below, once the world's clock ran past it. Before, at the kill.)
 		eq(slayer.letters[1], nil, "its numbers settling")
-		-- The member online is told at once; the King and the slayer are not.
+		-- The member online is told at once; the Shogun and the slayer are not.
 		local told = AvengedShown(online)
 		eq(#told, 1)
 		local words = ns.L.WANTED_AVENGED:format(ns.DisplayName(slayer.name), "Bankai Guild II", name, "")
 		eq(told[1].a, words)
-		eq(#AvengedShown(king), 0); eq(#AvengedShown(slayer), 0)
-		-- The one offline logs in: the King's catch-up answer brings the kill, and his notice. (A
+		eq(#AvengedShown(shogun), 0); eq(#AvengedShown(slayer), 0)
+		-- The one offline logs in: the Shogun's catch-up answer brings the kill, and his notice. (A
 		-- reviewer's relay names no guild, WK~C: the words name the avenger's where this client heard
 		-- it, Moderation.GuildOf, and leave it out here.)
 		world:Load(away)

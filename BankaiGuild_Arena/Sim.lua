@@ -16,7 +16,7 @@ local Home = ns.ArenaHome
 -- are the sim's memory (Arena.Store), the screens read this file's sample data (ArenaHome.SetSource)
 -- and every choice the screens remember goes to the sim's own table (Kit.Settings): ns.db and
 -- ns.rdb stay as they were. A purple banner says so; the overlay always carries SAMPLE DATA.
--- The bar (BankaiGuildArenaSimBar): Prev, Next, the scene's name, the crowd's speed (1-10), the King
+-- The bar (BankaiGuildArenaSimBar): Prev, Next, the scene's name, the crowd's speed (1-10), the Shogun
 -- view, the gamepad view, Exit. Scenes 1-31 (the design) and 32, the bank's
 -- crash drill (the design, through Wallet.Drill where the bank is on duty, else its sample).
 local Sim = {}
@@ -411,7 +411,7 @@ Sim.SCENES = {
 		Staff("staff.arbiter")
 	end },
 	{ "OVERLAY", function()
-		ArenaUI.simKing = true
+		ArenaUI.simShogun = true
 		Kit.Settings().delay = 120
 		if ArenaUI.Overlay then ArenaUI.Overlay.Show("Fsim1") end
 	end },
@@ -473,7 +473,7 @@ Sim.SCENES = {
 		end
 		Home.Letter("arena-champion-2")
 	end },
-	-- The champion's letter (the owner's slides, 2026-09-30): the King's letter with the arena
+	-- The champion's letter (the owner's slides, 2026-09-30): the Shogun's letter with the arena
 	-- champion's gold gryphon frame round the portrait, to an invented champion.
 	{ "LETTER", function()
 		W.champion = W.fighters[1].name
@@ -604,7 +604,7 @@ local function Bar()
 	bar.speedText:SetWidth(64)
 	x = x + 68
 	bar.faster = B(24, "+", function() Sim.Speed((Sim.speed or 3) + 1) end)
-	bar.king = B(80, L.ARENA_SIM_KING, function() ArenaUI.simKing = not ArenaUI.simKing Sim.Refresh() end)
+	bar.shogun = B(80, L.ARENA_SIM_SHOGUN, function() ArenaUI.simShogun = not ArenaUI.simShogun Sim.Refresh() end)
 	bar.pad = B(80, L.ARENA_SIM_GAMEPAD, function() ArenaUI.simGamepad = not ArenaUI.simGamepad Sim.Refresh() end)
 	bar.exit = B(60, L.ARENA_SIM_EXIT, function() Sim.Stop() end)
 	return bar
@@ -613,7 +613,7 @@ function Sim.Refresh()
 	if not bar then return end
 	bar.label:SetText(L.ARENA_SIM_SCENE:format(Sim.scene or 1, Sim.COUNT, L["ARENA_SIM_" .. Sim.SCENES[Sim.scene or 1][1]] or Sim.SCENES[Sim.scene or 1][1]))
 	bar.speedText:SetText(L.ARENA_SIM_SPEED:format(Sim.speed or 3))
-	if ArenaUI.simKing then bar.king:LockHighlight() else bar.king:UnlockHighlight() end
+	if ArenaUI.simShogun then bar.shogun:LockHighlight() else bar.shogun:UnlockHighlight() end
 	if ArenaUI.simGamepad then bar.pad:LockHighlight() else bar.pad:UnlockHighlight() end
 	if ArenaUI.IsShown and ArenaUI.IsShown() then ArenaUI.Refresh() end
 end
@@ -650,7 +650,7 @@ function Sim.Go(n)
 	if n < 1 then n = Sim.COUNT elseif n > Sim.COUNT then n = 1 end
 	Sim.scene = n
 	CloseAll()
-	ArenaUI.simKing, ArenaUI.simGamepad = false, false
+	ArenaUI.simShogun, ArenaUI.simGamepad = false, false
 	NewWorld(n)
 	Home.SetSource(source)
 	Bar():Show()
@@ -745,7 +745,7 @@ function Sim.Stop()
 	StopCrowd()
 	CloseAll()
 	if bar then bar:Hide() end
-	ArenaUI.simKing, ArenaUI.simGamepad = false, false
+	ArenaUI.simShogun, ArenaUI.simGamepad = false, false
 	if Home.Source() == source then Home.SetSource(nil) end
 	W = nil
 	-- (the showcase keeps a world of its own after the sim: Sim.Showcase)

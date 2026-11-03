@@ -12,7 +12,7 @@ local function Clock() return math.floor((GetServerTime and GetServerTime()) or 
 local function Whole(n, max) return type(n) == "number" and n == n and n % 1 == 0 and n >= 0 and n <= max end
 local function Same(a, b) return type(a) == "string" and type(b) == "string" and ns.FullName(ns.Normal(a)):lower() == ns.FullName(ns.Normal(b)):lower() end
 local function Preview()
-	return ns.King.Preview() or T.DevView() or ns.ViewAs and ns.ViewAs.Previewing and ns.ViewAs.Previewing()
+	return ns.Shogun.Preview() or T.DevView() or ns.ViewAs and ns.ViewAs.Previewing and ns.ViewAs.Previewing()
 end
 local function Hidden(name, guild)
 	local M = ns.Moderation

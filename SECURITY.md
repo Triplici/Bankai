@@ -2,7 +2,7 @@
 
 ## Reporting a problem
 
-If you find a way to abuse Bankai Guild (pass yourself off as the King or the Treasurer, forge
+If you find a way to abuse Bankai Guild (pass yourself off as the Shogun or the Treasurer, forge
 ranks, lock the channel, read or send what your rank shouldn't, break other players'
 clients), please tell the author privately first:
 
@@ -38,56 +38,56 @@ until you turn it on.
 ## The trust model, briefly
 
 - **Sender names can't be forged.** Blizzard's server stamps every message with its sender.
-- **The King and the Treasurer are fixed characters.** Their commands count only when they
+- **The Shogun and the Treasurer are fixed characters.** Their commands count only when they
   come from those exact characters, so nobody else can issue them, whatever the census says.
-  Since 1.0.0 the King's decrees and [Lords] lines count by his name too, with no census.
-- **The King's Steward (1.0.0) is the author's signature.** The High Council's titles list,
+  Since 1.0.0 the Shogun's decrees and [Council] lines count by his name too, with no census.
+- **The Shogun's Steward (1.0.0) is the author's signature.** The High Council's titles list,
   signed by the author's key like the council, can mark a character the Steward of his
-  faction's King (on the list's realm group). Every client takes from him, by his name, a list
-  of Hands of his own beside the King's (sent by his client alone; nobody changes anyone else's
+  faction's Shogun (on the list's realm group). Every client takes from him, by his name, a list
+  of Hands of his own beside the Shogun's (sent by his client alone; nobody changes anyone else's
   list; his Hands have the same Crown for `<Elfcore>` on the other guilds' clients as the
-  King's, and the King can't take them back: he does, or the author by removing him), what the
-  King alone set before: the treasury's keepers and what the army sees of it
-  (dated; the newest wins and the King's newer word always wins), and the Crown's decrees for
-  `<Elfcore>` on every client. He sees the whole treasury as the King does (the balance, the
+  Shogun's, and the Shogun can't take them back: he does, or the author by removing him), what the
+  Shogun alone set before: the treasury's keepers and what the army sees of it
+  (dated; the newest wins and the Shogun's newer word always wins), and the Crown's decrees for
+  `<Elfcore>` on every client. He sees the whole treasury as the Shogun does (the balance, the
   ranking, every keeper's shared book and the guild bank, whatever the switches), and every
-  keeper is told so before sharing. Never the King's own list of Hands, his crown on the map,
+  keeper is told so before sharing. Never the Shogun's own list of Hands, his crown on the map,
   his court, writs, pardons, the untabarded list, or his own book of the treasury and his yes to
   share it. No name is written in the code and no census vote makes one; a newer signed list
   without him ends it at once, and the Hands he named with it on every client (named again
   later, he starts from none, as long as his addon saw the list without him on any of his
   characters there: it forgets what it kept of his list then). A word of the
   treasury dated more than a minute ahead of the server's clock is not taken. The trust this
-  adds is in the author's key: whoever holds it can make a character act for the King in these,
+  adds is in the author's key: whoever holds it can make a character act for the Shogun in these,
   as it can name the High Council.
 - **Ranks of other guilds come from the census**, the picture most senders agree on, and a
   census report is its sender's word: nothing the server tells an addon proves which guild a
   sender belongs to. So a few characters working together can, today (1.0.0):
-  - make one of them the Lord of a made-up Bankai Guild guild with two characters, even two alts of
-    one account logged in one after the other: [Lords] lines and his Calls to Arms and Musters
+  - make one of them the Council of a made-up Bankai Guild guild with two characters, even two alts of
+    one account logged in one after the other: [Council] lines and his Calls to Arms and Musters
     (raid warnings) on every client (since 1.2.3 never a Royal decree or a Tabard inspection:
     a guild master's reach his own guild alone);
   - make Captains of a made-up guild with one report, and with six of them fill the army's
     flood guard (6 decrees a minute), so that every other decree a census rank vouches for is
     dropped for that minute;
-  - leave a real guild contested with two senders (its Lord and officers lose their rank on
+  - leave a real guild contested with two senders (its Council and officers lose their rank on
     every other client while they vote), or take its picture with three (its reporter and
     runner-up are two votes at most);
   - show other numbers for a guild with one report that copies its leader and officers (800
-    members as 1, the King offline), and add up to 1,000 soldiers to the army's total for a day
+    members as 1, the Shogun offline), and add up to 1,000 soldiers to the army's total for a day
     with each made-up guild;
   - have a made-up Captain's party invite accepted for a player who asked for a layer hop, and
-    put an innocent player on the King's untabarded list with his inspection report.
+    put an innocent player on the Shogun's untabarded list with his inspection report.
 
-  What 1.0.0 hardened: the King's decrees and [Lords] lines need no census, nor the Hands'
-  for `<Elfcore>` (the word of the King, or of the Steward whose own list names them); those,
+  What 1.0.0 hardened: the Shogun's decrees and [Council] lines need no census, nor the Hands'
+  for `<Elfcore>` (the word of the Shogun, or of the Steward whose own list names them); those,
   the Steward's and your own guild's officers' decrees never wait behind
   the flood guard; a decree speaks for one guild per sender, as the chats do, and its
   words go out with Blizzard's logged addon-message function; and the officers of `<Elfcore>`,
   whom three outsiders' reports could add to the Crown on every client outside `<Elfcore>`
   before 1.0.0, are of the Crown only on its own members' clients (their roster), and
-  elsewhere only the Hands the King's list or a Steward's own list names (their word, never a
-  vote; the King can't take back a Steward's Hand: that Steward does, or the author by
+  elsewhere only the Hands the Shogun's list or a Steward's own list names (their word, never a
+  vote; the Shogun can't take back a Steward's Hand: that Steward does, or the author by
   removing him). The README's
   [What colluding characters can reach](README.md#what-colluding-characters-can-reach) has
   each outcome. A full structural fix would require **signed leadership**: ranks that come
@@ -105,7 +105,7 @@ until you turn it on.
   open until a complete, scalable distribution and revocation protocol, plus its client migration,
   is reviewed and deployed.
 - **Nothing on the channel is encrypted.** Everyone on it receives [Bankai Guild], [Captains] and
-  [Lords]; the addon only decides what to show. Don't write anything there that must stay
+  [Council]; the addon only decides what to show. Don't write anything there that must stay
   secret.
 - **The channel is an ordinary WoW chat channel.** WoW hands its ownership to one of its members.
   Bankai Guild never uses that power. If someone locks the channel, the addon keeps retrying,

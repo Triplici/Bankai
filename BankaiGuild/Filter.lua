@@ -3,13 +3,13 @@ local L = ns.L
 
 -- Block terms (1.1, Fern's #31): words that hide a line of addon text on this client. Two
 -- lists: the player's own (ns.db.filterWords, account-wide, /bk filter add|remove), and a
--- shared one the King, his Steward, a Hand or a High Councillor of the author's signed list
+-- shared one the Shogun, his Steward, a Hand or a High Councillor of the author's signed list
 -- edits for everyone (ns.rdb.filterShared, this realm group's), which each player may ignore
 -- (/bk filter shared off; used by default).
 -- Whole words only, any case and accent the search folds (ns.Fold), read as the line shows
 -- (Codec.SanitizeChat, then ns.Searchable: a link's text counts, its data doesn't). Only on addon
--- text: the [Bankai Guild], [Captains] and [Lords] lines and the pinned line's words (Channels.lua), the
--- King's writs (Acts.lua: the player's own list alone, never the shared one, 1.1 review), a
+-- text: the [Bankai Guild], [Captains] and [Council] lines and the pinned line's words (Channels.lua), the
+-- Shogun's writs (Acts.lua: the player's own list alone, never the shared one, 1.1 review), a
 -- decree's words (Decree.lua) and Vox Populi's question and answers (Vox.lua). Never a name, a
 -- guild, a census row, the treasury, or the game's own chat (Say, Trade, General: never read).
 -- A hit hides the line on this screen, nothing more: no kick, no net-off, no ignore, nothing sent
@@ -18,8 +18,8 @@ local L = ns.L
 -- Vox question), and a companion addon reading the chats (the bridge) still gets it.
 --
 -- The shared list travels on the Bankai Guild channel, from an editor's client only (the server
--- stamps the sender: the King by his pinned name, a Steward by the signed titles list, a Hand by
--- the King's or a Steward's list, a High Councillor by the signed council list):
+-- stamps the sender: the Shogun by his pinned name, a Steward by the signed titles list, a Hand by
+-- the Shogun's or a Steward's list, a High Councillor by the signed council list):
 --   BW~<digest>~<+|-><term>@<server time>[@<editor>],...
 -- Each word is its own entry (SHARED_TERM_MIN letters at least), added (+) or removed (-) at a
 -- time; the newest time wins, word by word, so two editors never undo each other's other words,
@@ -116,7 +116,7 @@ end
 
 function Filter.SharedOn() return not (ns.db and ns.db.filterSharedOff == true) end
 
--- The term that hides this text, or nil. ownOnly: the player's own list alone (the King's writs:
+-- The term that hides this text, or nil. ownOnly: the player's own list alone (the Shogun's writs:
 -- 1.1, Konig's review, the shared list never hides them; the player's own filter still may).
 function Filter.Hit(text, ownOnly)
 	if type(text) ~= "string" or text == "" or not ns.db then return nil end
@@ -133,9 +133,9 @@ function Filter.Hit(text, ownOnly)
 end
 function Filter.Hides(text, ownOnly) return Filter.Hit(text, ownOnly) ~= nil end
 
--- A list of terms, sorted; masked on the King's own screen (his stream): its first letter.
+-- A list of terms, sorted; masked on the Shogun's own screen (his stream): its first letter.
 local function Shown(term)
-	if ns.KingsScreen and ns.KingsScreen() then return ns.Cut(term, 1) .. "***" end
+	if ns.ShogunsScreen and ns.ShogunsScreen() then return ns.Cut(term, 1) .. "***" end
 	return term
 end
 Filter.Shown = Shown -- the log of acts shows the terms' edits the same way (Chronicle.lua)
@@ -193,27 +193,27 @@ end
 -- The shared list
 ---------------------------------------------------------------------------
 
--- Who edits it: the King (his pinned name), his Steward (the signed titles list), a Hand (the
--- King's list or a Steward's) and a High Councillor of the signed council list. A sender's name
+-- Who edits it: the Shogun (his pinned name), his Steward (the signed titles list), a Hand (the
+-- Shogun's list or a Steward's) and a High Councillor of the signed council list. A sender's name
 -- is the server's.
 function Filter.IsEditorName(name)
 	if type(name) ~= "string" or name == "" then return false end
-	if ns.IsKingCharacter(name) then return true end
+	if ns.IsShogunCharacter(name) then return true end
 	-- (1.1.6: a sanctioned editor, WatchChat.Barred "powers", edits nothing while it lasts.)
 	local WC = ns.WatchChat
 	if WC and not WC.missing and WC.Barred and WC.Barred("powers", name) then return false end
-	local K = ns.King
+	local K = ns.Shogun
 	if K and not K.missing and (K.IsStewardName(name) or K.IsHandName(name)) then return true end
 	return ns.IsHighCouncillor(name)
 end
 
--- 1.2.0: editors are ranked: the King's character 3, his Steward or a Hand 2, a High Councillor 1
+-- 1.2.0: editors are ranked: the Shogun's character 3, his Steward or a Hand 2, a High Councillor 1
 -- (0: no editor). A word's entry keeps the rank it came with: an editor below it never changes it
--- (the King's terms stay his), the newest winning among equals.
+-- (the Shogun's terms stay his), the newest winning among equals.
 function Filter.EditorLevel(name)
 	if not Filter.IsEditorName(name) then return 0 end
-	if ns.IsKingCharacter(name) then return 3 end
-	local K = ns.King
+	if ns.IsShogunCharacter(name) then return 3 end
+	local K = ns.Shogun
 	if K and not K.missing and (K.IsStewardName(name) or K.IsHandName(name)) then return 2 end
 	return 1
 end
@@ -221,9 +221,9 @@ end
 function Filter.CanEdit()
 	if not ns.me or not ns.IsMember() then return false end
 	local WC = ns.WatchChat
-	if WC and not WC.missing and WC.Barred and WC.Barred("powers") and not ns.IsKingCharacter(ns.me) then return false end
-	local K = ns.King
-	if K and not K.missing and (K.IsKing() or K.IsSteward() or K.IsHand()) then return true end
+	if WC and not WC.missing and WC.Barred and WC.Barred("powers") and not ns.IsShogunCharacter(ns.me) then return false end
+	local K = ns.Shogun
+	if K and not K.missing and (K.IsShogun() or K.IsSteward() or K.IsHand()) then return true end
 	return ns.IsHighCouncillor(ns.me)
 end
 
@@ -370,7 +370,7 @@ function Filter.Receive(dist, sender, text)
 	if not digest then return end
 	sender = ns.FullName(sender)
 	if not Filter.IsEditorName(sender) then
-		ns.Log("block terms from %s ignored: not the King, his Steward, a Hand or a High Councillor", sender)
+		ns.Log("block terms from %s ignored: not the Shogun, his Steward, a Hand or a High Councillor", sender)
 		return
 	end
 	local S, now = Shared(), Clock()

@@ -1563,7 +1563,7 @@ end
 
 -- The page shown: its tab in dark ink with a bar under it, Back and Next where there is a page to
 -- go to.
--- Drink (the owner's text, 2026-09-30, in the King's own voice): a row a level with its mugs (0 to
+-- Drink (the owner's text, 2026-09-30, in the Shogun's own voice): a row a level with its mugs (0 to
 -- 3, like stars), the game's own line for it (DRUNK_MESSAGE_SELF1-4, each locale's words), and
 -- what it does; how it works in three steps; an example with the dice; the catch. The numbers come
 -- from FR.HICCUP and FR.SHAKES.

@@ -81,11 +81,11 @@ end)
 -- The money's cast with an arbiter (cap 2 g) and two fighters, the auditor's hello heard.
 local function Arbitered(w)
 	local cast = M.Cast(w, { duty = false })
-	local king, aud = cast.king, cast.auditor
+	local shogun, aud = cast.shogun, cast.auditor
 	local arb = M.Role(w, "arbiter")
 	local A, B = M.Client(w, "Torvin Hale", { money = 50000 }), M.Client(w, "Selka Drummond", { money = 50000 })
 	for _, c in ipairs({ arb, A, B }) do M.Relog(w, c) end
-	assert(king.Roles.SetArbiters({ { name = N.arbiter, cap = 2 } }))
+	assert(shogun.Roles.SetArbiters({ { name = N.arbiter, cap = 2 } }))
 	w:Run(301)
 	aud.Wallet.Hello()
 	w:Run(0)

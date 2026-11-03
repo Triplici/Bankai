@@ -29,27 +29,27 @@ W3.DUEL_KO = "%s has defeated %s in a duel"        -- ArenaParse.EN's DUEL_WINNE
 W3.DUEL_FLED = "%s has fled from %s in a duel"      -- (the retreat: the loser first)
 W3.ROLL = "%s rolls %d (%d-%d)"
 
--- A world with the King (and the live switch on unless live = false), the signed arbiter, the two
+-- A world with the Shogun (and the live switch on unless live = false), the signed arbiter, the two
 -- fighters and a spectator; opts.more: more clients, { name, where } each. This fights-design
 -- helper explicitly opens the future level race (levelRace = false keeps the shipped OFF policy).
 function W3.New(opts)
 	opts = opts or {}
 	local w = opts.levelRace == false and World.New(opts.world) or W3.LevelRaceWorld(opts.world)
 	local cast = {}
-	cast.king = w:Role("king")
+	cast.shogun = w:Role("shogun")
 	cast.arbiter = w:Role("arbiter")
 	cast.A = w:Role("fighterA")
 	cast.B = w:Role("fighterB")
 	cast.spectator = w:Role("bettor1")
 	for _, m in ipairs(opts.more or {}) do cast[m[1]] = w:Client(m[2], m[3]) end
-	if opts.live ~= false then W3.Live(w, cast.king) end
+	if opts.live ~= false then W3.Live(w, cast.shogun) end
 	for _, c in ipairs(w.clients) do W3.Rules(w, c) end
 	return w, cast
 end
 
--- The King's settings word: live on (gold by default: the world's Treasurer realm has its receiver).
-function W3.Live(w, king, t)
-	local ok, why = king.Roles.SetSettings(t or { live = 1 })
+-- The Shogun's settings word: live on (gold by default: the world's Treasurer realm has its receiver).
+function W3.Live(w, shogun, t)
+	local ok, why = shogun.Roles.SetSettings(t or { live = 1 })
 	assert(ok, "settings: " .. tostring(why))
 	w:Run(0)
 end

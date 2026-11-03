@@ -280,11 +280,11 @@ local function PlantWanted(w, c)
 	}
 end
 
--- A world with the King, the Treasurer, two fighters and a member (Lida Fenn, the viewer) whose
+-- A world with the Shogun, the Treasurer, two fighters and a member (Lida Fenn, the viewer) whose
 -- client has the API; the Treasurer's word names the donors (Lida third, all time).
 local function Setup(opts)
 	opts = opts or {}
-	local w, cast = W3.New({ world = opts.world, more = { { "treasurer", N.treasurer, { guild = World.KING_GUILD } } } })
+	local w, cast = W3.New({ world = opts.world, more = { { "treasurer", N.treasurer, { guild = World.SHOGUN_GUILD } } } })
 	local viewer = cast.spectator
 	viewer.mapID = opts.mapID or 1453
 	viewer.globals.C_Map = { GetBestMapForUnit = function(unit)
@@ -599,17 +599,17 @@ test("1.2.5 the API profile presentation: bounded owners, sanitized session even
 end)
 
 -- 1.2.5.1, the quiet presence (Core.lua, Comm.QUIET_WORDS): self only, for the session; only the
--- King, a High Councillor (a current signed issuer) or the author may turn it on, with the player's
+-- Shogun, a High Councillor (a current signed issuer) or the author may turn it on, with the player's
 -- Yes, in an Bankai Guild guild, through an addon the Bankai Guild team authorized (a reserved feature); the
--- handle that turned it on owns it; QUIET_PRESENCE_CHANGED; a No and a /reload end it. On the world's clients, with their own King, Workshop and Wallet: no crown, author
+-- handle that turned it on owns it; QUIET_PRESENCE_CHANGED; a No and a /reload end it. On the world's clients, with their own Shogun, Workshop and Wallet: no crown, author
 -- presence or auditor hello leaves while it is on, and each goes again once it is off.
-test("1.2.5.1 the API quiet presence: the King, a councillor or the author alone, with a Yes, in an Bankai Guild guild; its owner, its event; a No and a /reload end it", function()
+test("1.2.5.1 the API quiet presence: the Shogun, a councillor or the author alone, with a Yes, in an Bankai Guild guild; its owner, its event; a No and a /reload end it", function()
 	local w, cast = W3.New({ more = {
-		{ "councillor", N.councillor, { guild = World.KING_GUILD } },
+		{ "councillor", N.councillor, { guild = World.SHOGUN_GUILD } },
 		{ "author", N.author },
-		{ "steward", N.steward, { guild = World.KING_GUILD } },
+		{ "steward", N.steward, { guild = World.SHOGUN_GUILD } },
 	} })
-	local king, member = cast.king, cast.spectator
+	local shogun, member = cast.shogun, cast.spectator
 	local function Tool(c, name)
 		if not rawget(c.ns, "API") then LoadAPI(w, c, false) end
 		name = name or "QuietTool"
@@ -623,79 +623,79 @@ test("1.2.5.1 the API quiet presence: the King, a councillor or the author alone
 		for _, s in ipairs(w:Sent({ from = c })) do if s.msg:find(pattern) then n = n + 1 end end
 		return n
 	end
-	-- The King's crown is on (his position goes out every few seconds).
-	king.globals.C_Map = { GetBestMapForUnit = function() return 1453 end,
+	-- The Shogun's crown is on (his position goes out every few seconds).
+	shogun.globals.C_Map = { GetBestMapForUnit = function() return 1453 end,
 		GetPlayerMapPosition = function() return { GetXY = function() return 0.42, 0.51 end } end }
-	king.db.throneLocation = true
+	shogun.db.throneLocation = true
 	w:Run(6)
-	assert(SentFrom(king, "^T1~P~") > 0, "his crown, before")
+	assert(SentFrom(shogun, "^T1~P~") > 0, "his crown, before")
 
-	local hk, kingKey = Tool(king)
-	local API = king.ns.API
-	eq(w:As(king, king.BankaiGuildAPI.Has, "presence.quiet"), true)
-	eq(w:As(king, king.BankaiGuildAPI.Has, "QUIET_PRESENCE_CHANGED"), true)
-	local ok, why = Do(w, king, hk, "SetQuietPresence", true)
+	local hk, shogunKey = Tool(shogun)
+	local API = shogun.ns.API
+	eq(w:As(shogun, shogun.BankaiGuildAPI.Has, "presence.quiet"), true)
+	eq(w:As(shogun, shogun.BankaiGuildAPI.Has, "QUIET_PRESENCE_CHANGED"), true)
+	local ok, why = Do(w, shogun, hk, "SetQuietPresence", true)
 	eq(ok, false); eq(why, "pending", "nothing before the player's Yes")
-	eq(select(2, Do(w, king, hk, "GetQuietPresence")), "pending")
-	Yes(king, kingKey)
+	eq(select(2, Do(w, shogun, hk, "GetQuietPresence")), "pending")
+	Yes(shogun, shogunKey)
 	local told = {}
-	eq(Do(w, king, hk, "On", "QUIET_PRESENCE_CHANGED", function(_, state) told[#told + 1] = state end), true)
-	local state = Do(w, king, hk, "GetQuietPresence")
+	eq(Do(w, shogun, hk, "On", "QUIET_PRESENCE_CHANGED", function(_, state) told[#told + 1] = state end), true)
+	local state = Do(w, shogun, hk, "GetQuietPresence")
 	eq(state.on, false); eq(state.since, nil)
-	eq(select(2, Do(w, king, hk, "SetQuietPresence", "on")), "state")
-	eq(Do(w, king, hk, "SetQuietPresence", false), true, "off while off: nothing to do")
+	eq(select(2, Do(w, shogun, hk, "SetQuietPresence", "on")), "state")
+	eq(Do(w, shogun, hk, "SetQuietPresence", false), true, "off while off: nothing to do")
 	-- On: for this session, his own; the addon is told, with a copy.
-	eq(Do(w, king, hk, "SetQuietPresence", true), true)
-	state = Do(w, king, hk, "GetQuietPresence")
+	eq(Do(w, shogun, hk, "SetQuietPresence", true), true)
+	state = Do(w, shogun, hk, "GetQuietPresence")
 	eq(Keys(state), "on,since"); eq(state.on, true); eq(state.since, w.clock)
 	state.on = false
-	eq(Do(w, king, hk, "GetQuietPresence").on, true, "each read is a fresh copy")
+	eq(Do(w, shogun, hk, "GetQuietPresence").on, true, "each read is a fresh copy")
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, 1); eq(told[1].on, true); eq(Keys(told[1]), "on,since")
 	-- (A reserved feature, 2026-10-19) An addon the Bankai Guild team has not authorized gets
-	-- "unauthorized", even on the King's own client with his Yes: it can neither turn it on nor off,
+	-- "unauthorized", even on the Shogun's own client with his Yes: it can neither turn it on nor off,
 	-- read it nor hear of it.
-	local crier, crierKey = Tool(king, "TownCrier")
-	Yes(king, crierKey)
-	eq(Do(w, king, crier, "Status"), "granted")
+	local crier, crierKey = Tool(shogun, "TownCrier")
+	Yes(shogun, crierKey)
+	eq(Do(w, shogun, crier, "Status"), "granted")
 	for _, on in ipairs({ true, false }) do
-		ok, why = Do(w, king, crier, "SetQuietPresence", on)
+		ok, why = Do(w, shogun, crier, "SetQuietPresence", on)
 		eq(ok, false); eq(why, "unauthorized", "SetQuietPresence " .. tostring(on))
 	end
-	local none, noWhy = Do(w, king, crier, "GetQuietPresence")
+	local none, noWhy = Do(w, shogun, crier, "GetQuietPresence")
 	eq(none, nil); eq(noWhy, "unauthorized")
-	eq(Do(w, king, crier, "On", "QUIET_PRESENCE_CHANGED", function() end), false)
-	eq(Do(w, king, hk, "GetQuietPresence").on, true, "still on, and still its owner's")
+	eq(Do(w, shogun, crier, "On", "QUIET_PRESENCE_CHANGED", function() end), false)
+	eq(Do(w, shogun, hk, "GetQuietPresence").on, true, "still on, and still its owner's")
 	-- Nothing of him leaves: no crown, no auditor hello (he is one), while his reads go on.
-	local crowns, hellos = SentFrom(king, "^T1~P~"), SentFrom(king, "^ZQ~L1~H~")
-	eq(w:As(king, king.ns.Wallet.Hello), false, "no hello of the arena's auditors")
+	local crowns, hellos = SentFrom(shogun, "^T1~P~"), SentFrom(shogun, "^ZQ~L1~H~")
+	eq(w:As(shogun, shogun.ns.Wallet.Hello), false, "no hello of the arena's auditors")
 	w:Run(30)
-	eq(SentFrom(king, "^T1~P~"), crowns, "no crown while it is on")
-	eq(SentFrom(king, "^ZQ~L1~H~"), hellos)
-	eq(type(Do(w, king, hk, "GetProfile")), "table", "reads go on")
+	eq(SentFrom(shogun, "^T1~P~"), crowns, "no crown while it is on")
+	eq(SentFrom(shogun, "^ZQ~L1~H~"), hellos)
+	eq(type(Do(w, shogun, hk, "GetProfile")), "table", "reads go on")
 	-- Another handle of his can neither turn it off nor take it over; it hears of it all the same.
-	local other, otherKey = Tool(king, "OtherTool")
-	Yes(king, otherKey)
+	local other, otherKey = Tool(shogun, "OtherTool")
+	Yes(shogun, otherKey)
 	local otherTold = {}
-	eq(Do(w, king, other, "On", "QUIET_PRESENCE_CHANGED", function(_, s) otherTold[#otherTold + 1] = s end), true)
-	eq(select(2, Do(w, king, other, "SetQuietPresence", false)), "owner")
-	eq(select(2, Do(w, king, other, "SetQuietPresence", true)), "owner")
-	eq(Do(w, king, other, "GetQuietPresence").on, true)
+	eq(Do(w, shogun, other, "On", "QUIET_PRESENCE_CHANGED", function(_, s) otherTold[#otherTold + 1] = s end), true)
+	eq(select(2, Do(w, shogun, other, "SetQuietPresence", false)), "owner")
+	eq(select(2, Do(w, shogun, other, "SetQuietPresence", true)), "owner")
+	eq(Do(w, shogun, other, "GetQuietPresence").on, true)
 	-- Its owner turns it off; everything goes again.
-	eq(Do(w, king, hk, "SetQuietPresence", false), true)
+	eq(Do(w, shogun, hk, "SetQuietPresence", false), true)
 	w:Run(API.DISPATCH_DELAY)
 	eq(told[#told].on, false); eq(Keys(told[#told]), "on")
 	eq(otherTold[#otherTold].on, false, "the other handle is told too")
 	w:Run(6)
-	assert(SentFrom(king, "^T1~P~") > crowns, "his crown again")
-	eq(w:As(king, king.ns.Wallet.Hello), true)
+	assert(SentFrom(shogun, "^T1~P~") > crowns, "his crown again")
+	eq(w:As(shogun, shogun.ns.Wallet.Hello), true)
 	w:Run(2)
-	assert(SentFrom(king, "^ZQ~L1~H~") > hellos, "his auditor hello again")
+	assert(SentFrom(shogun, "^ZQ~L1~H~") > hellos, "his auditor hello again")
 	-- A No for the handle that turned it on ends it.
-	eq(Do(w, king, hk, "SetQuietPresence", true), true)
-	Yes(king, kingKey, false)
-	eq(Do(w, king, other, "GetQuietPresence").on, false, "the No ended it")
-	eq(select(2, Do(w, king, hk, "SetQuietPresence", true)), "refused")
+	eq(Do(w, shogun, hk, "SetQuietPresence", true), true)
+	Yes(shogun, shogunKey, false)
+	eq(Do(w, shogun, other, "GetQuietPresence").on, false, "the No ended it")
+	eq(select(2, Do(w, shogun, hk, "SetQuietPresence", true)), "refused")
 	-- A councillor and the author may; a Steward (a signed issuer), a member and the guildless may not.
 	local hc, hcKey = Tool(cast.councillor)
 	Yes(cast.councillor, hcKey)
@@ -721,26 +721,26 @@ test("1.2.5.1 the API quiet presence: the King, a councillor or the author alone
 	-- Outside an Bankai Guild guild, even a councillor may not.
 	cast.councillor.guild = nil -- (World:Client's guild = false gives the default guild)
 	eq(select(2, Do(w, cast.councillor, hc, "SetQuietPresence", true)), "guild")
-	cast.councillor.guild = World.KING_GUILD
+	cast.councillor.guild = World.SHOGUN_GUILD
 	-- A /reload ends it, and nothing of it was saved.
-	eq(Do(w, king, other, "SetQuietPresence", true), true)
-	w:Logout(king); w:Login(king)
-	for k in pairs(king.db) do eq(tostring(k):lower():find("quiet", 1, true), nil, "saved: " .. tostring(k)) end
-	local again = Tool(king, "OtherTool")
-	eq(Do(w, king, again, "Status"), "granted", "the Yes is kept")
-	eq(Do(w, king, again, "GetQuietPresence").on, false, "a new session starts without it")
+	eq(Do(w, shogun, other, "SetQuietPresence", true), true)
+	w:Logout(shogun); w:Login(shogun)
+	for k in pairs(shogun.db) do eq(tostring(k):lower():find("quiet", 1, true), nil, "saved: " .. tostring(k)) end
+	local again = Tool(shogun, "OtherTool")
+	eq(Do(w, shogun, again, "Status"), "granted", "the Yes is kept")
+	eq(Do(w, shogun, again, "GetQuietPresence").on, false, "a new session starts without it")
 	W3.NoErrors(w)
 end)
 
--- 1.2.5.1, review of the quiet presence: the King's court, the lists his client repeats for late
+-- 1.2.5.1, review of the quiet presence: the Shogun's court, the lists his client repeats for late
 -- logins, the treasury's repeated ask and his "taking donations", a councillor's help notice and his
 -- "got it", and an arbiter's availability still said the player was online (some of them where)
--- while it was on. On the world's clients with their own King, Treasury, Workshop and Stakes (and
+-- while it was on. On the world's clients with their own Shogun, Treasury, Workshop and Stakes (and
 -- Court.lua, loaded here as the TOC does): none of it while it is on, and each again once it is off.
 test("1.2.5.1 the API quiet presence on the world: no court, list repeat, treasury repeat ask, donations, help notice or arbiter availability while on; each again once off", function()
-	local w, cast = W3.New({ more = { { "councillor", N.councillor, { guild = World.KING_GUILD } } } })
-	local king, hc, arb, asker = cast.king, cast.councillor, cast.arbiter, cast.spectator
-	local L = king.ns.L
+	local w, cast = W3.New({ more = { { "councillor", N.councillor, { guild = World.SHOGUN_GUILD } } } })
+	local shogun, hc, arb, asker = cast.shogun, cast.councillor, cast.arbiter, cast.spectator
+	local L = shogun.ns.L
 	local function Tool(c)
 		LoadAPI(w, c, false)
 		Install(c, "QuietTool", "Quiet Tool")
@@ -758,25 +758,25 @@ test("1.2.5.1 the API quiet presence on the world: no court, list repeat, treasu
 		return false
 	end
 	-- Court.lua as the TOC loads it, its LOGIN part (the zone event, the resend's ticker) run here once.
-	w:As(king, function()
-		local on, login = king.ns.On, {}
-		rawset(king.ns, "On", function(event, fn) if event == "LOGIN" then login[#login + 1] = fn else on(event, fn) end end)
-		local ok, err = pcall(function() assert(loadfile(H.ADDON_DIR .. "Court.lua"))("BankaiGuild", king.ns) end)
-		rawset(king.ns, "On", on)
+	w:As(shogun, function()
+		local on, login = shogun.ns.On, {}
+		rawset(shogun.ns, "On", function(event, fn) if event == "LOGIN" then login[#login + 1] = fn else on(event, fn) end end)
+		local ok, err = pcall(function() assert(loadfile(H.ADDON_DIR .. "Court.lua"))("BankaiGuild", shogun.ns) end)
+		rawset(shogun.ns, "On", on)
 		assert(ok, err)
 		for _, fn in ipairs(login) do fn() end
 	end)
 	local map = 1453
-	king.globals.C_Map = { GetBestMapForUnit = function() return map end }
-	king.globals.GetRealZoneText = function() return map == 1453 and "Stormwind City" or "Elwynn Forest" end
-	local Court, K, T = W3.M(w, king, "Court"), king.King, king.Treasury
+	shogun.globals.C_Map = { GetBestMapForUnit = function() return map end }
+	shogun.globals.GetRealZoneText = function() return map == 1453 and "Stormwind City" or "Elwynn Forest" end
+	local Court, K, T = W3.M(w, shogun, "Court"), shogun.Shogun, shogun.Treasury
 	-- Before: the court where he stands, his Hands (an empty list is said too), the agenda, his
 	-- donations, the treasury's ask, a councillor's help notice, an arbiter on duty.
-	king.rdb.kingHands = {}
+	shogun.rdb.shogunHands = {}
 	hc.db.councilHelp = true
 	-- (The agenda's popup on the army's clients: the game's, a no-op on this world.)
 	for _, c in ipairs(w.clients) do c.globals.StaticPopup_Show = function() end end
-	assert(king.Roles.SetArbiters({ { name = N.arbiter, cap = 2 } }))
+	assert(shogun.Roles.SetArbiters({ { name = N.arbiter, cap = 2 } }))
 	w:Run(301)
 	w:Logout(arb); w:Login(arb) -- (its saved data then persists: Arena.Persists)
 	w:Run(0)
@@ -786,29 +786,29 @@ test("1.2.5.1 the API quiet presence on the world: no court, list repeat, treasu
 	assert(K.SetAgenda("120 Muster at the gates"))
 	T.SetDonations(true)
 	w:Run(60)
-	for _, word in ipairs({ { king, "^T1~C~%d+~[^~]*~1453~Stormwind City$" }, { king, "^T1~H~" }, { king, "^T1~A~" }, { king, "^TD~[^~]*~1~" },
-		{ king, "^TA~" }, { hc, "^HA~1" }, { arb, "^ZV~" } }) do
+	for _, word in ipairs({ { shogun, "^T1~C~%d+~[^~]*~1453~Stormwind City$" }, { shogun, "^T1~H~" }, { shogun, "^T1~A~" }, { shogun, "^TD~[^~]*~1~" },
+		{ shogun, "^TA~" }, { hc, "^HA~1" }, { arb, "^ZV~" } }) do
 		assert(Count(word[1], word[2]) > 0, "before: " .. word[2])
 	end
-	-- On: the King's and the councillor's through their own handles; the arbiter's module asked as
+	-- On: the Shogun's and the councillor's through their own handles; the arbiter's module asked as
 	-- Core.lua answers it (an arbiter alone may not turn it on).
-	local hk, hh = Tool(king), Tool(hc)
-	eq(Do(w, king, hk, "SetQuietPresence", true), true)
+	local hk, hh = Tool(shogun), Tool(hc)
+	eq(Do(w, shogun, hk, "SetQuietPresence", true), true)
 	eq(Do(w, hc, hh, "SetQuietPresence", true), true)
 	local arbQuiet, arbCore = true, arb.ns.QuietPresence
 	rawset(arb.ns, "QuietPresence", function() return arbQuiet end)
 	local before = {}
-	local words = { { king, "^T1~[CZ]~" }, { king, "^T1~H~" }, { king, "^T1~A~" }, { king, "^TD~" }, { king, "^TA~" },
+	local words = { { shogun, "^T1~[CZ]~" }, { shogun, "^T1~H~" }, { shogun, "^T1~A~" }, { shogun, "^TD~" }, { shogun, "^TA~" },
 		{ hc, "^HA~" }, { hc, "^HK~" }, { arb, "^ZV~" } }
 	for i, word in ipairs(words) do before[i] = Count(word[1], word[2]) end
 	local ok, err = pcall(function()
 		-- His court's resend, and his moving on: nothing; closed and opened again: nothing, and he is told.
 		w:Run(Court.RESEND + 30)
 		map = 1429
-		w:Fire(king, "ZONE_CHANGED_NEW_AREA")
+		w:Fire(shogun, "ZONE_CHANGED_NEW_AREA")
 		Court.Toggle()
 		Court.Toggle()
-		assert(Printed(king, L.QUIET_PRESENCE_HELD), "told that the court waits")
+		assert(Printed(shogun, L.QUIET_PRESENCE_HELD), "told that the court waits")
 		-- His donations off and on again: nothing either.
 		T.SetDonations(false)
 		T.SetDonations(true)
@@ -823,37 +823,37 @@ test("1.2.5.1 the API quiet presence on the world: no court, list repeat, treasu
 		for i, word in ipairs(words) do eq(Count(word[1], word[2]), before[i], "nothing while it is on: " .. word[2]) end
 		eq(T.Ask(true), true, "a fresh ask is a read, and goes")
 		w:Run(0)
-		eq(Count(king, "^TA~"), before[5] + 1)
+		eq(Count(shogun, "^TA~"), before[5] + 1)
 		before[5] = before[5] + 1
 		-- Off: the court where he stands now, his donations and the help notice at once; the
 		-- repeats at their time; the arbiter's availability at once.
-		eq(Do(w, king, hk, "SetQuietPresence", false), true)
+		eq(Do(w, shogun, hk, "SetQuietPresence", false), true)
 		eq(Do(w, hc, hh, "SetQuietPresence", false), true)
 		arbQuiet = false
 		w:As(arb, arb.ns.Fire, "QUIET_PRESENCE_CHANGED", false)
 		w:Run(0)
-		eq(Count(king, "^T1~C~%d+~[^~]*~1429~Elwynn Forest$"), 1, "the court at once, in his new zone")
-		assert(Count(king, "^TD~[^~]*~1~") > 0 and Count(king, "^TD~") > before[4], "his donations at once")
+		eq(Count(shogun, "^T1~C~%d+~[^~]*~1429~Elwynn Forest$"), 1, "the court at once, in his new zone")
+		assert(Count(shogun, "^TD~[^~]*~1~") > 0 and Count(shogun, "^TD~") > before[4], "his donations at once")
 		eq(Count(hc, "^HA~1"), before[6] + 1, "the help notice at once")
 		eq(Count(arb, "^ZV~"), before[8] + 1, "the arbiter's availability at once")
 		w:Run(61)
-		assert(Count(king, "^T1~H~") > before[2], "his Hands again")
-		assert(Count(king, "^T1~A~") > before[3], "the agenda again")
+		assert(Count(shogun, "^T1~H~") > before[2], "his Hands again")
+		assert(Count(shogun, "^T1~A~") > before[3], "the agenda again")
 		-- (The treasury's: ASK_EVERY after the fresh one he made meanwhile.)
 		w:Run(T.ASK_EVERY)
-		assert(Count(king, "^TA~[^~]*~1$") > 0 and Count(king, "^TA~") > before[5], "the treasury's ask again")
+		assert(Count(shogun, "^TA~[^~]*~1$") > 0 and Count(shogun, "^TA~") > before[5], "the treasury's ask again")
 		-- At logout a keeper's "off" goes by the game's own call (Comm is gone by then): not while
 		-- it is on either.
 		local raw = {}
-		king.globals.C_ChatInfo.SendAddonMessage = function(_, msg) raw[#raw + 1] = msg return 0 end
-		king.globals.GetChannelName = function() return 5 end
-		rawset(king.ns.Comm, "ChannelName", function() return "BankaiGuildTest" end)
-		eq(Do(w, king, hk, "SetQuietPresence", true), true)
-		w:Fire(king, "PLAYER_LOGOUT")
+		shogun.globals.C_ChatInfo.SendAddonMessage = function(_, msg) raw[#raw + 1] = msg return 0 end
+		shogun.globals.GetChannelName = function() return 5 end
+		rawset(shogun.ns.Comm, "ChannelName", function() return "BankaiGuildTest" end)
+		eq(Do(w, shogun, hk, "SetQuietPresence", true), true)
+		w:Fire(shogun, "PLAYER_LOGOUT")
 		eq(#raw, 0, "no word at logout while it is on: " .. tostring(raw[1]))
-		eq(Do(w, king, hk, "SetQuietPresence", false), true)
+		eq(Do(w, shogun, hk, "SetQuietPresence", false), true)
 		T.SetDonations(true)
-		w:Fire(king, "PLAYER_LOGOUT")
+		w:Fire(shogun, "PLAYER_LOGOUT")
 		assert(raw[1] and raw[1]:find("^TD~[^~]*~0~"), "off: the logout's word goes as ever: " .. tostring(raw[1]))
 	end)
 	rawset(arb.ns, "QuietPresence", arbCore)
@@ -867,7 +867,7 @@ test("1.2.5.1 the API quiet presence: its permission line, docs/API.md, the READ
 	-- (Review: "sends nothing that says you are online" and "other clients see you as offline" were
 	-- not true for a guild leader or officer, whom the guildmates' census still shows online from the
 	-- game's guild roster; the line now names what stops and what still shows.)
-	for _, word in ipairs({ "turn on a quiet presence for this session", "only for the King, a High Councillor or the addon's author",
+	for _, word in ipairs({ "turn on a quiet presence for this session", "only for the Shogun, a High Councillor or the addon's author",
 		"Bankai Guild stops sending on its own the words that announce you online or say where you are",
 		"other Bankai Guild clients age you out as after a logout", "your guild roster, the census your guildmates build from it",
 		"a guild leader or officer still shows online there, and your zone may for up to 12 minutes", "/who and chat still show you",
@@ -875,7 +875,7 @@ test("1.2.5.1 the API quiet presence: its permission line, docs/API.md, the READ
 		"cannot enable the presentation or the quiet presence" }) do
 		assert(head:find(word, 1, true), "the line says: " .. word)
 	end
-	for _, word in ipairs({ "ligar uma presença silenciosa nesta sessão", "só para o Rei, um membro do Alto Conselho ou o autor do addon",
+	for _, word in ipairs({ "ligar uma presença silenciosa nesta sessão", "só para o Xogum, um membro do Alto Conselho ou o autor do addon",
 		"as palavras que anunciam você online ou dizem onde você está", "o censo que seus colegas de guilda montam com ela",
 		"um mestre ou oficial de guilda ainda aparece online lá", "o /who e o chat ainda mostrarão você",
 		"as linhas de chat do Bankai Guild que você digitar e o que você mesmo publicar ainda serão enviados",
@@ -893,7 +893,7 @@ test("1.2.5.1 the API quiet presence: its permission line, docs/API.md, the READ
 	end
 	for _, path in ipairs({ "README.md", "docs/CURSEFORGE.md" }) do
 		local section = Read(H.ROOT .. path):match("\n### Other addons: the Bankai Guild API %(1%.2%.4%)\n(.-)\n##")
-		for _, word in ipairs({ "quiet presence for the King, a High Councillor or the addon's", "age\nhim out as after a logout",
+		for _, word in ipairs({ "quiet presence for the Shogun, a High Councillor or the addon's", "age\nhim out as after a logout",
 			"a guild leader or officer still shows online there", "Bankai Guild chat lines he types and what he posts himself still go\nout",
 			"A line on top of the Census and the\nRealm says so" }) do
 			assert(section and section:find(word, 1, true), path .. ": " .. word)
@@ -1424,12 +1424,12 @@ test("1.2.5 the API area scope: hostile by default, outsiders on request with la
 	W3.NoErrors(w)
 end)
 
--- The leader's lines behind the public adapter: Hop.lua's census-driven King, his realm, the
+-- The leader's lines behind the public adapter: Hop.lua's census-driven Shogun, his realm, the
 -- "on his layer" answer and its zone names, and the layers Layers.ForMap lists from the
 -- announcements, are this host (the world loads Hop and Layers once, shared); his crown is the
--- client's own King.Location, and each layer's name the real Layers.Name.
+-- client's own Shogun.Location, and each layer's name the real Layers.Name.
 local function LeaderHost(c)
-	local host = { king = nil, onLayer = false, otherRealm = false, layers = {} }
+	local host = { shogun = nil, onLayer = false, otherRealm = false, layers = {} }
 	local name = c.ns.Layers.Name
 	rawset(c.ns, "Layers", {
 		ForMap = function(mapID) return host.layers[mapID] or {} end,
@@ -1438,27 +1438,27 @@ local function LeaderHost(c)
 		Mine = function() return nil end,
 	})
 	rawset(c.ns, "Hop", {
-		King = function() return host.king and { name = host.king.name, mapID = host.king.mapID,
-			zoneUID = host.king.zoneUID, realm = host.king.realm } or nil end,
-		KingOtherRealm = function(k) return k ~= nil and host.otherRealm end,
-		OnKingLayer = function(strict) return strict == true and host.onLayer end,
+		Shogun = function() return host.shogun and { name = host.shogun.name, mapID = host.shogun.mapID,
+			zoneUID = host.shogun.zoneUID, realm = host.shogun.realm } or nil end,
+		ShogunOtherRealm = function(k) return k ~= nil and host.otherRealm end,
+		OnShogunLayer = function(strict) return strict == true and host.onLayer end,
 		ZoneName = function(mapID) return ({ [1453] = "Stormwind City", [1429] = "Elwynn Forest" })[mapID] or "?" end,
 	})
 	return host
 end
 
--- The King's client shares his crown at that point of map 1453.
-local function Crown(w, king, x, y)
-	king.mapID, king.x, king.y = 1453, x, y
-	king.globals.C_Map = {
-		GetBestMapForUnit = function() return king.mapID end,
-		GetPlayerMapPosition = function() return { GetXY = function() return king.x, king.y end } end,
+-- The Shogun's client shares his crown at that point of map 1453.
+local function Crown(w, shogun, x, y)
+	shogun.mapID, shogun.x, shogun.y = 1453, x, y
+	shogun.globals.C_Map = {
+		GetBestMapForUnit = function() return shogun.mapID end,
+		GetPlayerMapPosition = function() return { GetXY = function() return shogun.x, shogun.y end } end,
 	}
-	king.db.throneLocation = true
+	shogun.db.throneLocation = true
 	w:Run(6)
 end
 
-test("1.2.5 the API leader presence: only what the King's lines, his crown and the Realm tab's layers show; nothing while barred; consent, guild and rate gates", function()
+test("1.2.5 the API leader presence: only what the Shogun's lines, his crown and the Realm tab's layers show; nothing while barred; consent, guild and rate gates", function()
 	local w, cast, viewer, API = Setup()
 	viewer.mapID = 1453
 	local O, C = viewer.BankaiGuildAPI, viewer.Consent
@@ -1474,23 +1474,23 @@ test("1.2.5 the API leader presence: only what the King's lines, his crown and t
 	eq(select(2, Do(w, viewer, a, "GetLeaderPresence")), "refused")
 	w:As(viewer, C.Choose, "api:mappins", true)
 
-	-- No King online: that alone.
+	-- No Shogun online: that alone.
 	local p = assert(Do(w, viewer, a, "GetLeaderPresence"))
 	eq(Keys(p), "online"); eq(p.online, false)
 
 	-- Online, his layer not announced and no crown: no place at all.
-	host.king = { name = "The Crown", realm = viewer.ns.realm }
+	host.shogun = { name = "The Crown", realm = viewer.ns.realm }
 	p = assert(Do(w, viewer, a, "GetLeaderPresence"))
 	eq(Keys(p), "name,onYourLayer,online,otherRealm")
 	eq(p.name, "The Crown"); eq(p.online, true); eq(p.otherRealm, false); eq(p.onYourLayer, false)
 
 	-- His layer announced in the viewer's zone, his crown shared: the zone, the crown's point in
 	-- thousandths, and the Realm tab's layers with their "~N with Bankai Guild" counts.
-	Crown(w, cast.king, 0.42, 0.51)
-	local at = assert(w:As(viewer, viewer.ns.King.Location), "the viewer's own crown")
-	host.king.mapID, host.king.zoneUID = 1453, 9
+	Crown(w, cast.shogun, 0.42, 0.51)
+	local at = assert(w:As(viewer, viewer.ns.Shogun.Location), "the viewer's own crown")
+	host.shogun.mapID, host.shogun.zoneUID = 1453, 9
 	host.layers[1453] = {
-		{ zoneUID = 9, count = 2, head = { name = "Crown Bearer", rank = 0, guild = World.KING_GUILD }, mine = false, lastSeen = 1 },
+		{ zoneUID = 9, count = 2, head = { name = "Crown Bearer", rank = 0, guild = World.SHOGUN_GUILD }, mine = false, lastSeen = 1 },
 		{ zoneUID = 4, count = 1, head = { name = "Far Captain", rank = 1, guild = World.GUILD }, mine = false, lastSeen = 1 },
 	}
 	local shown = w:As(viewer, viewer.ns.Layers.ForMap, 1453)
@@ -1511,7 +1511,7 @@ test("1.2.5 the API leader presence: only what the King's lines, his crown and t
 	eq(p.layers[1].bankaiguild, 2); eq(p.layers[1].leader, true); eq(p.layer, p.layers[1].name)
 	eq(p.layers[1].name, viewer.ns.L.LAYER_OF:format("Crown Bearer"))
 	host.onLayer = true
-	eq(Do(w, viewer, a, "GetLeaderPresence").onYourLayer, true, "the line 'on the King's layer'")
+	eq(Do(w, viewer, a, "GetLeaderPresence").onYourLayer, true, "the line 'on the Shogun's layer'")
 	host.onLayer = false
 
 	-- In another zone: the zone the line names and the crown, never that zone's layers.
@@ -1521,27 +1521,27 @@ test("1.2.5 the API leader presence: only what the King's lines, his crown and t
 	viewer.mapID = 1453
 
 	-- Another realm: said so; his layer there is not this realm's, so no layers.
-	host.otherRealm, host.king.realm = true, "Farshore"
+	host.otherRealm, host.shogun.realm = true, "Farshore"
 	p = assert(Do(w, viewer, a, "GetLeaderPresence"))
 	eq(p.otherRealm, true); eq(p.realm, "Farshore"); eq(p.layers, nil); eq(p.onYourLayer, false)
 	eq(p.mapID, 1453, "the crown's map, which his crown shows")
-	host.otherRealm, host.king.realm = false, viewer.ns.realm
+	host.otherRealm, host.shogun.realm = false, viewer.ns.realm
 
-	-- Barred from locations (as King.Location and the King's lines): no field of where he is.
+	-- Barred from locations (as Shogun.Location and the Shogun's lines): no field of where he is.
 	local ownWC = rawget(viewer.ns, "WatchChat")
 	rawset(viewer.ns, "WatchChat", { Barred = function(kind) return kind == "locations" and { kind = "timeout" } or nil end })
-	eq(w:As(viewer, viewer.ns.King.Location), nil, "the crown is hidden from him as well")
+	eq(w:As(viewer, viewer.ns.Shogun.Location), nil, "the crown is hidden from him as well")
 	p = assert(Do(w, viewer, a, "GetLeaderPresence"))
 	eq(Keys(p), "name,online")
 	rawset(viewer.ns, "WatchChat", ownWC)
 
-	-- The King himself: that, and nothing of where.
-	local K = viewer.ns.King
-	local isKing = K.IsKing
-	K.IsKing = function() return true end
+	-- The Shogun himself: that, and nothing of where.
+	local K = viewer.ns.Shogun
+	local isShogun = K.IsShogun
+	K.IsShogun = function() return true end
 	p = assert(Do(w, viewer, a, "GetLeaderPresence"))
 	eq(Keys(p), "isYou,name,online")
-	K.IsKing = isKing
+	K.IsShogun = isShogun
 
 	-- A fresh copy each call.
 	p = assert(Do(w, viewer, a, "GetLeaderPresence"))
@@ -1564,7 +1564,7 @@ test("1.2.5 the API LEADER_CHANGED: once per real change, after a burst settles,
 	viewer.mapID = 1453
 	local O, C = viewer.BankaiGuildAPI, viewer.Consent
 	local host = LeaderHost(viewer)
-	host.king = { name = "The Crown", realm = viewer.ns.realm }
+	host.shogun = { name = "The Crown", realm = viewer.ns.realm }
 	Install(viewer, "MapPins", "Map Pins")
 	Install(viewer, "BountyBoard", "Bounty Board")
 	local a = w:As(viewer, O.Register, "MapPins")
@@ -1578,7 +1578,7 @@ test("1.2.5 the API LEADER_CHANGED: once per real change, after a burst settles,
 	eq(#told, 0, "nothing changed since the Yes: nothing told")
 
 	-- His crown goes up: once, with what GetLeaderPresence returns.
-	Crown(w, cast.king, 0.42, 0.51)
+	Crown(w, cast.shogun, 0.42, 0.51)
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, 1); eq(told[1].position.x, 420)
 	local now = Do(w, viewer, a, "GetLeaderPresence")
@@ -1586,8 +1586,8 @@ test("1.2.5 the API LEADER_CHANGED: once per real change, after a burst settles,
 	eq(#toldB, 0, "never for an addon without a Yes")
 
 	-- A burst of events with nothing new in his lines: nothing.
-	w:As(cast.king, cast.king.ns.King.ToggleLocation)
-	eq(cast.king.db.throneLocation, false)
+	w:As(cast.shogun, cast.shogun.ns.Shogun.ToggleLocation)
+	eq(cast.shogun.db.throneLocation, false)
 	w:Run(1)
 	local count = #told
 	w:Run(API.DISPATCH_DELAY)
@@ -1600,8 +1600,8 @@ test("1.2.5 the API LEADER_CHANGED: once per real change, after a burst settles,
 	eq(#told, count + 1, "no change: no call")
 
 	-- His layer announced: a burst of two announcements, one call.
-	host.king.mapID, host.king.zoneUID = 1453, 9
-	host.layers[1453] = { { zoneUID = 9, count = 1, head = { name = "Crown Bearer", rank = 0, guild = World.KING_GUILD }, mine = false } }
+	host.shogun.mapID, host.shogun.zoneUID = 1453, 9
+	host.layers[1453] = { { zoneUID = 9, count = 1, head = { name = "Crown Bearer", rank = 0, guild = World.SHOGUN_GUILD }, mine = false } }
 	w:As(viewer, function() viewer.ns.Fire("LAYERS_CHANGED") end)
 	host.layers[1453][1].count = 2
 	w:As(viewer, function() viewer.ns.Fire("LAYERS_CHANGED") end)
@@ -1610,12 +1610,12 @@ test("1.2.5 the API LEADER_CHANGED: once per real change, after a burst settles,
 	eq(told[#told].layers[1].bankaiguild, 2)
 
 	-- A crown that stops coming leaves the map with no event of its own: told when it expires.
-	local K = viewer.ns.King
+	local K = viewer.ns.Shogun
 	local location = K.Location
 	local seenAt = w:As(viewer, viewer.ns.Now)
 	local shared = { mapID = 1453, x = 0.3, y = 0.6, t = seenAt }
 	K.Location = function() if viewer.ns.Now() - shared.t > K.LOCATION_EXPIRE then return nil end return shared end
-	w:As(viewer, function() viewer.ns.Fire("KING_LOCATION_CHANGED", "show") end)
+	w:As(viewer, function() viewer.ns.Fire("SHOGUN_LOCATION_CHANGED", "show") end)
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, count + 3); eq(told[#told].position.x, 300)
 	w:Run(K.LOCATION_EXPIRE + 2)
@@ -1627,7 +1627,7 @@ test("1.2.5 the API LEADER_CHANGED: once per real change, after a burst settles,
 
 	-- After a No: nothing more.
 	w:As(viewer, C.Choose, "api:mappins", false)
-	host.king = nil
+	host.shogun = nil
 	w:As(viewer, function() viewer.ns.Fire("DATA_CHANGED") end)
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, count + 4)
@@ -1646,7 +1646,7 @@ test("1.2.5.1 the API reserved features: an addon that is not authorized gets \"
 	local sightings = SightingHost(viewer)
 	local leader = LeaderHost(viewer)
 	local profile = ProfileEffectsHost(viewer)
-	leader.king = { name = "The Crown", realm = viewer.ns.realm }
+	leader.shogun = { name = "The Crown", realm = viewer.ns.realm }
 	eq(w:As(viewer, O.Has, "leader"), true, "Has still says what this build has")
 	eq(w:As(viewer, O.Has, "network.sightings"), true)
 	eq(w:As(viewer, O.Has, "presence.quiet"), true)
@@ -1718,7 +1718,7 @@ test("1.2.5.1 the API reserved features: an addon that is not authorized gets \"
 	eq(#sightings.starts, 1)
 	eq(type(Do(w, viewer, partner, "GetPlayerSearch", state.id)), "table")
 	eq(select(2, Do(w, viewer, crier, "GetPlayerSearch", state.id)), "unauthorized", "never another addon's search")
-	Crown(w, cast.king, 0.42, 0.51)
+	Crown(w, cast.shogun, 0.42, 0.51)
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, 1, "the partner is told")
 	-- Its quiet presence and profile presentation pass the list and meet their own rules: the
@@ -1737,7 +1737,7 @@ test("1.2.5.1 the API reserved features: an addon that is not authorized gets \"
 
 	-- Taken off the list during the session: its callbacks stop and its reads say "unauthorized".
 	API.AUTHORIZED[w:As(viewer, API.AuthorizedKey, "MapPins")] = nil
-	Crown(w, cast.king, 0.30, 0.40)
+	Crown(w, cast.shogun, 0.30, 0.40)
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, 1, "no LEADER_CHANGED once it is not authorized")
 	eq(select(2, Do(w, viewer, partner, "GetLeaderPresence")), "unauthorized")
@@ -2279,7 +2279,7 @@ test("1.2.4 the API: a granted addon gets copies of exactly what the pages show:
 	eq(page[1].name, rows[1].name); eq(page[1].current, rows[1].bounty)
 	-- Rankings: every kind; the Slayers' month and all time, as the tab's boards.
 	local r = Do(w, viewer, api, "GetRankings")
-	-- (Review of 1.2.4: no donors while the King keeps the Treasury's ranking from the army, the
+	-- (Review of 1.2.4: no donors while the Shogun keeps the Treasury's ranking from the army, the
 	-- default; this test asked for them at once before.)
 	eq(Keys(r), "games,slayers")
 	eq(Keys(r.slayers), "all,month")
@@ -2288,7 +2288,7 @@ test("1.2.4 the API: a granted addon gets copies of exactly what the pages show:
 	eq(#r.slayers.all, 2); eq(r.slayers.all[2].name, N.fighterB); eq(r.slayers.all[2].place, 2)
 	eq(r.slayers.signed, nil, "no signed top three held")
 	eq(r.donors, nil, "the Treasury's ranking kept from the army: no donors (below once shown)")
-	-- The games: none the King kept to the staff.
+	-- The games: none the Shogun kept to the staff.
 	eq(Keys(r.games), "")
 	eq(Do(w, viewer, api, "GetRankings", "games").lottery, nil)
 	-- The Church's top three while its public ranking is open (ChurchCount.Top3), nothing else of it.
@@ -2302,8 +2302,8 @@ test("1.2.4 the API: a granted addon gets copies of exactly what the pages show:
 	eq(select(2, Do(w, viewer, api, "GetRankings", "census")), "kind")
 	-- Lottery history is private even with a prior public ranking word.
 	viewer.db.lotteryWinners = { L = { e1 = { at = w.clock - 3600, rows = { { name = N.bettor3, beast = 7, amount = 25000 } } } } }
-	eq(W3.M(w, cast.king, "ArenaHome").SetRankingsPublic(true, "lottery"), false)
-	assert(W3.M(w, cast.king, "ArenaRoles").Publish("lottery", true)) -- an older client's word
+	eq(W3.M(w, cast.shogun, "ArenaHome").SetRankingsPublic(true, "lottery"), false)
+	assert(W3.M(w, cast.shogun, "ArenaRoles").Publish("lottery", true)) -- an older client's word
 	w:Run(1)
 	eq(w:As(viewer, viewer.ns.ArenaHome.RankingsPublic, "lottery"), false, "never a public Lottery ranking")
 	local games = Do(w, viewer, api, "GetRankings", "games")
@@ -2319,13 +2319,13 @@ test("1.2.4 the API: a granted addon gets copies of exactly what the pages show:
 	p = Do(w, viewer, api, "GetProfile")
 	eq(p.frame, "donor-top-3"); eq(p.title, w:As(viewer, viewer.ns.HonorsNet.TitleText, "donor-top-3"))
 	assert(type(p.title) == "string" and p.title ~= "", "the title's words")
-	-- The King's own: his role.
-	LoadAPI(w, cast.king, false)
-	Install(cast.king, "MapPins", "Map Pins")
-	local kapi = w:As(cast.king, cast.king.BankaiGuildAPI.Register, "MapPins")
-	w:As(cast.king, cast.king.Consent.Choose, "api:mappins", true)
-	eq(Do(w, cast.king, kapi, "GetProfile").role, "king")
-	eq(Do(w, cast.king, kapi, "GetProfile").rankIndex, 0)
+	-- The Shogun's own: his role.
+	LoadAPI(w, cast.shogun, false)
+	Install(cast.shogun, "MapPins", "Map Pins")
+	local kapi = w:As(cast.shogun, cast.shogun.BankaiGuildAPI.Register, "MapPins")
+	w:As(cast.shogun, cast.shogun.Consent.Choose, "api:mappins", true)
+	eq(Do(w, cast.shogun, kapi, "GetProfile").role, "shogun")
+	eq(Do(w, cast.shogun, kapi, "GetProfile").rankIndex, 0)
 	-- Outside an Bankai Guild guild: that he is in none, and nothing else.
 	viewer.guild = nil
 	p = Do(w, viewer, api, "GetProfile")
@@ -2334,9 +2334,9 @@ test("1.2.4 the API: a granted addon gets copies of exactly what the pages show:
 	eq(none, nil); eq(why, "guild")
 	eq(select(2, Do(w, viewer, api, "GetRankings")), "guild")
 	viewer.guild = World.GUILD
-	-- The donors' top three once the King shows the army the Treasury's ranking: the names the
+	-- The donors' top three once the Shogun shows the army the Treasury's ranking: the names the
 	-- Treasurer's word gave every client (this world wears every family's frame: the month's too).
-	W3.M(w, cast.king, "Treasury").SetFlag("ranking", true)
+	W3.M(w, cast.shogun, "Treasury").SetFlag("ranking", true)
 	w:Run(1)
 	r = Do(w, viewer, api, "GetRankings")
 	eq(Keys(r), "donors,games,slayers")
@@ -2389,8 +2389,8 @@ test("1.2.4 the API: every table is the addon's own copy: changing it changes no
 	local b = w:As(viewer, O.Register, "BountyBoard")
 	w:As(viewer, C.Choose, "api:mappins", true)
 	w:As(viewer, C.Choose, "api:bountyboard", true)
-	-- (The donors come only while the King shows the army the Treasury's ranking: review of 1.2.4.)
-	W3.M(w, cast.king, "Treasury").SetFlag("ranking", true)
+	-- (The donors come only while the Shogun shows the army the Treasury's ranking: review of 1.2.4.)
+	W3.M(w, cast.shogun, "Treasury").SetFlag("ranking", true)
 	w:Run(1)
 	local rows = Do(w, viewer, a, "GetWanted")
 	rows[1].bounty, rows[1].name, rows[1].guid = 99999, "Someone Else", "Player-1-00000001"
@@ -2400,7 +2400,7 @@ test("1.2.4 the API: every table is the addon's own copy: changing it changes no
 	table.remove(r.slayers.all, 2)
 	r.donors.all[1] = "Mallory"
 	local p = Do(w, viewer, a, "GetProfile")
-	p.guild, p.role, p.frame = "Other", "king", "donor-top-1"
+	p.guild, p.role, p.frame = "Other", "shogun", "donor-top-1"
 	-- Bankai Guild's own: as before.
 	local t = viewer.rdb.wanted.targets["g:" .. HORDE.guid]
 	eq(t.current, 42); eq(t.name, HORDE.name); eq(t.guid, HORDE.guid)
@@ -2563,7 +2563,7 @@ test("1.2.4 the API: no secret ever comes back: not the realm key nor the sealed
 	assert(type(seed) == "string" and #seed > 8, "the account's key")
 	rawset(viewer.ns, "ChurchCount", { Top3 = function() return { at = w.clock, by = SECRET.by, apostles = { N.bettor2 }, missionaries = { N.bettor3 } } end })
 	viewer.db.lotteryWinners = { L = { e1 = { at = w.clock - 3600, rows = { { name = N.bettor3, beast = 7, amount = 25000, sig = SECRET.source } } } } }
-	for _, game in ipairs({ "arena", "bones", "lottery" }) do W3.M(w, cast.king, "ArenaHome").SetRankingsPublic(true, game) end
+	for _, game in ipairs({ "arena", "bones", "lottery" }) do W3.M(w, cast.shogun, "ArenaHome").SetRankingsPublic(true, game) end
 	w:Run(1)
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
@@ -2606,7 +2606,7 @@ test("1.2.4 the API: read-only by its source: no send, no message, no window, no
 	local toc, at, n = Read(H.ADDON_DIR .. "BankaiGuild.toc"), {}, 0
 	for line in toc:gmatch("[^\r\n]+") do n = n + 1; at[line] = n end
 	assert(at["API.lua"], "API.lua in the TOC")
-	for _, f in ipairs({ "Consent.lua", "Wanted.lua", "Roster.lua", "King.lua" }) do assert(at[f] < at["API.lua"], "after " .. f) end
+	for _, f in ipairs({ "Consent.lua", "Wanted.lua", "Roster.lua", "Shogun.lua" }) do assert(at[f] < at["API.lua"], "after " .. f) end
 	assert(at["API.lua"] < at["ArenaMath.lua"], "a core file, before the Arena's load tail")
 	assert(at["Locales\\APIText.lua"] and at["Locales\\APIText.lua"] < at["Core.lua"], "its words with the other locales")
 	-- An idle client with the API loaded: no event, timer or frame of its own.
@@ -2638,20 +2638,20 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 	do
 		local k = "API_CONSENT_TEXT_BASIC"
 		local basic = assert(src:match("\nL%." .. k .. ' = "(.-)"\n'), k)
-		for _, word in ipairs({ "what Bankai Guild shows you", "Never your location or the King's", "Authorize all", "Keep current choices",
+		for _, word in ipairs({ "what Bankai Guild shows you", "Never your location or the Shogun's", "Authorize all", "Keep current choices",
 			"addons you trust", "No, Keep current choices, or no answer: it receives nothing." }) do
 			assert(basic:find(word, 1, true), k .. " says: " .. word)
 		end
-		for _, word in ipairs({ "King's presence", "search", "crown", " layer", "presentation", "caption", "issuer",
+		for _, word in ipairs({ "Shogun's presence", "search", "crown", " layer", "presentation", "caption", "issuer",
 			"quiet presence", "High Councillor" }) do
 			eq(basic:find(word, 1, true), nil, k .. " never offers: " .. word)
 		end
 		local ptBasic = assert(tail:match("\n\tL%." .. k .. ' = "(.-)"\n'), k .. " (pt-BR)")
-		for _, word in ipairs({ "Nunca a sua localização nem a do Rei", "Autorizar tudo", "Manter escolhas atuais",
+		for _, word in ipairs({ "Nunca a sua localização nem a do Xogum", "Autorizar tudo", "Manter escolhas atuais",
 			"Não, Manter escolhas atuais ou sem resposta: ele não recebe nada." }) do
 			assert(ptBasic:find(word, 1, true), k .. " (pt-BR) says: " .. word)
 		end
-		for _, word in ipairs({ "presença do Rei", "busca", "coroa", "camada", "apresentação", "legenda", "emissor",
+		for _, word in ipairs({ "presença do Xogum", "busca", "coroa", "camada", "apresentação", "legenda", "emissor",
 			"presença silenciosa", "Alto Conselho" }) do
 			eq(ptBasic:find(word, 1, true), nil, k .. " (pt-BR) never offers: " .. word)
 		end
@@ -2824,16 +2824,16 @@ local function NoName(v, names, what)
 end
 
 -- (Review of 1.2.4) GetRankings gave the donors' top three of the month and of all time whatever
--- the King's switch: while he keeps the Treasury's ranking from the army (the default) no page
+-- the Shogun's switch: while he keeps the Treasury's ranking from the army (the default) no page
 -- lists them. (1.2.4, after the borders lane: the month's koi is worn, so its three come too while
 -- the ranking shows; a build without the koi gives none.) In a world as the release ships it (its frames,
 -- Honors.FRAMES_SHIPPED), without the Wanted boards (so every name in a return is a donor's).
-test("1.2.4 the API: the donors' top three only while the King shows the army the Treasury's ranking, never by the staff's view; the month's only in a build that wears its koi (1.2.4 does)", function()
+test("1.2.4 the API: the donors' top three only while the Shogun shows the army the Treasury's ranking, never by the staff's view; the month's only in a build that wears its koi (1.2.4 does)", function()
 	local w, cast, viewer, API = Setup({ wanted = false, world = { compliance = "shipped" } })
 	local O, C = viewer.BankaiGuildAPI, viewer.Consent
 	eq(w:As(viewer, viewer.ns.Honors.FrameShipped, { family = "donor-month" }), true, "1.2.4 wears the koi")
 	eq(w:As(viewer, viewer.ns.Honors.FrameShipped, { family = "donor-top" }), true)
-	eq(w:As(viewer, viewer.ns.Treasury.PublicShows, "ranking"), false, "the King's switch: off until he turns it")
+	eq(w:As(viewer, viewer.ns.Treasury.PublicShows, "ranking"), false, "the Shogun's switch: off until he turns it")
 	local word = w:As(viewer, viewer.ns.HonorsNet.Donors)
 	eq(#word.all, 3, "the Treasurer's word reached this client")
 	local names = {}
@@ -2845,7 +2845,7 @@ test("1.2.4 the API: the donors' top three only while the King shows the army th
 	local told = {}
 	eq(Do(w, viewer, api, "On", "RANKINGS_CHANGED", function(_, r) told[#told + 1] = r end), true)
 	-- (The world settles first: the honours' first look and the words of the login are told, so the
-	-- King's switch is the only change below.)
+	-- Shogun's switch is the only change below.)
 	w:Run(60)
 	local base = #told
 	-- Off: no donor's name comes back, by kind or with every ranking.
@@ -2855,20 +2855,20 @@ test("1.2.4 the API: the donors' top three only while the King shows the army th
 	eq(r.donors, nil)
 	NoName(r, names, "every ranking")
 	for _, t in ipairs(told) do NoName(t, names, "a callback") end
-	-- The King sees the ranking on his own Treasury tab: his addon gets no more (never a staff view).
-	LoadAPI(w, cast.king, false)
-	Install(cast.king, "MapPins", "Map Pins")
-	local kapi = w:As(cast.king, cast.king.BankaiGuildAPI.Register, "MapPins")
-	w:As(cast.king, cast.king.Consent.Choose, "api:mappins", true)
-	eq(w:As(cast.king, cast.king.ns.Treasury.MaySee, "ranking"), true, "his tab shows it")
-	eq(Do(w, cast.king, kapi, "GetRankings", "donors"), nil, "his addon: no donors either")
-	NoName(Do(w, cast.king, kapi, "GetRankings"), names, "the King's addon")
+	-- The Shogun sees the ranking on his own Treasury tab: his addon gets no more (never a staff view).
+	LoadAPI(w, cast.shogun, false)
+	Install(cast.shogun, "MapPins", "Map Pins")
+	local kapi = w:As(cast.shogun, cast.shogun.BankaiGuildAPI.Register, "MapPins")
+	w:As(cast.shogun, cast.shogun.Consent.Choose, "api:mappins", true)
+	eq(w:As(cast.shogun, cast.shogun.ns.Treasury.MaySee, "ranking"), true, "his tab shows it")
+	eq(Do(w, cast.shogun, kapi, "GetRankings", "donors"), nil, "his addon: no donors either")
+	NoName(Do(w, cast.shogun, kapi, "GetRankings"), names, "the Shogun's addon")
 	w:Run(60)
 	eq(#told, base, "nothing changed")
 	-- He shows the army the ranking: the all-time three, which head it, and the month's (its koi worn).
-	W3.M(w, cast.king, "Treasury").SetFlag("ranking", true)
+	W3.M(w, cast.shogun, "Treasury").SetFlag("ranking", true)
 	w:Run(1)
-	eq(w:As(viewer, viewer.ns.Treasury.PublicShows, "ranking"), true, "every client heard the King")
+	eq(w:As(viewer, viewer.ns.Treasury.PublicShows, "ranking"), true, "every client heard the Shogun")
 	d = Do(w, viewer, api, "GetRankings", "donors")
 	eq(Keys(d), "all,month", "the month's too: its koi is worn")
 	eq(table.concat(d.month, ","), table.concat(word.month or {}, ","))
@@ -2879,14 +2879,14 @@ test("1.2.4 the API: the donors' top three only while the King shows the army th
 	eq(#told, base + 1, "told of the switch"); eq(table.concat(told[base + 1].donors.all, ","), table.concat(word.all, ","))
 	w:Run(60)
 	eq(#told, base + 1, "nothing else")
-	W3.M(w, cast.king, "Treasury").SetFlag("ranking", false)
+	W3.M(w, cast.shogun, "Treasury").SetFlag("ranking", false)
 	w:Run(1)
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, base + 2, "told of it turning back"); eq(told[base + 2].donors, nil)
 	NoName(told[base + 2], names, "the callback")
 	eq(Do(w, viewer, api, "GetRankings", "donors"), nil)
 	-- A build that does not wear the month's koi gives the all-time three alone.
-	W3.M(w, cast.king, "Treasury").SetFlag("ranking", true)
+	W3.M(w, cast.shogun, "Treasury").SetFlag("ranking", true)
 	w:Run(1)
 	viewer.ns.Honors.FRAMES_SHIPPED = { ["donor-top"] = true }
 	d = Do(w, viewer, api, "GetRankings", "donors")

@@ -1,71 +1,71 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- The Throne: a tab for the King alone (the guild master of the guild named exactly
+-- The Throne: a tab for the Shogun alone (the guild master of the guild named exactly
 -- "Bankai Guild" of his faction, and that very character where the addon knows him by name,
--- ns.KING_CHARACTER), and for the Hands he names. What he sends goes out on the Bankai Guild
+-- ns.SHOGUN_CHARACTER), and for the Hands he names. What he sends goes out on the Bankai Guild
 -- channel as T1 messages, and every client checks that the sender really is him (his name,
 -- which the server sets: never a census vote, which anyone on the channel can cast), or one
 -- of his Hands for the tools he lends them (HAND_MAY). Answers go back to whoever asked,
 -- alone (T2, T3 as whispered addon messages).
---   T1~S~<id>~<guild>                      Summon the Lords (roll call)
+--   T1~S~<id>~<guild>                      Summon the Council (roll call)
 --   T1~I~<id>~<guild>                      Royal Inspection: every addon patrols 2 minutes
---   T1~A~<id>~<guild>~<minutes>~<zone>~<title>   The King's Agenda (resent every 5 min)
+--   T1~A~<id>~<guild>~<minutes>~<zone>~<title>   The Shogun's Agenda (resent every 5 min)
 --   T1~X~<id>~<guild>                      Agenda cancelled
---   T1~H~<id>~<guild>~<Name-Realm,...>     the Hands of the King (his alone; resent every 5 min)
+--   T1~H~<id>~<guild>~<Name-Realm,...>     the Hands of the Shogun (his alone; resent every 5 min)
 --   T1~N~<id>~<guild>~<Name-Realm,...>     a Steward's own Hands (1.0.0: his alone; resent every 5 min)
---   T2~<id>~<P|B>~<guild>                  a Lord's answer to the roll call
+--   T2~<id>~<P|B>~<guild>                  a Council member's answer to the roll call
 --   T3~<id>~<guild>~<ok>~<none>~<other>~<name:guild,...>   an inspection report
--- Other modules add their own kinds (King.Register): Vox Populi (V, E), writs (W), the court
+-- Other modules add their own kinds (Shogun.Register): Vox Populi (V, E), writs (W), the court
 -- (C, Z), the gates (G), pardons (F), the treasury's switches and keepers (T, K: his and his
--- Steward's), the King's week and its signup sheet (D, R, 1.1: Week.lua), the dues' weekly
+-- Steward's), the Shogun's week and its signup sheet (D, R, 1.1: Week.lua), the dues' weekly
 -- amount (Y, 1.1: his and his Steward's, Dues.lua).
--- The King's Steward (1.0.0, ns.IsSteward: the character the author marks in the signed titles
--- list) has the Throne as the King has it, "acting for the King": he names and removes Hands of
--- his own beside the King's, the treasury's keepers and its switches, and uses every tool of a
--- Hand (STEWARD_MAY). Never the King's own list of Hands, his crown on the map and his layer, the
--- court, writs, pardons, the untabarded list, or the King's own book of the treasury and his yes
+-- The Shogun's Steward (1.0.0, ns.IsSteward: the character the author marks in the signed titles
+-- list) has the Throne as the Shogun has it, "acting for the Shogun": he names and removes Hands of
+-- his own beside the Shogun's, the treasury's keepers and its switches, and uses every tool of a
+-- Hand (STEWARD_MAY). Never the Shogun's own list of Hands, his crown on the map and his layer, the
+-- court, writs, pardons, the untabarded list, or the Shogun's own book of the treasury and his yes
 -- to share it.
 
-local King = {}
-ns.King = King
+local Shogun = {}
+ns.Shogun = Shogun
 
-King.SUMMON_OPEN = 60        -- the popup stays this long
-King.SUMMON_GAP = 60         -- one roll call a minute at most (sent or accepted)
-King.INSPECT_TIME = 120      -- each addon patrols this long
-King.INSPECT_GAP = 1800      -- one Royal Inspection every 30 minutes at most (0.9.2), whoever calls it
+Shogun.SUMMON_OPEN = 60        -- the popup stays this long
+Shogun.SUMMON_GAP = 60         -- one roll call a minute at most (sent or accepted)
+Shogun.INSPECT_TIME = 120      -- each addon patrols this long
+Shogun.INSPECT_GAP = 1800      -- one Royal Inspection every 30 minutes at most (0.9.2), whoever calls it
 -- The realm's share of the load (0.9.2). An inspect is one request to the server for a player
 -- in reach. Budget: INSPECT_BUDGET requests a second across the whole realm. A client on the
 -- inspection sends one every INSPECT_PACE seconds at most, so INSPECT_BUDGET * INSPECT_PACE =
 -- 100 clients can take part at once; with N addons online (the census counts them) each one
 -- takes part with probability 100 / N (all of them while there are 100 or fewer). 3,000 online:
 -- 1 in 30, about 20 requests a second for 2 minutes, then nothing for at least 30 minutes.
-King.INSPECT_BUDGET = 20
-King.INSPECT_PACE = 5
-King.AGENDA_RESEND = 300     -- the King's client repeats the agenda for late logins
-King.MAX_NAMES = 6           -- violators per inspection report (message size)
-King.AGENDA_GAP = 60         -- one new agenda a minute at most (each one is a raid warning)
-King.MAX_ANSWERS = 150       -- roll-call answers kept
-King.MAX_REPORTS = 150       -- inspection reports kept
-King.MAX_CHECKS = 60         -- checks one patrol can report in 2 minutes
-King.MAX_SHOWN = 30          -- violators listed on the page
+Shogun.INSPECT_BUDGET = 20
+Shogun.INSPECT_PACE = 5
+Shogun.AGENDA_RESEND = 300     -- the Shogun's client repeats the agenda for late logins
+Shogun.MAX_NAMES = 6           -- violators per inspection report (message size)
+Shogun.AGENDA_GAP = 60         -- one new agenda a minute at most (each one is a raid warning)
+Shogun.MAX_ANSWERS = 150       -- roll-call answers kept
+Shogun.MAX_REPORTS = 150       -- inspection reports kept
+Shogun.MAX_CHECKS = 60         -- checks one patrol can report in 2 minutes
+Shogun.MAX_SHOWN = 30          -- violators listed on the page
 
-King.MAX_HANDS = 40          -- Hands of the King (the list goes out in pieces when long)
-King.HANDS_EVERY = 300       -- the King's client repeats the list for late logins
+Shogun.MAX_HANDS = 40          -- Hands of the Shogun (the list goes out in pieces when long)
+Shogun.HANDS_EVERY = 300       -- the Shogun's client repeats the list for late logins
 -- (1.2.4, the author's ask: lists of people are not erased; provisional, his to confirm) A list the
--- King (or a Steward) gave stands until his newer one, kept in the saved data across a /reload:
+-- Shogun (or a Steward) gave stands until his newer one, kept in the saved data across a /reload:
 -- before, it ended this long after his client stopped repeating it (he logged out), so his Hands
 -- lost the Throne's tools on every client 20 minutes after he left. Kept for the older builds' word.
-King.HANDS_FRESH = 20 * 60
+Shogun.HANDS_FRESH = 20 * 60
 
-King.mode = nil              -- what the tab shows: home or hands (nil: home, the Throne Room)
-local summon, inspect        -- the King's own roll call / inspection in progress
+Shogun.mode = nil              -- what the tab shows: home or hands (nil: home, the Throne Room)
+local summon, inspect        -- the Shogun's own roll call / inspection in progress
 local agenda                 -- the agenda everyone sees: { id, title, at, zone, by }
 local lastSummonSeen, lastInspectSeen, inspecting = -math.huge, -math.huge, nil
 local lastSummonSent, lastInspectSent = -math.huge, -math.huge
 local lastAgendaSent, lastAgendaWarn = -math.huge, -math.huge
 
--- Text other players send that ends up on the King's screen (on stream): only what looks
+-- Text other players send that ends up on the Shogun's screen (on stream): only what looks
 -- like a character name ("Pyralis Ashandar") or an Bankai Guild guild name, nothing else.
 local function CleanName(s)
 	s = tostring(s or ""):gsub("%-.*$", "")
@@ -78,7 +78,7 @@ local function CleanGuild(s)
 	return s
 end
 
--- Someone we can place: our own guild (the server's roster) or a Lord or Captain. Before signed
+-- Someone we can place: our own guild (the server's roster) or a Council member or Captain. Before signed
 -- enforcement this keeps the old roster/census decision exactly; afterwards a local roster role
 -- is valid only for its actual guild and each cross-guild role comes from the manifest.
 local function Verified(sender, guild)
@@ -92,73 +92,73 @@ end
 -- Who
 ---------------------------------------------------------------------------
 
--- Where the King is pinned by name, another guild master of his guild is not him: nobody
+-- Where the Shogun is pinned by name, another guild master of his guild is not him: nobody
 -- would obey the powers the Throne gave that character.
-function King.IsKing()
+function Shogun.IsShogun()
 	if not ns.IsMember() then return false end
 	local guild, _, rank = GetGuildInfo("player")
-	if not (ns.IsKingGuild(guild) and rank == 0) then return false end
-	return ns.KingCharacter() == nil or ns.IsKingCharacter(ns.me)
+	if not (ns.IsShogunGuild(guild) and rank == 0) then return false end
+	return ns.ShogunCharacter() == nil or ns.IsShogunCharacter(ns.me)
 end
 
 -- The author's test build (Dev.lua, never published) shows the tab without the powers:
 -- nothing it does reaches anyone. The author turns this "Shobek's view" on and off from the
--- Workshop (ns.db.devKingView).
-function King.Preview()
-	if King.IsKing() then return false end
-	if ns.ViewAs and ns.ViewAs.Is and ns.ViewAs.Is("king") then return true end
+-- Workshop (ns.db.devShogunView).
+function Shogun.Preview()
+	if Shogun.IsShogun() then return false end
+	if ns.ViewAs and ns.ViewAs.Is and ns.ViewAs.Is("shogun") then return true end
 	if ns.ViewAs and ns.ViewAs.Previewing and ns.ViewAs.Previewing() then return false end
-	local view = ns.db and ns.db.devKingView
+	local view = ns.db and ns.db.devShogunView
 	if view ~= nil and ns.Workshop and ns.Workshop.Visible and ns.Workshop.Visible() then return view == true end
 	local dev = ns.devThrone
 	if type(dev) == "table" then dev = dev[UnitName and UnitName("player") or ""] == true or dev[ns.ShortName(ns.me or "")] == true end
-	return dev == true and not King.IsKing()
+	return dev == true and not Shogun.IsShogun()
 end
-function King.Visible() return King.IsKing() or King.IsSteward() or King.IsHand() or King.Preview() end
+function Shogun.Visible() return Shogun.IsShogun() or Shogun.IsSteward() or Shogun.IsHand() or Shogun.Preview() end
 
--- 1.1.5 (the author's call): the tab in the Throne's place is the Throne for the King's people
--- (the King, his Steward, his Hands, the King preview, and the High Council: 1.2.4, the King's
+-- 1.1.5 (the author's call): the tab in the Throne's place is the Throne for the Shogun's people
+-- (the Shogun, his Steward, his Hands, the Shogun preview, and the High Council: 1.2.4, the Shogun's
 -- centurions, Nominees.lua), and a guild master's Guild tab for the guild master of
 -- another Bankai Guild guild (his centurions and correspondents). Under the author's guild master's
 -- view (Nominees.DevView), the Guild tab alone: it shows what a guild master sees.
-function King.ThroneShown()
+function Shogun.ThroneShown()
 	local N = ns.Nominees
 	if N and N.DevView and N.DevView() then return false end
 	-- (1.2: the author's High Council preview, ViewAs.lua, is the council's Throne Room, as Shobek's
-	-- view is the King's through King.Preview.)
+	-- view is the Shogun's through Shogun.Preview.)
 	local V = ns.ViewAs
 	if type(V) == "table" and type(V.Is) == "function" and V.Is("councillor") then return true end
-	return King.Visible() or (ns.IsMember() == true and ns.IsHighCouncillor(ns.me) == true)
+	return Shogun.Visible() or (ns.IsMember() == true and ns.IsHighCouncillor(ns.me) == true)
 end
-function King.GuildShown()
+function Shogun.GuildShown()
 	local N = ns.Nominees
 	if N and not N.missing and N.GuildAccess then return N.GuildAccess() == true end
 	return N ~= nil and not N.missing and N.IsMaster ~= nil and N.IsMaster() == true
 end
-function King.TabVisible() return King.ThroneShown() or King.GuildShown() end
+function Shogun.TabVisible() return Shogun.ThroneShown() or Shogun.GuildShown() end
 -- The tab's name (a locale key): the Throne's, or the Guild tab's (UI.lua relabels it).
-function King.TabLabel() return (King.ThroneShown() or not King.GuildShown()) and "TAB_THRONE" or "TAB_GUILD" end
+function Shogun.TabLabel() return (Shogun.ThroneShown() or not Shogun.GuildShown()) and "TAB_THRONE" or "TAB_GUILD" end
 
--- The King's Steward (1.0.0): this character, where the signed titles list marks it for our
--- King (ns.IsSteward), and not the King himself.
-function King.IsSteward() return not King.IsKing() and ns.IsSteward(ns.me) end
+-- The Shogun's Steward (1.0.0): this character, where the signed titles list marks it for our
+-- Shogun (ns.IsSteward), and not the Shogun himself.
+function Shogun.IsSteward() return not Shogun.IsShogun() and ns.IsSteward(ns.me) end
 -- A sender the list marks (the server sets the name): his word counts for what STEWARD_MAY lends.
-function King.IsStewardName(name) return type(name) == "string" and not ns.IsKingCharacter(name) and ns.IsSteward(name) end
+function Shogun.IsStewardName(name) return type(name) == "string" and not ns.IsShogunCharacter(name) and ns.IsSteward(name) end
 
--- The King himself, or his Steward: the lists of the Throne are theirs to set (each his own list
+-- The Shogun himself, or his Steward: the lists of the Throne are theirs to set (each his own list
 -- of Hands; the treasury's keepers and switches), and their clients repeat them.
-function King.SetsLists() return King.IsKing() or King.IsSteward() end
+function Shogun.SetsLists() return Shogun.IsShogun() or Shogun.IsSteward() end
 
--- Where the King is pinned by name (ns.KING_CHARACTER): that character alone, speaking for
--- the King's guild. No census vote can crown anyone else, nor silence him. Where he is not
+-- Where the Shogun is pinned by name (ns.SHOGUN_CHARACTER): that character alone, speaking for
+-- the Shogun's guild. No census vote can crown anyone else, nor silence him. Where he is not
 -- (the Horde, until his name is known) nobody's commands are obeyed; soft: what only shows
 -- (his position, his name on the lines) still comes from the census there (Data.KnownRank).
-local function KingSender(sender, guild, soft)
-	if not ns.IsKingGuild(guild) then return false end
-	if ns.KingCharacter() then
-		if not ns.IsKingCharacter(sender) then return false end
-		ns.LearnKingRealm(sender) -- (the Horde's, while unknown: from the server's name)
-		if ns.Hop and ns.Hop.HeardKing then ns.Hop.HeardKing(sender) end -- (his realm: his own word, 1.0.0)
+local function ShogunSender(sender, guild, soft)
+	if not ns.IsShogunGuild(guild) then return false end
+	if ns.ShogunCharacter() then
+		if not ns.IsShogunCharacter(sender) then return false end
+		ns.LearnShogunRealm(sender) -- (the Horde's, while unknown: from the server's name)
+		if ns.Hop and ns.Hop.HeardShogun then ns.Hop.HeardShogun(sender) end -- (his realm: his own word, 1.0.0)
 		return true
 	end
 	return soft == true and ns.Data.KnownRank(sender, guild, true) == 0
@@ -189,55 +189,55 @@ end
 local function NewId() return math.random(1, 99999) end
 
 ---------------------------------------------------------------------------
--- The Hands of the King: the players he names use the Throne's tools in his name (HAND_MAY:
+-- The Hands of the Shogun: the players he names use the Throne's tools in his name (HAND_MAY:
 -- the roll call, the inspection, the agenda, Vox Populi, the gates), never what is his alone
 -- (the Hands, writs, the court, pardons, his position). Each client keeps the list of the
--- King it trusts, as he last sent it (1.2.4: in its saved data, until his newer list, while he is
--- the King; a list he stopped repeating ended after HANDS_FRESH before).
+-- Shogun it trusts, as he last sent it (1.2.4: in its saved data, until his newer list, while he is
+-- the Shogun; a list he stopped repeating ended after HANDS_FRESH before).
 -- 1.0.0: each of his Stewards names Hands too, in a list of his own that only his client sends
 -- (T1~N, STEWARD_MAY; clients before 1.0.0 know no such kind and leave it out):
 --   T1~N~<id>~<guild>~<Name-Realm,...>     a Steward's Hands (his alone; resent every 5 min)
--- The Hands are the King's list and every Steward's together, each list its owner's alone:
--- nobody changes anyone else's. The King's list is the same message as before 1.0.0, from his
+-- The Hands are the Shogun's list and every Steward's together, each list its owner's alone:
+-- nobody changes anyone else's. The Shogun's list is the same message as before 1.0.0, from his
 -- client alone. Each client keeps the list it last heard from each Steward (by his name, which
 -- the server stamps) until his newer list (1.2.4; it ended HANDS_FRESH after his client stopped
 -- repeating it before), and at once, on every client, when the author's signed titles list no
 -- longer names him (for good: named again,
--- he starts from none, King.StewardsChanged). A Hand's powers are the same whoever named him.
--- The King never removes a Steward's Hand: that Steward does, or the author, by removing him
+-- he starts from none, Shogun.StewardsChanged). A Hand's powers are the same whoever named him.
+-- The Shogun never removes a Steward's Hand: that Steward does, or the author, by removing him
 -- (the Hands page shows the others' lists, to read only).
 ---------------------------------------------------------------------------
 
-King.HAND_MAY = { S = true, I = true, A = true, X = true, V = true, E = true, G = true }
+Shogun.HAND_MAY = { S = true, I = true, A = true, X = true, V = true, E = true, G = true }
 -- The Steward's: everything a Hand may, his own list of Hands (N), and the treasury's switches
--- and keepers (T, K, Treasury.lua), and its dues' amount (Y, 1.1, Dues.lua). Never the King's
+-- and keepers (T, K, Treasury.lua), and its dues' amount (Y, 1.1, Dues.lua). Never the Shogun's
 -- list of Hands (H), his crown on the map (P, Q), the court (C, Z), writs (W), pardons (F) or the
 -- untabarded list (U).
-King.STEWARD_MAY = { S = true, I = true, A = true, X = true, V = true, E = true, G = true, N = true, T = true, K = true, Y = true }
+Shogun.STEWARD_MAY = { S = true, I = true, A = true, X = true, V = true, E = true, G = true, N = true, T = true, K = true, Y = true }
 -- 1.1: the calls to the army a Hand or a Steward sends (popups, raid warnings, windows, the gates'
 -- news): none shows from a name the moderators took off (net-off, Moderation.lua). Their lists (the
--- Hands, the treasury's words) are not calls: they still count. The same for the King's week (1.1,
+-- Hands, the treasury's words) are not calls: they still count. The same for the Shogun's week (1.1,
 -- Konig's review): its entries and their cancels (D), and the signup sheets (R, Week.lua). A client
 -- the moderators took off sends none of them (Moderation.Blocks), but its setter's cancel of his
 -- own entry, which every client takes for that entry alone (1.1 review).
-King.HIDDEN_CALLS = { S = true, I = true, A = true, X = true, V = true, E = true, G = true, D = true, R = true }
+Shogun.HIDDEN_CALLS = { S = true, I = true, A = true, X = true, V = true, E = true, G = true, D = true, R = true }
 -- A word of the treasury (its switches, its keepers: Treasury.lua) dated further ahead of the
 -- server's clock is not taken. A minute: every client reads the same server clock, so a word
 -- dated further ahead comes from a modified client, which would otherwise keep its word over
--- the King's newer one for as long (a review asked for a minute, not ten).
-King.DATE_AHEAD = 60
+-- the Shogun's newer one for as long (a review asked for a minute, not ten).
+Shogun.DATE_AHEAD = 60
 
-local hands = {}         -- [name-realm, lower case] = true, as the King last sent it
+local hands = {}         -- [name-realm, lower case] = true, as the Shogun last sent it
 local handsOrder = {}    -- the same names, in his order (the Hands page)
 local handsAt = -math.huge
-local handsKing          -- who sent that list (the King's name on a Hand's Throne Room)
-local myHands = {}       -- the King's own list, in order: { "Name-Realm", ... } (saved: rdb.kingHands)
+local handsShogun          -- who sent that list (the Shogun's name on a Hand's Throne Room)
+local myHands = {}       -- the Shogun's own list, in order: { "Name-Realm", ... } (saved: rdb.shogunHands)
 local lastHandsSent = -math.huge
 local handsSendPending = false
 -- 1.0.0: each Steward's list as this client last heard it from him:
 -- [his Name-Realm] = { names = { "Name-Realm", ... }, set = { [name-realm, lower case] = true }, at = when }
--- (1.2.4: the King's list heard and each Steward's are kept in the saved data too, rdb.handsHeard =
--- { names, at, king } and rdb.stewardHandsHeard[his Name-Realm] = { names, at }: King.LoadHands.)
+-- (1.2.4: the Shogun's list heard and each Steward's are kept in the saved data too, rdb.handsHeard =
+-- { names, at, shogun } and rdb.stewardHandsHeard[his Name-Realm] = { names, at }: Shogun.LoadHands.)
 local stewardHands = {}
 -- A Steward's own list, on his client, in order (saved: rdb.stewardHands[his Name-Realm]: the
 -- characters of one account on a realm group share what they save).
@@ -248,33 +248,33 @@ local lastStewardSent = -math.huge
 -- list names him). (1.2.4: until his newer list, whether his client still repeats it or not.)
 local function StewardList(steward)
 	local s = stewardHands[steward]
-	if not s or not King.IsStewardName(steward) then return nil end
+	if not s or not Shogun.IsStewardName(steward) then return nil end
 	return s
 end
 
--- On the King's own client his list is the one he keeps (his broadcast never comes back to
+-- On the Shogun's own client his list is the one he keeps (his broadcast never comes back to
 -- him); everyone else trusts the list he last sent, while he keeps sending it. A Steward's
 -- the same (1.0.0): his own on his client, the one he last sent on everyone else's.
--- Whatever the case a name is written in (1.1, Konig's review): the King types a Hand's name as
+-- Whatever the case a name is written in (1.1, Konig's review): the Shogun types a Hand's name as
 -- he likes, and a net-off word's target is free text, while the server spells a sender's name
 -- its own way; they are one character (hands and each Steward's set are kept in lower case).
 local function Named(list, key)
 	for _, n in ipairs(list) do if type(n) == "string" and n:lower() == key then return true end end
 	return false
 end
--- (1.2.4) The King's list as heard here counts while its sender is the King: kept until his
--- newer list, never past his reign (an update naming another King).
-local function HeardKing() return type(handsKing) == "string" and ns.IsKingCharacter(handsKing) end
+-- (1.2.4) The Shogun's list as heard here counts while its sender is the Shogun: kept until his
+-- newer list, never past his reign (an update naming another Shogun).
+local function HeardShogun() return type(handsShogun) == "string" and ns.IsShogunCharacter(handsShogun) end
 local function Hand(name)
 	local full = ns.FullName(name)
 	if type(full) ~= "string" then return false end
 	local key = full:lower()
-	if King.IsKing() then
+	if Shogun.IsShogun() then
 		if Named(myHands, key) then return true end
-	elseif hands[key] == true and HeardKing() then
+	elseif hands[key] == true and HeardShogun() then
 		return true
 	end
-	if King.IsSteward() and Named(myStewardHands, key) then return true end
+	if Shogun.IsSteward() and Named(myStewardHands, key) then return true end
 	for steward in pairs(stewardHands) do
 		local s = StewardList(steward)
 		if s and s.set[key] then return true end
@@ -282,73 +282,73 @@ local function Hand(name)
 	return false
 end
 
-function King.IsHand() return not King.SetsLists() and ns.IsMember() and Hand(ns.me) end
--- 1.2.4 (Bank.lua): the King's list is heard here now (he keeps repeating it), so that IsHand's
+function Shogun.IsHand() return not Shogun.SetsLists() and ns.IsMember() and Hand(ns.me) end
+-- 1.2.4 (Bank.lua): the Shogun's list is heard here now (he keeps repeating it), so that IsHand's
 -- false says this character is no Hand of his, not only that his list is not heard (he left).
-function King.HandsFresh() return King.IsKing() or ns.Now() - handsAt <= King.HANDS_FRESH end
--- Whether the King's list or a Steward's names this sender (1.0.0): their word alone, never a
+function Shogun.HandsFresh() return Shogun.IsShogun() or ns.Now() - handsAt <= Shogun.HANDS_FRESH end
+-- Whether the Shogun's list or a Steward's names this sender (1.0.0): their word alone, never a
 -- census vote. His Hands speak with his Crown for his guild on every client outside it
 -- (Decree.lua, Channels.VerifiedLevel); on its own members' clients its roster says who speaks
 -- for it.
-function King.IsHandName(name) return type(name) == "string" and Hand(name) end
+function Shogun.IsHandName(name) return type(name) == "string" and Hand(name) end
 
--- This client's own list, the one its Hands page changes: the King's; a Steward's own (1.0.0);
--- the author's Shobek's view's, as the King's (sent nowhere).
+-- This client's own list, the one its Hands page changes: the Shogun's; a Steward's own (1.0.0);
+-- the author's Shobek's view's, as the Shogun's (sent nowhere).
 local function Own()
-	if not King.IsKing() and King.IsSteward() then return myStewardHands end
+	if not Shogun.IsShogun() and Shogun.IsSteward() then return myStewardHands end
 	return myHands
 end
-function King.Hands() return Own() end
+function Shogun.Hands() return Own() end
 
--- A Steward's name as the King's screen shows it: cut short while the council's names are hidden
+-- A Steward's name as the Shogun's screen shows it: cut short while the council's names are hidden
 -- there (his stream, ns.CouncilMasked), like every councillor's.
 local function StewardLabel(name)
 	local shown = ns.DisplayName(name) or "?"
 	return ns.CouncilMasked() and ns.MaskName(shown) or shown
 end
-King.StewardLabel = StewardLabel
+Shogun.StewardLabel = StewardLabel
 
--- The others' lists this client's Hands page shows, to read only (1.0.0): the King's (on a
+-- The others' lists this client's Hands page shows, to read only (1.0.0): the Shogun's (on a
 -- Steward's client), then each Steward's but its own, while they count, none empty:
--- { { steward = <Name-Realm, nil for the King's>, names = { ... } }, ... }
-function King.OthersHands()
+-- { { steward = <Name-Realm, nil for the Shogun's>, names = { ... } }, ... }
+function Shogun.OthersHands()
 	local out = {}
-	if not King.IsKing() and #handsOrder > 0 and HeardKing() then
+	if not Shogun.IsShogun() and #handsOrder > 0 and HeardShogun() then
 		out[1] = { names = handsOrder }
 	end
 	local names = {}
 	for steward in pairs(stewardHands) do
 		local s = StewardList(steward)
-		if s and #s.names > 0 and not (King.IsSteward() and steward == ns.FullName(ns.me)) then names[#names + 1] = steward end
+		if s and #s.names > 0 and not (Shogun.IsSteward() and steward == ns.FullName(ns.me)) then names[#names + 1] = steward end
 	end
 	table.sort(names)
 	for _, steward in ipairs(names) do out[#out + 1] = { steward = steward, names = stewardHands[steward].names } end
 	return out
 end
 
--- The King may send it; a Steward what STEWARD_MAY lends him (his own list of Hands among it:
--- never a list of the King's); one of their Hands what is theirs to use too (soft: his
+-- The Shogun may send it; a Steward what STEWARD_MAY lends him (his own list of Hands among it:
+-- never a list of the Shogun's); one of their Hands what is theirs to use too (soft: his
 -- position).
-function King.Authorized(kind, sender, guild)
-	if KingSender(sender, guild, kind == "P" or kind == "Q") then return true end
-	if King.STEWARD_MAY[kind] == true and King.IsStewardName(sender) then return true end
-	return King.HAND_MAY[kind] == true and Hand(sender)
+function Shogun.Authorized(kind, sender, guild)
+	if ShogunSender(sender, guild, kind == "P" or kind == "Q") then return true end
+	if Shogun.STEWARD_MAY[kind] == true and Shogun.IsStewardName(sender) then return true end
+	return Shogun.HAND_MAY[kind] == true and Hand(sender)
 end
 
--- The King, his Steward, or a Hand: the tools of the Throne.
-function King.CanCommand()
-	if King.IsKing() then return true end
+-- The Shogun, his Steward, or a Hand: the tools of the Throne.
+function Shogun.CanCommand()
+	if Shogun.IsShogun() then return true end
 	-- (1.1.6: a sanctioned Steward or Hand has none of the Throne's tools while it lasts.)
 	local WC = ns.WatchChat
 	if WC and not WC.missing and WC.Barred and WC.Barred("powers") then return false end
-	return King.IsSteward() or King.IsHand()
+	return Shogun.IsSteward() or Shogun.IsHand()
 end
 
 -- 1.2.4: the Agenda is Heraldry's. A title or a Crown duty alone grants no posting power.
--- Army: the existing verified King/Steward/Hand roots, the author, or a signed councillor of
+-- Army: the existing verified Shogun/Steward/Hand roots, the author, or a signed councillor of
 -- Heraldry (the old signed name remains readable). Guild: its own live-roster master or his
 -- verified Heraldry correspondent. A guild master alone never gains army authority.
-function King.AgendaAuthorized(name, guild, guildOnly)
+function Shogun.AgendaAuthorized(name, guild, guildOnly)
 	if type(name) ~= "string" or not ns.IsMember() then return false end
 	local WC, M = ns.WatchChat, ns.Moderation
 	if M and M.Hides and M.Hides(name, guild) then return false end
@@ -363,8 +363,8 @@ function King.AgendaAuthorized(name, guild, guildOnly)
 		local N = ns.Nominees
 		return N and not N.missing and N.IsCorrespondent and N.IsCorrespondent(name, guild, "Department of Heraldry") == true or false
 	end
-	if ns.IsKingCharacter(name) then return true end
-	if King.Authorized("A", name, guild) then return true end
+	if ns.IsShogunCharacter(name) then return true end
+	if Shogun.Authorized("A", name, guild) then return true end
 	local W = ns.Workshop
 	if W and W.IsAuthorName and W.IsAuthorName(name) then return true end
 	if ns.IsHighCouncillor(name) ~= true then return false end
@@ -375,32 +375,32 @@ function King.AgendaAuthorized(name, guild, guildOnly)
 	return dept == "Department of Heraldry"
 end
 
-function King.AgendaScope(scope)
+function Shogun.AgendaScope(scope)
 	if scope ~= nil then return (scope == "guild" or scope == "army") and scope or nil end
-	if King.AgendaAuthorized(ns.me, GetGuildInfo("player"), false) or King.Preview() then return "army" end
+	if Shogun.AgendaAuthorized(ns.me, GetGuildInfo("player"), false) or Shogun.Preview() then return "army" end
 	return "guild"
 end
-function King.AgendaPreviewBlocked()
+function Shogun.AgendaPreviewBlocked()
 	local V = ns.ViewAs
-	return V and V.Previewing and V.Previewing() and not King.Preview() or false
+	return V and V.Previewing and V.Previewing() and not Shogun.Preview() or false
 end
-function King.CanAgenda(scope)
-	if King.AgendaPreviewBlocked() then return false end
-	scope = King.AgendaScope(scope)
-	return scope ~= nil and (King.Preview() or King.AgendaAuthorized(ns.me, GetGuildInfo("player"), scope == "guild"))
+function Shogun.CanAgenda(scope)
+	if Shogun.AgendaPreviewBlocked() then return false end
+	scope = Shogun.AgendaScope(scope)
+	return scope ~= nil and (Shogun.Preview() or Shogun.AgendaAuthorized(ns.me, GetGuildInfo("player"), scope == "guild"))
 end
 
--- The King himself sent it (not a Hand): for how it is shown.
-function King.FromKing(sender, guild) return KingSender(sender, guild, true) end
+-- The Shogun himself sent it (not a Hand): for how it is shown.
+function Shogun.FromShogun(sender, guild) return ShogunSender(sender, guild, true) end
 
--- The King's list, kept across sessions (a /reload must not drop his Hands); a Steward's own
--- the same (1.0.0), under his name: it ends with him (King.StewardsChanged), whichever character
+-- The Shogun's list, kept across sessions (a /reload must not drop his Hands); a Steward's own
+-- the same (1.0.0), under his name: it ends with him (Shogun.StewardsChanged), whichever character
 -- of his account on that realm group sees the list without him.
 local function SaveHands()
 	if not ns.rdb then return end
 	local own, copy = Own(), {}
 	for i, n in ipairs(own) do copy[i] = n end
-	if own ~= myStewardHands then ns.rdb.kingHands = copy; return end
+	if own ~= myStewardHands then ns.rdb.shogunHands = copy; return end
 	if type(ns.rdb.stewardHands) ~= "table" then ns.rdb.stewardHands = {} end
 	ns.rdb.stewardHands[ns.FullName(ns.me)] = copy
 end
@@ -409,39 +409,39 @@ end
 local function SendHandsSoon()
 	if handsSendPending then return end
 	handsSendPending = true
-	ns.After(3, "king hands", function()
+	ns.After(3, "shogun hands", function()
 		handsSendPending = false
-		King.SendHands(true)
-		King.SendStewardHands(true)
+		Shogun.SendHands(true)
+		Shogun.SendStewardHands(true)
 	end)
 end
 
--- Quiet presence (1.2.5.1, Core.lua): the lists the King's (or a Steward's) client repeats for late
+-- Quiet presence (1.2.5.1, Core.lua): the lists the Shogun's (or a Steward's) client repeats for late
 -- logins (his Hands, the untabarded, the agenda) are not repeated while it is on: each repeat says
 -- he is online, and the army's copy lapses as after a logout (HandsFresh). A list he changes, or a
 -- switch he turns, still goes (force); the repeats come back once it is off.
 local function QuietRepeat(force) return not force and ns.QuietPresence ~= nil and ns.QuietPresence() == true end
-King.QuietRepeat = QuietRepeat
+Shogun.QuietRepeat = QuietRepeat
 
--- The King's list goes out whole: short in one message, long in pieces (Comm.SendChunked).
-function King.SendHands(force)
-	if not King.IsKing() or QuietRepeat(force) then return end
+-- The Shogun's list goes out whole: short in one message, long in pieces (Comm.SendChunked).
+function Shogun.SendHands(force)
+	if not Shogun.IsShogun() or QuietRepeat(force) then return end
 	local now = ns.Now()
-	if not force and now - lastHandsSent < King.HANDS_EVERY then return end
+	if not force and now - lastHandsSent < Shogun.HANDS_EVERY then return end
 	-- (nobody named yet; 1.2.4: a list he emptied is said again, empty, at his later sessions:
-	-- every client keeps the list it heard until his newer one, SaveHands' rdb.kingHands)
-	if #myHands == 0 and lastHandsSent == -math.huge and type(ns.rdb and ns.rdb.kingHands) ~= "table" then return end
+	-- every client keeps the list it heard until his newer one, SaveHands' rdb.shogunHands)
+	if #myHands == 0 and lastHandsSent == -math.huge and type(ns.rdb and ns.rdb.shogunHands) ~= "table" then return end
 	lastHandsSent = now
 	local msg = ("T1~H~%d~%s~%s"):format(NewId(), GetGuildInfo("player") or "", table.concat(myHands, ","))
 	if #msg <= 250 then ns.Comm.Send("CHANNEL", msg, "hands") else ns.Comm.SendChunked(msg) end
 end
 
 -- A Steward's own list (1.0.0), from his client alone, the same way.
-function King.SendStewardHands(force)
-	if King.IsKing() or not King.IsSteward() or QuietRepeat(force) then return end
+function Shogun.SendStewardHands(force)
+	if Shogun.IsShogun() or not Shogun.IsSteward() or QuietRepeat(force) then return end
 	local now = ns.Now()
-	if not force and now - lastStewardSent < King.HANDS_EVERY then return end
-	-- (nobody named yet; 1.2.4: a list he emptied is said again, empty, the King's way)
+	if not force and now - lastStewardSent < Shogun.HANDS_EVERY then return end
+	-- (nobody named yet; 1.2.4: a list he emptied is said again, empty, the Shogun's way)
 	local saved = ns.rdb and type(ns.rdb.stewardHands) == "table" and ns.rdb.stewardHands[ns.FullName(ns.me)]
 	if #myStewardHands == 0 and lastStewardSent == -math.huge and type(saved) ~= "table" then return end
 	lastStewardSent = now
@@ -461,32 +461,32 @@ local function HandName(input)
 	return ns.FullName(short, ns.RealmOf(name))
 end
 
--- The King names a Hand in his list, a Steward in his own (1.0.0).
-function King.AddHand(input)
-	if not King.SetsLists() and not King.Preview() then return ns.Print(L.THRONE_ONLY_KING) end
+-- The Shogun names a Hand in his list, a Steward in his own (1.0.0).
+function Shogun.AddHand(input)
+	if not Shogun.SetsLists() and not Shogun.Preview() then return ns.Print(L.THRONE_ONLY_SHOGUN) end
 	local name = HandName(input)
 	if not name then return ns.Print(L.HANDS_WHO) end
 	if name == ns.me then return end
 	local own = Own()
 	for _, n in ipairs(own) do if n == name then return end end
-	if #own >= King.MAX_HANDS then return ns.Print(L.HANDS_FULL:format(King.MAX_HANDS)) end
+	if #own >= Shogun.MAX_HANDS then return ns.Print(L.HANDS_FULL:format(Shogun.MAX_HANDS)) end
 	own[#own + 1] = name
 	SaveHands()
 	ns.Print(L.HANDS_ADDED:format(ns.DisplayName(name)))
-	if King.SetsLists() then SendHandsSoon() end
-	King.mode = "hands"
+	if Shogun.SetsLists() then SendHandsSoon() end
+	Shogun.mode = "hands"
 	Changed()
 end
 
 -- From this client's own list alone: never a Hand another one named (1.0.0).
-function King.RemoveHand(name)
+function Shogun.RemoveHand(name)
 	local own = Own()
 	for i, n in ipairs(own) do
 		if n == name then
 			table.remove(own, i)
 			SaveHands()
 			ns.Print(L.HANDS_REMOVED:format(ns.DisplayName(name)))
-			if King.SetsLists() then SendHandsSoon() end
+			if Shogun.SetsLists() then SendHandsSoon() end
 			return Changed()
 		end
 	end
@@ -494,7 +494,7 @@ end
 
 -- This client became a Hand (the Throne's tab appears; `told`: by whom), or is one no more.
 local function HandChanged(was, told)
-	local now = King.IsHand()
+	local now = Shogun.IsHand()
 	if now and not was then
 		ns.Print(told())
 		ns.PlayAlert("soft", "throne")
@@ -505,28 +505,28 @@ local function HandChanged(was, told)
 	Changed()
 end
 
-local function OnHands(king, rest)
+local function OnHands(shogun, rest)
 	local list, n, order = {}, 0, {}
 	for name in tostring(rest or ""):gmatch("[^,]+") do
 		local short = CleanName(name)
-		if short and n < King.MAX_HANDS then
+		if short and n < Shogun.MAX_HANDS then
 			local full = ns.FullName(short, ns.RealmOf(name))
 			if not list[full:lower()] then order[#order + 1] = full end
 			list[full:lower()] = true
 			n = n + 1
 		end
 	end
-	local was = King.IsHand()
-	hands, handsOrder, handsAt, handsKing = list, order, ns.Now(), ns.FullName(king)
-	-- (1.2.4) Kept until his newer list (King.LoadHands).
-	if ns.rdb then ns.rdb.handsHeard = { names = order, at = handsAt, king = handsKing } end
-	HandChanged(was, function() return L.HANDS_YOU:format(ns.KingName(king)) end)
+	local was = Shogun.IsHand()
+	hands, handsOrder, handsAt, handsShogun = list, order, ns.Now(), ns.FullName(shogun)
+	-- (1.2.4) Kept until his newer list (Shogun.LoadHands).
+	if ns.rdb then ns.rdb.handsHeard = { names = order, at = handsAt, shogun = handsShogun } end
+	HandChanged(was, function() return L.HANDS_YOU:format(ns.ShogunName(shogun)) end)
 end
 
 -- A Steward's own list (1.0.0), from his own client: kept as he last sent it. Nobody else's
--- word (the King's character sending one too: King.Authorized lets him send any kind).
+-- word (the Shogun's character sending one too: Shogun.Authorized lets him send any kind).
 local function OnStewardHands(sender, rest)
-	if not King.IsStewardName(sender) then
+	if not Shogun.IsStewardName(sender) then
 		return ns.Log("steward hands from %s ignored: no Steward here", tostring(sender))
 	end
 	local steward = ns.FullName(sender)
@@ -534,14 +534,14 @@ local function OnStewardHands(sender, rest)
 	for name in tostring(rest or ""):gmatch("[^,]+") do
 		local short = CleanName(name)
 		local full = short and ns.FullName(short, ns.RealmOf(name))
-		if full and not set[full:lower()] and #names < King.MAX_HANDS then
+		if full and not set[full:lower()] and #names < Shogun.MAX_HANDS then
 			set[full:lower()] = true
 			names[#names + 1] = full
 		end
 	end
-	local was = King.IsHand()
+	local was = Shogun.IsHand()
 	stewardHands[steward] = { names = names, set = set, at = ns.Now() }
-	-- (1.2.4) Kept until his newer list (King.LoadHands).
+	-- (1.2.4) Kept until his newer list (Shogun.LoadHands).
 	if ns.rdb then
 		if type(ns.rdb.stewardHandsHeard) ~= "table" then ns.rdb.stewardHandsHeard = {} end
 		ns.rdb.stewardHandsHeard[steward] = { names = names, at = ns.Now() }
@@ -549,31 +549,31 @@ local function OnStewardHands(sender, rest)
 	HandChanged(was, function() return L.HANDS_YOU_STEWARD:format(ns.DisplayName(steward) or "?") end)
 end
 
--- The lists this client kept, at login: the King's (as before 1.0.0) and a Steward's own.
-function King.LoadHands()
+-- The lists this client kept, at login: the Shogun's (as before 1.0.0) and a Steward's own.
+function Shogun.LoadHands()
 	local function Load(into, saved)
 		wipe(into)
 		for _, n in ipairs(type(saved) == "table" and saved or {}) do
-			if type(n) == "string" and #into < King.MAX_HANDS then into[#into + 1] = n end
+			if type(n) == "string" and #into < Shogun.MAX_HANDS then into[#into + 1] = n end
 		end
 	end
-	Load(myHands, ns.rdb and ns.rdb.kingHands)
+	Load(myHands, ns.rdb and ns.rdb.shogunHands)
 	local stewards = ns.rdb and ns.rdb.stewardHands
 	Load(myStewardHands, type(stewards) == "table" and stewards[ns.FullName(ns.me)])
-	-- (1.2.4) The lists heard from the King and each Steward, standing until their newer word.
+	-- (1.2.4) The lists heard from the Shogun and each Steward, standing until their newer word.
 	local function Names(list)
 		local names, set = {}, {}
 		for _, n in ipairs(type(list) == "table" and list or {}) do
 			local short = type(n) == "string" and CleanName(n)
 			local full = short and ns.FullName(short, ns.RealmOf(n))
-			if full and not set[full:lower()] and #names < King.MAX_HANDS then set[full:lower()], names[#names + 1] = true, full end
+			if full and not set[full:lower()] and #names < Shogun.MAX_HANDS then set[full:lower()], names[#names + 1] = true, full end
 		end
 		return names, set
 	end
 	local heard = ns.rdb and ns.rdb.handsHeard
-	if type(heard) == "table" and type(heard.king) == "string" then
+	if type(heard) == "table" and type(heard.shogun) == "string" then
 		local names, set = Names(heard.names)
-		hands, handsOrder, handsAt, handsKing = set, names, tonumber(heard.at) or ns.Now(), heard.king
+		hands, handsOrder, handsAt, handsShogun = set, names, tonumber(heard.at) or ns.Now(), heard.shogun
 	end
 	wipe(stewardHands)
 	for steward, x in pairs(ns.rdb and type(ns.rdb.stewardHandsHeard) == "table" and ns.rdb.stewardHandsHeard or {}) do
@@ -590,33 +590,33 @@ end
 -- back until he names it again. (His account forgets it when one of its characters on that realm
 -- group takes a list without him: if none did before the list naming him again, what it kept
 -- comes back with him.)
-function King.StewardsChanged()
+function Shogun.StewardsChanged()
 	local changed = false
 	for steward in pairs(stewardHands) do
-		if not King.IsStewardName(steward) then stewardHands[steward], changed = nil, true end
+		if not Shogun.IsStewardName(steward) then stewardHands[steward], changed = nil, true end
 	end
 	local saved = ns.rdb and ns.rdb.stewardHands
 	if type(saved) == "table" then
 		for owner in pairs(saved) do
-			if not King.IsStewardName(owner) then saved[owner] = nil end
+			if not Shogun.IsStewardName(owner) then saved[owner] = nil end
 		end
 		if next(saved) == nil then ns.rdb.stewardHands = nil end
 	end
 	local heard = ns.rdb and ns.rdb.stewardHandsHeard
 	if type(heard) == "table" then
 		for owner in pairs(heard) do
-			if not King.IsStewardName(owner) then heard[owner] = nil end
+			if not Shogun.IsStewardName(owner) then heard[owner] = nil end
 		end
 		if next(heard) == nil then ns.rdb.stewardHandsHeard = nil end
 	end
-	if not King.IsSteward() and (#myStewardHands > 0 or lastStewardSent ~= -math.huge) then
+	if not Shogun.IsSteward() and (#myStewardHands > 0 or lastStewardSent ~= -math.huge) then
 		wipe(myStewardHands)
 		lastStewardSent, changed = -math.huge, true
 	end
 	if changed then Changed() end
 end
 
-StaticPopupDialogs["BANKAIGUILD_KING_HAND"] = {
+StaticPopupDialogs["BANKAIGUILD_SHOGUN_HAND"] = {
 	text = L.HANDS_PROMPT,
 	button1 = OKAY or "OK",
 	button2 = CANCEL or "Cancel",
@@ -633,10 +633,10 @@ StaticPopupDialogs["BANKAIGUILD_KING_HAND"] = {
 	end,
 	OnAccept = function(self)
 		local eb = self.editBox or self.EditBox
-		ns.SafeCall("add hand", King.AddHand, eb and eb:GetText())
+		ns.SafeCall("add hand", Shogun.AddHand, eb and eb:GetText())
 	end,
 	EditBoxOnEnterPressed = function(self)
-		ns.SafeCall("add hand", King.AddHand, self:GetText())
+		ns.SafeCall("add hand", Shogun.AddHand, self:GetText())
 		self:GetParent():Hide()
 	end,
 	EditBoxOnEscapePressed = function(self) self:GetParent():Hide() end,
@@ -646,11 +646,11 @@ StaticPopupDialogs["BANKAIGUILD_KING_HAND"] = {
 	preferredIndex = 3,
 }
 
-StaticPopupDialogs["BANKAIGUILD_KING_UNHAND"] = {
+StaticPopupDialogs["BANKAIGUILD_SHOGUN_UNHAND"] = {
 	text = L.HANDS_REMOVE_CONFIRM,
 	button1 = YES or "Yes",
 	button2 = NO or "No",
-	OnAccept = function(self, data) ns.SafeCall("remove hand", King.RemoveHand, data or (self and self.data)) end,
+	OnAccept = function(self, data) ns.SafeCall("remove hand", Shogun.RemoveHand, data or (self and self.data)) end,
 	timeout = 0,
 	whileDead = true,
 	hideOnEscape = true,
@@ -658,15 +658,15 @@ StaticPopupDialogs["BANKAIGUILD_KING_UNHAND"] = {
 }
 
 -- Other modules' kinds of T1 (Vox Populi, writs, the court, the gates, pardons):
--- fn(sender, id, rest, guild), called once King.Authorized agreed.
+-- fn(sender, id, rest, guild), called once Shogun.Authorized agreed.
 local kinds = {}
-function King.Register(kind, fn) kinds[kind] = fn end
-King.Changed = function() Changed() end
-King.Warn = function(text, loud, kind, o) return Warn(text, loud, kind, o) end
-King.NewId = function() return NewId() end
-King.CleanName = function(s) return CleanName(s) end
-King.CleanGuild = function(s) return CleanGuild(s) end
-King.Verified = function(sender, guild) return Verified(sender, guild) end
+function Shogun.Register(kind, fn) kinds[kind] = fn end
+Shogun.Changed = function() Changed() end
+Shogun.Warn = function(text, loud, kind, o) return Warn(text, loud, kind, o) end
+Shogun.NewId = function() return NewId() end
+Shogun.CleanName = function(s) return CleanName(s) end
+Shogun.CleanGuild = function(s) return CleanGuild(s) end
+Shogun.Verified = function(sender, guild) return Verified(sender, guild) end
 
 -- Our tabard, checked the way a patrol checks others (level 15+ only: the Bankai Guild rule).
 local function OwnTabard()
@@ -677,19 +677,19 @@ local function OwnTabard()
 end
 
 ---------------------------------------------------------------------------
--- Summon the Lords
+-- Summon the Council
 ---------------------------------------------------------------------------
 
-function King.Summon()
+function Shogun.Summon()
 	local now = ns.Now()
-	if King.Preview() then
+	if Shogun.Preview() then
 		summon = { id = 0, t = now, answers = {}, preview = true }
 		ns.Print(L.THRONE_PREVIEW_NOTE)
 		return Changed()
 	end
-	if not King.CanCommand() then return end
-	if now - lastSummonSent < King.SUMMON_GAP then
-		ns.Print(L.THRONE_WAIT:format(math.ceil(King.SUMMON_GAP - (now - lastSummonSent))))
+	if not Shogun.CanCommand() then return end
+	if now - lastSummonSent < Shogun.SUMMON_GAP then
+		ns.Print(L.THRONE_WAIT:format(math.ceil(Shogun.SUMMON_GAP - (now - lastSummonSent))))
 		return Changed()
 	end
 	lastSummonSent = now
@@ -699,29 +699,29 @@ function King.Summon()
 	Changed()
 end
 
-local function OnSummon(king, id, guild)
+local function OnSummon(shogun, id, guild)
 	local now = ns.Now()
-	if now - lastSummonSeen < King.SUMMON_GAP then return end
+	if now - lastSummonSeen < Shogun.SUMMON_GAP then return end
 	if not ns.IsMember() or ns.Roster.MyRank() > ns.CAPTAIN_RANK then return end
 	lastSummonSeen = now
-	-- The King by the army's name for him; a Hand by theirs.
-	local who = King.FromKing(king, guild) and L.THRONE_SUMMONED:format(ns.KingName(king)) or L.THRONE_SUMMONED_HAND:format(ns.DisplayName(king))
+	-- The Shogun by the army's name for him; a Hand by theirs.
+	local who = Shogun.FromShogun(shogun, guild) and L.THRONE_SUMMONED:format(ns.ShogunName(shogun)) or L.THRONE_SUMMONED_HAND:format(ns.DisplayName(shogun))
 	-- In an instance or on Busy (1.1): a chat line; the popup once the player is out, while it
 	-- is open (never answered for them).
 	local shown = ns.Alert("throne", "soft", {
 		what = L.HELD_SUMMON, key = "summon" .. tostring(id),
-		open = function() return ns.Now() - now < King.SUMMON_OPEN end,
-		show = function() ns.ShowDialog("BANKAIGUILD_KING_SUMMON", who, nil, { king = king, id = id }) end,
+		open = function() return ns.Now() - now < Shogun.SUMMON_OPEN end,
+		show = function() ns.ShowDialog("BANKAIGUILD_SHOGUN_SUMMON", who, nil, { shogun = shogun, id = id }) end,
 	})
 	if not shown then ns.Print("|cffffd200" .. who .. "|r  |cff9d9d9d" .. L.HELD_LATER .. "|r") end
 end
 
 local function Answer(data, word)
-	if not data or not data.king then return end
-	ns.Comm.Whisper(data.king, ("T2~%d~%s~%s"):format(data.id, word, GetGuildInfo("player") or ""))
+	if not data or not data.shogun then return end
+	ns.Comm.Whisper(data.shogun, ("T2~%d~%s~%s"):format(data.id, word, GetGuildInfo("player") or ""))
 end
 
-StaticPopupDialogs["BANKAIGUILD_KING_SUMMON"] = {
+StaticPopupDialogs["BANKAIGUILD_SHOGUN_SUMMON"] = {
 	text = "%s",
 	button1 = L.THRONE_PRESENT,
 	button2 = L.THRONE_BUSY,
@@ -729,14 +729,14 @@ StaticPopupDialogs["BANKAIGUILD_KING_SUMMON"] = {
 	OnCancel = function(self, data, reason)
 		if reason == "clicked" then ns.SafeCall("throne answer", Answer, data or self.data, "B") end
 	end,
-	timeout = King.SUMMON_OPEN,
+	timeout = Shogun.SUMMON_OPEN,
 	whileDead = true,
 	hideOnEscape = true,
 	preferredIndex = 3,
 }
 
--- The Lords and Captains the census knows online, answered or not: { name, guild, rank }.
-local function LordsOnline()
+-- The Council and Captains the census knows online, answered or not: { name, guild, rank }.
+local function CouncilOnline()
 	local out = {}
 	for _, e in ipairs(ns.Data.Summary().guilds) do
 		local g = e.g
@@ -751,73 +751,73 @@ local function LordsOnline()
 	return out
 end
 
-function King.HandleAnswer(dist, sender, text)
+function Shogun.HandleAnswer(dist, sender, text)
 	if dist ~= "WHISPER" or not summon or summon.preview then return end
 	local id, word, guild = text:match("^T2~(%d+)~([PB])~(.*)$")
 	if tonumber(id) ~= summon.id or ns.Now() - summon.t > 300 then return end
 	sender = ns.FullName(sender)
 	if summon.answers[sender] then return end -- one answer each
 	guild = CleanGuild(guild)
-	-- Only confirmed Lords and Captains are listed by name; anyone else is just counted.
+	-- Only confirmed Council and Captains are listed by name; anyone else is just counted.
 	if not guild or not Verified(sender, guild) then
 		summon.others = summon.others or {}
 		if not summon.others[sender] then
 			local n = 0
 			for _ in pairs(summon.others) do n = n + 1 end
-			if n < King.MAX_ANSWERS then summon.others[sender] = word end
+			if n < Shogun.MAX_ANSWERS then summon.others[sender] = word end
 		end
 		return Changed()
 	end
 	local n = 0
 	for _ in pairs(summon.answers) do n = n + 1 end
-	if n >= King.MAX_ANSWERS then return end
+	if n >= Shogun.MAX_ANSWERS then return end
 	summon.answers[sender] = { word = word, guild = guild, verified = true, t = ns.Now() }
 	Changed()
 end
-ns.Comm.Handle("T2", function(...) King.HandleAnswer(...) end)
+ns.Comm.Handle("T2", function(...) Shogun.HandleAnswer(...) end)
 
 ---------------------------------------------------------------------------
 -- Royal Inspection
 ---------------------------------------------------------------------------
 
-function King.Inspect()
+function Shogun.Inspect()
 	local now = ns.Now()
-	if King.Preview() then
+	if Shogun.Preview() then
 		ns.Print(L.THRONE_PREVIEW_NOTE)
 		inspect = { id = 0, t = now, reports = {}, preview = true }
-		King.RunInspection(nil, 0) -- our own patrol only, reported to ourselves
+		Shogun.RunInspection(nil, 0) -- our own patrol only, reported to ourselves
 		return Changed()
 	end
-	if not King.CanCommand() then return end
-	if now - lastInspectSent < King.INSPECT_GAP then
-		ns.Print(L.THRONE_WAIT:format(math.ceil(King.INSPECT_GAP - (now - lastInspectSent))))
+	if not Shogun.CanCommand() then return end
+	if now - lastInspectSent < Shogun.INSPECT_GAP then
+		ns.Print(L.THRONE_WAIT:format(math.ceil(Shogun.INSPECT_GAP - (now - lastInspectSent))))
 		return Changed()
 	end
 	lastInspectSent = now
 	inspect = { id = NewId(), t = now, reports = {} }
 	ns.Comm.Send("CHANNEL", ("T1~I~%d~%s"):format(inspect.id, GetGuildInfo("player")))
 	ns.Log("throne: inspection %d", inspect.id)
-	King.RunInspection(ns.me, inspect.id) -- the King patrols too
+	Shogun.RunInspection(ns.me, inspect.id) -- the Shogun patrols too
 	Changed()
 end
 
 -- Its raid warning, in an instance or on Busy (1.1, ns.Alert): current while the patrols run.
--- own: the King's (or the preview's) own click.
-function King.InspectionHeld(start, id, own)
+-- own: the Shogun's (or the preview's) own click.
+function Shogun.InspectionHeld(start, id, own)
 	return { what = L.HELD_INSPECTION, key = "inspect" .. tostring(id or 0), own = own or nil,
-		open = function() return ns.Now() - start < King.INSPECT_TIME end }
+		open = function() return ns.Now() - start < Shogun.INSPECT_TIME end }
 end
 
--- Every addon (the King's too): a raid warning, a patrol of INSPECT_TIME, then a report to
--- the King of what it saw (and our own tabard).
-function King.RunInspection(king, id)
+-- Every addon (the Shogun's too): a raid warning, a patrol of INSPECT_TIME, then a report to
+-- the Shogun of what it saw (and our own tabard).
+function Shogun.RunInspection(shogun, id)
 	if inspecting or not ns.IsMember() then return end
 	local start = ns.Now()
-	inspecting = { king = king, id = id, start = start, wasOn = ns.Inspect.IsPatrolling() }
-	Warn(L.THRONE_INSPECT_WARN, true, "throne", King.InspectionHeld(start, id, king == nil or king == ns.me))
+	inspecting = { shogun = shogun, id = id, start = start, wasOn = ns.Inspect.IsPatrolling() }
+	Warn(L.THRONE_INSPECT_WARN, true, "throne", Shogun.InspectionHeld(start, id, shogun == nil or shogun == ns.me))
 	if not inspecting.wasOn then ns.Inspect.SetPatrol(true) end
-	ns.Inspect.SetPace(King.INSPECT_PACE) -- the realm's budget (INSPECT_BUDGET)
-	ns.After(King.INSPECT_TIME, "royal inspection", function()
+	ns.Inspect.SetPace(Shogun.INSPECT_PACE) -- the realm's budget (INSPECT_BUDGET)
+	ns.After(Shogun.INSPECT_TIME, "royal inspection", function()
 		local run = inspecting
 		inspecting = nil
 		ns.Inspect.SetPace(nil)
@@ -831,7 +831,7 @@ function King.RunInspection(king, id)
 				if p.status == "GUILD" then ok = ok + 1
 				elseif p.status == "NONE" or p.status == "OTHER" then
 					if p.status == "NONE" then none = none + 1 else other = other + 1 end
-					if #names < King.MAX_NAMES then names[#names + 1] = (ns.DisplayName(name) or "?") .. ":" .. (p.guild or "?") .. ":" .. (p.status == "NONE" and "N" or "O") end
+					if #names < Shogun.MAX_NAMES then names[#names + 1] = (ns.DisplayName(name) or "?") .. ":" .. (p.guild or "?") .. ":" .. (p.status == "NONE" and "N" or "O") end
 				end
 			end
 		end
@@ -839,16 +839,16 @@ function King.RunInspection(king, id)
 		if own == "GUILD" then ok = ok + 1 elseif own == "NONE" then none = none + 1 elseif own == "OTHER" then other = other + 1 end
 		local guild = GetGuildInfo("player") or ""
 		local msg = ("T3~%d~%s~%d~%d~%d~%s"):format(run.id or 0, guild, ok, none, other, table.concat(names, ","))
-		if run.king == ns.me or not run.king then
-			King.ReceiveReport(ns.me, msg) -- ours (the King's, or the preview's)
+		if run.shogun == ns.me or not run.shogun then
+			Shogun.ReceiveReport(ns.me, msg) -- ours (the Shogun's, or the preview's)
 		else
-			ns.Comm.Whisper(run.king, msg:sub(1, 250))
+			ns.Comm.Whisper(run.shogun, msg:sub(1, 250))
 		end
 	end)
 end
 
 -- The addons online the census knows of (fresh reports), at least 1.
-function King.AddonsOnline()
+function Shogun.AddonsOnline()
 	local n = 0
 	for _, e in ipairs(ns.Data.Summary().guilds) do
 		if e.fresh then n = n + (tonumber(e.g.users) or 0) end
@@ -857,30 +857,30 @@ function King.AddonsOnline()
 end
 
 -- This client's chance to take part in an inspection (see INSPECT_BUDGET).
-function King.InspectShare()
-	return math.min(1, King.INSPECT_BUDGET * King.INSPECT_PACE / King.AddonsOnline())
+function Shogun.InspectShare()
+	return math.min(1, Shogun.INSPECT_BUDGET * Shogun.INSPECT_PACE / Shogun.AddonsOnline())
 end
-King.random = math.random -- tests
+Shogun.random = math.random -- tests
 
-local function OnInspect(king, id)
+local function OnInspect(shogun, id)
 	local now = ns.Now()
-	if now - lastInspectSeen < King.INSPECT_GAP then return end
+	if now - lastInspectSeen < Shogun.INSPECT_GAP then return end
 	lastInspectSeen = now
-	-- Everyone hears the King's call; only a sample of the army patrols (and reports), and never
+	-- Everyone hears the Shogun's call; only a sample of the army patrols (and reports), and never
 	-- a player who said no (/bk inspection off, 0.9.3). 1.1 (Fern's #11): nor one who never
 	-- answered (the first-open page, or /bk inspection on): nil is off.
 	if not (ns.db and ns.db.royalInspection == true) then
 		ns.Log("inspection %d: not taking part (%s)", id or 0, ns.db and ns.db.royalInspection == false and "/bk inspection off" or "not answered")
-		return Warn(L.THRONE_INSPECT_WARN, true, "throne", King.InspectionHeld(now, id))
+		return Warn(L.THRONE_INSPECT_WARN, true, "throne", Shogun.InspectionHeld(now, id))
 	end
-	if King.random() > King.InspectShare() then
-		ns.Log("inspection %d: not in this sample (%.2f)", id or 0, King.InspectShare())
-		return Warn(L.THRONE_INSPECT_WARN, true, "throne", King.InspectionHeld(now, id))
+	if Shogun.random() > Shogun.InspectShare() then
+		ns.Log("inspection %d: not in this sample (%.2f)", id or 0, Shogun.InspectShare())
+		return Warn(L.THRONE_INSPECT_WARN, true, "throne", Shogun.InspectionHeld(now, id))
 	end
-	King.RunInspection(king, id)
+	Shogun.RunInspection(shogun, id)
 end
 
-function King.ReceiveReport(sender, text)
+function Shogun.ReceiveReport(sender, text)
 	if not inspect then return end
 	local id, guild, ok, none, other, names = text:match("^T3~(%d+)~([^~]*)~(%d+)~(%d+)~(%d+)~(.*)$")
 	if not id or tonumber(id) ~= inspect.id or ns.Now() - inspect.t > 900 then return end
@@ -888,39 +888,39 @@ function King.ReceiveReport(sender, text)
 	if inspect.reports[sender] then return end -- one report each
 	local n = 0
 	for _ in pairs(inspect.reports) do n = n + 1 end
-	if n >= King.MAX_REPORTS then return end
+	if n >= Shogun.MAX_REPORTS then return end
 	guild = CleanGuild(guild)
 	if not guild then return end
-	-- Only from someone we can place in that guild (our own, a confirmed Lord or Captain):
-	-- nobody else writes names or numbers on the King's page.
+	-- Only from someone we can place in that guild (our own, a confirmed Council or Captain):
+	-- nobody else writes names or numbers on the Shogun's page.
 	if sender ~= ns.me and not Verified(sender, guild) then return end
 	local list = {}
 	for entry in names:gmatch("[^,]+") do
 		local nm, g, st = entry:match("^([^:]+):([^:]*):([NO])$")
 		nm, g = CleanName(nm), CleanGuild(g)
-		if nm and g and #list < King.MAX_NAMES then list[#list + 1] = { name = nm, guild = g, status = st == "N" and "NONE" or "OTHER" } end
+		if nm and g and #list < Shogun.MAX_NAMES then list[#list + 1] = { name = nm, guild = g, status = st == "N" and "NONE" or "OTHER" } end
 	end
-	local cap = King.MAX_CHECKS
+	local cap = Shogun.MAX_CHECKS
 	inspect.reports[sender] = { guild = guild, ok = math.min(tonumber(ok) or 0, cap),
 		none = math.min(tonumber(none) or 0, cap), other = math.min(tonumber(other) or 0, cap), names = list }
 	Changed()
 end
 
-function King.HandleReport(dist, sender, text)
-	if dist ~= "WHISPER" or not King.CanCommand() then return end
-	King.ReceiveReport(sender, text)
+function Shogun.HandleReport(dist, sender, text)
+	if dist ~= "WHISPER" or not Shogun.CanCommand() then return end
+	Shogun.ReceiveReport(sender, text)
 end
-ns.Comm.Handle("T3", function(...) King.HandleReport(...) end)
+ns.Comm.Handle("T3", function(...) Shogun.HandleReport(...) end)
 
--- The violators the inspection found go on the King's own list, then the usual Wall of Shame.
--- The untabarded (Inspect.lua): the King's list, the army's only while he lets it see it.
+-- The violators the inspection found go on the Shogun's own list, then the usual Wall of Shame.
+-- The untabarded (Inspect.lua): the Shogun's list, the army's only while he lets it see it.
 --   T1~U~<id>~<guild>~1~<name>:<guild>,...   the list, repeated while it is on
 --   T1~U~<id>~<guild>~0                      off: it leaves every screen
--- Only the King (not a Hand: "U" is not in HAND_MAY). Older versions ignore the kind.
-King.UNTABARDED_EVERY = 8 * 60 -- shorter than the 10-minute publication lease
+-- Only the Shogun (not a Hand: "U" is not in HAND_MAY). Older versions ignore the kind.
+Shogun.UNTABARDED_EVERY = 8 * 60 -- shorter than the 10-minute publication lease
 local lastUntabardedSent = -math.huge
 
-function King.SharingUntabarded() return ns.db and ns.db.kingUntabarded == true end
+function Shogun.SharingUntabarded() return ns.db and ns.db.shogunUntabarded == true end
 
 -- What the inspection's patrols reported joins his own list.
 local function TakeReports()
@@ -929,11 +929,11 @@ local function TakeReports()
 	end
 end
 
-function King.SendUntabarded(force)
-	if not King.IsKing() or QuietRepeat(force) then return end
+function Shogun.SendUntabarded(force)
+	if not Shogun.IsShogun() or QuietRepeat(force) then return end
 	local now = ns.Now()
-	local on = King.SharingUntabarded()
-	if not force and (not on or now - lastUntabardedSent < King.UNTABARDED_EVERY) then return end
+	local on = Shogun.SharingUntabarded()
+	if not force and (not on or now - lastUntabardedSent < Shogun.UNTABARDED_EVERY) then return end
 	lastUntabardedSent = now
 	local guild = GetGuildInfo("player") or ""
 	local msg
@@ -947,20 +947,20 @@ function King.SendUntabarded(force)
 	if #msg <= 250 then ns.Comm.Send("CHANNEL", msg, "untabarded") else ns.Comm.SendChunked(msg) end
 end
 
-function King.ToggleUntabarded()
-	if King.Preview() then return ns.Print(L.THRONE_PREVIEW_NOTE) end
-	if not King.IsKing() then return ns.Print(L.THRONE_ONLY_KING) end
-	ns.db.kingUntabarded = not King.SharingUntabarded()
-	ns.Print(King.SharingUntabarded() and L.UNTABARDED_ON or L.UNTABARDED_OFF)
-	King.SendUntabarded(true)
+function Shogun.ToggleUntabarded()
+	if Shogun.Preview() then return ns.Print(L.THRONE_PREVIEW_NOTE) end
+	if not Shogun.IsShogun() then return ns.Print(L.THRONE_ONLY_SHOGUN) end
+	ns.db.shogunUntabarded = not Shogun.SharingUntabarded()
+	ns.Print(Shogun.SharingUntabarded() and L.UNTABARDED_ON or L.UNTABARDED_OFF)
+	Shogun.SendUntabarded(true)
 	-- 1.1 (#12): his own switch never comes back to him: in his log as he sends it.
-	local on = King.SharingUntabarded()
+	local on = Shogun.SharingUntabarded()
 	ns.Chronicle.Add("switch", ns.me, on and L.ACTS_UNTABARDED_ON or L.ACTS_UNTABARDED_OFF, { key = "untabarded", value = on and "1" or "0" })
 	Changed()
 end
 
 local function OnUntabarded(sender, rest)
-	if King.IsKing() then return end
+	if Shogun.IsShogun() then return end
 	local on, body = tostring(rest or ""):match("^(%d)~?(.*)$")
 	-- 1.1 (#12): in this client's log of acts when it flips (repeated every 5 minutes while on).
 	if on == "1" or on == "0" then
@@ -968,14 +968,14 @@ local function OnUntabarded(sender, rest)
 	end
 	if on == "1" then
 		local s = ns.Codec.DecodeShame("S1~Bankai Guild~0~" .. body)
-		if s then ns.Inspect.ShowShame({ by = ns.KingName(sender), list = s.list, t = ns.Now() }) end
+		if s then ns.Inspect.ShowShame({ by = ns.ShogunName(sender), list = s.list, t = ns.Now() }) end
 	elseif on == "0" then
 		ns.Inspect.ShowShame(nil)
 	end
 end
 
 ---------------------------------------------------------------------------
--- The King's Agenda
+-- The Shogun's Agenda
 ---------------------------------------------------------------------------
 
 local function ZoneName()
@@ -985,21 +985,21 @@ end
 local function Clean(s, n) return ns.Cut((tostring(s or ""):gsub("[~|\n]", " ")), n) end
 
 -- "30 Raid on Crossroads": minutes first, then the title.
-function King.ParseAgenda(input)
+function Shogun.ParseAgenda(input)
 	local minutes, title = tostring(input or ""):match("^%s*(%d+)%s+(.-)%s*$")
 	minutes = tonumber(minutes)
 	if not minutes or minutes < 1 or minutes > 720 or title == "" then return nil end
 	return minutes, Clean(title, 60)
 end
 
-function King.SetAgenda(input, scope)
-	scope = King.AgendaScope(scope)
-	if not scope or not King.CanAgenda(scope) then return false end
+function Shogun.SetAgenda(input, scope)
+	scope = Shogun.AgendaScope(scope)
+	if not scope or not Shogun.CanAgenda(scope) then return false end
 	-- Guild events use the existing dated week and its signup sheets, over guild chat alone.
 	if scope == "guild" then return ns.Week and ns.Week.SetEntry(input, scope) or false end
-	local minutes, title = King.ParseAgenda(input)
+	local minutes, title = Shogun.ParseAgenda(input)
 	local W = ns.Week
-	-- 1.1: a day and an hour, then what: an entry of the King's week (Week.lua). After a number
+	-- 1.1: a day and an hour, then what: an entry of the Shogun's week (Week.lua). After a number
 	-- too ("30 Sat 20:00 Raid night", the 1.0 box's "30 " kept): the week's, never a 30-minute
 	-- Agenda with its raid warning and popup for the whole army.
 	if W and W.LooksLikeEntry and W.LooksLikeEntry(minutes and title or input) then
@@ -1013,42 +1013,42 @@ function King.SetAgenda(input, scope)
 		return false
 	end
 	local now = ns.Now()
-	if not King.Preview() and now - lastAgendaSent < King.AGENDA_GAP then
-		ns.Print(L.THRONE_WAIT:format(math.ceil(King.AGENDA_GAP - (now - lastAgendaSent))))
+	if not Shogun.Preview() and now - lastAgendaSent < Shogun.AGENDA_GAP then
+		ns.Print(L.THRONE_WAIT:format(math.ceil(Shogun.AGENDA_GAP - (now - lastAgendaSent))))
 		return false
 	end
 	lastAgendaSent = now
 	local mine = { id = NewId(), title = title, at = now + minutes * 60, zone = Clean(ZoneName(), 40), by = ns.me, guild = GetGuildInfo("player"), mine = true, fired = {} }
-	if King.Preview() then
+	if Shogun.Preview() then
 		agenda = mine
 		ns.Print(L.THRONE_PREVIEW_NOTE)
 		return Changed() or true
 	end
 	agenda = mine
-	King.SendAgenda()
+	Shogun.SendAgenda()
 	Warn(L.THRONE_AGENDA_SET:format(title, minutes, mine.zone), false, "agenda", { own = true })
 	Changed()
 	return true
 end
 
-function King.SendAgenda()
-	if not agenda or not agenda.mine or King.Preview() then return end
-	if not King.AgendaAuthorized(ns.me, agenda.guild, false) then return end
+function Shogun.SendAgenda()
+	if not agenda or not agenda.mine or Shogun.Preview() then return end
+	if not Shogun.AgendaAuthorized(ns.me, agenda.guild, false) then return end
 	-- Seconds left, so a resend never moves the time (minutes rounded up did).
 	local left = math.floor(agenda.at - ns.Now())
 	if left < 30 then return end
 	local a = agenda
 	ns.Comm.Send("CHANNEL", ("T1~A~%d~%s~%d~%s~%s"):format(a.id, GetGuildInfo("player") or "", left, a.zone, a.title), "agenda",
-		nil, nil, nil, { owner = King, guard = function() return agenda == a and King.AgendaAuthorized(ns.me, a.guild, false) end })
+		nil, nil, nil, { owner = Shogun, guard = function() return agenda == a and Shogun.AgendaAuthorized(ns.me, a.guild, false) end })
 end
 
-function King.CancelAgenda()
+function Shogun.CancelAgenda()
 	if not agenda then return end
-	if King.AgendaPreviewBlocked() then return false end
-	if not King.Preview() and not agenda.mine and not King.CanAgenda("army") then return false end
-	-- The King or a Hand cancels it for everyone, whoever set it (its setter's client stops
+	if Shogun.AgendaPreviewBlocked() then return false end
+	if not Shogun.Preview() and not agenda.mine and not Shogun.CanAgenda("army") then return false end
+	-- The Shogun or a Hand cancels it for everyone, whoever set it (its setter's client stops
 	-- repeating it when the cancel reaches it).
-	if not King.Preview() then
+	if not Shogun.Preview() then
 		ns.Comm.Send("CHANNEL", ("T1~X~%d~%s"):format(agenda.id, GetGuildInfo("player") or ""), "agenda")
 	end
 	if ns.Week and ns.Week.Forget then ns.Week.Forget(agenda.id) end -- (1.1: a signup for it, and its nudge)
@@ -1056,50 +1056,50 @@ function King.CancelAgenda()
 	Changed()
 end
 
-function King.Agenda()
+function Shogun.Agenda()
 	if agenda and agenda.at < ns.Now() - 600 then agenda = nil end -- over for 10 minutes
-	if agenda and not King.Preview() and not King.AgendaAuthorized(agenda.by, agenda.guild, false) then return nil end
+	if agenda and not Shogun.Preview() and not Shogun.AgendaAuthorized(agenda.by, agenda.guild, false) then return nil end
 	return agenda
 end
 
-local function OnAgenda(king, id, rest, guild)
+local function OnAgenda(shogun, id, rest, guild)
 	local seconds, zone, title = rest:match("^(%d+)~([^~]*)~(.*)$")
 	seconds = tonumber(seconds)
 	if not seconds or seconds < 30 or seconds > 720 * 60 or title == "" then return end
 	local now = ns.Now()
 	if agenda and agenda.id == id then
-		if ns.FullName(agenda.by) ~= ns.FullName(king) then return end
+		if ns.FullName(agenda.by) ~= ns.FullName(shogun) then return end
 		-- A resend: keep our time unless it is really off (late login, clock drift).
 		if math.abs((now + seconds) - agenda.at) > 60 then agenda.at = now + seconds end
 		return Changed()
 	end
-	agenda = { id = id, title = Clean(title, 60), at = now + seconds, zone = Clean(zone, 40), by = king, fired = {},
-		guild = King.CleanGuild(guild) } -- (1.1: its setter's guild, for the net-off: Week.lua)
+	agenda = { id = id, title = Clean(title, 60), at = now + seconds, zone = Clean(zone, 40), by = shogun, fired = {},
+		guild = Shogun.CleanGuild(guild) } -- (1.1: its setter's guild, for the net-off: Week.lua)
 	-- A new agenda is a raid warning and a popup (the appointment: what, when, where), but
 	-- not more than once a minute whatever arrives.
-	if now - lastAgendaWarn >= King.AGENDA_GAP then
+	if now - lastAgendaWarn >= Shogun.AGENDA_GAP then
 		lastAgendaWarn = now
-		local a, byKing = agenda, King.FromKing(king, guild)
+		local a, byShogun = agenda, Shogun.FromShogun(shogun, guild)
 		-- The popup says the minutes left when it shows (later, after an instance: 1.1).
 		local function Popup()
 			local minutes = math.max(1, math.ceil((a.at - ns.Now()) / 60))
-			-- The King by the army's name for him; a Hand by theirs (as OnSummon).
+			-- The Shogun by the army's name for him; a Hand by theirs (as OnSummon).
 			local where = a.zone ~= "" and a.zone or "?"
-			local text = byKing and L.THRONE_AGENDA_POPUP:format(ns.KingName(king), a.title, minutes, where)
-				or (King.IsHandName(king) or King.IsStewardName(king)) and L.THRONE_AGENDA_POPUP_HAND:format(ns.DisplayName(king), a.title, minutes, where)
-				or L.HERALDRY_AGENDA_POPUP:format(ns.DisplayName(king), a.title, minutes, where)
+			local text = byShogun and L.THRONE_AGENDA_POPUP:format(ns.ShogunName(shogun), a.title, minutes, where)
+				or (Shogun.IsHandName(shogun) or Shogun.IsStewardName(shogun)) and L.THRONE_AGENDA_POPUP_HAND:format(ns.DisplayName(shogun), a.title, minutes, where)
+				or L.HERALDRY_AGENDA_POPUP:format(ns.DisplayName(shogun), a.title, minutes, where)
 			ns.ShowDialog("BANKAIGUILD_AGENDA_CALL", text)
 		end
-		Warn(L.THRONE_AGENDA_SET:format(a.title, math.ceil(seconds / 60), a.zone), false, "agenda", King.AgendaHeld(a, Popup))
+		Warn(L.THRONE_AGENDA_SET:format(a.title, math.ceil(seconds / 60), a.zone), false, "agenda", Shogun.AgendaHeld(a, Popup))
 	end
 	Changed()
 end
 
 -- The Agenda's raid warnings in an instance or on Busy (1.1, ns.Alert): one line for it and its
 -- reminders, current until it is due (and while it is still the Agenda).
-function King.AgendaHeld(a, show)
+function Shogun.AgendaHeld(a, show)
 	return { what = L.HELD_AGENDA:format(a.title), key = "agenda" .. tostring(a.id), show = show,
-		open = function() return King.Agenda() == a and a.at > ns.Now() end }
+		open = function() return Shogun.Agenda() == a and a.at > ns.Now() end }
 end
 
 StaticPopupDialogs["BANKAIGUILD_AGENDA_CALL"] = {
@@ -1112,18 +1112,18 @@ StaticPopupDialogs["BANKAIGUILD_AGENDA_CALL"] = {
 }
 
 ---------------------------------------------------------------------------
--- The King on the map: when he turns it on (Throne tab), his client sends where he is and
+-- The Shogun on the map: when he turns it on (Throne tab), his client sends where he is and
 -- every addon shows a crown on the world map and the minimap. Off by default, and a button
 -- away: his position is on stream.
 --   T1~P~<id>~<guild>~<mapID>~<x 0-1000>~<y 0-1000>   where he is (every few seconds while moving)
 --   T1~Q~<id>~<guild>                                  hidden again
 ---------------------------------------------------------------------------
 
-King.LOCATION_EVERY = 5      -- seconds between sends while moving
-King.LOCATION_STILL = 20     -- standing still, repeated this often (for late logins)
-King.LOCATION_EXPIRE = 45    -- a crown with no news this long is removed
+Shogun.LOCATION_EVERY = 5      -- seconds between sends while moving
+Shogun.LOCATION_STILL = 20     -- standing still, repeated this often (for late logins)
+Shogun.LOCATION_EXPIRE = 45    -- a crown with no news this long is removed
 
-local kingAt                 -- where the King is, for everyone: { name, id, mapID, x, y, t }
+local shogunAt                 -- where the Shogun is, for everyone: { name, id, mapID, x, y, t }
 local locationId = NewId()
 local lastLocation = { t = -math.huge }
 local Pins = ns.Pins()
@@ -1133,7 +1133,7 @@ local crownAt                -- where they are drawn now (drawn again only when 
 
 -- Configured opt-in: also used by the independent layer/match/lives policy. It must not be
 -- rewritten merely because this frame has no publishable position (an instance or loading map).
-function King.SharingLocation() return ns.db ~= nil and ns.db.throneLocation == true end
+function Shogun.SharingLocation() return ns.db ~= nil and ns.db.throneLocation == true end
 
 local function LocationPosition()
 	if IsInInstance and IsInInstance() then return nil, "instance" end
@@ -1149,16 +1149,16 @@ end
 
 -- Effective status uses exactly the sender's current position gate, not just its saved consent.
 -- No role, consent or independent game-live setting is changed by asking this read-only status.
-function King.EffectiveLocation()
-	if not King.SharingLocation() then return false, "off" end
-	if not King.IsKing() then return false, "role" end
+function Shogun.EffectiveLocation()
+	if not Shogun.SharingLocation() then return false, "off" end
+	if not Shogun.IsShogun() then return false, "role" end
 	local mapID, why = LocationPosition()
 	if not mapID then return false, why end
 	return true
 end
 
 local function SendLocation(force)
-	if not King.SharingLocation() or not King.IsKing() then return end
+	if not Shogun.SharingLocation() or not Shogun.IsShogun() then return end
 	-- Quiet presence (Core.lua): his crown leaves no client; the army's copy expires on its own
 	-- (LOCATION_EXPIRE), as after a logout. His layer and hello are held by Layers.lua and Comm.lua.
 	if ns.QuietPresence and ns.QuietPresence() then return end
@@ -1166,20 +1166,20 @@ local function SendLocation(force)
 	if not mapID then return end
 	local now = ns.Now()
 	local moved = lastLocation.mapID ~= mapID or math.abs((lastLocation.x or 0) - x) > 0.003 or math.abs((lastLocation.y or 0) - y) > 0.003
-	if not force and (now - lastLocation.t < King.LOCATION_EVERY or (not moved and now - lastLocation.t < King.LOCATION_STILL)) then return end
+	if not force and (now - lastLocation.t < Shogun.LOCATION_EVERY or (not moved and now - lastLocation.t < Shogun.LOCATION_STILL)) then return end
 	lastLocation = { mapID = mapID, x = x, y = y, t = now }
 	ns.Comm.Send("CHANNEL", ("T1~P~%d~%s~%d~%d~%d"):format(locationId, GetGuildInfo("player") or "", mapID,
-		math.floor(x * 1000 + 0.5), math.floor(y * 1000 + 0.5)), "kinglocation")
+		math.floor(x * 1000 + 0.5), math.floor(y * 1000 + 0.5)), "shogunlocation")
 end
 
 -- Quiet presence turned off (Core.lua): his crown at once again, while he shares it.
 ns.On("QUIET_PRESENCE_CHANGED", function(on) if on == false then SendLocation(true) end end)
 
-function King.ToggleLocation()
-	if King.Preview() then return ns.Print(L.THRONE_PREVIEW_NOTE) end
-	if not King.IsKing() then return end
-	ns.db.throneLocation = not King.SharingLocation()
-	if King.SharingLocation() then
+function Shogun.ToggleLocation()
+	if Shogun.Preview() then return ns.Print(L.THRONE_PREVIEW_NOTE) end
+	if not Shogun.IsShogun() then return end
+	ns.db.throneLocation = not Shogun.SharingLocation()
+	if Shogun.SharingLocation() then
 		-- Each explicit on period is a new lease. A sighting from before an opt-out must not
 		-- become usable again if the crown is shown moments later.
 		locationId = locationId % 99999 + 1
@@ -1194,13 +1194,13 @@ function King.ToggleLocation()
 		lastLocation = { t = -math.huge }
 		-- (Quiet presence, Core.lua: no removal either; the army's copy expires on its own.)
 		if not (ns.QuietPresence and ns.QuietPresence()) then
-			ns.Comm.Send("CHANNEL", ("T1~Q~%d~%s"):format(locationId, GetGuildInfo("player") or ""), "kinglocation")
+			ns.Comm.Send("CHANNEL", ("T1~Q~%d~%s"):format(locationId, GetGuildInfo("player") or ""), "shogunlocation")
 		end
 		-- His layer goes with it, at once, and his hello stops naming his zone (Layers.Sharing).
 		ns.Layers.Withdraw()
 		ns.Comm.Hello(true)
 	end
-	ns.Fire("KING_LOCATION_CHANGED", King.SharingLocation() and "show" or "hide", ns.FullName(ns.me), locationId)
+	ns.Fire("SHOGUN_LOCATION_CHANGED", Shogun.SharingLocation() and "show" or "hide", ns.FullName(ns.me), locationId)
 	-- Taking donations (1.1): his zone in it follows his crown at once.
 	if ns.Treasury and ns.Treasury.DonationsMoved then ns.Treasury.DonationsMoved() end
 	Changed()
@@ -1208,7 +1208,7 @@ end
 
 local function CrownTip(self)
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-	GameTooltip:AddLine(L.THRONE_LOCATION_PIN:format(kingAt and kingAt.name or "?"), 1, 0.82, 0)
+	GameTooltip:AddLine(L.THRONE_LOCATION_PIN:format(shogunAt and shogunAt.name or "?"), 1, 0.82, 0)
 	GameTooltip:Show()
 end
 local function Crown(size)
@@ -1235,58 +1235,58 @@ end
 
 -- Draws (or removes) the crown on the world map and the minimap. The world map's only with
 -- mouse and keyboard (ns.WorldMapIcons); drawn again when that changes, even where he stands still.
--- 1.1.6: never for a sanctioned player (WatchChat.Barred "locations", as King.Location): one drawn
+-- 1.1.6: never for a sanctioned player (WatchChat.Barred "locations", as Shogun.Location): one drawn
 -- before is taken off (every LOCATION_EVERY and at once on WATCHCHAT_CHANGED), and drawn again
--- once the sanction ends while the King still shares his position.
-function King.RefreshCrown()
+-- once the sanction ends while the Shogun still shares his position.
+function Shogun.RefreshCrown()
 	if not Pins then return end
-	local world = ns.WorldMapIcons(Pins, King) -- gp:worldmap-icons
-	if kingAt and ns.Now() - kingAt.t > King.LOCATION_EXPIRE then kingAt = nil end
+	local world = ns.WorldMapIcons(Pins, Shogun) -- gp:worldmap-icons
+	if shogunAt and ns.Now() - shogunAt.t > Shogun.LOCATION_EXPIRE then shogunAt = nil end
 	local WC = ns.WatchChat
 	local barred = WC and not WC.missing and WC.Barred and WC.Barred("locations")
-	if not kingAt or barred then
+	if not shogunAt or barred then
 		if crowns and crownAt then
-			if world then Pins:RemoveWorldMapIcon(King, crowns.world) end
-			Pins:RemoveMinimapIcon(King, crowns.mini)
+			if world then Pins:RemoveWorldMapIcon(Shogun, crowns.world) end
+			Pins:RemoveMinimapIcon(Shogun, crowns.mini)
 			crowns.world:Hide()
 			crowns.mini:Hide()
 		end
 		crownAt = nil
 		return
 	end
-	if crownAt and crownAt.mapID == kingAt.mapID and crownAt.x == kingAt.x and crownAt.y == kingAt.y and crownAt.world == world then return end
+	if crownAt and crownAt.mapID == shogunAt.mapID and crownAt.x == shogunAt.x and crownAt.y == shogunAt.y and crownAt.world == world then return end
 	crowns = crowns or { world = WorldCrown(), mini = Crown(16) }
 	-- Taken off before it is put back: the map library makes a new map pin on every add.
 	if crownAt then
-		if world then Pins:RemoveWorldMapIcon(King, crowns.world) end
-		Pins:RemoveMinimapIcon(King, crowns.mini)
+		if world then Pins:RemoveWorldMapIcon(Shogun, crowns.world) end
+		Pins:RemoveMinimapIcon(Shogun, crowns.mini)
 	end
-	crownAt = { mapID = kingAt.mapID, x = kingAt.x, y = kingAt.y, world = world }
-	if world then Pins:AddWorldMapIconMap(King, crowns.world, kingAt.mapID, kingAt.x, kingAt.y, SHOW_FLAG) end
-	Pins:AddMinimapIconMap(King, crowns.mini, kingAt.mapID, kingAt.x, kingAt.y, true, true) -- gp:minimap
+	crownAt = { mapID = shogunAt.mapID, x = shogunAt.x, y = shogunAt.y, world = world }
+	if world then Pins:AddWorldMapIconMap(Shogun, crowns.world, shogunAt.mapID, shogunAt.x, shogunAt.y, SHOW_FLAG) end
+	Pins:AddMinimapIconMap(Shogun, crowns.mini, shogunAt.mapID, shogunAt.x, shogunAt.y, true, true) -- gp:minimap
 end
 
-local function OnLocation(king, id, rest)
+local function OnLocation(shogun, id, rest)
 	local mapID, x, y = rest:match("^(%d+)~(%d+)~(%d+)$")
 	mapID, x, y = tonumber(mapID), tonumber(x), tonumber(y)
 	if not mapID or x > 1000 or y > 1000 then return end
-	kingAt = { from = ns.FullName(king), name = ns.KingName(king), id = id, mapID = mapID, x = x / 1000, y = y / 1000, t = ns.Now() }
-	ns.SafeCall("king crown", King.RefreshCrown)
-	ns.Fire("KING_LOCATION_CHANGED", "show", kingAt.from, kingAt.id)
+	shogunAt = { from = ns.FullName(shogun), name = ns.ShogunName(shogun), id = id, mapID = mapID, x = x / 1000, y = y / 1000, t = ns.Now() }
+	ns.SafeCall("shogun crown", Shogun.RefreshCrown)
+	ns.Fire("SHOGUN_LOCATION_CHANGED", "show", shogunAt.from, shogunAt.id)
 	Changed()
 end
 
--- Where the King is, while he shares it: { name, id, mapID, x, y, t } or nil.
-function King.Location()
-	if kingAt and ns.Now() - kingAt.t > King.LOCATION_EXPIRE then return nil end
-	-- 1.1.6: a sanctioned player (WatchChat.Barred "locations") sees neither the King's crown nor
+-- Where the Shogun is, while he shares it: { name, id, mapID, x, y, t } or nil.
+function Shogun.Location()
+	if shogunAt and ns.Now() - shogunAt.t > Shogun.LOCATION_EXPIRE then return nil end
+	-- 1.1.6: a sanctioned player (WatchChat.Barred "locations") sees neither the Shogun's crown nor
 	-- his arrow, and asks for no layer of his, while it lasts.
 	local WC = ns.WatchChat
-	if kingAt and WC and not WC.missing and WC.Barred and WC.Barred("locations") then return nil end
-	return kingAt
+	if shogunAt and WC and not WC.missing and WC.Barred and WC.Barred("locations") then return nil end
+	return shogunAt
 end
 
-function King.HandleCommand(dist, sender, text)
+function Shogun.HandleCommand(dist, sender, text)
 	if dist ~= "CHANNEL" and dist ~= "GUILD" then return end
 	local kind, id, guild, rest = text:match("^T1~(%a)~(%d+)~([^~]*)~?(.*)$")
 	if not kind then return end
@@ -1295,33 +1295,33 @@ function King.HandleCommand(dist, sender, text)
 	if guildOnly and kind ~= "D" and kind ~= "R" then return end
 	local ownCancel = kind == "D" and rest:find("^0~") and ns.Week and ns.Week.OwnCancel and ns.Week.OwnCancel(sender, tonumber(id), guild, guildOnly)
 		or kind == "X" and agenda and agenda.id == tonumber(id) and agenda.by == ns.FullName(sender)
-	local authorized = ownCancel or agendaKind and King.AgendaAuthorized(sender, guild, guildOnly) or (not agendaKind and King.Authorized(kind, sender, guild))
+	local authorized = ownCancel or agendaKind and Shogun.AgendaAuthorized(sender, guild, guildOnly) or (not agendaKind and Shogun.Authorized(kind, sender, guild))
 	if not authorized then
 		-- Positions come every few seconds: not logged.
 		if kind ~= "P" then
-			ns.Log("throne %s from %s ignored: not the King of %s nor his Hand%s", kind, sender, tostring(guild),
-				ns.KingCharacter() and "" or " (no King named on this side: nobody commands)")
+			ns.Log("throne %s from %s ignored: not the Shogun of %s nor his Hand%s", kind, sender, tostring(guild),
+				ns.ShogunCharacter() and "" or " (no Shogun named on this side: nobody commands)")
 		end
 		return
 	end
 	id = tonumber(id)
 	-- 1.1: a Hand (or a Steward) the moderators took off (net-off, Moderation.lua): none of their
-	-- calls to the army shows. (Never the King: nobody takes him off.)
-	-- But a setter taking his own entry off the King's week (a D of 0 seconds): Week.lua takes it
+	-- calls to the army shows. (Never the Shogun: nobody takes him off.)
+	-- But a setter taking his own entry off the Shogun's week (a D of 0 seconds): Week.lua takes it
 	-- for his own entry alone (1.1 review: held, it showed again everywhere once he was back).
-	if King.HIDDEN_CALLS[kind] and ns.Moderation.Hides and ns.Moderation.Hides(sender, guild) and not (kind == "D" and rest:find("^0~")) then
+	if Shogun.HIDDEN_CALLS[kind] and ns.Moderation.Hides and ns.Moderation.Hides(sender, guild) and not (kind == "D" and rest:find("^0~")) then
 		return ns.Log("throne %s from %s ignored: net-off", kind, sender)
 	end
 	-- 1.1.6: a Hand or a Steward under a moderator's timeout or hold (WatchChat.Barred "powers")
-	-- calls nobody while it lasts. (Never the King: nobody times him out.)
+	-- calls nobody while it lasts. (Never the Shogun: nobody times him out.)
 	local WC = ns.WatchChat
-	if King.HIDDEN_CALLS[kind] and WC and not WC.missing and WC.Barred and not (kind == "D" and rest:find("^0~"))
-		and not KingSender(sender, guild) and WC.Barred("powers", sender) then
+	if Shogun.HIDDEN_CALLS[kind] and WC and not WC.missing and WC.Barred and not (kind == "D" and rest:find("^0~"))
+		and not ShogunSender(sender, guild) and WC.Barred("powers", sender) then
 		return ns.Log("throne %s from %s ignored: sanctioned", kind, sender)
 	end
-	-- The King's own client takes his Hands' news (the agenda, the gates, a cancel), not
+	-- The Shogun's own client takes his Hands' news (the agenda, the gates, a cancel), not
 	-- their calls to the army: no roll call popup, patrol or poll window for him.
-	if King.IsKing() and (kind == "S" or kind == "I" or kind == "V") and not KingSender(sender, guild) then return end
+	if Shogun.IsShogun() and (kind == "S" or kind == "I" or kind == "V") and not ShogunSender(sender, guild) then return end
 	if kind == "S" then OnSummon(sender, id, guild)
 	elseif kind == "H" then OnHands(sender, rest)
 	elseif kind == "N" then OnStewardHands(sender, rest)
@@ -1332,14 +1332,14 @@ function King.HandleCommand(dist, sender, text)
 	elseif kind == "P" then OnLocation(sender, id, rest)
 	elseif kind == "Q" then
 		-- Only whoever put the crown there takes it off.
-		if kingAt and (kingAt.from ~= ns.FullName(sender) or kingAt.id ~= id) then
+		if shogunAt and (shogunAt.from ~= ns.FullName(sender) or shogunAt.id ~= id) then
 			-- The Q must not hide a newer crown, but its own old lease is still explicitly revoked.
-			ns.Fire("KING_LOCATION_CHANGED", "revoke", ns.FullName(sender), id)
+			ns.Fire("SHOGUN_LOCATION_CHANGED", "revoke", ns.FullName(sender), id)
 			return
 		end
-		kingAt = nil
-		ns.SafeCall("king crown", King.RefreshCrown)
-		ns.Fire("KING_LOCATION_CHANGED", "hide", ns.FullName(sender), id)
+		shogunAt = nil
+		ns.SafeCall("shogun crown", Shogun.RefreshCrown)
+		ns.Fire("SHOGUN_LOCATION_CHANGED", "hide", ns.FullName(sender), id)
 		Changed()
 	elseif kind == "X" then
 		if agenda and agenda.id == id then
@@ -1350,60 +1350,60 @@ function King.HandleCommand(dist, sender, text)
 		if ns.Week and ns.Week.Forget then ns.Week.Forget(id) end
 	end
 end
-ns.Comm.Handle("T1", function(...) King.HandleCommand(...) end)
+ns.Comm.Handle("T1", function(...) Shogun.HandleCommand(...) end)
 
 -- 1.1.6: a sanction given or lifted (WatchChat.lua): the crown taken off or drawn again at once.
-ns.On("WATCHCHAT_CHANGED", function() ns.SafeCall("king crown", King.RefreshCrown) end)
+ns.On("WATCHCHAT_CHANGED", function() ns.SafeCall("shogun crown", Shogun.RefreshCrown) end)
 
 ns.On("LOGIN", function()
-	-- The King's position, while he shares it; everyone's crown expires on its own.
-	-- (1.2.3, the King's stream: his crown already on from the last session, the army could not ask
+	-- The Shogun's position, while he shares it; everyone's crown expires on its own.
+	-- (1.2.3, the Shogun's stream: his crown already on from the last session, the army could not ask
 	-- for his layer until he hid and showed it again.) His layer goes out at his first tick as the
-	-- King, as Show me on the map sends it: at login the creature read that announces it
-	-- (Layers.Observe) can come before the game names his guild, when he is not the King yet here,
+	-- Shogun, as Show me on the map sends it: at login the creature read that announces it
+	-- (Layers.Observe) can come before the game names his guild, when he is not the Shogun yet here,
 	-- and the minute's announcement (Layers.Tick) starts a minute or two after login.
-	ns.Every(King.LOCATION_EVERY, "king location", function()
+	ns.Every(Shogun.LOCATION_EVERY, "shogun location", function()
 		SendLocation()
 		local Ly = ns.Layers
-		if King.SharingLocation() and King.IsKing() and not (IsInInstance and IsInInstance())
+		if Shogun.SharingLocation() and Shogun.IsShogun() and not (IsInInstance and IsInInstance())
 			and Ly and Ly.SentAt and Ly.AnnounceNow and Ly.SentAt() == nil then Ly.AnnounceNow() end
-		King.RefreshCrown()
+		Shogun.RefreshCrown()
 	end)
 	-- His Hands from the last session; he repeats them for late logins (HANDS_EVERY). A
 	-- Steward's own list the same, from his client (1.0.0).
-	King.LoadHands()
-	ns.Every(60, "king hands", function()
-		King.SendHands()
-		King.SendStewardHands()
-		King.SendUntabarded()
+	Shogun.LoadHands()
+	ns.Every(60, "shogun hands", function()
+		Shogun.SendHands()
+		Shogun.SendStewardHands()
+		Shogun.SendUntabarded()
 	end)
 	-- The guild is not always known at login yet: checked when the note is due.
-	ns.After(20, "king location note", function()
-		if King.SharingLocation() and King.IsKing() then ns.Print(L.THRONE_LOCATION_SHOWN) end
-		-- A King no update has named yet (the Horde's): his commands reach nobody (KingSender).
-		if King.IsKing() and not ns.KingCharacter() then ns.Print(L.THRONE_NOT_NAMED) end
+	ns.After(20, "shogun location note", function()
+		if Shogun.SharingLocation() and Shogun.IsShogun() then ns.Print(L.THRONE_LOCATION_SHOWN) end
+		-- A Shogun no update has named yet (the Horde's): his commands reach nobody (ShogunSender).
+		if Shogun.IsShogun() and not ns.ShogunCharacter() then ns.Print(L.THRONE_NOT_NAMED) end
 	end)
 	ns.Every(60, "agenda", function()
-		local a = King.Agenda()
+		local a = Shogun.Agenda()
 		if not a then return end
 		local left = a.at - ns.Now()
-		-- Reminders for everyone, and the King's client repeats it for late logins.
+		-- Reminders for everyone, and the Shogun's client repeats it for late logins.
 		a.fired = a.fired or {}
 		for _, mark in ipairs({ 600, 60 }) do
 			if left <= mark and left > 0 and not a.fired[mark] then
 				a.fired[mark] = true
-				Warn(L.THRONE_AGENDA_SOON:format(a.title, math.max(1, math.ceil(left / 60)), a.zone), false, "agenda", King.AgendaHeld(a))
+				Warn(L.THRONE_AGENDA_SOON:format(a.title, math.max(1, math.ceil(left / 60)), a.zone), false, "agenda", Shogun.AgendaHeld(a))
 			end
 		end
-		if a.mine and not QuietRepeat(false) and (not a.sentAt or ns.Now() - a.sentAt >= King.AGENDA_RESEND) then
+		if a.mine and not QuietRepeat(false) and (not a.sentAt or ns.Now() - a.sentAt >= Shogun.AGENDA_RESEND) then
 			a.sentAt = ns.Now()
-			King.SendAgenda()
+			Shogun.SendAgenda()
 		end
 		Changed()
 	end)
 end)
 
-StaticPopupDialogs["BANKAIGUILD_KING_AGENDA"] = {
+StaticPopupDialogs["BANKAIGUILD_SHOGUN_AGENDA"] = {
 	text = "%s",
 	button1 = OKAY or "OK",
 	button2 = CANCEL or "Cancel",
@@ -1419,11 +1419,11 @@ StaticPopupDialogs["BANKAIGUILD_KING_AGENDA"] = {
 	OnAccept = function(self, data)
 		local eb = self.editBox or self.EditBox
 		data = data or self.data
-		ns.SafeCall("agenda", King.SetAgenda, eb and eb:GetText(), type(data) == "table" and data.scope or nil)
+		ns.SafeCall("agenda", Shogun.SetAgenda, eb and eb:GetText(), type(data) == "table" and data.scope or nil)
 	end,
 	EditBoxOnEnterPressed = function(self)
 		local data = self:GetParent().data
-		ns.SafeCall("agenda", King.SetAgenda, self:GetText(), type(data) == "table" and data.scope or nil)
+		ns.SafeCall("agenda", Shogun.SetAgenda, self:GetText(), type(data) == "table" and data.scope or nil)
 		self:GetParent():Hide()
 	end,
 	EditBoxOnEscapePressed = function(self) self:GetParent():Hide() end,
@@ -1433,10 +1433,10 @@ StaticPopupDialogs["BANKAIGUILD_KING_AGENDA"] = {
 	preferredIndex = 3,
 }
 
-function King.AgendaPrompt(scope)
-	scope = King.AgendaScope(scope)
-	if not scope or not King.CanAgenda(scope) then return false end
-	ns.ShowDialog("BANKAIGUILD_KING_AGENDA", scope == "guild" and L.WEEK_GUILD_PROMPT or L.THRONE_AGENDA_PROMPT, nil, { scope = scope })
+function Shogun.AgendaPrompt(scope)
+	scope = Shogun.AgendaScope(scope)
+	if not scope or not Shogun.CanAgenda(scope) then return false end
+	ns.ShowDialog("BANKAIGUILD_SHOGUN_AGENDA", scope == "guild" and L.WEEK_GUILD_PROMPT or L.THRONE_AGENDA_PROMPT, nil, { scope = scope })
 	Changed()
 end
 
@@ -1454,11 +1454,11 @@ end
 
 -- A paragraph in rows short enough for the page (rows are one line each): split at spaces,
 -- about `width` letters a row. The last row takes `extra` (gapAfter...).
-King.WRAP = 44
+Shogun.WRAP = 44
 local function Para(lines, text, font, extra)
 	local row, rows = "", {}
 	for word in tostring(text or ""):gmatch("%S+") do
-		if row ~= "" and #row + 1 + #word > King.WRAP then
+		if row ~= "" and #row + 1 + #word > Shogun.WRAP then
 			rows[#rows + 1] = row
 			row = word
 		else
@@ -1469,11 +1469,11 @@ local function Para(lines, text, font, extra)
 	for i, r in ipairs(rows) do lines[#lines + 1] = Line(r, font, i == #rows and extra or nil) end
 	return lines
 end
-King.Para = Para
+Shogun.Para = Para
 
 ---------------------------------------------------------------------------
--- Where the King's calls show: the roll call in the Realm tab (next to the Lords it calls),
--- the Royal Inspection in The Watch's Tabards. Plain rows (not the parchment), for the King and
+-- Where the Shogun's calls show: the roll call in the Realm tab (next to the Council it calls),
+-- the Royal Inspection in The Watch's Tabards. Plain rows (not the parchment), for the Shogun and
 -- his Hands (and the author's Shobek's view).
 ---------------------------------------------------------------------------
 
@@ -1483,12 +1483,12 @@ local function Green(s) return "|cff40ff40" .. s .. "|r" end
 local READY = "|TInterface\\RaidFrame\\ReadyCheck-Ready:13:13|t "
 local NOT_READY = "|TInterface\\RaidFrame\\ReadyCheck-NotReady:13:13|t "
 local WAITING = "|TInterface\\RaidFrame\\ReadyCheck-Waiting:13:13|t "
-King.ROLL_SHOWN = 15 * 60    -- the marks next to the Lords stay this long after a roll call
+Shogun.ROLL_SHOWN = 15 * 60    -- the marks next to the Council stay this long after a roll call
 
-function King.CanCall() return King.CanCommand() or King.Preview() end
+function Shogun.CanCall() return Shogun.CanCommand() or Shogun.Preview() end
 
--- Who answered the roll call: present and busy (confirmed Lords and Captains), the others
--- the census can't confirm (counted), and the Lords online who stayed silent.
+-- Who answered the roll call: present and busy (confirmed Council and Captains), the others
+-- the census can't confirm (counted), and the Council online who stayed silent.
 local function RollCall()
 	if not summon then return nil end
 	local present, busy, silent, others = {}, {}, {}, 0
@@ -1497,18 +1497,18 @@ local function RollCall()
 		if a.word == "P" then present[#present + 1] = row else busy[#busy + 1] = row end
 	end
 	for _ in pairs(summon.others or {}) do others = others + 1 end
-	for _, lord in ipairs(LordsOnline()) do
-		local answered = summon.answers[lord.name] or (summon.others and summon.others[lord.name])
-		if not answered and lord.name ~= ns.me then silent[#silent + 1] = ("%s <%s>"):format(ns.DisplayName(lord.name), lord.guild) end
+	for _, council in ipairs(CouncilOnline()) do
+		local answered = summon.answers[council.name] or (summon.others and summon.others[council.name])
+		if not answered and council.name ~= ns.me then silent[#silent + 1] = ("%s <%s>"):format(ns.DisplayName(council.name), council.guild) end
 	end
 	table.sort(present); table.sort(busy); table.sort(silent)
 	return present, busy, silent, others
 end
 
--- The mark next to a Lord or Captain in the Realm tree while a roll call is fresh: answered
+-- The mark next to a Council member or Captain in the Realm tree while a roll call is fresh: answered
 -- present, busy, or (online) not answered yet.
-function King.RollCallMark(name, online)
-	if not summon or not King.CanCall() or ns.Now() - summon.t > King.ROLL_SHOWN then return "" end
+function Shogun.RollCallMark(name, online)
+	if not summon or not Shogun.CanCall() or ns.Now() - summon.t > Shogun.ROLL_SHOWN then return "" end
 	local full = ns.FullName(name)
 	if full == ns.me then return "" end -- who called
 	local a = summon.answers[full]
@@ -1520,15 +1520,15 @@ function King.RollCallMark(name, online)
 end
 
 local rollOpen = false
-function King.RollCallLines()
-	if not King.CanCall() then return {} end
+function Shogun.RollCallLines()
+	if not Shogun.CanCall() then return {} end
 	local present, busy, silent, others = RollCall()
 	local lines = {
 		{
 			header = true, text = READY .. L.THRONE_SUMMON_TITLE,
 			right = present and Grey(L.ROLL_COUNTS:format(#present, #busy, #silent) .. "  " .. ns.Ago(summon.t)) or Gold(L.ROLL_CALL),
 			-- A call while there is none; once called, "call again" below (the results stay).
-			onClick = not present and function() King.Summon() end or nil,
+			onClick = not present and function() Shogun.Summon() end or nil,
 			tooltip = function(tt)
 				tt:AddLine(L.THRONE_SUMMON_TITLE, 1, 0.82, 0)
 				tt:AddLine(L.THRONE_SUMMON_TIP, 1, 1, 1, true)
@@ -1561,15 +1561,15 @@ function King.RollCallLines()
 				end }
 			end
 		end
-		lines[#lines + 1] = { indent = 1, text = Gold("> " .. L.ROLL_AGAIN), onClick = function() King.Summon() end }
+		lines[#lines + 1] = { indent = 1, text = Gold("> " .. L.ROLL_AGAIN), onClick = function() Shogun.Summon() end }
 	end
 	lines[#lines].gapAfter = true
 	return lines
 end
 
 -- The Royal Inspection on top of The Watch's Tabards: call one, then what the patrols reported.
-function King.InspectionLines()
-	if not King.CanCall() then return {} end
+function Shogun.InspectionLines()
+	if not Shogun.CanCall() then return {} end
 	local lines = {}
 	local ok, bad, reporters, byGuild, names = 0, 0, 0, {}, {}
 	for _, r in pairs(inspect and inspect.reports or {}) do
@@ -1585,14 +1585,14 @@ function King.InspectionLines()
 	lines[1] = {
 		header = true, text = "|TInterface\\Icons\\INV_Shirt_GuildTabard_01:14:14|t " .. L.THRONE_INSPECT_TITLE,
 		right = inspect and Grey(L.INSPECTION_SHORT:format(pct, total) .. "  " .. ns.Ago(inspect.t)) or Gold(L.INSPECTION_CALL),
-		onClick = not inspect and function() King.Inspect() end or nil,
+		onClick = not inspect and function() Shogun.Inspect() end or nil,
 		tooltip = function(tt)
 			tt:AddLine(L.THRONE_INSPECT_TITLE, 1, 0.82, 0)
 			tt:AddLine(L.THRONE_INSPECT_TIP, 1, 1, 1, true)
 		end,
 	}
 	if inspect then
-		local left = inspect.t + King.INSPECT_TIME + 10 - ns.Now()
+		local left = inspect.t + Shogun.INSPECT_TIME + 10 - ns.Now()
 		if left > 0 then lines[#lines + 1] = { indent = 1, text = Gold(L.THRONE_INSPECT_RUNNING:format(math.ceil(left))) } end
 		lines[#lines + 1] = { indent = 1, text = L.THRONE_INSPECT_SUMMARY:format(reporters, total, pct) }
 		-- (1.2.4: as many inspected, the higher average level first, then the name: one order every time;
@@ -1617,13 +1617,13 @@ function King.InspectionLines()
 					right = v.status == "NONE" and L.TABARD_NONE or L.TABARD_OTHER }
 			end
 		end
-		lines[#lines + 1] = { indent = 1, text = Gold("> " .. L.INSPECTION_AGAIN), onClick = function() King.Inspect() end }
+		lines[#lines + 1] = { indent = 1, text = Gold("> " .. L.INSPECTION_AGAIN), onClick = function() Shogun.Inspect() end }
 	end
-	-- The untabarded list is the King's: he alone lets the army see it (not a Hand), and can
+	-- The untabarded list is the Shogun's: he alone lets the army see it (not a Hand), and can
 	-- take it back at any time, inspection or not.
-	if King.IsKing() or King.Preview() then
-		lines[#lines + 1] = { indent = 1, text = Gold("> " .. (King.SharingUntabarded() and L.UNTABARDED_STOP or L.UNTABARDED_SHARE)),
-			onClick = function() King.ToggleUntabarded() end,
+	if Shogun.IsShogun() or Shogun.Preview() then
+		lines[#lines + 1] = { indent = 1, text = Gold("> " .. (Shogun.SharingUntabarded() and L.UNTABARDED_STOP or L.UNTABARDED_SHARE)),
+			onClick = function() Shogun.ToggleUntabarded() end,
 			tooltip = function(tt) tt:AddLine(L.UNTABARDED_TIP, 1, 1, 1, true) end }
 	end
 	lines[#lines].gapAfter = true
@@ -1631,22 +1631,22 @@ function King.InspectionLines()
 end
 
 local function HandsLines()
-	local steward = King.IsSteward()
+	local steward = Shogun.IsSteward()
 	local lines = Para({ Line(L.HANDS_TITLE, TITLE) }, steward and L.HANDS_HINT_STEWARD or L.HANDS_HINT, INK, { gapAfter = true })
-	if King.SetsLists() or King.Preview() then
-		local list = King.Hands()
-		lines[#lines + 1] = Line("+ " .. L.HANDS_ADD, TITLE, { onClick = function() ns.ShowDialog("BANKAIGUILD_KING_HAND") end })
+	if Shogun.SetsLists() or Shogun.Preview() then
+		local list = Shogun.Hands()
+		lines[#lines + 1] = Line("+ " .. L.HANDS_ADD, TITLE, { onClick = function() ns.ShowDialog("BANKAIGUILD_SHOGUN_HAND") end })
 		for _, name in ipairs(list) do
 			lines[#lines + 1] = Line(ns.DisplayName(name), INK, { indent = 1, key = name,
-				onClick = function() ns.ShowDialog("BANKAIGUILD_KING_UNHAND", ns.DisplayName(name), nil, name) end,
+				onClick = function() ns.ShowDialog("BANKAIGUILD_SHOGUN_UNHAND", ns.DisplayName(name), nil, name) end,
 				tooltip = function(tt) tt:AddLine(ns.DisplayName(name), 1, 0.82, 0); tt:AddLine(L.HANDS_CLICK_REMOVE, 1, 1, 1, true) end })
 		end
 		if #list == 0 then lines[#lines + 1] = Line(L.HANDS_NONE, INK, { indent = 1 }) end
 		lines[#lines].gapAfter = true
-		-- The Hands the others named (1.0.0: the King, each Steward), under who named them: theirs
+		-- The Hands the others named (1.0.0: the Shogun, each Steward), under who named them: theirs
 		-- to remove, lines to read here (no button).
-		for _, o in ipairs(King.OthersHands()) do
-			lines[#lines + 1] = Line(o.steward and L.HANDS_NAMED_BY_STEWARD:format(StewardLabel(o.steward)) or L.HANDS_NAMED_BY_KING, TITLE)
+		for _, o in ipairs(Shogun.OthersHands()) do
+			lines[#lines + 1] = Line(o.steward and L.HANDS_NAMED_BY_STEWARD:format(StewardLabel(o.steward)) or L.HANDS_NAMED_BY_SHOGUN, TITLE)
 			for _, name in ipairs(o.names) do lines[#lines + 1] = Line(ns.DisplayName(name), INK, { indent = 1 }) end
 			lines[#lines].gapAfter = true
 		end
@@ -1655,25 +1655,25 @@ local function HandsLines()
 	return lines
 end
 
-King.Line, King.INK, King.TITLE = Line, INK, TITLE
+Shogun.Line, Shogun.INK, Shogun.TITLE = Line, INK, TITLE
 
-local function Go(mode) return function() King.Show(mode) end end
+local function Go(mode) return function() Shogun.Show(mode) end end
 
--- The Throne Room: what is the King's alone. Each tool lives where it belongs (the agenda here,
+-- The Throne Room: what is the Shogun's alone. Each tool lives where it belongs (the agenda here,
 -- Judgment and the court in The Watch (1.2), the Hands and his crown on the map on the buttons
 -- beside, the roll call in the Realm, the inspection in the Tabards, Vox Populi and the treasury
 -- on their own tabs): here, the army's key. A Hand's: where their tools are. His Steward's
--- (1.0.0): the King's, with what is his to do in the King's name (he holds no court). 1.1.5 (the
+-- (1.0.0): the Shogun's, with what is his to do in the Shogun's name (he holds no court). 1.1.5 (the
 -- author's calls): no treasury here any more (its own tab has it all), and under it all, the
--- King's centurions (1.2.4, the author's rule: the High Council, to read, nobody named there:
+-- Shogun's centurions (1.2.4, the author's rule: the High Council, to read, nobody named there:
 -- Nominees.MainLines); a High Councillor who is none of them has the Throne for that alone. One who
 -- also leads another Bankai Guild guild has his Guild tab's section after it.
 local function HomeLines()
-	local mine = King.IsKing() or King.Preview()
-	local steward = not mine and King.IsSteward()
-	local hand = not mine and not steward and King.IsHand()
+	local mine = Shogun.IsShogun() or Shogun.Preview()
+	local steward = not mine and Shogun.IsSteward()
+	local hand = not mine and not steward and Shogun.IsHand()
 	local title = (mine or steward) and L.THRONE_ROOM
-		or hand and L.THRONE_ROOM_HAND:format(ns.KingName(handsKing or ns.KingCharacter())) or L.THRONE_ROOM_COUNCIL
+		or hand and L.THRONE_ROOM_HAND:format(ns.ShogunName(handsShogun or ns.ShogunCharacter())) or L.THRONE_ROOM_COUNCIL
 	local lines = { Line(title, TITLE, { gapAfter = true }) }
 	if steward then
 		Para(lines, L.THRONE_STEWARD_HINT, INK, { gapAfter = true })
@@ -1684,14 +1684,14 @@ local function HomeLines()
 	end
 	-- (1.2: the court's queue is in The Watch, with Judgment.)
 	if mine or steward then
-		-- 1.1: the army's key, the King's to rotate, or his Steward's for him (Keys.lua).
+		-- 1.1: the army's key, the Shogun's to rotate, or his Steward's for him (Keys.lua).
 		for _, l in ipairs(ns.Keys.ThroneLines and ns.Keys.ThroneLines() or {}) do lines[#lines + 1] = l end
 	end
 	if #lines > 1 then lines[#lines].gapAfter = true end
 	local N = ns.Nominees
 	if N and not N.missing and N.MainLines then
 		N.MainLines(lines)
-		if King.GuildShown() then
+		if Shogun.GuildShown() then
 			lines[#lines].gapAfter = true
 			N.PageLines(lines)
 		end
@@ -1699,71 +1699,71 @@ local function HomeLines()
 	return lines
 end
 
--- The King's own pages (and his Steward's): a Hand's Throne Room has no link to them.
-King.KING_PAGES = { hands = true }
+-- The Shogun's own pages (and his Steward's): a Hand's Throne Room has no link to them.
+Shogun.SHOGUN_PAGES = { hands = true }
 
 -- For Views.Build("throne"): lines, detail title, detail text.
--- The Throne opens on the Throne Room (the King's administration; a Hand's: where their tools
+-- The Throne opens on the Throne Room (the Shogun's administration; a Hand's: where their tools
 -- are). Judgment and the court's queue are in The Watch. (1.0.0: no
--- letter before it any more.) His Steward's says on top, on every page, that he acts for the King.
-function King.Build(s)
+-- letter before it any more.) His Steward's says on top, on every page, that he acts for the Shogun.
+function Shogun.Build(s)
 	-- 1.1.5: a guild master's Guild tab, in the Throne's place (Nominees.lua). (1.2: the author sees
 	-- every tab in his own view, ViewAs.lua: without a role of his own here, the Throne as it is.)
 	local V = ns.ViewAs
 	local authorsOwn = type(V) == "table" and not V.missing and type(V.Available) == "function" and V.Available() == true
-		and V.Role() == "my" and not King.GuildShown()
-	if not King.ThroneShown() and not authorsOwn then
+		and V.Role() == "my" and not Shogun.GuildShown()
+	if not Shogun.ThroneShown() and not authorsOwn then
 		local N = ns.Nominees
-		local master, guild = King.GuildShown(), N and N.GuildAccess and select(2, N.GuildAccess())
+		local master, guild = Shogun.GuildShown(), N and N.GuildAccess and select(2, N.GuildAccess())
 		local detail = N and N.IsMaster and N.IsMaster() and L.GUILD_TAB_DETAIL or L.GUILD_DEPARTMENT_SCOPE
 		return master and N.GuildLines() or {}, L.TAB_GUILD, master and detail:format(tostring(guild)) or nil
 	end
 	local lines, home
-	if not King.mode then King.mode = "home" end
-	local mode = King.mode
-	if King.KING_PAGES[mode] and not (King.SetsLists() or King.Preview()) then mode = "home" end
+	if not Shogun.mode then Shogun.mode = "home" end
+	local mode = Shogun.mode
+	if Shogun.SHOGUN_PAGES[mode] and not (Shogun.SetsLists() or Shogun.Preview()) then mode = "home" end
 	if mode == "hands" then lines = HandsLines()
 	else lines, home = HomeLines(), true end
 	-- Every other page leads back to the Throne Room.
 	if not home then table.insert(lines, 1, Line("< " .. L.THRONE_ROOM, INK, { onClick = Go("home"), gapAfter = true })) end
 	-- While the army sees him on the map, the page says so on top, whatever it shows.
-	if King.SharingLocation() and King.IsKing() then
-		local status = King.EffectiveLocation() and L.THRONE_LOCATION_LIVE or L.THRONE_LOCATION_PAUSED
+	if Shogun.SharingLocation() and Shogun.IsShogun() then
+		local status = Shogun.EffectiveLocation() and L.THRONE_LOCATION_LIVE or L.THRONE_LOCATION_PAUSED
 		table.insert(lines, 1, Line("|T" .. ns.CROWN_ICON .. ":0|t " .. status, TITLE, { gapAfter = true }))
 	end
-	local steward = King.IsSteward()
+	local steward = Shogun.IsSteward()
 	if steward then table.insert(lines, 1, Line("|T" .. ns.CROWN_ICON .. ":0|t " .. L.STEWARD_ACTING, TITLE, { gapAfter = true })) end
 	-- (1.2: the author sees every tab, the Throne too, without a role here: ViewAs.lua.)
-	local detail = steward and L.THRONE_YOU_ARE_STEWARD:format(ns.KingName(ns.KingCharacter()))
-		or King.IsHand() and L.THRONE_YOU_ARE_HAND:format(ns.KingName(handsKing or ns.KingCharacter()))
-		or (King.IsKing() or King.Preview()) and L.THRONE_YOU_ARE_KING
+	local detail = steward and L.THRONE_YOU_ARE_STEWARD:format(ns.ShogunName(ns.ShogunCharacter()))
+		or Shogun.IsHand() and L.THRONE_YOU_ARE_HAND:format(ns.ShogunName(handsShogun or ns.ShogunCharacter()))
+		or (Shogun.IsShogun() or Shogun.Preview()) and L.THRONE_YOU_ARE_SHOGUN
 		or (ns.IsHighCouncillor(ns.me) == true or ns.ViewAs and ns.ViewAs.Is and ns.ViewAs.Is("councillor")) and L.THRONE_YOU_ARE_COUNCILLOR
 		or L.THRONE_NOT_YOURS
 	return lines, L.TAB_THRONE, detail
 end
 
-function King.Show(mode)
-	King.mode = mode
+function Shogun.Show(mode)
+	Shogun.mode = mode
 	Changed()
 end
 
 -- For tests.
-function King.CancelAgendaButton()
-	if not King.Agenda() then return ns.Print(L.THRONE_AGENDA_NONE) end
-	King.CancelAgenda()
+function Shogun.CancelAgendaButton()
+	if not Shogun.Agenda() then return ns.Print(L.THRONE_AGENDA_NONE) end
+	Shogun.CancelAgenda()
 	ns.Print(L.THRONE_AGENDA_CANCELLED)
 end
 
-function King.State() return { summon = summon, inspect = inspect, agenda = agenda, inspecting = inspecting } end
+function Shogun.State() return { summon = summon, inspect = inspect, agenda = agenda, inspecting = inspecting } end
 
--- /bk status (1.0.0): the King's Steward as this client knows him (the signed titles list), and
+-- /bk status (1.0.0): the Shogun's Steward as this client knows him (the signed titles list), and
 -- the lists of Hands it holds, each its owner's: how many, and whether it still lasts here.
-function King.StewardStatusLine()
+function Shogun.StewardStatusLine()
 	local who
-	if King.IsSteward() then
-		who = "you, acting for the King"
-	elseif not ns.KingCharacter() then
-		who = "none (no King named on this side)"
+	if Shogun.IsSteward() then
+		who = "you, acting for the Shogun"
+	elseif not ns.ShogunCharacter() then
+		who = "none (no Shogun named on this side)"
 	elseif not ns.CouncilTitles() then
 		who = "none known (no signed titles list here yet)"
 	else
@@ -1774,34 +1774,34 @@ function King.StewardStatusLine()
 	-- (1.2.4: a list stands until its owner's newer one, whenever it was heard)
 	local function Heard(at) return "heard " .. ns.Ago(at) end
 	local held = {}
-	if King.IsKing() then held[1] = ("the King's %d (yours)"):format(#myHands)
-	elseif handsAt ~= -math.huge and HeardKing() then held[1] = ("the King's %d (%s)"):format(#handsOrder, Heard(handsAt)) end
-	if King.IsSteward() then held[#held + 1] = ("yours %d"):format(#myStewardHands) end
+	if Shogun.IsShogun() then held[1] = ("the Shogun's %d (yours)"):format(#myHands)
+	elseif handsAt ~= -math.huge and HeardShogun() then held[1] = ("the Shogun's %d (%s)"):format(#handsOrder, Heard(handsAt)) end
+	if Shogun.IsSteward() then held[#held + 1] = ("yours %d"):format(#myStewardHands) end
 	local stewards = {}
 	for steward in pairs(stewardHands) do stewards[#stewards + 1] = steward end
 	table.sort(stewards)
 	for _, steward in ipairs(stewards) do
 		local s = stewardHands[steward]
-		local state = King.IsStewardName(steward) and Heard(s.at) or "ended: no longer a Steward"
+		local state = Shogun.IsStewardName(steward) and Heard(s.at) or "ended: no longer a Steward"
 		held[#held + 1] = ("%s's %d (%s)"):format(StewardLabel(steward), #s.names, state)
 	end
 	return ("%s  |  Hands: %s"):format(who, #held > 0 and table.concat(held, ", ") or "none")
 end
 
--- The author's Workshop: Shobek's view on or off (the Throne, Vox Populi, the King's calls in
+-- The author's Workshop: Shobek's view on or off (the Throne, Vox Populi, the Shogun's calls in
 -- the Realm and the Tabards), to see and try them. Nothing the view does reaches anyone.
-function King.SetDevView(on)
-	ns.db.devKingView = on and true or false
+function Shogun.SetDevView(on)
+	ns.db.devShogunView = on and true or false
 	-- The preview's treasury switches and keepers were its own: gone with it. (1.2.4: it names no
 	-- centurions any more; 1.1.5's copy of the ones it named goes at the next minute, Nominees.Minute.)
 	if not on then ns.db.previewTreasuryFlags, ns.db.previewTreasuryKeepers = nil, nil end
-	ns.Print(on and L.DEV_KING_VIEW_NOW_ON or L.DEV_KING_VIEW_NOW_OFF)
+	ns.Print(on and L.DEV_SHOGUN_VIEW_NOW_ON or L.DEV_SHOGUN_VIEW_NOW_OFF)
 	ns.Fire("DATA_CHANGED")
 	Changed()
 end
-function King.Reset()
-	summon, inspect, agenda, inspecting, kingAt, crownAt = nil, nil, nil, nil, nil, nil
-	hands, handsOrder, handsAt, lastHandsSent, handsKing, handsSendPending = {}, {}, -math.huge, -math.huge, nil, false
+function Shogun.Reset()
+	summon, inspect, agenda, inspecting, shogunAt, crownAt = nil, nil, nil, nil, nil, nil
+	hands, handsOrder, handsAt, lastHandsSent, handsShogun, handsSendPending = {}, {}, -math.huge, -math.huge, nil, false
 	wipe(myHands)
 	wipe(stewardHands); wipe(myStewardHands)
 	lastStewardSent = -math.huge
@@ -1809,5 +1809,5 @@ function King.Reset()
 	lastSummonSeen, lastInspectSeen, lastSummonSent, lastInspectSent = -math.huge, -math.huge, -math.huge, -math.huge
 	lastUntabardedSent = -math.huge
 	lastAgendaSent, lastAgendaWarn, changePending = -math.huge, -math.huge, false
-	King.mode, rollOpen = nil, false
+	Shogun.mode, rollOpen = nil, false
 end

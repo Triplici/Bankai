@@ -8,7 +8,7 @@ local function WithRooms(fn)
 	for _, name in ipairs(globals) do saved[name] = _G[name] end
 	local w = { mono = 1000, epoch = 1800000000, guild = "Bankai Guild II", channel = "BankaiGuildNet",
 		jobs = {}, events = {}, nativeEvents = {}, nativeSent = {}, listeners = {}, asked = {}, cancelled = 0, logged = true, attempts = 0,
-		council = {}, stewards = {}, departments = {}, king = "The King-Realm" }
+		council = {}, stewards = {}, departments = {}, shogun = "The Shogun-Realm" }
 	local ok, err = pcall(function()
 		GetTime = function() return w.mono end
 		GetGuildInfo = function() return w.guild end
@@ -45,8 +45,8 @@ local function WithRooms(fn)
 			for _, dept in ipairs(order) do depts[#depts + 1] = { name = dept, members = grouped[dept] } end
 			return { depts = depts }
 		end
-		c.KingCharacter = function() return w.king end
-		c.IsKingCharacter = function(name) return c.FullName(name):lower() == w.king:lower() end
+		c.ShogunCharacter = function() return w.shogun end
+		c.IsShogunCharacter = function(name) return c.FullName(name):lower() == w.shogun:lower() end
 		c.Stewards = function()
 			local out = {}
 			for who in pairs(w.stewards) do out[#out + 1] = who end
@@ -335,7 +335,7 @@ test("chat rooms: restricted tabs and recipients come only from current shared a
 		eq(R.Options("role")[1].id, "council")
 		local recipients = R.Recipients("council")
 		eq(#recipients, 3)
-		local expected = { [c.FullName(w.king)] = true, [c.FullName(c.TREASURER)] = true, ["Other Councillor-Realm"] = true }
+		local expected = { [c.FullName(w.shogun)] = true, [c.FullName(c.TREASURER)] = true, ["Other Councillor-Realm"] = true }
 		for _, recipient in ipairs(recipients) do eq(expected[recipient], true, "Council includes the actual crown and federal treasurer") end
 
 		local names = {
@@ -369,7 +369,7 @@ test("chat rooms: a restricted room whispers no one the server says is offline (
 		end
 		local t = Targets()
 		eq(t["Alpha-Realm"], true); eq(t["Beta-Realm"], nil, "offline in the roster"); eq(t["Gamma-Realm"], true, "not in the roster: tried")
-		eq(#w.jobs, 4, "the King, the Treasurer, Alpha and Gamma")
+		eq(#w.jobs, 4, "the Shogun, the Treasurer, Alpha and Gamma")
 		-- The server answers Gamma is not playing: the next line leaves him out, until GONE_FOR passes.
 		w.nativeEvents.CHAT_MSG_SYSTEM("No player named 'Gamma-Realm' is currently playing.")
 		w.clearJobs(); w.advance(10)
@@ -405,7 +405,7 @@ test("chat rooms: restricted delivery is whisper-only, all-or-none on admission,
 		c.rdb.council.names = { [me] = "Member", alpha = true, beta = "Beta" }
 		assert(R.Send("council", "private line"))
 		eq(#w.jobs, 4)
-		local expected = { [c.FullName(w.king)] = true, [c.FullName(c.TREASURER)] = true, ["alpha-Realm"] = true, ["Beta-Realm"] = true }
+		local expected = { [c.FullName(w.shogun)] = true, [c.FullName(c.TREASURER)] = true, ["alpha-Realm"] = true, ["Beta-Realm"] = true }
 		for _, job in ipairs(w.jobs) do eq(job.dist, "WHISPER"); eq(job.logged, true); eq(expected[job.target], true, "only the current Council audience") end
 		w.council["alpha-realm"] = nil
 		for _, job in ipairs(w.jobs) do

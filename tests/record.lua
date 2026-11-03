@@ -489,9 +489,9 @@ end)
 test("record mode: the status is a copy window: what is written, the file to send, /reload or log out first; the BattleTag only as a hash in the file, never shown", function()
 	-- SHA-256 of "bankaiguild-record-1|battletag|SampleWitness#0000" (checked against Python's hashlib).
 	local TAG_HASH = "973dcf3aa89dd097c64d6764c475996c11ee2aa22b4ec83c542453d341eb76eb"
-	for _, kings in ipairs({ false, true }) do
+	for _, shoguns in ipairs({ false, true }) do
 		InWorld({ battleTag = "SampleWitness#0000" }, function(w)
-			w.ns.KingsScreen = function() return kings end -- (the King's stream too: the same window)
+			w.ns.ShogunsScreen = function() return shoguns end -- (the Shogun's stream too: the same window)
 			w.login()
 			w.slash("on")
 			w.step(T14 + 5)

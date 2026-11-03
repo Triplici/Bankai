@@ -4,7 +4,7 @@ local L = ns.L
 -- View as (1.1.5, the author's ask; 1.2 widens it to every role): author-only, session-local
 -- presentation previews. They change which pages are drawn, never the rank/authority checks used
 -- by network handlers or actions, and never unlock private data. Each role drives the preview the
--- addon has for it: "king" Shobek's view (King.Preview), "treasurer" the Treasurer's view
+-- addon has for it: "shogun" Shobek's view (Shogun.Preview), "treasurer" the Treasurer's view
 -- (Treasury.DevView), "gm" the guild master's view (Nominees.DevView: his Guild tab and its
 -- centurions and correspondents, nothing of it sent).
 -- 1.2: the author (and his test builds) sees every tab in his own view ("my": he works as part of
@@ -14,18 +14,18 @@ local L = ns.L
 local V = {}
 ns.ViewAs = V
 
-V.OPTIONS = { "my", "king", "councillor", "treasurer", "arbiter", "gm", "officer", "correspondent", "member", "outsider" }
+V.OPTIONS = { "my", "shogun", "councillor", "treasurer", "arbiter", "gm", "officer", "correspondent", "member", "outsider" }
 -- What a role has past every member's tabs (the Census, Realm, Chat, Decrees, Crafters, Games and
 -- Wanted, each by its own rule): "watch", The Watch's desk; "heraldry", its Tabards (still the
--- King's publication for whoever is not on the patrols' staff: TabardsV2.SurfaceVisible);
+-- Shogun's publication for whoever is not on the patrols' staff: TabardsV2.SurfaceVisible);
 -- "games-staff", the Games tab's staff section (ArenaHome.GamesStaff); "judgments", The Watch's
--- Judgments (Judgment.lua: the King's final word, the High Council's votes); "arbiter", the Games
--- tab's lines of an arbiter (ArenaHome.ArbiterShown: the King and the councillors are arbiters too,
--- ArenaRoles.IsPublicArbiter). The High Council shares the King's desk layout; local reports,
+-- Judgments (Judgment.lua: the Shogun's final word, the High Council's votes); "arbiter", the Games
+-- tab's lines of an arbiter (ArenaHome.ArbiterShown: the Shogun and the councillors are arbiters too,
+-- ArenaRoles.IsPublicArbiter). The High Council shares the Shogun's desk layout; local reports,
 -- cases and audit records still require the real character's guild-local officer authority.
 -- Correspondents and members have no tab of their own (yet): what they see is every member's.
 V.GRANTS = {
-	king = { throne = true, vox = true, treasury = true, watch = true, heraldry = true, ["games-staff"] = true, judgments = true, arbiter = true },
+	shogun = { throne = true, vox = true, treasury = true, watch = true, heraldry = true, ["games-staff"] = true, judgments = true, arbiter = true },
 	councillor = { throne = true, vox = true, treasury = true, watch = true, heraldry = true, ["games-staff"] = true, judgments = true, arbiter = true },
 	treasurer = { treasury = true, heraldry = true },
 	arbiter = { heraldry = true, arbiter = true },
@@ -73,10 +73,10 @@ function V.Set(want)
 	if not found then return false end
 	role = want
 	if ns.db then
-		ns.db.devKingView, ns.db.devTreasurerView, ns.db.devGMView = nil, nil, nil
-		-- (The King preview's own treasury switches and keepers go with it, as King.SetDevView(false) takes
+		ns.db.devShogunView, ns.db.devTreasurerView, ns.db.devGMView = nil, nil, nil
+		-- (The Shogun preview's own treasury switches and keepers go with it, as Shogun.SetDevView(false) takes
 		-- them: 1.1.5. Since 1.2.4 it names no centurions: Nominees.Minute forgets 1.1.5's copy.)
-		if want ~= "king" then ns.db.previewTreasuryFlags, ns.db.previewTreasuryKeepers = nil, nil end
+		if want ~= "shogun" then ns.db.previewTreasuryFlags, ns.db.previewTreasuryKeepers = nil, nil end
 	end
 	ns.Fire("DATA_CHANGED")
 	if ns.UI and ns.UI.Refresh then ns.UI.Refresh() end
@@ -114,7 +114,7 @@ end
 
 function V.AtLeast(which)
 	if not V.Available() or role == "my" then return false end
-	local rank = { member = 1, officer = 2, gm = 3, councillor = 4, treasurer = 4, king = 5 }
+	local rank = { member = 1, officer = 2, gm = 3, councillor = 4, treasurer = 4, shogun = 5 }
 	return (rank[role] or 0) >= (rank[which] or 99)
 end
 

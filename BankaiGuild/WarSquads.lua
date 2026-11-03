@@ -50,7 +50,7 @@ local function Preview()
 	local v = ns.ViewAs
 	if v and v.Previewing and v.Previewing() then return true end
 	if v and v.Available and v.Available() and v.Role and v.Role() ~= "my" then return true end
-	return ns.King and ns.King.Preview and ns.King.Preview() == true or false
+	return ns.Shogun and ns.Shogun.Preview and ns.Shogun.Preview() == true or false
 end
 local function Officer(name)
 	name = Member(name)
@@ -122,7 +122,7 @@ function Squads.Leaders()
 	local n = ns.Nominees
 	local nominees = n and n.ListOf and n.ListOf(guild)
 	if not nominees or not n.Proven or n.Proven(nominees.by, guild) ~= true then return list end
-	if not (ns.IsKingGuild and ns.IsKingGuild(guild)) then
+	if not (ns.IsShogunGuild and ns.IsShogunGuild(guild)) then
 		local master = Member(nominees.by)
 		if not master or ns.Roster.RankOf(master) ~= 0 then return list end
 	end
@@ -138,7 +138,7 @@ Leader = function(name)
 end
 -- (1.2.3: every squad's room is "squad:" and its hash, Room. ChatRooms asks each provider about every
 -- room id it is given, the race, class, guild and role rooms' too, and the Chat page gave it a few
--- hundred a redraw, each reading the leaders again: on the author's game, in the King's guild, most of
+-- hundred a redraw, each reading the leaders again: on the author's game, in the Shogun's guild, most of
 -- the 2.5 MB of garbage each redraw made. An id that is not a squad's is none, the leaders unread.)
 local function LeaderRoom(id)
 	if type(id) ~= "string" or not id:find("^squad:") then return nil end
@@ -553,7 +553,7 @@ StaticPopupDialogs["BANKAIGUILD_SQUAD_REPLACE"] = {
 }
 function Squads.Lines(query, baseIndent, manage)
 	local lines, indent = {}, baseIndent or 0
-	local masked = ns.CouncilMasked and ns.CouncilMasked() == true and ns.IsKingGuild(Guild())
+	local masked = ns.CouncilMasked and ns.CouncilMasked() == true and ns.IsShogunGuild(Guild())
 	local officer = manage ~= false and Squads.CanManage() and not masked
 	for _, e in ipairs(Squads.Leaders()) do
 		local squad, hit = Squads.Get(e.name), not query
@@ -626,7 +626,7 @@ end
 -- its era (a room's lines and anyone's access are asked at each redraw), and the War page is the
 -- window's, redrawn at every DATA_CHANGED (UI.lua). The census tells DATA_CHANGED every second or
 -- so on a busy realm (Data.NOTIFY_GAP), and each was told as the squads changed: the Chat tab
--- starts a new era at CHAT_ROOMS_CHANGED, and on the author's game (the King's guild) it worked
+-- starts a new era at CHAT_ROOMS_CHANGED, and on the author's game (the Shogun's guild) it worked
 -- every line and room out again 0.2 s after every notice, never waiting for its DATA_GAP.
 -- (A name holds no ",", Full; a room is "squad:" and hex.)
 local parts = {}

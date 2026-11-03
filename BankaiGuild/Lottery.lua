@@ -5,10 +5,10 @@ local ADDON, ns = ...
 
 -- The Menagerie Lottery ("Lottery" in the betting window, the full name once it is open): a daily
 -- pari-mutuel market with 25 outcomes, the beasts, and no house (the bank never risks its own
--- gold). Stakes come from the one wallet. Bets close at the draw time the King sets.
+-- gold). Stakes come from the one wallet. Bets close at the draw time the Shogun sets.
 --
 -- The draw: five public server rolls, /roll 1-10000 (10000 reads 0000; a typed /roll 0-9999 counts
--- the same), by the King or by the lottery's bank, read from the server's roll lines of that
+-- the same), by the Shogun or by the lottery's bank, read from the server's roll lines of that
 -- character with that range. Each prize is a four-digit number and its beast, the group of its
 -- last two digits (01-04 = 1 ... 97-00 = 25). A ticket whose beast appears gets its stake back
 -- once. The remaining profit is split into 50%, 25%, 15% and 10% tranches for positions 1-4;
@@ -20,20 +20,20 @@ local ADDON, ns = ...
 -- own: it is a market sheet (Markets, the markets) with an eid from Arena.NewId("L") and one market, type
 -- "LO", 25 outcomes. The lottery's one type, LW, is a settled day's winners from its bank (the
 -- Games tab's rankings, below).
---   - The King's client is the lottery's caller: it opens each day (Markets.Open; the sheet's lockAt
+--   - The Shogun's client is the lottery's caller: it opens each day (Markets.Open; the sheet's lockAt
 --     is the draw time he set, so the schedule travels in the sheets), reads the five rolls (his
 --     own, or the bank's when he lets the bank roll: the bank /rolls in his group, where his client
 --     sees its lines) and declares them (Markets.DeclareDraw) within the hour after the draw time
 --     (else the day is void, every stake back), then opens the next day once the bank has settled
 --     it (its client on: the winners are paid by the next day) or it is void, carrying only
 --     unclaimed profit. The draw time is 21:00 on the draw's clock (US Central, Lottery.Zone). The
---     King is a public arbiter, so the sheet passes the markets' rule for public sheets as it is. In
---     a rehearsal (T) a King's stand-in calls it.
+--     Shogun is a public arbiter, so the sheet passes the markets' rule for public sheets as it is. In
+--     a rehearsal (T) a Shogun's stand-in calls it.
 --   - The sheet's bank is the lottery's bank: the first open bank of this realm by sorted name
 --     (Lottery.Bank), deterministic on every client. It takes the slips, holds the stakes in the
 --     wallet and settles with Lottery.Settle (the one formula here, over ArenaMath.Settle).
 --   - Every other client reads the day from Markets.View and says the result once (the chat line
---     here; the King's overlay reads Lottery.OverlayView and the LOTTERY_DRAW / LOTTERY_RESULT events).
+--     here; the Shogun's overlay reads Lottery.OverlayView and the LOTTERY_DRAW / LOTTERY_RESULT events).
 -- What this asks of the markets (the markets) and the wallet (the money part), for the integrator (the tests use a
 -- stand-in with exactly this shape, tests/arena/lib/lottery-markets.lua):
 --   Markets.OpenLottery(eid, { drawAt, bank, cur, mode, carry = { from, copper } | nil }) opens
@@ -58,13 +58,13 @@ local ADDON, ns = ...
 --     Lottery.WhenText(t), Lottery.Remind(eid, mark) (a reminder, as its timer says it)
 --   Lottery.Today() -> { eid, drawAt, pool, rollover (the pot rolled in), pot, bets = { [beast] =
 --     { pool, count } }, prizes, head, state, mine, myPayout, ... }
---   Lottery.Bet(beast, silver) -> ticket (through Markets.Bet); Lottery.Draw() (the King's or the
+--   Lottery.Bet(beast, silver) -> ticket (through Markets.Bet); Lottery.Draw() (the Shogun's or the
 --     bank's roll, one prize a click); Lottery.FirstUse() (the full name and the explanation, once:
---     not a King's letter); Lottery.Intro(); Lottery.SetSchedule{ on, at, roller }; Lottery.Open()
+--     not a Shogun's letter); Lottery.Intro(); Lottery.SetSchedule{ on, at, roller }; Lottery.Open()
 --   Actions: lottery.open, lottery.bet, lottery.draw, lottery.schedule. /bk arena lottery.
--- Behind the King's gold switch: gold only with the live switch on in gold (Roles.Live, Currency)
+-- Behind the Shogun's gold switch: gold only with the live switch on in gold (Roles.Live, Currency)
 -- on a client whose saved data persists; points with the switch on in points; a rehearsal (T)
--- otherwise, the beta included. Off until the King sets a draw time.
+-- otherwise, the beta included. Off until the Shogun sets a draw time.
 -- The weight rule: an idle client holds only the events registry, its actions and its ns.On
 -- callbacks (the result said once; a bank's winners, nothing elsewhere), and, while it knows a day
 -- that takes bets, one C_Timer.NewTimer for that day's next reminder; the caller's client is
@@ -636,21 +636,21 @@ local function Wagers(kind)
 end
 Lottery.Wagers = function() return Wagers("lottery") end
 
--- The King's character as the server stamps it, or nil (none named on this side).
-local function KingName()
-	local short = ns.KingCharacter and ns.KingCharacter()
+-- The Shogun's character as the server stamps it, or nil (none named on this side).
+local function ShogunName()
+	local short = ns.ShogunCharacter and ns.ShogunCharacter()
 	if type(short) ~= "string" or short == "" then return nil end
-	local realm = ns.KingRealm and ns.KingRealm() or nil
+	local realm = ns.ShogunRealm and ns.ShogunRealm() or nil
 	return ns.FullName(short, realm)
 end
 
--- The real lottery's callers: the pinned King, the signed High Council and the author.
+-- The real lottery's callers: the pinned Shogun, the signed High Council and the author.
 -- A guild rank, a bank appointment or a claimed title grants no draw authority.
 function Lottery.IsCaller(name, mode)
 	if type(name) ~= "string" or name == "" then return false end
 	name = ns.FullName(name)
 	local R = Roles()
-	if R and R.IsKing(name) then return true end
+	if R and R.IsShogun(name) then return true end
 	if R and type(R.Barred) == "function" and R.Barred(name) then return false end
 	local W = ns.Workshop
 	if type(W) == "table" and type(W.IsPracticeOperator) == "function" and W.IsPracticeOperator(name) == true then return true end
@@ -670,8 +670,8 @@ function Lottery.Callers(mode)
 		for _, held in ipairs(out) do if Same(held, name) then return end end
 		out[#out + 1] = name
 	end
-	local king = KingName()
-	Add(king)
+	local shogun = ShogunName()
+	Add(shogun)
 	local R = Roles()
 	for _, name in ipairs(R and type(R.Councillors) == "function" and R.Councillors() or {}) do Add(name) end
 	local W = ns.Workshop
@@ -720,7 +720,7 @@ local function Excluded(name, day)
 end
 function Lottery.MayBet(name, day) return not Excluded(name, day) end
 
--- The terms a new day opens on (the King's gold switch): mode, currency, and a note.
+-- The terms a new day opens on (the Shogun's gold switch): mode, currency, and a note.
 --   live off (or a test build): a rehearsal, "T", in its chips (or capped copper in a copper rehearsal);
 --   live on in points: "L", "p"; live on in gold: "L", "g" where this client's saved data persists,
 --   else a rehearsal (the beta: gold stays off there, the design).
@@ -738,7 +738,7 @@ function Lottery.Terms()
 	if ok and type(r) == "table" and r.money == "p" then return "T", "g" end
 	return "T", "c"
 end
--- The fee of a day: the King's whole fee (feeBp, 600 by default) in gold, all the guild's; none
+-- The fee of a day: the Shogun's whole fee (feeBp, 600 by default) in gold, all the guild's; none
 -- in points or a rehearsal.
 function Lottery.FeeBp(mode, cur)
 	if mode ~= "L" or cur ~= "g" then return 0 end
@@ -855,7 +855,7 @@ function Lottery.Read(eid)
 end
 
 ---------------------------------------------------------------------------
--- The caller's book (the King, signed councillors, author, or rehearsal stand-in)
+-- The caller's book (the Shogun, signed councillors, author, or rehearsal stand-in)
 ---------------------------------------------------------------------------
 
 -- Trusted callers use their realm's live store; rehearsal stand-ins use the rehearsal store.
@@ -876,7 +876,7 @@ function Lottery.Schedule()
 	local lot = Book()
 	local s = lot and lot.schedule
 	return { on = type(s) == "table" and s.on == true, at = type(s) == "table" and tonumber(s.at) or Lottery.DEFAULT_AT,
-		roller = lot and lot.roller == "bank" and "bank" or "king" }
+		roller = lot and lot.roller == "bank" and "bank" or "shogun" }
 end
 
 local told = {}
@@ -956,7 +956,7 @@ function Lottery.OnRoll(text)
 		Arena.Changed()
 		return true
 	end
-	-- A witness: the latest day, due and not drawn yet; the first of the King and the bank to roll
+	-- A witness: the latest day, due and not drawn yet; the first of the Shogun and the bank to roll
 	-- is the roller here (the declared result replaces what was seen).
 	local eid = Lottery.Current()
 	local d = eid and Lottery.Read(eid)
@@ -1138,14 +1138,14 @@ Cycle = function()
 end
 Lottery.Cycle = function() return Cycle() end
 
--- The King's schedule: t = { on = bool, at = minutes after midnight on the draw's clock (Lottery.Zone),
--- roller = "king" | "bank" }.
+-- The Shogun's schedule: t = { on = bool, at = minutes after midnight on the draw's clock (Lottery.Zone),
+-- roller = "shogun" | "bank" }.
 function Lottery.SetSchedule(t)
 	if type(t) ~= "table" then return false, "shape" end
 	local lot = Book()
-	if not lot then return false, "king" end
+	if not lot then return false, "shogun" end
 	local mode = lot.day and lot.day.mode or "L"
-	if t.roller == "bank" and not Lottery.IsCaller(Lottery.Bank(mode), mode) then return false, "king" end
+	if t.roller == "bank" and not Lottery.IsCaller(Lottery.Bank(mode), mode) then return false, "shogun" end
 	-- (The day's market never opens while the gate says no: the schedule is not turned on.)
 	if t.on == true and not Wagers() then
 		ns.Print(L.COMPLIANCE_WAIT)
@@ -1158,12 +1158,12 @@ function Lottery.SetSchedule(t)
 		s.at = at
 	end
 	if t.on ~= nil then s.on = t.on == true end
-	if t.roller ~= nil then lot.roller = t.roller == "bank" and "bank" or "king" end
+	if t.roller ~= nil then lot.roller = t.roller == "bank" and "bank" or "shogun" end
 	s.by, s.t = ns.me, Arena.Now()
 	lot.schedule = s
 	if t.on ~= nil or t.at ~= nil then
 		if s.on then
-			ns.Print(L.LOTTERY_SCHEDULE_ON:format(Lottery.MinutesText(s.at) .. " " .. Lottery.ZoneText(), lot.roller == "bank" and L.LOTTERY_ROLLER_BANK or L.LOTTERY_ROLLER_KING))
+			ns.Print(L.LOTTERY_SCHEDULE_ON:format(Lottery.MinutesText(s.at) .. " " .. Lottery.ZoneText(), lot.roller == "bank" and L.LOTTERY_ROLLER_BANK or L.LOTTERY_ROLLER_SHOGUN))
 		else
 			ns.Print(L.LOTTERY_SCHEDULE_OFF)
 		end
@@ -1183,7 +1183,7 @@ end
 -- Only a trusted caller can operate the actual draw. Being its bank alone is insufficient.
 function Lottery.CanDraw()
 	if Arena.Off() then return false, "off" end
-	if not Lottery.IsCaller(ns.me, "L") and not Lottery.IsCaller(ns.me, "T") then return false, "king" end
+	if not Lottery.IsCaller(ns.me, "L") and not Lottery.IsCaller(ns.me, "T") then return false, "shogun" end
 	if not Wagers("payout") then return false, "compliance" end
 	local lot = Book()
 	local day = lot and lot.day
@@ -1192,16 +1192,16 @@ function Lottery.CanDraw()
 		if now < (day.lockAt or math.huge) then return false, "due" end
 		if day.prizes and #day.prizes >= Lottery.PRIZES then return false, "drawn" end
 		if now >= day.lockAt + Lottery.DRAW_WINDOW then return false, "late" end
-		-- (Who rolls is fixed by the first prize: the King's choice until then.)
+		-- (Who rolls is fixed by the first prize: the Shogun's choice until then.)
 		local roller = day.rolledBy or (lot.roller == "bank" and day.bank or ns.me)
 		if not Same(roller, ns.me) then return false, "roller" end
 		return true
 	end
 	local eid = Lottery.Current()
 	local d = eid and Lottery.Read(eid)
-	if not d then return false, lot and "none" or "king" end
+	if not d then return false, lot and "none" or "shogun" end
 	if d.prizes then return false, "drawn" end
-	if not Same(ns.me, d.bank) then return false, "king" end
+	if not Same(ns.me, d.bank) then return false, "shogun" end
 	if now < (d.lockAt or math.huge) then return false, "due" end
 	if d.state == "void" or now >= d.lockAt + Lottery.DRAW_WINDOW then return false, "late" end
 	return true
@@ -1368,7 +1368,7 @@ function Lottery.Day(eid)
 	if #day.mine > 0 then day.myPayout = Lottery.PayoutOf(day.mine) end
 	day.isCaller = lot ~= nil and (own ~= nil and own.eid == eid or Lottery.IsCaller(ns.me, day.mode))
 	day.schedule = lot and Lottery.Schedule() or nil
-	day.roller = lot and lot.roller == "bank" and "bank" or "king"
+	day.roller = lot and lot.roller == "bank" and "bank" or "shogun"
 	day.canDraw, day.why = Lottery.CanDraw()
 	day.canBet, day.betWhy = Lottery.CanBet(1, Lottery.MinSilver(), day)
 	-- (The draw's hour went by with no draw: void, every stake back, once the void is heard.)
@@ -1382,7 +1382,7 @@ function Lottery.History()
 	return lot and type(lot.history) == "table" and lot.history or {}
 end
 
--- The King's overlay (the screens' Overlay.lua): the slip and the head, fixed words and numbers only.
+-- The Shogun's overlay (the screens' Overlay.lua): the slip and the head, fixed words and numbers only.
 function Lottery.OverlayView()
 	local d = Lottery.Today()
 	local rows = {}
@@ -1450,7 +1450,7 @@ function Lottery.WhyText(why) return L["LOTTERY_WHY_" .. tostring(why):upper()] 
 -- biggest first. Every client keeps the last WINNERS_DAYS days it heard, from that day's own bank
 -- only, and Lottery.Winners() reads them; the Games tab shows them (ArenaHome's RankingLines).
 -- A name next to an amount is what the markets otherwise never put on the channel, so a bank
--- previously published only while the King's rankings switch was on. Now neither LW direction
+-- previously published only while the Shogun's rankings switch was on. Now neither LW direction
 -- runs: the private history remains, but no switch can publish the winners.
 local PUBLIC_WINNERS = false -- 1.2.4: Lottery results remain private, regardless of rankPub.
 Lottery.WINNERS_DAY = 5     -- rows a day publishes
@@ -1563,7 +1563,7 @@ local function OnWinners(dist, sender, mode, body)
 end
 ns.Comm.Handle("LW", ns.Arena.Handle("LW", OnWinners))
 
--- On a bank's client, while the King's rankings switch is on: each of its days its wallet has
+-- On a bank's client, while the Shogun's rankings switch is on: each of its days its wallet has
 -- settled and not published yet goes out once (and is taken here as everyone takes it), when the
 -- bank settles it (MARKETS_SETTLED) or at a later change (the switch turned on, a send refused
 -- before). Nothing on any other client. What went out is remembered by the day's draw time,
@@ -1844,7 +1844,7 @@ function Lottery.Intro()
 	return { title = L.LOTTERY_NAME, paragraphs = { L.LOTTERY_INTRO_1, L.LOTTERY_INTRO_2, L.LOTTERY_INTRO_3, L.LOTTERY_INTRO_4 } }
 end
 -- The first time the Lottery opens on this account: the full name and the explanation (a pop-up
--- of the board's own, in a casual tone: no King's letter, signed by nobody); nil after.
+-- of the board's own, in a casual tone: no Shogun's letter, signed by nobody); nil after.
 function Lottery.FirstUse()
 	local db = ns.db
 	if not db or db.lotteryIntro == Lottery.INTRO then return nil end
@@ -1875,7 +1875,7 @@ Arena.Action("lottery.open", nil, function() return Lottery.Open() end)
 Arena.Action("lottery.bet", function(beast, silver) return Lottery.CanBet(beast, silver) end,
 	function(beast, silver) return Lottery.Bet(beast, silver) end)
 Arena.Action("lottery.draw", function() return Lottery.CanDraw() end, function() return Lottery.Draw() end)
-Arena.Action("lottery.schedule", function() if Book() then return true end return false, "king" end,
+Arena.Action("lottery.schedule", function() if Book() then return true end return false, "shogun" end,
 	function(t) return Lottery.SetSchedule(t) end)
 
 Arena.Slash("lottery", function(args)
@@ -1887,7 +1887,7 @@ Arena.Slash("lottery", function(args)
 		if not ok then ns.Print(Lottery.WhyText(why) or tostring(why)) end
 		return
 	end
-	if not Book() then return ns.Print(L.LOTTERY_WHY_KING) end
+	if not Book() then return ns.Print(L.LOTTERY_WHY_SHOGUN) end
 	if word == "on" then
 		local at = rest ~= "" and Lottery.ReadTime(rest) or Lottery.Schedule().at
 		if not at then return ns.Print(L.LOTTERY_WHY_TIME) end
@@ -1895,7 +1895,7 @@ Arena.Slash("lottery", function(args)
 	elseif word == "off" then
 		return Lottery.SetSchedule({ on = false })
 	elseif word == "bank" or word == "me" then
-		return Lottery.SetSchedule({ roller = word == "bank" and "bank" or "king" })
+		return Lottery.SetSchedule({ roller = word == "bank" and "bank" or "shogun" })
 	end
 	ns.Print(L.LOTTERY_USAGE)
 end, L.LOTTERY_HELP)

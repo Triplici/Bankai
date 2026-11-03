@@ -645,8 +645,8 @@ local function Word(id, kind, cat, gk, t, extra)
 	return w
 end
 
-local function Undo(id, ref, t, by, king)
-	return { id = id, kind = "U", ref = ref, t = t, by = by, king = king }
+local function Undo(id, ref, t, by, shogun)
+	return { id = id, kind = "U", ref = ref, t = t, by = by, shogun = shogun }
 end
 
 -- The words Belts left out, as "id:why", in its order.
@@ -979,7 +979,7 @@ test("arena rating: S and V end the named holder's reign at their time; a word n
 	eq(table.concat(R.BeltsOf(s, "Varkoth"), ","), G)
 end)
 
-test("arena rating: U cancels a word as if never given: the King's anyone's, a councillor's only his own", function()
+test("arena rating: U cancels a word as if never given: the Shogun's anyone's, a councillor's only his own", function()
 	local won = Title("u1", "Varkoth", "Mirelle", "Varkoth", T0, G)
 	local mid = Title("u2", "Mirelle", "Tazdun", "Mirelle", T0 + 2 * DAY, G)
 	local strip = Word("s1", "S", G, "Varkoth", T0 + DAY, { by = "Councillor" })
@@ -989,26 +989,26 @@ test("arena rating: U cancels a word as if never given: the King's anyone's, a c
 	local s = R.Belts({ won, mid }, { strip, Undo("x1", "s1", T0 + 3 * DAY, "Councillor") }, now)
 	eq(R.Holder(s, G), "Varkoth"); eq(#R.Lineage(s, G), 1); eq(R.Lineage(s, G)[1].defences, 0)
 	eq(Why(s), "s1:undone")
-	-- A councillor's undo fails on the King's word, and on another councillor's.
-	local kings = Word("s2", "S", G, "Varkoth", T0 + DAY, { by = "King", king = true })
-	s = R.Belts({ won }, { kings, Undo("x2", "s2", T0 + 3 * DAY, "Councillor") }, now)
-	eq(R.Holder(s, G), nil, "the King's strip stands"); eq(Why(s), "x2:not his")
+	-- A councillor's undo fails on the Shogun's word, and on another councillor's.
+	local shoguns = Word("s2", "S", G, "Varkoth", T0 + DAY, { by = "Shogun", shogun = true })
+	s = R.Belts({ won }, { shoguns, Undo("x2", "s2", T0 + 3 * DAY, "Councillor") }, now)
+	eq(R.Holder(s, G), nil, "the Shogun's strip stands"); eq(Why(s), "x2:not his")
 	s = R.Belts({ won }, { strip, Undo("x3", "s1", T0 + 3 * DAY, "Steward") }, now)
 	eq(R.Holder(s, G), nil); eq(Why(s), "x3:not his")
 	s = R.Belts({ won }, { strip, Undo("x4", "s1", T0 + 3 * DAY, "Steward", "yes") }, now)
-	eq(Why(s), "x4:not his", "only king = true is the King")
-	-- The King's undo counts over anyone's; his own words he undoes too.
-	s = R.Belts({ won, mid }, { strip, Undo("x5", "s1", T0 + 3 * DAY, "King", true) }, now)
+	eq(Why(s), "x4:not his", "only shogun = true is the Shogun")
+	-- The Shogun's undo counts over anyone's; his own words he undoes too.
+	s = R.Belts({ won, mid }, { strip, Undo("x5", "s1", T0 + 3 * DAY, "Shogun", true) }, now)
 	eq(R.Holder(s, G), "Varkoth")
-	s = R.Belts({ won }, { kings, Undo("x6", "s2", T0 + 3 * DAY, "King", true) }, now)
+	s = R.Belts({ won }, { shoguns, Undo("x6", "s2", T0 + 3 * DAY, "Shogun", true) }, now)
 	eq(R.Holder(s, G), "Varkoth")
 	-- An undo can be undone: the word stands again.
-	s = R.Belts({ won }, { strip, Undo("x7", "s1", T0 + 2 * DAY, "Councillor"), Undo("x8", "x7", T0 + 3 * DAY, "King", true) }, now)
+	s = R.Belts({ won }, { strip, Undo("x7", "s1", T0 + 2 * DAY, "Councillor"), Undo("x8", "x7", T0 + 3 * DAY, "Shogun", true) }, now)
 	eq(R.Holder(s, G), nil, "stripped after all"); eq(Why(s), "x7:undone")
 	-- An undo names a word before it, one that exists.
-	s = R.Belts({ won }, { Undo("x9", "nothing", T0 + DAY, "King", true), strip, Undo("y1", "s1", T0, "Councillor") }, now)
+	s = R.Belts({ won }, { Undo("x9", "nothing", T0 + DAY, "Shogun", true), strip, Undo("y1", "s1", T0, "Councillor") }, now)
 	eq(R.Holder(s, G), nil); eq(Why(s), "x9:unknown word,y1:not before")
-	s = R.Belts({ won }, { strip, Undo("y2", "u1", T0 + 3 * DAY, "King", true) }, now)
+	s = R.Belts({ won }, { strip, Undo("y2", "u1", T0 + 3 * DAY, "Shogun", true) }, now)
 	eq(Why(s), "y2:unknown word", "a fight is no word")
 	-- Without a giver, a word is nobody's own.
 	s = R.Belts({ won }, { Word("s3", "S", G, "Varkoth", T0 + DAY), Undo("y3", "s3", T0 + 2 * DAY) }, now)
@@ -1083,7 +1083,7 @@ test("arena rating: dropping a title fight or an S word changes history; droppin
 		strip,                                                                      -- S: for good
 		Word("pc1", "C", G, "Mirelle", T0 + 2 * DAY, { by = "Arbiter" }),            -- over by 30 days
 		Undo("pu1", "pc1", T0 + 3 * DAY, "Arbiter"),                                 -- goes with pc1
-		Undo("pu2", "pu1", T0 + 4 * DAY, "King", true),                              -- and with pu1
+		Undo("pu2", "pu1", T0 + 4 * DAY, "Shogun", true),                              -- and with pu1
 		Word("pc2", "C", G, "Oskren", T0 + 20 * DAY, { by = "Arbiter" }),            -- still standing
 		Word("p2a", "2", G, "Mirelle", T0 + DAY, { by = "Clerk" }),                   -- p2b came after
 		Word("p2b", "2", G, "Oskren", T0 + 5 * DAY, { by = "Clerk" }),                -- the latest live 2
@@ -1094,7 +1094,7 @@ test("arena rating: dropping a title fight or an S word changes history; droppin
 		Word("pm2b", "2", "CMA", "Dagny", T0 + 3 * DAY, { by = "Clerk" }),
 		Word("pv", "V", "CMA", "Mirelle", T0 + 10 * DAY, { by = "Arbiter" }),        -- V and its undo:
 		Undo("pu4", "pv", T0 + 11 * DAY, "Arbiter"),                                 -- for good
-		Undo("pu5", "nothing", T0 + 12 * DAY, "King", true),                         -- a word not held
+		Undo("pu5", "nothing", T0 + 12 * DAY, "Shogun", true),                         -- a word not held
 	}
 	local now = T0 + 40 * DAY
 	local prunable = R.Prunable(words, now)
@@ -1153,8 +1153,8 @@ test("arena rating: a word is checked before it counts, and each one left out is
 		{ Word("k7", "V", G, nil, T0), "fighter" },
 		{ Word("k8", "C", G, 42, T0), "fighter" },
 		{ Word("k9", "2", G, 42, T0), "fighter" },
-		{ Undo("k10", nil, T0, "King", true), "ref" },
-		{ Undo("k11", {}, T0, "King", true), "ref" },
+		{ Undo("k10", nil, T0, "Shogun", true), "ref" },
+		{ Undo("k11", {}, T0, "Shogun", true), "ref" },
 	}
 	for _, case in ipairs(cases) do
 		local ok, why = R.CheckWord(case[1])
@@ -1162,7 +1162,7 @@ test("arena rating: a word is checked before it counts, and each one left out is
 	end
 	eq(R.CheckWord(Word("k12", 2, G, nil, T0)), true, "2 as a number, nobody in that place")
 	eq(R.CheckWord(Word("k13", "3", G, "", T0)), true)
-	eq(R.CheckWord(Undo("k14", 7, T0, "King", true)), true, "an undo needs no category")
+	eq(R.CheckWord(Undo("k14", 7, T0, "Shogun", true)), true, "an undo needs no category")
 	-- In Belts: each bad word named with its reason, an id seen twice counts once (the earlier).
 	local words = {}
 	for i, case in ipairs(cases) do words[i] = case[1] end
@@ -1585,19 +1585,19 @@ end)
 
 test("1.1.6 arena rating, the level factor: the ledger hands the weigh-in's levels to the ratings (ArenaLedger.Fight)", function()
 	local w = H.World.New()
-	local king = w:Role("king")
-	w:As(king, function()
-		local LG = king.ns.ArenaLedger
+	local shogun = w:Role("shogun")
+	w:As(shogun, function()
+		local LG = shogun.ns.ArenaLedger
 		local e = { fid = "Fv1", t = T0, gkA = "Player-1-0000000A", gkB = "Player-1-0000000B", w = "A", m = "K", dur = 60, sc = "1:0", fl = "r",
 			fA = { class = "WA", race = 1, level = 50 }, fB = { class = "MA", race = 4, level = 60 } }
 		local f = LG.Fight(e, true)
 		eq(f.aLevel, 50); eq(f.bLevel, 60); eq(f.counts, true)
-		local built = king.ns.ArenaRating.Build({ f })
-		eq(king.ns.ArenaRating.Rating(built, e.gkA), 1538, "the lower level's win: +38")
+		local built = shogun.ns.ArenaRating.Build({ f })
+		eq(shogun.ns.ArenaRating.Rating(built, e.gkA), 1538, "the lower level's win: +38")
 		e.fA, e.fB = nil, nil -- (no weigh-in: no levels, rated as before)
 		f = LG.Fight(e, true)
 		eq(f.aLevel, nil); eq(f.bLevel, nil)
-		eq(king.ns.ArenaRating.Rating(king.ns.ArenaRating.Build({ f }), e.gkA), 1520)
+		eq(shogun.ns.ArenaRating.Rating(shogun.ns.ArenaRating.Build({ f }), e.gkA), 1520)
 	end)
 	for _, c in ipairs(w.clients) do for _, err in ipairs(c.errors) do error(c.name .. ": " .. err) end end
 end)

@@ -18,7 +18,7 @@ dungeon
 quest
 level
 friend
-king
+shogun
 army
 chat
 help

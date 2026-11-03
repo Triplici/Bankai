@@ -40,7 +40,7 @@ local function Scan(w)
 end
 local function Setup()
 	local w = World.New({ clock = World.CLOCK - 4 * 604800, council = false, arenaFiles = {}, compliance = "shipped" })
-	local t, king = w:Role("treasurer"), w:Role("king")
+	local t, shogun = w:Role("treasurer"), w:Role("shogun")
 	local p, other = w:Role("fighterA", { guild = t.guild }), w:Role("fighterB", { guild = t.guild })
 	local mail = w:Role("treasurerMail", { guild = t.guild })
 	for _, c in ipairs(w.clients) do Load(w, c) end
@@ -58,7 +58,7 @@ local function Setup()
 	for _, actor in ipairs({ t, mail }) do w:As(actor, function() assert(actor.ns.Dues.StartNativePayerTracking()) end) end
 	local delta = World.CLOCK - w.clock; for _, timer in ipairs(w.timers) do timer.at = timer.at + delta end; w.clock = World.CLOCK
 	Scan(w)
-	return w, t, king, p, other
+	return w, t, shogun, p, other
 end
 -- Jump between the two observed reset boundaries instead of simulating millions of
 -- unchanged gameplay ticks. Preserve pending timers' relative delays; all receipts and
@@ -95,7 +95,7 @@ local function NoErrors(w)
 end
 
 test("Dues grace: native three-week paid, first missing tolerance, second notice and transport-completed payer before GM", function()
-	local w, t, king, p, other = Setup(); local first = Week(w, t) - 3
+	local w, t, shogun, p, other = Setup(); local first = Week(w, t) - 3
 	Start(w, t, first)
 	w:Trade(t, p, { bGives = 10000 }); w:Trade(t, other, { bGives = 10000 }); Close(w, t, first)
 	local one = Progress(w, t, p); eq(one.kept, 1); eq(one.misses, 0)
@@ -108,12 +108,12 @@ test("Dues grace: native three-week paid, first missing tolerance, second notice
 		assert(t.ns.DuesGrace.Pump())
 		eq(t.ns.DuesGrace.Pump(), false, "enqueueing does not advance the payer phase")
 	end)
-	eq(NoticeCount(w, king), 0)
+	eq(NoticeCount(w, shogun), 0)
 	w:Run(10)
 	eq(NoticeCount(w, p), 1, "only a private explanatory notice, never an unpaid verdict")
-	eq(NoticeCount(w, king), 0, "a successful enqueue was not the participant delivery callback")
+	eq(NoticeCount(w, shogun), 0, "a successful enqueue was not the participant delivery callback")
 	w:As(t, function() assert(t.ns.DuesGrace.Pump()) end); w:Run(10)
-	eq(NoticeCount(w, king), 1)
+	eq(NoticeCount(w, shogun), 1)
 	local channel = w:ChannelText(); assert(not channel:find("DG~", 1, true)); assert(not channel:find("not confirmed", 1, true))
 	NoErrors(w)
 end)
@@ -174,17 +174,17 @@ test("Dues grace: manual ledger edits are not native proofs, guild switches cann
 end)
 
 test("Dues grace: unavailable current GM never guesses a recipient or blocks other player notices", function()
-	local w, t, king, p, other = Setup(); TwoMisses(w, t)
-	king.rank = 1; Scan(w)
+	local w, t, shogun, p, other = Setup(); TwoMisses(w, t)
+	shogun.rank = 1; Scan(w)
 	w:As(t, function() assert(t.ns.DuesGrace.Pump()) end); w:Run(10)
 	w:As(t, function() assert(t.ns.DuesGrace.Pump()) end); w:Run(10)
-	eq(NoticeCount(w, p), 1); eq(NoticeCount(w, other), 1); eq(NoticeCount(w, king), 0)
+	eq(NoticeCount(w, p), 1); eq(NoticeCount(w, other), 1); eq(NoticeCount(w, shogun), 0)
 	w:As(t, function() eq(t.ns.DuesGrace.Pump(), false) end); NoErrors(w)
 end)
 
 test("Dues grace: a blocked recipient does not starve the next queue member and retries are bounded", function()
-	local w, t, king = Setup(); TwoMisses(w, t)
-	king.rank = 1; Scan(w) -- isolate recipient backoff while no current GM is available
+	local w, t, shogun = Setup(); TwoMisses(w, t)
+	shogun.rank = 1; Scan(w) -- isolate recipient backoff while no current GM is available
 	local attempts, blocked = {}, nil
 	w:As(t, function()
 		local real = t.ns.Treasury.Private
@@ -206,15 +206,15 @@ test("Dues grace: a blocked recipient does not starve the next queue member and 
 end)
 
 test("Dues grace: relog resumes an already completed payer phase only for the native GM and never reconstructs absent reset observations", function()
-	local w, t, king, p, other = Setup(); local week = TwoMisses(w, t)
+	local w, t, shogun, p, other = Setup(); local week = TwoMisses(w, t)
 	local note = w:As(t, function() return t.ns.Dues.Note(week, other.guild) end)
 	w:Take(t, w:Mail(other, t, 10000, note))
 	w:As(t, function() assert(t.ns.DuesGrace.Pump()) end); w:Run(10)
-	eq(NoticeCount(w, p), 1); eq(NoticeCount(w, king), 0)
+	eq(NoticeCount(w, p), 1); eq(NoticeCount(w, shogun), 0)
 	w:Logout(t); w:Login(t); Load(w, t); Scan(w)
 	w:As(t, function() t.ns.DuesGrace.Observe(); assert(t.ns.DuesGrace.Pump()) end); w:Run(10)
 	eq(NoticeCount(w, p), 1, "persisted transport-completed phase is not sent to the player twice")
-	eq(NoticeCount(w, king), 1)
+	eq(NoticeCount(w, shogun), 1)
 	w:As(t, function()
 		local s = t.ns.rdb.duesGrace; s.weeks[week - 1] = nil
 		local n = 0; for _ in pairs(s.weeks) do n = n + 1 end
@@ -245,8 +245,8 @@ test("Dues grace: native proof capture supplies carry facts only for confirmed i
 end)
 
 test("Dues grace: native net-off and an active powers hold invalidate queued reminders without affecting recorded payment history", function()
-	local w, t, king, p, other = Setup(); local week = TwoMisses(w, t)
-	w:As(king, function() assert(king.ns.Moderation.Set("c", p.name, true, "Test net-off")) end)
+	local w, t, shogun, p, other = Setup(); local week = TwoMisses(w, t)
+	w:As(shogun, function() assert(shogun.ns.Moderation.Set("c", p.name, true, "Test net-off")) end)
 	w:Run(1)
 	w:As(t, function()
 		assert(t.ns.Moderation.Hides(p.name, p.guild))
@@ -266,7 +266,7 @@ end)
 
 test("Dues grace: corrected or removed queued week, preview, changed guild and consent cancellation invalidate actual transport", function()
 	for _, change in ipairs({ "week", "paid", "preview", "guild", "consent" }) do
-		local w, t, king, p = Setup(); local week = TwoMisses(w, t)
+		local w, t, shogun, p = Setup(); local week = TwoMisses(w, t)
 		w:As(t, function() t.ns.DuesGrace.captainPolicy = "gm"; assert(t.ns.DuesGrace.Pump()) end)
 		w:As(t, function()
 			if change == "week" then t.ns.rdb.duesGrace.weeks[week] = nil
@@ -279,7 +279,7 @@ test("Dues grace: corrected or removed queued week, preview, changed guild and c
 			else t.ns.Treasury.SetConsent(false) end
 		end)
 		w:Run(10)
-		eq(NoticeCount(w, p), 0, change); eq(NoticeCount(w, king), 0, change)
+		eq(NoticeCount(w, p), 0, change); eq(NoticeCount(w, shogun), 0, change)
 		NoErrors(w)
 	end
 end)
@@ -390,7 +390,7 @@ test("Dues grace: native proof coverage rejects future weeks, unknown pins, wron
 end)
 
 test("Dues grace: removing the queued last week cannot substitute an older second missed week at native dispatch", function()
-	local w, t, king, p = Setup(); local first = Week(w, t) - 3
+	local w, t, shogun, p = Setup(); local first = Week(w, t) - 3
 	Start(w, t, first); Close(w, t, first); Close(w, t, first + 1); Close(w, t, first + 2)
 	w:As(t, function()
 		assert(t.ns.DuesGrace.Pump())
@@ -398,7 +398,7 @@ test("Dues grace: removing the queued last week cannot substitute an older secon
 		eq(t.ns.DuesGrace.Progress(p.name).misses, 2, "older covered weeks still exist but are not the queued last week")
 	end)
 	w:Run(10)
-	eq(NoticeCount(w, p), 0); eq(NoticeCount(w, king), 0); NoErrors(w)
+	eq(NoticeCount(w, p), 0); eq(NoticeCount(w, shogun), 0); NoErrors(w)
 end)
 
 test("Dues grace: native mutual alt groups count stable same-guild receipts for the main; changed links never create an alt missed-payment notice", function()
@@ -433,11 +433,11 @@ test("Dues grace: batch summary and notices read the native roster once rather t
 end)
 
 test("Dues grace: private notice authentication, local opt-out, receiver demotion and relog preserve once-only notification without granting payment", function()
-	local w, t, king, p = Setup(); local week = TwoMisses(w, t)
+	local w, t, shogun, p = Setup(); local week = TwoMisses(w, t)
 	local msg = ("DG~1~N~%d~%s~%s~0~10000~0~2"):format(week, p.guild, p.name)
 	w:As(p, function()
 		local G = p.ns.DuesGrace
-		eq(G.Handle("CHANNEL", t.name, msg), false); eq(G.Handle("WHISPER", king.name, msg), false)
+		eq(G.Handle("CHANNEL", t.name, msg), false); eq(G.Handle("WHISPER", shogun.name, msg), false)
 		eq(G.Handle("WHISPER", t.name, msg:gsub("~0~10000~", "~0~0~")), false)
 		p.ns.rdb.duesPayer = { [p.name] = { reminderOff = true } }
 		eq(G.Handle("WHISPER", t.name, msg), true); eq(NoticeCount(w, p), 0)
@@ -448,7 +448,7 @@ test("Dues grace: private notice authentication, local opt-out, receiver demotio
 		eq(p.ns.Dues.PayerStatus(), "unknown", "a reminder is not a native payment receipt")
 	end)
 	local officer = msg:gsub("~0~10000~", "~1~10000~")
-	king.rank = 1; Scan(w)
-	w:As(king, function() eq(king.ns.DuesGrace.Handle("WHISPER", t.name, officer), false, "previewing a King cannot grant the native GM's private notice") end)
+	shogun.rank = 1; Scan(w)
+	w:As(shogun, function() eq(shogun.ns.DuesGrace.Handle("WHISPER", t.name, officer), false, "previewing a Shogun cannot grant the native GM's private notice") end)
 	NoErrors(w)
 end)

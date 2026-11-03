@@ -41,14 +41,14 @@ function Kit.Child(f, key)
 	return nil
 end
 
--- The simulation's two views (Sim.lua): the gamepad texts and the King's block, for the sim only.
-ArenaUI.simGamepad, ArenaUI.simKing = false, false
+-- The simulation's two views (Sim.lua): the gamepad texts and the Shogun's block, for the sim only.
+ArenaUI.simGamepad, ArenaUI.simShogun = false, false
 function Kit.Gamepad() return ArenaUI.simGamepad == true or ns.GamepadUI() end
--- (The sim's King view also cuts names short there: ArenaNet.lua's Arena.Mask asks this.)
-ns.Arena.SimKingsView = function() return ArenaUI.simKing == true end
-function Kit.KingsView(mode)
-	if ns.Arena.Sim() then return ArenaUI.simKing == true end
-	return ns.Arena.KingsView(mode)
+-- (The sim's Shogun view also cuts names short there: ArenaNet.lua's Arena.Mask asks this.)
+ns.Arena.SimShogunsView = function() return ArenaUI.simShogun == true end
+function Kit.ShogunsView(mode)
+	if ns.Arena.Sim() then return ArenaUI.simShogun == true end
+	return ns.Arena.ShogunsView(mode)
 end
 
 -- The player's remembered choices (ns.db.arenaUI), or the sim's own while it runs (the sim saves

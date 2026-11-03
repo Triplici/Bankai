@@ -10,7 +10,7 @@ local function Count(t)
 	return n
 end
 
-test("1.2.1 leaks: the census keeps MAX_GUILDS reports at most: made-up guilds let their own oldest go, never ours, the King's or a guild still reporting", function()
+test("1.2.1 leaks: the census keeps MAX_GUILDS reports at most: made-up guilds let their own oldest go, never ours, the Shogun's or a guild still reporting", function()
 	local D = ns.Data
 	local was, mine = ns.rdb.guilds, GetGuildInfo("player")
 	local clock = 2000000000
@@ -18,7 +18,7 @@ test("1.2.1 leaks: the census keeps MAX_GUILDS reports at most: made-up guilds l
 		H.WithStub("Now", function() return clock end, function()
 			ns.rdb.guilds = {
 				[mine] = { total = 100, online = 10, zones = {}, t = clock - 3600, mine = true },
-				-- The King's guild, its reporters quiet for an hour: older than every made-up one.
+				-- The Shogun's guild, its reporters quiet for an hour: older than every made-up one.
 				BankaiGuild = { total = 900, online = 90, zones = {}, t = clock - 3600 },
 			}
 			local function Report(guild, sender)
@@ -38,7 +38,7 @@ test("1.2.1 leaks: the census keeps MAX_GUILDS reports at most: made-up guilds l
 			end
 			eq(Count(ns.rdb.guilds), cap, "never more than MAX_GUILDS")
 			assert(ns.rdb.guilds[mine] and ns.rdb.guilds[mine].mine, "ours stays")
-			assert(ns.rdb.guilds.BankaiGuild, "the King's guild stays")
+			assert(ns.rdb.guilds.BankaiGuild, "the Shogun's guild stays")
 			assert(ns.rdb.guilds["Bankai Guild Steady"], "a guild still reporting stays")
 			eq(ns.rdb.guilds["Bankai Guild Phantom 1"], nil, "the oldest made-up one went")
 			assert(ns.rdb.guilds["Bankai Guild Phantom " .. flood], "the newest is in")

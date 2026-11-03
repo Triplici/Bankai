@@ -645,9 +645,9 @@ end
 -- The page (a page of the Realm tab: Views.ShowBoard)
 ---------------------------------------------------------------------------
 
--- A note as this screen shows it: none on the King's (his stream): only names reach it.
+-- A note as this screen shows it: none on the Shogun's (his stream): only names reach it.
 function Board.NoteShown(e)
-	if not e or e.note == "" or ns.KingsScreen() then return "" end
+	if not e or e.note == "" or ns.ShogunsScreen() then return "" end
 	return e.note
 end
 
@@ -758,7 +758,7 @@ Board.Hit = Hit
 function Board.Lines(q)
 	local lines = { { text = Gold(L.BOARD_BACK), onClick = function() ns.Views.ShowBoard(false) end, gapAfter = true } }
 	if not q and ns.WeeklyBrief and ns.WeeklyBrief.Link then lines[#lines + 1] = ns.WeeklyBrief.Link() end
-	-- The King's week first (Week.lua, 1.1): what the army has on, by day.
+	-- The Shogun's week first (Week.lua, 1.1): what the army has on, by day.
 	if ns.Week and ns.Week.Section then ns.Week.Section(lines, q) end
 	if not q then
 		lines[#lines + 1] = { header = true, text = L.BOARD_YOURS,

@@ -24,10 +24,10 @@ end
 local function Setup()
 	local w, cast = MW.Standard()
 	-- Gold may only be opened by a client whose saved data has survived a login.
-	w:Relog(cast.king)
+	w:Relog(cast.shogun)
 	BindLottery(w)
-	w:Group({ cast.king.name, cast.bank.name, cast.b1.name, cast.b2.name, cast.b3.name })
-	return w, cast, Module(w, cast.king, "Lottery")
+	w:Group({ cast.shogun.name, cast.bank.name, cast.b1.name, cast.b2.name, cast.b3.name })
+	return w, cast, Module(w, cast.shogun, "Lottery")
 end
 
 -- The minute `ahead` seconds from now on the draw's clock (21:00 US Central; the world's clients
@@ -51,11 +51,11 @@ local function Said(c, text)
 	return n
 end
 
--- The King's five rolls, as the game's lines (heard by every client in his group, or by `hearers`).
+-- The Shogun's five rolls, as the game's lines (heard by every client in his group, or by `hearers`).
 local function Roll(w, cast, values, hearers)
-	hearers = hearers or { cast.king, cast.bank, cast.b1, cast.b2, cast.b3 }
+	hearers = hearers or { cast.shogun, cast.bank, cast.b1, cast.b2, cast.b3 }
 	for _, value in ipairs(values) do
-		w:System(hearers, ("%s rolls %d (1-10000)"):format(cast.king.short, value))
+		w:System(hearers, ("%s rolls %d (1-10000)"):format(cast.shogun.short, value))
 	end
 	w:Run(0)
 end
@@ -67,7 +67,7 @@ test("Lottery controller: schedule opens one v2 sheet, all five witnessed rolls 
 	w:Run(0)
 	local first = lottery.Book().day
 	assert(first and first.eid, "the scheduled day opened")
-	eq(cast.king.M.Sheet(first.eid).markets[1].param, "2", "the immutable v2 sheet term")
+	eq(cast.shogun.M.Sheet(first.eid).markets[1].param, "2", "the immutable v2 sheet term")
 	for _ = 1, 4 do lottery.Cycle() end
 	eq(lottery.Book().day.eid, first.eid, "a cycle cannot open the same scheduled day twice")
 
@@ -77,22 +77,22 @@ test("Lottery controller: schedule opens one v2 sheet, all five witnessed rolls 
 	w:Run(first.lockAt - w.clock)
 	w:As(cast.bank, cast.bank.ns.Lottery.WatchDraw, true)
 	Roll(w, cast, { 1, 5, 9, 13, 17 }) -- animals 1..5; no ticket on any of them
-	eq(cast.king.M.Sheet(first.eid).markets[1].result, "0001.0005.0009.0013.0017")
+	eq(cast.shogun.M.Sheet(first.eid).markets[1].result, "0001.0005.0009.0013.0017")
 	-- A day's winners are paid by the next day (the owner's call, 2026-10-04: the bank settles when
 	-- its client is on), and the next day waits for that settlement: it names only a pot the bank
 	-- holds settled.
 	for _ = 1, 3 do lottery.Cycle() end
 	eq(lottery.Book().day.eid, first.eid, "the controller waits for the bank settlement")
 
-	w:Run(cast.king.M.GRACE + 20)
-	local book = assert(cast.king.M.Book(first.eid))
-	local wire = assert(cast.king.ns.Lottery.DecodeResult(book.markets[1].result))
+	w:Run(cast.shogun.M.GRACE + 20)
+	local book = assert(cast.shogun.M.Book(first.eid))
+	local wire = assert(cast.shogun.ns.Lottery.DecodeResult(book.markets[1].result))
 	eq(wire.nextCarry, 100000)
 	local second = lottery.Book().day
 	assert(second.eid ~= first.eid, "the next scheduled day opened")
 	eq(second.from, first.eid); eq(second.carry, 100000)
-	eq(cast.king.M.Sheet(second.eid).markets[1].param,
-		"2." .. first.eid .. "." .. cast.king.ns.Arena.B36(100000))
+	eq(cast.shogun.M.Sheet(second.eid).markets[1].param,
+		"2." .. first.eid .. "." .. cast.shogun.ns.Arena.B36(100000))
 	for _ = 1, 5 do lottery.Cycle() end
 	eq(lottery.Book().day.eid, second.eid, "reload/tick dedupe keeps one successor")
 	eq(#lottery.History(), 1)
@@ -131,12 +131,12 @@ test("Lottery controller: a bank away from the declaration settles it when it is
 	assert(Module(w, cast.b1, "Lottery").Bet(9, 1000)) -- not drawn: 10g of profit unclaimed
 	w:Run(first.lockAt - w.clock + 10)
 	eq(BankState(w, cast, first.eid), "L", "the bank locked the book at the draw time")
-	-- The bank goes away; the King rolls the five within the hour and declares them.
+	-- The bank goes away; the Shogun rolls the five within the hour and declares them.
 	Away(w, cast)
-	Roll(w, cast, { 1, 5, 9, 13, 17 }, { cast.king, cast.b1, cast.b2, cast.b3 })
-	eq(cast.king.M.Sheet(first.eid).markets[1].state, "R")
+	Roll(w, cast, { 1, 5, 9, 13, 17 }, { cast.shogun, cast.b1, cast.b2, cast.b3 })
+	eq(cast.shogun.M.Sheet(first.eid).markets[1].state, "R")
 	local opened = 0
-	cast.king.ns.On("LOTTERY_OPEN", function() opened = opened + 1 end)
+	cast.shogun.ns.On("LOTTERY_OPEN", function() opened = opened + 1 end)
 	for _ = 1, 3 do lottery.Cycle() end
 	eq(lottery.Book().day.eid, first.eid, "no next day while the bank has not settled the first")
 	-- Two hours later the bank is back: the declaration's repeat settles the day with its draw.
@@ -167,17 +167,17 @@ test("Lottery controller: incompatible next-day terms retain carry in the settle
 	w:Run(first.lockAt - w.clock)
 	w:As(cast.bank, cast.bank.ns.Lottery.WatchDraw, true)
 	Roll(w, cast, { 1, 5, 9, 13, 17 })
-	w:Run(cast.king.M.GRACE + 20)
-	eq(cast.king.M.Carry(first.eid), 100000)
+	w:Run(cast.shogun.M.GRACE + 20)
+	eq(cast.shogun.M.Carry(first.eid), 100000)
 
-	assert(cast.king.Roles.SetSettings({ cur = "p" }))
+	assert(cast.shogun.Roles.SetSettings({ cur = "p" }))
 	w:Run(0)
 	assert(lottery.SetSchedule({ on = true }))
 	eq(lottery.Book().day.eid, first.eid, "gold carry is not discarded into a points day")
-	eq(cast.king.M.Carry(first.eid), 100000, "the source ledger still owns every copper")
-	eq(cast.king.M.Sheet(first.eid).markets[1].state, "R", "a settled source is not falsely voided")
+	eq(cast.shogun.M.Carry(first.eid), 100000, "the source ledger still owns every copper")
+	eq(cast.shogun.M.Sheet(first.eid).markets[1].state, "R", "a settled source is not falsely voided")
 
-	assert(cast.king.Roles.SetSettings({ cur = "g" }))
+	assert(cast.shogun.Roles.SetSettings({ cur = "g" }))
 	w:Run(0)
 	eq(lottery.Cycle(), true)
 	local second = lottery.Book().day
@@ -186,7 +186,7 @@ test("Lottery controller: incompatible next-day terms retain carry in the settle
 	w:NoErrors()
 end)
 
-test("Lottery winners 1.2.4: settled winners stay private with the King's rankings switch on; saved history survives, no LW is sent or accepted, and no Games ranking lists Lottery", function()
+test("Lottery winners 1.2.4: settled winners stay private with the Shogun's rankings switch on; saved history survives, no LW is sent or accepted, and no Games ranking lists Lottery", function()
 	local w, cast, lottery = Setup()
 	local at = NextMinute(w, 600)
 	assert(lottery.SetSchedule({ on = true, at = at }))
@@ -199,15 +199,15 @@ test("Lottery winners 1.2.4: settled winners stay private with the King's rankin
 	w:Run(day.lockAt - w.clock)
 	w:As(cast.bank, cast.bank.ns.Lottery.WatchDraw, true)
 	Roll(w, cast, { 1, 5, 9, 13, 17 }) -- beasts 1 to 5
-	w:Run(cast.king.M.GRACE + 20)
+	w:Run(cast.shogun.M.GRACE + 20)
 	w:Run(30)
 	-- Settled, but a name next to an amount stays off the channel while the switch is off.
-	eq(#w:Sent({ type = "LW" }), 0, "nothing while the King's rankings switch is off")
+	eq(#w:Sent({ type = "LW" }), 0, "nothing while the Shogun's rankings switch is off")
 	eq(#Module(w, cast.b3, "Lottery").Winners().latest, 0)
 	local bankView = w:As(cast.bank, cast.bank.ns.Lottery.DayWinners, day.eid)
 	eq(#bankView, 1, "the bank knows them")
 	-- Even a legacy global ranking switch never publishes Lottery winners.
-	assert(cast.king.Roles.SetSettings({ rankPub = 1 }))
+	assert(cast.shogun.Roles.SetSettings({ rankPub = 1 }))
 	w:Run(30)
 	eq(#w:Sent({ from = cast.bank, type = "LW" }), 0, "the bank publishes no names")
 	eq(#w:Sent({ type = "LW" }), 0)
@@ -222,7 +222,7 @@ test("Lottery winners 1.2.4: settled winners stay private with the King's rankin
 		eq(r.name, cast.b1.name); eq(r.amount, 23500); eq(r.beast, c.ns.Lottery.Label(1)); eq(r.eid, day.eid)
 		eq(#list.biggest, 1); eq(list.biggest[1].name, cast.b1.name); eq(list.biggest[1].amount, 23500)
 	end
-	for _, c in ipairs({ cast.b3, cast.king, cast.b2 }) do eq(#Module(w, c, "Lottery").Winners().latest, 0, "no public winners") end
+	for _, c in ipairs({ cast.b3, cast.shogun, cast.b2 }) do eq(#Module(w, c, "Lottery").Winners().latest, 0, "no public winners") end
 	w:As(cast.bank, function() cast.bank.ns.Arena.Send("LW", "L", own) end)
 	w:Run(0)
 	eq(#Module(w, cast.b3, "Lottery").Winners().latest, 0, "an older bank's LW is not accepted")
@@ -255,7 +255,7 @@ test("Lottery winners 1.2.4: settled winners stay private with the King's rankin
 		end)
 	end
 	eq(Shows(cast.b3), false, "Lottery is never a public ranking")
-	assert(cast.king.Roles.SetSettings({ rankPub = 0 }))
+	assert(cast.shogun.Roles.SetSettings({ rankPub = 0 }))
 	w:Run(5)
 	eq(Shows(cast.b3), false, "a member: not once the switch is off")
 	eq(Shows(cast.steward), false, "no Lottery ranking in the staff view either")
@@ -264,12 +264,12 @@ end)
 
 test("Lottery winners 1.2.4: with more drawn days than the caller keeps in his history, the bank still publishes no winner names", function()
 	local w, cast, lottery = Setup()
-	assert(cast.king.Roles.SetSettings({ rankPub = 1 }))
+	assert(cast.shogun.Roles.SetSettings({ rankPub = 1 }))
 	w:Run(0)
 	local days = lottery.HISTORY_MAX + 1
 	local eids = {}
 	for n = 1, days do
-		-- (Each day 10 minutes ahead: the King moves the draw time, then stops the schedule while it settles.)
+		-- (Each day 10 minutes ahead: the Shogun moves the draw time, then stops the schedule while it settles.)
 		assert(lottery.SetSchedule({ on = true, at = NextMinute(w, 600) }))
 		assert(lottery.SetSchedule({ on = false }))
 		w:Run(0)
@@ -281,7 +281,7 @@ test("Lottery winners 1.2.4: with more drawn days than the caller keeps in his h
 		w:Run(day.lockAt - w.clock)
 		w:As(cast.bank, cast.bank.ns.Lottery.WatchDraw, true)
 		Roll(w, cast, { 1, 5, 9, 13, 17 })
-		w:Run(cast.king.M.GRACE + 30)
+		w:Run(cast.shogun.M.GRACE + 30)
 		eq(BankState(w, cast, day.eid), "S", "day " .. n .. " settled")
 	end
 	eq(#w:As(cast.bank, cast.bank.ns.Lottery.Days), days, "the bank knows every one of them")
@@ -304,36 +304,36 @@ test("Lottery winners 1.2.4: with more drawn days than the caller keeps in his h
 	w:NoErrors()
 end)
 
-test("Lottery authority 1.2.4: only the pinned King, signed High Council and author can call and roll a real draw; a bank, guild master or claimed council rank cannot", function()
+test("Lottery authority 1.2.4: only the pinned Shogun, signed High Council and author can call and roll a real draw; a bank, guild master or claimed council rank cannot", function()
 	local w, cast, lottery = Setup()
 	local author = w:Cast("author")
 	-- The arena asks the real core Workshop for a pinned operator; a supplied title/name is
 	-- never enough, and callers remain discoverable without an observed presence announcement.
-	eq(w:As(cast.king, cast.king.ns.Workshop.IsPracticeOperator, author.name), true)
-	local operators = w:As(cast.king, cast.king.ns.Workshop.PracticeOperators)
+	eq(w:As(cast.shogun, cast.shogun.ns.Workshop.IsPracticeOperator, author.name), true)
+	local operators = w:As(cast.shogun, cast.shogun.ns.Workshop.PracticeOperators)
 	eq(#operators, 1); eq(operators[1], author.name)
-	eq(w:As(cast.king, cast.king.ns.Workshop.IsPracticeOperator, author.short .. "-Foreign Realm"), false, "same short name outside the pinned realm group grants no authority")
-	w:As(cast.king, function()
+	eq(w:As(cast.shogun, cast.shogun.ns.Workshop.IsPracticeOperator, author.short .. "-Foreign Realm"), false, "same short name outside the pinned realm group grants no authority")
+	w:As(cast.shogun, function()
 		local linked = author.short .. "-" .. H.World.REALMS[2]
-		cast.king.ns.Workshop.HandlePresence("CHANNEL", linked, "V4~1.2.4")
-		eq(cast.king.ns.Workshop.AuthorName(), linked, "actual guarded presence remembers the server-stamped linked realm")
-		eq(cast.king.ns.Lottery.IsCaller(linked, "L"), true)
-		local eid = "L000" .. cast.king.ns.Arena.Hash36(linked:lower(), 2)
-		local event = cast.king.ns.Lottery.EventOf(eid)
+		cast.shogun.ns.Workshop.HandlePresence("CHANNEL", linked, "V4~1.2.4")
+		eq(cast.shogun.ns.Workshop.AuthorName(), linked, "actual guarded presence remembers the server-stamped linked realm")
+		eq(cast.shogun.ns.Lottery.IsCaller(linked, "L"), true)
+		local eid = "L000" .. cast.shogun.ns.Arena.Hash36(linked:lower(), 2)
+		local event = cast.shogun.ns.Lottery.EventOf(eid)
 		eq(event and event.opener, linked, "receiver resolves the accepted linked-realm caller's event")
 	end)
 	local gm = w:Player("Master Claim", { rank = 0 })
 	gm.rankName = "High Councillor" -- a guild's rank label grants no signed council authority
-	for _, c in ipairs({ cast.hc, author, cast.king }) do
+	for _, c in ipairs({ cast.hc, author, cast.shogun }) do
 		local lot = Module(w, c, "Lottery")
 		eq(lot.IsCaller(c.name, "L"), true, c.name .. ": trusted caller")
-		assert(lot.SetSchedule({ on = false, at = 540, roller = "king" }))
+		assert(lot.SetSchedule({ on = false, at = 540, roller = "shogun" }))
 		local eid = w:As(c, c.ns.Arena.NewId, "L")
 		lot.Book().day = { eid = eid, lockAt = w.clock - 1, mode = "L", bank = cast.bank.name }
 		eq(lot.CanDraw(), true, c.name .. ": may operate his due draw")
 		assert(lot.OnRoll(("%s rolls 1 (1-10000)"):format(c.short)))
 		eq(#lot.Book().day.prizes, 1, "the real roll handler counted it")
-		local event = w:As(cast.king, cast.king.ns.Lottery.EventOf, eid)
+		local event = w:As(cast.shogun, cast.shogun.ns.Lottery.EventOf, eid)
 		assert(event and event.opener == c.name, "a receiver recognizes the trusted event writer")
 		for _, drawer in ipairs(event.drawers) do assert(drawer ~= cast.bank.name, "ordinary bank has no draw authority") end
 	end
@@ -341,15 +341,15 @@ test("Lottery authority 1.2.4: only the pinned King, signed High Council and aut
 		local lot = Module(w, c, "Lottery")
 		eq(lot.IsCaller(c.name, "L"), false, c.name)
 		eq(lot.Book(), nil)
-		eq(select(2, lot.SetSchedule({ on = false })), "king")
-		eq(select(2, lot.Draw()), "king", "rejected before any game roll")
+		eq(select(2, lot.SetSchedule({ on = false })), "shogun")
+		eq(select(2, lot.Draw()), "shogun", "rejected before any game roll")
 		local eid = w:As(c, c.ns.Arena.NewId, "L")
-		eq(w:As(cast.king, cast.king.ns.Lottery.EventOf, eid), nil, "a receiver rejects the untrusted event writer")
+		eq(w:As(cast.shogun, cast.shogun.ns.Lottery.EventOf, eid), nil, "a receiver rejects the untrusted event writer")
 	end
 	-- Rejecting a bank roller cannot mutate the caller's existing schedule.
 	lottery.Book().day = nil
 	local at = lottery.Schedule().at
-	eq(select(2, lottery.SetSchedule({ at = 600, roller = "bank" })), "king")
+	eq(select(2, lottery.SetSchedule({ at = 600, roller = "bank" })), "shogun")
 	eq(lottery.Schedule().at, at)
 	-- Losing the signed list immediately removes council authority.
 	cast.hc.rdb.council = nil
@@ -367,7 +367,7 @@ test("Lottery authority 1.2.4 bank: an ordinary bank cannot click Draw or make a
 	w:Run(day.lockAt - w.clock)
 	local bank = Module(w, cast.bank, "Lottery")
 	eq(bank.CanDraw(), false, "the actual button is unavailable")
-	eq(select(2, bank.Draw()), "king", "no game roll is attempted")
+	eq(select(2, bank.Draw()), "shogun", "no game roll is attempted")
 	bank.WatchDraw(true)
 	eq(bank.OnRoll(("%s rolls 1 (1-10000)"):format(cast.bank.short)), false, "a typed roll grants no authority")
 	eq(day.prizes, nil)
@@ -390,15 +390,15 @@ test("Lottery controller: the draw is at 21:00 US Central, by the realm's own cl
 		w:Run(0)
 		local day = lottery.Book().day
 		eq(day.lockAt % 86400, 2 * 3600, "21:00 UTC-5, realm at " .. case.offset)
-		local L = cast.king.ns.L
+		local L = cast.shogun.ns.L
 		local name = case.zone == "central" and L.LOTTERY_ZONE_CENTRAL or L.LOTTERY_ZONE_FIXED
 		eq(lottery.WhenText(day.lockAt), "21:00 " .. name)
-		eq(Said(cast.king, L.LOTTERY_OPENED:format("21:00 " .. name)), 1, "the King is told the draw's clock")
+		eq(Said(cast.shogun, L.LOTTERY_OPENED:format("21:00 " .. name)), 1, "the Shogun is told the draw's clock")
 		w:NoErrors()
 	end
 end)
 
-test("Lottery reminders: 60, 15 and 5 minutes before the draw (last bets; the draw, for a bettor; the roll, for the King and the bank), then results now for a bettor, each once", function()
+test("Lottery reminders: 60, 15 and 5 minutes before the draw (last bets; the draw, for a bettor; the roll, for the Shogun and the bank), then results now for a bettor, each once", function()
 	local w, cast, lottery = Setup()
 	assert(lottery.SetSchedule({ on = true, at = NextMinute(w, 7200) }))
 	w:Run(0)
@@ -407,23 +407,23 @@ test("Lottery reminders: 60, 15 and 5 minutes before the draw (last bets; the dr
 	assert(Module(w, cast.b1, "Lottery").Bet(1, 1000))
 	w:Run(5)
 	local alerts = {}
-	for _, c in ipairs({ cast.king, cast.bank, cast.b1, cast.b2 }) do
+	for _, c in ipairs({ cast.shogun, cast.bank, cast.b1, cast.b2 }) do
 		local alert = c.ns.Alert
 		c.ns.Alert = function(kind, tone, a)
 			alerts[#alerts + 1] = c.name .. ":" .. tostring(a and a.text)
 			return alert(kind, tone, a)
 		end
 	end
-	local L = cast.king.ns.L
+	local L = cast.shogun.ns.L
 	local when = lottery.WhenText(day.lockAt)
 	-- One timer, for the next reminder, on every client that knows the day.
-	for _, c in ipairs({ cast.king, cast.bank, cast.b1, cast.b2, cast.b3 }) do
+	for _, c in ipairs({ cast.shogun, cast.bank, cast.b1, cast.b2, cast.b3 }) do
 		local r = w:As(c, c.ns.Lottery.Reminder)
 		eq(r and r.eid, day.eid, c.name); eq(r and r.mark, 3600, c.name)
 	end
 	local words = { roll = L.LOTTERY_REMIND_ROLL, mine = L.LOTTERY_REMIND_MINE, bet = L.LOTTERY_REMIND_BET }
 	-- A bank appointment alone no longer authorizes rolling or a reminder to roll.
-	local who = { { cast.king, "roll" }, { cast.b1, "mine" }, { cast.b2, "bet" }, { cast.b3, "bet" } }
+	local who = { { cast.shogun, "roll" }, { cast.b1, "mine" }, { cast.b2, "bet" }, { cast.b3, "bet" } }
 	for _, minutes in ipairs({ 60, 15, 5 }) do
 		Wait(w, day.lockAt - minutes * 60 - w.clock - 1)
 		for _, x in ipairs(who) do eq(Said(x[1], words[x[2]]:format(minutes, when)), 0, x[1].name .. ": not before its time, " .. minutes) end
@@ -438,14 +438,14 @@ test("Lottery reminders: 60, 15 and 5 minutes before the draw (last bets; the dr
 	-- Only the trusted caller gets the 5-minute roll alert.
 	local roll5 = L.LOTTERY_REMIND_ROLL:format(5, when)
 	table.sort(alerts)
-	local expect = { cast.king.name .. ":" .. roll5 }
+	local expect = { cast.shogun.name .. ":" .. roll5 }
 	table.sort(expect)
 	eq(table.concat(alerts, "|"), table.concat(expect, "|"))
 	-- At the draw time: the results now, for a bettor alone (and an alert).
 	w:Run(day.lockAt - w.clock)
 	eq(Said(cast.b1, L.LOTTERY_REMIND_NOW), 1)
 	eq(alerts[#alerts], cast.b1.name .. ":" .. L.LOTTERY_REMIND_NOW)
-	for _, c in ipairs({ cast.b2, cast.b3, cast.king, cast.bank }) do eq(Said(c, L.LOTTERY_REMIND_NOW), 0, c.name) end
+	for _, c in ipairs({ cast.b2, cast.b3, cast.shogun, cast.bank }) do eq(Said(c, L.LOTTERY_REMIND_NOW), 0, c.name) end
 	-- Nothing armed after it: no reminder's timer is left on a member once the bets are closed.
 	for _, c in ipairs({ cast.b1, cast.b2, cast.b3 }) do
 		eq(w:As(c, c.ns.Lottery.Reminder), nil, c.name)
@@ -467,7 +467,7 @@ test("Lottery reminders: never one that is past: a day opened ten minutes before
 	local armed = w:As(cast.b2, cast.b2.ns.Lottery.Reminder)
 	eq(armed and armed.mark, 300, "the 5 minutes' is the first armed")
 	w:Run(day.lockAt - w.clock)
-	local L = cast.king.ns.L
+	local L = cast.shogun.ns.L
 	local when = lottery.WhenText(day.lockAt)
 	eq(Said(cast.b2, L.LOTTERY_REMIND_BET:format(5, when)), 1)
 	local late = 0
@@ -489,16 +489,16 @@ test("Lottery's draw hour: no draw within the hour after the draw time voids the
 	eq(w:Balance(cast.bank, cast.b1), before - 100000)
 	-- One prize rolled near the hour's end; the other four never come.
 	Wait(w, day.lockAt + 3600 - 20 - w.clock)
-	eq(lottery.CanDraw(), true, "the King may still roll")
+	eq(lottery.CanDraw(), true, "the Shogun may still roll")
 	Roll(w, cast, { 1 })
 	eq(#lottery.Book().day.prizes, 1)
 	w:Run(25)
-	eq(cast.king.M.Sheet(day.eid).markets[1].state, "V", "void at the hour's end")
-	local L = cast.king.ns.L
-	eq(Said(cast.king, L.LOTTERY_VOID_LATE), 1)
+	eq(cast.shogun.M.Sheet(day.eid).markets[1].state, "V", "void at the hour's end")
+	local L = cast.shogun.ns.L
+	eq(Said(cast.shogun, L.LOTTERY_VOID_LATE), 1)
 	-- A roll after the hour: no prize of that day.
-	w:As(cast.king, function() eq(cast.king.ns.Lottery.OnRoll(("%s rolls 5 (1-10000)"):format(cast.king.short)), false) end)
-	eq(cast.king.M.Sheet(day.eid).markets[1].result, "G", "no draw declared")
+	w:As(cast.shogun, function() eq(cast.shogun.ns.Lottery.OnRoll(("%s rolls 5 (1-10000)"):format(cast.shogun.short)), false) end)
+	eq(cast.shogun.M.Sheet(day.eid).markets[1].result, "G", "no draw declared")
 	-- The bank gives the stake back; the bettor is told once.
 	w:Run(30)
 	eq(w:Balance(cast.bank, cast.b1), before, "the stake back")
@@ -511,7 +511,7 @@ test("Lottery's draw hour: no draw within the hour after the draw time voids the
 	w:NoErrors()
 end)
 
-test("Lottery's draw hour: with the King away, the bank voids the undrawn day after the hour (and its slack), not two days later", function()
+test("Lottery's draw hour: with the Shogun away, the bank voids the undrawn day after the hour (and its slack), not two days later", function()
 	local w, cast, lottery = Setup()
 	assert(lottery.SetSchedule({ on = true, at = NextMinute(w, 600) }))
 	w:Run(0)
@@ -519,7 +519,7 @@ test("Lottery's draw hour: with the King away, the bank voids the undrawn day af
 	assert(Module(w, cast.b1, "Lottery").Bet(9, 1000))
 	w:Run(5)
 	local before = w:Balance(cast.bank, cast.b1)
-	w:Logout(cast.king)
+	w:Logout(cast.shogun)
 	local slack = cast.bank.ns.Lottery.DRAW_WINDOW + cast.bank.ns.Lottery.VOID_SLACK
 	Wait(w, day.lockAt + slack - 5 - w.clock)
 	eq(cast.b3.M.View(day.eid).markets[1].state, "L", "still waiting for its draw")
@@ -529,7 +529,7 @@ test("Lottery's draw hour: with the King away, the bank voids the undrawn day af
 	w:NoErrors()
 end)
 
-test("Lottery's draw hour: a bank away when the King declared within the hour pays the winners once it is back, and never voids the day", function()
+test("Lottery's draw hour: a bank away when the Shogun declared within the hour pays the winners once it is back, and never voids the day", function()
 	local w, cast, lottery = Setup()
 	assert(lottery.SetSchedule({ on = true, at = NextMinute(w, 600) }))
 	assert(lottery.SetSchedule({ on = false })) -- (no next day in the way)
@@ -541,10 +541,10 @@ test("Lottery's draw hour: a bank away when the King declared within the hour pa
 	w:Run(day.lockAt - w.clock + 10)
 	eq(BankState(w, cast, day.eid), "L")
 	Away(w, cast)
-	Roll(w, cast, { 1, 5, 9, 13, 17 }, { cast.king, cast.b1, cast.b2, cast.b3 })
-	eq(cast.king.M.Sheet(day.eid).markets[1].state, "R", "declared within the hour")
+	Roll(w, cast, { 1, 5, 9, 13, 17 }, { cast.shogun, cast.b1, cast.b2, cast.b3 })
+	eq(cast.shogun.M.Sheet(day.eid).markets[1].state, "R", "declared within the hour")
 	-- Back two hours later, long past the draw's hour and its slack: it cannot tell no draw from a
-	-- declaration it missed, so it waits for the King's repeat instead of voiding at its first tick.
+	-- declaration it missed, so it waits for the Shogun's repeat instead of voiding at its first tick.
 	Wait(w, 7200)
 	Back(w, cast)
 	w:Run(5)
@@ -557,7 +557,7 @@ test("Lottery's draw hour: a bank away when the King declared within the hour pa
 	w:NoErrors()
 end)
 
-test("Lottery's draw hour: with the King and the bank both away at its end, the bank back first waits; the King's client voids the day when he is back", function()
+test("Lottery's draw hour: with the Shogun and the bank both away at its end, the bank back first waits; the Shogun's client voids the day when he is back", function()
 	local w, cast, lottery = Setup()
 	assert(lottery.SetSchedule({ on = true, at = NextMinute(w, 600) }))
 	assert(lottery.SetSchedule({ on = false }))
@@ -567,18 +567,18 @@ test("Lottery's draw hour: with the King and the bank both away at its end, the 
 	assert(Module(w, cast.b1, "Lottery").Bet(9, 1000))
 	w:Run(day.lockAt - w.clock + 10)
 	Away(w, cast)
-	w:Logout(cast.king)
+	w:Logout(cast.shogun)
 	Wait(w, 7200)
 	Back(w, cast)
 	Wait(w, 900)
 	eq(BankState(w, cast, day.eid), "L", "the bank cannot tell: it waits")
 	eq(w:Balance(cast.bank, cast.b1), before - 100000)
-	-- The King's client: no draw declared in its hour, void at his login, every stake back.
-	w:Login(cast.king)
-	w:Install(cast.king)
-	w:As(cast.king, cast.king.ns.Arena.Events.Register, "L", cast.king.ns.Lottery.EventOf)
+	-- The Shogun's client: no draw declared in its hour, void at his login, every stake back.
+	w:Login(cast.shogun)
+	w:Install(cast.shogun)
+	w:As(cast.shogun, cast.shogun.ns.Arena.Events.Register, "L", cast.shogun.ns.Lottery.EventOf)
 	w:Run(30)
-	eq(cast.king.M.Sheet(day.eid).markets[1].state, "V")
+	eq(cast.shogun.M.Sheet(day.eid).markets[1].state, "V")
 	eq(BankState(w, cast, day.eid), "V")
 	eq(w:Balance(cast.bank, cast.b1), before, "the stake back")
 	w:NoErrors()

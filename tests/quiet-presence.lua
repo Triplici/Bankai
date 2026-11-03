@@ -38,8 +38,8 @@ local function Keys(t)
 	return table.concat(out, ",")
 end
 
-test("quiet presence: only the King, a High Councillor or the author turns it on, for this session; another owner can't touch it", function()
-	local K, M, W = ns.King, ns.Moderation, ns.Workshop
+test("quiet presence: only the Shogun, a High Councillor or the author turns it on, for this session; another owner can't touch it", function()
+	local K, M, W = ns.Shogun, ns.Moderation, ns.Workshop
 	local saved = { guild = IsInGuild, steward = K.IsStewardName, author = W.IsAuthorName, hides = M.Hides, hc = ns.IsHighCouncillor }
 	local before = Keys(ns.db)
 	local ok, err = pcall(function()
@@ -50,10 +50,10 @@ test("quiet presence: only the King, a High Councillor or the author turns it on
 		local done, why = ns.SetQuietPresence(true, OWNER)
 		eq(done, false); eq(why, "authority"); eq(ns.QuietPresence(), false)
 		eq(select(2, ns.SetQuietPresence(false, OWNER)), "authority", "nor an off for someone who could never turn it on")
-		-- A Steward is a signed issuer, but neither the King nor a councillor: no either.
+		-- A Steward is a signed issuer, but neither the Shogun nor a councillor: no either.
 		K.IsStewardName = function(name) return type(name) == "string" and name:lower() == ns.me:lower() end
 		eq(M.IsIssuer(ns.me), true, "a signed issuer...")
-		eq(select(2, ns.SetQuietPresence(true, OWNER)), "authority", "...that is not the King, a councillor or the author")
+		eq(select(2, ns.SetQuietPresence(true, OWNER)), "authority", "...that is not the Shogun, a councillor or the author")
 		K.IsStewardName = saved.steward
 		-- Outside an Bankai Guild guild: no.
 		ns.IsHighCouncillor = function(name) return name == ns.me end
@@ -109,7 +109,7 @@ test("quiet presence: the transport holds every word that says we are online or 
 			"FX~2~S~s~1~2~1790000000~Bankai Guild II~Issuer-Realm~7~caption", "FX~2~C~s~1~3~1790000000~Bankai Guild II~7",
 			"W1~Bankai Guild II~alch:Alchemy:300:300:5", "W0~", "WA~ab~Bankai Guild II~Alchemy~300~1:2", "WL~alch~1/1~1:2" }
 		-- Reads, and what the player posts himself (a list he changed, a writ, his muster, his arrow
-		-- word), still go: their timed repeats are held in their modules (King.lua, Acts.lua, ...).
+		-- word), still go: their timed repeats are held in their modules (Shogun.lua, Acts.lua, ...).
 		local passes = { "M1~A~Bankai Guild II~1~~hello there", "Q1~", "K0~", "LQ~1~1453~8", "LR~1", "LX~1", "LY~Q~1~7~77~1453",
 			"PS~Q~1~7~Target-Realm", "PS~A~1~7~1453", "PS~C~1~7~Target-Realm", "CG~1~Q~1790000000", "T1~S~5~Bankai Guild",
 			"V1~7~100", "V7~7", "ZQ~L1~R~-~0", "TA~Bankai Guild II~1", "D1~ARMS~1~1~1~Bankai Guild II~1~x",
@@ -209,7 +209,7 @@ test("quiet presence: no layer of ours, no hop offer, invite or answer; our own 
 				H.HandleAsk("CHANNEL", "Second-Realm", "LQ~43~1453~9")
 				eq(#w.whispered, 1, "no offer")
 				-- Our own ask is a read: it goes (nobody answers it here).
-				H.Ask(1453, 8, "the King's layer")
+				H.Ask(1453, 8, "the Shogun's layer")
 				eq(w.sent[#w.sent], "CHANNEL LQ~1~1453~8")
 				w.clock = w.clock + 30
 				H.Tick()
@@ -226,10 +226,10 @@ test("quiet presence: no layer of ours, no hop offer, invite or answer; our own 
 	end)
 end)
 
-test("quiet presence: the King's crown never leaves, nor its removal, while it is on; it is back at once once off", function()
+test("quiet presence: the Shogun's crown never leaves, nor its removal, while it is on; it is back at once once off", function()
 	AsCouncillor(function()
-		local K = ns.King
-		local saved = { send = ns.Comm.Send, isKing = K.IsKing, now = ns.Now, best = C_Map.GetBestMapForUnit,
+		local K = ns.Shogun
+		local saved = { send = ns.Comm.Send, isShogun = K.IsShogun, now = ns.Now, best = C_Map.GetBestMapForUnit,
 			pos = C_Map.GetPlayerMapPosition, crown = ns.db.throneLocation }
 		local sent, clock = {}, 2100000000
 		local ok, err = pcall(function()
@@ -238,7 +238,7 @@ test("quiet presence: the King's crown never leaves, nor its removal, while it i
 			ns.db.throneLocation = nil
 			ns.Now = function() return clock end
 			ns.Comm.Send = function(dist, msg) sent[#sent + 1] = dist .. " " .. msg return true end
-			K.IsKing = function() return true end
+			K.IsShogun = function() return true end
 			C_Map.GetBestMapForUnit = function() return 1453 end
 			C_Map.GetPlayerMapPosition = function() return { GetXY = function() return 0.42, 0.51 end } end
 			Quiet(true)
@@ -254,7 +254,7 @@ test("quiet presence: the King's crown never leaves, nor its removal, while it i
 			Quiet(false)
 			assert(sent[1] and sent[1]:find("^CHANNEL T1~P~%d+~[^~]*~1453~420~510$"), "the crown at once: " .. tostring(sent[1]))
 		end)
-		ns.Comm.Send, K.IsKing, ns.Now = saved.send, saved.isKing, saved.now
+		ns.Comm.Send, K.IsShogun, ns.Now = saved.send, saved.isShogun, saved.now
 		C_Map.GetBestMapForUnit, C_Map.GetPlayerMapPosition, ns.db.throneLocation = saved.best, saved.pos, saved.crown
 		K.Reset()
 		if not ok then error(err, 0) end
@@ -307,7 +307,7 @@ test("quiet presence: a line on top of the Census and the Realm says so while it
 	AsCouncillor(function()
 		local L = ns.L
 		-- (Review: "other Bankai Guild clients see you as offline" was untrue for a guild leader or officer,
-		-- whom the guildmates' census still shows online from the game's guild roster: the King first.)
+		-- whom the guildmates' census still shows online from the game's guild roster: the Shogun first.)
 		eq(L.QUIET_PRESENCE_LINE, "Quiet presence: Bankai Guild stops announcing you and where you are. Your guild roster, the census your guildmates build from it, /who and chat still show you.")
 		for _, words in ipairs({ "Bankai Guild chat lines you type, what you post yourself and the records your client relays still go out",
 			"a guild leader or officer still shows online there, and your zone may show for up to 12 minutes",

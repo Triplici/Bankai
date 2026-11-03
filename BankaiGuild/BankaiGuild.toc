@@ -74,7 +74,7 @@ Decree.lua
 Channels.lua
 Filter.lua
 Inspect.lua
-King.lua
+Shogun.lua
 HopSightings.lua
 Vox.lua
 Court.lua
@@ -117,7 +117,7 @@ MainKey.lua
 Watch.lua
 Judgment.lua
 JusticeTasks.lua
-KingArrow.lua
+ShogunArrow.lua
 Accord.lua
 Consent.lua
 Cover.lua

@@ -612,7 +612,7 @@ test("watch duel: in combat with the companion not loaded /bk arena watch is ref
 	W3.NoErrors(w)
 end)
 
-test("watch duel: the copyable text holds names, numbers and the game's own words; a guild only an Bankai Guild guild's (King.CleanGuild)", function()
+test("watch duel: the copyable text holds names, numbers and the game's own words; a guild only an Bankai Guild guild's (Shogun.CleanGuild)", function()
 	local w, cast = Cast()
 	local V = cast.V
 	Scene(w, V, { units = { target = cast.A, targettarget = cast.B }, bodies = {

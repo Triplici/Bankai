@@ -4,7 +4,7 @@
 -- and WoW globals (World:As swaps them), and loads the real Church files (and ChatRooms.lua) into it.
 -- Messages go through a fake Comm that routes as the game does: CHANNEL to everyone online on the
 -- realm, GUILD to the sender's guild, WHISPER to the one name; the server stamps the sender.
--- Every name is invented; the author, the King and the council are this world's, never the addon's.
+-- Every name is invented; the author, the Shogun and the council are this world's, never the addon's.
 local ns, ROOT = ...
 
 local World = {}
@@ -13,7 +13,7 @@ World.EPOCH = 1800000000
 World.GUILD = "Bankai Guild Ember"
 World.GUILD2 = "Bankai Guild Vale"
 World.AUTHOR = "Quill Scribe-Realm"
-World.KING = "Aldo Crown-Realm"
+World.SHOGUN = "Aldo Crown-Realm"
 World.HEAD = "Corin Ash-Realm"
 World.COUNCILLOR = "Brin Tallow-Realm"
 World.COUNCIL = assert(loadfile(ROOT .. "tests/fixtures/church-council.lua"))()
@@ -101,14 +101,14 @@ function World:Client(name, opts)
 		end }, { __index = ns.Data })
 	c.IsMember = function() return cl.guild ~= nil and ns.IsFederation(cl.guild) end
 	if not opts.real then
-		c.IsKingCharacter = function(n) return type(n) == "string" and Key(n) == Key(World.KING) end
-		c.KingCharacter = function() return World.KING end
+		c.IsShogunCharacter = function(n) return type(n) == "string" and Key(n) == Key(World.SHOGUN) end
+		c.ShogunCharacter = function() return World.SHOGUN end
 		c.IsHighCouncillor = function(n) return type(n) == "string" and w.council[Key(n)] == true end
 		c.CouncilTitles = function() return w.titles end
 	end
 	c.Workshop = { IsAuthorName = function(n) return type(n) == "string" and Key(n) == Key(World.AUTHOR) end,
 		IsAuthor = function() return Key(c.me) == Key(World.AUTHOR) end }
-	c.KingsScreen = function() return Key(c.me) == Key(World.KING) end
+	c.ShogunsScreen = function() return Key(c.me) == Key(World.SHOGUN) end
 	c.ChatLocked = function() return w.locked == true end
 	c.Alts = { Linked = function(n) return w.alts[Key(n)] or {} end }
 	c.Moderation = { SelfOff = function() return w.off[cl.key] end, Hides = function(sender) return w.off[Key(sender)] end,

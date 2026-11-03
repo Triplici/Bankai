@@ -12,7 +12,7 @@ local function WorldWithBank(extra)
 	local more = { { "bank", N.bank } }
 	for _, e in ipairs(extra or {}) do more[#more + 1] = e end
 	local w, cast = W3.New({ more = more })
-	assert(cast.king.Roles.SetBanks({ N.bank }))
+	assert(cast.shogun.Roles.SetBanks({ N.bank }))
 	w:Run(0)
 	return w, cast
 end
@@ -100,7 +100,7 @@ test("1.2 integration: no bank means no false market marker; an open-slot fight 
 	eq(cast0.arbiter.ns.Markets.Sheet(fid0, "L"), nil)
 	eq(cast0.arbiter.ns.ArenaFights.Has(f0.fl, "m"), false)
 	eq(f0.marketWhy, "bank", "assignment/configuration failure is not a receipt or an open market")
-	assert(cast0.king.Roles.SetBanks({ N.bank })); w0:Run(31)
+	assert(cast0.shogun.Roles.SetBanks({ N.bank })); w0:Run(31)
 	eq(cast0.arbiter.ns.ArenaFights.Has(f0.fl, "m"), true, "a newly available bank makes the announced market reachable")
 	assert(cast0.arbiter.ns.Markets.Sheet(fid0, "L"), "the controller retries without requiring a duplicate announcement")
 
@@ -138,15 +138,15 @@ test("1.2 integration: the tournament route opens outright/reached markets, scra
 		more[#more + 1] = { "e" .. i, name }
 	end
 	local w, cast = WorldWithBank(more)
-	local king = cast.king
-	local T = M(w, king, "ArenaTourney")
+	local shogun = cast.shogun
+	local T = M(w, shogun, "ArenaTourney")
 	local tid = assert(T.New({ title = "Reachable Cup", size = 4, tStart = w.clock + 7200, tReg = w.clock + 3000, bo = "1" }))
 	w:Run(0)
 	for i = 1, 9 do assert(M(w, cast["e" .. i], "ArenaTourney").Sign(tid)); w:Run(4) end
-	local t = king.ns.ArenaTourney.Find(tid)
+	local t = shogun.ns.ArenaTourney.Find(tid)
 	assert(T.CloseRegistration(tid))
 	w:Run(0)
-	local sheet = king.ns.Markets.Sheet(tid, "L")
+	local sheet = shogun.ns.Markets.Sheet(tid, "L")
 	assert(sheet, "T.CloseRegistration must reach Markets.Open")
 	assert(cast.bank.ns.Markets.Sheet(tid, "L"), "the bank validates entrant numbers before the sheet")
 	eq(sheet.size, nil, "the bracket size is not frozen before check-in")
@@ -154,10 +154,10 @@ test("1.2 integration: the tournament route opens outright/reached markets, scra
 
 	w.clock = t.tCheck + 1
 	for _, i in ipairs({ 1, 3, 4, 9 }) do assert(M(w, cast["e" .. i], "ArenaTourney").CheckIn(tid)); w:Run(4) end
-	w:Group({ king.name, cast.e1.name, cast.e3.name }, true)
+	w:Group({ shogun.name, cast.e1.name, cast.e3.name }, true)
 	assert(T.StartDraw(tid))
 	w:Run(0)
-	sheet = king.ns.Markets.Sheet(tid, "L")
+	sheet = shogun.ns.Markets.Sheet(tid, "L")
 	eq(sheet.size, 4)
 	eq(sheet.scratched[2], true, "the no-show's frozen entrant number is scratched")
 	eq(sheet.scratched[5] and sheet.scratched[6] and sheet.scratched[7] and sheet.scratched[8], true, "unused waitlist entrants are scratched too")
@@ -167,38 +167,38 @@ test("1.2 integration: the tournament route opens outright/reached markets, scra
 	eq(stageParams[1] and stageParams[3] and stageParams[4] and stageParams[9], true)
 	eq(stageParams[2], nil, "no stage market for the no-show")
 
-	king.globals.RandomRoll = function(_, hi) king.rolled = hi end
-	local state = w:As(king, king.ns.ArenaTourney.DrawState, t)
+	shogun.globals.RandomRoll = function(_, hi) shogun.rolled = hi end
+	local state = w:As(shogun, shogun.ns.ArenaTourney.DrawState, t)
 	for step = 1, state.total do
 		local ok, got, hi = T.DrawStep(tid)
 		eq(ok, true); eq(got, step)
-		W3.Roll(w, { king, cast.e1, cast.e3 }, king, 1, 1, hi)
+		W3.Roll(w, { shogun, cast.e1, cast.e3 }, shogun, 1, 1, hi)
 		w:Run(0)
 	end
 	eq(t.st, "L")
-	sheet = king.ns.Markets.Sheet(tid, "L")
+	sheet = shogun.ns.Markets.Sheet(tid, "L")
 	eq(#sheet.order, 9); eq(sheet.markets[9].type, "PK", "the bracket pool appears only after the witnessed draw")
 	eq(cast.bank.ns.Markets.Sheet(tid, "L").markets[9].type, "PK", "the bank heard the drawn bracket before PK")
 	assert(sheet.lockAt >= w.clock, "the draw closes, rather than bypasses, the sheet")
 
 	-- Pending settlement and the bracket both survive a real saved-data logout/login. LOGIN's
 	-- Watch reconstructs the pending work from the unresolved canonical sheet.
-	w:Logout(king); w:Login(king)
-	T = M(w, king, "ArenaTourney")
-	t = king.ns.ArenaTourney.Find(tid)
-	sheet = king.ns.Markets.Sheet(tid, "L")
+	w:Logout(shogun); w:Login(shogun)
+	T = M(w, shogun, "ArenaTourney")
+	t = shogun.ns.ArenaTourney.Find(tid)
+	sheet = shogun.ns.Markets.Sheet(tid, "L")
 	assert(t and t.bracket and sheet)
 	w:Run(math.max(0, sheet.lockAt - w.clock) + 1)
 	for _ = 1, 8 do
 		if t.st == "F" then break end
 		for _, fid in pairs(t.bouts) do
-			local f = king.ns.ArenaFights.Find("fights", fid)
-			if f and f.st == "S" then assert(w:As(king, king.ns.ArenaFights.Walkover, fid, "A")) end
+			local f = shogun.ns.ArenaFights.Find("fights", fid)
+			if f and f.st == "S" then assert(w:As(shogun, shogun.ns.ArenaFights.Walkover, fid, "A")) end
 		end
 		w:Run(6)
 	end
 	eq(t.st, "F")
-	sheet = king.ns.Markets.Sheet(tid, "L")
+	sheet = shogun.ns.Markets.Sheet(tid, "L")
 	for _, idx in ipairs(sheet.order) do eq(sheet.markets[idx].state, "R", "market " .. idx .. " settled") end
 	local facts = T.MarketResults(tid)
 	eq(type(facts.champion), "number"); eq(#facts.finalists, 2); eq(#facts.semifinalists, 4)
@@ -207,7 +207,7 @@ test("1.2 integration: the tournament route opens outright/reached markets, scra
 	eq(t.marketDone, true)
 	local rev = sheet.rev
 	assert(T.Advance(tid))
-	eq(king.ns.Markets.Sheet(tid, "L").rev, rev, "a repeated bracket advance cannot settle twice")
+	eq(shogun.ns.Markets.Sheet(tid, "L").rev, rev, "a repeated bracket advance cannot settle twice")
 	W3.NoErrors(w)
 end)
 
@@ -217,8 +217,8 @@ test("1.2 integration: a finished tournament refunds only outcomes a both-absent
 		{ "e5", "Nera Flint" },
 	}
 	local w, cast = WorldWithBank(more)
-	local king = cast.king
-	local T = M(w, king, "ArenaTourney")
+	local shogun = cast.shogun
+	local T = M(w, shogun, "ArenaTourney")
 	local tid = assert(T.New({ title = "No Champion Cup", size = 4, tStart = w.clock + 7200, tReg = w.clock + 3000, bo = "1" }))
 	w:Run(0)
 	for i = 1, 5 do assert(M(w, cast["e" .. i], "ArenaTourney").Sign(tid)); w:Run(4) end
@@ -226,18 +226,18 @@ test("1.2 integration: a finished tournament refunds only outcomes a both-absent
 	local t = T.Find(tid)
 	w.clock = t.tCheck + 1
 	for i = 1, 4 do assert(M(w, cast["e" .. i], "ArenaTourney").CheckIn(tid)); w:Run(4) end
-	w:Group({ king.name, cast.e1.name, cast.e2.name }, true)
+	w:Group({ shogun.name, cast.e1.name, cast.e2.name }, true)
 	assert(T.StartDraw(tid)); w:Run(0)
-	king.globals.RandomRoll = function(_, hi) king.rolled = hi end
-	local state = w:As(king, king.ns.ArenaTourney.DrawState, t)
+	shogun.globals.RandomRoll = function(_, hi) shogun.rolled = hi end
+	local state = w:As(shogun, shogun.ns.ArenaTourney.DrawState, t)
 	for step = 1, state.total do
 		local ok, got, hi = T.DrawStep(tid)
 		eq(ok, true); eq(got, step)
-		W3.Roll(w, { king, cast.e1, cast.e2 }, king, 1, 1, hi)
+		W3.Roll(w, { shogun, cast.e1, cast.e2 }, shogun, 1, 1, hi)
 		w:Run(0)
 	end
 
-	local AF = M(w, king, "ArenaFights")
+	local AF = M(w, shogun, "ArenaFights")
 	for _, fid in pairs(t.bouts) do
 		local f = AF.Find("fights", fid)
 		if f and f.st == "S" then assert(AF.Walkover(fid, "A")) end
@@ -249,10 +249,10 @@ test("1.2 integration: a finished tournament refunds only outcomes a both-absent
 	assert(T.Advance(tid))
 	eq(t.st, "F"); eq(T.Winner(tid), nil, "a both-absent final has no invented champion")
 
-	local sheet = king.ns.Markets.Sheet(tid, "L")
+	local sheet = shogun.ns.Markets.Sheet(tid, "L")
 	w:Run(math.max(0, sheet.lockAt - w.clock) + 1)
 	T.Tick()
-	sheet = king.ns.Markets.Sheet(tid, "L")
+	sheet = shogun.ns.Markets.Sheet(tid, "L")
 	local byType = {}
 	for _, idx in ipairs(sheet.order) do
 		local market = sheet.markets[idx]

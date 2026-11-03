@@ -206,14 +206,14 @@ test("ArenaMath: Settle pays the markets section's worked examples to the copper
 	eq(d.loserPays, 5 * GOLD); eq(d.guildFee, 30 * SILVER); eq(d.kept, 4 * GOLD + 70 * SILVER)
 end)
 
-test("ArenaMath: Settle's fee: the defaults, by name or by position, the King's all to the guild, clamps and nonsense", function()
+test("ArenaMath: Settle's fee: the defaults, by name or by position, the Shogun's all to the guild, clamps and nonsense", function()
 	local base = M.Settle(Example1(), "B")
 	for _, fee in ipairs({ { g = 400, a = 200 }, { 600, 200 }, { 600, 200, "a" }, { feeBp = 600, arbBp = 200 },
 		{ g = 400 }, { a = 200 }, { 600 }, { feeBp = 600 }, { arbBp = 200 }, {}, { to = "a" } }) do
 		local r = M.Settle(Example1(), "B", fee)
 		eq(r.payouts[31], base.payouts[31]); eq(r.guildFee, 24 * GOLD); eq(r.arbFee, 12 * GOLD)
 	end
-	-- The King arbitrates: the arbiter's 2% goes to the guild; the winners get the same.
+	-- The Shogun arbitrates: the arbiter's 2% goes to the guild; the winners get the same.
 	local r = M.Settle(Example1(), "B", { to = "g" })
 	eq(r.payouts[31], 241000); eq(r.guildFee, 36 * GOLD); eq(r.arbFee, 0)
 	eq(Out(r), 1000 * GOLD)
@@ -254,7 +254,7 @@ test("ArenaMath: a fee replayed from the ledger's n entry (feeBp 600, arbBp 200)
 		eq(onB, 964 * GOLD, "B's 400g is paid 400g and 564g")
 		eq(Out(r), 1000 * GOLD)
 	end
-	-- The King's T1~O word carries the same two numbers in the same order.
+	-- The Shogun's T1~O word carries the same two numbers in the same order.
 	eq(M.Direct(10 * GOLD, 10 * GOLD, { feeBp, arbBp }).guildFee, 60 * SILVER, "a direct bet: the whole 6%")
 	eq(M.Odds({ A = 600 * GOLD, B = 400 * GOLD }, "B", { feeBp, arbBp }), 241)
 	eq(M.Preview({ A = 600 * GOLD, B = 400 * GOLD }, "B", 10 * GOLD, { feeBp, arbBp }), 237560)
@@ -263,7 +263,7 @@ test("ArenaMath: a fee replayed from the ledger's n entry (feeBp 600, arbBp 200)
 	-- A first number is always the whole fee: { 400, 200 } is 4%, half of it the arbiter's.
 	local r = M.Settle(Example1(), "B", { 400, 200 })
 	eq(r.cut, 24 * GOLD); eq(r.arbFee, 12 * GOLD); eq(r.guildFee, 12 * GOLD)
-	-- Clamped as the King's bounds read (0-1000 / 0-feeBp): the whole to 10%, the arbiter's part
+	-- Clamped as the Shogun's bounds read (0-1000 / 0-feeBp): the whole to 10%, the arbiter's part
 	-- to the whole.
 	r = M.Settle(Example1(), "B", { 1200, 300 })
 	eq(r.cut, 60 * GOLD); eq(r.arbFee, 18 * GOLD); eq(r.guildFee, 42 * GOLD)
@@ -646,7 +646,7 @@ test("ArenaMath: Pickem settles a bracket pool from the ledger's picks and resul
 	eq(r.guildFee, 16 * SILVER); eq(r.arbFee, 8 * SILVER)
 	eq(r.byWho["Lida-Realm"], 4 * GOLD + 76 * SILVER)
 	eq(Out(r), 5 * GOLD)
-	-- The King arbitrates: all 6% to the guild.
+	-- The Shogun arbitrates: all 6% to the guild.
 	r = M.Pickem(entries, RESULT8, 3, { to = "g" })
 	eq(r.payouts[1], 4 * GOLD + 76 * SILVER); eq(r.guildFee, 24 * SILVER); eq(r.arbFee, 0)
 	-- The same result settles the same, every time and on every client.
@@ -950,7 +950,7 @@ test("ArenaMath: BetCap is the design's table: a tier per 5 points up to 5, dire
 	eq(M.Tier("direct", { points = 1e300 }), 5)
 	-- The review's case: 10 on time, then 1 late: 5 points, 10g; 5g while on probation.
 	eq(M.BetCap({ points = M.Points({ true, true, true, true, true, true, true, true, true, true, false }) }, "bet"), 10 * GOLD)
-	-- Kinds: an arbiter's holding cap is the King's T1~M, never computed from points here.
+	-- Kinds: an arbiter's holding cap is the Shogun's T1~M, never computed from points here.
 	cap, why = M.BetCap({ points = 25 })
 	eq(cap, nil, "no kind"); eq(why, "kind")
 	for _, kind in ipairs({ "hold", "deposit", "wallet", 100 }) do
@@ -964,7 +964,7 @@ test("ArenaMath: BetCap is the design's table: a tier per 5 points up to 5, dire
 	eq(t, nil); eq(why, "record")
 end)
 
-test("ArenaMath: BetCap: the King's scale and limit, under the code ceilings", function()
+test("ArenaMath: BetCap: the Shogun's scale and limit, under the code ceilings", function()
 	eq(M.BetCap({ points = 25 }, "bet", 300), 450 * GOLD, "300%")
 	eq(M.BetCap({ points = 25 }, "bet", 1000), 450 * GOLD, "clamped to 300%")
 	eq(M.BetCap({}, "bet", 25), 12500, "25%: 1g 25s")
@@ -982,7 +982,7 @@ test("ArenaMath: BetCap: the King's scale and limit, under the code ceilings", f
 	eq(M.BetCap({ points = 25 }, "bet", nil, math.huge), 150 * GOLD)
 	eq(M.BetCap({ points = 25 }, "bet", nil, 0), 0, "0 closes betting")
 	eq(M.BetCap({ points = 25 }, "bet", nil, 12345.6), 12345, "whole copper")
-	eq(M.BetCap({ points = 25, paidMax = 100 * GOLD }, "direct", 300, 50 * GOLD), 50 * GOLD, "the King's directMax")
+	eq(M.BetCap({ points = 25, paidMax = 100 * GOLD }, "direct", 300, 50 * GOLD), 50 * GOLD, "the Shogun's directMax")
 	for _, bad in ipairs({ -5, "20", 0 / 0, true }) do
 		local cap, why = M.BetCap({ points = 25 }, "bet", nil, bad)
 		eq(cap, 0, "limit " .. tostring(bad)); eq(why, "limit")
@@ -1046,10 +1046,10 @@ test("ArenaMath: DirectCap: 1 gold before any paid direct debt, then at most twi
 		cap = M.DirectCap(5, paid)
 	end
 	eq(table.concat(seen, ","), "1,2,4,8,16,32,50")
-	-- The King's scale bounds the tier's cap, not the 1g floor of the history rule.
+	-- The Shogun's scale bounds the tier's cap, not the 1g floor of the history rule.
 	eq(M.DirectCap(0, 0, 25), 2500, "25% of 1g")
 	eq(M.DirectCap(5, 100 * GOLD, 300), 100 * GOLD, "the 100g ceiling")
-	eq(M.DirectCap(5, 100 * GOLD, nil, 20 * GOLD), 20 * GOLD, "the King's directMax")
+	eq(M.DirectCap(5, 100 * GOLD, nil, 20 * GOLD), 20 * GOLD, "the Shogun's directMax")
 	local function No(want, ...)
 		local c, w = M.DirectCap(...)
 		eq(c, 0, want); eq(w, want)
@@ -1116,7 +1116,7 @@ test("ArenaMath: Earns: a settled stake earns a point only from a quarter of the
 	for points = 0, 25, 5 do
 		eq((M.Earns(10 * SILVER, M.BetCap({ points = points }, "bet"))), false, "10s at " .. points .. " points")
 	end
-	-- The minimum bet, the default or the King's.
+	-- The minimum bet, the default or the Shogun's.
 	ok, why = M.Earns(5 * SILVER, 0)
 	eq(ok, false); eq(why, "min")
 	eq(M.Earns(M.MIN_BET, 0), true, "a closed cap's quarter is 0")
@@ -1156,7 +1156,7 @@ test("ArenaMath: standing points: one per payment on time, halved by a late one"
 	eq((M.Points("x")), nil)
 end)
 
-test("ArenaMath: an arbiter's cap is the King's (T1~M): Room under it, and the design's points as advice only", function()
+test("ArenaMath: an arbiter's cap is the Shogun's (T1~M): Room under it, and the design's points as advice only", function()
 	eq(M.Room(200 * GOLD, 150 * GOLD), 50 * GOLD)
 	eq(M.Room(200 * GOLD, 300 * GOLD), 0, "over the cap: no room, never negative")
 	eq(M.Room(200 * GOLD, 0), 200 * GOLD)
@@ -1217,7 +1217,7 @@ test("ArenaMath: BetOk checks whole silver, the minimum, the cap over all his be
 	No("staked", M.MIN_BET, 5 * GOLD, nil)
 	No("staked", M.MIN_BET, 5 * GOLD, "0")
 	No("staked", M.MIN_BET, 5 * GOLD, -1)
-	-- The King's minimum.
+	-- The Shogun's minimum.
 	No("min", 50 * SILVER, 5 * GOLD, 0, { minBet = GOLD })
 	eq(M.BetOk(SILVER, 5 * GOLD, 0, { minBet = SILVER }), true, "his 1s")
 	No("rules", GOLD, 5 * GOLD, 0, { minBet = 50 })
@@ -1408,9 +1408,9 @@ end)
 test("ArenaMath: the fee's rates: clamped numbers, the arbiter's part its own rate, and nonsense refused", function()
 	eq(M.Fee(nil), 600, "the default is 6%")
 	eq(M.Fee(600), 600)
-	eq(M.Fee(0), 0, "the King may take no fee")
+	eq(M.Fee(0), 0, "the Shogun may take no fee")
 	eq(M.Fee(-50), 0)
-	eq(M.Fee(2500), 1000, "a King's 25% is clamped to 10%")
+	eq(M.Fee(2500), 1000, "a Shogun's 25% is clamped to 10%")
 	eq(M.Fee(612.9), 612, "whole basis points")
 	for _, bad in ipairs({ "lots", "0", 0 / 0, true }) do
 		local r, why = M.Fee(bad)
@@ -1423,7 +1423,7 @@ test("ArenaMath: the fee's rates: clamped numbers, the arbiter's part its own ra
 	g, a = M.Split(600, nil, "direct")
 	eq(g, 600, "no arbiter: all the guild's"); eq(a, 0)
 	g, a = M.Split(900, nil, "arbiter")
-	eq(g, 700, "a King's 9%: the arbiter's rate stays 2%"); eq(a, 200)
+	eq(g, 700, "a Shogun's 9%: the arbiter's rate stays 2%"); eq(a, 200)
 	g, a = M.Split(900, 300, "arbiter")
 	eq(g, 600); eq(a, 300)
 	g, a = M.Split(100, nil, "arbiter")

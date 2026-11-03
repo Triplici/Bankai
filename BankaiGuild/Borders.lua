@@ -5,8 +5,8 @@ local L = ns.L
 -- art, and Max's bronze frames drawn over it, around the portrait of an Bankai Guild player on your
 -- target and focus frames, and around your own portrait for your own rank, like Elite Player
 -- Frame (Enhanced) but for other players too. `/bk borders on|off`, on by default.
--- 1.1.5 (the author's call): three tiers, all winged: the King gold, the High Council silver and a
--- guild master of an Bankai Guild guild Max's bronze. The rank tiers of 1.0.1 (Lords gold, Captains
+-- 1.1.5 (the author's call): three tiers, all winged: the Shogun gold, the High Council silver and a
+-- guild master of an Bankai Guild guild Max's bronze. The rank tiers of 1.0.1 (Council gold, Captains
 -- silver, Raiders bronze wings, Veterans bronze) are gone: new borders are to come, and one that
 -- nearly everybody has is worth nothing. Any other member: the nameplate star alone, no border.
 -- Administrative offices use a separate shield badge (the later High Council decision): one for
@@ -72,7 +72,7 @@ local L = ns.L
 -- Cheap: a unit's border is worked out only when the target or focus changes (or who is in a
 -- party member's place, GROUP_ROSTER_UPDATE), when its name or guild reaches the client
 -- (UNIT_NAME_UPDATE, PLAYER_GUILD_UPDATE), or when the census report of its guild (or the High
--- Council's list, or for a councillor the council's names shown or hidden on the King's screen, or
+-- Council's list, or for a councillor the council's names shown or hidden on the Shogun's screen, or
 -- whether a net-off word hides him: 1.1) changes, and only from lookups: its guild's report by
 -- name, never a walk over every guild.
 -- A character or a guild the moderators took off (net-off, Moderation.lua; 1.1, Konig's review)
@@ -113,9 +113,9 @@ ns.Borders = Borders
 -- the frame it was drawn over) and fallback (that frame's atlas, drawn without colour when the
 -- client can't load the file).
 -- Who:
---   king     the King of our faction: his character (ns.IsKingCharacter) in his guild
---            (ns.IsKingGuild); where no character is pinned, that guild's guild master
---   council  the High Council (the signed list, ns.IsHighCouncillor), except on the King's screen
+--   shogun     the Shogun of our faction: his character (ns.IsShogunCharacter) in his guild
+--            (ns.IsShogunGuild); where no character is pinned, that guild's guild master
+--   council  the High Council (the signed list, ns.IsHighCouncillor), except on the Shogun's screen
 --            while he streams
 --   dev      the dev's own character (Workshop.IsAuthorName: ns.AUTHOR on his realm group)
 --   leader   the guild master of an Bankai Guild guild, as its census names him (Data.KnownRank, as
@@ -125,15 +125,15 @@ ns.Borders = Borders
 --            (Nominees.RoleOf: the list his
 --            master's client sends, taken only from that guild's master as Facts proves a guild
 --            master, and dropped when he stops being it), while the server gives the unit that
---            very guild (GetGuildInfo): nobody outside it can borrow it. In the King's guild,
+--            very guild (GetGuildInfo): nobody outside it can borrow it. In the Shogun's guild,
 --            Legates are explicitly appointed, not derived from the council; a separate actual
 --            council title still has its own precedence and portrait frame.
 -- The supplied primary federal Treasurer dragon is portrait-only (TreasurerPin == 1, never
--- the mail alternate); the King takes precedence. Existing chat/nameplate marks stay unchanged.
--- Portrait order: the King, the primary Treasurer, the High Council, the dev, a guild master, a nominee
+-- the mail alternate); the Shogun takes precedence. Existing chat/nameplate marks stay unchanged.
+-- Portrait order: the Shogun, the primary Treasurer, the High Council, the dev, a guild master, a nominee
 -- (then, on nameplates and in the game's chat, the star).
--- (1.0.1's Max's second option, ns.BORDERS_COUNCIL_GOLD, the High Council in the King's gold
--- wings, is gone with 1.1.5: the gold is the King's alone, on the borders, the nameplates and in
+-- (1.0.1's Max's second option, ns.BORDERS_COUNCIL_GOLD, the High Council in the Shogun's gold
+-- wings, is gone with 1.1.5: the gold is the Shogun's alone, on the borders, the nameplates and in
 -- the game's chat, and the council's tier is the silver.)
 local WINGED = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold-Winged"
 local PLAIN = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold"
@@ -147,7 +147,7 @@ local MEDIA = "Interface\\AddOns\\BankaiGuild\\media\\borders\\"
 -- plain gold, at its size and offsets (1.0.0's Veterans had it).
 -- (metal, 1.2: the plain metal under the tier's art, UNDERLAY below.)
 Borders.TIERS = {
-	{ name = "gold-elite", atlas = WINGED, metal = "gold", x = 11, y = -4, king = true },
+	{ name = "gold-elite", atlas = WINGED, metal = "gold", x = 11, y = -4, shogun = true },
 	{ name = "treasurer-dragon", file = MEDIA .. "treasurer-dragon", coords = { 0, 200 / 256, 0, 190 / 256 }, width = 100, height = 95,
 		x = 0, y = 1, fallback = PLAIN, treasurer = true, metal = "none", party = { x = 0, y = -2 } }, -- (its own art whole: no plain dragon under it; party: see PartyRig)
 	{ name = "silver-elite", atlas = "UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver-Winged", x = 8, y = -7,
@@ -265,7 +265,7 @@ end
 
 -- 1.1 (Konig's review): a character the moderators took off (net-off, Moderation.lua), or one of a
 -- guild they took off the network, shows as no Bankai Guild player on this client: no border, no
--- nameplate mark (never the King: nobody takes him off). Our own portrait keeps ours.
+-- nameplate mark (never the Shogun: nobody takes him off). Our own portrait keeps ours.
 -- look (1.1.5): the guild is one we try for him, not one the server or his own message gave
 -- (Borders.MarkOfName): Moderation notes nothing from it.
 local function NetOff(who, guild, look)
@@ -331,14 +331,14 @@ local function RoleMark(who, guild)
 end
 
 -- What decides a unit's border, or nil for anyone no border is for: not a player, of the other
--- faction (the census is per faction, and so is the King), or a value the client hides.
+-- faction (the census is per faction, and so is the Shogun), or a value the client hides.
 -- A moderator under a cover name (Cover.lua), on this client: none of the marks or borders that
--- would say what they are (the King's, the council's, the dev's, the Treasurer's), as any member.
+-- would say what they are (the Shogun's, the council's, the dev's, the Treasurer's), as any member.
 local function Uncover(f)
 	local C = ns.Cover
 	if type(C) ~= "table" or type(C.AliasOf) ~= "function" or not C.AliasOf(f.who) then return end
 	f.covered = true
-	f.councillor, f.council, f.dev, f.treasurer, f.king = false, false, false, false, false
+	f.councillor, f.council, f.dev, f.treasurer, f.shogun = false, false, false, false, false
 end
 
 local function Facts(unit)
@@ -362,7 +362,7 @@ local function Facts(unit)
 	f.bankaiguild = true
 	-- A nominee: named by the master of the guild the server gives him (Nominees.RoleOf).
 	f.nominee = Nominee(who, f.guild)
-	f.king = not f.covered and ns.IsKingGuild(f.guild) and (ns.IsKingCharacter(who) or (ns.KingCharacter() == nil and rankIndex == 0))
+	f.shogun = not f.covered and ns.IsShogunGuild(f.guild) and (ns.IsShogunCharacter(who) or (ns.ShogunCharacter() == nil and rankIndex == 0))
 	local guilds = ns.rdb and ns.rdb.guilds
 	local report = type(guilds) == "table" and guilds[f.guild] or nil
 	f.report = report
@@ -391,7 +391,7 @@ end
 local function Match(f, marked)
 	if not f or f.off then return nil end
 	for _, t in ipairs(Borders.TIERS) do
-		if ((t.king and f.king) or (t.council and f.council) or (t.dev and f.dev) or (t.leader and f.leader)
+		if ((t.shogun and f.shogun) or (t.council and f.council) or (t.dev and f.dev) or (t.leader and f.leader)
 			or (t.treasurer and f.treasurer)) and not (marked and not Borders.MARK_OF[t.name]) then
 			return t
 		end
@@ -411,8 +411,8 @@ end
 -- its votes: an outvoted report keeps the row and changes the votes, which Data.KnownRank reads),
 -- the High Council's list, our roster when his rank came from it (our own guild's, the server
 -- giving none; Roster.lua makes a new table at each scan), and for a High Councillor whether the
--- council's names were hidden (the King's screen while he streams, ns.CouncilMasked: the eye in
--- the Realm, Shobek's view, becoming the King); and (1.1) his name, and whether a net-off word hid him;
+-- council's names were hidden (the Shogun's screen while he streams, ns.CouncilMasked: the eye in
+-- the Realm, Shobek's view, becoming the Shogun); and (1.1) his name, and whether a net-off word hid him;
 -- and (1.1.5) the guild masters' lists of nominees as they stood (Nominees.Version).
 local function NomineesVersion()
 	local N = ns.Nominees
@@ -459,14 +459,14 @@ local function Compute(unit, guid)
 end
 
 -- The nameplate mark (Nameplates.lua), and the mark in the game's chat, of each border: the
--- King's the game's gold elite mark (his alone), the High Council's its silver, a guild master's
+-- Shogun's the game's gold elite mark (his alone), the High Council's its silver, a guild master's
 -- the bronze, and the people a guild master names the same bronze (1.1.5). The dev's silver has
 -- none: his plate and his lines show what they would without it.
 -- (1.2.3, the author's ask: the dev's silver has its mark too, the High Council's silver dragon.)
 Borders.MARK_OF = { ["gold-elite"] = "gold", ["silver-elite"] = "silver", silver = "silver", ["bronze-elite"] = "bronze", bronze = "bronze" }
 
 -- The mark a unit gets next to its name on a nameplate, from the same facts and trust rules as
--- its border: "gold" (the King), "silver" (the High Council), "bronze" (a guild master, or one he
+-- its border: "gold" (the Shogun), "silver" (the High Council), "bronze" (a guild master, or one he
 -- named), "member" (any other member of an Bankai Guild guild of our faction: the star), nil for anyone
 -- else; and what it was worked out from (Inputs).
 function Borders.MarkOf(unit)
@@ -489,14 +489,14 @@ end
 -- proven. Our own guild: his rank from our roster; not in the roster, or our guild's name spelled
 -- another way (names ignore case, as Channels reads it), no mark. Another guild: a rank its census
 -- gives him (the star; the bronze for its guild master when two senders name him, as Facts asks),
--- or the King, his Stewards and Hands by the names Channels verifies them by; a guildmate of ours
+-- or the Shogun, his Stewards and Hands by the names Channels verifies them by; a guildmate of ours
 -- speaking for another guild, no mark; anyone else, none (a plain member of another guild is in no
 -- census). Not Channels.VerifiedLevel itself: its Data.ClaimGuild records the claim, and a redraw
--- must not. The King, a High Councillor and net-off as MarkOf. Not tied to /bk borders or /bk
+-- must not. The Shogun, a High Councillor and net-off as MarkOf. Not tied to /bk borders or /bk
 -- nameplates: the chat's marks have their own switch (/bk chatmarks). Since 1.1.5 the marks of the
 -- game's own chat (Borders.ChatName below) ask it, and Bankai Guild's own lines carry none. A lookup: its
 -- net-off check notes no guild for him (Moderation.Hides' look), since the guild it is asked with
--- may be one we only try for him (the King's for a Hand by his name). 1.1.5: one a guild master
+-- may be one we only try for him (the Shogun's for a Hand by his name). 1.1.5: one a guild master
 -- names (Nominees.lua) the bronze, in that guild alone. Returns the mark ("gold", "silver",
 -- "bronze", "member" or nil) and the facts (f.proven: the claim backed).
 function Borders.MarkOfName(who, guild)
@@ -523,14 +523,14 @@ function Borders.MarkOfName(who, guild)
 		elseif not (mine and guild:lower() == mine:lower()) and not (ns.Roster and ns.Roster.RankOf(who)) then
 			local known, named = ns.Data.KnownRank(who, guild)
 			if (named or 0) >= 2 then rank = known end
-			local K = ns.King
+			local K = ns.Shogun
 			-- (1.1.5: or that guild's master names him, in the list only he sends: Nominees.lua.)
 			f.nominee = Nominee(who, guild)
-			f.proven = known ~= nil or f.nominee or (ns.IsKingGuild(guild) and (ns.IsKingCharacter(who) or (type(K) == "table"
+			f.proven = known ~= nil or f.nominee or (ns.IsShogunGuild(guild) and (ns.IsShogunCharacter(who) or (type(K) == "table"
 				and ((type(K.IsStewardName) == "function" and K.IsStewardName(who)) or (type(K.IsHandName) == "function" and K.IsHandName(who))))))
 				and true or false
 		end
-		f.king = not f.covered and ns.IsKingGuild(guild) and (ns.IsKingCharacter(who) or (ns.KingCharacter() == nil and rank == 0))
+		f.shogun = not f.covered and ns.IsShogunGuild(guild) and (ns.IsShogunCharacter(who) or (ns.ShogunCharacter() == nil and rank == 0))
 		f.leader = rank == 0
 	end
 	local t = Match(f, true)
@@ -1223,7 +1223,7 @@ function Borders.RefreshAll(fresh)
 end
 
 -- The census, the High Council's list, our roster or the council's names hidden or shown on the
--- King's screen changed: only a unit whose border was worked out from something that changed
+-- Shogun's screen changed: only a unit whose border was worked out from something that changed
 -- since (Borders.Changed) is worked out again.
 function Borders.CensusChanged()
 	if not installed then return end
@@ -1406,7 +1406,7 @@ end
 -- A mark before a sender's name in the game's chat, where players outside Bankai Guild can be: the
 -- channels (General, Trade, LocalDefense, LookingForGroup and any other CHAT_MSG_CHANNEL), say,
 -- yell, emote, party, raid, instance and whispers both ways. The mark follows the sender's border
--- tier (Borders.MARK_OF, by Borders.MarkOfName's facts and trust rules): the King the game's gold
+-- tier (Borders.MARK_OF, by Borders.MarkOfName's facts and trust rules): the Shogun the game's gold
 -- elite dragon (nameplates-icon-elite-gold), a High Councillor its silver one
 -- (nameplates-icon-elite-silver) then the icon he picked (ns.CouncilIcon), a guild master of an
 -- Bankai Guild guild and the people he names (1.1.5) the bronze (the gold tinted as Nameplates.BRONZE),
@@ -1414,7 +1414,7 @@ end
 -- the Chat tab showed them; an atlas the client lacks: the star.
 -- Guild and officer chat (CHAT_GUILD_EVENTS, the author's call): the dragons alone, never the star.
 -- Everyone there is of our guild, so a star would tell a guildmate nothing he does not know; the
--- King's gold, a councillor's silver and the guild master's bronze still tell who is who. (A
+-- Shogun's gold, a councillor's silver and the guild master's bronze still tell who is who. (A
 -- dragon the client has no atlas for, drawn as the star elsewhere: none there either.) The same
 -- hook and the same arguments as every other line (Blizzard_ChatFrameBase/Mainline's
 -- MessageEventHandler: GetDecoratedSenderName for every CHAT_MSG_ event, the sender the second
@@ -1423,7 +1423,7 @@ end
 -- every mark. Bankai Guild's own lines, Channels.FormatLine and the Chat tab, carry none since: the
 -- name in its colour.)
 -- No line of the game names its sender's guild, so his is a guild MarkOfName's rules can prove
--- (ChatGuilds): ours when our roster has him; the King's for the King, his Stewards and Hands by
+-- (ChatGuilds): ours when our roster has him; the Shogun's for the Shogun, his Stewards and Hands by
 -- their names; the one his own Bankai Guild messages speak for (Data.ClaimedGuild: his lines on the
 -- Bankai Guild channel, his census reports, his board posts...), as the 1.1.1 Chat tab took the guild
 -- his line named, and only when that guild's census names him (its guild master or an officer: a
@@ -1441,7 +1441,7 @@ end
 -- Off with the gamepad UI, as the borders: logged in with it, nothing is registered until a switch
 -- to mouse and keyboard; switched to it later, the callback returns at once. Also none: outside an
 -- Bankai Guild guild (ns.IsMember, as the borders: a list kept from before says nothing there; asked
--- again on every marked line), a High Councillor's on the King's screen while the council's names
+-- again on every marked line), a High Councillor's on the Shogun's screen while the council's names
 -- are hidden (ns.CouncilMasked: asked again on every line with a council mark, so a first login
 -- whose guild was not known yet, or any other flip, never leaves one on his stream; his guild
 -- master's bronze or the star there instead, if any), a character or a guild the moderators took
@@ -1512,7 +1512,7 @@ function Borders.ChatMarkText(mark) return (ChatText(mark, nil)) end
 
 -- A mark's art as the 1.1.5 letter's legend of these marks draws it (Letters.lua): the chat's own
 -- textures and atlases at `size` px (the chat's 14 when none), or nil when this client lacks that
--- dragon's atlas (the letter then names it in words: a legend must not show the star for the King).
+-- dragon's atlas (the letter then names it in words: a legend must not show the star for the Shogun).
 function Borders.ChatLegendText(mark, size) return ChatArt(mark, size) end
 
 local function ChatClean(s)
@@ -1525,17 +1525,17 @@ local function ChatClean(s)
 end
 
 -- The guilds a sender of the game's chat may be proven in (see above): ours alone for a guildmate;
--- the King's for his Crown by name; the one his own messages claim.
+-- the Shogun's for his Crown by name; the one his own messages claim.
 local function ChatGuilds(who)
 	local mine = GetGuildInfo("player")
 	if Secret(mine) then mine = nil end
 	if mine and ns.Roster and ns.Roster.RankOf(who) then return { mine } end
 	local out = {}
-	local K = ns.King
-	if ns.IsKingCharacter(who) or (type(K) == "table" and ((type(K.IsStewardName) == "function" and K.IsStewardName(who))
+	local K = ns.Shogun
+	if ns.IsShogunCharacter(who) or (type(K) == "table" and ((type(K.IsStewardName) == "function" and K.IsStewardName(who))
 		or (type(K.IsHandName) == "function" and K.IsHandName(who)))) then
-		local king = ns.KING_GUILD[ns.faction or "Alliance"]
-		if king then out[#out + 1] = ns.Data.GuildKey(king) or king end
+		local shogun = ns.SHOGUN_GUILD[ns.faction or "Alliance"]
+		if shogun then out[#out + 1] = ns.Data.GuildKey(shogun) or shogun end
 	end
 	local claimed = type(ns.Data.ClaimedGuild) == "function" and ns.Data.ClaimedGuild(who) or nil
 	if claimed and claimed ~= out[1] then out[#out + 1] = claimed end
@@ -1543,7 +1543,7 @@ local function ChatGuilds(who)
 end
 
 -- The mark before a sender's name in the game's chat, or false for none; whether it is a High
--- Councillor's (the King's stream hides those); and the mark it draws ("gold", "silver", "bronze",
+-- Councillor's (the Shogun's stream hides those); and the mark it draws ("gold", "silver", "bronze",
 -- or "member" for the star, a dragon without its atlas too: guild chat shows the dragons alone).
 function Borders.ChatName(sender)
 	local who = ns.FullName(ns.Normal(sender))
@@ -1582,7 +1582,7 @@ local function ChatMarkOf(name, sender, guild)
 	if not e or (guild and not e.dragon) then return nil end
 	local text = e.text
 	-- A marked line asks again what may change between two emptyings (but the author's preview on
-	-- his own lines): that we are in an Bankai Guild guild, and for a council mark whether the King's
+	-- his own lines): that we are in an Bankai Guild guild, and for a council mark whether the Shogun's
 	-- screen hides the council now (worked out again as the mask says, never kept).
 	if not (chatPreview and IsMine(sender)) then
 		if ns.IsMember() ~= true then return nil end
@@ -1700,7 +1700,7 @@ ns.On("LOGIN", function() Borders.RefreshAll(true) end)
 ns.On("DATA_CHANGED", function() Borders.CensusChanged() end)
 ns.On("HONORS_CHANGED", function() Borders.RefreshAll(true) end) -- (1.2)
 ns.On("WANTED_CHANGED", function() Borders.RefreshAll(true) end) -- (1.2)
--- The King shows or hides the council's names (the eye in the Realm, ns.SetCouncilNamesShown).
+-- The Shogun shows or hides the council's names (the eye in the Realm, ns.SetCouncilNamesShown).
 ns.On("COUNCIL_MASK_CHANGED", function() Borders.CensusChanged() end)
 -- A moderator's cover name heard, ended, or our answer to it (Cover.lua).
 ns.On("COVER_CHANGED", function() Borders.ChatForget(); Borders.CensusChanged() end)

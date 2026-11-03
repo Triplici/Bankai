@@ -243,18 +243,18 @@ test("Version letter content: English and Portuguese preserve the same role mark
 	assert(en.L.LETTER_1_2_2:find("excluded from test and release packages", 1, true))
 	assert(pt.L.LETTER_1_2_2:find("fora dos pacotes de teste e de release", 1, true))
 	-- 1.2.1 takes Ask to update away from ordinary members: the letter says who keeps it.
-	assert(en.L.LETTER_1_2_2:find("Ask to update, in a player's right-click menu, is now only for the King, the High Council and the addon's author", 1, true))
-	assert(pt.L.LETTER_1_2_2:find("Pedir para atualizar, no menu do botão direito de um jogador, agora é só para o Rei, o High Council e o autor do addon", 1, true))
+	assert(en.L.LETTER_1_2_2:find("Ask to update, in a player's right-click menu, is now only for the Shogun, the High Council and the addon's author", 1, true))
+	assert(pt.L.LETTER_1_2_2:find("Pedir para atualizar, no menu do botão direito de um jogador, agora é só para o Xogum, o High Council e o autor do addon", 1, true))
 end)
 
-test("Version letter content: the actual letters limit level bands to duels and place the King's note in the recipient's local Chronicle", function()
+test("Version letter content: the actual letters limit level bands to duels and place the Shogun's note in the recipient's local Chronicle", function()
 	for _, locale in ipairs({ "enUS", "ptBR" }) do
 		local cns = Language(locale)
 		local _, before = cns.Letters.Text("1.2.0")
 		local _, now = cns.Letters.Text("1.2.2")
 		assert(before:find(locale == "enUS" and "duels only" or "somente para duelos", 1, true), locale .. ": the original Bones level-filter claim is corrected")
-		assert(now:find(locale == "enUS" and "The recipient keeps the note in their local Chronicle with the King's authorship"
-			or "Quem recebe guarda a nota em seu Chronicle local, com a autoria do Rei", 1, true), locale .. ": recipient-local record, not a persistent King's ledger")
+		assert(now:find(locale == "enUS" and "The recipient keeps the note in their local Chronicle with the Shogun's authorship"
+			or "Quem recebe guarda a nota em seu Chronicle local, com a autoria do Xogum", 1, true), locale .. ": recipient-local record, not a persistent Shogun's ledger")
 		assert(now:find(locale == "enUS" and "main window's Realm tab, available to every member"
 			or "aba O Reino da janela principal, disponível para todos os membros", 1, true), locale .. ": personal brief belongs to the ordinary member's main window")
 		-- (1.2.2: the popup never reached a release, so the letter no longer says it is gone.)

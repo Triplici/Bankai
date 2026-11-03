@@ -268,10 +268,10 @@ end)
 
 test("1.2 the money part: the bank's duty: listed, its yes on the privacy page, its account clean, the live switch on, and gold only where saved data survives", function()
 	local w = World.New()
-	local king = M.Role(w, "king")
+	local shogun = M.Role(w, "shogun")
 	local bank = M.Role(w, "bank", { money = 100000 })
 	eq(select(2, bank.Wallet.Duty(true, "L")), "unlisted")
-	M.GoLive(w, king, nil, { N.bank })
+	M.GoLive(w, shogun, nil, { N.bank })
 	eq(select(2, bank.Wallet.Duty(true, "L")), "persist", "a first login: saved data not proven")
 	M.Relog(w, bank)
 	eq(select(2, bank.Wallet.Duty(true, "L")), "consent")
@@ -295,7 +295,7 @@ test("1.2 the money part: the bank's duty: listed, its yes on the privacy page, 
 	-- Off: its duty ends, nothing more.
 	bank.Wallet.Duty(false)
 	eq(bank.Arena.OnDuty("bank"), false)
-	-- A bank the King's word leaves out: refused.
+	-- A bank the Shogun's word leaves out: refused.
 	local other = M.Client(w, "Lida Fenn")
 	eq(select(2, other.Wallet.Duty(true, "L")), "unlisted")
 	NoErrors(w)
@@ -380,7 +380,7 @@ test("1.2 the money part: the bank's checks: refused before the gold lands (belo
 	local bank, lida = cast.bank, cast["Lida Fenn"]
 	local low = M.Client(w, "Wenna Crale", { level = 12, money = 90000 })
 	M.Relog(w, low)
-	w:Run(301) -- (a late login: the King's words and the bank's head come again)
+	w:Run(301) -- (a late login: the Shogun's words and the bank's head come again)
 	eq(low.Wallet.Deposit(N.bank, "t", 5 * G) ~= nil, true)
 	w:Run(0)
 	local rec = low.Wallet.Receipts()[1]
@@ -441,7 +441,7 @@ local function Fund(w, cast, c, copper)
 	return r
 end
 
-test("1.2 the money part: settlement from the ledger, to the copper: 10 g on each side (the arbiter's 2% his, the guild's 4% owed), the King judging (all 6% the guild's), and an uneven pool (the rounding the guild's)", function()
+test("1.2 the money part: settlement from the ledger, to the copper: 10 g on each side (the arbiter's 2% his, the guild's 4% owed), the Shogun judging (all 6% the guild's), and an uneven pool (the rounding the guild's)", function()
 	local w = World.New()
 	local cast = M.Cast(w, { bettors = { "Lida Fenn", "Parric Stowe", "Wenna Crale" } })
 	local bank, lida, parric, wenna = cast.bank, cast["Lida Fenn"], cast["Parric Stowe"], cast["Wenna Crale"]
@@ -461,7 +461,7 @@ test("1.2 the money part: settlement from the ledger, to the copper: 10 g on eac
 	eq(W.Owed(), 4000)
 	local arb = W.Account(N.arbiter)
 	eq(W.Available(arb), 2000)
-	-- The same with the King judging: he holds no gold, all 6% goes to the guild.
+	-- The same with the Shogun judging: he holds no gold, all 6% goes to the guild.
 	assert(W.Register("F2a", 1, { nsel = 2, closes = closes, cur = "g", to = "g" }))
 	W.Hold(la, 10 * G, { eid = "F2a", idx = 1, o = "A", nonce = "n3" })
 	W.Hold(pa, 10 * G, { eid = "F2a", idx = 1, o = "B", nonce = "n4" })
@@ -654,8 +654,8 @@ test("1.2 the money part: glory points and gold apart: 1,000 points a week in th
 	assert(W.Register("F5b", 1, { nsel = 2, closes = w.clock + 600, cur = "p" }))
 	W.Hold(la, 100, { eid = "F5b", idx = 1, o = "A", nonce = "p3" })
 	eq(W.Available(la, "p"), 120000 - 100)
-	-- The King switches to gold: points are never turned into gold.
-	M.GoLive(w, cast.king, { cur = "g" })
+	-- The Shogun switches to gold: points are never turned into gold.
+	M.GoLive(w, cast.shogun, { cur = "g" })
 	w:Run(1)
 	Fund(w, cast, lida, 5 * G)
 	eq(W.Available(la, "g"), 5 * G)
@@ -778,7 +778,7 @@ end)
 test("1.2 the money part: a leader's order (ZJ) waits for the operator's click; never from a sender whose key is the bank's own", function()
 	local w = World.New()
 	local cast = M.Cast(w, { bettors = { "Lida Fenn" } })
-	local bank, lida, aud, king = cast.bank, cast["Lida Fenn"], cast.auditor, cast.king
+	local bank, lida, aud, shogun = cast.bank, cast["Lida Fenn"], cast.auditor, cast.shogun
 	Fund(w, cast, lida, 10 * G)
 	w:Run(70)
 	local rep = aud.Wallet.Replica(N.bank)
@@ -792,12 +792,12 @@ test("1.2 the money part: a leader's order (ZJ) waits for the operator's click; 
 	eq(bank.Wallet.Available(bank.Wallet.Account(lida.name)), 10 * G, "not applied by itself")
 	assert(bank.Wallet.ApplyOrder(orders[1].nonce))
 	eq(bank.Wallet.Available(bank.Wallet.Account(lida.name)), 11 * G)
-	-- The King's client with the bank's own account key: its order is refused.
-	king.db.arenaKey = World.Copy(bank.db.arenaKey)
-	king.Debts.SendClaim(N.bank)
+	-- The Shogun's client with the bank's own account key: its order is refused.
+	shogun.db.arenaKey = World.Copy(bank.db.arenaKey)
+	shogun.Debts.SendClaim(N.bank)
 	w:Run(0)
-	eq(select(2, bank.Debts.Verified(king.name)), select(3, bank.Debts.MyKey()), "the same key")
-	king.Wallet.Order(N.bank, code, "+", 5 * G, "J", "mine")
+	eq(select(2, bank.Debts.Verified(shogun.name)), select(3, bank.Debts.MyKey()), "the same key")
+	shogun.Wallet.Order(N.bank, code, "+", 5 * G, "J", "mine")
 	w:Run(0)
 	eq(#bank.Wallet.Console().orders, 1, "refused")
 	NoErrors(w)
@@ -835,7 +835,7 @@ test("1.2 the money part: snapshots: a checkpoint's balances checked by two audi
 	local bank, lida, parric = cast.bank, cast["Lida Fenn"], cast["Parric Stowe"]
 	local aud2 = M.Role(w, "councillor2")
 	M.Relog(w, aud2)
-	w:Run(301) -- (a late login: the King's words come again, the bank among them)
+	w:Run(301) -- (a late login: the Shogun's words come again, the bank among them)
 	aud2.Wallet.Hello()
 	w:Run(0)
 	Fund(w, cast, lida, 10 * G); Fund(w, cast, parric, 7 * G)
@@ -848,9 +848,9 @@ test("1.2 the money part: snapshots: a checkpoint's balances checked by two audi
 	-- (Two accounts: two v lines before the k; the prune keeps them, the snapshot's own.)
 	eq(b.firstSeq, seq - 2, "pruned once both said so")
 	eq(b.entries[seq - 3], nil); assert(b.entries[seq - 2]:find("^v:") and b.entries[seq]:find("^k:"), "the checkpoint kept")
-	-- One auditor's check alone prunes nothing (the King's client is an auditor's too: gone as well).
+	-- One auditor's check alone prunes nothing (the Shogun's client is an auditor's too: gone as well).
 	w:Logout(aud2)
-	w:Logout(cast.king)
+	w:Logout(cast.shogun)
 	Fund(w, cast, lida, 2 * G)
 	w:Run(70)
 	local seq2 = assert(bank.Wallet.Checkpoint())
@@ -865,7 +865,7 @@ test("1.2 the money part: a re-seat (the bank's saved data gone, no backup): bal
 	local bank, lida, parric = cast.bank, cast["Lida Fenn"], cast["Parric Stowe"]
 	local aud2 = M.Role(w, "councillor2")
 	M.Relog(w, aud2)
-	w:Run(301) -- (a late login: the King's words come again, the bank among them)
+	w:Run(301) -- (a late login: the Shogun's words come again, the bank among them)
 	aud2.Wallet.Hello()
 	w:Run(0)
 	Fund(w, cast, lida, 10 * G); Fund(w, cast, parric, 7 * G)
@@ -938,12 +938,12 @@ end)
 
 test("1.2 the money part: debt marks (ZX): a debtor's own only from him; an auditor's only from an auditor; no amount ever; an open mark never lapses; a self mark naming another's GUID blocks by name alone", function()
 	local w = World.New()
-	local king = M.Role(w, "king")
-	M.GoLive(w, king)
+	local shogun = M.Role(w, "shogun")
+	M.GoLive(w, shogun)
 	local aud = M.Role(w, "auditor")
 	local lida, parric, wenna = M.Client(w, "Lida Fenn"), M.Client(w, "Parric Stowe"), M.Client(w, "Wenna Crale")
 	for _, c in ipairs({ aud, lida, parric, wenna }) do M.Relog(w, c) end
-	w:Run(301) -- (logged in after the King's word: they hear it at its next repeat)
+	w:Run(301) -- (logged in after the Shogun's word: they hear it at its next repeat)
 	-- Parric says Lida owes: a self mark from someone else is nothing.
 	local body = ("id000001~o~-~%s~b~%s~-~s"):format(lida.name, wenna.Arena.B36(w.clock))
 	w:As(wenna, function() wenna.ns.Arena.Inject("CHANNEL", parric.name, "ZX~L1~" .. body) end)
@@ -1087,7 +1087,7 @@ test("1.2 the money part: standing: a settled stake earns a point only at a quar
 	eq(S.Cap("bet", who), 5 * G, "tier 0 (on probation)")
 	w:Run(7 * 86400 + 1)
 	eq(S.Cap("bet", who), 5 * G, "3 points: tier 0 anyway")
-	-- The arbiter's cap is the King's (T1~M), never points.
+	-- The arbiter's cap is the Shogun's (T1~M), never points.
 	eq(S.Cap("hold", who), 0)
 	NoErrors(w)
 end)
@@ -1125,21 +1125,21 @@ end)
 
 print("Stakes: the arbiter's book, availability, exposure")
 
-test("1.2 the money part: an arbiter's stakes: refused for the King, past the T1~M cap, for a debtor and where saved data does not survive; the stake held, an over-stake owed back; the result pays 1 g 94 s, owes the guild 4 s, keeps 2 s; receipts give the auditors his exposure, and at his cap he shows busy", function()
+test("1.2 the money part: an arbiter's stakes: refused for the Shogun, past the T1~M cap, for a debtor and where saved data does not survive; the stake held, an over-stake owed back; the result pays 1 g 94 s, owes the guild 4 s, keeps 2 s; receipts give the auditors his exposure, and at his cap he shows busy", function()
 	local w = World.New()
 	local cast = M.Cast(w, { duty = false })
-	local king, aud = cast.king, cast.auditor
+	local shogun, aud = cast.shogun, cast.auditor
 	local arb = M.Role(w, "arbiter")
 	local torvin, selka, lida = M.Client(w, "Torvin Hale", { money = 50000 }), M.Client(w, "Selka Drummond", { money = 50000 }), M.Client(w, "Lida Fenn")
 	for _, c in ipairs({ arb, torvin, selka, lida }) do M.Relog(w, c) end
-	assert(king.Roles.SetArbiters({ { name = N.arbiter, cap = 2 } }))
-	w:Run(301) -- (logged in after the King's words: they hear them at their next repeat)
+	assert(shogun.Roles.SetArbiters({ { name = N.arbiter, cap = 2 } }))
+	w:Run(301) -- (logged in after the Shogun's words: they hear them at their next repeat)
 	aud.Wallet.Hello() -- (and the auditor's hello, every 15 minutes)
 	w:Run(0)
 	local function T(stake, arbiter)
 		return { id = "F1s", kind = "fight", A = { name = torvin.name }, B = { name = selka.name }, stake = { A = stake, B = stake }, arbiter = arbiter or N.arbiter }
 	end
-	eq(select(2, arb.Stakes.Open(T(1 * G, N.king))), "king")
+	eq(select(2, arb.Stakes.Open(T(1 * G, N.shogun))), "shogun")
 	eq(select(2, torvin.Stakes.Open(T(15000))), "cap", "3 g past his 2 g")
 	local beta = M.Client(w, "Wenna Crale", { persists = false })
 	eq(select(2, beta.Stakes.Open(T(1 * G))), "persist")
@@ -1264,9 +1264,9 @@ test("1.2 the money part: an idle client with the money's files loaded: no arena
 	eq(a.rdb.arenaTest, nil)
 	eq(a.Money.Installed(), false)
 	-- A role client is involved (the bank's duty), and stops when it ends.
-	local king = M.Role(w, "king")
+	local shogun = M.Role(w, "shogun")
 	local bank = M.Role(w, "bank")
-	M.GoLive(w, king, nil, { N.bank })
+	M.GoLive(w, shogun, nil, { N.bank })
 	M.Relog(w, bank)
 	bank.Wallet.SetBankYes(true)
 	assert(bank.Wallet.Duty(true, "L"))
@@ -1355,7 +1355,7 @@ end)
 test("1.2 the money part: an arbiter's void refunds every stake held (a refund debt, 24 h, at the event); items put in a stake's trade are owed back (72 h)", function()
 	local w = World.New()
 	local cast = M.Cast(w, { duty = false })
-	local king = cast.king
+	local shogun = cast.shogun
 	local arb = M.Role(w, "arbiter")
 	local torvin, selka = M.Client(w, "Torvin Hale", { money = 50000 }), M.Client(w, "Selka Drummond", { money = 50000 })
 	for _, c in ipairs({ arb, torvin, selka }) do M.Relog(w, c) end
@@ -1380,14 +1380,14 @@ end)
 
 test("1.2 the money part: fees where there is no Treasurer: on the Horde a named receiver (feeTo) takes the fee's mail and his receipt clears the bank's fee by ref", function()
 	local w = World.New()
-	local H2 = { faction = "Horde", guild = World.KING_GUILD_HORDE }
-	local king = M.Role(w, "kingHorde")
+	local H2 = { faction = "Horde", guild = World.SHOGUN_GUILD_HORDE }
+	local shogun = M.Role(w, "shogunHorde")
 	local bank = M.Role(w, "bank", H2)
 	local fee = M.Role(w, "feeReceiver", H2)
-	local lida, parric = M.Client(w, "Lida Fenn", { faction = "Horde", guild = World.KING_GUILD_HORDE, money = 500000 }),
-		M.Client(w, "Parric Stowe", { faction = "Horde", guild = World.KING_GUILD_HORDE, money = 500000 })
-	eq(select(2, king.Roles.SetSettings({ live = 1 })), "receiver", "gold with nobody to take the fees: refused")
-	M.GoLive(w, king, { feeTo = N.feeReceiver }, { N.bank })
+	local lida, parric = M.Client(w, "Lida Fenn", { faction = "Horde", guild = World.SHOGUN_GUILD_HORDE, money = 500000 }),
+		M.Client(w, "Parric Stowe", { faction = "Horde", guild = World.SHOGUN_GUILD_HORDE, money = 500000 })
+	eq(select(2, shogun.Roles.SetSettings({ live = 1 })), "receiver", "gold with nobody to take the fees: refused")
+	M.GoLive(w, shogun, { feeTo = N.feeReceiver }, { N.bank })
 	for _, c in ipairs({ bank, fee, lida, parric }) do M.Relog(w, c) end
 	w:Run(0)
 	eq(fee.Roles.IsFeeReceiver(fee.name), true)
@@ -1511,17 +1511,17 @@ end)
 
 test("1.2 the money part: the beta (saved data lost at every login): direct stakes and held stakes refused, a glory-points market still runs", function()
 	local w = World.New()
-	local king = M.Role(w, "king")
+	local shogun = M.Role(w, "shogun")
 	local bank = M.Role(w, "bank", { persists = false })
 	local lida = M.Client(w, "Lida Fenn", { persists = false })
-	M.GoLive(w, king, { cur = "p" }, { N.bank })
+	M.GoLive(w, shogun, { cur = "p" }, { N.bank })
 	M.Relog(w, lida)
 	M.Relog(w, bank)
 	eq(bank.Arena.Persists(), false)
 	eq(select(2, lida.Stakes.Direct({ id = "F1b", loser = lida.name, winner = N.bettor2, copper = 1 * G })), "persist")
 	eq(select(2, lida.Stakes.Open({ id = "F1b", A = { name = lida.name }, B = { name = N.bettor2 }, stake = { A = 1 * G, B = 1 * G }, arbiter = N.arbiter })), "persist")
-	-- (The King's words and the bank's yes, again: the beta forgot them.)
-	M.GoLive(w, king, { cur = "p" }, { N.bank })
+	-- (The Shogun's words and the bank's yes, again: the beta forgot them.)
+	M.GoLive(w, shogun, { cur = "p" }, { N.bank })
 	w:Run(1)
 	bank.Wallet.SetBankYes(true)
 	eq(bank.Wallet.Duty(true, "L"), true, "points need no saved gold")
@@ -1550,8 +1550,8 @@ test("1.2 the money part: auditors repeat the open marks they hold (a debtor who
 	eq(wenna.Debts.Mark(lida.name), nil)
 	w:Run(1900)
 	eq(wenna.Debts.Mark(lida.name), "open", "the auditor's repeat")
-	-- (Each auditor: the King's client is one too.) At most once in 30 minutes each.
-	for _, c in ipairs({ aud, cast.king }) do
+	-- (Each auditor: the Shogun's client is one too.) At most once in 30 minutes each.
+	for _, c in ipairs({ aud, cast.shogun }) do
 		local relays = Count(w:Sent{ from = c, type = "ZX" }, function(s) return s.msg:find(lida.name, 1, true) ~= nil end)
 		assert(relays <= 2, c.name .. " repeated it " .. relays .. " times")
 	end
@@ -1591,12 +1591,12 @@ test("1.2 the money part: a direct bet paid on time reaches the bank's record (t
 	NoErrors(w)
 end)
 
-test("1.2 the money part: a closing bank (the King's word 'c') takes no deposit and no bet: withdrawals only", function()
+test("1.2 the money part: a closing bank (the Shogun's word 'c') takes no deposit and no bet: withdrawals only", function()
 	local w = World.New()
 	local cast = M.Cast(w, { bettors = { "Lida Fenn" } })
-	local bank, lida, king = cast.bank, cast["Lida Fenn"], cast.king
+	local bank, lida, shogun = cast.bank, cast["Lida Fenn"], cast.shogun
 	Fund(w, cast, lida, 5 * G)
-	assert(king.Roles.SetBanks({ { name = N.bank, state = "c" } }))
+	assert(shogun.Roles.SetBanks({ { name = N.bank, state = "c" } }))
 	w:Run(60)
 	eq(select(2, lida.Wallet.Deposit(N.bank, "t", 1 * G)), "closed")
 	local W = bank.Wallet
@@ -1625,7 +1625,7 @@ test("1.2 the money part: the money's buttons go through Arena.Can and Arena.Do:
 	NoErrors(w)
 end)
 
-test("1.2 the money part review: with no arbiter to credit (none named, or the King) the whole 6% is the guild's, never lost; the bank's calls need its duty; a mail depositor frozen as unknown is his to bet with once his client speaks", function()
+test("1.2 the money part review: with no arbiter to credit (none named, or the Shogun) the whole 6% is the guild's, never lost; the bank's calls need its duty; a mail depositor frozen as unknown is his to bet with once his client speaks", function()
 	local w = World.New()
 	local cast = M.Cast(w, { bettors = { "Lida Fenn", "Parric Stowe" } })
 	local bank, lida, parric = cast.bank, cast["Lida Fenn"], cast["Parric Stowe"]
@@ -1637,11 +1637,11 @@ test("1.2 the money part review: with no arbiter to credit (none named, or the K
 	W.Hold(la, 10 * G, { eid = "F1n", idx = 1, o = "A", nonce = "a1" }); W.Hold(pa, 10 * G, { eid = "F1n", idx = 1, o = "B", nonce = "a2" })
 	W.Settle("F1n", 1, "A")
 	eq(W.Available(la), 10 * G + 194000); eq(W.Owed(), 6000, "all of it the guild's")
-	-- The King named as the arbiter: the same.
-	assert(W.Register("F2n", 1, { nsel = 2, closes = w.clock + 600, cur = "g", arbiter = N.king }))
+	-- The Shogun named as the arbiter: the same.
+	assert(W.Register("F2n", 1, { nsel = 2, closes = w.clock + 600, cur = "g", arbiter = N.shogun }))
 	W.Hold(la, 5 * G, { eid = "F2n", idx = 1, o = "A", nonce = "a3" }); W.Hold(pa, 5 * G, { eid = "F2n", idx = 1, o = "B", nonce = "a4" })
 	W.Settle("F2n", 1, "B")
-	eq(W.Owed(), 6000 + 3000); eq(W.Account(N.king), nil, "no wallet for him")
+	eq(W.Owed(), 6000 + 3000); eq(W.Account(N.shogun), nil, "no wallet for him")
 	w:Run(10)
 	local rep = cast.auditor.Wallet.Replica(N.bank)
 	eq(rep.owed, 9000); eq(Count(rep.flags, function() return true end), 0)
@@ -1684,11 +1684,11 @@ end)
 test("1.2 the money part review: a party with two matches open with one arbiter pays both stakes in one trade: each held, nothing owed back but what is over both", function()
 	local w = World.New()
 	local cast = M.Cast(w, { duty = false })
-	local king = cast.king
+	local shogun = cast.shogun
 	local arb = M.Role(w, "arbiter")
 	local torvin, selka, wenna = M.Client(w, "Torvin Hale", { money = 90000 }), M.Client(w, "Selka Drummond", { money = 90000 }), M.Client(w, "Wenna Crale", { money = 90000 })
 	for _, c in ipairs({ arb, torvin, selka, wenna }) do M.Relog(w, c) end
-	assert(king.Roles.SetArbiters({ { name = N.arbiter, cap = 10 } }))
+	assert(shogun.Roles.SetArbiters({ { name = N.arbiter, cap = 10 } }))
 	w:Run(301)
 	local t1 = { id = "F1m", A = { name = torvin.name }, B = { name = selka.name }, stake = { A = 1 * G, B = 1 * G }, arbiter = N.arbiter }
 	local t2 = { id = "F2m", A = { name = torvin.name }, B = { name = wenna.name }, stake = { A = 2 * G, B = 2 * G }, arbiter = N.arbiter }
@@ -1795,10 +1795,10 @@ test("1.2 the money part: the head says 'd' (taking trades now) from Call next u
 	w:Run(61)
 	eq(LastState(), "o", "served: taking bets again")
 	eq(lida.Wallet.Banks()[1].trading, false)
-	-- At the bank's cap (the King's word after this depositor queued), full wins over a call.
+	-- At the bank's cap (the Shogun's word after this depositor queued), full wins over a call.
 	assert(lida.Wallet.Deposit(N.bank, "t", 1 * G))
 	w:Run(0)
-	M.GoLive(w, cast.king, { bankCap = 5 * G })
+	M.GoLive(w, cast.shogun, { bankCap = 5 * G })
 	assert(bank.Wallet.CallNext())
 	w:Run(0)
 	eq(LastState(), "f")
@@ -2078,10 +2078,10 @@ end)
 
 test("1.2 the money part: no gold market where nobody receives the guild's fee: a Horde realm on glory points with no feeTo refuses a gold sheet, a points one runs", function()
 	local w = World.New()
-	local H2 = { faction = "Horde", guild = World.KING_GUILD_HORDE }
-	local king = M.Role(w, "kingHorde")
+	local H2 = { faction = "Horde", guild = World.SHOGUN_GUILD_HORDE }
+	local shogun = M.Role(w, "shogunHorde")
 	local bank = M.Role(w, "bank", H2)
-	M.GoLive(w, king, { cur = "p" }, { N.bank })
+	M.GoLive(w, shogun, { cur = "p" }, { N.bank })
 	M.Relog(w, bank)
 	w:Run(0)
 	eq(bank.Roles.FeeReceiver(), nil)
@@ -2201,7 +2201,7 @@ test("1.2 the money part: a bank's ledger in a backup is checked before it is re
 	NoErrors(w)
 end)
 
-test("1.2 the money part: a stake market (the King's fight, a Bone Throw game from the wallets): only its two parties, each exactly his stake on himself, once; opaque on the channel, whole on the auditors' replicas; settled with the King's 2% the guild's, or an arbiter's 2% his", function()
+test("1.2 the money part: a stake market (the Shogun's fight, a Bone Throw game from the wallets): only its two parties, each exactly his stake on himself, once; opaque on the channel, whole on the auditors' replicas; settled with the Shogun's 2% the guild's, or an arbiter's 2% his", function()
 	local w = World.New()
 	local cast = M.Cast(w, { bettors = { "Lida Fenn", "Parric Stowe", "Wenna Crale" } })
 	local bank, lida, parric, wenna, aud = cast.bank, cast["Lida Fenn"], cast["Parric Stowe"], cast["Wenna Crale"], cast.auditor
@@ -2210,11 +2210,11 @@ test("1.2 the money part: a stake market (the King's fight, a Bone Throw game fr
 	local W = bank.Wallet
 	local la, pa, wa = W.Account(lida.name), W.Account(parric.name), W.Account(wenna.name)
 	local P = { A = lida.name, B = parric.name }
-	eq(select(2, W.Register("F2x", 1, { kind = "s", cur = "g", arbiter = N.king, parties = { A = lida.name } , stakes = { A = 5 * G, B = 5 * G } })), "parties")
+	eq(select(2, W.Register("F2x", 1, { kind = "s", cur = "g", arbiter = N.shogun, parties = { A = lida.name } , stakes = { A = 5 * G, B = 5 * G } })), "parties")
 	eq(select(2, W.Register("F2y", 1, { kind = "s", cur = "g", arbiter = bank.name, parties = P, stakes = { A = 5 * G, B = 5 * G } })), "arbiter",
 		"never the bank's own character")
-	-- The King judges: 5 g a side.
-	assert(W.Register("F2k", 1, { kind = "s", cur = "g", arbiter = N.king, parties = P, stakes = { A = 5 * G, B = 5 * G }, closes = w.clock + 600 }))
+	-- The Shogun judges: 5 g a side.
+	assert(W.Register("F2k", 1, { kind = "s", cur = "g", arbiter = N.shogun, parties = P, stakes = { A = 5 * G, B = 5 * G }, closes = w.clock + 600 }))
 	eq(select(2, W.Hold(wa, 5 * G, { eid = "F2k", idx = 1, o = "A", nonce = "p1" })), "party", "a spectator")
 	eq(select(2, W.Hold(la, 5 * G, { eid = "F2k", idx = 1, o = "B", nonce = "p2" })), "party", "on the other side")
 	eq(select(2, W.Hold(la, 4 * G, { eid = "F2k", idx = 1, o = "A", nonce = "p3" })), "stake", "not his stake")

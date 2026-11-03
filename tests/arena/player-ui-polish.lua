@@ -48,8 +48,8 @@ end)
 test("Player UI qualification: own profile displays verified level points and policy while other profiles disclose no score", function()
 	local w, a, UI = Client("shipped")
 	local W3 = assert(loadfile(H.ROOT .. "tests/arena/lib/fights-world.lua"))(H)
-	local b, king = w:Role("fighterB"), w:Role("king")
-	W3.Live(w, king)
+	local b, shogun = w:Role("fighterB"), w:Role("shogun")
+	W3.Live(w, shogun)
 	W3.Rules(w, a); W3.Rules(w, b)
 	a.target, b.target = b.name, a.name
 	a.level, b.level = 40, 43
@@ -99,8 +99,8 @@ test("Player UI qualification: malformed saved evidence is ignored and a real du
 	eq(w:As(a, a.ns.ArenaFights.Qualification).pointsTenths, 0)
 	store.duelQualification = { [a.name] = { records = "bad", baseWins = "bad", basePointsTenths = math.huge, lastFinish = "bad" }, other = other }
 	local W3 = assert(loadfile(H.ROOT .. "tests/arena/lib/fights-world.lua"))(H)
-	local b, king = w:Role("fighterB"), w:Role("king")
-	W3.Live(w, king); W3.Rules(w, a); W3.Rules(w, b)
+	local b, shogun = w:Role("fighterB"), w:Role("shogun")
+	W3.Live(w, shogun); W3.Rules(w, a); W3.Rules(w, b)
 	a.target, b.target = b.name, a.name
 	a.level, b.level = 40, 40
 	local AF, BF = W3.M(w, a, "ArenaFights"), W3.M(w, b, "ArenaFights")

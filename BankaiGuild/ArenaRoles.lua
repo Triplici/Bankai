@@ -2,21 +2,21 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- The Blood Arena's roles (1.2, the design): who is a bank, an arbiter, a leader, an auditor, the fee
--- receiver, and the King's settings, from the King's words. They are kinds of the King's T1 (not
--- enveloped), taken on the channel from the King or his Steward (King.Authorized), per realm of the
--- server-stamped sender (the design: a realm whose King or Steward never sends T1~O stays in
--- rehearsal). The newest word wins, the King's own on the same second; a word dated more than
--- King.DATE_AHEAD ahead of the server's clock is not taken.
+-- receiver, and the Shogun's settings, from the Shogun's words. They are kinds of the Shogun's T1 (not
+-- enveloped), taken on the channel from the Shogun or his Steward (Shogun.Authorized), per realm of the
+-- server-stamped sender (the design: a realm whose Shogun or Steward never sends T1~O stays in
+-- rehearsal). The newest word wins, the Shogun's own on the same second; a word dated more than
+-- Shogun.DATE_AHEAD ahead of the server's clock is not taken.
 --   T1~B~<id>~<guild>~<time>~Name-Realm:o|c,...          up to 3 banks, open or closing
 --   T1~M~<id>~<guild>~<time>~Name-Realm:capGold,...      up to 40 arbiters and their holding caps
 --   T1~O~<id>~<guild>~<time>~live~cur~feeBp~arbBp~minBet~maxBet~maxDay~maxPool~bankCap~directMax~scalePct~minLevel~feeTo
---   T1~L~<id>~<guild>~<time>~<delay>                     the King's stream delay (his alone)
+--   T1~L~<id>~<guild>~<time>~<delay>                     the Shogun's stream delay (his alone)
 --   T1~J~<id>~<guild>~<time>~Short Name:abl,...          up to 12 High Councillors who publish the games'
 --                                                        rankings, and which (a the Arena, b Bones, l the Lottery)
 -- T1~O's money: minBet in copper, the others in whole gold (Settings() gives every amount in copper).
 --
--- Who is who (the design): leaders send words (the King's character, a Steward, a High
--- Councillor, a signed arbiter); auditors receive ledgers (the King's character, a High Councillor,
+-- Who is who (the design): leaders send words (the Shogun's character, a Steward, a High
+-- Councillor, a signed arbiter); auditors receive ledgers (the Shogun's character, a High Councillor,
 -- a signed arbiter with "+a"). Stewards are no auditors (the owner's answer).
 -- No arena file names the author: his power is the signed ^arbiter^ entry (ns.IsSignedArbiter).
 -- A test build gives no word and repeats none (the design: it never touches live and sends
@@ -29,13 +29,13 @@ Roles.BANKS_MAX = 3
 Roles.ARBITERS_MAX = 40
 Roles.REPEAT = 300          -- the giver's client repeats his words this often, for late logins
 Roles.ANSWER_GAP = 30       -- an older word heard is answered with ours at most this often
-Roles.DELAY_LAPSE = 900     -- the King's delay lapses this long after his last T1~L
+Roles.DELAY_LAPSE = 900     -- the Shogun's delay lapses this long after his last T1~L
 Roles.DELAY_MAX = 900
 Roles.GOLD = 10000
 Roles.CAP_LOW = 100         -- gold: an arbiter's cap when the word gives none (the lowest tier)
 Roles.CAP_MAX = 50000       -- gold
 Roles.WORD_MAX = 2600       -- bytes of a word's body at most
-Roles.PUBLISHERS_MAX = 12   -- councillors the King names to publish the games' rankings
+Roles.PUBLISHERS_MAX = 12   -- councillors the Shogun names to publish the games' rankings
 Roles.PUBLISH_LOG_MAX = 20  -- publish words kept, newest last
 -- The games whose rankings are published one by one (the owner's answer, 2026-10-04), by letter.
 Roles.RANK_GAMES = { "arena", "bones", "lottery" }
@@ -57,16 +57,16 @@ Roles.FIELDS = {
 	{ "rankPub", "n", 0, 1 },
 }
 
--- The King lends these kinds to his Steward, as Week.lua lends his week (King.lua is not changed):
+-- The Shogun lends these kinds to his Steward, as Week.lua lends his week (Shogun.lua is not changed):
 -- banks, arbiters, settings. The delay (L) and the rankings' publishers (J: the owner's answer,
--- 2026-10-04, the King and the councillors he names) are the King's alone; no Hand sends any of them.
-ns.King.STEWARD_MAY.B = true
-ns.King.STEWARD_MAY.M = true
-ns.King.STEWARD_MAY.O = true
+-- 2026-10-04, the Shogun and the councillors he names) are the Shogun's alone; no Hand sends any of them.
+ns.Shogun.STEWARD_MAY.B = true
+ns.Shogun.STEWARD_MAY.M = true
+ns.Shogun.STEWARD_MAY.O = true
 
 -- Hooks other packages set (false or empty by default):
 -- Roles.standIn(name, letter, mode): a rehearsal's stand-in (ArenaTest, the screens): "b" bank, "a"
--- arbiter, "p" public arbiter, "k" King, "t" fee receiver, "d" co-director. T only.
+-- arbiter, "p" public arbiter, "k" Shogun, "t" fee receiver, "d" co-director. T only.
 Roles.standIn = function() return false end
 -- Roles.standIns(letter, mode): the stand-ins of a letter, { "Name-Realm", ... }.
 Roles.standIns = function() return {} end
@@ -95,22 +95,22 @@ local function WordsOf(realm)
 end
 Roles.WordsOf = WordsOf
 
--- A word dated `at` from `sender` replaces the one kept: newer, or the King's own of the same second
+-- A word dated `at` from `sender` replaces the one kept: newer, or the Shogun's own of the same second
 -- over anyone else's (Treasury.Replaces' rule).
 local function Replaces(kept, at, sender)
 	local was = type(kept) == "table" and tonumber(kept.at) or nil
 	if not was or at ~= was then return was == nil or at > was end
-	return ns.IsKingCharacter(sender) and not ns.IsKingCharacter(kept.from)
+	return ns.IsShogunCharacter(sender) and not ns.IsShogunCharacter(kept.from)
 end
 
 ---------------------------------------------------------------------------
 -- Who is who
 ---------------------------------------------------------------------------
 
-function Roles.IsKing(name) return type(name) == "string" and ns.IsKingCharacter(ns.FullName(name)) == true end
-local function IsSteward(name) return ns.King and ns.King.IsStewardName and ns.King.IsStewardName(ns.FullName(name)) == true end
+function Roles.IsShogun(name) return type(name) == "string" and ns.IsShogunCharacter(ns.FullName(name)) == true end
+local function IsSteward(name) return ns.Shogun and ns.Shogun.IsStewardName and ns.Shogun.IsStewardName(ns.FullName(name)) == true end
 -- 1.1.6: a player under a moderator's sanction (WatchChat.PowersBarred: a timeout, a hold, a
--- net-off word; never the King) has none of the arena's powers while it lasts: no leader's word,
+-- net-off word; never the Shogun) has none of the arena's powers while it lasts: no leader's word,
 -- no ledger as an auditor, no ranking published, no promotion; a bank of his is closing (it pays
 -- out and settles, it takes nothing new), so nothing it holds is stuck. An arbiter's duty is a
 -- game (Arena.GAMES): his own client takes none, and the stakes he holds are settled as ever.
@@ -126,14 +126,14 @@ local function StandIn(name, letter, mode)
 	return ok and yes == true
 end
 
--- The King's character, a High Councillor or a signed arbiter (and in T the stand-ins "p", "k").
+-- The Shogun's character, a High Councillor or a signed arbiter (and in T the stand-ins "p", "k").
 function Roles.IsPublicArbiter(name, mode)
 	if type(name) ~= "string" or name == "" then return false end
-	if Roles.IsKing(name) or ns.IsHighCouncillor(ns.FullName(name)) or ns.IsSignedArbiter(name) then return true end
+	if Roles.IsShogun(name) or ns.IsHighCouncillor(ns.FullName(name)) or ns.IsSignedArbiter(name) then return true end
 	return StandIn(name, "p", mode) or StandIn(name, "k", mode)
 end
 
--- The arbiters the King's T1~M names for this realm: { { name, cap (gold) }, ... }.
+-- The arbiters the Shogun's T1~M names for this realm: { { name, cap (gold) }, ... }.
 function Roles.Arbiters(realm)
 	local w = WordsOf(realm).arbiters
 	local out = {}
@@ -161,29 +161,29 @@ function Roles.ArbiterCap(name)
 	return 0
 end
 
--- May send words: the King's character, a Steward, a High Councillor, a signed arbiter.
+-- May send words: the Shogun's character, a Steward, a High Councillor, a signed arbiter.
 function Roles.Leader(name, mode)
 	if type(name) ~= "string" or name == "" then return false end
-	if Roles.IsKing(name) then return true end
+	if Roles.IsShogun(name) then return true end
 	if Barred(name) then return false end
 	if IsSteward(name) or ns.IsHighCouncillor(ns.FullName(name)) or ns.IsSignedArbiter(name) then return true end
 	return StandIn(name, "k", mode)
 end
--- Receives ledgers: the King's character, a High Councillor, a signed arbiter with "+a". Never a
+-- Receives ledgers: the Shogun's character, a High Councillor, a signed arbiter with "+a". Never a
 -- Steward alone.
 function Roles.Auditor(name, mode)
 	if type(name) ~= "string" or name == "" then return false end
-	if Roles.IsKing(name) then return true end
+	if Roles.IsShogun(name) then return true end
 	if Barred(name) then return false end
 	if ns.IsHighCouncillor(ns.FullName(name)) or ns.IsSignedAuditor(name) then return true end
 	return StandIn(name, "k", mode)
 end
--- May promote a Fight Night or a tournament (the owner's answer): the King, his
+-- May promote a Fight Night or a tournament (the owner's answer): the Shogun, his
 -- Stewards and his Hands, and every public arbiter.
 function Roles.MayPromote(name, mode)
 	if type(name) ~= "string" or name == "" then return false end
-	if not Roles.IsKing(name) and Barred(name) then return false end
-	local K = ns.King
+	if not Roles.IsShogun(name) and Barred(name) then return false end
+	local K = ns.Shogun
 	if IsSteward(name) or (K and K.IsHandName and K.IsHandName(ns.FullName(name))) then return true end
 	return Roles.IsPublicArbiter(name, mode)
 end
@@ -201,10 +201,10 @@ local function IsKeeper(name)
 	return false
 end
 
--- Why a character may not be a bank (the design): the King's character, a Steward, a High
+-- Why a character may not be a bank (the design): the Shogun's character, a Steward, a High
 -- Councillor, a treasury keeper or a pinned Treasurer character, or an arbiter. nil when he may.
 local function Excluded(name)
-	if Roles.IsKing(name) then return "king" end
+	if Roles.IsShogun(name) then return "shogun" end
 	if IsSteward(name) then return "steward" end
 	if ns.IsHighCouncillor(ns.FullName(name)) then return "councillor" end
 	if IsKeeper(name) then return "keeper" end
@@ -270,7 +270,7 @@ function Roles.WhyText(why) return L["ARENA_WHY_" .. tostring(why):upper()] end
 -- The account's characters (Treasury keeps them in ns.db.myCharacters, in lower case) as the server
 -- writes them: each word of a name capitalised, the realm one this client knows.
 local function KnownRealm(lower)
-	local candidates = { ns.realm, ns.CurrentRealm and ns.CurrentRealm(), ns.KingRealm and ns.KingRealm(), ns.TREASURER_REALM }
+	local candidates = { ns.realm, ns.CurrentRealm and ns.CurrentRealm(), ns.ShogunRealm and ns.ShogunRealm(), ns.TREASURER_REALM }
 	for _, r in ipairs(ns.GroupRealms(ns.group or ns.realm)) do candidates[#candidates + 1] = r end
 	for _, r in ipairs(candidates) do
 		if type(r) == "string" and r:lower() == lower then return r end
@@ -393,10 +393,10 @@ end
 -- Bones game with no gold on it) counts without it (Arena.GameMode); nothing here turns it on.
 function Roles.Live(realm) return Roles.Settings(realm).live == 1 end
 function Roles.Currency(realm) return Roles.Settings(realm).cur == "p" and "p" or "g" end
--- The King's published stream delay for this realm, while fresh (it lapses DELAY_LAPSE after his
+-- The Shogun's published stream delay for this realm, while fresh (it lapses DELAY_LAPSE after his
 -- last T1~L), else 0.
-function Roles.KingDelay(realm)
-	local d = WordsOf(realm or ns.realm).kingDelay
+function Roles.ShogunDelay(realm)
+	local d = WordsOf(realm or ns.realm).shogunDelay
 	if type(d) ~= "table" or Now() - (tonumber(d.heard) or 0) > Roles.DELAY_LAPSE then return 0 end
 	return math.max(0, math.min(Roles.DELAY_MAX, tonumber(d.delay) or 0))
 end
@@ -468,7 +468,7 @@ local function Take(kind, sender, at, value)
 	local kept = words[kind]
 	if not Replaces(kept, at, sender) then
 		-- An older word heard on the giver's side: answered with the newer one (for late logins).
-		if type(kept) == "table" and at < (tonumber(kept.at) or 0) and realm == ns.realm and ns.King.SetsLists()
+		if type(kept) == "table" and at < (tonumber(kept.at) or 0) and realm == ns.realm and ns.Shogun.SetsLists()
 			and Now() - lastAnswer >= Roles.ANSWER_GAP then
 			lastAnswer = Now()
 			Resend(kind)
@@ -493,8 +493,8 @@ local function Take(kind, sender, at, value)
 	words[kind] = value
 	-- (Who is an arbiter decides whose ledger entries count: the ratings are worked out again.)
 	if kind == "arbiters" and ns.ArenaLedger and ns.ArenaLedger.Bump then ns.ArenaLedger.Bump() end
-	if ns.King.IsKing() and ns.King.IsStewardName(sender) then
-		ns.Print(L.ARENA_STEWARD_SET:format(ns.King.StewardLabel(sender), L["ARENA_WORD_" .. kind:upper()]))
+	if ns.Shogun.IsShogun() and ns.Shogun.IsStewardName(sender) then
+		ns.Print(L.ARENA_STEWARD_SET:format(ns.Shogun.StewardLabel(sender), L["ARENA_WORD_" .. kind:upper()]))
 	end
 	ns.Arena.Changed()
 	return true
@@ -507,7 +507,7 @@ local function Dated(rest)
 	if #rest > Roles.WORD_MAX then return nil end
 	local at, body = rest:match("^(%d+)~?(.*)$")
 	at = at and #at <= 12 and tonumber(at)
-	if not at or at > Now() + ns.King.DATE_AHEAD then return nil end
+	if not at or at > Now() + ns.Shogun.DATE_AHEAD then return nil end
 	return at, body
 end
 
@@ -543,29 +543,29 @@ function Roles.TakePublishers(sender, rest)
 	if not value then return false, why end
 	return Take("publishers", sender, at, value)
 end
--- The King's delay: from his character alone; kept with the time it was heard (it lapses).
+-- The Shogun's delay: from his character alone; kept with the time it was heard (it lapses).
 function Roles.TakeDelay(sender, rest, guild)
 	if ns.Arena.Off() then return false, "off" end
-	if not ns.King.FromKing(sender, guild) then return false, "king" end
+	if not ns.Shogun.FromShogun(sender, guild) then return false, "shogun" end
 	local at, body = Dated(rest)
 	local delay = at and body:find("^%d+$") and #body <= 4 and tonumber(body)
 	if not delay or delay > Roles.DELAY_MAX then return false, "delay" end
 	local words = WordsOf(ns.Arena.RealmOf(sender))
-	local kept = words.kingDelay
+	local kept = words.shogunDelay
 	if type(kept) == "table" and at < (tonumber(kept.at) or 0) then return false, "older" end
-	words.kingDelay = { at = at, delay = delay, heard = Now(), from = ns.FullName(sender) }
+	words.shogunDelay = { at = at, delay = delay, heard = Now(), from = ns.FullName(sender) }
 	ns.Arena.Changed()
 	return true
 end
 
-ns.King.Register("B", function(sender, id, rest) Roles.TakeBanks(sender, rest) end)
-ns.King.Register("M", function(sender, id, rest) Roles.TakeArbiters(sender, rest) end)
-ns.King.Register("O", function(sender, id, rest) Roles.TakeSettings(sender, rest) end)
-ns.King.Register("L", function(sender, id, rest, guild) Roles.TakeDelay(sender, rest, guild) end)
-ns.King.Register("J", function(sender, id, rest) Roles.TakePublishers(sender, rest) end)
+ns.Shogun.Register("B", function(sender, id, rest) Roles.TakeBanks(sender, rest) end)
+ns.Shogun.Register("M", function(sender, id, rest) Roles.TakeArbiters(sender, rest) end)
+ns.Shogun.Register("O", function(sender, id, rest) Roles.TakeSettings(sender, rest) end)
+ns.Shogun.Register("L", function(sender, id, rest, guild) Roles.TakeDelay(sender, rest, guild) end)
+ns.Shogun.Register("J", function(sender, id, rest) Roles.TakePublishers(sender, rest) end)
 
 ---------------------------------------------------------------------------
--- Giving the words (the King's client or his Steward's; the Throne's composers, the screens, call these)
+-- Giving the words (the Shogun's client or his Steward's; the Throne's composers, the screens, call these)
 ---------------------------------------------------------------------------
 
 local LETTER = { banks = "B", arbiters = "M", settings = "O", publishers = "J" }
@@ -597,7 +597,7 @@ local function MaySend()
 end
 local function Send(kind, w)
 	if not MaySend() then return end
-	local text = ("T1~%s~%d~%s~%d~%s"):format(LETTER[kind], ns.King.NewId(), Guild(), math.floor(w.at), Body(kind, w))
+	local text = ("T1~%s~%d~%s~%d~%s"):format(LETTER[kind], ns.Shogun.NewId(), Guild(), math.floor(w.at), Body(kind, w))
 	if (kind == "arbiters" or kind == "publishers") and #text > 250 then
 		ns.Comm.SendChunked(text, false, "CHANNEL")
 	else
@@ -614,7 +614,7 @@ end
 local function Give(kind, value)
 	local may, why0 = MaySend()
 	if not may then return false, why0 end
-	if not ns.King.SetsLists() then ns.Print(L.THRONE_ONLY_KING) return false, "king" end
+	if not ns.Shogun.SetsLists() then ns.Print(L.THRONE_ONLY_SHOGUN) return false, "shogun" end
 	local kept = WordsOf(ns.realm)[kind]
 	local at = math.max(Now(), (type(kept) == "table" and tonumber(kept.at) or 0) + 1)
 	local ok, why = Take(kind, ns.me, at, value)
@@ -671,11 +671,11 @@ function Roles.SetSettings(t)
 	return Give("settings", { values = values })
 end
 -- list: { { name (a High Councillor), games = { arena = true, bones = true, lottery = true } }, ... },
--- 12 at most: who publishes which game's ranking beside the King. A councillor left out (or a game
--- left out of his set) no longer publishes it, and his words for it stop counting. The King's
+-- 12 at most: who publishes which game's ranking beside the Shogun. A councillor left out (or a game
+-- left out of his set) no longer publishes it, and his words for it stop counting. The Shogun's
 -- character alone names them (never his Steward: T1~J is not lent).
 function Roles.SetPublishers(list)
-	if not ns.King.IsKing() then ns.Print(L.THRONE_ONLY_KING) return false, "king" end
+	if not ns.Shogun.IsShogun() then ns.Print(L.THRONE_ONLY_SHOGUN) return false, "shogun" end
 	if type(list) ~= "table" or #list > Roles.PUBLISHERS_MAX then return false, "count" end
 	local out, seen = {}, {}
 	for _, e in ipairs(list) do
@@ -689,48 +689,48 @@ function Roles.SetPublishers(list)
 	end
 	return Give("publishers", { list = out })
 end
--- The King's client publishes his delay (Arena.SetDelay), and repeats it while it is on.
+-- The Shogun's client publishes his delay (Arena.SetDelay), and repeats it while it is on.
 local function SendDelayWord(d)
 	if not MaySend() then return end
-	ns.Comm.Send("CHANNEL", ("T1~L~%d~%s~%d~%d"):format(ns.King.NewId(), Guild(), math.floor(d.at), d.delay), "arena word delay")
+	ns.Comm.Send("CHANNEL", ("T1~L~%d~%s~%d~%d"):format(ns.Shogun.NewId(), Guild(), math.floor(d.at), d.delay), "arena word delay")
 end
 function Roles.SendDelay(s)
 	local may, why = MaySend()
 	if not may then return false, why end
-	if not ns.King.IsKing() then return false, "king" end
+	if not ns.Shogun.IsShogun() then return false, "shogun" end
 	s = math.max(0, math.min(Roles.DELAY_MAX, math.floor(tonumber(s) or 0)))
 	local words = WordsOf(ns.realm)
-	local kept = words.kingDelay
+	local kept = words.shogunDelay
 	local at = math.max(Now(), (type(kept) == "table" and tonumber(kept.at) or 0) + 1)
-	words.kingDelay = { at = at, delay = s, heard = Now(), from = ns.me }
-	SendDelayWord(words.kingDelay)
+	words.shogunDelay = { at = at, delay = s, heard = Now(), from = ns.me }
+	SendDelayWord(words.shogunDelay)
 	Roles.Repeating()
 	return true
 end
 
 ---------------------------------------------------------------------------
--- The games' rankings, published one by one (the owner's answer, 2026-10-04: the King and the
+-- The games' rankings, published one by one (the owner's answer, 2026-10-04: the Shogun and the
 -- councillors he names, per game)
 ---------------------------------------------------------------------------
 -- AU~L1~<a|b|l>~<1|0>~<time>: that game's ranking shown to everyone (1) or to the staff alone (0),
--- on the channel, from the King's character or a High Councillor that the King's T1~J names for
--- that game (MayPublish; a Steward only when named so, as a councillor). The newest word per game stands, the King's own on the
+-- on the channel, from the Shogun's character or a High Councillor that the Shogun's T1~J names for
+-- that game (MayPublish; a Steward only when named so, as a councillor). The newest word per game stands, the Shogun's own on the
 -- same second (the words' rule). Each word taken is logged (rankLog, newest last), and the client
--- whose word stands repeats it every REPEAT while it may still publish. The King revokes by naming
+-- whose word stands repeats it every REPEAT while it may still publish. The Shogun revokes by naming
 -- a councillor no more: his words stop counting at once on every client, and that game falls back
 -- to the settings' rankPub (all three at once, the switch from before).
 -- (1.2.4, the author's ask: rankings and what shows them are never lost.) The words are the realm
 -- group's (GroupWords), and any client holding one tells it (a copy: the same fields and its giver,
 -- AU~L1~<a|b|l>~<1|0>~<time>~<Giver-Realm>), in answer alone: to a client that asks, once a
 -- session as its Games tab opens, for the games it lacks (AU~L1~q~<letters>), on the channel and,
--- where its guild spans the group's realms, over GUILD (the King's channel is his realm's alone).
+-- where its guild spans the group's realms, over GUILD (the Shogun's channel is his realm's alone).
 -- A 1.2.3 client reads neither form.
 
 local function PublishersOf(realm)
 	local w = WordsOf(realm).publishers
 	return type(w) == "table" and type(w.list) == "table" and w.list or {}
 end
--- The King's named publishers: { { name (short), games = { arena = true, ... } }, ... }, a copy.
+-- The Shogun's named publishers: { { name (short), games = { arena = true, ... } }, ... }, a copy.
 function Roles.Publishers(realm)
 	local out = {}
 	for _, e in ipairs(PublishersOf(realm)) do
@@ -742,7 +742,7 @@ function Roles.Publishers(realm)
 	end
 	return out
 end
--- The High Council's names (the signed list's), sorted: whom the King may name.
+-- The High Council's names (the signed list's), sorted: whom the Shogun may name.
 function Roles.Councillors()
 	local c = ns.rdb and ns.rdb.council
 	local out = {}
@@ -752,11 +752,11 @@ function Roles.Councillors()
 	table.sort(out, function(a, b) return a:lower() < b:lower() end)
 	return out
 end
--- Whether name may publish game's ranking: the King's character, or a High Councillor named for
--- that game (the owner's answer, 2026-10-04: not "the King and his Stewards").
+-- Whether name may publish game's ranking: the Shogun's character, or a High Councillor named for
+-- that game (the owner's answer, 2026-10-04: not "the Shogun and his Stewards").
 function Roles.MayPublish(name, game, realm)
 	if type(name) ~= "string" or name == "" or not Roles.GAME_LETTER[game] then return false end
-	if Roles.IsKing(name) then return true end
+	if Roles.IsShogun(name) then return true end
 	if not ns.IsHighCouncillor(ns.FullName(name)) or Barred(name) then return false end
 	local short = ns.ShortName(ns.FullName(name)):lower()
 	for _, e in ipairs(PublishersOf(realm)) do
@@ -802,7 +802,7 @@ local function GroupWords()
 	end
 	return a
 end
--- The word standing for game, while its giver may still publish it (whom the King names on the
+-- The word standing for game, while its giver may still publish it (whom the Shogun names on the
 -- giver's realm); nil otherwise.
 local function Standing(game)
 	local g = GroupWords()
@@ -833,8 +833,8 @@ end
 -- travels with it: Konig's rule for the treasury's switches), so it only fills: a game with no word
 -- here, or with an older copy; never over a word heard from a giver himself. A giver's own word
 -- replaces any copy, whichever giver it names and whatever its time (the review: a copy made up in
--- another publisher's name, dated after the King's word, refused the King's own repeats for good),
--- else the newest stands, the King's own on the same second (the words' rule). True, or false and
+-- another publisher's name, dated after the Shogun's word, refused the Shogun's own repeats for good),
+-- else the newest stands, the Shogun's own on the same second (the words' rule). True, or false and
 -- why.
 local function TakePublish(sender, game, on, at, giver)
 	local g = GroupWords()
@@ -898,7 +898,7 @@ function Roles.PublishRepeat()
 	return Roles.PublishRepeating()
 end
 -- Given here (the Games tab's switch): game's ranking to everyone (on) or to the staff alone.
--- True, or false and why ("publisher": not the King nor a councillor named for it).
+-- True, or false and why ("publisher": not the Shogun nor a councillor named for it).
 -- A test build keeps it here and sends nothing (MaySend).
 function Roles.Publish(game, on)
 	if not Roles.GAME_LETTER[game] then return false, "game" end
@@ -920,7 +920,7 @@ end
 -- giver's word, any other as a copy) ANSWER_MIN to ANSWER_MIN + ANSWER_SPREAD seconds later,
 -- leaving out a word that went out meanwhile, once per ANSWER_GAP at most; about RELAYS holders
 -- take an ask up, whatever the army's size: on the channel, which joins every Bankai Guild guild, in the
--- army's addon users (the census's, King.AddonsOnline, as the signed authority's answers draw; the
+-- army's addon users (the census's, Shogun.AddonsOnline, as the signed authority's answers draw; the
 -- review: our guild's alone drew about RELAYS holders of each guild), over the guild in our
 -- guild's (Comm's count). Nothing goes unasked: an idle member sends nothing and runs no clock for
 -- it (the weight rule).
@@ -931,7 +931,7 @@ local wordHeard = {} -- [game] = { key, at }: the word last heard told, by anyon
 local answering, lastAnswerAt = nil, -math.huge
 local function WordKey(game, on, at, from) return ("%s|%s|%d|%s"):format(game, on and "1" or "0", math.floor(tonumber(at) or 0), ns.FullName(from or "?"):lower()) end
 local function Drawn(dist)
-	local C, K = ns.Comm, ns.King
+	local C, K = ns.Comm, ns.Shogun
 	local peers = type(C) == "table" and type(C.PeerCount) == "function" and tonumber(C.PeerCount(dist ~= "GUILD")) or 0
 	local users = peers + 1
 	if dist ~= "GUILD" and type(K) == "table" and type(K.AddonsOnline) == "function" then
@@ -1003,7 +1003,7 @@ local function OnPublish(dist, sender, mode, body)
 	if not letter then letter, on, at, giver = body:match("^([abl])~([01])~(%d+)~([^~]+)$") end
 	local game = letter and Roles.LETTER_GAME[letter]
 	at = at and #at <= 12 and tonumber(at) or nil
-	if not game or not at or at > Now() + ns.King.DATE_AHEAD then return end
+	if not game or not at or at > Now() + ns.Shogun.DATE_AHEAD then return end
 	if giver then
 		giver = giver:find("-", 1, true) and ns.Arena.Name(giver) or nil
 		if not giver then return end
@@ -1018,7 +1018,7 @@ local function OnPublish(dist, sender, mode, body)
 end
 ns.Comm.Handle("AU", ns.Arena.Handle("AU", OnPublish))
 
--- The giver's client repeats its own words for late logins (every REPEAT), and the King his delay
+-- The giver's client repeats its own words for late logins (every REPEAT), and the Shogun his delay
 -- while it is on: that client is involved (the weight rule), nobody else's.
 local function Own()
 	local words, out = WordsOf(ns.realm), {}
@@ -1029,26 +1029,26 @@ local function Own()
 	table.sort(out)
 	return out
 end
--- The delay the King typed on this account (Arena.SetDelay keeps it in ns.db.arenaUI), 0 when none.
+-- The delay the Shogun typed on this account (Arena.SetDelay keeps it in ns.db.arenaUI), 0 when none.
 local function StoredDelay()
 	local ui = ns.db and ns.db.arenaUI
 	local d = type(ui) == "table" and tonumber(ui.delay) or 0
 	return math.max(0, math.min(Roles.DELAY_MAX, math.floor(d)))
 end
--- The delay word this client gave, while on (at login the guild may not say yet that it is the King's).
+-- The delay word this client gave, while on (at login the guild may not say yet that it is the Shogun's).
 local function OwnDelayWord()
-	local d = WordsOf(ns.realm).kingDelay
+	local d = WordsOf(ns.realm).shogunDelay
 	return type(d) == "table" and Same(d.from, ns.me) and (tonumber(d.delay) or 0) > 0
 end
-local function KingDelayOn()
-	return ns.King.IsKing() and (OwnDelayWord() or StoredDelay() > 0)
+local function ShogunDelayOn()
+	return ns.Shogun.IsShogun() and (OwnDelayWord() or StoredDelay() > 0)
 end
 function Roles.Repeat()
 	if not MaySend() then return Roles.Repeating() end
-	if not ns.King.SetsLists() then return Roles.Repeating() end
+	if not ns.Shogun.SetsLists() then return Roles.Repeating() end
 	for _, kind in ipairs(Own()) do Resend(kind) end
-	if ns.King.IsKing() then
-		local want, d = StoredDelay(), WordsOf(ns.realm).kingDelay
+	if ns.Shogun.IsShogun() then
+		local want, d = StoredDelay(), WordsOf(ns.realm).shogunDelay
 		if want > 0 and not (OwnDelayWord() and tonumber(d.delay) == want) then
 			-- The word itself was lost (or another delay kept): published again from what he typed.
 			Roles.SendDelay(want)
@@ -1059,10 +1059,10 @@ function Roles.Repeat()
 	end
 	return Roles.Repeating()
 end
--- force: at login, before the guild says whether this is still the King's or a Steward's client
+-- force: at login, before the guild says whether this is still the Shogun's or a Steward's client
 -- (the next repeat asks again).
 function Roles.Repeating(force)
-	local on = MaySend() and (force or ns.King.SetsLists()) and (Own()[1] ~= nil or KingDelayOn()
+	local on = MaySend() and (force or ns.Shogun.SetsLists()) and (Own()[1] ~= nil or ShogunDelayOn()
 		or (force and (OwnDelayWord() or StoredDelay() > 0))) or false
 	ns.Arena.Involve("roles", on)
 	ns.Arena.Every(Roles.REPEAT, "roles repeat", on and Roles.Repeat or nil)
@@ -1071,7 +1071,7 @@ end
 Roles.LOGIN_REPEAT = 60     -- a client that gives words says them this long after login, then every REPEAT
 
 ns.On("LOGIN", function()
-	-- Only a client holding words it gave itself (a King's or a Steward's), or the King's delay he
+	-- Only a client holding words it gave itself (a Shogun's or a Steward's), or the Shogun's delay he
 	-- typed (kept on his account), repeats them: first a minute after login, when the guild says
 	-- whose client this is.
 	if Roles.Repeating(true) then ns.Arena.After(Roles.LOGIN_REPEAT, "roles login repeat", Roles.Repeat) end

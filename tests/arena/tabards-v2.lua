@@ -37,18 +37,18 @@ local function FakeComm()
 	return c
 end
 
-local function KingStub(isKing)
+local function ShogunStub(isShogun)
 	return {
-		IsKing = function() return isKing end,
+		IsShogun = function() return isShogun end,
 		Preview = function() return false end,
-		FromKing = function() return true end,
+		FromShogun = function() return true end,
 	}
 end
 
 test("1.2 tabards v2: both contracts start off, No persists for this version, a changed contract asks again, and missing SV fails closed", function()
 	local T, db, comm = ns.TabardsV2, {}, FakeComm()
 	T.Reset()
-	With({ db = db, rdb = {}, Comm = comm, King = KingStub(false), me = "Observer-Realm" }, function()
+	With({ db = db, rdb = {}, Comm = comm, Shogun = ShogunStub(false), me = "Observer-Realm" }, function()
 		eq(T.Consent("self"), nil); eq(T.Consent("nearby"), nil)
 		eq(T.SetConsent("self", false), true); eq(T.SetConsent("nearby", false), true)
 		eq(T.Consent("self"), false); eq(T.Consent("nearby"), false)
@@ -65,15 +65,15 @@ test("1.2 tabards v2: both contracts start off, No persists for this version, a 
 	end)
 end)
 
-test("1.2 tabards v2: only an exact fresh King lease enables a guarded self whisper, revocation and recipient change stop delivery", function()
-	local T, db, comm, now, member, kingName, authorized = ns.TabardsV2, {}, FakeComm(), 10000, true, true, true
+test("1.2 tabards v2: only an exact fresh Shogun lease enables a guarded self whisper, revocation and recipient change stop delivery", function()
+	local T, db, comm, now, member, shogunName, authorized = ns.TabardsV2, {}, FakeComm(), 10000, true, true, true
 	T.Reset()
-	local function IsKingName(name) return kingName and ns.ShortName(name) == "Theking" end
-	local king = KingStub(false)
-	king.FromKing = function() return authorized end
+	local function IsShogunName(name) return shogunName and ns.ShortName(name) == "Theking" end
+	local shogun = ShogunStub(false)
+	shogun.FromShogun = function() return authorized end
 	With({
-		db = db, rdb = {}, Comm = comm, King = king, me = "Observer-Realm", realm = "Realm",
-		Now = function() return now end, IsMember = function() return member end, IsKingCharacter = IsKingName,
+		db = db, rdb = {}, Comm = comm, Shogun = shogun, me = "Observer-Realm", realm = "Realm",
+		Now = function() return now end, IsMember = function() return member end, IsShogunCharacter = IsShogunName,
 	}, function()
 		Globals({
 			GetGuildInfo = function() return "Bankai Guild" end,
@@ -102,10 +102,10 @@ test("1.2 tabards v2: only an exact fresh King lease enables a guarded self whis
 				member = false
 				ok, why = newest.guard.permit(nil, nil, "WHISPER", "Theking-Realm")
 				eq(ok, false); eq(why, "revoked", "leaving an Bankai Guild guild closes the delivery gate")
-				member = true; kingName = false
+				member = true; shogunName = false
 				ok, why = newest.guard.permit(nil, nil, "WHISPER", "Theking-Realm")
-				eq(ok, false); eq(why, "recipient-changed", "the recipient losing the pinned King identity closes it")
-				kingName = true; authorized = false
+				eq(ok, false); eq(why, "recipient-changed", "the recipient losing the pinned Shogun identity closes it")
+				shogunName = true; authorized = false
 				ok, why = newest.guard.permit(nil, nil, "WHISPER", "Theking-Realm")
 				eq(ok, false); eq(why, "recipient-changed", "a role or guild change closes the delivery gate")
 				authorized = true
@@ -120,9 +120,9 @@ test("1.2 tabards v2: nearby uses a completed direct observation only, never rel
 	local T, db, comm, now, inspected = ns.TabardsV2, {}, FakeComm(), 20000, 0
 	T.Reset()
 	With({
-		db = db, rdb = {}, Comm = comm, King = KingStub(false), me = "Observer-Realm", realm = "Realm",
+		db = db, rdb = {}, Comm = comm, Shogun = ShogunStub(false), me = "Observer-Realm", realm = "Realm",
 		Now = function() return now end, IsMember = function() return true end,
-		IsKingCharacter = function(name) return ns.ShortName(name) == "Theking" end,
+		IsShogunCharacter = function(name) return ns.ShortName(name) == "Theking" end,
 	}, function()
 		Globals({ GetGuildInfo = function() return "Bankai Guild" end, NotifyInspect = function() inspected = inspected + 1 end }, function()
 			T.SetConsent("nearby", true)
@@ -149,14 +149,14 @@ test("1.2 tabards v2: nearby uses a completed direct observation only, never rel
 	end)
 end)
 
-test("1.2 tabards v2: malformed, spoofed and replayed whispers fail; two independent observers are required; conflict blocks; direct King overrides", function()
+test("1.2 tabards v2: malformed, spoofed and replayed whispers fail; two independent observers are required; conflict blocks; direct Shogun overrides", function()
 	local T, db, rdb, comm, now = ns.TabardsV2, {}, {}, FakeComm(), 30000
 	T.Reset()
 	local roster = { RankOf = function(name) return name and 1 or nil end }
 	With({
-		db = db, rdb = rdb, Comm = comm, King = KingStub(true), Roster = roster, me = "Theking-Realm", realm = "Realm",
+		db = db, rdb = rdb, Comm = comm, Shogun = ShogunStub(true), Roster = roster, me = "Theking-Realm", realm = "Realm",
 		Now = function() return now end, IsMember = function() return true end,
-		IsKingCharacter = function(name) return ns.ShortName(name) == "Theking" end,
+		IsShogunCharacter = function(name) return ns.ShortName(name) == "Theking" end,
 	}, function()
 		Globals({ GetGuildInfo = function() return "Bankai Guild" end }, function()
 				assert(T.Announce(true)); local lease = comm.sent[#comm.sent].msg:match("^U2~2~([%w]+)~")
@@ -179,7 +179,7 @@ test("1.2 tabards v2: malformed, spoofed and replayed whispers fail; two indepen
 			eq(status, "U"); eq(actionable, false); eq(conflict, true)
 			assert(T.Observe({ name = "Bad-Realm", guild = "Bankai Guild II", level = 60, status = "OTHER" }, true))
 				status, actionable, _, conflict = T.Conclusion("Bad-Realm")
-				eq(status, "O"); eq(actionable, true, "the King's own direct observation is decisive"); eq(conflict, true)
+				eq(status, "O"); eq(actionable, true, "the Shogun's own direct observation is decisive"); eq(conflict, true)
 				eq(#T.PublicationList(), 1)
 				assert(T.HandleNearby("WHISPER", "D-Realm", "U4~2~" .. lease .. "~1~GuildConflict-Realm~Bankai Guild II~60~N~Bankai Guild"))
 				assert(T.HandleNearby("WHISPER", "E-Realm", "U4~2~" .. lease .. "~1~GuildConflict-Realm~Bankai Guild III~60~N~Bankai Guild"))
@@ -197,7 +197,7 @@ test("1.2 tabards v2: a claimed guild never authenticates two forged cross-guild
 	local verified = {}
 	T.Reset()
 	With({
-		db = db, rdb = rdb, Comm = comm, King = KingStub(true), me = "Theking-Realm", realm = "Realm",
+		db = db, rdb = rdb, Comm = comm, Shogun = ShogunStub(true), me = "Theking-Realm", realm = "Realm",
 		Now = function() return now end, IsMember = function() return true end,
 		Roster = { RankOf = function() return nil end },
 		Moderation = { GuildOf = function() return "Bankai Guild II" end },
@@ -263,24 +263,24 @@ test("1.2 tabards v2: a fresh empty publication reveals the surface, a stale one
 	local T, V, db, rdb, now = ns.TabardsV2, ns.ViewAs, {}, {}, 40000
 	T.Reset(); V.Reset()
 	local workshop = { IsAuthor = function() return false end, Preview = function() return false end }
-	With({ db = db, rdb = rdb, King = KingStub(false), Workshop = workshop, Roster = { IsOfficer = function() return false end }, Now = function() return now end }, function()
+	With({ db = db, rdb = rdb, Shogun = ShogunStub(false), Workshop = workshop, Roster = { IsOfficer = function() return false end }, Now = function() return now end }, function()
 		ns.Inspect.ResetShame()
 		eq(T.SurfaceVisible(), false)
-		ns.Inspect.ShowShame({ by = "King", list = {}, t = now })
+		ns.Inspect.ShowShame({ by = "Shogun", list = {}, t = now })
 		eq(T.SurfaceVisible(), true, "empty is a real publication")
 		now = now + ns.Inspect.SHARED_FRESH + 1
 		eq(T.SurfaceVisible(), false, "publication lease expired")
 	end)
 	local author = { IsAuthor = function() return true end, Preview = function() return false end }
-	local actualKing = KingStub(false)
-	With({ db = db, rdb = rdb, King = actualKing, Workshop = author }, function()
+	local actualShogun = ShogunStub(false)
+	With({ db = db, rdb = rdb, Shogun = actualShogun, Workshop = author }, function()
 		H.WithUI(function()
 			local shown, menu = V.ShowMenu()
 			assert(shown and menu and menu.buttons[2]); menu.buttons[2]:Click()
-			eq(V.Role(), "king", "the King button keeps its own Lua 5.1 closure")
+			eq(V.Role(), "shogun", "the Shogun button keeps its own Lua 5.1 closure")
 			eq(V.Allows("throne"), true); eq(T.SurfaceVisible(), true)
-			eq(actualKing.IsKing(), false, "presentation role never changes real authority")
-			eq(T.Announce(true), false, "presentation role cannot announce as King")
+			eq(actualShogun.IsShogun(), false, "presentation role never changes real authority")
+			eq(T.Announce(true), false, "presentation role cannot announce as Shogun")
 			-- (1.2: High Council third, the Stewards and Hands merged into it; the Treasurer fourth.)
 			eq(menu.buttons[3].key, "councillor"); eq(menu.buttons[3]:GetText(), ns.L.VIEW_AS_COUNCILLOR)
 			shown, menu = V.ShowMenu(); assert(shown and menu and menu.buttons[4]); menu.buttons[4]:Click()
@@ -294,14 +294,14 @@ test("1.2 tabards v2: a fresh empty publication reveals the surface, a stale one
 	V.Reset()
 end)
 
-test("1.2.0 tabards v2: two ordinary members of the King's guild cannot put anyone on the list; two of its officers can", function()
+test("1.2.0 tabards v2: two ordinary members of the Shogun's guild cannot put anyone on the list; two of its officers can", function()
 	local T, db, rdb, comm, now = ns.TabardsV2, {}, {}, FakeComm(), 40000
 	T.Reset()
 	local roster = { RankOf = function(name) return name and (ns.ShortName(name):find("^Member") and 5 or 1) or nil end }
 	With({
-		db = db, rdb = rdb, Comm = comm, King = KingStub(true), Roster = roster, me = "Theking-Realm", realm = "Realm",
+		db = db, rdb = rdb, Comm = comm, Shogun = ShogunStub(true), Roster = roster, me = "Theking-Realm", realm = "Realm",
 		Now = function() return now end, IsMember = function() return true end,
-		IsKingCharacter = function(name) return ns.ShortName(name) == "Theking" end,
+		IsShogunCharacter = function(name) return ns.ShortName(name) == "Theking" end,
 	}, function()
 		Globals({ GetGuildInfo = function() return "Bankai Guild" end }, function()
 			assert(T.Announce(true)); local lease = comm.sent[#comm.sent].msg:match("^U2~2~([%w]+)~")
@@ -316,14 +316,14 @@ test("1.2.0 tabards v2: two ordinary members of the King's guild cannot put anyo
 	end)
 end)
 
--- 1.2.5.1, review of the quiet presence (Core.lua): the King's collector lease said he was online
+-- 1.2.5.1, review of the quiet presence (Core.lua): the Shogun's collector lease said he was online
 -- every 8 minutes, and members' clients whispered him at once; a member's own report and a nearby
--- one say their sender is online to the King's client.
+-- one say their sender is online to the Shogun's client.
 test("1.2.5.1 tabards v2: while the quiet presence is on, no collector lease, own report or nearby report leaves; the beat brings them back once off", function()
 	local T, comm, now, quiet = ns.TabardsV2, FakeComm(), 40000, false
 	T.Reset()
 	With({
-		db = {}, rdb = {}, Comm = comm, King = KingStub(true), me = "Theking-Realm", realm = "Realm",
+		db = {}, rdb = {}, Comm = comm, Shogun = ShogunStub(true), me = "Theking-Realm", realm = "Realm",
 		Now = function() return now end, IsMember = function() return true end,
 		QuietPresence = function() return quiet end,
 	}, function()
@@ -344,9 +344,9 @@ test("1.2.5.1 tabards v2: while the quiet presence is on, no collector lease, ow
 	T.Reset()
 	comm = FakeComm()
 	With({
-		db = {}, rdb = {}, Comm = comm, King = KingStub(false), me = "Councillor-Realm", realm = "Realm",
+		db = {}, rdb = {}, Comm = comm, Shogun = ShogunStub(false), me = "Councillor-Realm", realm = "Realm",
 		Now = function() return now end, IsMember = function() return true end,
-		IsKingCharacter = function(name) return ns.ShortName(name) == "Theking" end,
+		IsShogunCharacter = function(name) return ns.ShortName(name) == "Theking" end,
 		QuietPresence = function() return quiet end,
 	}, function()
 		Globals({
@@ -357,13 +357,13 @@ test("1.2.5.1 tabards v2: while the quiet presence is on, no collector lease, ow
 		}, function()
 			T.SetConsent("self", true); T.SetConsent("nearby", true)
 			quiet = true
-			-- The King's lease is heard (a read): no report goes to it.
+			-- The Shogun's lease is heard (a read): no report goes to it.
 			assert(T.HandleLease("CHANNEL", "Theking-Realm", "U2~2~lease3~600~Bankai Guild"))
 			eq(T.SendSelf(true), false)
 			eq(T.Observe({ name = "Subject-Realm", guild = "Bankai Guild II", level = 60, status = "NONE" }, true), false)
-			eq(#comm.sent, 0, "nothing whispered to the King while it is on")
+			eq(#comm.sent, 0, "nothing whispered to the Shogun while it is on")
 			quiet = false
-			now = now + 60 -- (the next beat, while the King's lease still holds)
+			now = now + 60 -- (the next beat, while the Shogun's lease still holds)
 			T.Tick()
 			eq(#comm.sent, 1, "his own report on the beat once off")
 			assert(comm.sent[1].msg:find("^U3~2~lease3~"), comm.sent[1].msg)

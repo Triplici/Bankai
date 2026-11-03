@@ -46,7 +46,7 @@ end
 local function World(fn, o)
 	o = o or {}
 	local w = { now = 1800000000, clock = 1800000007, member = true, accord = true, roles = {}, ranks = {},
-		guild = "Bankai Guild Ember", kingGuild = "Bankai Guild Ember", lordGuild = "Bankai Guild Ember", handlers = {}, kingHandlers = {}, printed = {}, team = false }
+		guild = "Bankai Guild Ember", shogunGuild = "Bankai Guild Ember", councilGuild = "Bankai Guild Ember", handlers = {}, shogunHandlers = {}, printed = {}, team = false }
 	local c = setmetatable({ me = "Tester-Realm", realm = "Realm", group = "Realm", faction = "Alliance",
 		db = { accord = { v = 1, yes = true, at = 0 } }, rdb = { guilds = {} }, L = setmetatable({}, { __index = ns.L }),
 		DecreePages = {}, RealmPages = {} }, { __index = ns })
@@ -56,9 +56,9 @@ local function World(fn, o)
 	c.AccordAccepted = function() return w.accord end
 	c.IsMember = function() return w.member end
 	c.IsFederation = function(g) return type(g) == "string" and g:find("BankaiGuild", 1, true) ~= nil end
-	c.IsKingGuild = function(g) return g ~= nil and g == w.kingGuild end
-	c.KingGuildName = function() return w.kingGuild end
-	c.IsKingCharacter = function(n) return Role(n) == "king" end
+	c.IsShogunGuild = function(g) return g ~= nil and g == w.shogunGuild end
+	c.ShogunGuildName = function() return w.shogunGuild end
+	c.IsShogunCharacter = function(n) return Role(n) == "shogun" end
 	c.IsHighCouncillor = function(n) return Role(n) == "council" end
 	c.IsCrown = function() return false end
 	c.CouncilMasked = function() return w.masked == true end
@@ -68,19 +68,19 @@ local function World(fn, o)
 	c.Print = function(t) w.printed[#w.printed + 1] = tostring(t) end
 	c.Data = { ServerTime = function() return w.clock end, Summary = function() return { guilds = {} } end,
 		ClaimGuild = function() return true end,
-		-- A "lord" masters w.lordGuild alone: rank 0 there, the roster's word in this character's own
+		-- A "council" masters w.councilGuild alone: rank 0 there, the roster's word in this character's own
 		-- guild and the census's in another (Data.AuthorizedRank before the signed enforcement).
 		AuthorizedRank = function(name, guild)
-			if Role(name) ~= "lord" or guild ~= w.lordGuild then return nil end
+			if Role(name) ~= "council" or guild ~= w.councilGuild then return nil end
 			return 0, guild == w.guild and "roster" or "census"
 		end }
 	c.Roster = { RankOf = function(n) return w.ranks[c.FullName(n)] end, MyRank = function() return w.ranks[c.me] or 3 end,
 		IsOfficer = function() return false end }
-	c.King = { HAND_MAY = {}, STEWARD_MAY = {}, Register = function(kind, f) w.kingHandlers[kind] = f end,
+	c.Shogun = { HAND_MAY = {}, STEWARD_MAY = {}, Register = function(kind, f) w.shogunHandlers[kind] = f end,
 		CleanGuild = function(g) return type(g) == "string" and g ~= "" and g or nil end,
-		Preview = function() return false end, IsKing = function() return Role(c.me) == "king" end, IsSteward = function() return false end,
+		Preview = function() return false end, IsShogun = function() return Role(c.me) == "shogun" end, IsSteward = function() return false end,
 		IsStewardName = function(n) return Role(n) == "steward" end, IsHandName = function(n) return Role(n) == "hand" end,
-		FromKing = function(n) return Role(n) == "king" end, Agenda = function() return w.agenda end,
+		FromShogun = function(n) return Role(n) == "shogun" end, Agenda = function() return w.agenda end,
 		AgendaAuthorized = function(name) return w.roles[c.FullName(name)] ~= nil end, CanAgenda = function() return false end }
 	c.Moderation = { Hides = function(name) return w.hidden and w.hidden[name] and {} or nil end, SelfOff = function() return nil end }
 	c.Workshop = { IsAuthorName = function(n) return Role(n) == "author" end }
@@ -324,7 +324,7 @@ end)
 -- treasury
 ---------------------------------------------------------------------------
 
-test("companion bridge affairs (931): treasury carries public numbers alone, and only while the King shows the balance", function()
+test("companion bridge affairs (931): treasury carries public numbers alone, and only while the Shogun shows the balance", function()
 	local T = ns.Treasury
 	local saved = { flags = ns.rdb.treasuryFlags, report = T.Report }
 	local ok, err = pcall(function()
@@ -357,15 +357,15 @@ end)
 
 local REAL = { "Locales/OfficerMusterText", "Chronicle", "OfficerMuster", "Decree" }
 
-test("companion bridge affairs (931): decrees lists the Decrees tab's decrees as the real module holds them: the King's, the High Council's and a guild's own, never a local preview", function()
+test("companion bridge affairs (931): decrees lists the Decrees tab's decrees as the real module holds them: the Shogun's, the High Council's and a guild's own, never a local preview", function()
 	World(function(w, c)
-		w.roles["Royal-Realm"], w.roles["Sage-Realm"], w.ranks["Lord-Realm"] = "king", "council", 0
+		w.roles["Royal-Realm"], w.roles["Sage-Realm"], w.ranks["Council-Realm"] = "shogun", "council", 0
 		local D1 = w.handlers.D1
 		D1("CHANNEL", "Royal-Realm", ns.Codec.EncodeDecree("ROYAL", 1453, 0.5, 0.25, "Bankai Guild Ember", 0, "Muster at the gates"))
 		w.now, w.clock = w.now + 61, w.clock + 61
 		D1("CHANNEL", "Sage-Realm", ns.Codec.EncodeDecree("ARMS", 1429, 0.1, 0.2, "Bankai Guild Ember", 0, ""))
 		w.now, w.clock = w.now + 61, w.clock + 61
-		D1("GUILD", "Lord-Realm", ns.Codec.EncodeDecree("ROYAL", 1429, 0.3, 0.3, "Bankai Guild Ember", 0, "Guild meeting"))
+		D1("GUILD", "Council-Realm", ns.Codec.EncodeDecree("ROYAL", 1429, 0.3, 0.3, "Bankai Guild Ember", 0, "Guild meeting"))
 		c.Decree.Preview("ROYAL")
 		eq(#c.Decree.Active(), 4, "the module holds four, the preview among them")
 		local d = assert(Data("decrees"))
@@ -386,9 +386,9 @@ test("companion bridge affairs (931): decrees lists the Decrees tab's decrees as
 	end, { load = REAL })
 end)
 
-test("companion bridge affairs (931): on the King's screen while the councillors' names are hidden, a councillor's decree has no role and is no notice, never the Crown's", function()
+test("companion bridge affairs (931): on the Shogun's screen while the councillors' names are hidden, a councillor's decree has no role and is no notice, never the Crown's", function()
 	World(function(w, c)
-		w.roles["Royal-Realm"], w.roles["Sage-Realm"] = "king", "council"
+		w.roles["Royal-Realm"], w.roles["Sage-Realm"] = "shogun", "council"
 		local D1 = w.handlers.D1
 		D1("CHANNEL", "Royal-Realm", ns.Codec.EncodeDecree("ROYAL", 1453, 0.5, 0.25, "Bankai Guild Ember", 0, "Crown speaks"))
 		w.now, w.clock = w.now + 61, w.clock + 61
@@ -401,10 +401,10 @@ test("companion bridge affairs (931): on the King's screen while the councillors
 		eq(#d, 2, "the Decrees tab still lists it")
 		eq(d[1].id, shown[1].id); eq(d[1].text, "Council speaks"); eq(d[1].by, "Sage", "the sender the page's tooltip names")
 		eq(d[1].role, nil, "no council mark while the names are hidden, and not the Crown's")
-		eq(d[2].role, "crown", "the King's own decree")
+		eq(d[2].role, "crown", "the Shogun's own decree")
 		local items = assert(Data("notices")).items
 		eq(#items, 1, "the councillor's decree is no notice while hidden")
-		eq(items[1].kind, "king"); eq(items[1].role, "crown"); eq(items[1].text, "Crown speaks")
+		eq(items[1].kind, "shogun"); eq(items[1].role, "crown"); eq(items[1].text, "Crown speaks")
 		for _, item in ipairs(items) do assert(item.id ~= shown[1].id and item.kind ~= "council", item.id) end
 		w.masked = false
 		eq(#Data("notices").items, 2, "the eye open: the council's decree again")
@@ -413,11 +413,11 @@ end)
 
 test("companion bridge affairs (931): notices in the agreed shape: an officer muster, its withdrawal under the same id, the Crown's and the High Council's decrees, a guild master's muster for his guild", function()
 	World(function(w, c)
-		w.roles["Royal-Realm"], w.roles["Sage-Realm"], w.roles["Lord-Realm"] = "king", "council", "lord"
+		w.roles["Royal-Realm"], w.roles["Sage-Realm"], w.roles["Council-Realm"] = "shogun", "council", "council"
 		local OM, D1 = w.handlers.OM, w.handlers.D1
 		local seq = w.clock
 		assert(OM("CHANNEL", "Royal-Realm", ("OM~1~P~A~Realm~%d~%d~Bankai Guild Ember~1429~Defend Goldshire"):format(seq, w.clock)))
-		assert(OM("GUILD", "Lord-Realm", ("OM~1~P~A~Realm~%d~%d~Bankai Guild Ember~1429~Guild raid"):format(seq + 5, w.clock)))
+		assert(OM("GUILD", "Council-Realm", ("OM~1~P~A~Realm~%d~%d~Bankai Guild Ember~1429~Guild raid"):format(seq + 5, w.clock)))
 		w.now, w.clock = w.now + 30, w.clock + 30
 		D1("CHANNEL", "Sage-Realm", ns.Codec.EncodeDecree("ROYAL", 1453, 0.5, 0.5, "Bankai Guild Ember", 0, "Council speaks"))
 		local items = assert(Data("notices")).items
@@ -434,7 +434,7 @@ test("companion bridge affairs (931): notices in the agreed shape: an officer mu
 				assert(({ id = true, kind = true, role = true, title = true, text = true, zone = true, guild = true, at = true, withdrawn = true, audience = true })[k], "notice field " .. k)
 			end
 		end
-		-- The King withdraws his: the same id, withdrawn, newest first.
+		-- The Shogun withdraws his: the same id, withdrawn, newest first.
 		w.now, w.clock = w.now + 30, w.clock + 30
 		assert(OM("CHANNEL", "Royal-Realm", ("OM~1~E~A~Realm~%d~%d"):format(seq, seq)))
 		items = Data("notices").items
@@ -447,7 +447,7 @@ test("companion bridge affairs (931): notices in the agreed shape: an officer mu
 	end, { load = REAL })
 end)
 
-test("companion bridge affairs (931): notices carry this character's own letters from the King, one line, his alone; at most 30, newest first", function()
+test("companion bridge affairs (931): notices carry this character's own letters from the Shogun, one line, his alone; at most 30, newest first", function()
 	World(function(w, c)
 		local letters = {}
 		for i = 1, 40 do letters[i] = { key = "donor-top-" .. (i % 3 + 1), t = 1799000000 + i } end
@@ -458,7 +458,7 @@ test("companion bridge affairs (931): notices carry this character's own letters
 		eq(#items, 30, "30 at most")
 		eq(items[1].at, 1799000040, "the newest first"); eq(items[30].at, 1799000011)
 		local x = items[1]
-		eq(x.kind, "king"); eq(x.role, "crown"); eq(x.audience, "self", "his alone: never fanned out"); eq(x.title, "Patron of Bankai Guild")
+		eq(x.kind, "shogun"); eq(x.role, "crown"); eq(x.audience, "self", "his alone: never fanned out"); eq(x.title, "Patron of Bankai Guild")
 		eq(x.text:sub(1, 30), "Dude, You've put more gold int"); assert(#x.text <= 120 and not x.text:find("\n"))
 		eq(x.id, "letter:donor-top-2:1799000040")
 		-- A Slayer letter's key (Wanted.lua's: a digest, numbers and the Horde player's name) goes by its digest.
@@ -477,19 +477,19 @@ end
 
 test("companion bridge affairs (931): an ended muster keeps its audience and role: a guild master's stays his guild's, the Crown's the army's; another guild's or faction's is no notice", function()
 	World(function(w, c)
-		-- Lord-Realm masters Bankai Guild Ember, which is not the King's guild: his calls reach his guild alone.
-		w.kingGuild = "Bankai Guild"
-		w.roles["Royal-Realm"], w.roles["Lord-Realm"] = "king", "lord"
+		-- Council-Realm masters Bankai Guild Ember, which is not the Shogun's guild: his calls reach his guild alone.
+		w.shogunGuild = "Bankai Guild"
+		w.roles["Royal-Realm"], w.roles["Council-Realm"] = "shogun", "council"
 		local OM = w.handlers.OM
 		local seq = w.clock
-		assert(OM("GUILD", "Lord-Realm", ("OM~1~P~A~Realm~%d~%d~Bankai Guild Ember~1429~Guild raid"):format(seq, seq)))
+		assert(OM("GUILD", "Council-Realm", ("OM~1~P~A~Realm~%d~%d~Bankai Guild Ember~1429~Guild raid"):format(seq, seq)))
 		assert(OM("CHANNEL", "Royal-Realm", ("OM~1~P~A~Realm~%d~%d~Bankai Guild~1429~Defend Goldshire"):format(seq + 1, seq)))
-		local guildId, crownId = ("muster:%d:%s"):format(seq, ns.Fold("Lord-Realm")), ("muster:%d:%s"):format(seq + 1, ns.Fold("Royal-Realm"))
+		local guildId, crownId = ("muster:%d:%s"):format(seq, ns.Fold("Council-Realm")), ("muster:%d:%s"):format(seq + 1, ns.Fold("Royal-Realm"))
 		local active = ById(assert(Data("notices")).items)
 		eq(active[guildId].audience, "guild"); eq(active[guildId].guild, "Bankai Guild Ember"); eq(active[guildId].role, "guildMaster")
 		eq(active[crownId].audience, "army"); eq(active[crownId].role, "crown")
 		w.now, w.clock = w.now + 30, w.clock + 30
-		assert(OM("GUILD", "Lord-Realm", ("OM~1~E~A~Realm~%d~%d"):format(seq, seq)))
+		assert(OM("GUILD", "Council-Realm", ("OM~1~E~A~Realm~%d~%d"):format(seq, seq)))
 		assert(OM("CHANNEL", "Royal-Realm", ("OM~1~E~A~Realm~%d~%d"):format(seq + 1, seq)))
 		eq(#c.OfficerMuster.List(), 0, "both ended: only the acts log holds them")
 		local ended = ById(Data("notices").items)
@@ -505,23 +505,23 @@ test("companion bridge affairs (931): an ended muster keeps its audience and rol
 		eq(ended[guildId], nil, "another guild's muster is no notice here")
 		eq(ended[crownId].audience, "army")
 		-- A role lost since: no notice to place.
-		w.guild, w.roles["Lord-Realm"] = "Bankai Guild Ember", nil
+		w.guild, w.roles["Council-Realm"] = "Bankai Guild Ember", nil
 		eq(ById(Data("notices").items)[guildId], nil, "its poster no longer that guild's master")
 		-- Nor the other faction's call, on a character of the same account of the other faction.
-		w.roles["Lord-Realm"], c.faction = "lord", "Horde"
+		w.roles["Council-Realm"], c.faction = "council", "Horde"
 		eq(#Data("notices").items, 0, "the Alliance's calls are no Horde character's")
 	end, { load = REAL })
-	-- The King's guild's master calls the whole army: the same role and audience once withdrawn.
+	-- The Shogun's guild's master calls the whole army: the same role and audience once withdrawn.
 	World(function(w, c)
-		w.roles["Lord-Realm"], w.ranks["Lord-Realm"] = "lord", 0
+		w.roles["Council-Realm"], w.ranks["Council-Realm"] = "council", 0
 		local OM = w.handlers.OM
 		local seq = w.clock
-		assert(OM("CHANNEL", "Lord-Realm", ("OM~1~P~A~Realm~%d~%d~Bankai Guild Ember~1429~Hold the bridge"):format(seq, seq)))
-		local id = ("muster:%d:%s"):format(seq, ns.Fold("Lord-Realm"))
+		assert(OM("CHANNEL", "Council-Realm", ("OM~1~P~A~Realm~%d~%d~Bankai Guild Ember~1429~Hold the bridge"):format(seq, seq)))
+		local id = ("muster:%d:%s"):format(seq, ns.Fold("Council-Realm"))
 		local before = ById(Data("notices").items)[id]
 		eq(before.role, "crown"); eq(before.audience, "army")
 		w.now, w.clock = w.now + 30, w.clock + 30
-		assert(OM("CHANNEL", "Lord-Realm", ("OM~1~E~A~Realm~%d~%d"):format(seq, seq)))
+		assert(OM("CHANNEL", "Council-Realm", ("OM~1~E~A~Realm~%d~%d"):format(seq, seq)))
 		local after = ById(Data("notices").items)[id]
 		eq(after.withdrawn, true); eq(after.role, before.role, "the same role as while active"); eq(after.audience, "army"); eq(after.guild, nil)
 	end, { load = REAL })
@@ -531,15 +531,15 @@ end)
 -- agenda, with the real Week.lua
 ---------------------------------------------------------------------------
 
-test("companion bridge affairs (931): agenda lists the week as the real module holds it: the King's Agenda, the dated entries, this guild's own, the Arena's fights; soonest first, 30 at most", function()
+test("companion bridge affairs (931): agenda lists the week as the real module holds it: the Shogun's Agenda, the dated entries, this guild's own, the Arena's fights; soonest first, 30 at most", function()
 	World(function(w, c)
-		w.roles["Royal-Realm"], w.roles["Lord-Realm"], w.roles["Stew-Realm"], w.roles["Hand-Realm"] = "king", "lord", "steward", "hand"
-		w.ranks["Lord-Realm"] = 0
-		-- 26 heard entries (the King's 10 and his Steward's 10, the most each holds; a Hand's 5; the
+		w.roles["Royal-Realm"], w.roles["Council-Realm"], w.roles["Stew-Realm"], w.roles["Hand-Realm"] = "shogun", "council", "steward", "hand"
+		w.ranks["Council-Realm"] = 0
+		-- 26 heard entries (the Shogun's 10 and his Steward's 10, the most each holds; a Hand's 5; the
 		-- guild master's one for his guild), the current Agenda, and 5 Arena fights: 32 rows.
 		local heard = {}
 		for i = 1, 26 do
-			local by = i == 1 and "Lord-Realm" or i <= 11 and "Royal-Realm" or i <= 21 and "Stew-Realm" or "Hand-Realm"
+			local by = i == 1 and "Council-Realm" or i <= 11 and "Royal-Realm" or i <= 21 and "Stew-Realm" or "Hand-Realm"
 			heard[i] = { id = 1000 + i, by = by, title = "Raid night " .. i, zone = "Molten Core", at = w.now + 3000 + i * 3600,
 				crown = (by == "Royal-Realm" or by == "Stew-Realm") or nil, heardAt = w.now, guild = "Bankai Guild Ember", guildOnly = i == 1 or nil }
 		end
@@ -554,11 +554,11 @@ test("companion bridge affairs (931): agenda lists the week as the real module h
 		end)
 		local d = assert(Data("agenda"))
 		eq(#d, 30, "cut at 30, the furthest left out")
-		eq(d[1].source, "agenda"); eq(d[1].title, "Court at the throne"); eq(d[1].by, ns.KingName("Royal-Realm")); eq(d[1].role, "crown")
+		eq(d[1].source, "agenda"); eq(d[1].title, "Court at the throne"); eq(d[1].by, ns.ShogunName("Royal-Realm")); eq(d[1].role, "crown")
 		eq(d[1].at, w.now + 600 + 7, "the server's time"); eq(d[1].zone, "Stormwind City")
 		eq(d[2].source, "arena"); eq(d[2].title, "Arena final 1"); eq(d[2].scope, "army")
-		eq(d[7].title, "Raid night 1"); eq(d[7].scope, "guild"); eq(d[7].role, "guildMaster"); eq(d[7].by, "Lord"); eq(d[7].source, "week")
-		eq(d[8].title, "Raid night 2"); eq(d[8].scope, "army"); eq(d[8].role, "crown"); eq(d[8].by, ns.KingName("Royal-Realm"))
+		eq(d[7].title, "Raid night 1"); eq(d[7].scope, "guild"); eq(d[7].role, "guildMaster"); eq(d[7].by, "Council"); eq(d[7].source, "week")
+		eq(d[8].title, "Raid night 2"); eq(d[8].scope, "army"); eq(d[8].role, "crown"); eq(d[8].by, ns.ShogunName("Royal-Realm"))
 		eq(d[18].role, "crown", "the Steward's"); eq(d[18].by, "Stew")
 		eq(d[30].title, "Raid night 24")
 		for i = 2, #d do assert(d[i - 1].at <= d[i].at, "soonest first") end
@@ -622,7 +622,7 @@ test("companion bridge affairs (931): watch exists only on a moderation team cli
 	end)
 end)
 
-test("companion bridge affairs (931): watch on the King's stream carries the cases as the page shows them there: the accused cut short until upheld, no report counts or dates", function()
+test("companion bridge affairs (931): watch on the Shogun's stream carries the cases as the page shows them there: the accused cut short until upheld, no report counts or dates", function()
 	World(function(w, c)
 		-- The real Watch.lua (its Accused and Upheld, on this world's stream switch, c.CouncilMasked),
 		-- loaded into a namespace of its own over the world's; the stub's cases and records for its data.
@@ -787,7 +787,7 @@ test("companion bridge affairs (931): every section together, full boards, caps 
 		for i = 1, 300 do shame[i] = { name = Long("Bare" .. i, 40), guild = Long("Bankai Guild Guild", 72) } end
 		c.Inspect = { Summary = function() return { players = players, total = 2000, counts = {} } end, ShameOpen = function() return true end,
 			Shame = function() return { list = shame, t = w.now } end }
-		c.Channels = { ORDER = { "A", "C", "L" }, TIERS = { A = { label = "CHAN_ALL" }, C = { label = "CHAN_CAPTAINS" }, L = { label = "CHAN_LORDS" } }, CanUse = function() return true end }
+		c.Channels = { ORDER = { "A", "C", "L" }, TIERS = { A = { label = "CHAN_ALL" }, C = { label = "CHAN_CAPTAINS" }, L = { label = "CHAN_COUNCIL" } }, CanUse = function() return true end }
 		local options = {}
 		for i = 1, 300 do options[i] = { id = Long("gcorr:" .. i, 40), label = Long("Room" .. i, 60) } end
 		c.ChatRooms = { Info = function() return { label = "Guild" } end, CanAccess = function() return true end, Options = function() return options end,
@@ -817,7 +817,7 @@ test("companion bridge affairs (931): every section together, full boards, caps 
 		for i = 1, 256 do
 			local emissaries = {}
 			for j = 1, 4 do emissaries[j] = { office = Long("Office" .. j, 40), name = Long("Emissary" .. j, 40) } end
-			realm[i] = { name = Long("Bankai Guild Guild" .. i, 72), lord = Long("Lord" .. i, 40), members = 1000, online = 300, avgLevel = 47.9, faction = "Alliance",
+			realm[i] = { name = Long("Bankai Guild Guild" .. i, 72), council = Long("Council" .. i, 40), members = 1000, online = 300, avgLevel = 47.9, faction = "Alliance",
 				realmGroup = Long("Realm", 60), founded = w.now, emissaries = emissaries }
 		end
 		for i = 1, 100 do public[i] = { place = i, name = Long("Pious" .. i, 40), title = Long("Missionary", 40), recruits = 99, points = 999 } end

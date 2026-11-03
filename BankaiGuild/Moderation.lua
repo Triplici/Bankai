@@ -1,12 +1,12 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- Net-off (1.1, Fern's requests #32 and #33): the King, his Steward, a Hand (the King's list or a
+-- Net-off (1.1, Fern's requests #32 and #33): the Shogun, his Steward, a Hand (the Shogun's list or a
 -- Steward's) or a High Councillor of the author's signed list gives a word, with a reason and the
 -- time, on one of two things:
 --   a character (c): every honest client hides that character on every addon surface: the chats
 --     (and their history), the pinned line (Channels.Pin), decrees, layers and hop offers, Vox Populi (questions and votes), the
---     court's queue, and (1.1, Konig's review) the King's week (entries, sheets and signups), the
+--     court's queue, and (1.1, Konig's review) the Shogun's week (entries, sheets and signups), the
 --     Board (flags and camps), the crafters' board (listings, answers and recipe lists), and the
 --     elite borders and nameplate marks (Borders.lua). The names that character's player linked
 --     as alts (Alts.lua, confirmed on each character) are hidden with it. The rest of the guild,
@@ -16,38 +16,38 @@ local L = ns.L
 --     send none of them, and every client drops what still comes. Blizzard's guild chat and Guild
 --     window stay up (the guild's own addon messages over GUILD too, but its master's pinned line,
 --     hidden with its chats: Channels.Pin). One guild at a time: there
---     is no switch for the whole realm, and never the King's guild.
+--     is no switch for the whole realm, and never the Shogun's guild.
 -- The same people put either back on.
 --   O1~<c|g>~<1 off|0 on>~<server time>~<Name-Realm or Guild>~<by Name-Realm>~<reason>
 -- Its words travel with the logged API, as a chat line's do (the server keeps them, so abuse
 -- can be reported), one word per message. Every client keeps, on each name, the word from
--- highest up (its weight: its giver's rank, the King 3, a Steward 2, a Hand or a councillor 1;
+-- highest up (its weight: its giver's rank, the Shogun 3, a Steward 2, a Hand or a councillor 1;
 -- no word replaces one from higher up, whatever its date: Konig's review of 1.1), and among
--- words of the same weight the newest (by the server's clock; on the same second the King's
+-- words of the same weight the newest (by the server's clock; on the same second the Shogun's
 -- own, else the one taking the name off, else by its giver's name: every client keeps the same
 -- one), and takes a word only from someone who may give one now, as this client knows them (the
--- server stamps every sender's name): the King by his pinned name, a Steward of the signed titles
--- list, a Hand of the King's list or a Steward's, a councillor of the signed council list; never
+-- server stamps every sender's name): the Shogun by his pinned name, a Steward of the signed titles
+-- list, a Hand of the Shogun's list or a Steward's, a councillor of the signed council list; never
 -- a name that is off itself. A word one of them passes on for another (only a modified client
 -- does: an honest one repeats its own words alone) is taken only while its giver may give one
 -- too, weighs no more than whoever passed it on, and shows who did (the server's name): nobody
 -- writes a word in someone else's name unseen. Each giver's client repeats his own words for
--- late logins, never anyone else's (1.1 review: a word passed on in the King's name went out
+-- late logins, never anyone else's (1.1 review: a word passed on in the Shogun's name went out
 -- from his client as his own), every REPEAT (longer when the list is long: the army repeats
 -- REPEATS_A_MINUTE words a minute at most), and not once he may no longer give one (it lapses;
 -- so does a word whose giver was not online to repeat it for STALE). A word taking a name off
 -- lapses OFF_KEEP after it was given (given again, it starts over); one putting a name back on
 -- is kept and repeated for ON_KEEP, so an older word never comes back.
--- Among those who give words, only a word from higher up reaches one of them (the King above a
+-- Among those who give words, only a word from higher up reaches one of them (the Shogun above a
 -- Steward, a Steward above the Hands and councillors): a Hand or a councillor never hides the
 -- Steward, another Hand or another councillor. And no word replaces one from higher up (Take):
--- a Hand or a councillor never puts back one the King or a Steward hid, nor hides again one the
--- King showed again; nor does a Steward undo the King's word. Nor does a word push one from
+-- a Hand or a councillor never puts back one the Shogun or a Steward hid, nor hides again one the
+-- Shogun showed again; nor does a Steward undo the Shogun's word. Nor does a word push one from
 -- higher up out of a full list (MakeRoom), nor hide a name through another name of its player
 -- (a linked alt, or the same name on another realm of the group) when the name's own word
 -- weighs more, or as much and is newer (Hidden, Character): 1.1, Konig's review.
 -- What it is not: /bk block stays one client's and one player's, and nothing here uninvites,
--- demotes, or writes Blizzard's ignore list. It never aims at the pinned King (his name in any
+-- demotes, or writes Blizzard's ignore list. It never aims at the pinned Shogun (his name in any
 -- case) or his guild. It knows nothing of the treasury or of payments, and no treasury code
 -- calls it (tests/run.lua proves it). A modified client can ignore it.
 -- 1.1.6: a guild's word with notice (exile). The same people give it, on one guild:
@@ -76,7 +76,7 @@ Moderation.NONE = {} -- (1.2.3: an empty list, read only)
 
 Moderation.KINDS = { c = true, g = true } -- what a word may aim at: a character, a guild (no third)
 Moderation.MAX = { c = 500, g = 200 }     -- words kept per kind (full: the oldest "on" word goes; for the
-                                          -- King's own word, the oldest word not his; never one from
+                                          -- Shogun's own word, the oldest word not his; never one from
                                           -- higher up than the new word: MakeRoom)
 Moderation.REPEAT = 300           -- an issuer's client repeats each word this long after it was last heard
 Moderation.JITTER = 90            -- ...and up to this much later, its own draw (the others' repeat first)
@@ -101,9 +101,9 @@ Moderation.EXILE_REPEAT = 300     -- its giver's client repeats it this often un
 Moderation.EXILE_MAX_KEPT = 50    -- timed words kept, one per guild
 -- What a client whose own character or guild is off stops sending (the receivers drop it anyway):
 -- chat lines, decrees, layer announcements, hop asks, offers and answers, Vox votes; and (1.1,
--- Konig's review) its signups to the King's week (Y2), its flags and camps on the Board (G1), its
+-- Konig's review) its signups to the Shogun's week (Y2), its flags and camps on the Board (G1), its
 -- crafter's listing, answers and recipe lists (W1, WA, WL), and the Throne's calls to the army,
--- the week's entries among them (T1 of a kind in King.HIDDEN_CALLS: its lists still go, and so
+-- the week's entries among them (T1 of a kind in Shogun.HIDDEN_CALLS: its lists still go, and so
 -- does a setter's cancel of his own entry on the week, 1.1 review). (Its
 -- census report: Comm.Broadcast.) The guild's own hello and key over GUILD go on, but (1.1.6) not
 -- a guild master's Vox question to his guild nor its results (Y3, as the Throne's T1~V and T1~E
@@ -183,7 +183,7 @@ local function CharName(input, target)
 	if name == "" and target then name = TargetName() or "" end
 	if name == "" then return nil end
 	name = ns.Normal(name)
-	local short = ns.King and ns.King.CleanName and ns.King.CleanName(name)
+	local short = ns.Shogun and ns.Shogun.CleanName and ns.Shogun.CleanName(name)
 	if not short then return nil end
 	local realm = ns.RealmOf(name)
 	if realm then realm = realm:gsub("[%s%-]", "") end
@@ -197,7 +197,7 @@ local function GuildName(input, target)
 	local name = tostring(input or ""):gsub("^%s+", ""):gsub("%s+$", ""):gsub("^<(.*)>$", "%1")
 	if name == "" and target then name = TargetGuild() or "" end
 	if name == "" then return nil end
-	local clean = ns.King and ns.King.CleanGuild and ns.King.CleanGuild(name)
+	local clean = ns.Shogun and ns.Shogun.CleanGuild and ns.Shogun.CleanGuild(name)
 	-- 1.1.5: a guild the High Council removed is no Bankai Guild guild here any more, but the word that
 	-- takes it off the network still matters to the 1.1-1.1.4 addons: it is given, kept and
 	-- repeated as before (it changes nothing on this client).
@@ -213,24 +213,24 @@ Moderation.GuildName = GuildName
 
 local function Key(kind, name) return tostring(name or ""):lower() end
 
--- The pinned King, whatever the case his name is written in and whatever realm it names: a
+-- The pinned Shogun, whatever the case his name is written in and whatever realm it names: a
 -- word's target travels as free text (only its sender is the server's spelling), and every
 -- list here is kept in lower case. Never a word's target, never hidden, never told he is.
-local function IsKing(name)
+local function IsShogun(name)
 	if type(name) ~= "string" or name == "" then return false end
-	if ns.IsKingCharacter(name) then return true end
-	local pin = ns.KingCharacter()
+	if ns.IsShogunCharacter(name) then return true end
+	local pin = ns.ShogunCharacter()
 	return pin ~= nil and ns.ShortName(name):lower() == pin:lower()
 end
-Moderation.IsKing = IsKing
+Moderation.IsShogun = IsShogun
 
 -- How high a name stands among those who give words, whether or not a word hides it now: the
--- King (by his pinned name, as the server writes it) 3, a Steward 2, a Hand or a High
+-- Shogun (by his pinned name, as the server writes it) 3, a Steward 2, a Hand or a High
 -- Councillor 1, anyone else 0.
 local function Rank(name)
 	if type(name) ~= "string" or name == "" then return 0 end
-	if ns.IsKingCharacter(name) then return 3 end
-	local K = ns.King
+	if ns.IsShogunCharacter(name) then return 3 end
+	local K = ns.Shogun
 	if type(K) == "table" and not K.missing then
 		if K.IsStewardName(name) then return 2 end
 		if K.IsHandName(name) then return 1 end
@@ -249,8 +249,8 @@ end
 local function Reaches(e, rank) return e ~= nil and (rank == 0 or Weight(e) > rank) end
 Moderation.Weight = Weight
 
--- The King's own word: heard from him (not passed on), or given on his own client.
-local function KingsOwn(e) return type(e) == "table" and not e.via and ns.IsKingCharacter(e.by) end
+-- The Shogun's own word: heard from him (not passed on), or given on his own client.
+local function ShogunsOwn(e) return type(e) == "table" and not e.via and ns.IsShogunCharacter(e.by) end
 
 -- A word this client's own player gave (on this client: never one passed on in his name).
 local function Given(e)
@@ -309,7 +309,7 @@ end
 -- Does a name's own word stand above a word found on another name of its player (the same name
 -- on another realm of the group, or a name its player linked)? It does when it weighs more, or
 -- as much and is newer: then that word doesn't hide it (1.1, Konig's review: a rogue Hand's word
--- on the victim's alt, or on his name on the group's other realm, hid again one the King had
+-- on the victim's alt, or on his name on the group's other realm, hid again one the Shogun had
 -- shown again).
 local function Overrides(own, e)
 	if type(own) ~= "table" or own == e then return false end
@@ -321,7 +321,7 @@ end
 -- realm group (ns.splitNames): the same name on another realm of the group is the same player,
 -- unless the name's own word stands above that one (Overrides).
 function Moderation.Character(name)
-	if type(name) ~= "string" or name == "" or IsKing(name) then return nil end
+	if type(name) ~= "string" or name == "" or IsShogun(name) then return nil end
 	local x = Index()
 	if x.n.c == 0 then return nil end
 	local full = ns.FullName(ns.Normal(name))
@@ -344,14 +344,14 @@ function Moderation.Guild(guild)
 end
 
 -- The word hiding this name: its own, or one on a name its player linked (Alts.lua), and the
--- name it is on; nil for anyone else, and always for the pinned King. One who gives words is
+-- name it is on; nil for anyone else, and always for the pinned Shogun. One who gives words is
 -- hidden only by a word from higher up (a councillor's word on a Steward's alt hides no Steward).
--- A word on a linked name doesn't hide one whose own word stands above it (Overrides: the King
+-- A word on a linked name doesn't hide one whose own word stands above it (Overrides: the Shogun
 -- showed him again, and a Hand's word on his alt doesn't hide him again).
 -- direct (TagFollow.lua): only the words on him and the names his player linked. Otherwise also a
 -- word on another character of his BattleTag a follow points at: then a third value, "tag".
 function Moderation.Hidden(name, direct)
-	if type(name) ~= "string" or name == "" or IsKing(name) then return nil end
+	if type(name) ~= "string" or name == "" or IsShogun(name) then return nil end
 	if Index().n.c == 0 then return nil end
 	-- (1.2.3: his rank read once, at the first word found, without a closure made at each call: the
 	-- Chat tab asked for every line of its history at every redraw.)
@@ -388,12 +388,12 @@ end
 -- (TagFollow.lua) The word a follow of `name`'s BattleTag points at, while it stands, and whose it
 -- is: a net-off word on that other character (never one through a follow), at the lower of its
 -- own weight and the follow's, above his own rank (and, on his own client, his account's: the
--- King's account never), unless an "on" word on his own name from as high is newer than that word
+-- Shogun's account never), unless an "on" word on his own name from as high is newer than that word
 -- (a moderator freed him of it: until that character's word changes, whatever follow of it comes
 -- later). Nil otherwise. Only through TagFollow.Guarded (Hidden).
 function Moderation.ByTag(name)
 	local TF = ns.TagFollow
-	if type(TF) ~= "table" or TF.missing or type(name) ~= "string" or name == "" or IsKing(name) then return nil end
+	if type(TF) ~= "table" or TF.missing or type(name) ~= "string" or name == "" or IsShogun(name) then return nil end
 	local full = ns.FullName(ns.Normal(name))
 	local own, shield = OwnWord(full), nil
 	for _, F in ipairs(TF.Sources(full, "N")) do
@@ -431,11 +431,11 @@ function Moderation.GuildOf(sender)
 end
 
 -- For every surface: does a word hide what this sender sends (in the name of `guild`)? The word
--- and the name or guild it is on. Never the pinned King; one who gives words, only from higher up.
+-- and the name or guild it is on. Never the pinned Shogun; one who gives words, only from higher up.
 -- look (1.1.5): a lookup with a guild that is not one his own message named (the game's chat
 -- marks, Borders.MarkOfName, try the guilds he may be proven in): the same answer, nothing noted.
 function Moderation.Hides(sender, guild, look)
-	if type(sender) == "string" and IsKing(sender) then return nil end
+	if type(sender) == "string" and IsShogun(sender) then return nil end
 	local e, on, via = Moderation.Hidden(sender)
 	if e then return e, on, via end
 	if guild and not look then Moderation.NoteGuild(sender, guild) end
@@ -463,7 +463,7 @@ end
 -- This client's own character (or a name its player linked), or its guild, is off: the word, or
 -- nil. (A guild's word from lower down leaves one who gives words speaking, as Hides does.)
 function Moderation.SelfOff()
-	if ns.me and IsKing(ns.me) then return nil end
+	if ns.me and IsShogun(ns.me) then return nil end
 	if ns.me then
 		local e, on, via = Moderation.Hidden(ns.me)
 		if e then return e, on, via end
@@ -483,7 +483,7 @@ end
 -- Who may give a word
 ---------------------------------------------------------------------------
 
--- The King by his pinned name, a Steward of the signed titles list, a Hand of the King's list
+-- The Shogun by his pinned name, a Steward of the signed titles list, a Hand of the Shogun's list
 -- or a Steward's, a councillor of the signed council list: as this client knows them now. A
 -- name that is off gives no word (nor can it put itself back on); only a word from higher up
 -- takes one of them off (Hidden).
@@ -491,7 +491,7 @@ function Moderation.IsIssuer(name)
 	local rank = Rank(name)
 	if rank == 0 then return false end
 	-- 1.1.6: a player under a moderator's timeout or hold (WatchChat.Barred) has none of the powers
-	-- Bankai Guild gives while it lasts (never the King: nobody times him out).
+	-- Bankai Guild gives while it lasts (never the Shogun: nobody times him out).
 	local WC = ns.WatchChat
 	if rank < 3 and WC and WC.Barred and WC.Barred("powers", name) then return false end
 	return rank == 3 or Moderation.Hidden(name) == nil
@@ -512,17 +512,17 @@ local function Count(list)
 end
 
 -- Room for one more: the oldest word putting a name back on goes; none, no room, except for the
--- King's own word (king), for which the oldest word taking a name off that is not his own goes:
--- a list filled by anyone never shuts the King out. Never a word that weighs more than the new
--- one (weight: 1.1, Konig's review: a rogue Hand who filled the list pushed out the King's word
+-- Shogun's own word (shogun), for which the oldest word taking a name off that is not his own goes:
+-- a list filled by anyone never shuts the Shogun out. Never a word that weighs more than the new
+-- one (weight: 1.1, Konig's review: a rogue Hand who filled the list pushed out the Shogun's word
 -- showing a name again, then hid that name anyway).
-local function MakeRoom(list, kind, king, weight)
+local function MakeRoom(list, kind, shogun, weight)
 	if Count(list) < Moderation.MAX[kind] then return true end
 	local oldest, oldestOff
 	for key, e in pairs(list) do
 		if not e.off then
 			if (not oldest or e.at < list[oldest].at) and Weight(e) <= weight then oldest = key end
-		elseif king and not KingsOwn(e) and (not oldestOff or e.at < list[oldestOff].at) and Weight(e) <= weight then
+		elseif shogun and not ShogunsOwn(e) and (not oldestOff or e.at < list[oldestOff].at) and Weight(e) <= weight then
 			oldestOff = key
 		end
 	end
@@ -538,11 +538,11 @@ function Moderation.Entry(kind, name, off, at, by, reason)
 	if kind == "c" then
 		name = CharName(name)
 		if not name then return nil, "name" end
-		if IsKing(name) then return nil, "the pinned King" end
+		if IsShogun(name) then return nil, "the pinned Shogun" end
 	else
 		name = GuildName(name)
 		if not name then return nil, "not an Bankai Guild guild" end
-		if ns.IsKingGuild(name) then return nil, "the King's guild" end
+		if ns.IsShogunGuild(name) then return nil, "the Shogun's guild" end
 	end
 	by = CharName(by)
 	if not by then return nil, "issuer" end
@@ -559,9 +559,9 @@ local function Label(e)
 end
 
 -- Is this word about our own character, a name our player linked, or our guild? Never on the
--- King's own client (nothing hides him, and no other's reason reaches his screen that way).
+-- Shogun's own client (nothing hides him, and no other's reason reaches his screen that way).
 local function AboutMe(e)
-	if ns.me and IsKing(ns.me) then return false end
+	if ns.me and IsShogun(ns.me) then return false end
 	if e.kind == "g" then
 		local mine = GetGuildInfo and GetGuildInfo("player")
 		return type(mine) == "string" and Key("g", mine) == Key("g", e.name)
@@ -583,7 +583,7 @@ Moderation.When = When
 local function Hour(t) return date and date("%H:%M", t) or tostring(t) end
 
 -- Who gave a word, and who passed it on when someone else did (the server's name for that one).
--- label: how a name shows (cut short on the King's stream).
+-- label: how a name shows (cut short on the Shogun's stream).
 local function ByText(e, label)
 	label = label or function(name) return ns.DisplayName(name) or "?" end
 	if e.via then return L.NETOFF_VIA:format(label(e.by), label(e.via)) end
@@ -622,10 +622,10 @@ local function Same(a, b)
 end
 
 -- Two different words of the same second: which one every client keeps, whatever came first.
--- The King's own first; else the one taking the name off; else by its giver's name, then its
+-- The Shogun's own first; else the one taking the name off; else by its giver's name, then its
 -- reason.
 local function Outranks(e, kept)
-	local a, b = KingsOwn(e), KingsOwn(kept)
+	local a, b = ShogunsOwn(e), ShogunsOwn(kept)
 	if a ~= b then return a end
 	if e.off ~= kept.off then return e.off end
 	local x, y = Key("c", e.by), Key("c", kept.by)
@@ -635,9 +635,9 @@ end
 
 -- "taken", "older" (ours is newer), "same" (the same word: a repeat), "tie", "outranked" (ours
 -- comes from higher up) or "full".
--- 1.1 review (Konig): no word replaces one from higher up (Weight: the King's, then a Steward's,
+-- 1.1 review (Konig): no word replaces one from higher up (Weight: the Shogun's, then a Steward's,
 -- then a Hand's or a councillor's), whatever its date, so a rogue Hand never wins an edit war with
--- the King's undo; a word from higher up replaces a lower one whatever its date, so every client
+-- the Shogun's undo; a word from higher up replaces a lower one whatever its date, so every client
 -- keeps the same word whatever came first. Between words of the same weight the newest wins.
 local function Take(e)
 	local list = Store()[e.kind]
@@ -654,7 +654,7 @@ local function Take(e)
 			if e.at < kept.at then return "older", kept end
 			if e.at == kept.at and not Outranks(e, kept) then return "tie", kept end
 		end
-	elseif not MakeRoom(list, e.kind, KingsOwn(e), Weight(e)) then
+	elseif not MakeRoom(list, e.kind, ShogunsOwn(e), Weight(e)) then
 		return "full"
 	end
 	e.heard = ns.Now()
@@ -707,7 +707,7 @@ function Moderation.Handle(dist, sender, text)
 	if not kind or not Moderation.KINDS[kind] then return end
 	sender = ns.FullName(sender)
 	if not Moderation.IsIssuer(sender) then
-		return Refuse(sender, "not the King, his Steward, a Hand or a High Councillor here")
+		return Refuse(sender, "not the Shogun, his Steward, a Hand or a High Councillor here")
 	end
 	local e, why = Moderation.Entry(kind, name, off == "1", at, by, reason)
 	if not e then return Refuse(sender, tostring(why)) end
@@ -775,15 +775,15 @@ function Moderation.Set(kind, input, off, reason)
 	if kind == "g" then
 		name = GuildName(input, true)
 		if not name then ns.Print(L.NETOFF_GUILD_BAD) return false end
-		if ns.IsKingGuild(name) then ns.Print(L.NETOFF_NOT_KING_GUILD) return false end
+		if ns.IsShogunGuild(name) then ns.Print(L.NETOFF_NOT_SHOGUN_GUILD) return false end
 	else
 		name = CharName(input, true)
 		if not name then ns.Print(L.NETOFF_WHO_BAD) return false end
-		if IsKing(name) then ns.Print(L.NETOFF_NOT_KING) return false end
+		if IsShogun(name) then ns.Print(L.NETOFF_NOT_SHOGUN) return false end
 		if Key("c", name) == Key("c", ns.me) then ns.Print(L.NETOFF_NOT_SELF) return false end
 		-- One who gives words (or a name his player linked): only from higher up.
 		local target = TargetRank(name)
-		if target == 3 then ns.Print(L.NETOFF_NOT_KING) return false end -- (a name the King linked as his alt)
+		if target == 3 then ns.Print(L.NETOFF_NOT_SHOGUN) return false end -- (a name the Shogun linked as his alt)
 		if target > 0 and Rank(ns.me) <= target then ns.Print(L.NETOFF_OUTRANKED:format(Label({ kind = kind, name = name }))) return false end
 	end
 	reason = Clean(reason)
@@ -861,18 +861,18 @@ function Moderation.List()
 	return out
 end
 
--- An issuer's name on the King's screen: cut short while the council's names are hidden there
+-- An issuer's name on the Shogun's screen: cut short while the council's names are hidden there
 -- (his stream), as every councillor's is. A reason that is not his own word (given on his
 -- client, or heard from him: never one only written in his name) stays hidden there too until
 -- he shows the council's names (the eye in the Realm): nothing another player writes reaches
 -- his screen on its own.
 local function IssuerLabel(by)
 	local shown = ns.DisplayName(by) or "?"
-	if ns.CouncilMasked() and not ns.IsKingCharacter(by) then return ns.MaskName(shown) end
+	if ns.CouncilMasked() and not ns.IsShogunCharacter(by) then return ns.MaskName(shown) end
 	return shown
 end
 local function ReasonShown(e)
-	if ns.CouncilMasked() and not KingsOwn(e) then return L.NETOFF_REASON_HIDDEN end
+	if ns.CouncilMasked() and not ShogunsOwn(e) then return L.NETOFF_REASON_HIDDEN end
 	return e.reason ~= "" and e.reason or "-"
 end
 Moderation.ReasonShown = ReasonShown
@@ -1081,7 +1081,7 @@ end
 function Moderation.TimedEntry(name, at, when, by, reason)
 	name = GuildName(name)
 	if not name then return nil, "not an Bankai Guild guild" end
-	if ns.IsKingGuild(name) then return nil, "the King's guild" end
+	if ns.IsShogunGuild(name) then return nil, "the Shogun's guild" end
 	by = CharName(by)
 	if not by then return nil, "issuer" end
 	at, when = tonumber(at), tonumber(when)
@@ -1395,7 +1395,7 @@ function Moderation.HandleTimed(dist, sender, text)
 	if not flag then return end
 	sender = ns.FullName(sender)
 	if not Moderation.IsIssuer(sender) then
-		return Refuse(sender, "not the King, his Steward, a Hand or a High Councillor here")
+		return Refuse(sender, "not the Shogun, his Steward, a Hand or a High Councillor here")
 	end
 	-- From its giver's own client (or its canceller's) alone: never one passed on.
 	if Key("c", CharName(by) or "?") ~= Key("c", sender) then return Refuse(sender, "a timed word passed on for " .. tostring(by)) end
@@ -1437,7 +1437,7 @@ function Moderation.TimedList()
 	return out
 end
 
--- Our own guild's timed word while it waits (never on the King's client), or nil.
+-- Our own guild's timed word while it waits (never on the Shogun's client), or nil.
 function Moderation.ExileOfMine()
 	local p = Moderation.TimedFor(GetGuildInfo and GetGuildInfo("player") or nil)
 	return p and AboutMe({ kind = "g", name = p.name }) and p or nil
@@ -1463,7 +1463,7 @@ function Moderation.Exile(input, delay, reason)
 	if not Moderation.CanIssue() then ns.Print(L.NETOFF_ONLY) return false end
 	local name = GuildName(input, true)
 	if not name then ns.Print(L.NETOFF_GUILD_BAD) return false end
-	if ns.IsKingGuild(name) then ns.Print(L.NETOFF_NOT_KING_GUILD) return false end
+	if ns.IsShogunGuild(name) then ns.Print(L.NETOFF_NOT_SHOGUN_GUILD) return false end
 	if not Offered(delay) then ns.Print(L.NETOFF_EXILE_DELAY_BAD) return false end
 	delay = tonumber(delay)
 	reason = Clean(reason)
@@ -1650,7 +1650,7 @@ end
 -- waits until it has been online WARMUP (a newer word may come). The army repeats
 -- REPEATS_A_MINUTE words a minute at most, however long the list: a longer one is repeated less
 -- often. Only a word its own player gave (1.1 review, Konig: never one heard, whose giver it
--- names: a word passed on in the King's name went out from his client as his own, at his rank),
+-- names: a word passed on in the Shogun's name went out from his client as his own, at his rank),
 -- while he may still give words, and one the others would take from this client (a word aimed
 -- at one who gives words, only from higher up).
 function Moderation.Tick()
@@ -1703,12 +1703,12 @@ function Moderation.Tick()
 end
 
 -- The backstop in Comm (1.1): a client whose own character or guild is off sends none of BLOCKED,
--- nor a call of the Throne's that every receiver would drop (King.HIDDEN_CALLS). Its setter's
--- cancel of an entry on the King's week (a D of 0 seconds; Week.Cancel sends one for his own
+-- nor a call of the Throne's that every receiver would drop (Shogun.HIDDEN_CALLS). Its setter's
+-- cancel of an entry on the Shogun's week (a D of 0 seconds; Week.Cancel sends one for his own
 -- entry alone) still goes: every client takes it for his own entry (1.1 review: held, the entry
 -- showed again everywhere once he was shown again).
 local function HiddenCall(msg)
-	local K = ns.King
+	local K = ns.Shogun
 	if msg:find("^T1~D~%d+~[^~]*~0~") then return false end
 	return msg:sub(1, 3) == "T1~" and type(K) == "table" and type(K.HIDDEN_CALLS) == "table" and K.HIDDEN_CALLS[msg:sub(4, 4)] == true
 end
@@ -1773,7 +1773,7 @@ function Moderation.Load()
 					list[key] = nil
 				else
 					ok.heard = tonumber(e.heard) or 0
-					-- Who passed it on, when someone did (the King's own word is one that was not).
+					-- Who passed it on, when someone did (the Shogun's own word is one that was not).
 					ok.via = e.via ~= nil and (CharName(e.via) or "?") or nil
 					list[key] = ok
 				end

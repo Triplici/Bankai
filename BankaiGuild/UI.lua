@@ -68,16 +68,16 @@ local TABS = {
 	-- The treasury: its keepers' books together (Treasury.lua), before the Throne. Watch.lua
 	-- registers after "treasury", so the canonical run is Treasury, Watch, Throne.
 	{ key = "treasury", label = "TAB_TREASURY", icon = "Interface\\Icons\\INV_Misc_Coin_02" },
-	-- The King's alone (King.lua): hidden for everyone else, see UI.Refresh. 1.1.5: in its place, a
-	-- guild master's Guild tab (King.TabLabel): its label and icon follow whose tab it is (UI.RelabelTabs).
+	-- The Shogun's alone (Shogun.lua): hidden for everyone else, see UI.Refresh. 1.1.5: in its place, a
+	-- guild master's Guild tab (Shogun.TabLabel): its label and icon follow whose tab it is (UI.RelabelTabs).
 	{ key = "throne", label = "TAB_THRONE", icon = function() return UI.FirstTexture(UI.CROWNS) end,
-		labelOf = function() return ns.King and ns.King.TabLabel and ns.King.TabLabel() or "TAB_THRONE" end,
+		labelOf = function() return ns.Shogun and ns.Shogun.TabLabel and ns.Shogun.TabLabel() or "TAB_THRONE" end,
 		iconOf = function(label)
 			if label ~= "TAB_GUILD" then return UI.FirstTexture(UI.CROWNS) end
 			local faction = ns.faction or (UnitFactionGroup and UnitFactionGroup("player"))
 			return UI.FirstTexture(faction == "Horde" and UI.GUILD_ICONS_HORDE or UI.GUILD_ICONS)
 		end },
-	-- The King's and his Hands' questions to the army (Vox.lua), the same way.
+	-- The Shogun's and his Hands' questions to the army (Vox.lua), the same way.
 	{ key = "vox", label = "TAB_VOX", icon = function() return UI.FirstTexture(UI.HORNS) end },
 	-- The addon author's alone (Workshop.lua), the same way.
 	{ key = "workshop", label = "TAB_WORKSHOP", icon = "Interface\\Icons\\Trade_Engineering" },
@@ -234,14 +234,14 @@ local BUTTONS = {
 		{ "MARK_TARGET", function() ns.Inspect.MarkTarget() end },
 		{ "COPY_BTN", function() UI.ShowCopy(L.INSPECT_TITLE, ns.Inspect.DiscordText()) end },
 	},
-	-- The Throne: the agenda, Hold Court and the King's/Steward's own administration. The
+	-- The Throne: the agenda, Hold Court and the Shogun's/Steward's own administration. The
 	-- restricted court queue (Judgment) lives in The Watch.
-	-- The roll call lives in the Realm, the inspection in the Tabards (King.RollCallLines...).
+	-- The roll call lives in the Realm, the inspection in the Tabards (Shogun.RollCallLines...).
 	-- (1.1.5: each the Throne's people's alone: a guild master's Guild tab, or a councillor who is no
 	-- Hand, has none of them.)
 	throne = {
-		{ "THRONE_AGENDA", function() ns.King.AgendaPrompt("army") end, shown = function() return ns.King.ThroneShown() and ns.King.CanAgenda("army") end },
-		{ "COURT_BTN", function() ns.Court.Toggle() end, refresh = true, shown = function() return ns.King.IsKing() or ns.King.Preview() end,
+		{ "THRONE_AGENDA", function() ns.Shogun.AgendaPrompt("army") end, shown = function() return ns.Shogun.ThroneShown() and ns.Shogun.CanAgenda("army") end },
+		{ "COURT_BTN", function() ns.Court.Toggle() end, refresh = true, shown = function() return ns.Shogun.IsShogun() or ns.Shogun.Preview() end,
 			label = function() return ns.Court.Holding() and L.COURT_BTN_CLOSE or L.COURT_BTN_OPEN end,
 			tooltip = function(tt)
 				tt:AddLine(L.COURT_TITLE, 1, 0.82, 0)
@@ -286,18 +286,18 @@ local ACCORD_BUTTONS = {
 }
 
 -- Small extra buttons inside the detail box (only where needed).
-local function KingOnly() return ns.King.IsKing() or ns.King.Preview() end
--- The King and his Steward (1.0.0): the Hands (each his own list) and the treasury's switches,
--- which the Steward sets in the King's name; never the King's own buttons (his crown on the map,
+local function ShogunOnly() return ns.Shogun.IsShogun() or ns.Shogun.Preview() end
+-- The Shogun and his Steward (1.0.0): the Hands (each his own list) and the treasury's switches,
+-- which the Steward sets in the Shogun's name; never the Shogun's own buttons (his crown on the map,
 -- the court, writs).
-local function KingOrSteward() return ns.King.SetsLists() or ns.King.Preview() end
+local function ShogunOrSteward() return ns.Shogun.SetsLists() or ns.Shogun.Preview() end
 
--- One of the King's treasury switches: its label says whether the army sees that part, its
+-- One of the Shogun's treasury switches: its label says whether the army sees that part, its
 -- tooltip who sees it now (hidden: only he and the Treasurer) and what a click does.
 local function TreasuryFlag(what)
 	local key = what:upper()
 	local function shown() return ns.Treasury.Shows(what) end
-	return { "TREASURY_FLAG_" .. key, function() ns.Treasury.SetFlag(what, not shown()) end, refresh = true, shown = KingOrSteward,
+	return { "TREASURY_FLAG_" .. key, function() ns.Treasury.SetFlag(what, not shown()) end, refresh = true, shown = ShogunOrSteward,
 		label = function() return L["TREASURY_FLAG_" .. key .. (shown() and "_SHOWN" or "_HIDDEN")] end,
 		tooltip = function(tt)
 			tt:AddLine(L["TREASURY_FLAG_" .. key .. (shown() and "_SHOWN" or "_HIDDEN")], 1, 0.82, 0)
@@ -308,45 +308,45 @@ end
 local DETAIL_BUTTONS = {
 	throne = {
 		-- His Hands: the page to name them (his; a Steward's own, 1.0.0).
-		{ "HANDS_BTN", function() ns.King.Show("hands") end, refresh = true, shown = KingOrSteward },
+		{ "HANDS_BTN", function() ns.Shogun.Show("hands") end, refresh = true, shown = ShogunOrSteward },
 		-- His own button: the crown the army sees, what it does and whether it is on now.
-		{ "THRONE_LOCATION", function() ns.King.ToggleLocation() end, refresh = true, shown = KingOnly,
+		{ "THRONE_LOCATION", function() ns.Shogun.ToggleLocation() end, refresh = true, shown = ShogunOnly,
 			label = function()
-				return "|T" .. ns.CROWN_ICON .. ":0|t " .. (ns.King.SharingLocation() and L.THRONE_LOCATION_OFF or L.THRONE_LOCATION_ON)
+				return "|T" .. ns.CROWN_ICON .. ":0|t " .. (ns.Shogun.SharingLocation() and L.THRONE_LOCATION_OFF or L.THRONE_LOCATION_ON)
 			end,
 			tooltip = function(tt)
 				tt:AddLine(L.THRONE_LOCATION, 1, 0.82, 0)
 				tt:AddLine(L.THRONE_LOCATION_TIP, 1, 1, 1, true)
-				if ns.King.Preview() then
+				if ns.Shogun.Preview() then
 					tt:AddLine(L.THRONE_PREVIEW, 0.6, 0.6, 0.6, true)
-				elseif ns.King.SharingLocation() then
+				elseif ns.Shogun.SharingLocation() then
 					tt:AddLine(L.THRONE_LOCATION_NOW_ON, 0.25, 1, 0.25, true)
 				else
 					tt:AddLine(L.THRONE_LOCATION_NOW_OFF, 0.6, 0.6, 0.6, true)
 				end
 			end },
-		{ "KING_ARROW_TITLE", function()
-			local A = ns.KingArrow
+		{ "SHOGUN_ARROW_TITLE", function()
+			local A = ns.ShogunArrow
 			if A then A.SetEnabled(not A.ScopeEnabled("global"), "global") end
 		end, refresh = true, shown = function()
-			local A = ns.KingArrow
+			local A = ns.ShogunArrow
 			return A and A.CanControl and A.CanControl("global") == true
 		end,
 			label = function()
-				local A = ns.KingArrow
+				local A = ns.ShogunArrow
 				local on = not A or A.ScopeEnabled("global")
-				return "|TInterface\\Minimap\\MinimapArrow:0|t " .. L.KING_ARROW_TITLE .. ": " .. (on and L.KING_ARROW_ON or L.KING_ARROW_OFF)
+				return "|TInterface\\Minimap\\MinimapArrow:0|t " .. L.SHOGUN_ARROW_TITLE .. ": " .. (on and L.SHOGUN_ARROW_ON or L.SHOGUN_ARROW_OFF)
 			end,
 			tooltip = function(tt)
-				tt:AddLine(L.KING_ARROW_TITLE, 1, 0.82, 0)
-				tt:AddLine(L.KING_ARROW_GLOBAL_TIP, 1, 1, 1, true)
+				tt:AddLine(L.SHOGUN_ARROW_TITLE, 1, 0.82, 0)
+				tt:AddLine(L.SHOGUN_ARROW_GLOBAL_TIP, 1, 1, 1, true)
 			end },
-		{ "THRONE_CANCEL_AGENDA", function() ns.King.CancelAgendaButton() end,
-			shown = function() return ns.King.Agenda() ~= nil and ns.King.ThroneShown() and ns.King.CanAgenda("army") end },
+		{ "THRONE_CANCEL_AGENDA", function() ns.Shogun.CancelAgendaButton() end,
+			shown = function() return ns.Shogun.Agenda() ~= nil and ns.Shogun.ThroneShown() and ns.Shogun.CanAgenda("army") end },
 	},
 	-- The full roll call (0.9.9), right above Roll call: rounds on its own until nearly every addon
 	-- user answered; the same button stops it. Then the author's views, to see and try what only
-	-- the King or the Treasurer sees.
+	-- the Shogun or the Treasurer sees.
 	workshop = {
 		{ "WORKSHOP_FULL_BTN", function() ns.Workshop.ToggleFull() end, refresh = true,
 			label = function() return ns.Workshop.FullRunning() and L.WORKSHOP_FULL_STOP or L.WORKSHOP_FULL_BTN end,
@@ -363,14 +363,14 @@ local DETAIL_BUTTONS = {
 		DecreeButton("HERALDRY_BTN", "HERALDRY"),
 		{ "CLEAR", function() ns.ShowDialog("BANKAIGUILD_CLEAR_INSPECT") end },
 	},
-	-- The King's switches: what the army sees of the treasury (each its own).
+	-- The Shogun's switches: what the army sees of the treasury (each its own).
 	treasury = { TreasuryFlag("balance"), TreasuryFlag("ranking"), TreasuryFlag("book") },
-	-- The King's letters to his Lords (Acts.lua): his button alone.
+	-- The Shogun's letters to his Council (Acts.lua): his button alone.
 	decrees = {
-		{ "WRIT_BTN", function() ns.Acts.WritPrompt() end, shown = KingOnly },
+		{ "WRIT_BTN", function() ns.Acts.WritPrompt() end, shown = ShogunOnly },
 	},
 }
--- (0.9.2: no "Publish shame" button any more: the untabarded list is the King's, Throne tab.)
+-- (0.9.2: no "Publish shame" button any more: the untabarded list is the Shogun's, Throne tab.)
 -- Asking a High Councillor (a moderator) for help, on the Realm tab (0.9.7, Workshop.lua).
 DETAIL_BUTTONS.realm = DETAIL_BUTTONS.realm or {}
 table.insert(DETAIL_BUTTONS.realm, { "COUNCIL_ASK_BTN", function() ns.ShowDialog("BANKAIGUILD_COUNCIL_ASK") end,
@@ -1446,10 +1446,10 @@ local function CreateMain(style)
 		-- 1.1 (Fern's #11): the first-open page, over the window, while anything is unanswered
 		-- (Consent.lua: once a session, never in combat or an instance). The window works anyway.
 		ns.SafeCall("privacy page", ns.Consent.Ask, "window")
-		-- 1.2: a King's letter waiting for the player's own click (the gamepad UI) opens with the
+		-- 1.2: a Shogun's letter waiting for the player's own click (the gamepad UI) opens with the
 		-- window, whichever look and template it was made with (HonorsNet.WaitForWindow).
 		local H = ns.HonorsNet
-		if type(H) == "table" and type(H.WindowShown) == "function" then ns.SafeCall("kings letter", H.WindowShown) end
+		if type(H) == "table" and type(H.WindowShown) == "function" then ns.SafeCall("shoguns letter", H.WindowShown) end
 	end)
 	f:SetScript("OnHide", function(self)
 		local person = personFrames[self.style]
@@ -1617,7 +1617,7 @@ end
 
 -- The tabs under the old window fit its width. Blizzard sizes each to its text (about 115
 -- wide each on the Classic clients), wider together than our window once there are four or
--- five (the King's Throne): past it they shrink evenly, their text cut by the tab itself.
+-- five (the Shogun's Throne): past it they shrink evenly, their text cut by the tab itself.
 -- The shown tabs follow one another, a hidden one (the Throne, the Workshop) leaving no gap,
 -- in the HD window's side column too. That column holds seven: past them, the canonical tail
 -- continues on the left edge. Reading the right top-to-bottom and then the left bottom-to-top
@@ -1999,7 +1999,7 @@ end
 -- on Forever: spending a row, tab, header or window-opening click on a hidden Who.Auto can
 -- raise ADDON_ACTION_BLOCKED. Keep this compatibility hook for those callers; /who starts
 -- only from explicit Census Refresh, Join search, Realm guild expansion, person Who and
--- King confirmation actions.
+-- Shogun confirmation actions.
 function UI.Clicked()
 end
 
@@ -2092,7 +2092,7 @@ local function PageOf(tab, locked)
 			or ns.Views.RealmMode and ns.Views.RealmMode() or "guilds"
 	elseif tab == "throne" then
 		-- (1.1.5: a guild master's Guild tab, in the Throne's place.)
-		sub = ns.King and ns.King.ThroneShown and not ns.King.ThroneShown() and "guild" or ns.King and ns.King.mode
+		sub = ns.Shogun and ns.Shogun.ThroneShown and not ns.Shogun.ThroneShown() and "guild" or ns.Shogun and ns.Shogun.mode
 	elseif tab == "decrees" then sub = ns.Views.DecreePageShown and ns.Views.DecreePageShown() -- (the officer musters')
 	elseif tab == "treasury" then sub = ns.Treasury and ns.Treasury.mode
 	elseif tab == "wanted" then sub = ns.Wanted and ns.Wanted.PageId and ns.Wanted.PageId()
@@ -2342,7 +2342,7 @@ end
 local function TabRules(locked, views)
 	local only = {
 		chat = ChatTabVisible(),
-		throne = ns.King and ns.King.TabVisible and ns.King.TabVisible() or false,
+		throne = ns.Shogun and ns.Shogun.TabVisible and ns.Shogun.TabVisible() or false,
 		vox = ns.Vox and ns.Vox.Visible and ns.Vox.Visible() or false,
 		treasury = ns.Treasury and ns.Treasury.TabVisible and ns.Treasury.TabVisible() or false,
 		workshop = ns.Workshop and ns.Workshop.Visible and ns.Workshop.Visible() or false,
@@ -2536,7 +2536,7 @@ function UI.Refresh()
 		ChatPane(not locked and not playerProfile and main.tab == "chat")
 		local detail = not locked and not playerProfile and Shown(DETAIL_BUTTONS[view]) or nil
 		SetButtons(main.detailButtons, detail)
-		-- Room for the text where no button shows (the Decrees tab has one for the King alone).
+		-- Room for the text where no button shows (the Decrees tab has one for the Shogun alone).
 		local hasDetailButtons = detail ~= nil and #detail > 0
 		main.detailText:SetHeight(DETAIL_H - (hasDetailButtons and 46 or 26))
 		-- The tabs just appeared (joined a guild with the window open): they hang below it,
@@ -2913,7 +2913,7 @@ function UI.BasePersonDetails(p)
 	local name, guild = ns.Codec.Plain(p.name), p.guild and ns.Codec.Plain(p.guild)
 	-- A High Councillor: the mark and their own icon after the name, and their title below
 	-- (0.9.9), for whoever may see the council in the census (ns.CouncilVisible); not on the
-	-- King's screen while the councillors' names are hidden there (ns.CouncilMasked).
+	-- Shogun's screen while the councillors' names are hidden there (ns.CouncilMasked).
 	local full = ns.FullName(p.name, p.realm)
 	-- A moderator's cover name (Cover.lua): their name above, and no council or Treasurer row.
 	local covered = ns.IsCovered(full)
@@ -3069,7 +3069,7 @@ function UI.ShowPerson(p)
 	return UI.ShowPersonCard(p)
 end
 
--- The King hides the councillors' names again (the eye in the Realm, Views.lua): a councillor's
+-- The Shogun hides the councillors' names again (the eye in the Realm, Views.lua): a councillor's
 -- card left open from while they were shown closes, with the mark and title it carries.
 function UI.CloseCouncilCards()
 	for _, f in pairs(personFrames) do
@@ -3181,7 +3181,7 @@ end
 ns.On("DATA_CHANGED", UI.DataChanged)
 ns.On("MAP_TOGGLED", function() UI.Refresh() end)
 ns.On("INSPECT_CHANGED", function() if main and ViewOf(main.tab) == "heraldry" then UI.RefreshSoon() end end)
--- Layers show in the Realm tab, and the King's layer line tops the Census and the Realm.
+-- Layers show in the Realm tab, and the Shogun's layer line tops the Census and the Realm.
 ns.On("LAYERS_CHANGED", function()
 	if main and (main.tab == "decrees" or main.tab == "realm" or main.tab == "census") then UI.RefreshSoon() end
 end)
@@ -3189,17 +3189,17 @@ ns.On("HOP_CHANGED", function() if main and (main.tab == "census" or main.tab ==
 -- 1.2.5.1: the quiet presence's line (Views.QuietLine) on top of the Census and the Realm.
 ns.On("QUIET_PRESENCE_CHANGED", function() if main and (main.tab == "census" or main.tab == "realm") then UI.RefreshSoon() end end)
 ns.On("DECREES_CHANGED", function() UI.RefreshSoon() end)
--- The King's calls show on the Throne, the roll call in the Realm, the inspection in the Tabards
--- (The Watch's, 1.2); since 1.1.5 the Agenda's current event shows in the King's week on top of
+-- The Shogun's calls show on the Throne, the roll call in the Realm, the inspection in the Tabards
+-- (The Watch's, 1.2); since 1.1.5 the Agenda's current event shows in the Shogun's week on top of
 -- the Decrees tab.
 ns.On("THRONE_CHANGED", function()
 	if main and (main.tab == "throne" or main.tab == "realm" or ViewOf(main.tab) == "heraldry" or main.tab == "decrees") then UI.RefreshSoon() end
 end)
--- 1.1.5: the King's week (Week.lua, whose changes fire the Board's event) tops the Decrees tab too:
+-- 1.1.5: the Shogun's week (Week.lua, whose changes fire the Board's event) tops the Decrees tab too:
 -- an entry heard or taken off, a sheet's counts, our own signup. The Board redraws itself (Board.lua).
 ns.On("BOARD_CHANGED", function() if main and main.tab == "decrees" then UI.RefreshSoon() end end)
 ns.On("VOX_CHANGED", function() if main and main.tab == "vox" then UI.RefreshSoon() end end)
--- The Treasurer's book and report: his tab, the King's Throne, the Realm's line under him.
+-- The Treasurer's book and report: his tab, the Shogun's Throne, the Realm's line under him.
 ns.On("TREASURY_CHANGED", function()
 	if main and (main.tab == "treasury" or main.tab == "throne" or main.tab == "realm") then UI.RefreshSoon() end
 end)
@@ -3281,7 +3281,7 @@ function UI.HelpText()
 		L.HELP_CHATS,
 		L.HELP_CHAN_ALL,
 		L.HELP_CHAN_CAPTAINS,
-		L.HELP_CHAN_LORDS,
+		L.HELP_CHAN_COUNCIL,
 		L.HELP_CHATWIN,
 		"",
 		L.HELP_LINKS,

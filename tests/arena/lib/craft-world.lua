@@ -130,14 +130,14 @@ end
 -- A record as one client holds it.
 function K.Rec(w, c, id) return w:As(c, function() return c.ns.CraftRequests.Get(id) end) end
 
--- The live gold switches as the Wallet needs them: the King's live word on gold, and every given
+-- The live gold switches as the Wallet needs them: the Shogun's live word on gold, and every given
 -- client relogged so its saved data is seen to survive (Arena.Persists).
 function K.GoLive(w, clients)
-	local king = w:Find(World.NAMES.king) or M.Role(w, "king")
-	M.GoLive(w, king)
+	local shogun = w:Find(World.NAMES.shogun) or M.Role(w, "shogun")
+	M.GoLive(w, shogun)
 	for _, c in ipairs(clients) do K.Relog(w, c) end
 	w:Run(0)
-	return king
+	return shogun
 end
 
 -- Gold or goods by trade between a and b, as both windows show it: { aGives, bGives (copper),

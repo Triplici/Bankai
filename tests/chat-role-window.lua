@@ -131,7 +131,7 @@ test("role chat navigation: real dropdown redraws with the preview without openi
 			-- (1.2.3: no Race or Class tab any more.)
 			for _, kind in ipairs({ "global", "guild", "arena" }) do assert(Tab(kind), kind) end
 			eq(Tab("race"), nil); eq(Tab("class"), nil); eq(Tab("role"), nil)
-			role = "king"; w.fire("DATA_CHANGED"); w.CW.Render()
+			role = "shogun"; w.fire("DATA_CHANGED"); w.CW.Render()
 			assert(Tab("role")); eq(Tab("authority"), nil); eq(Tab("department"), nil); eq(Tab("church"), nil)
 			w.fire("CHAT_ROOM_LINE", "council"); w.CW.Render()
 			eq(Tab("role").label:GetText():find("(1)", 1, true), nil, "preview does not reveal private unread counts")
@@ -554,7 +554,7 @@ test("Chat tab (1.2.4): a line in a room not shown is only counted, no redraw; t
 end)
 
 -- 1.2.4: the Roles list had ten rows, made with the tab, and every option wrote to one: an eleventh
--- room stopped it from opening (the King's preview already filled the ten; the author's own view,
+-- room stopped it from opening (the Shogun's preview already filled the ten; the author's own view,
 -- in every room but the High Council's, has dozens). Any number of rooms now: a long list folds
 -- each group into one row whose click opens its own list beside it, a list still longer pages, and
 -- every room is a click or a few away, with the mouse and with the gamepad UI (the cursor clicks

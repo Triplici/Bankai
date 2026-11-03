@@ -24,12 +24,12 @@ local function Scene(fn)
 				DeclineGuild, GuildUninvite = Unexpected, Unexpected
 				C_FriendList = { AddIgnore = Unexpected, DelIgnore = Unexpected }
 				ns.db.blocked = { [WHO] = true }
-				local blocked, king = ns.db.blocked, ns.KingCharacter()
+				local blocked, shogun = ns.db.blocked, ns.ShogunCharacter()
 				fn(w)
 				eq(w.sideEffects, 0, "no guild refusal, removal or native ignore-list change")
 				eq(ns.db.blocked, blocked, "the personal block list stays local and untouched")
 				eq(ns.db.blocked[WHO], true)
-				eq(ns.KingCharacter(), king, "the pinned King is unchanged")
+				eq(ns.ShogunCharacter(), shogun, "the pinned Shogun is unchanged")
 			end)
 			ns.Dialog.Reset()
 			R.ResetForTests()
@@ -120,16 +120,16 @@ test("Recruit net-off warning: permission, guild, request expiry, dismissal and 
 	end
 end)
 
-test("Recruit net-off warning: clear, guild-only, revoked and pinned-King records do not warn; personal blocks stay local", function()
-	for _, context in ipairs({ "clear", "guild", "revoked", "king" }) do
+test("Recruit net-off warning: clear, guild-only, revoked and pinned-Shogun records do not warn; personal blocks stay local", function()
+	for _, context in ipairs({ "clear", "guild", "revoked", "shogun" }) do
 		Scene(function(w)
-			local who = context == "king" and H.KING or WHO
+			local who = context == "shogun" and H.SHOGUN or WHO
 			if context == "guild" then Word(w, "Bankai Guild Zeus", true, "Guild removed", "g")
 			elseif context == "revoked" then
 				Word(w, who, true, "Old reason")
 				w.clock = w.clock + 1
 				Word(w, who, false)
-			elseif context == "king" then Word(w, who, true, "Invalid King word") end
+			elseif context == "shogun" then Word(w, who, true, "Invalid Shogun word") end
 			local req = Request(who)
 			eq(R.Accept(req), true, context .. " uses the normal manual invite")
 			eq(#w.invites, 1); eq(ns.Dialog.Find(WHICH), nil)

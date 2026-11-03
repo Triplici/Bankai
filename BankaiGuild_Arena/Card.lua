@@ -226,8 +226,8 @@ function Card.Model(id)
 	end
 	local view = Data.Markets(id)
 	m.lockAt = type(view) == "table" and tonumber(view.lockAt) or ev.lockAt
-	-- The stream delay line: on the King's screen only (the design).
-	if Kit.KingsView(ev.mode) and ev.public then m.delay = ArenaUI.DelayLine and ArenaUI.DelayLine() or nil end
+	-- The stream delay line: on the Shogun's screen only (the design).
+	if Kit.ShogunsView(ev.mode) and ev.public then m.delay = ArenaUI.DelayLine and ArenaUI.DelayLine() or nil end
 	return m
 end
 

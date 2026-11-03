@@ -419,8 +419,8 @@ function MW.New(opts)
 	return w
 end
 
--- The usual cast: the King, a Steward, a High Councillor, the signed arbiter and auditor, the
--- bank, two fighters and three bettors, all with verified keys; the King names the bank and turns
+-- The usual cast: the Shogun, a Steward, a High Councillor, the signed arbiter and auditor, the
+-- bank, two fighters and three bettors, all with verified keys; the Shogun names the bank and turns
 -- the live switch on (gold, the Treasurer's realm group), and the bettors deposit 100 g each.
 -- opts.live = false leaves the switch off; opts.money: each bettor's gold.
 function MW.Standard(opts)
@@ -428,7 +428,7 @@ function MW.Standard(opts)
 	local w = MW.New(opts)
 	local N = World.NAMES
 	local t = {}
-	t.king = w:Cast("king")
+	t.shogun = w:Cast("shogun")
 	t.steward = w:Cast("steward")
 	t.hc = w:Cast("councillor")
 	t.hc2 = w:Cast("councillor2")
@@ -445,10 +445,10 @@ function MW.Standard(opts)
 	for _, c in ipairs(w.clients) do w:Key(c) end
 	-- The bank's saved data has survived a logout (Arena.Persists: gold is refused otherwise).
 	if opts.bankPersists ~= false then w:Relog(t.bank) end
-	assert(t.king.Roles.SetBanks({ N.bank }))
-	if opts.live ~= false then assert(t.king.Roles.SetSettings(opts.settings or { live = 1 })) end
+	assert(t.shogun.Roles.SetBanks({ N.bank }))
+	if opts.live ~= false then assert(t.shogun.Roles.SetSettings(opts.settings or { live = 1 })) end
 	w:Run(opts.paced and 5 or 0) -- (at the game's pace the words take a few seconds)
-	for _, c in ipairs({ t.b1, t.b2, t.b3, t.A, t.B, t.hc, t.hc2, t.steward, t.arbiter, t.auditor, t.king }) do
+	for _, c in ipairs({ t.b1, t.b2, t.b3, t.A, t.B, t.hc, t.hc2, t.steward, t.arbiter, t.auditor, t.shogun }) do
 		w:Deposit(t.bank, c, opts.money or 1000000, opts.points or 0)
 	end
 	for _, c in ipairs(w.clients) do

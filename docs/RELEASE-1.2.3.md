@@ -1,6 +1,6 @@
 # Bankai Guild 1.2.3
 
-Fixes from the King's stream, a lighter Bankai Guild, and Most Wanted that finally fills itself. It
+Fixes from the Shogun's stream, a lighter Bankai Guild, and Most Wanted that finally fills itself. It
 contains everything in 1.2.2. Games stay free: no bets, no gold at stake.
 
 ## Memory and performance
@@ -13,22 +13,22 @@ contains everything in 1.2.2. Games stay free: no bets, no gold at stake.
 - **`/bk perf` measures memory too:** what each part of Bankai Guild allocates, the frames where the
   memory jumps, the highest heap, and Bankai Guild's own memory as the game reports it.
 
-## Fixes from the King's stream
+## Fixes from the Shogun's stream
 
 - The privacy page no longer opens again after updating for a player who had already closed it
   (1.2.0 and 1.2.1 only remembered that for the session).
 - The Bankai Guild window no longer opens by itself when another member claims your crafting request.
 - The update letter shows a few seconds after login instead of a minute later; a privacy question
   still to ask comes first, and the letter follows a moment after the page closes.
-- The King's crown on the map sends his layer right after login, without turning it off and on.
+- The Shogun's crown on the map sends his layer right after login, without turning it off and on.
 
 ## Who reaches the whole army
 
-- **Royal decrees and Tabard inspections:** only the King, his Steward, his Hands, the High
-  Council and the King's guild. Any other guild master's reach his own guild alone, as guild
+- **Royal decrees and Tabard inspections:** only the Shogun, his Steward, his Hands, the High
+  Council and the Shogun's guild. Any other guild master's reach his own guild alone, as guild
   decrees.
-- **Call to Arms and Muster:** the King, his Steward, the High Council, the King's Hands and the
-  King's guild's officers. Any other guild's officers call their own guild alone.
+- **Call to Arms and Muster:** the Shogun, his Steward, the High Council, the Shogun's Hands and the
+  Shogun's guild's officers. Any other guild's officers call their own guild alone.
 - **Officer musters, layer-hop trust and moderator protection** follow the same rule: no guild
   master or officer of another guild has an action that reaches every guild.
 - Clients on 1.2.3 ignore the army-wide versions from anyone else, so older clients are ignored
@@ -39,11 +39,11 @@ contains everything in 1.2.2. Games stay free: no bets, no gold at stake.
 - **It fills itself.** A Horde player who kills an Bankai Guild member, or is killed by one, enters
   Most Wanted from that member's own death recap or killing blow, and every member sees it. No
   list, no Send button and no review are needed.
-- **Bounties:** each death adds the victim's office (King 100, High Council 50, guild master 30,
+- **Bounties:** each death adds the victim's office (Shogun 100, High Council 50, guild master 30,
   centurion 20, another office 10) plus his level. A kill pays the Horde player's level twice plus
   his whole bounty, which then starts again from zero. Killing the one who killed you adds 100 for
   revenge. Only outside instances. Repeated deaths and kills within a few minutes don't stack.
-- Only the King, the High Council or the author can remove an entry; removing it cancels what it
+- Only the Shogun, the High Council or the author can remove an entry; removing it cancels what it
   counted on every client.
 - **`/bk wanted status`** opens a copyable page with what was captured this session and why
   anything was refused.

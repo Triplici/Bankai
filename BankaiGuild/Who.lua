@@ -25,7 +25,7 @@ local L = ns.L
 -- opens its window on every answer (ShowUIPanel), which the gamepad's frame manager follows.
 -- Any of it can end in the game's "blocked" message there. Refresh and the Join screen's
 -- search still search, plainly, and the answer shows in the game's who list as a /who does
--- (Bankai Guild reads it from there). So does the King's click on his Throne's /who line (1.1, his
+-- (Bankai Guild reads it from there). So does the Shogun's click on his Throne's /who line (1.1, his
 -- key rotation: SearchGuild with `own`, one guild's players). The quiet ones (Auto, SearchGuild
 -- from the Realm tab, a name) don't search.
 --
@@ -340,7 +340,7 @@ function Who.GuildSeen(guild)
 	if not e or GetTime() - e.t > Who.ROUND_TTL then return nil end
 	return e.list, e.capped
 end
--- `own`: the player's click asked for this very guild (the King's key rotation, Keys.Confirm).
+-- `own`: the player's click asked for this very guild (the Shogun's key rotation, Keys.Confirm).
 -- Quiet with mouse and keyboard, as ever. With the gamepad UI only that one goes, plainly, as
 -- Refresh does there: the answer in the game's who list, nothing silenced, read from there
 -- (Who.OnSaw), its wait said.
@@ -437,7 +437,7 @@ end
 Who.SEEN_MAX = 2000
 local seenAt, nSeen = {}, 0
 -- fn(Name-Realm, guild) for each player an answer of ours lists, the guild as SeenGuild tells it
--- (1.1: the King's key rotation keeps what it depends on, Keys.Saw: this list starts empty after
+-- (1.1: the Shogun's key rotation keeps what it depends on, Keys.Saw: this list starts empty after
 -- a /reload, and is forgotten whole past SEEN_MAX names).
 local sawListeners = {}
 function Who.OnSaw(fn) sawListeners[#sawListeners + 1] = fn end
@@ -464,7 +464,7 @@ function Who.SeenGuild(name)
 end
 
 -- (CR-05) The race an answer of ours showed for each Bankai Guild player, for this session. A census
--- report carries no race, so another guild's Lord, Captains and top five had one in the Realm's
+-- report carries no race, so another guild's Council, Captains and top five had one in the Realm's
 -- Races (Views) only while a round listed them: the next round, without them, put them back under
 -- Unknown. A character's race does not change. In memory only, like the roster's GUID races
 -- (Roster.lua): never saved, never sent, gone at a /reload and with /bk reset (Who.Reset), and

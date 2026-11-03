@@ -7,7 +7,7 @@ local ADDON, ns = ...
 -- availability and search (ZV), exposure from the parties' receipts. Registers ZA ZV.
 -- API (the design):
 --   Stakes.Open{ id, kind = "fight"|"farkle", A = { name, gk }, B = ..., stake = { A, B }, arbiter }
---     -> ok, why (refuses the King's character, past the arbiter's T1~M cap, a debtor, and a client
+--     -> ok, why (refuses the Shogun's character, past the arbiter's T1~M cap, a debtor, and a client
 --     where Arena.Persists() is false)
 --   Stakes.Held(id) -> { A, B }; Stakes.Result(id, "A"|"B"|"V"); Stakes.Lines(id)
 --   Stakes.Direct{ id, loser, winner, copper }
@@ -15,7 +15,7 @@ local ADDON, ns = ...
 --
 -- the money part's full contract:
 --   Stakes.Open(t) runs on each party's client and on the arbiter's (each refuses on its own): t
---     also takes mode ("L" default; "T" a rehearsal's) and returns ok, why ("king", "persist",
+--     also takes mode ("L" default; "T" a rehearsal's) and returns ok, why ("shogun", "persist",
 --     "debt", "cap", "busy", "party", "shape", "known"). On a party's client it watches his stake's
 --     trade to the arbiter (his receipt, ZR "S<id>", goes to the arbiter and the auditors: the
 --     arbiter's exposure comes from those, never from his own book); on the arbiter's it keeps the
@@ -133,8 +133,8 @@ function Stakes.Open(t)
 	local arbiter = ns.Arena.Name(t.arbiter)
 	if not A or not B or not arbiter then return false, "shape" end
 	local R0 = R()
-	-- The King never holds gold: a match he judges runs on a bank's stake market (the design).
-	if R0 and R0.IsKing(arbiter) then return false, "king" end
+	-- The Shogun never holds gold: a match he judges runs on a bank's stake market (the design).
+	if R0 and R0.IsShogun(arbiter) then return false, "shogun" end
 	if mode == "L" and not ns.Arena.Persists() then return false, "persist" end
 	local Db = D()
 	if Db.SameOwner(arbiter, A.name) or Db.SameOwner(arbiter, B.name) then return false, "party" end
@@ -149,7 +149,7 @@ function Stakes.Open(t)
 	for _, name in ipairs({ A.name, B.name, arbiter }) do
 		if Db.Blocked(name, nil, nil, mode) then return false, "debt" end
 	end
-	-- The King's cap for this arbiter (T1~M): every party refuses a match past it; an auditor's
+	-- The Shogun's cap for this arbiter (T1~M): every party refuses a match past it; an auditor's
 	-- "h" mark says he is at it already.
 	local cap = R0 and R0.ArbiterCap(arbiter) or 0
 	if A.need + B.need > cap then return false, "cap" end
@@ -641,7 +641,7 @@ function Stakes.OnDuty(on, mode)
 	local R0 = R()
 	if on then
 		if not (R0 and R0.IsArbiter(ns.me, mode)) then return false, "unlisted" end
-		if R0.IsKing(ns.me) then return false, "king" end
+		if R0.IsShogun(ns.me) then return false, "shogun" end
 		if mode == "L" and not ns.Arena.Persists() then return false, "persist" end
 		Stakes.onDuty, dutyMode = true, mode
 		ns.Arena.Involve("arbiter", true)

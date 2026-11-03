@@ -179,11 +179,11 @@ end)
 
 test("1.1.6 compliance: fights: a stake is refused (nothing sent), a modified client's staked challenge or arbiter's ask is never taken, no market opens on a public fight, and a fight without a stake goes on", function()
 	local w = World.New({ compliance = "shipped" })
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local arb = w:Role("arbiter")
 	local a = w:Role("fighterA")
 	local evil = w:Role("fighterB", { compliance = "open" })
-	W3.Live(w, king)
+	W3.Live(w, shogun)
 	for _, c in ipairs(w.clients) do W3.Rules(w, c) end
 	W3.Money(w, evil)
 	-- This client's own stake: refused before anything goes, in the action's words.
@@ -318,21 +318,21 @@ end)
 
 test("1.1.6 compliance: the Lottery: no ticket, no day opened, no draw paid; the board explains free practice, practice opens first, and the practice draw plays", function()
 	local w = World.New({ compliance = "shipped" })
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local a = w:Client(N.bettor1)
-	W3.Live(w, king)
+	W3.Live(w, shogun)
 	W3.Rules(w, a)
-	local ok, why = M(w, king, "Lottery").SetSchedule({ on = true })
+	local ok, why = M(w, shogun, "Lottery").SetSchedule({ on = true })
 	eq(ok, false); eq(why, "compliance")
-	assert(Printed(king, king.ns.L.COMPLIANCE_WAIT), "the King is told why")
-	eq(king.ns.Lottery.Schedule().on, false, "the schedule stays off")
+	assert(Printed(shogun, shogun.ns.L.COMPLIANCE_WAIT), "the Shogun is told why")
+	eq(shogun.ns.Lottery.Schedule().on, false, "the schedule stays off")
 	w:Run(60)
 	for _, kind in ipairs({ "BM", "BO", "LW" }) do eq(#w:Sent({ type = kind }), 0, "no day's sheet, book or winners: " .. kind) end
 	eq(select(2, M(w, a, "Lottery").CanBet(1, 100)), "compliance")
 	eq(select(2, M(w, a, "Lottery").Bet(1, 100)), "compliance")
 	eq(select(2, w:As(a, a.ns.Arena.Can, "lottery.bet", 1, 100)), "compliance")
 	eq(select(2, w:As(a, a.ns.Arena.Can, "lottery.draw")), "compliance")
-	eq(select(2, M(w, king, "Lottery").CanDraw()), "compliance")
+	eq(select(2, M(w, shogun, "Lottery").CanDraw()), "compliance")
 	-- The screens.
 	local own = w:As(a, function() return H.LoadCompanion(a.ns) end)
 	local UI, L = own.ArenaUI, a.ns.L
@@ -345,23 +345,23 @@ test("1.1.6 compliance: the Lottery: no ticket, no day opened, no draw paid; the
 	assert(w:As(a, UI.LotteryPracticePick, 7))
 	local result = w:As(a, UI.LotteryPracticeDraw, { 1, 5, 9, 13, 17 })
 	eq(#result.rows, 5); assert(result.result)
-	-- (1.1.6's games' ledger: the draw is a game of his, told to the King, an auditor heard; nothing
+	-- (1.1.6's games' ledger: the draw is a game of his, told to the Shogun, an auditor heard; nothing
 	-- else goes, no ticket, no market)
 	w:Run(5)
-	eq(#w:Sent({ from = a, type = "AY", to = king.name }), 1, "its record, to the King")
+	eq(#w:Sent({ from = a, type = "AY", to = shogun.name }), 1, "its record, to the Shogun")
 	for _, s in ipairs(w:Sent({ from = a })) do
 		eq(s.msg:sub(1, 2), "AY", "practice sends only its record to the auditors: " .. s.msg)
-		eq(s.target and s.target:lower(), king.name:lower())
+		eq(s.target and s.target:lower(), shogun.name:lower())
 	end
 	NoErrors(w)
 end)
 
 test("1.1.6 compliance: the screens: the bet slip and a Staked challenge are greyed with the line, the challenge opens casual", function()
 	local w = World.New({ compliance = "shipped" })
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local a = w:Role("fighterA")
 	local b = w:Role("fighterB")
-	W3.Live(w, king)
+	W3.Live(w, shogun)
 	for _, c in ipairs(w.clients) do W3.Rules(w, c) end
 	local own = w:As(a, function() return H.LoadCompanion(a.ns) end)
 	local UI, L = own.ArenaUI, a.ns.L
@@ -374,14 +374,14 @@ test("1.1.6 compliance: the screens: the bet slip and a Staked challenge are gre
 	NoErrors(w)
 end)
 
-test("1.1.6 compliance: the Arena's betting panels are hidden behind the gate: an event's markets panel, the King's overlay's bets countdown, its last call, its bets-closed stamp and its payouts; a build the gate allows shows them", function()
+test("1.1.6 compliance: the Arena's betting panels are hidden behind the gate: an event's markets panel, the Shogun's overlay's bets countdown, its last call, its bets-closed stamp and its payouts; a build the gate allows shows them", function()
 	for _, shipped in ipairs({ true, false }) do
 		local w = World.New({ compliance = shipped and "shipped" or nil })
-		local king = w:Role("king")
+		local shogun = w:Role("shogun")
 		local arb = w:Role("arbiter")
 		local a = w:Role("fighterA")
 		local b = w:Role("fighterB")
-		W3.Live(w, king)
+		W3.Live(w, shogun)
 		for _, c in ipairs(w.clients) do W3.Rules(w, c) end
 		local AF = M(w, arb, "ArenaFights")
 		local fid = assert(AF.New({ A = a.name, B = b.name, bo = 1 }))
@@ -411,8 +411,8 @@ test("1.1.6 compliance: the Arena's betting panels are hidden behind the gate: a
 		assert(ev.lockAt, "the fight has its lock")
 		if shipped then eq(m.closesAt, nil, "no BETS CLOSE IN") else eq(m.closesAt, ev.lockAt) end
 		eq(w:As(a, UI.Overlay.Model, fid, "LIVE").stamp, (not shipped) and a.ns.L.ARENA_OVERLAY_CLOSED or nil, "BETS CLOSED")
-		eq(w:As(a, UI.Overlay.Model, fid, "PAYOUTS").mode, shipped and "RESULT" or "PAYOUTS", "the King's payouts pin")
-		-- (review of 1.1.6) The bets' last call: a fight about to lock is still the tape, and the King's
+		eq(w:As(a, UI.Overlay.Model, fid, "PAYOUTS").mode, shipped and "RESULT" or "PAYOUTS", "the Shogun's payouts pin")
+		-- (review of 1.1.6) The bets' last call: a fight about to lock is still the tape, and the Shogun's
 		-- pin on it stamps no LAST CALL.
 		local now = w:As(a, a.ns.Arena.Now)
 		eq(w:As(a, UI.Overlay.ModeOf, { kind = "fight", public = true, lockAt = now + 5 }), shipped and "TAPE" or "LASTCALL", "LAST CALL")
@@ -454,7 +454,7 @@ test("1.1.6 compliance: an arbiter who turns to the table as it ships, holding a
 	local arb = W1.Role(w, "arbiter")
 	local torvin, selka = W1.Client(w, "Torvin Hale", { money = 50000 }), W1.Client(w, "Selka Drummond", { money = 50000 })
 	for _, c in ipairs({ arb, torvin, selka }) do W1.Relog(w, c) end
-	assert(cast.king.Roles.SetArbiters({ { name = N.arbiter, cap = 2 } }))
+	assert(cast.shogun.Roles.SetArbiters({ { name = N.arbiter, cap = 2 } }))
 	w:Run(301)
 	local t = { id = "F1s", kind = "fight", A = { name = torvin.name }, B = { name = selka.name }, stake = { A = 1 * G, B = 1 * G }, arbiter = N.arbiter }
 	for _, c in ipairs({ arb, torvin, selka }) do assert(c.Stakes.Open(t)) end
@@ -535,10 +535,10 @@ test("1.1.6 package: scripts/bets-only.txt names files that only carry wagers' t
 	end
 	-- The arena's clients on that TOC: they log in clean, with no market.
 	local w, a, evil = Bones({ files = files, allShipped = true })
-	local king = w:Role("king", { companion = { state = "missing" } })
+	local shogun = w:Role("shogun", { companion = { state = "missing" } })
 	local arb = w:Role("arbiter", { companion = { state = "missing" } })
-	FW.Extend(w, king); FW.Extend(w, arb)
-	W3.Live(w, king)
+	FW.Extend(w, shogun); FW.Extend(w, arb)
+	W3.Live(w, shogun)
 	for _, c in ipairs(w.clients) do
 		eq(c.ns.Markets, nil, c.name); eq(c.ns.MarketBank, nil, c.name)
 		assert(c.ns.Compliance and c.ns.Stakes and c.ns.Lottery, c.name)
@@ -574,7 +574,7 @@ test("1.1.6 package: scripts/bets-only.txt names files that only carry wagers' t
 	w:Run(0)
 	assert(FT(a).Practice({ target = 2000 }))
 	-- The Lottery: no day, its screens and its practice.
-	eq(select(2, M(w, king, "Lottery").SetSchedule({ on = true })), "compliance")
+	eq(select(2, M(w, shogun, "Lottery").SetSchedule({ on = true })), "compliance")
 	eq(select(2, M(w, a, "Lottery").CanBet(1, 100)), "compliance")
 	local own = w:As(a, function() return H.LoadCompanion(a.ns) end)
 	local UI = own.ArenaUI
@@ -603,11 +603,11 @@ test("1.1.6 compliance: no arbiters without a wager: the gate's rule; a challeng
 	eq(C.Action("fights.judge"), false); eq(C.Action("fights.challenge"), true)
 
 	local w = World.New({ compliance = "shipped" })
-	local king = w:Role("king")
+	local shogun = w:Role("shogun")
 	local arb = w:Role("arbiter")
 	local a = w:Role("fighterA")
 	local evil = w:Role("fighterB", { compliance = "open" })
-	W3.Live(w, king)
+	W3.Live(w, shogun)
 	for _, c in ipairs(w.clients) do W3.Rules(w, c) end
 	eq(arb.ns.ArenaRoles.IsArbiter(arb.name, "L"), true, "a signed arbiter, whose role stays for 2.0")
 	-- The arbiter's own actions are refused before their rule, in the gate's words.
@@ -667,12 +667,12 @@ end)
 test("1.1.6 compliance: no arbiters without a wager: the screens: no Arbiter page, no arbiters' list or arbiter's lines in the Games tab, no arbiter in the challenge, no Arbiter's preview; a build the gate allows has them", function()
 	for _, shipped in ipairs({ true, false }) do
 		local w = World.New({ compliance = shipped and "shipped" or nil })
-		local king = w:Role("king")
+		local shogun = w:Role("shogun")
 		local author, b = w:Role("author"), w:Role("fighterB")
 		local lida = w:Client("Lida Fenn")
-		W3.Live(w, king)
+		W3.Live(w, shogun)
 		for _, c in ipairs(w.clients) do W3.Rules(w, c) end
-		assert(king.Roles.SetArbiters({ { name = lida.name, cap = 5 } }))
+		assert(shogun.Roles.SetArbiters({ { name = lida.name, cap = 5 } }))
 		w:Run(0)
 		local L = lida.ns.L
 		local function Find(lines, text)
@@ -683,7 +683,7 @@ test("1.1.6 compliance: no arbiters without a wager: the screens: no Arbiter pag
 		w:As(lida, function()
 			local AH = lida.ns.ArenaHome
 			eq(AH.ArbitersOn(), on)
-			eq(AH.IsArbiterHere(), true, "listed by the King's word, his role kept")
+			eq(AH.IsArbiterHere(), true, "listed by the Shogun's word, his role kept")
 			eq(AH.ArbiterShown(), on)
 			local lines = AH.TabLines()
 			eq(Find(lines, L.ARENA_GAMES_CONSOLE) ~= nil, on, "the console line")
@@ -697,10 +697,10 @@ test("1.1.6 compliance: no arbiters without a wager: the screens: no Arbiter pag
 			eq(m.how, on and "a" or "d"); eq(m.arbiter, on and N.arbiter or nil)
 			eq(UI.ChallengeFrame().how.buttons[2]:IsShown(), false, "casual: no way to hold a stake either way")
 		end)
-		w:As(king, function()
-			local lines = king.ns.ArenaHome.TabLines()
+		w:As(shogun, function()
+			local lines = shogun.ns.ArenaHome.TabLines()
 			eq(Find(lines, (L.ARENA_GAMES_ARBITERS:gsub("%%d.*$", ""))) ~= nil, on, "the arbiters' list in the staff section")
-			eq(Find(lines, L.ARENA_GAMES_CONSOLE) ~= nil, on, "the King is a public arbiter: his console line")
+			eq(Find(lines, L.ARENA_GAMES_CONSOLE) ~= nil, on, "the Shogun is a public arbiter: his console line")
 		end)
 		w:As(author, function()
 			assert(loadfile(H.ADDON_DIR .. "ViewAs.lua"))("BankaiGuild", author.ns)

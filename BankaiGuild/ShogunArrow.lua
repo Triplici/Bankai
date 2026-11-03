@@ -1,10 +1,10 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- A minimap-edge pointer to the King.  This is deliberately independent of the crown:
+-- A minimap-edge pointer to the Shogun.  This is deliberately independent of the crown:
 -- it has its own pin reference, its own frame and its own visibility policy.  The crown's
 -- position/layer lease remains the only source of coordinates, so this file never causes a
--- player to share anything and never changes the King's existing map or layer switches.
+-- player to share anything and never changes the Shogun's existing map or layer switches.
 --
 -- What it shows (Arrow.Target; Arrow.State().reason names the case):
 --   his map, both fresh layer reports agree    "shown": the native arrow, untinted ("exact")
@@ -20,14 +20,14 @@ local L = ns.L
 --                                              coordinates for either map), "offline", ...
 --
 -- K6~1~<G|L>~<1 on|0 off>~<server time>~<guild>
---   G: the King or a current High Councillor, over the realm channel.
+--   G: the Shogun or a current High Councillor, over the realm channel.
 --   L: an officer currently authorized by The Watch, over Blizzard's guild distribution.
 -- The game stamps the sender.  On clients with logged addon messages, an unlogged control is
 -- rejected.  Controls are short leases and their send capability is checked again when the
 -- queued message actually reaches Blizzard's API.
 
 local Arrow = {}
-ns.KingArrow = Arrow
+ns.ShogunArrow = Arrow
 
 Arrow.PROTOCOL = 1
 Arrow.CONTROL_REPEAT = 5 * 60
@@ -47,7 +47,7 @@ Arrow.TINTS = {
 local Pins = ns.Pins and ns.Pins()
 local pinRef = {}
 local frame, drawn, lastReason
-local kingWorld -- his world position for the lease's last map x, y: converted once per position
+local shogunWorld -- his world position for the lease's last map x, y: converted once per position
 local policies = { global = nil, guild = nil }
 local loadedRdb
 local stats = { taken = 0, refused = 0, replay = 0, sent = 0, revoked = 0, world = 0 }
@@ -90,7 +90,7 @@ end
 local function GlobalController(name)
 	name = CleanSender(name)
 	if not name then return false, 0 end
-	if ns.IsKingCharacter and ns.IsKingCharacter(name) then return true, 3 end
+	if ns.IsShogunCharacter and ns.IsShogunCharacter(name) then return true, 3 end
 	local M = ns.Moderation
 	if ns.IsHighCouncillor and ns.IsHighCouncillor(name)
 		and M and not M.missing and M.IsIssuer and M.IsIssuer(name) and not Hidden(name) then
@@ -134,11 +134,11 @@ end
 
 local function Saved(create)
 	if type(ns.rdb) ~= "table" then return nil end
-	local saved = ns.rdb.kingArrowPolicies
+	local saved = ns.rdb.shogunArrowPolicies
 	if type(saved) ~= "table" or saved.version ~= Arrow.PROTOCOL then
 		if not create then return nil end
 		saved = { version = Arrow.PROTOCOL, guilds = {} }
-		ns.rdb.kingArrowPolicies = saved
+		ns.rdb.shogunArrowPolicies = saved
 	end
 	if type(saved.guilds) ~= "table" then saved.guilds = {} end
 	return saved
@@ -173,7 +173,7 @@ end
 -- A deterministic tie makes clients converge if two authorized people act in the same server
 -- second.  Honest clients also make their own timestamps strictly increase.
 -- 1.2.0: rank before recency while the word kept is in force (its lease): a High Councillor's
--- newer "on" never beats the King's "off". A lapsed word gives way to the newest.
+-- newer "on" never beats the Shogun's "off". A lapsed word gives way to the newest.
 local function Compare(a, b)
 	if not b then return 1 end
 	local _, aw = Controller(a.scope, a.by, a.guild)
@@ -277,26 +277,26 @@ local function World(hbd, mapID, x, y)
 end
 
 -- His world position, converted once for each position his lease reports (not every refresh).
-local function KingWorld(hbd, at)
-	local c = kingWorld
+local function ShogunWorld(hbd, at)
+	local c = shogunWorld
 	if not (c and c.mapID == at.mapID and c.x == at.x and c.y == at.y) then
 		c = { mapID = at.mapID, x = at.x, y = at.y }
 		c.wx, c.wy, c.instanceID = World(hbd, at.mapID, at.x, at.y)
-		kingWorld = c
+		shogunWorld = c
 		stats.world = stats.world + 1
 	end
 	return c.instanceID and c or nil
 end
 
 -- Whether his own crown is on our minimap from mapID, another map than his: the crown is a map
--- pin shown in his parent zone too (King.lua RefreshCrown: AddMinimapIconMap, showInParentZone),
+-- pin shown in his parent zone too (Shogun.lua RefreshCrown: AddMinimapIconMap, showInParentZone),
 -- which the library draws from a Zone, Dungeon or Micro map above his and from nowhere else
 -- (HereBeDragons-Pins-2.0.lua, UpdateMinimapPins and IsParentMap).  From a neighbouring zone, a
 -- city beside his zone or a cave inside it, it is not drawn.
-local function CrownAbove(hbd, kingMap, mapID)
+local function CrownAbove(hbd, shogunMap, mapID)
 	local data, kinds = hbd.mapData, Enum and Enum.UIMapType
-	if type(data) ~= "table" or type(kinds) ~= "table" or type(data[kingMap]) ~= "table" then return false end
-	local parent = data[kingMap].parent
+	if type(data) ~= "table" or type(kinds) ~= "table" or type(data[shogunMap]) ~= "table" then return false end
+	local parent = data[shogunMap].parent
 	for _ = 1, 16 do
 		local m = parent and data[parent]
 		if type(m) ~= "table" then return false end
@@ -307,7 +307,7 @@ local function CrownAbove(hbd, kingMap, mapID)
 	return false
 end
 
--- The arrow is more conservative than the crown.  A recent crown alone proves that the King
+-- The arrow is more conservative than the crown.  A recent crown alone proves that the Shogun
 -- is online, but not that this player is in his copy of the zone: only both exact layer reports,
 -- fresh and agreeing, with the player's live map API still placing him on that map, make the
 -- arrow "exact".  Otherwise it is "maybe" (Arrow.TINTS), or nothing off his continent.
@@ -318,12 +318,12 @@ end
 function Arrow.Target()
 	if not Arrow.Enabled() then return nil, "disabled" end
 	if IsInInstance and IsInInstance() then return nil, "instance" end
-	local K = ns.King
+	local K = ns.Shogun
 	local at = K and K.Location and K.Location()
 	local now = ns.Now()
 	local expire = K and tonumber(K.LOCATION_EXPIRE) or 45
 	if type(at) ~= "table" or not Fresh(at.t, now, expire) then return nil, "offline" end
-	if not CleanSender(at.from) or not (ns.IsKingCharacter and ns.IsKingCharacter(at.from)) then return nil, "identity" end
+	if not CleanSender(at.from) or not (ns.IsShogunCharacter and ns.IsShogunCharacter(at.from)) then return nil, "identity" end
 	if ns.me and ns.FullName(ns.me) == ns.FullName(at.from) then return nil, "self" end
 	local realm = ns.RealmOf(at.from)
 	if realm and ns.realm and ns.realm ~= "?" and realm ~= ns.realm then return nil, "realm" end
@@ -339,7 +339,7 @@ function Arrow.Target()
 		-- Another zone: the same world instance (HereBeDragons) is the same continent.
 		local hbd = MapData()
 		if not hbd then return nil, "map-api" end
-		local world = KingWorld(hbd, at)
+		local world = ShogunWorld(hbd, at)
 		local _, _, ours = World(hbd, mapID, x, y)
 		if not world or not ours then return nil, "world" end
 		if ours ~= world.instanceID then return nil, "continent" end
@@ -386,7 +386,7 @@ local function MakeFrame()
 	icon:SetAlpha(0)
 	f.icon = icon
 	-- His spot inside the minimap's range from another zone, where his own crown is not drawn:
-	-- the crown's art, upright, 16 by 16 as the crown (King.lua, Crown).  Without it, only the arrow.
+	-- the crown's art, upright, 16 by 16 as the crown (Shogun.lua, Crown).  Without it, only the arrow.
 	local mark = ns.CROWN_ICON and f:CreateTexture(nil, "OVERLAY")
 	if mark and type(mark.SetAlpha) == "function" and type(mark.SetTexture) == "function"
 		and pcall(mark.SetTexture, mark, ns.CROWN_ICON) then
@@ -502,7 +502,7 @@ local function Message(e)
 end
 
 local function OwnChoice()
-	local e = ns.db and CopyPolicy(ns.db.kingArrowControl)
+	local e = ns.db and CopyPolicy(ns.db.shogunArrowControl)
 	if not e or e.by ~= ns.FullName(ns.me) then return nil end
 	if e.scope == "guild" and e.guild ~= OwnGuild() then return nil end
 	return e
@@ -522,7 +522,7 @@ end
 local function SendPolicy(e)
 	local msg = Message(e)
 	local dist = e.scope == "global" and "CHANNEL" or "GUILD"
-	return ns.Comm.Send(dist, msg, "king-arrow-" .. e.scope, true, true, function(sent)
+	return ns.Comm.Send(dist, msg, "shogun-arrow-" .. e.scope, true, true, function(sent)
 		if sent then stats.sent = stats.sent + 1 end
 	end, { owner = Arrow, guard = function() return StillOwn(e, msg) end })
 end
@@ -531,7 +531,7 @@ function Arrow.SetEnabled(on, scope, quiet)
 	if type(on) ~= "boolean" then return false, "value" end
 	local can, chosen = Arrow.CanControl(scope, ns.me, OwnGuild())
 	if not can then
-		if not quiet then ns.Print(L.KING_ARROW_DENIED) end
+		if not quiet then ns.Print(L.SHOGUN_ARROW_DENIED) end
 		return false, "access"
 	end
 	scope = scope or chosen
@@ -544,14 +544,14 @@ function Arrow.SetEnabled(on, scope, quiet)
 	if at > Clock() + Arrow.DATE_AHEAD then return false, "rate" end
 	local e = { scope = scope, by = ns.FullName(ns.me), enabled = on, at = at,
 		heard = Clock(), guild = guild }
-	ns.db.kingArrowControl = { scope = e.scope, by = e.by, enabled = e.enabled, at = e.at,
+	ns.db.shogunArrowControl = { scope = e.scope, by = e.by, enabled = e.enabled, at = e.at,
 		heard = e.heard, guild = e.guild }
 	local taken, why = Take(e, e.heard)
 	if not taken then return false, why end
 	SendPolicy(e)
 	Arrow.Refresh()
 	if ns.UI and ns.UI.Refresh then ns.UI.Refresh() end
-	if not quiet then ns.Print(on and L.KING_ARROW_ENABLED or L.KING_ARROW_DISABLED) end
+	if not quiet then ns.Print(on and L.SHOGUN_ARROW_ENABLED or L.SHOGUN_ARROW_DISABLED) end
 	return true, scope
 end
 
@@ -561,8 +561,8 @@ function Arrow.RepeatOwn()
 	-- (1.2.5.1, quiet presence, Core.lua: no repeat, which would say he is online; his word lasts
 	-- its CONTROL_LEASE where it was heard, and the repeats come back once it is off.)
 	if ns.QuietPresence and ns.QuietPresence() then return false end
-	-- (1.2.0: never stamped again past a higher rank's later word, in force or lapsed: the King's
-	-- "off" is not undone by a councillor's client repeating its older "on" once the King is gone.)
+	-- (1.2.0: never stamped again past a higher rank's later word, in force or lapsed: the Shogun's
+	-- "off" is not undone by a councillor's client repeating its older "on" once the Shogun is gone.)
 	EnsureLoaded()
 	local kept = policies[e.scope]
 	if kept and kept.at > e.at and Fold(kept.by) ~= Fold(ns.FullName(ns.me)) then
@@ -603,10 +603,10 @@ end
 function Arrow.Slash(rest)
 	local word = tostring(rest or ""):gsub("^%s+", ""):gsub("%s+$", ""):lower()
 	if word == "" then
-		ns.Print(L.KING_ARROW_STATUS:format(Arrow.Enabled() and L.KING_ARROW_ON or L.KING_ARROW_OFF))
+		ns.Print(L.SHOGUN_ARROW_STATUS:format(Arrow.Enabled() and L.SHOGUN_ARROW_ON or L.SHOGUN_ARROW_OFF))
 		return true
 	end
-	if word ~= "on" and word ~= "off" then ns.Print(L.KING_ARROW_USAGE); return false, "usage" end
+	if word ~= "on" and word ~= "off" then ns.Print(L.SHOGUN_ARROW_USAGE); return false, "usage" end
 	return Arrow.SetEnabled(word == "on")
 end
 
@@ -617,12 +617,12 @@ function Arrow.ControlLines(scope)
 	local on = Arrow.ScopeEnabled(scope)
 	return { {
 		header = true,
-		text = "|T" .. Arrow.NATIVE_TEXTURE .. ":14:14|t " .. L.KING_ARROW_TITLE,
-		right = on and "|cff40ff40" .. L.KING_ARROW_ON .. "|r" or "|cffff6060" .. L.KING_ARROW_OFF .. "|r",
+		text = "|T" .. Arrow.NATIVE_TEXTURE .. ":14:14|t " .. L.SHOGUN_ARROW_TITLE,
+		right = on and "|cff40ff40" .. L.SHOGUN_ARROW_ON .. "|r" or "|cffff6060" .. L.SHOGUN_ARROW_OFF .. "|r",
 		onClick = function() Arrow.SetEnabled(not Arrow.ScopeEnabled(scope), scope) end,
 		tooltip = function(tt)
-			tt:AddLine(L.KING_ARROW_TITLE, 1, 0.82, 0)
-			tt:AddLine(scope == "global" and L.KING_ARROW_GLOBAL_TIP or L.KING_ARROW_GUILD_TIP, 1, 1, 1, true)
+			tt:AddLine(L.SHOGUN_ARROW_TITLE, 1, 0.82, 0)
+			tt:AddLine(scope == "global" and L.SHOGUN_ARROW_GLOBAL_TIP or L.SHOGUN_ARROW_GUILD_TIP, 1, 1, 1, true)
 		end,
 	} }
 end
@@ -637,13 +637,13 @@ end
 
 function Arrow.ResetForTests()
 	Remove("reset")
-	policies, loadedRdb, kingWorld = { global = nil, guild = nil }, nil, nil
+	policies, loadedRdb, shogunWorld = { global = nil, guild = nil }, nil, nil
 	for key in pairs(stats) do stats[key] = 0 end
 end
 
 ns.Comm.Handle("K6", function(...) Arrow.Handle(...) end)
 
-for _, event in ipairs({ "KING_LOCATION_CHANGED", "LAYERS_CHANGED", "LAYER_SHARING_CHANGED", "DATA_CHANGED" }) do
+for _, event in ipairs({ "SHOGUN_LOCATION_CHANGED", "LAYERS_CHANGED", "LAYER_SHARING_CHANGED", "DATA_CHANGED" }) do
 	ns.On(event, function() Arrow.Refresh() end)
 end
 
@@ -651,6 +651,6 @@ ns.On("LOGIN", function()
 	EnsureLoaded()
 	Arrow.RepeatOwn()
 	Arrow.Refresh()
-	ns.Every(1, "king minimap arrow", Arrow.Refresh)
-	ns.Every(Arrow.CONTROL_REPEAT, "king minimap arrow policy", Arrow.RepeatOwn)
+	ns.Every(1, "shogun minimap arrow", Arrow.Refresh)
+	ns.Every(Arrow.CONTROL_REPEAT, "shogun minimap arrow policy", Arrow.RepeatOwn)
 end)

@@ -6,7 +6,7 @@ local L = ns.L
 --   * a direct observation already obtained by Inspect.lua.
 -- Neither contract starts an inspection.  The nearby path is called only from the existing
 -- INSPECT_READY completion, so it never adds a second NotifyInspect.  Findings are whispered to
--- the exact, recently authenticated King client; only the nameless collector lease is announced
+-- the exact, recently authenticated Shogun client; only the nameless collector lease is announced
 -- on the federation channel.  A queued whisper is guarded again at Comm's real delivery boundary.
 
 local T = {}
@@ -109,8 +109,8 @@ end
 
 local function FreshCollector()
 	if type(collector) ~= "table" or type(collector.name) ~= "string" or type(collector.id) ~= "string" then return nil end
-	if ns.Now() >= (tonumber(collector.expires) or 0) or not ns.IsKingCharacter(collector.name)
-		or not (ns.King and ns.King.FromKing and ns.King.FromKing(collector.name, collector.guild)) then return nil end
+	if ns.Now() >= (tonumber(collector.expires) or 0) or not ns.IsShogunCharacter(collector.name)
+		or not (ns.Shogun and ns.Shogun.FromShogun and ns.Shogun.FromShogun(collector.name, collector.guild)) then return nil end
 	return collector
 end
 
@@ -154,13 +154,13 @@ local function StatusFits(level, status)
 	return status ~= "Y"
 end
 
--- Quiet presence (1.2.5.1, Core.lua): the King's collector lease says he is online, and a report
+-- Quiet presence (1.2.5.1, Core.lua): the Shogun's collector lease says he is online, and a report
 -- whispered to him says its sender is: none goes while it is on (Comm.QUIET_WORDS). The lease the
 -- others hold lapses (LEASE_FOR) as after a logout; the beat (T.Tick) brings both back once it is off.
 local function Quiet() return ns.QuietPresence ~= nil and ns.QuietPresence() == true end
 
 function T.SendSelf(force)
-	if T.Consent("self") ~= true or not ns.IsMember() or ns.King.IsKing() or Quiet() then return false end
+	if T.Consent("self") ~= true or not ns.IsMember() or ns.Shogun.IsShogun() or Quiet() then return false end
 	local c, now = FreshCollector(), ns.Now()
 	if not c or (not force and now - lastSelf < T.SELF_EVERY) then return false end
 	local status, level, guild = OwnStatus()
@@ -183,7 +183,7 @@ local function StoreObservation(kind, observer, subject, guild, level, status, a
 	e.observers = type(e.observers) == "table" and e.observers or {}
 	local record = { by = observer, guild = guild, level = level, status = status, t = at, source = kind,
 		trusted = trusted == true or nil }
-	if kind == "king" then e.king = record
+	if kind == "shogun" then e.shogun = record
 	elseif kind == "self" then e.self = record
 	else
 		e.observers[observer] = record
@@ -214,7 +214,7 @@ function T.Observe(p, direct)
 	local status = ({ GUILD = "G", NONE = "N", OTHER = "O", UNKNOWN = "U", YOUNG = "Y" })[p.status]
 	local level = tonumber(p.level) or 0
 	if not name or not guild or not StatusFits(level, status) then return false end
-	if ns.King.IsKing() then return StoreObservation("king", ns.FullName(ns.me), name, guild, level, status, ns.Now(), true) end
+	if ns.Shogun.IsShogun() then return StoreObservation("shogun", ns.FullName(ns.me), name, guild, level, status, ns.Now(), true) end
 	if T.Consent("nearby") ~= true or not ns.IsMember() or Quiet() then return false end
 	local c, now = FreshCollector(), ns.Now()
 	if not c then return false end
@@ -235,7 +235,7 @@ local function KnownMember(sender, claimedGuild)
 	local myGuild = CleanGuild(GetGuildInfo and GetGuildInfo("player"))
 	if own ~= nil then return myGuild ~= nil and claimedGuild:lower() == myGuild:lower() end
 	-- Moderation.GuildOf is only what this sender claimed in an earlier message.  It is not
-	-- membership proof.  Across guilds, require the signed list (or the pinned King), never the
+	-- membership proof.  Across guilds, require the signed list (or the pinned Shogun), never the
 	-- census: two characters could invent a guild and vouch for each other. Ordinary members remain
 	-- unknown until a similarly verified membership source exists.
 	if not ns.IsFederation(claimedGuild) then return false end
@@ -255,7 +255,7 @@ end
 local function AcceptSequence(sender, lease, seq)
 	seq = tonumber(seq)
 	if not seq or seq < 1 or seq > 2000000000 or seq ~= math.floor(seq) then return false end
-	if not (ns.King.IsKing() and ownLease and ns.Now() < ownLease.expires and lease == ownLease.id) then return false end
+	if not (ns.Shogun.IsShogun() and ownLease and ns.Now() < ownLease.expires and lease == ownLease.id) then return false end
 	local r = RDB(true)
 	local key = ns.FullName(sender)
 	local seen = r.seen[key]
@@ -296,7 +296,7 @@ local function NewLeaseId()
 end
 
 function T.Announce(force)
-	if not ns.King.IsKing() then ownLease = nil return false end
+	if not ns.Shogun.IsShogun() then ownLease = nil return false end
 	if Quiet() then return false end
 	local now = ns.Now()
 	if not force and ownLease and now - (ownLease.announced or 0) < T.LEASE_EVERY then return false end
@@ -313,7 +313,7 @@ function T.HandleLease(dist, sender, text)
 	local version, id, ttl, guild = text:match("^U2~(%d+)~([%w]+)~(%d+)~([^~]+)$")
 	ttl, guild = tonumber(ttl), CleanGuild(guild)
 	if tonumber(version) ~= T.CONTRACT or not id or #id > 32 or not ttl or ttl < 60 or ttl > T.LEASE_FOR or not guild then return false end
-	if not (ns.IsKingCharacter(sender) and ns.King.FromKing(sender, guild)) then return false end
+	if not (ns.IsShogunCharacter(sender) and ns.Shogun.FromShogun(sender, guild)) then return false end
 	local name = ns.FullName(sender)
 	local changed = not collector or collector.id ~= id or collector.name ~= name
 	if changed then
@@ -337,12 +337,12 @@ function T.Prune()
 			for by, o in pairs(e.observers) do
 				if type(o) ~= "table" or now - (tonumber(o.t) or 0) > T.RAW_KEEP then e.observers[by] = nil end
 			end
-			for _, key in ipairs({ "king", "self" }) do
+			for _, key in ipairs({ "shogun", "self" }) do
 				local o = e[key]
 				if type(o) ~= "table" or now - (tonumber(o.t) or 0) > T.RAW_KEEP then e[key] = nil end
 			end
-			local newest, trusted = 0, e.king ~= nil
-			if e.king then newest = math.max(newest, e.king.t or 0) end
+			local newest, trusted = 0, e.shogun ~= nil
+			if e.shogun then newest = math.max(newest, e.shogun.t or 0) end
 			if e.self then newest = math.max(newest, e.self.t or 0) end
 			for _, o in pairs(e.observers) do
 				newest = math.max(newest, o.t or 0)
@@ -365,7 +365,7 @@ function T.Prune()
 	return removed
 end
 
--- The conclusion and its provenance.  A direct King observation is decisive.  Otherwise a
+-- The conclusion and its provenance.  A direct Shogun observation is decisive.  Otherwise a
 -- negative state needs two independent fresh direct observers and no fresh conflicting state.
 -- Self reports are retained and shown as provenance but never count as a second observer.
 function T.Conclusion(name)
@@ -383,7 +383,7 @@ function T.Conclusion(name)
 		evidence[#evidence + 1] = { by = o.by, guild = o.guild, level = o.level, status = o.status, t = o.t,
 			source = o.source, trusted = trusted == true }
 	end
-	Add(e.king, true); Add(e.self, false)
+	Add(e.shogun, true); Add(e.self, false)
 	local observers = { N = {}, O = {}, G = {}, U = {}, Y = {} }
 	for by, o in pairs(type(e.observers) == "table" and e.observers or {}) do
 		local trusted = o and o.trusted == true
@@ -394,8 +394,8 @@ function T.Conclusion(name)
 	for status, n in pairs(statuses) do if n > 0 and status ~= "U" then kinds = kinds + 1 end end
 	local guildKinds = 0; for _ in pairs(guilds) do guildKinds = guildKinds + 1 end
 	local conflict = kinds > 1 or guildKinds > 1
-	if e.king and now - (tonumber(e.king.t) or 0) <= T.RAW_KEEP and (e.king.status == "N" or e.king.status == "O") then
-		return e.king.status, true, #evidence, conflict, evidence
+	if e.shogun and now - (tonumber(e.shogun.t) or 0) <= T.RAW_KEEP and (e.shogun.status == "N" or e.shogun.status == "O") then
+		return e.shogun.status, true, #evidence, conflict, evidence
 	end
 	for _, status in ipairs({ "N", "O" }) do
 		local n = 0; for _ in pairs(observers[status]) do n = n + 1 end
@@ -422,7 +422,7 @@ function T.PublicationList()
 end
 
 -- Mixed-version migration: before this client has entered the v2 contract/lease, the existing
--- local King's list keeps its old behaviour. Once v2 is in use, even an empty evidence set is a
+-- local Shogun's list keeps its old behaviour. Once v2 is in use, even an empty evidence set is a
 -- meaningful v2 publication and must not fall back to uncorroborated legacy reports.
 function T.Active()
 	if ownLease or collector then return true end
@@ -431,12 +431,12 @@ function T.Active()
 end
 
 function T.SurfaceVisible()
-	if ns.King.IsKing() or ns.King.Preview() then return true end
-	-- A simulated non-King role still obeys the publication gate.  The author's ordinary view
+	if ns.Shogun.IsShogun() or ns.Shogun.Preview() then return true end
+	-- A simulated non-Shogun role still obeys the publication gate.  The author's ordinary view
 	-- remains a local preview, but selecting Member cannot reveal data a member has not received.
 	local view = ns.ViewAs
 	if view and view.Available and view.Available() and view.Role and view.Role() ~= "my" then
-		if view.Is and (view.Is("king") or view.Is("gm") or view.Is("officer")) then return true end
+		if view.Is and (view.Is("shogun") or view.Is("gm") or view.Is("officer")) then return true end
 		return ns.Inspect and ns.Inspect.Shame and ns.Inspect.Shame() ~= nil
 	end
 	if ns.Roster and ns.Roster.IsOfficer and ns.Roster.IsOfficer() then return true end
@@ -446,7 +446,7 @@ end
 
 function T.Tick()
 	T.Prune()
-	if ns.King.IsKing() then T.Announce(false) else T.SendSelf(false) end
+	if ns.Shogun.IsShogun() then T.Announce(false) else T.SendSelf(false) end
 end
 
 function T.Reset()

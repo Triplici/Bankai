@@ -16,7 +16,7 @@ end
 local function HN(w, c) return W3.M(w, c, "HonorsNet") end
 local function Prof(w, c) return W3.M(w, c, "ArenaProfile") end
 -- A logout and a login: the release client, its save came back (Arena.Persists). Where it did not
--- (a first session, the Forever beta) the King's letter waits in the Edit's list (honors-letter.lua).
+-- (a first session, the Forever beta) the Shogun's letter waits in the Edit's list (honors-letter.lua).
 local function Kept(w, c)
 	w:Logout(c)
 	w:Login(c)
@@ -379,8 +379,8 @@ end)
 
 print("HonorsNet: the donors (ID) and the Oracle (IO)")
 
-test("1.2 the fights part: ID only from the Treasurer's characters (or the King), sent whatever the Treasury's ranking says; the month's and all time's top 3 become the koi and the cornucopia; a later word replaces an older one", function()
-	local w, cast = W3.New({ more = { { "treasurer", N.treasurer, { guild = World.KING_GUILD } } } })
+test("1.2 the fights part: ID only from the Treasurer's characters (or the Shogun), sent whatever the Treasury's ranking says; the month's and all time's top 3 become the koi and the cornucopia; a later word replaces an older one", function()
+	local w, cast = W3.New({ more = { { "treasurer", N.treasurer, { guild = World.SHOGUN_GUILD } } } })
 	local tr, viewer = cast.treasurer, cast.spectator
 	-- The Treasurer's book (the money part's Treasury.DonationRecords), and its ranking private.
 	local now = w.clock
@@ -406,7 +406,7 @@ end)
 
 test("1.2 the fights part: IO only from a bank of this realm's T1~B; the month's three predictors are the ravens, held through the month after", function()
 	local w, cast = W3.New({ more = { { "bank", N.bank } } })
-	local ok = cast.king.Roles.SetBanks({ N.bank })
+	local ok = cast.shogun.Roles.SetBanks({ N.bank })
 	eq(ok, true)
 	w:Run(0)
 	local viewer = cast.spectator
@@ -427,7 +427,7 @@ test("1.2 the fights part: IO only from a bank of this realm's T1~B; the month's
 	W3.NoErrors(w)
 end)
 
-print("HonorsNet: verification, the switch-on, the King's letter")
+print("HonorsNet: verification, the switch-on, the Shogun's letter")
 
 test("1.2 the fights part: a far viewer sees a belt holder's picked frame once verified (the core's title fights, no ledger); the same pick on a non-holder shows his rank's frame (Verified falls back)", function()
 	local w, cast = W3.New()
@@ -450,7 +450,7 @@ test("1.2 the fights part: a far viewer sees a belt holder's picked frame once v
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part: a newly earned honour switches on by itself and the King's letter comes (Bankai Guild's own frame, queued, 'Wear it'); a locked pick stays as set; the letters stay to read again", function()
+test("1.2 the fights part: a newly earned honour switches on by itself and the Shogun's letter comes (Bankai Guild's own frame, queued, 'Wear it'); a locked pick stays as set; the letters stay to read again", function()
 	local w, cast = W3.New()
 	local A = Kept(w, cast.A)
 	Kept(w, cast.B)
@@ -460,13 +460,13 @@ test("1.2 the fights part: a newly earned honour switches on by itself and the K
 	eq(pick.frame, "arena-champion", "switched on"); eq(pick.title, "arena-champion")
 	eq(#w:Sent{ from = A, type = "AP" } >= 1, true, "and said")
 	local letter = A.ns.HonorsNet.LetterFrame()
-	eq(letter ~= nil and letter:IsShown(), true, "the King's letter")
+	eq(letter ~= nil and letter:IsShown(), true, "the Shogun's letter")
 	eq(letter.body:GetText():find("Arena Champion", 1, true) ~= nil, true)
 	eq(A.ns.HonorsNet.LetterFamily("arena-champion"), "arena")
 	for _, key in ipairs({ "arena-class-mage-2", "arena-race-orc-3", "donor-top-1", "donor-month-2", "level-race-40", "oracle-1", "guild-top-leader" }) do
 		local text = w:As(A, A.ns.HonorsNet.LetterText, key)
 		assert(text and text:find(A.ns.HonorsNet.TitleText(key), 1, true), key)
-		for _, n in ipairs({ World.NAMES.king, World.NAMES.author }) do assert(not text:find(n:match("^%S+"), 1, true), "no real name") end
+		for _, n in ipairs({ World.NAMES.shogun, World.NAMES.author }) do assert(not text:find(n:match("^%S+"), 1, true), "no real name") end
 	end
 	eq(w:As(A, A.ns.HonorsNet.CloseLetter, true), true)
 	eq(letter:IsShown(), false)
@@ -832,7 +832,7 @@ test("1.2.1 the new frames: /bk borders test apostle-1/2/3, bones-1/2/3, arena-r
 end)
 
 -- 1.2 (the owner's ask, test build 33): every Bankai Guild portrait identical to the player's own on his
--- unit frame. The core's windows that show his portrait with a frame (the King's letter, the
+-- unit frame. The core's windows that show his portrait with a frame (the Shogun's letter, the
 -- profile's Edit) drew their own: a square picture and the frame centred on it at a size of their
 -- own. They are Borders.NewPortrait's now (HonorsNet.NewPortrait), as the Arena's portraits.
 -- c's frames and their words keep where they were put (points[region][point] = SetPoint's
@@ -857,7 +857,7 @@ local function Placed(c)
 end
 local GRYPHON = "Interface\\AddOns\\BankaiGuild\\media\\honors\\gryphon-gold"
 
-test("1.2 the King's letter: his portrait drawn as his own on his unit frame (Borders.NewPortrait, his frame's 60 across, turned round): the honour won the very art round his own portrait, his picture square; the words clear of the art", function()
+test("1.2 the Shogun's letter: his portrait drawn as his own on his unit frame (Borders.NewPortrait, his frame's 60 across, turned round): the honour won the very art round his own portrait, his picture square; the words clear of the art", function()
 	local w, cast = W3.New()
 	local A = Kept(w, cast.A)
 	local r = Frames(w, A)
@@ -865,7 +865,7 @@ test("1.2 the King's letter: his portrait drawn as his own on his unit frame (Bo
 	Belt(w, cast, A, cast.B, { A })
 	w:Run(3)
 	local letter = A.ns.HonorsNet.LetterFrame()
-	eq(letter ~= nil and letter:IsShown(), true, "the King's letter")
+	eq(letter ~= nil and letter:IsShown(), true, "the Shogun's letter")
 	local rig = letter.rig
 	assert(type(rig) == "table" and rig.container and rig.box and rig.underlay and not rig.plain, "Borders.NewPortrait's rig, not a drawing of the letter's own")
 	eq(rig.size, 60, "his own frame's size"); eq(rig.mirror, true, "turned round, as round his own portrait")

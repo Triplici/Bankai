@@ -8,7 +8,7 @@ local function Fight(w, cast)
 	return Fights(w, cast.arbiter).New({ A = cast.A.name, B = cast.B.name, markets = false })
 end
 local function Card(w, cast, title)
-	return w:As(cast.king, cast.king.ns.ArenaFights.Card.New, title, w.clock)
+	return w:As(cast.shogun, cast.shogun.ns.ArenaFights.Card.New, title, w.clock)
 end
 local function Cards(c)
 	local n = 0
@@ -80,38 +80,38 @@ end)
 
 test("Arena record capacity: full local cards reject new cards without sending or consuming their number", function()
 	local w, cast = W3.New()
-	cast.king.ns.ArenaFights.CARDS_KEEP = 2
+	cast.shogun.ns.ArenaFights.CARDS_KEEP = 2
 	local first, second = assert(Card(w, cast, "First")), assert(Card(w, cast, "Second"))
 	w:Run(0)
-	local sent = #w:Sent{ from = cast.king, type = "AN" }
+	local sent = #w:Sent{ from = cast.shogun, type = "AN" }
 	local cid, why = Card(w, cast, "Overflow")
-	eq(cid, nil); eq(why, "capacity"); eq(Cards(cast.king), 2)
+	eq(cid, nil); eq(why, "capacity"); eq(Cards(cast.shogun), 2)
 	w:Run(0)
-	eq(#w:Sent{ from = cast.king, type = "AN" }, sent)
-	eq(cast.king.ns.Arena.Store("L").cardNo, 2)
-	eq(cast.king.ns.ArenaFights.Card.Get(first).st, "P")
-	eq(cast.king.ns.ArenaFights.Card.Get(second).st, "P")
+	eq(#w:Sent{ from = cast.shogun, type = "AN" }, sent)
+	eq(cast.shogun.ns.Arena.Store("L").cardNo, 2)
+	eq(cast.shogun.ns.ArenaFights.Card.Get(first).st, "P")
+	eq(cast.shogun.ns.ArenaFights.Card.Get(second).st, "P")
 	W3.NoErrors(w)
 end)
 
 test("Arena record capacity: ended cards use their own terminal states when reclaiming space", function()
 	local w, cast = W3.New()
-	cast.king.ns.ArenaFights.CARDS_KEEP = 2
+	cast.shogun.ns.ArenaFights.CARDS_KEEP = 2
 	local first, second = assert(Card(w, cast, "First")), assert(Card(w, cast, "Second"))
-	local fid = assert(w:As(cast.king, cast.king.ns.ArenaFights.Card.AddBout, first,
+	local fid = assert(w:As(cast.shogun, cast.shogun.ns.ArenaFights.Card.AddBout, first,
 		{ A = cast.A.name, B = cast.B.name, arb = cast.arbiter.name, markets = false }))
-	eq(Fights(w, cast.king).Void(fid, "cancel"), true)
-	w:As(cast.king, cast.king.ns.ArenaFights.CardTick, cast.king.ns.ArenaFights.Card.Get(first), w.clock)
-	eq(cast.king.ns.ArenaFights.Card.Get(first).st, "X")
+	eq(Fights(w, cast.shogun).Void(fid, "cancel"), true)
+	w:As(cast.shogun, cast.shogun.ns.ArenaFights.CardTick, cast.shogun.ns.ArenaFights.Card.Get(first), w.clock)
+	eq(cast.shogun.ns.ArenaFights.Card.Get(first).st, "X")
 	local third = assert(Card(w, cast, "Third"))
-	eq(Cards(cast.king), 2); eq(cast.king.ns.ArenaFights.Card.Get(first), nil)
-	eq(cast.king.ns.ArenaFights.Card.Get(second).st, "P"); eq(cast.king.ns.ArenaFights.Card.Get(third).no, 3)
+	eq(Cards(cast.shogun), 2); eq(cast.shogun.ns.ArenaFights.Card.Get(first), nil)
+	eq(cast.shogun.ns.ArenaFights.Card.Get(second).st, "P"); eq(cast.shogun.ns.ArenaFights.Card.Get(third).no, 3)
 	W3.NoErrors(w)
 end)
 
 test("Arena record capacity: local tournaments cap active records and reclaim cancelled records", function()
 	local w, cast = W3.New()
-	local t = Tourneys(w, cast.king)
+	local t = Tourneys(w, cast.shogun)
 	local ids = {}
 	for i = 1, 10 do ids[i] = assert(t.New({ size = 4, markets = false })) end
 	local overflow, why = t.New({ size = 4, markets = false })
@@ -126,7 +126,7 @@ end)
 
 test("Arena record capacity: incoming tournaments cap active records and continue known updates", function()
 	local w, cast = W3.New()
-	local source, observer = Tourneys(w, cast.king), Tourneys(w, cast.spectator)
+	local source, observer = Tourneys(w, cast.shogun), Tourneys(w, cast.spectator)
 	local ids = {}
 	for i = 1, 10 do ids[i] = assert(source.New({ size = 4, markets = false })); w:Run(0) end
 	-- A separate valid promoter has its own room; the observing client's room is already full.

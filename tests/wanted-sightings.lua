@@ -166,10 +166,10 @@ local function WithSightings(fn)
 				Hides = function(sender) return world.hidden[Fold(sender)] end, Blocks = function() return false end }
 			local function Role(name) return world.authorities[Fold(name)] end
 			c.Workshop = { IsAuthor = function() return false end, IsAuthorName = function(name) return Role(name) == "author" end }
-			c.IsKingCharacter = function(name) return Role(name) == "king" end
+			c.IsShogunCharacter = function(name) return Role(name) == "shogun" end
 			c.IsHighCouncillor = function(name) return Role(name) == "council" end
-			-- King.lua as Wanted.lua asks it: this character is the King, and his crown shows (cl.crown).
-			c.King = { IsKing = function() return cl.member and Role(cl.name) == "king" end, SharingLocation = function() return cl.crown == true end }
+			-- Shogun.lua as Wanted.lua asks it: this character is the Shogun, and his crown shows (cl.crown).
+			c.Shogun = { IsShogun = function() return cl.member and Role(cl.name) == "shogun" end, SharingLocation = function() return cl.crown == true end }
 			local function Queue(m) world.queue[#world.queue + 1] = m return true end
 			if not cl.realComm then c.Comm = {
 				Handle = function(kind, call) cl.handlers[kind] = call end,
@@ -397,23 +397,23 @@ end
 test("wanted sightings 1.2.4: a 0-point 0-kill entry is never observed, sent, received or marked; voiding its only death hides both maps and cancels a queued sighting without losing the kill history", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001", { role = "council", manager = true, wanted = false })
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king", manager = true, wanted = false })
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun", manager = true, wanted = false })
 		local prey = "Player-1-0A000099"
-		for _, cl in ipairs({ o, king }) do assert(world:As(cl, cl.W.AddTarget, "Prey-Realm", prey)) end
-		world:Lease(king); world:Choose(o, king)
+		for _, cl in ipairs({ o, shogun }) do assert(world:As(cl, cl.W.AddTarget, "Prey-Realm", prey)) end
+		world:Lease(shogun); world:Choose(o, shogun)
 		local ok, why = world:See(o, "target", Horde("Prey-Realm", prey))
 		eq(ok, false); eq(why, "unlisted")
 		eq(#world:Pins(o), 0); eq(#world:Waiting(o), 0)
 		eq(next(world:As(o, o.W.PinFrames)), nil, "no target marker")
 		local wire = ("WS~S~1~Bankai Guild II~0000000000000099~%d~1429~400~500~0~1.0a000099~Prey-Realm"):format(world.epoch)
-		ok, why = world:As(king, king.W.HandleSighting, "WHISPER", o.name, wire)
-		eq(ok, false); eq(why, "unlisted"); eq(#world:Pins(king), 0)
+		ok, why = world:As(shogun, shogun.W.HandleSighting, "WHISPER", o.name, wire)
+		eq(ok, false); eq(why, "unlisted"); eq(#world:Pins(shogun), 0)
 		-- The member kills him: his claim stays on the ledger but does not make him wanted.
 		assert(world:As(o, o.W.CaptureCombatLog, 1, "PARTY_KILL", false, o.guid, o.name, 0, 0, prey, "Prey-Realm"))
 		eq(#world:As(o, o.W.Target, nil, prey).claims, 1)
 		eq(#world:As(o, o.W.Targets, "listed"), 0)
 		world:Advance(6)
-		local counted, death = world:As(o, o.W.CaptureCombatLog, 2, "PARTY_KILL", false, prey, "Prey-Realm", 0, 0, king.guid, king.name)
+		local counted, death = world:As(o, o.W.CaptureCombatLog, 2, "PARTY_KILL", false, prey, "Prey-Realm", 0, 0, shogun.guid, shogun.name)
 		assert(counted, tostring(death))
 		assert(world:See(o, "target", Horde("Prey-Realm", prey)))
 		local f = assert(world:As(o, o.W.PinFrames)[prey])
@@ -426,7 +426,7 @@ test("wanted sightings 1.2.4: a 0-point 0-kill entry is never observed, sent, re
 		local t = world:As(o, o.W.Target, nil, prey)
 		eq(t.current, 0); eq(t.lifetimeKills, 0); eq(#t.claims, 1, "the kill history is preserved")
 		world:Advance(6)
-		assert(world:As(o, o.W.CaptureCombatLog, 3, "PARTY_KILL", false, prey, "Prey-Realm", 0, 0, king.guid, king.name))
+		assert(world:As(o, o.W.CaptureCombatLog, 3, "PARTY_KILL", false, prey, "Prey-Realm", 0, 0, shogun.guid, shogun.name))
 		eq(#world:Pins(o), 1, "the still-fresh private observation returns when he becomes wanted")
 		assert(world:As(o, o.W.PinFrames)[prey], "his marker returns with his new confirmed death")
 	end)
@@ -455,11 +455,11 @@ test("wanted sightings (1.2.0): off until the member's own Yes, a line of its ow
 		o.member = true
 		local text = L[item.text]
 		for _, part in ipairs({ "Horde player", "name and GUID", "your own map position (rounded) and layer", "the time, your name and your guild",
-			"15 minutes", "whispered to one reviewer", "the one you choose with Sightings to on the Most Wanted page", "the King, a High Councillor or the author",
+			"15 minutes", "whispered to one reviewer", "the one you choose with Sightings to on the Most Wanted page", "the Shogun, a High Councillor or the author",
 			"until you choose one, nobody gets it", "seen nearby", "Nothing goes while you keep your zone and layer private",
 			-- (RH-09, changed on purpose: the time a wanted Horde player was last seen is now kept on
 			-- the member's own list, his "Last seen online"; the page says so, and that a No forgets it.)
-			"the King's only while his crown shows on the map", "Never anyone off the list", "never on the Bankai Guild channel", "never in an instance",
+			"the Shogun's only while his crown shows on the map", "Never anyone off the list", "never on the Bankai Guild channel", "never in an instance",
 			"Nothing saved but the time your client last saw each one, on your own Most Wanted list (never where, never sent)",
 			"Authorize all while it is pending",
 			"No stops it at once, forgets those times", "take your pins off his map", "before you logged out stays there until its 15 minutes are up",
@@ -615,25 +615,25 @@ end)
 test("wanted sightings: each Horde player once per gap on one map (nothing more asked of the game); three a minute leave this client, the rest stay on its map; only to the reviewer this member chose (Sightings to), while he takes them; whispers waiting are bounded", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
 		local c1 = world:Client("Councilone-Realm", "Player-1-AB0000F2", { role = "council" })
 		local c2 = world:Client("Counciltwo-Realm", "Player-1-AB0000F3", { role = "council" })
 		local plain = world:Client("Plainmember-Realm", "Player-1-AB0000F4")
 		eq(world:As(plain, plain.W.AnnounceReviewer), false, "a member who reviews nothing takes no sightings")
-		world:Lease(c2); world:Advance(1); world:Lease(king); world:Advance(1); world:Lease(c1)
-		-- (Review: they went to two reviewers, the King first among those the member never chose,
+		world:Lease(c2); world:Advance(1); world:Lease(shogun); world:Advance(1); world:Lease(c1)
+		-- (Review: they went to two reviewers, the Shogun first among those the member never chose,
 		-- while his evidence goes to the one he chose alone. Now to that one alone.)
 		eq(world:Recipients(o), "", "a member who chose nobody sends his sightings to nobody")
 		local ok, e = world:See(o, "nameplate1", Horde("Grom-Realm", GROM))
 		assert(ok, e); eq(e.sent, 0, "it stays on his own map"); eq(#world:Pins(o), 1)
 		world:Pump()
-		eq(#world:Pins(king), 0); eq(#world:Pins(c1), 0); eq(#world:Pins(c2), 0)
+		eq(#world:Pins(shogun), 0); eq(#world:Pins(c1), 0); eq(#world:Pins(c2), 0)
 		-- (1.2.3: chosen with Sightings to, Wanted.SetReviewer: only a reviewer, never himself.)
 		eq(select(2, world:As(o, o.W.SetReviewer, plain.name)), "reviewer")
 		assert(world:As(o, o.W.SetReviewer, c2.name))
 		eq(world:Recipients(o), "Counciltwo-Realm", "the reviewer he chose, and nobody else")
-		world:Choose(king, king)
-		eq(world:Recipients(king), "", "never himself")
+		world:Choose(shogun, shogun)
+		eq(world:Recipients(shogun), "", "never himself")
 		world:Choose(o, plain)
 		eq(world:Recipients(o), "", "nobody who reviews nothing")
 		world.authorities[world.Fold("Councilthree-Realm")] = "council"
@@ -651,7 +651,7 @@ test("wanted sightings: each Horde player once per gap on one map (nothing more 
 		eq(m.msg, ("WS~S~1~Bankai Guild II~%s~%d~1429~410~680~0~1.0a000001~Grom-Realm"):format(e.id, e.at),
 			"his name and GUID, the observer's spot and layer, the time, the guild: nothing else")
 		eq(#world:Pins(c2), 1)
-		eq(#world:Pins(king), 0, "the King gets none he was not chosen for"); eq(#world:Pins(c1), 0); eq(#world:Pins(plain), 0)
+		eq(#world:Pins(shogun), 0, "the Shogun gets none he was not chosen for"); eq(#world:Pins(c1), 0); eq(#world:Pins(plain), 0)
 		for _, d in ipairs(world.delivered) do assert(not (d.dist == "CHANNEL" and d.msg:find("^WS~S~")), "never on the channel") end
 		local got = world:Pins(c2)[1]
 		eq(got.observer, "Aldric-Realm"); eq(got.own, false); eq(got.x, 410); eq(got.y, 680); eq(got.guild, "Bankai Guild II")
@@ -702,10 +702,10 @@ end)
 test("wanted sightings: the No cancels every sighting still waiting in Comm at once; Comm's own check stops one that waits past the No, net-off, its age or its reviewer's role", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
 		local c1 = world:Client("Councilone-Realm", "Player-1-AB0000F2", { role = "council" })
-		world:Lease(king, c1)
-		world:Choose(o, king)
+		world:Lease(shogun, c1)
+		world:Choose(o, shogun)
 		local item = o.consent
 		assert(world:See(o, "nameplate1", Horde("Grom-Realm", GROM)))
 		eq(#world:Waiting(o), 1)
@@ -715,7 +715,7 @@ test("wanted sightings: the No cancels every sighting still waiting in Comm at o
 		eq(world:As(o, o.W.Stats).sightCancelled, 1)
 		for _, m in ipairs(world.queue) do assert(m.msg ~= "WS~X~1", "nothing reached anyone: nothing to take back") end
 		world:Pump()
-		eq(#world:Pins(king), 0); eq(#world:Pins(c1), 0)
+		eq(#world:Pins(shogun), 0); eq(#world:Pins(c1), 0)
 		world:As(o, item.set, true)
 
 		-- What Comm checks when each one's turn comes.
@@ -744,54 +744,54 @@ test("wanted sightings: the No cancels every sighting still waiting in Comm at o
 		world.authorities[world.Fold(c1.name)] = nil
 		world:Pump()
 		eq(Dropped(world, "reviewer"), 1, "a councillor no more")
-		eq(#world:Pins(king), 0); eq(#world:Pins(c1), 0)
+		eq(#world:Pins(shogun), 0); eq(#world:Pins(c1), 0)
 		eq(#world:Pins(o), 4, "this client's own map keeps those after the No (which took Grom off it)")
 		-- And one that may go, goes.
-		world:Choose(o, king)
+		world:Choose(o, shogun)
 		Next("Goesthrough-Realm", "Player-1-0A000022")
 		world:Pump()
-		eq(#world:Pins(king), 1)
+		eq(#world:Pins(shogun), 1)
 	end)
 end)
 
-test("wanted sightings: the King's client sends none while his crown is hidden (his own map still shows them); Comm's check stops one waiting when he hides it, and hiding it cancels what waits and takes back what went", function()
+test("wanted sightings: the Shogun's client sends none while his crown is hidden (his own map still shows them); Comm's check stops one waiting when he hides it, and hiding it cancels what waits and takes back what went", function()
 	WithSightings(function(world)
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
 		local c1 = world:Client("Councilone-Realm", "Player-1-AB0000F2", { role = "council" })
 		world:Lease(c1)
-		world:Choose(king, c1)
-		-- (Review: a King whose crown was hidden whispered his own spot and layer with each sighting.)
-		local ok, e = world:See(king, "nameplate1", Horde("Grom-Realm", GROM))
-		assert(ok, e); eq(e.sent, 0, "crown hidden: nothing goes"); eq(#world:Pins(king), 1, "his own map shows it")
+		world:Choose(shogun, c1)
+		-- (Review: a Shogun whose crown was hidden whispered his own spot and layer with each sighting.)
+		local ok, e = world:See(shogun, "nameplate1", Horde("Grom-Realm", GROM))
+		assert(ok, e); eq(e.sent, 0, "crown hidden: nothing goes"); eq(#world:Pins(shogun), 1, "his own map shows it")
 		world:Pump()
 		eq(#world:Pins(c1), 0)
-		king.crown = true
-		ok, e = world:See(king, "nameplate2", Horde("Thrall-Realm", THRALL))
+		shogun.crown = true
+		ok, e = world:See(shogun, "nameplate2", Horde("Thrall-Realm", THRALL))
 		eq(e.sent, 1, "crown shown: to his reviewer")
 		world:Pump()
 		eq(#world:Pins(c1), 1)
 		-- One waits when he hides it: Comm's own check stops it at its turn.
-		ok, e = world:See(king, "nameplate3", Horde("Rexxar-Realm", REXXAR))
+		ok, e = world:See(shogun, "nameplate3", Horde("Rexxar-Realm", REXXAR))
 		eq(e.sent, 1)
-		king.crown = false
+		shogun.crown = false
 		world:Pump()
 		eq(Dropped(world, "crown"), 1)
-		-- Shown again, one waits, and he hides it with the Throne's switch (King.lua's event): it is
+		-- Shown again, one waits, and he hides it with the Throne's switch (Shogun.lua's event): it is
 		-- cancelled at once, and what went is taken off the councillor's map.
-		king.crown = true
-		world:Advance(king.W.SIGHT_WINDOW + 1)
-		ok, e = world:See(king, "nameplate4", Horde("Garrosh-Realm", GARROSH))
+		shogun.crown = true
+		world:Advance(shogun.W.SIGHT_WINDOW + 1)
+		ok, e = world:See(shogun, "nameplate4", Horde("Garrosh-Realm", GARROSH))
 		eq(e.sent, 1)
-		king.crown = false
-		world:As(king, king.listeners.KING_LOCATION_CHANGED, "hide", king.name, 7)
-		eq(#world:Waiting(king), 0, "cancelled at once")
+		shogun.crown = false
+		world:As(shogun, shogun.listeners.SHOGUN_LOCATION_CHANGED, "hide", shogun.name, 7)
+		eq(#world:Waiting(shogun), 0, "cancelled at once")
 		eq(Dropped(world, "crown"), 2)
 		world:Pump()
 		eq(#world:Pins(c1), 0, "Thrall taken off the councillor's map")
-		eq(#world:Pins(king), 4, "the King's own map keeps his")
+		eq(#world:Pins(shogun), 4, "the Shogun's own map keeps his")
 		-- Another crown heard (or his hidden again): nothing more to take back.
 		local before = #world.delivered
-		world:As(king, king.listeners.KING_LOCATION_CHANGED, "show", "Otherking-Realm", 9)
+		world:As(shogun, shogun.listeners.SHOGUN_LOCATION_CHANGED, "show", "Otherking-Realm", 9)
 		world:Pump()
 		eq(#world.delivered, before)
 	end)
@@ -799,7 +799,7 @@ end)
 
 test("wanted sightings: a reviewer takes a sighting only by whisper, fresh, from an Olympian the moderators did not take off, once, three a minute from one sender and thirty from all (counted before anything is parsed); what a modified client may send is kept nowhere", function()
 	WithSightings(function(world)
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
 		local plain = world:Client("Plainmember-Realm", "Player-1-AB0000F4")
 		local serial = 0
 		local function Body(o)
@@ -809,7 +809,7 @@ test("wanted sightings: a reviewer takes a sighting only by whisper, fresh, from
 				o.at or world.epoch, o.map or 1429, o.x or 410, o.y or 680, o.layer or 0, o.guid or "1.0a000001", o.name or "Grom-Realm")
 		end
 		local function Take(sender, body, dist, cl)
-			cl = cl or king
+			cl = cl or shogun
 			return world:As(cl, cl.W.HandleSighting, dist or "WHISPER", sender, body)
 		end
 		local function Why(...) return select(2, Take(...)) end
@@ -823,7 +823,7 @@ test("wanted sightings: a reviewer takes a sighting only by whisper, fresh, from
 		world.olympians[world.Fold("Hiddenone-Realm")] = true
 		world.hidden[world.Fold("Hiddenone-Realm")] = { by = "Moderator-Realm" }
 		eq(Why("Hiddenone-Realm", Body()), "bankaiguild", "a name the moderators took off")
-		eq(Why("Watcher-Realm", Body({ at = world.epoch - king.W.SIGHT_TTL - 1 })), "stale")
+		eq(Why("Watcher-Realm", Body({ at = world.epoch - shogun.W.SIGHT_TTL - 1 })), "stale")
 		eq(Why("Watcher-Realm", Body({ at = world.epoch + 121 })), "stale")
 		for _, bad in ipairs({ Body({ v = "2" }), Body({ id = "abc" }), Body({ guid = "1.ZZ" }), Body({ guid = "Player-1-0A000001" }),
 			Body({ x = 1001 }), Body({ y = "-5" }), Body({ map = 1415 }), Body({ map = 947 }), Body({ map = 0 }), Body({ guild = "Bloodfang" }),
@@ -833,7 +833,7 @@ test("wanted sightings: a reviewer takes a sighting only by whisper, fresh, from
 		eq(Why("Watcher-Realm", Body(), "CHANNEL"), "lane", "never off the channel")
 		eq(Why("Watcher-Realm", Body(), "GUILD"), "lane")
 		eq(Why("Watcher-Realm", Body(), "WHISPER", plain), "reviewer", "a member who reviews nothing keeps none")
-		eq(Why("Kingly-Realm", Body()), "sender", "his own")
+		eq(Why("Shogunly-Realm", Body()), "sender", "his own")
 		eq(#world:Pins(plain), 0)
 		-- One sender: three a window; the fourth refused before it is even read (review: the
 		-- reviewer's client parsed and checked every whisper before counting it).
@@ -843,31 +843,31 @@ test("wanted sightings: a reviewer takes a sighting only by whisper, fresh, from
 		eq(Why("Watcher-Realm", Body()), "rate", "the fourth this minute")
 		eq(Why("Watcher-Realm", "WS~S~1~unread"), "rate", "not parsed")
 		eq(world.mapInfos, infos, "no map looked up for it")
-		world:Advance(king.W.SIGHT_WINDOW)
+		world:Advance(shogun.W.SIGHT_WINDOW)
 		assert(Take("Watcher-Realm", Body()), "a new window")
 		-- Everyone: thirty a window.
-		world:Advance(king.W.SIGHT_WINDOW)
-		for i = 1, king.W.SIGHT_INTAKE_MAX do
+		world:Advance(shogun.W.SIGHT_WINDOW)
+		for i = 1, shogun.W.SIGHT_INTAKE_MAX do
 			local name = "Watcher" .. i .. "-Realm"
 			world.olympians[world.Fold(name)] = true
-			world:List(king, "Horde" .. i .. "-Realm", ("Player-1-0C%06X"):format(i))
+			world:List(shogun, "Horde" .. i .. "-Realm", ("Player-1-0C%06X"):format(i))
 			assert(Take(name, Body({ guid = ("1.0c%06x"):format(i), name = "Horde" .. i .. "-Realm" })), name)
 		end
 		world.olympians[world.Fold("Watcher99-Realm")] = true
 		infos = world.mapInfos
 		eq(Why("Watcher99-Realm", Body()), "rate", "the reviewer's intake is full this minute")
 		eq(world.mapInfos, infos, "nothing looked up for it")
-		eq(#world:Pins(king), 31, "one pin per Horde player")
+		eq(#world:Pins(shogun), 31, "one pin per Horde player")
 		-- Leases: a reviewer's, on the channel, in its two shapes.
 		eq(Why("Plainmember-Realm", "WS~R~1", "CHANNEL", plain), "authority", "only a reviewer says he takes them")
-		eq(Why("Kingly-Realm", "WS~R~1", "WHISPER", plain), "shape")
-		eq(Why("Kingly-Realm", "WS~R~0", "WHISPER", plain), "shape")
-		eq(Why("Kingly-Realm", "WS~R~2", "CHANNEL", plain), "shape")
-		eq(Why("Kingly-Realm", "WS~Q~1", "CHANNEL", plain), "shape")
-		eq(Why("Kingly-Realm", "WS~R~0", "CHANNEL", plain), "unknown", "no lease to end")
-		assert(Take("Kingly-Realm", "WS~R~1", "CHANNEL", plain))
-		world:Choose(plain, king)
-		eq(world:Recipients(plain), "Kingly-Realm")
+		eq(Why("Shogunly-Realm", "WS~R~1", "WHISPER", plain), "shape")
+		eq(Why("Shogunly-Realm", "WS~R~0", "WHISPER", plain), "shape")
+		eq(Why("Shogunly-Realm", "WS~R~2", "CHANNEL", plain), "shape")
+		eq(Why("Shogunly-Realm", "WS~Q~1", "CHANNEL", plain), "shape")
+		eq(Why("Shogunly-Realm", "WS~R~0", "CHANNEL", plain), "unknown", "no lease to end")
+		assert(Take("Shogunly-Realm", "WS~R~1", "CHANNEL", plain))
+		world:Choose(plain, shogun)
+		eq(world:Recipients(plain), "Shogunly-Realm")
 		-- Taking back: by whisper, in its one shape.
 		eq(Why("Watcher-Realm", "WS~X~1", "CHANNEL"), "shape")
 		eq(Why("Watcher-Realm", "WS~X~2"), "shape")
@@ -878,30 +878,30 @@ test("wanted sightings: a pin per Horde player where he was seen last, on the mi
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
 		local o2 = world:Client("Brenna-Realm", "Player-1-AB000002")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king", manager = true })
-		-- The King's ledger: Grom killed two Olympians.
-		world:As(king, function()
-			king.W.AddTarget("Grom-Realm", GROM) -- (already listed: world:Client)
-			assert(king.W.CaptureCombatLog(1, "PARTY_KILL", false, GROM, "Grom-Realm", 0, 0, o.guid, o.name))
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun", manager = true })
+		-- The Shogun's ledger: Grom killed two Olympians.
+		world:As(shogun, function()
+			shogun.W.AddTarget("Grom-Realm", GROM) -- (already listed: world:Client)
+			assert(shogun.W.CaptureCombatLog(1, "PARTY_KILL", false, GROM, "Grom-Realm", 0, 0, o.guid, o.name))
 		end)
 		world:Advance(6)
-		world:As(king, function() assert(king.W.CaptureCombatLog(2, "PARTY_KILL", false, GROM, "Grom-Realm", 0, 0, o2.guid, o2.name)) end)
-		eq(world:As(king, king.W.Target, "Grom-Realm").lifetimeKills, 3, "one prior confirmed kill and two new ones")
-		world:Lease(king)
-		world:Choose(o, king); world:Choose(o2, king)
+		world:As(shogun, function() assert(shogun.W.CaptureCombatLog(2, "PARTY_KILL", false, GROM, "Grom-Realm", 0, 0, o2.guid, o2.name)) end)
+		eq(world:As(shogun, shogun.W.Target, "Grom-Realm").lifetimeKills, 3, "one prior confirmed kill and two new ones")
+		world:Lease(shogun)
+		world:Choose(o, shogun); world:Choose(o2, shogun)
 		o.layer = { mapID = 1429, zoneUID = 4242, t = world.epoch }
-		king.layer = { mapID = 1429, zoneUID = 4242, t = world.epoch }
+		shogun.layer = { mapID = 1429, zoneUID = 4242, t = world.epoch }
 		assert(world:See(o, "nameplate1", Horde("Grom-Realm", GROM)))
 		eq(o.lib:Take(), "mini+ 1429 0.410 0.680, world+ 1429 0.410 0.680", "on the observer's own maps")
 		world:Pump()
-		eq(king.lib:Take(), "mini+ 1429 0.410 0.680, world+ 1429 0.410 0.680", "on the King's, at the observer's spot")
-		local f = assert(world:As(king, king.W.PinFrames)[GROM])
-		eq(f.world.badge.texture, king.W.ICON_PATHS[#king.W.ICON_PATHS], "the Most Wanted banner")
-		eq(f.world.size, king.W.SIGHT_BADGE); eq(f.world.round, true)
-		local tip = world:Hover(king, f.world.badge)
+		eq(shogun.lib:Take(), "mini+ 1429 0.410 0.680, world+ 1429 0.410 0.680", "on the Shogun's, at the observer's spot")
+		local f = assert(world:As(shogun, shogun.W.PinFrames)[GROM])
+		eq(f.world.badge.texture, shogun.W.ICON_PATHS[#shogun.W.ICON_PATHS], "the Most Wanted banner")
+		eq(f.world.size, shogun.W.SIGHT_BADGE); eq(f.world.round, true)
+		local tip = world:Hover(shogun, f.world.badge)
 		eq(tip, table.concat({ "Grom", L.WANTED_LIFETIME:format(3), L.WANTED_BOUNTY:format(2), L.WANTED_SIGHT_SEEN:format("0s", "Aldric"),
 			L.WANTED_SIGHT_YOUR_LAYER, L.WANTED_SIGHT_NEARBY }, "\n"))
-		eq(world:Hover(king, f.mini), tip, "the minimap's says the same")
+		eq(world:Hover(shogun, f.mini), tip, "the minimap's says the same")
 		local mine = world:As(o, o.W.PinFrames)[GROM]
 		-- His prior confirmed kill keeps him wanted with no open bounty on the observer's client.
 		eq(world:Hover(o, mine.world.badge), table.concat({ "Grom", L.WANTED_LIFETIME:format(1), L.WANTED_BOUNTY:format(0), L.WANTED_SIGHT_SEEN:format("0s", L.WANTED_SIGHT_BY_YOU),
@@ -910,36 +910,36 @@ test("wanted sightings: a pin per Horde player where he was seen last, on the mi
 		world:Advance(120)
 		o2.x, o2.y = 0.2, 0.3
 		o2.layer = { mapID = 1429, zoneUID = 5151, t = world.epoch }
-		king.layer.t = world.epoch
+		shogun.layer.t = world.epoch
 		assert(world:See(o2, "target", Horde("Grom-Realm", GROM)))
 		world:Pump()
-		eq(#world:Pins(king), 1, "one pin per Horde player")
-		eq(king.lib:Take(), "mini+ 1429 0.200 0.300, world+ 1429 0.200 0.300")
-		eq(world:As(king, king.W.PinFrames)[GROM], f, "its frames kept")
-		tip = world:Hover(king, f.world.badge)
+		eq(#world:Pins(shogun), 1, "one pin per Horde player")
+		eq(shogun.lib:Take(), "mini+ 1429 0.200 0.300, world+ 1429 0.200 0.300")
+		eq(world:As(shogun, shogun.W.PinFrames)[GROM], f, "its frames kept")
+		tip = world:Hover(shogun, f.world.badge)
 		assert(tip:find(L.WANTED_SIGHT_SEEN:format("0s", "Brenna"), 1, true), tip)
 		assert(tip:find(L.WANTED_SIGHT_OTHER_LAYER, 1, true), tip)
 		world:Advance(60)
-		assert(world:Hover(king, f.world.badge):find(L.WANTED_SIGHT_SEEN:format("60s", "Brenna"), 1, true), "its age")
-		-- The King takes him off (review: the hover still gave his bounty, as if wanted). 1.2.3, changed
+		assert(world:Hover(shogun, f.world.badge):find(L.WANTED_SIGHT_SEEN:format("60s", "Brenna"), 1, true), "its age")
+		-- The Shogun takes him off (review: the hover still gave his bounty, as if wanted). 1.2.3, changed
 		-- on purpose: an entry a reviewer takes off is an abusive one, and nothing of his counts any
 		-- more, his kills neither (before, his history stayed counted).
-		assert(world:As(king, king.W.RemoveTarget, "Grom-Realm", GROM))
-		eq(world:As(king, king.W.PinFrames)[GROM], nil, "a removed entry has no Wanted marker")
-		eq(#world:Pins(king), 0, "nor a visible sighting")
-		eq(king.lib:Take(), "mini-, world-", "removed from both maps at once")
+		assert(world:As(shogun, shogun.W.RemoveTarget, "Grom-Realm", GROM))
+		eq(world:As(shogun, shogun.W.PinFrames)[GROM], nil, "a removed entry has no Wanted marker")
+		eq(#world:Pins(shogun), 0, "nor a visible sighting")
+		eq(shogun.lib:Take(), "mini-, world-", "removed from both maps at once")
 		-- An older sighting arriving late does not move it back.
 		local late = ("WS~S~1~Bankai Guild II~00000000000000bb~%d~1429~900~900~0~1.0a000001~Grom-Realm"):format(world.epoch - 300)
-		world:As(king, king.W.HandleSighting, "WHISPER", o.name, late)
-		eq(#world:Pins(king), 0)
+		world:As(shogun, shogun.W.HandleSighting, "WHISPER", o.name, late)
+		eq(#world:Pins(shogun), 0)
 		-- Fifteen minutes after the newest: gone, from both maps.
-		world:Advance(king.W.SIGHT_TTL - 60)
-		world:As(king, king.W.RefreshPins)
-		eq(king.lib:Take(), "", "still fresh")
+		world:Advance(shogun.W.SIGHT_TTL - 60)
+		world:As(shogun, shogun.W.RefreshPins)
+		eq(shogun.lib:Take(), "", "still fresh")
 		world:Advance(1)
-		world:As(king, king.W.RefreshPins)
-		eq(king.lib:Take(), "", "already hidden when taken off")
-		eq(#world:Pins(king), 0); eq(rawget(f.world.badge, "sighting"), nil)
+		world:As(shogun, shogun.W.RefreshPins)
+		eq(shogun.lib:Take(), "", "already hidden when taken off")
+		eq(#world:Pins(shogun), 0); eq(rawget(f.world.badge, "sighting"), nil)
 		-- 48 at most: the oldest go first.
 		local o3 = world:Client("Cedric-Realm", "Player-1-AB000003")
 		for i = 1, o3.W.SIGHT_PINS + 1 do
@@ -977,39 +977,39 @@ end)
 test("wanted sightings: none of these pins while this player is in an instance, back outside while fresh; none for a player outside Bankai Guild; nothing collected inside", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
-		world:Lease(king)
-		world:Choose(o, king)
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
+		world:Lease(shogun)
+		world:Choose(o, shogun)
 		assert(world:See(o, "nameplate1", Horde("Grom-Realm", GROM)))
-		o.lib:Take(); king.lib:Take()
-		king.instance = true
+		o.lib:Take(); shogun.lib:Take()
+		shogun.instance = true
 		world:Pump() -- (taken while he is inside: kept, not drawn)
-		eq(king.lib:Take(), "", "not drawn inside")
-		eq(#world:Pins(king), 1, "kept")
-		world:As(king, king.events.PLAYER_ENTERING_WORLD)
-		eq(king.lib:Take(), "")
-		king.instance = false
-		world:As(king, king.events.PLAYER_ENTERING_WORLD)
-		eq(king.lib:Take(), "mini+ 1429 0.410 0.680, world+ 1429 0.410 0.680", "back outside")
-		king.instance = true
-		world:As(king, king.events.ZONE_CHANGED_NEW_AREA)
-		eq(king.lib:Take(), "mini-, world-", "taken off on the way in")
-		local ok, why = world:See(king, "nameplate1", Horde("Thrall-Realm", THRALL))
+		eq(shogun.lib:Take(), "", "not drawn inside")
+		eq(#world:Pins(shogun), 1, "kept")
+		world:As(shogun, shogun.events.PLAYER_ENTERING_WORLD)
+		eq(shogun.lib:Take(), "")
+		shogun.instance = false
+		world:As(shogun, shogun.events.PLAYER_ENTERING_WORLD)
+		eq(shogun.lib:Take(), "mini+ 1429 0.410 0.680, world+ 1429 0.410 0.680", "back outside")
+		shogun.instance = true
+		world:As(shogun, shogun.events.ZONE_CHANGED_NEW_AREA)
+		eq(shogun.lib:Take(), "mini-, world-", "taken off on the way in")
+		local ok, why = world:See(shogun, "nameplate1", Horde("Thrall-Realm", THRALL))
 		eq(ok, false); eq(why, "instance", "nothing collected inside")
-		king.instance = false
-		world:As(king, king.W.RefreshPins)
-		king.lib:Take()
+		shogun.instance = false
+		world:As(shogun, shogun.W.RefreshPins)
+		shogun.lib:Take()
 		o.member = false
 		world:As(o, o.W.RefreshPins)
 		eq(o.lib:Take(), "mini-, world-", "no pins outside Bankai Guild")
-		world:Advance(king.W.SIGHT_TTL + 1)
-		world:As(king, king.W.RefreshPins)
-		eq(king.lib:Take(), "mini-, world-")
-		king.instance = true
-		world:As(king, king.W.RefreshPins)
-		king.instance = false
-		world:As(king, king.W.RefreshPins)
-		eq(king.lib:Take(), "", "an expired one never comes back")
+		world:Advance(shogun.W.SIGHT_TTL + 1)
+		world:As(shogun, shogun.W.RefreshPins)
+		eq(shogun.lib:Take(), "mini-, world-")
+		shogun.instance = true
+		world:As(shogun, shogun.W.RefreshPins)
+		shogun.instance = false
+		world:As(shogun, shogun.W.RefreshPins)
+		eq(shogun.lib:Take(), "", "an expired one never comes back")
 	end)
 end)
 
@@ -1017,28 +1017,28 @@ test("wanted sightings: a reviewer says he takes them 45 seconds after login and
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
 		local plain = world:Client("Plainmember-Realm", "Player-1-AB0000F4")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
-		world:Choose(o, king)
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
+		world:Choose(o, shogun)
 		local function Leases(from)
 			local n = 0
 			for _, m in ipairs(world.delivered) do
-				if m.msg == "WS~R~1" and m.from == (from or king) then n = n + 1 eq(m.dist, "CHANNEL") end
+				if m.msg == "WS~R~1" and m.from == (from or shogun) then n = n + 1 eq(m.dist, "CHANNEL") end
 			end
 			return n
 		end
-		world:Run(king.W.REVIEWER_FIRST - 1)
+		world:Run(shogun.W.REVIEWER_FIRST - 1)
 		eq(Leases(), 0); eq(world:Recipients(o), "")
 		world:Run(1)
-		eq(Leases(), 1, "45 seconds after his login"); eq(world:Recipients(o), "Kingly-Realm")
-		world:Run(king.W.REVIEWER_EVERY)
+		eq(Leases(), 1, "45 seconds after his login"); eq(world:Recipients(o), "Shogunly-Realm")
+		world:Run(shogun.W.REVIEWER_EVERY)
 		eq(Leases(), 2, "then on his beat")
 		-- The role is checked each time: lost, his lease counts no more and he sends none.
-		world.authorities[world.Fold(king.name)] = nil
+		world.authorities[world.Fold(shogun.name)] = nil
 		eq(world:Recipients(o), "")
-		world:Run(king.W.REVIEWER_EVERY)
+		world:Run(shogun.W.REVIEWER_EVERY)
 		eq(Leases(), 2)
-		world.authorities[world.Fold(king.name)] = "king"
-		world:Run(king.W.REVIEWER_EVERY)
+		world.authorities[world.Fold(shogun.name)] = "shogun"
+		world:Run(shogun.W.REVIEWER_EVERY)
 		eq(Leases(), 3)
 		-- A role that comes mid-session (the council's list: DATA_CHANGED) says so at once.
 		eq(Leases(plain), 0)
@@ -1051,16 +1051,16 @@ test("wanted sightings: a reviewer says he takes them 45 seconds after login and
 		eq(Leases(plain), 1, "and not again on every change")
 		world.authorities[world.Fold(plain.name)] = nil
 		-- A lease not heard for 11 minutes: lapsed.
-		king.online = false
-		world:Run(king.W.REVIEWER_FOR + 1)
+		shogun.online = false
+		world:Run(shogun.W.REVIEWER_FOR + 1)
 		eq(world:Recipients(o), "", "lapsed")
 		-- Back: he logs in again; then logs out without a word. The server's "No player named" for
 		-- the first whisper drops him, and what still waits for him.
-		king.online = true
-		world:Load(king)
-		world:Run(king.W.REVIEWER_FIRST)
-		eq(world:Recipients(o), "Kingly-Realm")
-		king.online = false
+		shogun.online = true
+		world:Load(shogun)
+		world:Run(shogun.W.REVIEWER_FIRST)
+		eq(world:Recipients(o), "Shogunly-Realm")
+		shogun.online = false
 		assert(world:See(o, "nameplate1", Horde("Grom-Realm", GROM)))
 		assert(world:See(o, "nameplate2", Horde("Thrall-Realm", THRALL)))
 		local waiting = world:Waiting(o)
@@ -1069,7 +1069,7 @@ test("wanted sightings: a reviewer says he takes them 45 seconds after login and
 		world:Pump()
 		eq(Dropped(world, "offline"), 1, "the second never goes")
 		eq(world:Recipients(o), "")
-		-- (Review: each member then saw that line, naming the King, with no idea why. The addon sent
+		-- (Review: each member then saw that line, naming the Shogun, with no idea why. The addon sent
 		-- it on its own: the line is kept out of his chat frames a moment, any other shows.)
 		eq(world:Shows(o, line), false, "not in his chat")
 		eq(world:Shows(o, NOT_FOUND:format("Someoneelse")), true, "another name's shows")
@@ -1090,34 +1090,34 @@ end)
 test("wanted sightings: a reviewer's own No stops what he takes too: his lease goes off on the channel, members stop whispering him and cancel what waits for him, his map is cleared; his Yes says at once that he takes them again", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
-		world:Lease(king)
-		world:Choose(o, king)
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
+		world:Lease(shogun)
+		world:Choose(o, shogun)
 		assert(world:See(o, "nameplate1", Horde("Grom-Realm", GROM)))
 		world:Pump()
-		eq(#world:Pins(king), 1)
+		eq(#world:Pins(shogun), 1)
 		-- (Review: his No stopped only his own collecting; he kept announcing, and taking them.)
-		world:As(king, king.consent.set, false)
-		eq(#world:Pins(king), 0, "his map cleared")
+		world:As(shogun, shogun.consent.set, false)
+		eq(#world:Pins(shogun), 0, "his map cleared")
 		local last = world.queue[#world.queue]
-		eq(last.msg, "WS~R~0"); eq(last.dist, "CHANNEL"); eq(last.from, king)
+		eq(last.msg, "WS~R~0"); eq(last.dist, "CHANNEL"); eq(last.from, shogun)
 		assert(world:See(o, "nameplate2", Horde("Thrall-Realm", THRALL)), "the member, before he hears it")
 		eq(#world:Waiting(o), 1)
 		world:Pump()
 		eq(Dropped(world, "reviewer"), 1, "what waited for him cancelled when his No was heard")
 		eq(world:Recipients(o), "")
-		eq(#world:Pins(king), 0)
-		local ok, why = world:As(king, king.W.HandleSighting, "WHISPER", o.name,
+		eq(#world:Pins(shogun), 0)
+		local ok, why = world:As(shogun, shogun.W.HandleSighting, "WHISPER", o.name,
 			("WS~S~1~Bankai Guild II~00000000000000cc~%d~1429~410~680~0~1.0a000003~Rexxar-Realm"):format(world.epoch))
 		eq(ok, false); eq(why, "reviewer", "he takes none")
-		eq(world:As(king, king.W.AnnounceReviewer), false)
+		eq(world:As(shogun, shogun.W.AnnounceReviewer), false)
 		local before = #world.delivered
-		world:Run(king.W.REVIEWER_EVERY + king.W.REVIEWER_FIRST)
+		world:Run(shogun.W.REVIEWER_EVERY + shogun.W.REVIEWER_FIRST)
 		for i = before + 1, #world.delivered do assert(world.delivered[i].msg ~= "WS~R~1", "no lease on his beat") end
 		-- His Yes: at once.
-		world:As(king, king.consent.set, true)
+		world:As(shogun, shogun.consent.set, true)
 		world:Pump()
-		eq(world:Recipients(o), "Kingly-Realm")
+		eq(world:Recipients(o), "Shogunly-Realm")
 	end)
 end)
 
@@ -1125,25 +1125,25 @@ test("wanted sightings: a member's No takes what reached his reviewer off that r
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
 		local o2 = world:Client("Brenna-Realm", "Player-1-AB000002")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
-		world:Lease(king)
-		world:Choose(o, king); world:Choose(o2, king)
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
+		world:Lease(shogun)
+		world:Choose(o, shogun); world:Choose(o2, shogun)
 		assert(world:See(o, "nameplate1", Horde("Grom-Realm", GROM)))
 		assert(world:See(o2, "nameplate1", Horde("Thrall-Realm", THRALL)))
 		world:Pump()
-		eq(#world:Pins(king), 2)
+		eq(#world:Pins(shogun), 2)
 		-- A modified client cannot take another's back: the server stamps the sender.
-		local ok, n = world:As(king, king.W.HandleSighting, "WHISPER", "Brenna-Realm", "WS~X~1")
+		local ok, n = world:As(shogun, shogun.W.HandleSighting, "WHISPER", "Brenna-Realm", "WS~X~1")
 		assert(ok); eq(n, 1, "Brenna's own only")
-		eq(#world:Pins(king), 1)
-		eq(world:Pins(king)[1].observer, "Aldric-Realm")
+		eq(#world:Pins(shogun), 1)
+		eq(world:Pins(shogun)[1].observer, "Aldric-Realm")
 		-- (Review: the page said No stops it at once, while the reviewer kept the pin 15 minutes.)
 		world:As(o, o.consent.set, false)
 		local back = world.queue[#world.queue]
-		eq(back.msg, "WS~X~1"); eq(back.dist, "WHISPER"); eq(world:Find(back.to), king)
+		eq(back.msg, "WS~X~1"); eq(back.dist, "WHISPER"); eq(world:Find(back.to), shogun)
 		world:Pump()
-		eq(#world:Pins(king), 0, "off the King's map")
-		eq(world:As(king, king.W.Stats).sightWithdrawn, 2)
+		eq(#world:Pins(shogun), 0, "off the Shogun's map")
+		eq(world:As(shogun, shogun.W.Stats).sightWithdrawn, 2)
 		-- Nothing reached anyone since: a second No asks nobody.
 		world:As(o, o.consent.set, true)
 		world:As(o, o.consent.set, false)
@@ -1181,9 +1181,9 @@ test("wanted sightings: a backup carries the No, and only a No: after a wipe it 
 	-- A client running Backup.lua with Wanted.lua: the restored No cancels what waits, at once.
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001", { realBackup = true })
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
-		world:Lease(king)
-		world:Choose(o, king)
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
+		world:Lease(shogun)
+		world:Choose(o, shogun)
 		assert(world:See(o, "nameplate1", Horde("Grom-Realm", GROM)))
 		eq(#world:Waiting(o), 1)
 		world:As(o, o.ns.Backup.Apply, d)
@@ -1198,12 +1198,12 @@ end)
 test("wanted sightings through the real Comm.lua: a sighting waits in its queue under Wanted's own key; the No cancels it there at once; Comm's permit stops one whose No came another way; one let through goes as a whisper to the reviewer", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001", { realComm = true })
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
 		local C = o.ns.Comm
 		assert(C ~= ns.Comm and C.CancelQueued, "its own Comm")
-		-- The King's lease, as that Comm hands it to Wanted.lua.
-		assert(world:As(o, o.W.HandleSighting, "CHANNEL", king.name, "WS~R~1"))
-		world:Choose(o, king)
+		-- The Shogun's lease, as that Comm hands it to Wanted.lua.
+		assert(world:As(o, o.W.HandleSighting, "CHANNEL", shogun.name, "WS~R~1"))
+		world:Choose(o, shogun)
 		local function Pump() for _ = 1, 3 do world:Advance(2) world:As(o, C.Pump) end end
 		local ok, e = world:See(o, "nameplate1", Horde("Grom-Realm", GROM))
 		assert(ok, e); eq(e.sent, 1)
@@ -1224,13 +1224,13 @@ test("wanted sightings through the real Comm.lua: a sighting waits in its queue 
 		Pump()
 		eq(#world.wire, 1)
 		local w = world.wire[1]
-		eq(w.dist, "WHISPER"); eq(world:Find(w.target), king)
+		eq(w.dist, "WHISPER"); eq(world:Find(w.target), shogun)
 		eq(w.msg, ("WS~S~1~Bankai Guild II~%s~%d~1429~410~680~0~1.0a000003~Rexxar-Realm"):format(e.id, e.at))
 		eq(world:As(o, o.W.Stats).sightSent, 1)
 		-- Its No now takes that one back, through the same Comm.
 		world:As(o, o.consent.set, false)
 		Pump()
-		eq(#world.wire, 2); eq(world.wire[2].msg, "WS~X~1"); eq(world:Find(world.wire[2].target), king)
+		eq(#world.wire, 2); eq(world.wire[2].msg, "WS~X~1"); eq(world:Find(world.wire[2].target), shogun)
 	end)
 end)
 
@@ -1255,15 +1255,15 @@ test("wanted sightings mixed versions: 1.1.4's Comm (what live clients run) igno
 		local function Deliver(dist, sender, text)
 			for _, fn in ipairs(events.CHAT_MSG_ADDON) do fn(ns.PREFIX, text, dist, sender) end
 		end
-		Deliver("CHANNEL", "Kingly-Realm", "WS~R~1")
-		Deliver("CHANNEL", "Kingly-Realm", "WS~R~0")
+		Deliver("CHANNEL", "Shogunly-Realm", "WS~R~1")
+		Deliver("CHANNEL", "Shogunly-Realm", "WS~R~0")
 		Deliver("WHISPER", "Aldric-Realm", "WS~S~1~Bankai Guild II~0123456789abcdef~1800000000~1429~410~680~0~1.0a000001~Grom-Realm")
 		Deliver("WHISPER", "Aldric-Realm", "WS~X~1")
 		-- (1.2.3: a member's own kill or death, a reviewer's relay of one, and his removal: none of
 		-- them is a type 1.1.4 handles either.)
 		Deliver("CHANNEL", "Aldric-Realm", "WK~1~0123456789abcdef~Bankai Guild II~0123456789abcdef~1800000000~24321~S~1.0a000001~1.ab000001~Grom-Realm")
-		Deliver("CHANNEL", "Kingly-Realm", "WK~R~1~0123456789abcdef~Aldric-Realm~1~0123456789abcdef~1800000000~24321~S~1.0a000001~1.ab000001~Grom-Realm")
-		Deliver("CHANNEL", "Kingly-Realm", "WV~T~1~0123456789abcdef~1.0a000001~1800000000")
+		Deliver("CHANNEL", "Shogunly-Realm", "WK~R~1~0123456789abcdef~Aldric-Realm~1~0123456789abcdef~1800000000~24321~S~1.0a000001~1.ab000001~Grom-Realm")
+		Deliver("CHANNEL", "Shogunly-Realm", "WV~T~1~0123456789abcdef~1.0a000001~1800000000")
 		eq(#heard, 0, "no handler runs")
 		local stats = cns.Comm.Stats()
 		eq(stats.recv, 7, "heard by the old transport")
@@ -1281,13 +1281,13 @@ end)
 test("wanted sightings (1.2.0): a member who keeps his zone and layer private sends none (his own map still shows them)", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king", manager = true })
-		world:Lease(king)
-		world:Choose(o, king)
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun", manager = true })
+		world:Lease(shogun)
+		world:Choose(o, shogun)
 		o.private = true
 		local ok, e = world:See(o, "nameplate1", Horde("Grom-Realm", GROM))
 		assert(ok, e); eq(e.sent, 0, "nothing goes while private"); eq(#world:Pins(o), 1, "his own map")
-		world:Pump(); eq(#world:Pins(king), 0)
+		world:Pump(); eq(#world:Pins(shogun), 0)
 		o.private = nil
 		world:Advance(o.W.SIGHT_GAP + 1)
 		ok, e = world:See(o, "nameplate2", Horde("Thrall-Realm", THRALL))
@@ -1298,22 +1298,22 @@ end)
 test("wanted sightings: location withdrawal stops a queued sighting and takes back delivered pins", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king", manager = true })
-		world:Lease(king); world:Choose(o, king)
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun", manager = true })
+		world:Lease(shogun); world:Choose(o, shogun)
 		local ok, e = world:See(o, "nameplate1", Horde("Grom-Realm", GROM))
 		assert(ok, e); eq(e.sent, 1)
 		o.private = true -- no event first: the transport's final permit must still refuse it
 		world:Pump()
-		eq(Dropped(world, "private"), 1); eq(#world:Pins(king), 0)
+		eq(Dropped(world, "private"), 1); eq(#world:Pins(shogun), 0)
 		o.private = nil
 		assert(world:See(o, "nameplate2", Horde("Thrall-Realm", THRALL)))
-		world:Pump(); eq(#world:Pins(king), 1, "sharing again permits a valid sighting")
+		world:Pump(); eq(#world:Pins(shogun), 1, "sharing again permits a valid sighting")
 		assert(world:See(o, "nameplate3", Horde("Rexxar-Realm", REXXAR)))
 		eq(#world:Waiting(o), 1)
 		o.private = true
 		world:As(o, assert(o.listeners.LAYER_SHARING_CHANGED), false)
 		eq(#world:Waiting(o), 0, "the location switch cancels waiting sightings immediately")
-		world:Pump(); eq(#world:Pins(king), 0, "already delivered pins are taken back")
+		world:Pump(); eq(#world:Pins(shogun), 0, "already delivered pins are taken back")
 		eq(#world:Pins(o), 3, "local pins remain local")
 		eq(o.db.wantedSightings, true, "location withdrawal does not change sightings consent")
 	end)
@@ -1322,20 +1322,20 @@ end)
 test("wanted sightings: an open Wanted profile refreshes only when a pin is added, received, withdrawn or expires", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king", manager = true })
-		world:Lease(king); world:Choose(o, king)
-		o.uiOpen, king.uiOpen = true, true
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun", manager = true })
+		world:Lease(shogun); world:Choose(o, shogun)
+		o.uiOpen, shogun.uiOpen = true, true
 		assert(world:As(o, o.W.OpenTarget, nil, GROM))
-		assert(world:As(king, king.W.OpenTarget, nil, GROM))
-		o.uiRefreshes, king.uiRefreshes = 0, 0
+		assert(world:As(shogun, shogun.W.OpenTarget, nil, GROM))
+		o.uiRefreshes, shogun.uiRefreshes = 0, 0
 
 		assert(world:See(o, "nameplate1", Horde("Grom-Realm", GROM)))
 		eq(o.uiRefreshes, 1, "adding a local pin redraws the open profile")
 		world:Pump()
-		eq(king.uiRefreshes, 1, "receiving a pin redraws the open profile")
+		eq(shogun.uiRefreshes, 1, "receiving a pin redraws the open profile")
 		-- (RH-09, changed on purpose: 1.2.4's session-only "Last observed online" line is now the
 		-- kept "Last seen online" line, wanted-online, whose tooltip names its source. A pin a member
-		-- sent shows as seen nearby; the king's own sighting is kept after its pin, as Daniel asked.)
+		-- sent shows as seen nearby; the shogun's own sighting is kept after its pin, as Daniel asked.)
 		local function Source(cl)
 			for _, line in ipairs(world:As(cl, cl.W.Build)) do
 				if line.id == "wanted-online:g:" .. GROM then
@@ -1349,38 +1349,38 @@ test("wanted sightings: an open Wanted profile refreshes only when a pin is adde
 			return nil
 		end
 		local function HasObserved(cl) return Source(cl) == "nearby" end
-		assert(HasObserved(king), "the received observation appears without a manual page refresh")
-		world:As(king, king.W.RefreshPins)
-		eq(king.uiRefreshes, 1, "an unchanged pin refresh does not create a redraw loop")
+		assert(HasObserved(shogun), "the received observation appears without a manual page refresh")
+		world:As(shogun, shogun.W.RefreshPins)
+		eq(shogun.uiRefreshes, 1, "an unchanged pin refresh does not create a redraw loop")
 
 		world:As(o, o.W.SetSightings, false, true)
 		eq(o.uiRefreshes, 2, "withdrawing local pins redraws their profile")
 		world:Pump()
-		eq(king.uiRefreshes, 2, "taking back the delivered pin redraws the reviewer's profile")
-		eq(HasObserved(king), false, "the withdrawn observation disappears immediately")
+		eq(shogun.uiRefreshes, 2, "taking back the delivered pin redraws the reviewer's profile")
+		eq(HasObserved(shogun), false, "the withdrawn observation disappears immediately")
 
-		eq(Source(king), nil, "and nothing else dates him on the king's page")
+		eq(Source(shogun), nil, "and nothing else dates him on the shogun's page")
 
-		assert(world:See(king, "target", Horde("Grom-Realm", GROM)))
-		eq(king.uiRefreshes, 3, "a new native observation redraws once")
-		eq(Source(king), "own")
-		world:As(king, king.W.RefreshPins)
-		eq(king.uiRefreshes, 3, "the normal pin beat is quiet while nothing changed")
-		world:Advance(king.W.SIGHT_TTL + 1)
-		world:As(king, king.W.RefreshPins)
-		eq(king.uiRefreshes, 4, "expiry redraws once")
-		eq(#world:Pins(king), 0, "the expired pin disappears immediately")
-		eq(Source(king), "own", "his own sighting's time stays on the page after its pin (RH-09)")
+		assert(world:See(shogun, "target", Horde("Grom-Realm", GROM)))
+		eq(shogun.uiRefreshes, 3, "a new native observation redraws once")
+		eq(Source(shogun), "own")
+		world:As(shogun, shogun.W.RefreshPins)
+		eq(shogun.uiRefreshes, 3, "the normal pin beat is quiet while nothing changed")
+		world:Advance(shogun.W.SIGHT_TTL + 1)
+		world:As(shogun, shogun.W.RefreshPins)
+		eq(shogun.uiRefreshes, 4, "expiry redraws once")
+		eq(#world:Pins(shogun), 0, "the expired pin disappears immediately")
+		eq(Source(shogun), "own", "his own sighting's time stays on the page after its pin (RH-09)")
 	end)
 end)
 
 test("wanted sightings: the real transport rechecks location sharing before a queued whisper leaves", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001", { realComm = true })
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun" })
 		local C = o.ns.Comm
-		assert(world:As(o, o.W.HandleSighting, "CHANNEL", king.name, "WS~R~1"))
-		world:Choose(o, king)
+		assert(world:As(o, o.W.HandleSighting, "CHANNEL", shogun.name, "WS~R~1"))
+		world:Choose(o, shogun)
 		local function Pump() for _ = 1, 3 do world:Advance(2); world:As(o, C.Pump) end end
 		local ok, e = world:See(o, "nameplate1", Horde("Grom-Realm", GROM))
 		assert(ok, e); eq(e.sent, 1); eq(C.QueueSize(), 1)
@@ -1399,61 +1399,61 @@ test("wanted sightings: the real transport rechecks location sharing before a qu
 end)
 
 -- 1.2.5.1, review of the quiet presence (Core.lua): a reviewer's lease says he is online, and he is
--- the King, a councillor or the author, the very people who may turn it on; a sighting carries its
+-- the Shogun, a councillor or the author, the very people who may turn it on; a sighting carries its
 -- sender's map, x, y and layer. Both still left a quiet client, as did the No and the taking back.
 test("wanted sightings: while the quiet presence is on, no sighting, lease, No or taking back leaves this client (its own map still pins what it sees); once off, its lease at once and its sightings again", function()
 	WithSightings(function(world)
-		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king", crown = true })
+		local shogun = world:Client("Shogunly-Realm", "Player-1-AB0000F1", { role = "shogun", crown = true })
 		local c1 = world:Client("Councilone-Realm", "Player-1-AB0000F2", { role = "council" })
-		world:Lease(king, c1)
-		world:Choose(king, c1)
-		local function FromKing()
+		world:Lease(shogun, c1)
+		world:Choose(shogun, c1)
+		local function FromShogun()
 			local n = 0
-			for _, m in ipairs(world.delivered) do if m.from == king and m.msg:sub(1, 3) == "WS~" then n = n + 1 end end
+			for _, m in ipairs(world.delivered) do if m.from == shogun and m.msg:sub(1, 3) == "WS~" then n = n + 1 end end
 			return n
 		end
-		local ok, e = world:See(king, "nameplate1", Horde("Grom-Realm", GROM))
+		local ok, e = world:See(shogun, "nameplate1", Horde("Grom-Realm", GROM))
 		assert(ok, e); eq(e.sent, 1, "before: to his reviewer")
 		world:Pump()
 		eq(#world:Pins(c1), 1)
 		-- One waits when it begins: Comm's own check keeps it home.
-		ok, e = world:See(king, "nameplate2", Horde("Thrall-Realm", THRALL))
+		ok, e = world:See(shogun, "nameplate2", Horde("Thrall-Realm", THRALL))
 		eq(e.sent, 1)
-		king.quiet = true
+		shogun.quiet = true
 		world:Pump()
 		eq(Dropped(world, "quiet"), 1, "the waiting one stays home")
-		local sent = FromKing()
+		local sent = FromShogun()
 		-- What he sees now: on his own map alone.
-		world:Advance(king.W.SIGHT_WINDOW + 1)
-		ok, e = world:See(king, "nameplate3", Horde("Rexxar-Realm", REXXAR))
-		assert(ok, e); eq(e.sent, 0, "sent to nobody"); eq(#world:Pins(king), 3, "his own map shows it")
+		world:Advance(shogun.W.SIGHT_WINDOW + 1)
+		ok, e = world:See(shogun, "nameplate3", Horde("Rexxar-Realm", REXXAR))
+		assert(ok, e); eq(e.sent, 0, "sent to nobody"); eq(#world:Pins(shogun), 3, "his own map shows it")
 		-- His lease: neither on its beat nor on a role's change; the councillor's copy lapses.
-		eq(world:As(king, king.W.AnnounceReviewer), false)
-		world:As(king, king.listeners.DATA_CHANGED)
-		world:Run(king.W.REVIEWER_FOR + 1)
-		eq(FromKing(), sent, "no lease while it is on")
-		world:Choose(c1, king)
+		eq(world:As(shogun, shogun.W.AnnounceReviewer), false)
+		world:As(shogun, shogun.listeners.DATA_CHANGED)
+		world:Run(shogun.W.REVIEWER_FOR + 1)
+		eq(FromShogun(), sent, "no lease while it is on")
+		world:Choose(c1, shogun)
 		eq(world:Recipients(c1), "", "his lease lapsed on the councillor's client, as after a logout")
 		-- Off: his lease at once, and his sightings go again.
-		king.quiet = false
-		world:As(king, king.listeners.QUIET_PRESENCE_CHANGED, false)
+		shogun.quiet = false
+		world:As(shogun, shogun.listeners.QUIET_PRESENCE_CHANGED, false)
 		world:Pump()
-		eq(FromKing(), sent + 1, "his lease at once")
-		eq(world:Recipients(c1), "Kingly-Realm")
+		eq(FromShogun(), sent + 1, "his lease at once")
+		eq(world:Recipients(c1), "Shogunly-Realm")
 		world:Lease(c1)
-		world:Advance(king.W.SIGHT_WINDOW + 1)
-		ok, e = world:See(king, "nameplate4", Horde("Garrosh-Realm", GARROSH))
+		world:Advance(shogun.W.SIGHT_WINDOW + 1)
+		ok, e = world:See(shogun, "nameplate4", Horde("Garrosh-Realm", GARROSH))
 		eq(e.sent, 1, "to his reviewer again")
 		world:Pump()
-		eq(FromKing(), sent + 2)
+		eq(FromShogun(), sent + 2)
 		-- Quiet again, then his No: no lease off (WS~R~0) and nothing taken back (WS~X): what reached
 		-- the councillor expires there on its own.
-		king.quiet = true
+		shogun.quiet = true
 		local pins = #world:Pins(c1)
-		world:As(king, king.W.SetSightings, false, true)
+		world:As(shogun, shogun.W.SetSightings, false, true)
 		world:Pump()
-		eq(FromKing(), sent + 2, "no No and no taking back while it is on")
+		eq(FromShogun(), sent + 2, "no No and no taking back while it is on")
 		eq(#world:Pins(c1), pins, "the councillor's pins stay until they expire")
-		eq(world:Recipients(c1), "Kingly-Realm", "nor did the No reach him")
+		eq(world:Recipients(c1), "Shogunly-Realm", "nor did the No reach him")
 	end)
 end)

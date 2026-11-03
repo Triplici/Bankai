@@ -211,7 +211,7 @@ end
 -- "ports" than the census). A module's exporter returns only what this character's own client
 -- already shows on Bankai Guild's own pages, to the audience that page has: a staff-only section (The
 -- Watch's, BridgeAffairs.lua) exists only on the clients whose page shows it, and personal rows
--- carry this character's own (his crafting deals, his letters from the King, and "self",
+-- carry this character's own (his crafting deals, his letters from the Shogun, and "self",
 -- BridgeSections.lua: his character and BattleTag once his Bankai Guild Accord is accepted). This
 -- registry copies it into fresh plain tables, within fixed limits, and the private sidecar
 -- (BankaiGuildCompanionBridge) saves only the sections it knows at logout. Never another player's
@@ -308,7 +308,7 @@ end
 
 BankaiGuildBridge.RegisterSection("census", 1, BankaiGuildBridge.GetCensusCheckpoint)
 
--- The King's screen while the councillors' names are hidden there (his stream, ns.CouncilMasked,
+-- The Shogun's screen while the councillors' names are hidden there (his stream, ns.CouncilMasked,
 -- 0.9.9): the chats put no mark on a councillor's line and /bk council cuts each name short, so
 -- the bridge names nobody either, until he clicks the eye. An error there counts as hidden.
 local function Masked()
@@ -318,7 +318,7 @@ local function Masked()
 end
 
 -- The same answer as the councillor mark in the Bankai Guild chats (ns.IsHighCouncillor, not on the
--- King's screen while the names are hidden): a name on the signed list, on that list's realm
+-- Shogun's screen while the names are hidden): a name on the signed list, on that list's realm
 -- group. Anything else, or an error, is false.
 function BankaiGuildBridge.IsHighCouncillor(name)
 	if type(name) ~= "string" or name == "" or type(ns.IsHighCouncillor) ~= "function" or Masked() then return false end
@@ -329,7 +329,7 @@ end
 -- A fresh, sorted copy of the signed list's names (Workshop.CouncilNames, the names /bk council
 -- prints), and the list's realm group ("A+B", or nil when it names none): the names count on
 -- that group only, which BankaiGuildBridge.IsHighCouncillor checks. Empty until a signed list has
--- been checked on this client, and on the King's screen while the names are hidden.
+-- been checked on this client, and on the Shogun's screen while the names are hidden.
 function BankaiGuildBridge.GetCouncil()
 	local c, W = ns.rdb and ns.rdb.council, ns.Workshop
 	if type(c) ~= "table" or type(c.names) ~= "table" or type(W) ~= "table" or type(W.CouncilNames) ~= "function"
@@ -400,7 +400,7 @@ end)
 -- several players' Companions agreeing confirm what was said, and to moderate). fn(tier, sender,
 -- text, isSelf) for every Bankai Guild chat line this client shows, the player's own included (isSelf):
 --   tier   the chat, as a moderator's deletion names it (WatchChat.lua): "A", "C" or "L" for
---          [Bankai Guild], [Captains] and [Lords]; a room's id for the rooms this character is in
+--          [Bankai Guild], [Captains] and [Council]; a room's id for the rooms this character is in
 --          ("guild", a role room's, a squad's, a crafting deal's); a fight or Bones room's id.
 --          (A pinned line is no chat's line: never here, as README's chat record row says.)
 --   text   as Bankai Guild keeps it, after its checks and Codec.SanitizeChat: a muted channel's lines,

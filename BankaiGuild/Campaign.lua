@@ -3,7 +3,7 @@ local L = ns.L
 
 -- Voluntary campaign jar (Fern F26-11). No money moves here. Only actual Treasury receipt
 -- callbacks create eligible local lines; a real keeper assigns them by hand. Receipt identities
--- stay in that keeper's saved ledger. Only aggregates go to the King, and only the King publishes
+-- stay in that keeper's saved ledger. Only aggregates go to the Shogun, and only the Shogun publishes
 -- them. The existing dues exclusion and donor-ranking/publication rules are not changed.
 local Campaign = {}
 ns.Campaign = Campaign
@@ -25,20 +25,20 @@ local function Clean(s, max)
 end
 local function Preview()
 	local V = ns.ViewAs
-	return ns.King.Preview() or (V and V.Previewing and V.Previewing()) or ns.Treasury.DevView()
+	return ns.Shogun.Preview() or (V and V.Previewing and V.Previewing()) or ns.Treasury.DevView()
 end
 local function Off()
 	local M, W = ns.Moderation, ns.WatchChat
 	return (M and M.SelfOff and M.SelfOff()) or (W and not W.missing and W.Barred and W.Barred("powers"))
 end
-function Campaign.MaySet() return ns.King.IsKing() and ns.IsKingCharacter(ns.me) and not Preview() and not Off() end
+function Campaign.MaySet() return ns.Shogun.IsShogun() and ns.IsShogunCharacter(ns.me) and not Preview() and not Off() end
 function Campaign.MayAllocate() return ns.Treasury.RealKeeper() and not Preview() and not Off() end
 function Campaign.State()
 	local s = ns.rdb and ns.rdb.campaign
 	if type(s) ~= "table" or not Number(s.id) or not Number(s.rev) or not Number(s.start) or not Number(s.finish)
 		or s.finish - s.start ~= Campaign.DAYS * 86400 or type(s.purpose) ~= "string" or s.purpose == ""
 		or not Number(s.target) or not Number(s.got) or type(s.goals) ~= "table" or type(s.counts) ~= "table" or type(s.baselines) ~= "table"
-		or not ns.IsKingCharacter(s.by) or (s.closed and (type(s.note) ~= "string" or s.note == "")) then return nil end
+		or not ns.IsShogunCharacter(s.by) or (s.closed and (type(s.note) ~= "string" or s.note == "")) then return nil end
 	local n = 0
 	for id, count in pairs(s.goals) do
 		n = n + 1
@@ -163,7 +163,7 @@ local function Allowance(b, e)
 	if not Number(baseline, D.MAX_AMOUNT) or baseline == 0 then return 0 end
 	local word = ns.rdb and ns.rdb.duesAmount
 	if word ~= nil and (type(word) ~= "table" or not Number(word.at) or not Number(word.copper, D.MAX_AMOUNT) or tonumber(word.copper) == 0
-		or not Number(word.before, D.MAX_AMOUNT) or tonumber(word.before) == 0 or not (ns.IsKingCharacter(word.from) or ns.King.IsStewardName(word.from))) then return 0 end
+		or not Number(word.before, D.MAX_AMOUNT) or tonumber(word.before) == 0 or not (ns.IsShogunCharacter(word.from) or ns.Shogun.IsStewardName(word.from))) then return 0 end
 	local current = D.AmountOf(wk)
 	if not Number(current, D.MAX_AMOUNT) or current == 0 then return 0 end
 	local amount = math.max(baseline, current, tonumber(p.d) or 0)
@@ -294,8 +294,8 @@ function Campaign.Report(force)
 			local message = ("VG~R~%d~%d~%s~%s~%d~%s"):format(id, rev, GetGuildInfo("player") or "", actor, money, ItemWord(counts))
 			if Campaign.MaySet() and mine then Campaign.Handle("WHISPER", ns.me, message)
 			else
-				local king = ns.KingCharacter() and ns.FullName(ns.KingCharacter())
-				if king then ns.Comm.Whisper(king, message, "campaign:" .. actor, false, false, nil,
+				local shogun = ns.ShogunCharacter() and ns.FullName(ns.ShogunCharacter())
+				if shogun then ns.Comm.Whisper(shogun, message, "campaign:" .. actor, false, false, nil,
 					{ owner = Campaign, guard = function() return Campaign.MayAllocate() and Campaign.State() and Campaign.State().id == id and r.rev == rev end }) end
 			end
 			any = true
@@ -342,7 +342,7 @@ function Campaign.Handle(dist, sender, message)
 	local f = Fields(message)
 	if not f or f[1] ~= "VG" then return end
 	if f[2] == "S" then
-		if dist ~= "CHANNEL" or not ns.IsKingCharacter(sender) or #f ~= 14 then return end
+		if dist ~= "CHANNEL" or not ns.IsShogunCharacter(sender) or #f ~= 14 then return end
 		local id, rev, start, finish, target, got = Number(f[3]), Number(f[4]), Number(f[5]), Number(f[6]), Number(f[7]), Number(f[8])
 		local goals = Items(f[9]); local counts = goals and Items(f[10], goals)
 		local baselines = Items(f[14], nil, ns.Dues.MAX_AMOUNT)

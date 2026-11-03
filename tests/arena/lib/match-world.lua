@@ -56,10 +56,10 @@ function MW.Apply(w, c)
 	local cns = c.ns
 	local function Full(name) return type(name) == "string" and cns.FullName(name) or name end
 	rawset(cns, "Layers", {
-		-- (As Layers.lua reads it: the King's crown, else the player's answer.)
+		-- (As Layers.lua reads it: the Shogun's crown, else the player's answer.)
 		Sharing = function()
-			local K = cns.King
-			if K and K.IsKing and K.IsKing() then return K.SharingLocation() == true end
+			local K = cns.Shogun
+			if K and K.IsShogun and K.IsShogun() then return K.SharingLocation() == true end
 			return cns.db.shareLocation == true
 		end,
 		SetSharing = function(on)

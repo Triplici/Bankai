@@ -117,8 +117,8 @@ test("bridge people (real modules): a public title fight on the Arena's own modu
 	for _, c in ipairs(w.clients) do W3.Companion(w, c) end
 	local fid = PublicFight(w, cast, { title = true })
 	local plain = PublicFight(w, cast)
-	-- The King publishes the arena's ranking (ArenaHome.RankingsPublic, every member's Games tab).
-	W3.M(w, cast.king, "ArenaHome").SetRankingsPublic(true, "arena")
+	-- The Shogun publishes the arena's ranking (ArenaHome.RankingsPublic, every member's Games tab).
+	W3.M(w, cast.shogun, "ArenaHome").SetRankingsPublic(true, "arena")
 	w:Run(1)
 	local viewer = cast.A
 	LoadBridge(w, viewer)

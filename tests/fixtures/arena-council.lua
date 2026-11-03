@@ -2,7 +2,7 @@
 -- tests (its private half was not kept), and the two lists it signed from a made-up council of the
 -- realm group Emberfall+Emberfall2 (every name invented):
 --   names (HS1): Idris Vane, Brannoc Weald (High Councillors)
---   titles (HT1): the same in their departments; the King's Steward Marrek Oakhand-Emberfall; the
+--   titles (HT1): the same in their departments; the Shogun's Steward Marrek Oakhand-Emberfall; the
 --   arena's signed arbiters Oswin Marrow-Emberfall, Hesta Quill-Emberfall (+a, an auditor) and
 --   Quillon Scribe-Emberfall (+a: the tests' stand-in for the author's own character)
 -- Made with: keygen; council (the file above); arbiter "Oswin Marrow-Emberfall"; arbiter --audit

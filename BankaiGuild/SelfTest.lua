@@ -506,7 +506,7 @@ end
 
 -- The saved keys the pages write as they open (the Chat tab's place, the Arena window's, the
 -- privacy page's asked questions, the letters read, the author's View as): put back as they were.
-SelfTest.SAVED_KEYS = { "chatWin", "arenaUI", "consentAsked", "consentNotices", "lettersRead", "lettersAutoVersion", "devKingView",
+SelfTest.SAVED_KEYS = { "chatWin", "arenaUI", "consentAsked", "consentNotices", "lettersRead", "lettersAutoVersion", "devShogunView",
 	"devTreasurerView", "devGMView", "previewTreasuryFlags", "previewTreasuryKeepers", "arenaRules" }
 
 -- The Bankai Guild window's page now, with the Church's page (UI.PageId says "church/" for every one).
@@ -564,8 +564,8 @@ function SelfTest.Snapshot()
 	end
 	local T = Mod("Treasury")
 	if T then s.treasury = T.mode end
-	local K = Mod("King")
-	if K then s.king = K.mode end
+	local K = Mod("Shogun")
+	if K then s.shogun = K.mode end
 	local CS = Mod("CensusStats")
 	if CS and type(CS.Shown) == "function" then s.censusStats = CS.Shown() == true end
 	local PE = Mod("ProfileEdit")
@@ -667,8 +667,8 @@ function SelfTest.Restore(s, opts)
 	ns.SafeCall("selftest restore wanted", WantedTo, s)
 	local T = Mod("Treasury")
 	if T and s.treasury and T.mode ~= s.treasury and type(T.Show) == "function" then Try(T.Show, s.treasury) end
-	local K = Mod("King")
-	if K and K.mode ~= s.king then K.mode = s.king end
+	local K = Mod("Shogun")
+	if K and K.mode ~= s.shogun then K.mode = s.shogun end
 	local PE = Mod("ProfileEdit")
 	if PE and type(s.peSection) == "string" and type(PE.Section) == "function" and PE.Section() ~= s.peSection then Try(PE.SetSection, s.peSection) end
 	-- The window: its tab and the Realm's page; closed when it was.
@@ -1125,7 +1125,7 @@ end }
 API[#API + 1] = { id = "api.atlas", what = "C_Texture.GetAtlasInfo for the atlases Bankai Guild draws", fn = function(step)
 	local info = type(C_Texture) == "table" and C_Texture.GetAtlasInfo or nil
 	if type(info) ~= "function" then return P(step, "warn", "C_Texture.GetAtlasInfo absent: every atlas falls back to a file") end
-	local names = { ns.Views and ns.Views.PICKER_ATLAS, Mod("KingArrow") and Mod("KingArrow").NATIVE_ATLAS, "Quest-Horde-WaxSeal", "Quest-Alliance-WaxSeal",
+	local names = { ns.Views and ns.Views.PICKER_ATLAS, Mod("ShogunArrow") and Mod("ShogunArrow").NATIVE_ATLAS, "Quest-Horde-WaxSeal", "Quest-Alliance-WaxSeal",
 		"nameplates-icon-elite-gold", "nameplates-icon-elite-silver", "NPE_ArrowDown", "raceicon128-human-male" }
 	local missing, n = {}, 0
 	for i = 1, 8 do
@@ -1544,9 +1544,9 @@ MOD[#MOD + 1] = { id = "mod.partyguard", what = "the Party Guard", fn = function
 	local G = Mod("PartyGuard")
 	if not G then return P(step, "skip", "PartyGuard.lua not loaded") end
 	local okE, on = Try(G.Enabled)
-	local okK, king = Try(G.KingOnline)
+	local okK, shogun = Try(G.ShogunOnline)
 	local okC, list = Try(G.Candidates)
-	P(step, "ok", ("enabled %s, King online %s, %d candidates"):format(Bool(okE and on), Bool(okK and king), okC and #(list or {}) or -1))
+	P(step, "ok", ("enabled %s, Shogun online %s, %d candidates"):format(Bool(okE and on), Bool(okK and shogun), okC and #(list or {}) or -1))
 end }
 
 MOD[#MOD + 1] = { id = "mod.gate", what = "the gamepad gate, the profiler, the language", fn = function(step)
@@ -2089,8 +2089,8 @@ SelfTest.OPENERS = {
 		V.ShowBoard(true)
 		return V.BoardShown() == true, "the Board did not open"
 	end },
-	{ id = "king-hands", back = true, tab = "throne", open = function()
-		local K = Mod("King")
+	{ id = "shogun-hands", back = true, tab = "throne", open = function()
+		local K = Mod("Shogun")
 		if not K then return false, "no Throne here" end
 		if type(K.ThroneShown) == "function" and not K.ThroneShown() then return false, "the Throne is not this character's" end
 		K.Show("hands")

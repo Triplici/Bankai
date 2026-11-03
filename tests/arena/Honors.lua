@@ -1802,7 +1802,7 @@ test("1.2.3 honours: a pick 1.2.2 left on a frame not released (1.2.4: the raven
 	if not ok then error(err, 0) end
 end)
 
--- The title's click in the profile and the King's letter's "Wear it" pick a title with the frame as
+-- The title's click in the profile and the Shogun's letter's "Wear it" pick a title with the frame as
 -- it is (SetPick(Pick().frame, title)): Choose refused a frame not held now, or not released, and
 -- nothing happened. (1.2.4: the koi is released now; the raven stands in for it, not released.)
 test("1.2.3 honours: Choose takes the pick's own frame unchanged whatever it is (a title alone picked); any other frame still only when held and released; it keeps no back", function()
@@ -1831,7 +1831,7 @@ end)
 
 ---------------------------------------------------------------------------
 -- 1.2.4: the new families (the Apostles' cross, the Bones' charm, the slayers' skeletal horse) and
--- the places told (Honors.Moves: the King's letter the first time, a notice after)
+-- the places told (Honors.Moves: the Shogun's letter the first time, a notice after)
 ---------------------------------------------------------------------------
 
 local OCT = Honors.MonthOf(NOW)

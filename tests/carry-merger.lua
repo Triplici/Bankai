@@ -3,10 +3,10 @@ local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]carry%-me
 local World = assert(loadfile(ROOT .. "tests/arena/lib/world.lua"))({ ROOT = ROOT, ADDON_DIR = ROOT .. "BankaiGuild/", ns = base })
 local function Setup()
 	local w = World.New({ council = false, compliance = "shipped", arenaFiles = { "ArenaMath", "ArenaNet", "ArenaMoney", "Debts" } })
-	local king, member = w:Role("king"), w:Role("fighterA")
+	local shogun, member = w:Role("shogun"), w:Role("fighterA")
 	local dest = w:Role("fighterB", { rank = 0, guild = "Bankai Guild II" })
 	local source = w:Client("Source Warden-Emberfall", { rank = 0, guild = member.guild })
-	for _, c in ipairs({ king, member, dest, source }) do w:As(c, function()
+	for _, c in ipairs({ shogun, member, dest, source }) do w:As(c, function()
 		c.ns.Roster = { Fresh = function() return c.fresh ~= false and {} or nil end,
 			RankOf = function(name) for _, other in ipairs(w.clients) do if name == other.name and other.guild == c.guild then return other.rank end end end }
 		-- These verdicts model a fresh native roster and verified signed foreign authority,
@@ -30,15 +30,15 @@ local function Setup()
 		assert(loadfile(ROOT .. "BankaiGuild/Carry.lua"))("BankaiGuild", c.ns)
 		assert(loadfile(ROOT .. "BankaiGuild/CarryMerger.lua"))("BankaiGuild", c.ns)
 	end) end
-	w:Group({ king.name, member.name, dest.name, source.name })
-	for _, c in ipairs({ king, dest, source }) do w:As(c, function()
-		for _, other in ipairs({ king, dest, source }) do if other ~= c then assert(c.ns.CarryHistory.RequestKey(other.name)) end end
+	w:Group({ shogun.name, member.name, dest.name, source.name })
+	for _, c in ipairs({ shogun, dest, source }) do w:As(c, function()
+		for _, other in ipairs({ shogun, dest, source }) do if other ~= c then assert(c.ns.CarryHistory.RequestKey(other.name)) end end
 	end) end
 	w:Run(6)
-	for _, c in ipairs({ king, dest, source }) do w:As(c, function()
-		for _, other in ipairs({ king, dest, source }) do if other ~= c then assert(c.ns.CarryHistory.KeyPin(other.name), "firsthand public pin " .. c.name .. " -> " .. other.name) end end
+	for _, c in ipairs({ shogun, dest, source }) do w:As(c, function()
+		for _, other in ipairs({ shogun, dest, source }) do if other ~= c then assert(c.ns.CarryHistory.KeyPin(other.name), "firsthand public pin " .. c.name .. " -> " .. other.name) end end
 	end) end
-	return w, king, member, dest, source
+	return w, shogun, member, dest, source
 end
 local function Notes(w, source, member, count)
 	for i = 1, count or 1 do
@@ -62,10 +62,10 @@ local function Approve(w, c, id, role)
 		assert(c.ns.CarryMerger.Approve(id, role, c.question))
 	end); w:Run(5)
 end
-local function Approved(w, king, dest, source)
+local function Approved(w, shogun, dest, source)
 	local id = Prepare(w, source, dest)
-	Approve(w, dest, id, "D"); Approve(w, king, id, "K")
-	for _, c in ipairs({ king, dest, source }) do w:As(c, function()
+	Approve(w, dest, id, "D"); Approve(w, shogun, id, "K")
+	for _, c in ipairs({ shogun, dest, source }) do w:As(c, function()
 		local p = c.ns.CarryMerger.Policies()[1]; assert(p and p.approved, "all three clients receive the final approval: " .. c.name)
 		for _, role in ipairs({ "S", "D", "K" }) do
 			local a = p.approvals[role]; assert(a and a.firsthand)
@@ -86,8 +86,8 @@ local function Errors(w)
 end
 
 test("carry-merger: same SHA256 manifest receives three firsthand actual signatures; private records require individual direct consent and never import status", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member, 12)
-	local id = Approved(w, king, dest, source)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member, 12)
+	local id = Approved(w, shogun, dest, source)
 	w:As(dest, function() eq(#dest.ns.CarryMerger.Archives(), 0, "three offices cannot bypass each subject") end)
 	Consent(w, member, dest, id)
 	w:As(dest, function()
@@ -102,15 +102,15 @@ test("carry-merger: same SHA256 manifest receives three firsthand actual signatu
 		if m.msg:find("~T~", 1, true) and m.from == source.name then eq(m.target, dest.name); fragments = fragments + 1 end
 		if m.msg:find("~T~", 1, true) and m.from == dest.name then acks = acks + 1 end
 		if m.from == member.name and m.msg:find("~C~", 1, true) then if m.target == source.name then directSource = true elseif m.target == dest.name then directDest = true end end
-		if m.target == member.name or m.target == king.name then assert(not m.msg:find("PRIVATE LOOT", 1, true), "private plaintext is never broadcast or sent to subject/King") end
+		if m.target == member.name or m.target == shogun.name then assert(not m.msg:find("PRIVATE LOOT", 1, true), "private plaintext is never broadcast or sent to subject/Shogun") end
 	end end
 	assert(fragments > 34, "bounded pages still carry an archive above 34 messages"); eq(acks, 12); assert(directSource and directDest)
 	Errors(w)
 end)
 
 test("carry-merger: approved source keeper can later serve from another Bankai Guild guild; historical guild labels survive its removal but no new facts enter frozen root", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
-	local former = source.guild; local id = Approved(w, king, dest, source)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
+	local former = source.guild; local id = Approved(w, shogun, dest, source)
 	w:As(source, function()
 		assert(source.ns.CarryHistory.CaptureOriginal("L", member.name, "after-freeze", w.clock, former, { writer = source.name, words = "NOT IN FROZEN MANIFEST", to = member.name }))
 	end); w:Run(2)
@@ -122,16 +122,16 @@ test("carry-merger: approved source keeper can later serve from another Bankai G
 	Errors(w)
 end)
 
-test("carry-merger: incomplete mandate cannot invent historical source authority after dissolution; preview/census/unknown King realm never approve", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
+test("carry-merger: incomplete mandate cannot invent historical source authority after dissolution; preview/census/unknown Shogun realm never approve", function()
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
 	w:As(source, function()
 		source.peerSource = "census"; eq(source.ns.CarryMerger.Prepare(dest.name), false); source.peerSource = nil
-		local pin = source.ns.KingRealm; source.ns.KingRealm = function() return nil end; eq(source.ns.CarryMerger.Prepare(dest.name), false); source.ns.KingRealm = pin
+		local pin = source.ns.ShogunRealm; source.ns.ShogunRealm = function() return nil end; eq(source.ns.CarryMerger.Prepare(dest.name), false); source.ns.ShogunRealm = pin
 		source.ns.ViewAs.Previewing = function() return true end; eq(source.ns.CarryMerger.Prepare(dest.name), false); source.ns.ViewAs.Previewing = function() return false end
 	end)
 	local id = Prepare(w, source, dest); Approve(w, dest, id, "D")
 	source.guild = "Bankai Guild Refuge"
-	Approve(w, king, id, "K")
+	Approve(w, shogun, id, "K")
 	w:As(dest, function()
 		eq(dest.ns.CarryMerger.Policies()[1].approved, nil); eq(dest.ns.CarryMerger.RequestConsent(id, member.name), false); eq(#dest.ns.CarryMerger.Archives(), 0)
 	end)
@@ -139,8 +139,8 @@ test("carry-merger: incomplete mandate cannot invent historical source authority
 end)
 
 test("carry-merger: subject withdrawal cancels queued and retained records; replayed consent and another GM cannot resurrect permission", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
-	local id = Approved(w, king, dest, source); Consent(w, member, dest, id)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
+	local id = Approved(w, shogun, dest, source); Consent(w, member, dest, id)
 	w:As(dest, function() eq(#dest.ns.CarryMerger.Archives(), 1) end)
 	local replay = {}; for _, m in ipairs(w.sent) do if m.from == member.name and m.target == dest.name and m.msg:find("~C~", 1, true) then replay[#replay + 1] = m.msg end end
 	w:As(member, function() assert(member.ns.CarryMerger.Withdraw(id)) end); w:Run(5)
@@ -153,7 +153,7 @@ test("carry-merger: subject withdrawal cancels queued and retained records; repl
 end)
 
 test("carry-merger: revocation is signed and durable even before a delayed source proposal; public and outsider routing cannot activate it", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
 	local id = Prepare(w, source, dest)
 	local proposal = {}; for _, m in ipairs(w.sent) do if m.from == source.name and m.target == dest.name and m.msg:find("~A~1~", 1, true) then proposal[#proposal + 1] = m.msg end end
 	assert(#proposal > 1)
@@ -169,8 +169,8 @@ test("carry-merger: revocation is signed and durable even before a delayed sourc
 end)
 
 test("carry-merger: a source-GM subject explicitly consents without relying on a whisper to himself", function()
-	local w, king, _, dest, source = Setup(); Notes(w, source, source)
-	local id = Approved(w, king, dest, source); Consent(w, source, dest, id)
+	local w, shogun, _, dest, source = Setup(); Notes(w, source, source)
+	local id = Approved(w, shogun, dest, source); Consent(w, source, dest, id)
 	w:As(dest, function() eq(#dest.ns.CarryMerger.Archives(), 1) end); Errors(w)
 end)
 
@@ -183,8 +183,8 @@ local function Wire(w, c, sender, id, lane, page, payload)
 	end)
 end
 test("carry-merger: bad actual signature releases assembly for a corrected proof; forwarded consent under a GM's sender cannot impersonate the subject", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
-	local id = Approved(w, king, dest, source)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
+	local id = Approved(w, shogun, dest, source)
 	w:As(dest, function() assert(dest.ns.CarryMerger.RequestConsent(id, member.name)) end); w:Run(3)
 	local payload
 	w:As(member, function()
@@ -219,7 +219,7 @@ test("carry-merger: malformed saved scopes and policies fail unknown without thr
 end)
 
 test("carry-merger: fresh but stale rank-zero roster cannot override live native self demotion at freeze or receiving callback", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
 	local ownRank, ownData = source.ns.Roster.RankOf, source.ns.Data.AuthorizedRank
 	source.ns.Roster.RankOf = function(name) if name == source.name then return 0 end; return ownRank(name) end
 	source.ns.Data.AuthorizedRank = function(name, guild) if name == source.name and guild == source.guild then return 0, "roster" end; return ownData(name, guild) end
@@ -229,7 +229,7 @@ test("carry-merger: fresh but stale rank-zero roster cannot override live native
 		eq(source.ns.CarryHistory.FreezeOwnSource(source.guild), false)
 	end)
 	source.rank = 0
-	local id = Approved(w, king, dest, source); Consent(w, member, dest, id)
+	local id = Approved(w, shogun, dest, source); Consent(w, member, dest, id)
 	local destRank, destData = dest.ns.Roster.RankOf, dest.ns.Data.AuthorizedRank
 	dest.ns.Roster.RankOf = function(name) if name == dest.name then return 0 end; return destRank(name) end
 	dest.ns.Data.AuthorizedRank = function(name, guild) if name == dest.name and guild == dest.guild then return 0, "roster" end; return destData(name, guild) end
@@ -241,8 +241,8 @@ test("carry-merger: fresh but stale rank-zero roster cannot override live native
 end)
 
 test("carry-merger: expired mandate forbids retained viewing and delayed record imports with old signatures and consents", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
-	local id = Approved(w, king, dest, source); Consent(w, member, dest, id)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
+	local id = Approved(w, shogun, dest, source); Consent(w, member, dest, id)
 	local replay = {}; for _, m in ipairs(w.sent) do if m.from == source.name and m.target == dest.name and m.msg:find("~T~", 1, true) then replay[#replay + 1] = m.msg end end
 	w.clock = w.clock + dest.ns.CarryMerger.LIFE + 1
 	w:As(dest, function()
@@ -253,7 +253,7 @@ test("carry-merger: expired mandate forbids retained viewing and delayed record 
 end)
 
 test("carry-merger: missing original key defers approval until a solicited native response then recovers the exact closed index", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
 	w:As(dest, function()
 		for _, scope in pairs(dest.ns.db.carryHistory.scopes) do scope.characters[dest.ns.Fold(dest.name)].keys[dest.ns.Fold(source.name)] = nil end
 	end)
@@ -262,13 +262,13 @@ test("carry-merger: missing original key defers approval until a solicited nativ
 		local p = dest.ns.CarryMerger.Policies()[1]; assert(p.approvals.S and p.indexClosed, "original direct key response resumes rather than promotes the forwarded signature")
 		assert(dest.ns.CarryHistory.KeyPin(source.name))
 	end)
-	Approve(w, dest, id, "D"); Approve(w, king, id, "K"); Consent(w, member, dest, id)
+	Approve(w, dest, id, "D"); Approve(w, shogun, id, "K"); Consent(w, member, dest, id)
 	w:As(dest, function() eq(#dest.ns.CarryMerger.Archives(), 1) end); Errors(w)
 end)
 
 test("carry-merger: lost frozen-record fragment is retried under the same guarded cursor and acknowledged only after complete verification", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
-	local id = Approved(w, king, dest, source)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
+	local id = Approved(w, shogun, dest, source)
 	w:As(dest, function() assert(dest.ns.CarryMerger.RequestConsent(id, member.name)) end); w:Run(3)
 	w:Results(source, { 0, 0, 2 }) -- direct-consent ACK, first record fragment, missing fragment
 	w:As(member, function() assert(member.ns.CarryMerger.Consent(id)); assert(member.ns.CarryMerger.Consent(id, member.question)) end)
@@ -296,10 +296,10 @@ test("carry-merger: unanswered drafts are bounded and expired pending policies r
 end)
 
 test("carry-merger: old unsigned private notes are visibly present witness quotes, never forged old authors or dates", function()
-	local w, king, member, dest, source = Setup()
+	local w, shogun, member, dest, source = Setup()
 	source.ns.Loot = { Notes = function() return { { key = "old-note", n = { writer = "Previous Officer-Emberfall", to = member.name,
 		t = w.clock - 900, text = "OLDER UNSIGNED QUOTE" } } } end }
-	local id = Approved(w, king, dest, source); Consent(w, member, dest, id)
+	local id = Approved(w, shogun, dest, source); Consent(w, member, dest, id)
 	w:As(dest, function()
 		local all = dest.ns.CarryMerger.Archives(); eq(#all, 1)
 		local r = dest.ns.CarryHistory.Parse(all[1].text); eq(r.kind, "W"); eq(r.issuer, source.name); eq(r.fields.originalWriter, "Previous Officer-Emberfall")
@@ -310,8 +310,8 @@ test("carry-merger: old unsigned private notes are visibly present witness quote
 end)
 
 test("carry-merger: reloading transport can resume already-consented exact pages with visible progress and no new authority", function()
-	local w, king, member, dest, source = Setup(); Notes(w, source, member)
-	local id = Approved(w, king, dest, source)
+	local w, shogun, member, dest, source = Setup(); Notes(w, source, member)
+	local id = Approved(w, shogun, dest, source)
 	w:As(dest, function() assert(dest.ns.CarryMerger.RequestConsent(id, member.name)) end); w:Run(3)
 	w:Results(source, { 0, 0, 2 })
 	w:As(member, function() assert(member.ns.CarryMerger.Consent(id)); assert(member.ns.CarryMerger.Consent(id, member.question)) end); w:Run(15)

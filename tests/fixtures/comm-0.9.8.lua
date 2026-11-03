@@ -164,7 +164,7 @@ function Comm.Send(dist, msg, key, urgent)
 	if dist == "GUILD" and not IsInGuild() then return end
 	Enqueue(dist, msg, key, nil, urgent)
 end
--- An addon message to one player only (answers to the King, Throne tab).
+-- An addon message to one player only (answers to the Shogun, Throne tab).
 function Comm.Whisper(target, msg, key, urgent)
 	if type(target) ~= "string" or target == "" then return end
 	Enqueue("WHISPER", msg, key, target, urgent)
@@ -234,7 +234,7 @@ local function Pump()
 		return
 	end
 	-- The channel may have been left (the Chat Channels panel) and its number given to another
-	-- one: check before sending, or [Lords] text would go to that other channel.
+	-- one: check before sending, or [Council] text would go to that other channel.
 	if channelIndex > 0 and joinedName and GetChannelName then
 		local id = GetChannelName(joinedName) or 0
 		if id ~= channelIndex then
@@ -317,7 +317,7 @@ end
 -- player in owns it, and when the owner leaves WoW hands it (and a moderator's seat) to
 -- another member, so any player with the addon can end up owning it. An owner could /password
 -- it (nobody who logs in afterwards gets in, and the network dies as people relog), /ban or
--- /ckick players (the King, the Treasurer), make a friend /moderator or give it away with
+-- /ckick players (the Shogun, the Treasurer), make a friend /moderator or give it away with
 -- /owner. Bankai Guild never uses these powers against anyone. It follows the channel's notices,
 -- tells a player who was handed the channel what that means, and while the channel is ours it
 -- only undoes harm (Comm.HealChannel). A channel locked against us is tried again, slower and
@@ -383,7 +383,7 @@ end
 local function Mine(g) return g.mine.owner or g.mine.moderator end
 
 -- Players the channel must never lose, the way the server finds them: the Treasurer, and the
--- King's character when our client knows it (our own roster in his guild, or a character
+-- Shogun's character when our client knows it (our own roster in his guild, or a character
 -- pinned in Core.lua).
 local function Protected()
 	local out, seen = {}, {}
@@ -395,10 +395,10 @@ local function Protected()
 		end
 	end
 	Add(ns.TREASURER)
-	local pinned = ns.KING_CHARACTER
+	local pinned = ns.SHOGUN_CHARACTER
 	if type(pinned) == "table" then pinned = pinned[ns.faction or "Alliance"] end
 	Add(pinned)
-	if ns.IsKingGuild and ns.IsKingGuild(GetGuildInfo("player")) and ns.Roster and type(ns.Roster.byName) == "table" then
+	if ns.IsShogunGuild and ns.IsShogunGuild(GetGuildInfo("player")) and ns.Roster and type(ns.Roster.byName) == "table" then
 		for name, rank in pairs(ns.Roster.byName) do
 			if rank == 0 then Add(name) break end
 		end
@@ -430,7 +430,7 @@ end
 -- Only while the channel is ours (owner or moderator), only to undo harm, never against
 -- anyone: the password it should have (none on the public channel, the key on the sealed
 -- one), no moderation, and whoever was banned or muted while we were on it let back in, the
--- Treasurer and the King always. Only for the channel we are meant to be on: what we saw on
+-- Treasurer and the Shogun always. Only for the channel we are meant to be on: what we saw on
 -- another one (the public channel once we have a key) changes nothing.
 -- What someone does with the channel from our own client is not undone here: the next owner's
 -- client does it.
@@ -968,7 +968,7 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 	-- Nothing another player sends reaches a screen, a tooltip, the map, a popup or a copy box
 	-- with an escape code in it (0.9.2): every message but a chat line loses its "|" and its
 	-- control bytes here, before the pieces are put together or any handler reads it (a census
-	-- report, a layer, a decree, the King's word, a hello...). No message of ours needs either
+	-- report, a layer, a decree, the Shogun's word, a hello...). No message of ours needs either
 	-- (a bug report travels with its pipes as "!" and its line breaks as "\n"). A chat line
 	-- keeps the links Codec.SanitizeChat allows, and nothing else (Channels.lua).
 	if text:sub(1, 3) ~= "M1~" then text = Codec.Plain(text) end

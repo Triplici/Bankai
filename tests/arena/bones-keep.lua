@@ -160,8 +160,8 @@ end)
 test("1.2.4 Bones kept: a closed month's list is kept for good, its totals and champion, after its games are gone; the Games tab shows last month's podium; the profile counts a player's games", function()
 	local w, a, b, c = Setup()
 	local d = w:Player(P3)
-	local king = w:Role("king")
-	assert(w:As(king, king.ns.ArenaRoles.Publish, "bones", true))
+	local shogun = w:Role("shogun")
+	assert(w:As(shogun, shogun.ns.ArenaRoles.Publish, "bones", true))
 	w:Run(0)
 	local Hs = c.ns.Honors
 	local closed = MonthOf(w, c, w.clock) - 1
@@ -188,7 +188,7 @@ test("1.2.4 Bones kept: a closed month's list is kept for good, its totals and c
 	assert(tostring(lines[at + 1].text):find("#1", 1, true) and tostring(lines[at + 1].text):find(b.short, 1, true), tostring(lines[at + 1].text))
 	-- Everyone but c logs out; the legacy half store prunes, but 9b's unsealed signed records
 	-- remain and reconstruct the monthly list until an authenticated monthly seal is adopted.
-	for _, p in ipairs({ a, b, d, king }) do w:Logout(p) end
+	for _, p in ipairs({ a, b, d, shogun }) do w:Logout(p) end
 	Relog(w, c, 64 * 86400)
 	eq(#Best(w, c, { month = closed }), 3, "the three players reconstructed from durable records")
 	eq(#Best(w, c, { month = closed + 1 }), 2)

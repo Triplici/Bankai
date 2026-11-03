@@ -6,7 +6,7 @@ local function Client(name)
 	local w = { name = name, guild = "Bankai Guild II", now = 1800000000, sent = {}, events = {}, listeners = {}, ranks = {},
 		justice = "Justice-Realm", council = { ["Council-Realm"] = true }, native = {}, dialogs = {} }
 	local n = setmetatable({ me = name, realm = "Realm", group = "Realm", faction = "Alliance", CAPTAIN_RANK = 1,
-		db = { blocked = {} }, rdb = { guilds = {} }, ViewAs = {}, WatchChat = {}, Nominees = {}, King = {}, Workshop = {}, UI = {},
+		db = { blocked = {} }, rdb = { guilds = {} }, ViewAs = {}, WatchChat = {}, Nominees = {}, Shogun = {}, Workshop = {}, UI = {},
 		Moderation = { Blocks = function() return false end }, TabardsV2 = { SurfaceVisible = function() return false end },
 		Judgment = { Visible = function() return false end }, RealmPages = {} }, { __index = base })
 	w.ns = n
@@ -16,11 +16,11 @@ local function Client(name)
 	n.Moderation.CharName = function(s) return type(s) == "string" and n.FullName(s) or nil end
 	n.RealmOf = function(s) return s:match("%-(.+)$") end; n.GroupOf = function(s) return s end
 	n.IsMember = function() return w.guild ~= nil end; n.IsFederation = function(g) return g == "Bankai Guild II" or g == "Bankai Guild III" end
-	n.IsKingCharacter = function(s) return s == "Crown-Realm" end; n.IsHighCouncillor = function(s) return w.council[s] == true end
-	n.KingRealm = function() return "Realm" end; n.IsKingGuild = function() return false end
-	n.King.Preview = function() return w.preview == true end; n.King.IsKing = function() return n.IsKingCharacter(n.me) end
+	n.IsShogunCharacter = function(s) return s == "Crown-Realm" end; n.IsHighCouncillor = function(s) return w.council[s] == true end
+	n.ShogunRealm = function() return "Realm" end; n.IsShogunGuild = function() return false end
+	n.Shogun.Preview = function() return w.preview == true end; n.Shogun.IsShogun = function() return n.IsShogunCharacter(n.me) end
 	n.Workshop.IsAuthor = function() return n.me == "Author-Realm" end; n.Workshop.Visible = function() return false end
-	n.ViewAs.Previewing = n.King.Preview; n.ViewAs.Available = function() return false end
+	n.ViewAs.Previewing = n.Shogun.Preview; n.ViewAs.Available = function() return false end
 	n.WatchChat.Justice = function() return w.justice end
 	n.WatchChat.IsNamedWatcher = function(s) return s == w.justice end
 	n.WatchChat.PowersBarred = function() return w.barred and "blocked" or nil end
@@ -164,8 +164,8 @@ test("Justice tasks: cancellation before an issue and bounded terminal retries c
 	assert(a.ns.JusticeTasks.Retry(key)); a.pump(); eq(Row(a, key).terminalTries, 1, "explicit original issuer retry is available after the bound")
 end)
 
-test("Justice tasks: task storage and worst-case private packets remain bounded; no request can target the King", function()
-	local a, b = Setup(); eq(a.ns.JusticeTasks.Issue(a.guild, b.name, a.name), false, "the pinned King's exact full name is protected")
+test("Justice tasks: task storage and worst-case private packets remain bounded; no request can target the Shogun", function()
+	local a, b = Setup(); eq(a.ns.JusticeTasks.Issue(a.guild, b.name, a.name), false, "the pinned Shogun's exact full name is protected")
 	for i = 1, a.ns.JusticeTasks.MAX + 1 do a.ranks["Subject" .. i .. "-Realm"] = 9 end; a.scan()
 	for i = 1, a.ns.JusticeTasks.MAX do assert(a.ns.JusticeTasks.Issue(a.guild, b.name, "Subject" .. i .. "-Realm")) end
 	eq(select(2, a.ns.JusticeTasks.Issue(a.guild, b.name, "Subject61-Realm")), "full")

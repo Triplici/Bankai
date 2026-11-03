@@ -3,16 +3,16 @@ local L = ns.L
 
 -- The nameplate marks (1.0.0, asked for by players on CurseForge): a small mark left of the name
 -- of a friendly player of an Bankai Guild guild on his nameplate, as an elite creature has its small
--- dragon. The same facts, tiers and trust rules as the elite borders (Borders.MarkOf: the King
--- pinned, the High Council signed and hidden on the King's stream, other guilds' ranks as their
+-- dragon. The same facts, tiers and trust rules as the elite borders (Borders.MarkOf: the Shogun
+-- pinned, the High Council signed and hidden on the Shogun's stream, other guilds' ranks as their
 -- census trusts them, our own guild's from the server or our roster, our faction only):
---   the King                         the game's gold elite mark (nameplates-icon-elite-gold)
+--   the Shogun                         the game's gold elite mark (nameplates-icon-elite-gold)
 --   the High Council                 the game's silver one (nameplates-icon-elite-silver)
 --   a guild master of an Bankai Guild     the gold without colour, tinted the bronze of Max's frames
 --   guild                            here (no copy of the game's art is shipped)
 --   any other member of an Bankai Guild   a plain four-point star, Bankai Guild's own art
 --   guild of our faction             (media/borders/star.tga, drawn by scripts/make-borders.py)
--- (1.1.5, the author's call: the borders' three tiers. Until then Lords and Captains had the
+-- (1.1.5, the author's call: the borders' three tiers. Until then Council and Captains had the
 -- silver, Raiders and Veterans the bronze.)
 -- Nobody else: hostile players, creatures, the other faction, anyone outside an Bankai Guild guild,
 -- and (1.1, Konig's review) a character or a guild the moderators took off (net-off, Borders.MarkOf).
@@ -52,7 +52,7 @@ local L = ns.L
 --
 -- Cheap: a plate's mark is worked out when a unit is added to it, when its name or guild reaches
 -- the client, and when what it was worked out from changes (Borders.Changed: its guild's census
--- report, the High Council's list, our roster, the council's names hidden or shown on the King's
+-- report, the High Council's list, our roster, the council's names hidden or shown on the Shogun's
 -- screen), only for the plates shown. The game's name update runs many times a second (every
 -- health change, mouseover, target and soft-target change, on every compact unit frame, raid
 -- frames too), so there nothing is asked of the game about the unit: whether it is a friendly
@@ -127,7 +127,7 @@ end
 
 -- Active(), kept (the game's name updates come many times a second): worked out again after
 -- anything it comes from may have changed. RefreshAll (the two switches, the preview, a login,
--- our own guild, the end of a fight), CensusChanged (the census: the King's guild, say) and a
+-- our own guild, the end of a fight), CensusChanged (the census: the Shogun's guild, say) and a
 -- switch of interface style forget it.
 local function IsActive()
 	if active == nil then active = Active() end
@@ -596,7 +596,7 @@ function Nameplates.FollowSoon()
 end
 
 -- The census, the High Council's list, our roster or the council's names hidden or shown on the
--- King's screen changed: only a plate shown whose mark was worked out from something that changed
+-- Shogun's screen changed: only a plate shown whose mark was worked out from something that changed
 -- since is worked out again. (The census may also make our guild Bankai Guild, or not: every plate.)
 function Nameplates.CensusChanged()
 	local was = active
@@ -668,7 +668,7 @@ end
 ns.On("LOGIN", function() Nameplates.RefreshAll(true) end)
 ns.On("DATA_CHANGED", function() Nameplates.CensusChanged() end)
 ns.On("HONORS_CHANGED", function() Nameplates.RefreshAll(true) end)
--- The King shows or hides the council's names (the eye in the Realm, ns.SetCouncilNamesShown).
+-- The Shogun shows or hides the council's names (the eye in the Realm, ns.SetCouncilNamesShown).
 ns.On("COUNCIL_MASK_CHANGED", function() Nameplates.CensusChanged() end)
 -- A moderator's cover name (Cover.lua): their mark goes as their border does.
 ns.On("COVER_CHANGED", function() Nameplates.CensusChanged() end)

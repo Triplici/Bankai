@@ -4,7 +4,7 @@ local L = ns.L
 -- 1.2, the Blood Arena: the words of the fights part (fights and honours; the chat marks part's few strings too), English then a ptBR block (the pattern of
 -- Locales.lua). Empty until that package fills it; loaded before Core.lua (BankaiGuild.toc).
 
--- The fighter's nickname (the design): two fixed lists, never free text (the King's screen shows it).
+-- The fighter's nickname (the design): two fixed lists, never free text (the Shogun's screen shows it).
 -- ARENA_EPI_ORDER: "an" (adjective, noun) or "na" (noun, adjective); ARENA_EPI_FMT puts the two.
 L.ARENA_EPI_A = { "Unbroken", "Crimson", "Silent", "Iron", "Golden", "Swift", "Grim", "Wild", "Stone", "Storm", "Night", "Blood",
 	"Ashen", "Frost", "Burning", "Hollow", "Steel", "Thunder", "Shadow", "Radiant", "Savage", "Ancient", "Restless", "Fearless",
@@ -39,16 +39,16 @@ L.HONOR_RACE_NAMES = { human = "Human", dwarf = "Dwarf", nightelf = "Night Elf",
 	tauren = "Tauren", troll = "Troll" }
 L.HONOR_METAL_GOLD, L.HONOR_METAL_SILVER, L.HONOR_METAL_BRONZE = "gold", "silver", "bronze"
 
--- The King's letter (the design): one per family, in his voice, naming the honour's title (%s);
--- signed by his title alone, never a name. (1.2.4, the author: the King talks the way he talks on
+-- The Shogun's letter (the design): one per family, in his voice, naming the honour's title (%s);
+-- signed by his title alone, never a name. (1.2.4, the author: the Shogun talks the way he talks on
 -- stream, plain and blunt, not a herald's speech.)
-L.HONOR_LETTER_HEAD = "A letter from the King"
-L.HONOR_LETTER_SIGN = "- The King"
+L.HONOR_LETTER_HEAD = "A letter from the Shogun"
+L.HONOR_LETTER_SIGN = "- The Shogun"
 L.HONOR_LETTER_WEAR = "Wear it"
 -- (1.2.4: Most Wanted's Slayer letter, its first button: the Wanted tab.)
 L.HONOR_LETTER_SLAYERS = "Slayers"
 L.HONOR_LETTER_LATER = "Later"
-L.HONOR_LETTER_PREVIEW_HEAD = "Preview: the King's letters"
+L.HONOR_LETTER_PREVIEW_HEAD = "Preview: the Shogun's letters"
 L.HONOR_LETTER_PREVIEW_ONLY = "Preview only"
 L.HONOR_LETTER_PREVIEW_NOTE = "Choose a letter to inspect its existing parchment, frame and text. These are fictional examples: no honour is awarded, worn, saved or sent, and real waiting letters are not consumed."
 L.HONOR_LETTER_PREVIEW_BACK = "< Back to the Realm" -- (its page's first row: the Realm again)
@@ -68,7 +68,7 @@ L.HONOR_LETTER = {
 	["wanted-slayer"] = "Okay,\n\nThe Horde keeps counting its dead, and your name keeps coming up. That's what I like to see. You're %s now.\n\nRide the skeletal horse right where the Horde can see it. Let them know who did it.",
 }
 
--- 1.2.4, the notices (HonorsNet.Tell): every move on a list after the King's first letter for its
+-- 1.2.4, the notices (HonorsNet.Tell): every move on a list after the Shogun's first letter for its
 -- place, a strip at the top of the screen and a line in chat. Each list's name, a place's words,
 -- and the lines.
 L.HONOR_RANKING = { ["donor-top"] = "Top donors", ["donor-month"] = "Donors of the month", guild = "Best guild",
@@ -131,7 +131,7 @@ L.ARENA_CHRONICLE_DISPUTED = "fight %s, round %d: the arbiter's duel line agains
 L.ARENA_PERSON_LINE = "Arena: %d  (%d-%d)"
 L.ARENA_PERSON_PROFILE = "Arena profile"
 -- (1.1.6, the games' ledger: the privacy page's one line, Consent.Intro)
-L.CONSENT_GAMES_RECORDED = "Game results are recorded: each game you play (Bones, the Arena, the Lottery's practice: when, who, the result and the score) shows in your own list and goes to the King, the High Council and the author (and the auditors he signs), nobody else."
+L.CONSENT_GAMES_RECORDED = "Game results are recorded: each game you play (Bones, the Arena, the Lottery's practice: when, who, the result and the score) shows in your own list and goes to the Shogun, the High Council and the author (and the auditors he signs), nobody else."
 
 -- "My profile" (ProfileEdit.lua, 1.2.4: the player's own page in the Bankai Guild window). Frames,
 -- titles and honours are the whole addon's, not the arena's alone: no "arena profile" in these words.
@@ -144,7 +144,7 @@ L.PROFILE_LOCKED = "Pick kept"
 L.PROFILE_HONOURS = "Your honours"
 L.PROFILE_NO_HONOURS = "None yet: belts, podiums, donations, the level race, the Oracle, the best guild."
 L.PROFILE_ICON_REFUSED = "That icon can't be used here: pick one of your honours' marks (or, for your emblem, one of the game's icons)."
-L.HONOR_LETTER_WAITING = "A letter from the King awaits you: open the Bankai Guild window (or My profile, in it) to read it."
+L.HONOR_LETTER_WAITING = "A letter from the Shogun awaits you: open the Bankai Guild window (or My profile, in it) to read it."
 L.MYPROFILE_TITLE = "My profile"
 L.MYPROFILE_LINK = "My profile"
 L.MYPROFILE_NAV_LOOK = "Look"
@@ -178,12 +178,12 @@ L.MYPROFILE_LOOK_KEPT = "Your frame, title, nickname and emblem don't go out on 
 L.MYPROFILE_FACTS_HEAD = "What your page shows"
 L.MYPROFILE_CHOICES_HEAD = "Your choices"
 L.MYPROFILE_PRIVACY_PAGE = "Open the privacy page"
-L.MYPROFILE_LETTERS_NONE = "No letter from the King yet."
+L.MYPROFILE_LETTERS_NONE = "No letter from the Shogun yet."
 L.MYPROFILE_GAMES_OFF = "Your frame, title and nickname go out with the Games, which are off on this character."
 L.MYPROFILE_GAMES_PROFILE = "Games profile"
 -- (1.2.4) A letter held in an instance or Busy: its chat line, and its words on the Decrees tab.
-L.HONOR_LETTER_HELD = "A letter from the King awaits you: it opens once you are out of the instance and not Busy (or open the Bankai Guild window to read it now)."
-L.HELD_HONOR_LETTER = "a letter from the King"
+L.HONOR_LETTER_HELD = "A letter from the Shogun awaits you: it opens once you are out of the instance and not Busy (or open the Bankai Guild window to read it now)."
+L.HELD_HONOR_LETTER = "a letter from the Shogun"
 
 -- (1.2.6) Watch duel (ArenaSpectate.lua): the menu line, the command and the duel view's words that
 -- its data gives (the view's own titles and buttons are the companion's).
@@ -266,12 +266,12 @@ if GetLocale and GetLocale() == "ptBR" then
 	L.HONOR_RACE_NAMES = { human = "Humano", dwarf = "Anão", nightelf = "Elfo Noturno", gnome = "Gnomo", orc = "Orc", undead = "Morto-vivo",
 		tauren = "Tauren", troll = "Troll" }
 	L.HONOR_METAL_GOLD, L.HONOR_METAL_SILVER, L.HONOR_METAL_BRONZE = "ouro", "prata", "bronze"
-	L.HONOR_LETTER_HEAD = "Uma carta do Rei"
-	L.HONOR_LETTER_SIGN = "- O Rei"
+	L.HONOR_LETTER_HEAD = "Uma carta do Xogum"
+	L.HONOR_LETTER_SIGN = "- O Xogum"
 	L.HONOR_LETTER_WEAR = "Usar"
 	L.HONOR_LETTER_SLAYERS = "Slayers"
 	L.HONOR_LETTER_LATER = "Depois"
-	L.HONOR_LETTER_PREVIEW_HEAD = "Prévia: cartas do Rei"
+	L.HONOR_LETTER_PREVIEW_HEAD = "Prévia: cartas do Xogum"
 	L.HONOR_LETTER_PREVIEW_ONLY = "Só prévia"
 	L.HONOR_LETTER_PREVIEW_NOTE = "Escolha uma carta para conferir seu pergaminho, moldura e texto existentes. São exemplos fictícios: nenhuma honraria é concedida, usada, salva ou enviada, e cartas reais pendentes não são consumidas."
 	L.HONOR_LETTER_PREVIEW_BACK = "< Voltar ao Reino"
@@ -336,11 +336,11 @@ if GetLocale and GetLocale() == "ptBR" then
 	L.ARENA_CHRONICLE_DISPUTED = "luta %s, round %d: a linha de duelo do árbitro contra os relatos (contestada)"
 	L.ARENA_PERSON_LINE = "Arena: %d  (%d-%d)"
 	L.ARENA_PERSON_PROFILE = "Perfil da arena"
-	L.CONSENT_GAMES_RECORDED = "Os resultados dos jogos ficam registrados: cada jogo que você joga (Bones, a Arena, o treino da Loteria: quando, quem, o resultado e o placar) aparece na sua própria lista e vai para o Rei, o Alto Conselho e o autor (e os auditores que ele assina), mais ninguém."
+	L.CONSENT_GAMES_RECORDED = "Os resultados dos jogos ficam registrados: cada jogo que você joga (Bones, a Arena, o treino da Loteria: quando, quem, o resultado e o placar) aparece na sua própria lista e vai para o Xogum, o Alto Conselho e o autor (e os auditores que ele assina), mais ninguém."
 	L.PROFILE_ICON_REFUSED = "Esse ícone não serve aqui: escolha a marca de uma das suas honras (ou, para o emblema, um ícone do jogo)."
-	L.HONOR_LETTER_WAITING = "Uma carta do Rei espera por você: abra a janela do Bankai Guild (ou o Meu perfil, nela) para lê-la."
-	L.HONOR_LETTER_HELD = "Uma carta do Rei espera por você: ela abre quando você sair da instância e não estiver Ocupado (ou abra a janela do Bankai Guild para lê-la agora)."
-	L.HELD_HONOR_LETTER = "uma carta do Rei"
+	L.HONOR_LETTER_WAITING = "Uma carta do Xogum espera por você: abra a janela do Bankai Guild (ou o Meu perfil, nela) para lê-la."
+	L.HONOR_LETTER_HELD = "Uma carta do Xogum espera por você: ela abre quando você sair da instância e não estiver Ocupado (ou abra a janela do Bankai Guild para lê-la agora)."
+	L.HELD_HONOR_LETTER = "uma carta do Xogum"
 	L.PROFILE_FRAME_RANK = "A moldura do meu posto"
 	L.PROFILE_FRAME_NONE = "Sem moldura"
 	L.PROFILE_FRAME_RED_CROSS = "Cruz vermelha (só você a vê)"
@@ -382,7 +382,7 @@ if GetLocale and GetLocale() == "ptBR" then
 	L.MYPROFILE_FACTS_HEAD = "O que a sua página mostra"
 	L.MYPROFILE_CHOICES_HEAD = "As suas escolhas"
 	L.MYPROFILE_PRIVACY_PAGE = "Abrir a página de privacidade"
-	L.MYPROFILE_LETTERS_NONE = "Nenhuma carta do Rei ainda."
+	L.MYPROFILE_LETTERS_NONE = "Nenhuma carta do Xogum ainda."
 	L.MYPROFILE_GAMES_OFF = "A sua moldura, título e apelido saem com os Jogos, que estão desligados neste personagem."
 	L.MYPROFILE_GAMES_PROFILE = "Perfil nos Jogos"
 	-- (1.2.6) Assistir ao duelo

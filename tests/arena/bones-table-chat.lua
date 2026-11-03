@@ -40,10 +40,10 @@ local function Live(screen, guild, renderer, compliance)
 		files[#files + 1] = file
 	end
 	local w = FW.New({ arenaFiles = files, compliance = compliance })
-	local king = Setup(w, w:Player(N.king, { guild = H.World.KING_GUILD, rank = 0, companion = {} }), screen)
+	local shogun = Setup(w, w:Player(N.shogun, { guild = H.World.SHOGUN_GUILD, rank = 0, companion = {} }), screen)
 	local a, b, s = Seat(w, N.fighterA, screen, guild, renderer), Seat(w, N.fighterB, screen, guild), Seat(w, N.bettor1, screen, guild)
-	for _, c in ipairs({ king, a, b, s }) do assert(w:As(c, c.ns.Roster.Scan)) end
-	assert(king.Roles.SetSettings({ live = 1 })); w:Run(0)
+	for _, c in ipairs({ shogun, a, b, s }) do assert(w:As(c, c.ns.Roster.Scan)) end
+	assert(shogun.Roles.SetSettings({ live = 1 })); w:Run(0)
 	a.Arena.SetRules(true); b.Arena.SetRules(true); s.Arena.SetRules(true)
 	w:Group({ a, b }); w:AtInn(a.name, b.name)
 	local id = assert(w:As(a, a.ns.FarkleTable.Create, { guest = b.name, target = 2000, secs = 120 }))
@@ -55,7 +55,7 @@ local function Live(screen, guild, renderer, compliance)
 	for _, c in ipairs({ a, b, s }) do
 		assert(w:As(c, c.ns.FarkleTable.ShowUI, "board", id), table.concat(c.errors, "\n") .. " " .. table.concat(c.printed, "\n"))
 	end
-	return w, a, b, s, id, king
+	return w, a, b, s, id, shogun
 end
 local function UI(c) return c.ns.Arena.ui.BonesChat end
 local function Frame(c) return assert(UI(c).Frame(), "actual embedded panel") end
@@ -209,30 +209,30 @@ test("Bones table chat (CH-04): a reply crosses the table with its quote drawn a
 end)
 
 test("Bones table chat: the shared bubble renderer keeps filter reveal and actual royal moderation on a registered Everyone surface", function()
-	local w, a, b, _, id, king = Live(nil, H.World.KING_GUILD)
+	local w, a, b, _, id, shogun = Live(nil, H.World.SHOGUN_GUILD)
 	w:As(b, b.ns.Filter.Add, "veiled")
 	Send(w, a, "A veiled remark")
 	local hidden = Frame(b).conversation.bubbles[1]
 	eq(hidden.hidden, true); eq(hidden.body:GetText():find("A veiled remark", 1, true), nil)
 	w:As(b, function() hidden:GetScript("OnMouseUp")(hidden, "LeftButton") end)
 	eq(hidden.hidden, false); eq(hidden.body:GetText():find("A veiled remark", 1, true) ~= nil, true)
-	assert(w:As(king, king.ns.FarkleTable.Watch, id)); w:Run(0)
-	assert(w:As(king, king.ns.FarkleTable.ShowUI, "board", id), table.concat(king.errors, "\n") .. " " .. table.concat(king.printed, "\n"))
+	assert(w:As(shogun, shogun.ns.FarkleTable.Watch, id)); w:Run(0)
+	assert(w:As(shogun, shogun.ns.FarkleTable.ShowUI, "board", id), table.concat(shogun.errors, "\n") .. " " .. table.concat(shogun.printed, "\n"))
 	w:As(a, UI(a).Select, "everyone"); w:As(b, UI(b).Select, "everyone")
 	Send(w, a, "A public table remark")
-	local bubble = Frame(king).conversation.bubbles[1]
+	local bubble = Frame(shogun).conversation.bubbles[1]
 	assert(bubble and bubble.entry, "royal spectator received actual public line")
-	eq(w:As(king, king.ns.WatchChat.HoldsChat, bubble.chat), true, "actual core registered the table surface")
-	eq(w:As(king, king.ns.ChatWindow.ModerateLine, bubble), true)
-	eq(Frame(king).conversation.modMenu:IsShown(), true)
+	eq(w:As(shogun, shogun.ns.WatchChat.HoldsChat, bubble.chat), true, "actual core registered the table surface")
+	eq(w:As(shogun, shogun.ns.ChatWindow.ModerateLine, bubble), true)
+	eq(Frame(shogun).conversation.modMenu:IsShown(), true)
 	w:Run(1)
-	eq(Frame(king).conversation.modMenu:IsShown(), true, "permission polling does not dismiss the menu")
+	eq(Frame(shogun).conversation.modMenu:IsShown(), true, "permission polling does not dismiss the menu")
 	local entry = bubble.entry
-	assert(w:As(king, king.ns.WatchChat.Delete, bubble.chat, entry, "Table conduct"))
+	assert(w:As(shogun, shogun.ns.WatchChat.Delete, bubble.chat, entry, "Table conduct"))
 	w:Run(0)
 	eq(entry.del, true)
 	eq(bubble:IsShown(), false, "ArenaChat.Lines omits deleted table lines, so the actual bubble is not drawn")
-	eq(Frame(king).conversation.modMenu:IsShown(), false, "deleted target invalidates the menu")
+	eq(Frame(shogun).conversation.modMenu:IsShown(), false, "deleted target invalidates the menu")
 	Clean(w)
 end)
 

@@ -46,7 +46,7 @@ local ADDON, ns = ...
 --                (the owl, gold only: frame and title). Its members get nothing (the design).
 --   missionary   (1.2.3) the Church's top 3 missionaries over the last 30 days (gold, silver and
 --                bronze; 4th and below nothing): the Church's top 3 (ChurchCount.Top3, its NR~1~t
---                word: taken from the Head's, the King's or the author's client, no other's; sent
+--                word: taken from the Head's, the Shogun's or the author's client, no other's; sent
 --                by the author's alone, ChurchCount.SendTop, while it is online with the public
 --                ranking open), held while that word names him and is no older than its own 30
 --                days (the shepherd's crook with its sleeping lamb).
@@ -63,7 +63,7 @@ local ADDON, ns = ...
 -- views; no honour comes of it) and the phoenix.
 -- The guild-rank frames (Borders.TIERS, and Borders.MarkOf's marks) stay as they are: "rank" is
 -- the frame a player shows when he picks it, has nothing else, or his pick no longer holds.
--- Donor honours show whatever the King's treasury switches say (the owner's decision): nothing
+-- Donor honours show whatever the Shogun's treasury switches say (the owner's decision): nothing
 -- here reads them.
 --
 -- Keys (plain [a-z0-9-], safe in a message). An honour's key names it in a pick (its frame and
@@ -246,7 +246,7 @@ local ADDON, ns = ...
 --       honour's frame this version wears; title nil (or "none") or a held honour's title. (1.2.3)
 --       The pick's own frame, unchanged, is taken whatever it is (a title alone picked: a frame
 --       not held now, or one 1.2.2 switched on that is not released, stays as Update keeps it; the
---       title's click, or the King's letter's Wear it, did nothing). A copy; the pick passed is
+--       title's click, or the Shogun's letter's Wear it, did nothing). A copy; the pick passed is
 --       left alone, and back (Update's) is not kept: what the profile shows is his pick now. A pick
 --       without seen (a new profile) gets it from what he holds now, so the next Update finds
 --       nothing new and keeps his choice. What a viewer shows of a pick that does not hold (the
@@ -258,7 +258,7 @@ local ADDON, ns = ...
 --       Choose and Update; earned still lists what is new). (1.2.3) Its frame only when this
 --       version wears it (Honors.FrameShipped): a frame not released yet (the koi, the owl, the
 --       comet) leaves the frame worn as it is (the cornucopia stays), its title still switches on.
---       told (optional, 1.2.3): told(h) -> true when that honour's King's letter was told before
+--       told (optional, 1.2.3): told(h) -> true when that honour's Shogun's letter was told before
 --       (HonorsNet: its LetterMark in the profile's lettered); such an honour, earned again (back
 --       in the same month to a place already told, after the Church's 30-day ranking dropped him
 --       for a day), lists in earned but switches nothing on: a frame he picked himself since stays.
@@ -303,7 +303,7 @@ local ADDON, ns = ...
 --       nil; and the honour whose frame shows (its art and milestone draw it), or nil.
 --   Honors.Moves(standing, held, known, opts) -> moves, places
 --       (1.2.4) Where the player stands on each family's list against what he was last told
---       (HonorsNet: the King's letter the first time he reaches a place, a notice for any other
+--       (HonorsNet: the Shogun's letter the first time he reaches a place, a notice for any other
 --       change). standing: { [family] = { p = place (0: off its list), c = cycle } }, kept by the
 --       caller; held and known as Update takes them; opts: { now, offset } (a closed month's list
 --       over: CycleOf). A family's cycle (Honors.CYCLE): its honour's period (the month a closed
@@ -342,7 +342,7 @@ ns.Honors = Honors
 
 Honors.WEEK = 7 * 86400
 Honors.RESET_US = 486000        -- Tuesday 15:00 UTC, the US realms' weekly reset (Dues.RESET_US)
-Honors.DUES_AMOUNT = 10000      -- the dues' amount until the King sets his (Dues.AMOUNT)
+Honors.DUES_AMOUNT = 10000      -- the dues' amount until the Shogun sets his (Dues.AMOUNT)
 Honors.DONOR_MIN = 10000        -- copper a donor honour asks at least: no "top donor" for a few coppers
 Honors.DONOR_PLACES = { all = 3, month = 3, week = 1 } -- (week: the race views only, no honour since the design)
 Honors.ARENA_NOTES = { "arena", "bankaiguild arena" } -- a mail's subject starting so is arena money (never a donation)
@@ -442,7 +442,7 @@ local function Copper(v)
 	if not v or v ~= v or v <= 0 or v > MAX_COPPER or v ~= floor(v) then return nil end
 	return v
 end
--- Whole copper, none included (a dues amount of 0 is the King's to set).
+-- Whole copper, none included (a dues amount of 0 is the Shogun's to set).
 local function Amount(v)
 	v = tonumber(v)
 	if not v or v ~= v or v < 0 or v > MAX_COPPER or v ~= floor(v) then return nil end
@@ -1223,7 +1223,7 @@ function Honors.Holdings(player, inputs)
 		end
 	end
 	-- 1.2.3 (the author's ask): his own title, "The Royal Dev". A title alone (no frame, no mark, no
-	-- King's letter), held by the author's character (player.author: Workshop.IsAuthorName, his
+	-- Shogun's letter), held by the author's character (player.author: Workshop.IsAuthorName, his
 	-- name in his realm group, so every client works it out the same); last in ORDER.
 	if player.author == true then
 		held[#held + 1] = { kind = "dev", family = "dev", place = 1, key = Honors.DEV_TITLE, title = Honors.DEV_TITLE,

@@ -1,4 +1,4 @@
-local ns, test, eq, WithBorders, BorderUnit, king = ...
+local ns, test, eq, WithBorders, BorderUnit, shogun = ...
 test("office badges: Legates and correspondents lose the bronze role frame, keep distinct signed badges, and never replace earned or guild-master frames", function()
 	WithBorders(function(w)
 		local roles = { ["Legate-Realm"] = { "centurion" }, ["Correspondent-Realm"] = { "correspondent", "Department of War" } }
@@ -118,8 +118,8 @@ test("Treasurer dragon: verified primary pin owns one supplied portrait overlay,
 			ns.TREASURER, ns.TREASURER_CHARACTERS = "Test Treasurer", { "Test Treasurer", "Test Mail" }
 			w.B.CensusChanged()
 			eq(w.shown("target"), "treasurer-dragon", "pin restoration refreshes that same target")
-			w.target(king)
-			ns.TREASURER, ns.TREASURER_CHARACTERS = king.name, { king.name }
+			w.target(shogun)
+			ns.TREASURER, ns.TREASURER_CHARACTERS = shogun.name, { shogun.name }
 			eq(w.B.TierOf("target"), "gold-elite")
 		end)
 	end)

@@ -23,7 +23,7 @@ end
 local function Audience(n)
 	if not Church.InAudience(n) then return false end
 	if Church.IsAuthor(n) then return true end
-	if Church.IsKing(n) then return Same(n, Church.HeadName()) end
+	if Church.IsShogun(n) then return Same(n, Church.HeadName()) end
 	if ns.IsHighCouncillor(ns.FullName(n)) then return true end
 	local s, k = Church.State(), Key(n)
 	local p = s.apostle[k] or s.miss[k]
@@ -198,7 +198,7 @@ local function Wire(r, kind, nonce)
 	return table.concat(fields, "~")
 end
 local function AllowedSend(target)
-	return Active() and Keeper(ns.me) and not Church.IsKing(ns.me) and Audience(target)
+	return Active() and Keeper(ns.me) and not Church.IsShogun(ns.me) and Audience(target)
 		and not (ns.Moderation and ns.Moderation.Hides and ns.Moderation.Hides(target))
 end
 function F.Observe()
@@ -291,7 +291,7 @@ function F.Receive(dist, sender, text)
 	if not Int(appt, 1, t) or not Int(at, appt, t + Church.DATE_AHEAD) or not Int(seq, 1, 1000000000) or not Int(n, 0, C.GUILD_CAP)
 		or not Church.InputName(actor) then return false end
 	if kind == "o" then
-		if request ~= "-" or not Keeper(ns.me) or Church.IsKing(ns.me) or not Same(sender, actor)
+		if request ~= "-" or not Keeper(ns.me) or Church.IsShogun(ns.me) or not Same(sender, actor)
 			or t - at > Church.DATE_AHEAD or math.floor(at / DAY) ~= math.floor(t / DAY) or not Correspondent(sender, guild, appt) then return false end
 	else
 		local a = asked[Key(sender)]
