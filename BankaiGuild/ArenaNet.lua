@@ -1866,10 +1866,9 @@ local function Help()
 		if s.usage then print("  " .. s.usage) end
 	end
 end
--- The Games are closed for now (the guild's call, 11-03): no Games tab (ArenaHome.TabVisible), and
--- no game command (/bka, /bk arena, bones, lottery...) opens anything. The engine still loads, so
--- opening them later is one line: ns.GAMES_OPEN = true (in Core.lua). (Read at each call, so the
--- offline harness's world opens them for its tests.)
+-- The Games' switch (ns.GAMES_OPEN, Core.lua: open). Closed, there is no Games tab
+-- (ArenaHome.TabVisible) and no game command (/bka, /bk arena, bones, lottery...) opens anything;
+-- the engine still loads. Read at each call.
 function Arena.Closed() return ns.GAMES_OPEN ~= true end
 
 function Arena.RunSlash(rest)

@@ -4,6 +4,7 @@ local L = ns.L
 ns.NAME = "Bankai Guild"
 ns.VERSION = "1.3.3"
 ns.PREFIX = "BANKAIGUILD"        -- addon message prefix (max 16 chars)
+ns.GAMES_OPEN = true            -- the Games tab and commands (ArenaNet.lua's Arena.Closed); false closes them
 ns.CHANNEL = "BankaiGuildNet"    -- hidden chat channel shared by every Bankai Guild guild (Alliance)
 ns.CHANNEL_HORDE = "BankaiGuildNetH" -- the Horde's: the two factions never see each other's guilds
 ns.ICON = "Interface\\AddOns\\BankaiGuild\\media\\logo64"
