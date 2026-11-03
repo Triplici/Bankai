@@ -5833,10 +5833,11 @@ test("players below a tier never see it", function()
 	eq(#CHAT_LINES, 0, "no line")
 	eq(ns.rdb.chat, nil, "nothing stored")
 	AsRank(0, function()
-		eq((Chan.Receive("CHANNEL", "Member1", m, 2001)), true)
-		eq(#Chan.History("L"), 1)
+		-- ([Elders] retired 11-03: not a guild master either.)
+		eq(select(2, Chan.Receive("CHANNEL", "Member1", m, 2001)), "tier")
+		eq(#Chan.History("L"), 0)
 	end)
-	eq(#CHAT_LINES, 1)
+	eq(#CHAT_LINES, 0)
 	-- A member doesn't read [Council], and a Council member outside <Elfcore> doesn't read [Elders].
 	AsRank(3, function()
 		eq(select(2, Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, 778, "only for council"), 2002)), "tier")
@@ -5844,8 +5845,7 @@ test("players below a tier never see it", function()
 	AsRank(1, function()
 		eq(select(2, Chan.Receive("CHANNEL", "Member1", Msg("L", MY_GUILD, 779, "elders again"), 2003)), "tier")
 	end)
-	eq(ns.rdb.chat.C, nil, "nothing stored")
-	eq(#ns.rdb.chat.L, 1)
+	eq(ns.rdb.chat == nil or ns.rdb.chat.C == nil, true, "nothing stored")
 	-- Before our roster is read, even a real officer claiming our guild gets [Bankai Guild] only.
 	local byName = ns.Roster.byName
 	ns.Roster.byName = nil
@@ -6176,7 +6176,6 @@ test("two spammers can't silence the other channels, nor everyone else", functio
 			Chan.Receive("CHANNEL", "Member600", Msg("A", MY_GUILD, i, "spam " .. i), t)
 			Chan.Receive("CHANNEL", "Member601", Msg("A", MY_GUILD, i, "spam " .. i), t + 0.1)
 		end
-		eq((Chan.Receive("CHANNEL", "Member1", Msg("L", MY_GUILD, 1, "elders"), t + 0.2)), true, "[Elders]")
 		eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, 1, "council"), t + 0.3)), true, "[Council]")
 		eq((Chan.Receive("CHANNEL", "Member602", Msg("A", MY_GUILD, 1, "hello"), t + 0.4)), true, "a third member in [Bankai Guild]")
 		eq(select(2, Chan.Receive("CHANNEL", "Member600", Msg("A", MY_GUILD, 51, "spam 51"), t + 0.5)), "flood", "the spammer waits")
@@ -13152,12 +13151,12 @@ do
 			eq(ns.db.chatWindows, nil); eq(#calls, 0)
 			-- Chattynator's combat log tab, chosen in the saved variables: the main window, one notice.
 			tabs[1][3] = "COMBAT_LOG"
-			ns.db.chatWindows = { ["Tester-Realm"] = { L = "COMBAT_LOG" } }
+			ns.db.chatWindows = { ["Tester-Realm"] = { C = "COMBAT_LOG" } } -- ([Council]: [Elders] retired 11-03)
 			eq(Chan.FindWindow("combat_log"), nil)
 			local n = #printed
 			for k = 1, 2 do
 				id = id + 1
-				eq((Chan.Receive("CHANNEL", "Member1", Msg("L", MY_GUILD, id, "combat choice " .. k), 3200600 + k * 10)), true)
+				eq((Chan.Receive("CHANNEL", "Member1", Msg("C", MY_GUILD, id, "combat choice " .. k), 3200600 + k * 10)), true)
 			end
 			eq(#calls, 0, "never its combat log"); eq(Count(w[1].lines, "combat choice "), 2)
 			eq(#printed, n + 1); eq(printed[#printed], ns.L.CHATWIN_GONE:format('"COMBAT_LOG"'))
@@ -31972,8 +31971,9 @@ do
 				eq(D.Receive(R("BankaiGuild", ns.ShogunCharacter(), "Baron:1:0,Sapper:1:0", 1000, 300), atk), false)
 			end
 			eq(D.KnownRank("Sapper-Realm", "Bankai Guild"), nil, "Sapper is nobody in our roster")
-			eq(Line("Member2-Realm", "L", "Bankai Guild"), "shown", "[Elders]")
-			eq(Line("Sapper-Realm", "L", "Bankai Guild"), "forged", "not one of us")
+			-- ([Council] since [Elders] was retired, 11-03: the roster's word is checked the same.)
+			eq(Line("Member2-Realm", "C", "Bankai Guild"), "shown", "[Council]")
+			eq(Line("Sapper-Realm", "C", "Bankai Guild"), "forged", "not one of us")
 			local cns, Decree = DecreeClient(s)
 			Decree("Member2-Realm", "ROYAL", "Bankai Guild", "the officer's royal decree")
 			eq(cns.Decree.Active()[1] and cns.Decree.Active()[1].kind, "ROYAL", "his Royal decree")
@@ -32104,7 +32104,7 @@ do
 				local cns, _, Logged = DecreeClient(s)
 				Logged("Helper-Realm", "ROYAL", "Bankai Guild", "not one of us")
 				eq(#cns.Decree.Active(), 0, "a Hand not in our roster does not speak for our guild")
-				eq(Line("Helper-Realm", "L", "Bankai Guild"), "forged")
+				eq(Line("Helper-Realm", "C", "Bankai Guild"), "forged") -- ([Council]: [Elders] retired 11-03)
 				Logged("Member2-Realm", "ROYAL", "Bankai Guild", "our officer's")
 				eq(#cns.Decree.Active(), 1, "our officer, from our roster")
 			end)
@@ -34655,11 +34655,11 @@ test("1.1 pinned line: an officer of <Elfcore> (an Elder on its own members' cli
 		local ok, err = pcall(function()
 			-- <Elfcore>'s roster: Offi is one of its officers (rank 1), no Hand.
 			ns.Roster.RankOf = function(n) if ns.FullName(n) == "Offi-Realm" then return 1 end return savedRank(n) end
-			-- His own client: [Elders] is his, the pin is not; he is told, and nothing is sent.
+			-- His own client: [Council] is his ([Elders] retired 11-03), the pin is not; he is told, and nothing is sent.
 			GetGuildInfo = function() return "Bankai Guild", "Officer", 1 end
 			ns.me = "Offi-Realm"
 			eq(K.IsHand(), false)
-			eq(C.CanUse("L"), true, "[Elders] is his")
+			eq(C.CanUse("C"), true, "[Council] is his"); eq(C.CanUse("L"), false, "[Elders] retired")
 			eq(C.CanPin(), false)
 			eq(select(2, C.SetPin("Raid moves to Tarren Mill")), "rank")
 			assert(Printed(w, ns.L.PIN_ONLY), "told who may")
@@ -61145,7 +61145,7 @@ end)()
 			w.ns.IsMember = function() return false end
 			C.CheckMembership()
 			eq(Fired(w, "CHAT_SEND_FAILED")[3][3], "left")
-			eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Council")), 1)
+			eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Council")), 2, "its own notice ([Council] twice since [Elders] was retired, 11-03)")
 			eq(#Fired(w, "CHAT_SEND_FAILED"), 3)
 			eq(C.Stats().chatMoved, 0); eq(Chan.Stats().moved, 0); eq(Chan.Stats().sent, 0)
 		end)
@@ -61292,10 +61292,10 @@ end)()
 			eq(#printed, n + 1, "said once")
 			-- The player makes it (the game's menu): window 6, docked.
 			w[6].name, w[6].isDocked = "Bankai Guild", true
-			eq(Recv("L", "Member1", "now in the tab"), true)
+			eq(Recv("C", "Member2", "now in the tab"), true)
 			eq(#w[6].lines, 2)
 			eq(w[6].lines[1], Our(ns.L.CHATTAB_HERE:format(LEGEND)), "the intro first")
-			assert(w[6].lines[2]:find("^|Hplayer:Member1|h%["), w[6].lines[2])
+			assert(w[6].lines[2]:find("^|Hplayer:Member2|h%["), w[6].lines[2])
 			eq(ns.db.chatTabIntro["Tester-Realm"], true)
 			eq(Chan.TabState(), "open"); eq(#printed, n + 1)
 			eq(Recv("A", "Member503", "no second intro"), true)

@@ -2522,7 +2522,7 @@ test("gamepad pass 3: the gamepad UI and mouse and keyboard, back and forth thre
 	eq(#C.menus.MENU_UNIT_PLAYER, 1, "the player menu's callback, once")
 	local slash = 0
 	for k in pairs(E.SlashCmdList) do if k:find("^BANKAIGUILD") then slash = slash + 1 end end
-	eq(slash, 7, "/bk and /bg, /bgc, /bgl, /bka (1.2: a line in the fight room), /ogarmy and /olysite (1.3.3), once")
+	eq(slash, 6, "/bk and /bg, /bgc, /bka (1.2: a line in the fight room), /bkarmy and /bksite, once ([Elders]'s /bgl retired 11-03)")
 	GP.Covers("player-menu"); GP.Covers("slash"); GP.Covers("minimap")
 	assert(rawget(E, "BankaiGuildMinimapButton"):IsVisible(), "the minimap button in both modes")
 end)
