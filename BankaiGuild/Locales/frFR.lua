@@ -101,7 +101,7 @@ ns.Locale("frFR", {
 	HELP_ARMS_NAME = "Aux armes !",
 	HELP_ARMS = "Alarme : avertissement de raid, son et marqueur rouge à la position de l'appelant pendant 5 minutes.",
 	HELP_MUSTER_NAME = "Rassemblement ici",
-	HELP_MUSTER = "Point de ralliement : tout le monde voit où se rassembler, marqueur pendant 30 minutes.",
+	HELP_MUSTER = "Point de ralliement : tout le monde voit où se rassembler, marqueur pendant 15 minutes.",
 	HELP_ROYAL_NAME = "Décret royal",
 	HELP_ROYAL = "Une proclamation en texte libre pour toute l'armée.",
 	HELP_HERALDRY_NAME = "Inspection des tabards",

@@ -33403,6 +33403,7 @@ do
 			assert(d, "our guild master's guild decree is shown")
 			eq(d.kind, "ROYAL"); eq(d.scope, "guild"); eq(d.text, "Ironforge - Summon me"); eq(d.sender, "Member1")
 			eq(cns.Decree.Label(d), ns.L.GUILD_DECREE)
+			eq(d.expires - d.t, 30 * 60, "its marker for 30 minutes (Twee, 11-03)")
 			eq(#s.warnings, 1, "its raid warning")
 			assert(s.warnings[1]:find(ns.L.GUILD_DECREE, 1, true) and s.warnings[1]:find("Ironforge - Summon me", 1, true), s.warnings[1])
 			assert(not s.warnings[1]:find(ns.L.ROYAL, 1, true), "never a royal decree")
@@ -33451,7 +33452,7 @@ do
 			Guild("Member1-Realm", "MUSTER", "Bankai Guild II", "at the bridge")
 			d = cns.Decree.Active()[1]
 			eq(d.kind, "MUSTER"); eq(d.scope, "guild"); eq(d.sender, "Member1")
-			eq(cns.Decree.Label(d), ns.L.GUILD_MUSTER); eq(d.expires - d.t, 30 * 60); eq(s.alerts[#s.alerts], "soft")
+			eq(cns.Decree.Label(d), ns.L.GUILD_MUSTER); eq(d.expires - d.t, 15 * 60, "15 minutes (Twee, 11-03)"); eq(s.alerts[#s.alerts], "soft")
 			-- Nobody else: a member below the officers, one naming another guild, a stranger to our
 			-- roster (another guild's master), whatever the rank the message writes.
 			s.clock = s.clock + 61
@@ -35468,10 +35469,11 @@ test("1.1 held alerts: a full list lets go of what is over first: a Muster held 
 			local muster = L.HELP_MUSTER_NAME .. " (Stormwind City)"
 			b.inside = true
 			Decree("Member2-Realm", "MUSTER", "at the bridge")
-			-- Then HELD_MAX Calls to Arms, 20 seconds apart, from our officers in turn (each past his gap).
+			-- Then HELD_MAX Calls to Arms, 12 seconds apart, from our officers in turn (each past his gap;
+			-- 8 minutes in all, so the 15-minute Muster, Twee's 11-03, is still on when he is out).
 			local officers = { "Member3-Realm", "Member4-Realm", "Member5-Realm", "Member6-Realm", "Member2-Realm" }
 			for i = 1, ns.HELD_MAX do
-				b.clock = b.clock + 20
+				b.clock = b.clock + 12
 				Decree(officers[(i - 1) % #officers + 1], "ARMS", "wave " .. i)
 			end
 			local arms = 0
@@ -35479,7 +35481,7 @@ test("1.1 held alerts: a full list lets go of what is over first: a Muster held 
 			eq(arms, ns.HELD_MAX, "every Call to Arms taken (its chat line)")
 			eq(#b.warnings, 0); eq(#b.played, 0)
 			assert(Texts(ns.Views.Build("decrees")):find(muster, 1, true), "the Muster still waits on the Decrees tab")
-			-- Out six minutes after the last: every Call to Arms (5 minutes) is over, the Muster (30) is not.
+			-- Out six minutes after the last: every Call to Arms (5 minutes) is over, the Muster (15) is not.
 			b.clock = b.clock + 6 * 60
 			b.inside = false
 			local printed = #b.printed

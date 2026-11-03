@@ -101,7 +101,7 @@ ns.Locale({ "esES", "esMX" }, {
 	HELP_ARMS_NAME = "¡A las armas!",
 	HELP_ARMS = "Alarma: aviso de banda, sonido y un marcador rojo en la posición de quien llama durante 5 minutos.",
 	HELP_MUSTER_NAME = "Reunión aquí",
-	HELP_MUSTER = "Punto de reunión: todos ven dónde reunirse, marcador durante 30 minutos.",
+	HELP_MUSTER = "Punto de reunión: todos ven dónde reunirse, marcador durante 15 minutos.",
 	HELP_ROYAL_NAME = "Decreto real",
 	HELP_ROYAL = "Una proclama con texto libre para todo el ejército.",
 	HELP_HERALDRY_NAME = "Inspección de tabardos",

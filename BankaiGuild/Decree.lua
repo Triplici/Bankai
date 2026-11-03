@@ -3,7 +3,7 @@ local L = ns.L
 
 -- Royal decrees sent to every Bankai Guild guild over BankaiGuildNet:
 --   ARMS   "Call to Arms!"  (Horde attacking here) - raid warning + sound, marker for 5 min
---   MUSTER "Muster here"    (gather point)          - softer alert, marker for 30 min
+--   MUSTER "Muster here"    (gather point)          - softer alert, marker for 15 min
 -- Only Council (rank <= ns.COUNCIL_MEMBER_RANK) can send, and the Shogun's Steward (1.0.0). Receivers
 -- rate-limit per sender and, for senders only the census vouches for, the whole army (the
 -- flood guard). A decree's words are its sender's own text: sent with the logged API (1.0.0),
@@ -42,7 +42,8 @@ ns.Decree = Decree
 
 local Pins = ns.Pins()
 local SHOW_FLAG = HBD_PINS_WORLDMAP_SHOW_CONTINENT or 2
-local DURATION = { ARMS = 5 * 60, MUSTER = 30 * 60, ROYAL = 60 * 60, HERALDRY = 60 * 60 }
+-- (11-03, Twee: the Muster 15 minutes and the Royal decree 30, from 30 and 60.)
+local DURATION = { ARMS = 5 * 60, MUSTER = 15 * 60, ROYAL = 30 * 60, HERALDRY = 60 * 60 }
 local CROWN_ONLY = { ROYAL = true, HERALDRY = true }
 Decree.CROWN_ONLY = CROWN_ONLY
 local SEND_COOLDOWN = 60

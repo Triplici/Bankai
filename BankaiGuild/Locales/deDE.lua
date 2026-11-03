@@ -101,7 +101,7 @@ ns.Locale("deDE", {
 	HELP_ARMS_NAME = "Zu den Waffen!",
 	HELP_ARMS = "Alarm: Schlachtzugswarnung, Ton und eine rote Markierung an der Position des Rufenden für 5 Minuten.",
 	HELP_MUSTER_NAME = "Hier sammeln",
-	HELP_MUSTER = "Sammelpunkt: alle sehen, wo sie sich sammeln, Markierung für 30 Minuten.",
+	HELP_MUSTER = "Sammelpunkt: alle sehen, wo sie sich sammeln, Markierung für 15 Minuten.",
 	HELP_ROYAL_NAME = "Shogunlicher Erlass",
 	HELP_ROYAL = "Eine Proklamation mit freiem Text für die ganze Armee.",
 	HELP_HERALDRY_NAME = "Wappenrock-Inspektion",
