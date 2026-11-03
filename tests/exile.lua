@@ -6,15 +6,15 @@ local M = ns.Moderation
 local L = ns.L
 local KING, HC = H.KING, H.HC
 local WithNetoff, AsSoldier, AsKing, Printed = H.WithNetoff, H.AsSoldier, H.AsKing, H.Printed
-local GUILD = "Elfcore Zeus"
+local GUILD = "Bankai Guild Zeus"
 
 -- A timed word as a giver's client sends it.
 local function O2(on, at, when, guild, by, reason)
 	return ("O2~%s~%d~%d~%s~%s~%s"):format(on and "1" or "0", at, when, guild, by, reason or "")
 end
 
--- The scene: no timed word kept yet, and a member of <Elfcore Zeus> on this client unless a test
--- says otherwise (AsSoldier: Elfcore II). Moderation's draw is put back whatever a test stubbed.
+-- The scene: no timed word kept yet, and a member of <Bankai Guild Zeus> on this client unless a test
+-- says otherwise (AsSoldier: Bankai Guild II). Moderation's draw is put back whatever a test stubbed.
 local function WithExile(fn)
 	WithNetoff(function(w, K)
 		local saved = { timed = ns.rdb.netoffTimed, guild = GetGuildInfo, me = ns.me, council = ns.rdb.council, random = M.random }
@@ -177,7 +177,7 @@ test("1.1.6 exile: a cancel dated before its time that comes after it applied ta
 			w.clock = t + 1830
 			M.Tick()
 			assert(M.Guild(GUILD), "applied here")
-			-- Given after its time: too late, the guild stays off (the giver puts it back with /elf neton).
+			-- Given after its time: too late, the guild stays off (the giver puts it back with /bk neton).
 			M.HandleTimed("CHANNEL", HC, O2(false, t + 1820, t + 1800, GUILD, HC, ""))
 			assert(M.Guild(GUILD), "a cancel after its time is late")
 			-- Given before its time, heard late: this client takes it back, and says so.
@@ -200,7 +200,7 @@ test("1.1.6 exile: a cancel dated before its time that comes after it applied ta
 	end)
 end)
 
-test("1.1.6 exile: the giver's client cancels with a click or /elf neton guild, and once it applied it puts the guild back on for the army", function()
+test("1.1.6 exile: the giver's client cancels with a click or /bk neton guild, and once it applied it puts the guild back on for the army", function()
 	H.WithUI(function()
 		WithExile(function(w)
 			AsSoldier("Test Councillor")
@@ -211,28 +211,28 @@ test("1.1.6 exile: the giver's client cancels with a click or /elf neton guild, 
 			for _, l in ipairs(M.Lines()) do if tostring(l.text):find(L.NETOFF_EXILE_AT:format(date("%H:%M", t + 1800)), 1, true) then line = l end end
 			assert(line and line.onClick, "its line, with a click for its giver")
 			eq(M.MayCancel(M.TimedFor(GUILD)), true)
-			SlashCmdList.ELFCORE("neton guild " .. GUILD)
-			eq(M.TimedFor(GUILD), nil, "/elf neton guild cancels the word that waits")
+			SlashCmdList.BANKAIGUILD("neton guild " .. GUILD)
+			eq(M.TimedFor(GUILD), nil, "/bk neton guild cancels the word that waits")
 			eq(LastSent(w).msg, O2(false, t, t + 1800, GUILD, HC, ""), "the cancel, sent")
 			eq(LastSent(w).logged, true)
 			assert(Printed(w, L.NETOFF_EXILE_CANCELLED:format("<" .. GUILD .. ">")))
 			eq(M.CancelExile(GUILD), false, "nothing waits any more")
 			assert(Printed(w, L.NETOFF_EXILE_NONE:format("<" .. GUILD .. ">")))
 
-			-- /elf netoff guild <name> in 30: reason gives it at once; a third notice is refused.
-			SlashCmdList.ELFCORE("netoff guild " .. GUILD .. " in 45: treason")
+			-- /bk netoff guild <name> in 30: reason gives it at once; a third notice is refused.
+			SlashCmdList.BANKAIGUILD("netoff guild " .. GUILD .. " in 45: treason")
 			eq(M.TimedFor(GUILD), nil); assert(Printed(w, L.NETOFF_EXILE_DELAY_BAD))
 			-- Without its reason either: refused before any question, not after a reason typed for nothing.
 			local asked = #w.popups
 			w.printed = {}
-			SlashCmdList.ELFCORE("netoff guild " .. GUILD .. " in 45")
+			SlashCmdList.BANKAIGUILD("netoff guild " .. GUILD .. " in 45")
 			eq(#w.popups, asked, "no question for a notice it does not offer"); assert(Printed(w, L.NETOFF_EXILE_DELAY_BAD))
-			SlashCmdList.ELFCORE("netoff guild " .. GUILD .. " in 60")
-			eq(#w.popups, asked + 1, "one it offers asks why"); eq(w.popups[#w.popups].name, "ELFCORE_EXILE_WHY")
+			SlashCmdList.BANKAIGUILD("netoff guild " .. GUILD .. " in 60")
+			eq(#w.popups, asked + 1, "one it offers asks why"); eq(w.popups[#w.popups].name, "BANKAIGUILD_EXILE_WHY")
 			eq(w.popups[#w.popups].data.delay, 3600)
 			w.clock = t + 2
-			SlashCmdList.ELFCORE("netoff guild " .. GUILD .. " in 30: treason")
-			local p = assert(M.TimedFor(GUILD), "/elf netoff guild ... in 30")
+			SlashCmdList.BANKAIGUILD("netoff guild " .. GUILD .. " in 30: treason")
+			local p = assert(M.TimedFor(GUILD), "/bk netoff guild ... in 30")
 			eq(p.when - p.at, 1800)
 			-- Its time comes; then the King's cancel, dated before it, arrives late: on its giver's client
 			-- the guild goes back on for the army (the clients before 1.1.6 follow that O1 word).
@@ -260,10 +260,10 @@ test("1.1.6 exile: only an issuer's own word, with 30 to 60 minutes' notice and 
 		eq(Heard(HC, O2(true, t, t + 7200, GUILD, HC, "spam")), nil, "two hours is too long")
 		eq(Heard(HC, O2(true, t + M.DATE_AHEAD + 5, t + M.DATE_AHEAD + 1805, GUILD, HC, "spam")), nil, "dated ahead of the server")
 		eq(Heard(HC, O2(true, t, t + 1800, GUILD, HC, "")), nil, "a reason is needed")
-		M.HandleTimed("CHANNEL", HC, O2(true, t, t + 1800, "Elfcore", HC, "the King's"))
-		eq(M.TimedFor("Elfcore"), nil, "never the King's guild")
+		M.HandleTimed("CHANNEL", HC, O2(true, t, t + 1800, "Bankai Guild", HC, "the King's"))
+		eq(M.TimedFor("Bankai Guild"), nil, "never the King's guild")
 		M.HandleTimed("CHANNEL", HC, O2(true, t, t + 1800, "Horde Heroes", HC, "not ours"))
-		eq(#M.TimedList(), 0, "never a guild that is not Elfcore")
+		eq(#M.TimedList(), 0, "never a guild that is not Bankai Guild")
 		eq(Heard(HC, O2(true, t - 1800 - M.EXILE_LATE - 1, t - M.EXILE_LATE - 1, GUILD, HC, "spam")), nil, "first heard well past its time")
 		eq(Heard(HC, ("O2~1~%d~soon~%s~%s~spam"):format(t, GUILD, HC)), nil, "malformed")
 		-- The logged API where the client has it.
@@ -280,17 +280,17 @@ test("1.1.6 exile: only an issuer's own word, with 30 to 60 minutes' notice and 
 		AsSoldier("Test Councillor")
 		eq(M.Exile(GUILD, 1800, "spam"), false)
 		assert(Printed(w, L.NETOFF_HELD_HIGHER:format("<" .. GUILD .. ">")))
-		eq(M.Exile("Elfcore", 1800, "the King's"), false)
+		eq(M.Exile("BankaiGuild", 1800, "the King's"), false)
 		assert(Printed(w, L.NETOFF_NOT_KING_GUILD))
-		eq(M.Exile("Elfcore II", 1800, ""), false, "a reason")
+		eq(M.Exile("Bankai Guild II", 1800, ""), false, "a reason")
 		AsSoldier("Watcher")
-		eq(M.Exile("Elfcore II", 1800, "spam"), false, "a soldier can't")
+		eq(M.Exile("Bankai Guild II", 1800, "spam"), false, "a soldier can't")
 		assert(Printed(w, L.NETOFF_ONLY))
 		-- A King's timed word: no councillor replaces it, newer or not.
 		AsSoldier("Watcher")
-		M.HandleTimed("CHANNEL", KING, O2(true, t, t + 3600, "Elfcore II", KING, "the King's notice"))
-		M.HandleTimed("CHANNEL", HC, O2(true, t + 1, t + 1801, "Elfcore II", HC, "sooner"))
-		eq(M.TimedFor("Elfcore II").by, KING, "no word replaces one from higher up")
+		M.HandleTimed("CHANNEL", KING, O2(true, t, t + 3600, "Bankai Guild II", KING, "the King's notice"))
+		M.HandleTimed("CHANNEL", HC, O2(true, t + 1, t + 1801, "Bankai Guild II", HC, "sooner"))
+		eq(M.TimedFor("Bankai Guild II").by, KING, "no word replaces one from higher up")
 	end) end)
 end)
 
@@ -311,15 +311,15 @@ test("1.1.6 exile: a giver who no longer gives words by its time: it lapses; a f
 		ns.rdb.netoffTimed = nil
 		local names = {}
 		for i = 1, M.EXILE_MAX_KEPT do
-			local g = "Elfcore " .. string.char(64 + math.floor((i - 1) / 26) + 1) .. string.char(97 + (i - 1) % 26)
+			local g = "Bankai Guild " .. string.char(64 + math.floor((i - 1) / 26) + 1) .. string.char(97 + (i - 1) % 26)
 			names[#names + 1] = g
 			M.HandleTimed("CHANNEL", HC, O2(true, w.clock, w.clock + 1800 + i, g, HC, "flood"))
 		end
 		eq(#M.TimedList(), M.EXILE_MAX_KEPT, "full")
-		M.HandleTimed("CHANNEL", HC, O2(true, w.clock, w.clock + 1800, "Elfcore Late", HC, "flood"))
-		eq(M.TimedFor("Elfcore Late"), nil, "no room")
-		M.HandleTimed("CHANNEL", KING, O2(true, w.clock, w.clock + 1800, "Elfcore Late", KING, "the King's"))
-		assert(M.TimedFor("Elfcore Late"), "the King's word finds room")
+		M.HandleTimed("CHANNEL", HC, O2(true, w.clock, w.clock + 1800, "Bankai Guild Late", HC, "flood"))
+		eq(M.TimedFor("Bankai Guild Late"), nil, "no room")
+		M.HandleTimed("CHANNEL", KING, O2(true, w.clock, w.clock + 1800, "Bankai Guild Late", KING, "the King's"))
+		assert(M.TimedFor("Bankai Guild Late"), "the King's word finds room")
 		eq(M.TimedFor(names[1]), nil, "the soonest of the lower words went")
 		eq(#M.TimedList(), M.EXILE_MAX_KEPT)
 	end)
@@ -396,7 +396,7 @@ test("1.1.6 exile: a cancel its giver never heard holds: where it is held, the w
 			eq(M.SelfOff(), nil, "our guild still speaks")
 			eq(M.Stats().refused, refused + 1, "refused, and counted")
 			-- That word alone: another word of his on that guild is his word as ever (the King puts
-			-- it back with /elf neton guild).
+			-- it back with /bk neton guild).
 			M.Handle("CHANNEL", HC, ("O1~g~1~%d~%s~%s~spam"):format(t + 5400, GUILD, HC))
 			eq(M.Guild(GUILD).reason, "spam", "a different word is taken")
 		end)
@@ -505,22 +505,22 @@ test("1.1.6 exile: clients before 1.1.6 leave O2 alone; a saved timed word is ch
 	WithExile(function(w)
 		local t = w.clock
 		ns.rdb.netoffTimed = {
-			["elfcore zeus"] = { name = GUILD, at = t, when = t + 1800, by = HC, reason = "kept", heard = 5 },
-			["elfcore ii"] = { name = "Elfcore II", at = t, when = t + 1800, by = HC, reason = "cancelled", cancel = { at = t + 1, by = HC } },
-			["elfcore storm"] = { name = "Elfcore Storm", at = t, when = t + 1800, by = HC, reason = "bad cancel", cancel = { at = t + 4000, by = HC } },
-			["elfcore gale"] = { name = "Elfcore Gale", at = t, when = t + 99999, by = HC, reason = "too long" },
-			["wrong key"] = { name = "Elfcore Hunters", at = t, when = t + 1800, by = HC, reason = "elsewhere" },
+			["bankaiguild zeus"] = { name = GUILD, at = t, when = t + 1800, by = HC, reason = "kept", heard = 5 },
+			["bankaiguild ii"] = { name = "Bankai Guild II", at = t, when = t + 1800, by = HC, reason = "cancelled", cancel = { at = t + 1, by = HC } },
+			["bankaiguild storm"] = { name = "Bankai Guild Storm", at = t, when = t + 1800, by = HC, reason = "bad cancel", cancel = { at = t + 4000, by = HC } },
+			["bankaiguild gale"] = { name = "Bankai Guild Gale", at = t, when = t + 99999, by = HC, reason = "too long" },
+			["wrong key"] = { name = "Bankai Guild Hunters", at = t, when = t + 1800, by = HC, reason = "elsewhere" },
 		}
 		M.Load()
 		local kept = ns.rdb.netoffTimed
-		assert(kept["elfcore zeus"] and M.TimedFor(GUILD), "a valid word stays")
-		assert(kept["elfcore ii"] and kept["elfcore ii"].cancel and not M.TimedFor("Elfcore II"), "its cancel stays with it")
-		eq(kept["elfcore storm"], nil, "a cancel that no longer reads takes its word with it")
-		eq(kept["elfcore gale"], nil); eq(kept["wrong key"], nil)
+		assert(kept["bankaiguild zeus"] and M.TimedFor(GUILD), "a valid word stays")
+		assert(kept["bankaiguild ii"] and kept["bankaiguild ii"].cancel and not M.TimedFor("Bankai Guild II"), "its cancel stays with it")
+		eq(kept["bankaiguild storm"], nil, "a cancel that no longer reads takes its word with it")
+		eq(kept["bankaiguild gale"], nil); eq(kept["wrong key"], nil)
 	end)
 end)
 
-test("1.1.6 exile with the gamepad UI: guild, time, reason and a last yes in Elfcore's own dialogs; nothing is given before that yes", function()
+test("1.1.6 exile with the gamepad UI: guild, time, reason and a last yes in Bankai Guild's own dialogs; nothing is given before that yes", function()
 	H.WithUI(function()
 		H.LoadUI()
 		H.WithGamepadUI(true, function(game)
@@ -528,17 +528,17 @@ test("1.1.6 exile with the gamepad UI: guild, time, reason and a last yes in Elf
 				AsSoldier("Test Councillor")
 				for _, l in ipairs(M.Lines()) do if tostring(l.text):find(L.NETOFF_EXILE_ADD, 1, true) then l.onClick() end end
 				eq(#game.shown, 0, "never the game's popup"); eq(#w.popups, 0)
-				local f = ns.Dialog.Find("ELFCORE_EXILE_GUILD")
+				local f = ns.Dialog.Find("BANKAIGUILD_EXILE_GUILD")
 				assert(f and f:IsShown() and f.editBox:IsShown(), "our dialog, with its box")
 				f.editBox:SetText(GUILD)
 				f.buttons[1]:Click()
-				local when = assert(ns.Dialog.Find("ELFCORE_EXILE_WHEN"), "then how long")
+				local when = assert(ns.Dialog.Find("BANKAIGUILD_EXILE_WHEN"), "then how long")
 				eq(when.buttons[1]:GetText(), L.NETOFF_EXILE_IN:format(30)); eq(when.buttons[2]:GetText(), L.NETOFF_EXILE_IN:format(60))
 				when.buttons[2]:Click()
-				local why = assert(ns.Dialog.Find("ELFCORE_EXILE_WHY"), "then why")
+				local why = assert(ns.Dialog.Find("BANKAIGUILD_EXILE_WHY"), "then why")
 				why.editBox:SetText("treason")
 				why.buttons[1]:Click()
-				local confirm = assert(ns.Dialog.Find("ELFCORE_EXILE_CONFIRM"), "then a last yes")
+				local confirm = assert(ns.Dialog.Find("BANKAIGUILD_EXILE_CONFIRM"), "then a last yes")
 				eq(M.TimedFor(GUILD), nil, "nothing given before the yes")
 				confirm.buttons[1]:Click()
 				local p = assert(M.TimedFor(GUILD), "given")
@@ -546,7 +546,7 @@ test("1.1.6 exile with the gamepad UI: guild, time, reason and a last yes in Elf
 				eq(#game.shown, 0, "still never the game's popup")
 				-- The cancel asks too, in our dialog.
 				for _, l in ipairs(M.Lines()) do if l.onClick and tostring(l.text):find(L.NETOFF_EXILE_AT:format(date("%H:%M", p.when)), 1, true) then l.onClick() end end
-				local cancel = assert(ns.Dialog.Find("ELFCORE_EXILE_CANCEL"))
+				local cancel = assert(ns.Dialog.Find("BANKAIGUILD_EXILE_CANCEL"))
 				cancel.buttons[1]:Click()
 				eq(M.TimedFor(GUILD), nil, "cancelled")
 				eq(#game.shown, 0)

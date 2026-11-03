@@ -1,14 +1,14 @@
 -- Embrace Anonymity (Cover.lua): a moderator's cover name, shown in place of the real one to those who
--- accepted moderator protection, and the moderator off the Elfcore network while it is on.
+-- accepted moderator protection, and the moderator off the Bankai Guild network while it is on.
 local ns, test, eq, extra = ...
 local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]cover%.lua$")) or "./"
-local ADDON_DIR = ROOT .. "Elfcore/"
+local ADDON_DIR = ROOT .. "BankaiGuild/"
 local FreshComm, WithGamepadUI = extra.FreshComm, extra.WithGamepadUI
 
 -- (Loaded once into the harness's ns, by whichever test file needs it first: tests/roster.lua too.)
 if not ns.Cover then
-	assert(loadfile(ADDON_DIR .. "Locales/CoverText.lua"))("Elfcore", ns)
-	assert(loadfile(ADDON_DIR .. "Cover.lua"))("Elfcore", ns)
+	assert(loadfile(ADDON_DIR .. "Locales/CoverText.lua"))("BankaiGuild", ns)
+	assert(loadfile(ADDON_DIR .. "Cover.lua"))("BankaiGuild", ns)
 end
 local Cover, L = ns.Cover, ns.L
 
@@ -16,7 +16,7 @@ local MOD = "Watch Keeper-Realm"
 local NOW = 1000000
 
 -- A scene: the signed council naming MOD, this client's answer, the covers heard, a clock, and the
--- messages Elfcore sends (ns.Comm.Send) and its prints. Everything put back after.
+-- messages Bankai Guild sends (ns.Comm.Send) and its prints. Everything put back after.
 local function Scene(fn, opts)
 	opts = opts or {}
 	local saved = { council = ns.rdb.council, covers = ns.rdb.covers, consent = ns.db.coverConsent, cover = ns.db.cover,
@@ -31,7 +31,7 @@ local function Scene(fn, opts)
 	ns.Now = function() return s.now end
 	ns.Comm.Send = function(dist, msg) s.sent[#s.sent + 1] = dist .. " " .. msg return true end
 	ns.Print = function(msg) s.printed[#s.printed + 1] = tostring(msg) end
-	GetGuildInfo = function() return "Elfcore II", "Member", 3 end
+	GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
 	IsInGuild = function() return true end
 	-- Who may go quiet is quiet presence's rule (Core.lua: a current signed issuer, or the author),
 	-- with its own tests; here, whether this character passes it (opts.issuer), and an accepted Accord.
@@ -169,7 +169,7 @@ test("cover: only a moderator may embrace anonymity; it is said on the channel a
 	end, { me = MOD, issuer = true })
 end)
 
-test("cover: embracing anonymity is quiet presence (Elfcore's one silence path): on with the cover, again at each login, off with it, and never another owner's", function()
+test("cover: embracing anonymity is quiet presence (Bankai Guild's one silence path): on with the cover, again at each login, off with it, and never another owner's", function()
 	Scene(function(s)
 		-- A councillor quiet presence refuses (not a current signed issuer): no cover either.
 		eq(Cover.Enable("Aldric Stonebrook"), false)
@@ -204,7 +204,7 @@ test("cover: a covered client says no hello, sends no census and no position (qu
 		eq(Cover.Enable("Aldric Stonebrook"), true)
 		sent = {}
 		cns.Comm.Hello(true)
-		cns.Comm.Broadcast({ guild = "Elfcore II", total = 1, online = 1 })
+		cns.Comm.Broadcast({ guild = "Bankai Guild II", total = 1, online = 1 })
 		eq(cns.Comm.Send("GUILD", "P1~1~2"), false, "a position held")
 		cns.Comm.Send("GUILD", "MW~x")
 		cns.Comm.Pump()
@@ -317,18 +317,18 @@ test("cover: the tooltip's first line says the cover, without the council's line
 	GameTooltip, GameTooltipTextLeft1, UnitIsPlayer, UnitFullName, GetGuildInfo = saved.tip, saved.left, saved.uip, saved.ufn, saved.ggi
 end)
 
-test("cover: Elfcore's pages show the cover name: the census's coloured names and the chat lines, without the council's colour", function()
+test("cover: Bankai Guild's pages show the cover name: the census's coloured names and the chat lines, without the council's colour", function()
 	Scene(function()
 		Cover.Handle("CHANNEL", MOD, "MC~Aldric Stonebrook")
 		local colored = ns.Views.ClassColored("Watch Keeper", "WARRIOR")
 		assert(colored:find("Aldric Stonebrook", 1, true) and not colored:find("Watch Keeper", 1, true), colored)
-		local line = ns.Channels.FormatLine("A", MOD, "Elfcore II", nil, "hello", true)
+		local line = ns.Channels.FormatLine("A", MOD, "Bankai Guild II", nil, "hello", true)
 		-- (The link under the name keeps the real one: a click whispers the player the server finds.)
 		assert(line:find("[Aldric Stonebrook]", 1, true), line)
 		assert(not line:find("[Watch Keeper]", 1, true), "the real name not shown: " .. line)
 		assert(not line:find(ns.HIGH_COUNCIL_COLOR, 1, true), "no council colour: " .. line)
 		ns.db.coverConsent = false
-		line = ns.Channels.FormatLine("A", MOD, "Elfcore II", nil, "hello", true)
+		line = ns.Channels.FormatLine("A", MOD, "Bankai Guild II", nil, "hello", true)
 		assert(line:find("Watch Keeper|r]", 1, true) and not line:find("Aldric", 1, true), "without a Yes, the real name: " .. line)
 	end, { consent = true })
 end)

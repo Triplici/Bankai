@@ -2,11 +2,11 @@
 # Exercise the actual runner without executing any addon test bodies.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-selection_log=$(mktemp /tmp/elfcore-test-selection.XXXXXX)
+selection_log=$(mktemp /tmp/bankai-test-selection.XXXXXX)
 trap 'rm -f "$selection_log"' EXIT
 selection_status=0
-env -u ELFCORE_TEST_ARENA_MODULES -u ELFCORE_TEST_WATCH_ONLY -u ELFCORE_TEST_AUTHORITY_ONLY \
-	ELFCORE_TEST_FILTER='__no_such_elfcore_test_selection__' \
+env -u BANKAIGUILD_TEST_ARENA_MODULES -u BANKAIGUILD_TEST_WATCH_ONLY -u BANKAIGUILD_TEST_AUTHORITY_ONLY \
+	BANKAIGUILD_TEST_FILTER='__no_such_bankaiguild_test_selection__' \
 	luajit tests/run.lua >"$selection_log" 2>&1 || selection_status=$?
 if [ "$selection_status" -ne 1 ]; then
 	printf 'Empty selection must exit 1; actual runner exited %s.\n' "$selection_status" >&2

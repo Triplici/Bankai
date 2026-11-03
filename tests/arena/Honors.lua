@@ -1,10 +1,10 @@
--- Elfcore honours (Elfcore/Honors.lua): the clocks, the donor rankings, the level race, the best
+-- Bankai Guild honours (BankaiGuild/Honors.lua): the clocks, the donor rankings, the level race, the best
 -- guild, what a player holds, and his pick. Run by tests/run.lua with its helpers (H).
 local H = ...
 local test, eq = H.test, H.eq
 
 local ns = {}
-assert(loadfile(H.ADDON_DIR .. "Honors.lua"))("Elfcore", ns)
+assert(loadfile(H.ADDON_DIR .. "Honors.lua"))("BankaiGuild", ns)
 local SHIPPED = ns.Honors.FRAMES_SHIPPED -- (as Honors.lua ships it: the test of 1.2.0's frames below)
 ns.Honors.FRAMES_SHIPPED = nil -- (every family's frame: the machinery's tests; 1.2.0 wears the donors' alone)
 local Honors = ns.Honors
@@ -153,10 +153,10 @@ test("honours: what counts is what the Treasury's ranking counts: never dues, ar
 		Gift("Esker", 100, t, { item = 2589, count = 20 }),
 		Gift("Esker", 100, t, { note = "Arena fee #7" }),
 		Gift("Esker", 100, t, { note = "  arena FEE (fight 12)" }),
-		Gift("Esker", 100, t, { note = "Elfcore arena fee 2026-10-01 e12" }), -- spec: markets
+		Gift("Esker", 100, t, { note = "Bankai Guild arena fee 2026-10-01 e12" }), -- spec: markets
 		Gift("Esker", 100, t, { note = "Arena payout F12" }),
 		Gift("Esker", 100, t, { treasurer = true, noted = true }),          -- dues sent with the note
-		Gift("Esker", 100, t, { treasurer = true, note = "Elfcore fund 2026-09-22 <Elfcore II>" }),
+		Gift("Esker", 100, t, { treasurer = true, note = "Bankai Guild fund 2026-09-22 <Bankai Guild II>" }),
 		{ name = "Esker", money = 1.5 * GOLD + 0.5, t = t },                  -- not whole copper
 		{ name = "Esker", money = -500 * GOLD, t = t },
 		{ name = "Esker", money = "lots", t = t },
@@ -480,25 +480,25 @@ end)
 
 test("honours: the best guild is the highest average level; ties go to more members, then the name; small guilds can't win", function()
 	local rows = {
-		{ guild = "Elfcore Aurora", leader = "Maelis", members = 120, avgLevel = 45.3 },
-		{ guild = "Elfcore Dawn", leader = "Quill", members = 200, avgLevel = 45.34 },   -- 45.3 to the tenth
-		{ guild = "Elfcore Borealis", leader = "Tovan", members = 200, avgLevel = 45.3 },
-		{ guild = "Elfcore Cinder", leader = "Rook", members = 2, avgLevel = 60 },         -- two players
-		{ guild = "Elfcore Ember", leader = "Sable", members = 300, avgLevel = 44.9 },
-		{ guild = "Elfcore Forged", leader = "Wren", members = 300, avgLevel = 75 },       -- impossible
-		{ guild = "Elfcore Gale", leader = "Ione", members = 300, avgLevel = 59, off = true }, -- net-off
-		{ guild = "Elfcore Hollow", members = 300, avgLevel = 58 },                       -- no leader known
-		{ guild = "Elfcore Iron", leader = "Pax", members = 30.5, avgLevel = 58 },
+		{ guild = "Bankai Guild Aurora", leader = "Maelis", members = 120, avgLevel = 45.3 },
+		{ guild = "Bankai Guild Dawn", leader = "Quill", members = 200, avgLevel = 45.34 },   -- 45.3 to the tenth
+		{ guild = "Bankai Guild Borealis", leader = "Tovan", members = 200, avgLevel = 45.3 },
+		{ guild = "Bankai Guild Cinder", leader = "Rook", members = 2, avgLevel = 60 },         -- two players
+		{ guild = "Bankai Guild Ember", leader = "Sable", members = 300, avgLevel = 44.9 },
+		{ guild = "Bankai Guild Forged", leader = "Wren", members = 300, avgLevel = 75 },       -- impossible
+		{ guild = "Bankai Guild Gale", leader = "Ione", members = 300, avgLevel = 59, off = true }, -- net-off
+		{ guild = "Bankai Guild Hollow", members = 300, avgLevel = 58 },                       -- no leader known
+		{ guild = "Bankai Guild Iron", leader = "Pax", members = 30.5, avgLevel = 58 },
 	}
 	local list = Honors.GuildRanking(rows)
-	eq(Keys(list, "guild"), "Elfcore Borealis,Elfcore Dawn,Elfcore Aurora,Elfcore Ember")
+	eq(Keys(list, "guild"), "Bankai Guild Borealis,Bankai Guild Dawn,Bankai Guild Aurora,Bankai Guild Ember")
 	eq(list[1].place, 1)
 	local top = Honors.GuildTop(rows)
 	eq(top.leader, "Tovan")
 	eq(top.members, 200)
 	-- A guild at the minimum can win; one under it can't.
-	eq(Honors.GuildTop({ { guild = "Elfcore Jade", leader = "Lark", members = Honors.GUILD_MIN_MEMBERS, avgLevel = 30 } }).leader, "Lark")
-	eq(Honors.GuildTop({ { guild = "Elfcore Jade", leader = "Lark", members = Honors.GUILD_MIN_MEMBERS - 1, avgLevel = 30 } }), nil)
+	eq(Honors.GuildTop({ { guild = "Bankai Guild Jade", leader = "Lark", members = Honors.GUILD_MIN_MEMBERS, avgLevel = 30 } }).leader, "Lark")
+	eq(Honors.GuildTop({ { guild = "Bankai Guild Jade", leader = "Lark", members = Honors.GUILD_MIN_MEMBERS - 1, avgLevel = 30 } }), nil)
 	eq(Honors.GuildTop({}), nil)
 	eq(Honors.GuildTop(nil), nil)
 end)
@@ -509,47 +509,47 @@ end)
 -- so his client alone could give him the owl, its title and its letter at a near tie.
 test("honours: 1.2.4 the best guild's average level is cut down to the tenth as the census carries it, our own unrounded one too", function()
 	local rows = {
-		{ guild = "Elfcore Zeta", leader = "Zed", members = 100, avgLevel = 47.96 }, -- (ours, from our roster)
-		{ guild = "Elfcore Alpha", leader = "Ann", members = 100, avgLevel = 47.9 },  -- (theirs, from their report)
+		{ guild = "Bankai Guild Zeta", leader = "Zed", members = 100, avgLevel = 47.96 }, -- (ours, from our roster)
+		{ guild = "Bankai Guild Alpha", leader = "Ann", members = 100, avgLevel = 47.9 },  -- (theirs, from their report)
 	}
 	local list = Honors.GuildRanking(rows)
-	eq(Keys(list, "guild"), "Elfcore Alpha,Elfcore Zeta", "a tie at 47.9: by the name, as on every client")
+	eq(Keys(list, "guild"), "Bankai Guild Alpha,Bankai Guild Zeta", "a tie at 47.9: by the name, as on every client")
 	eq(list[2].avgLevel, 47.9)
-	eq(Honors.GuildTop({ { guild = "Elfcore Zeta", leader = "Zed", members = 100, avgLevel = 59.99 },
-		{ guild = "Elfcore Alpha", leader = "Ann", members = 101, avgLevel = 59.9 } }).guild, "Elfcore Alpha", "59.9 each: the more members")
-	eq(Honors.GuildTop({ { guild = "Elfcore Zeta", leader = "Zed", members = 100, avgLevel = 59.99 } }).avgLevel, 59.9, "never 60.0")
+	eq(Honors.GuildTop({ { guild = "Bankai Guild Zeta", leader = "Zed", members = 100, avgLevel = 59.99 },
+		{ guild = "Bankai Guild Alpha", leader = "Ann", members = 101, avgLevel = 59.9 } }).guild, "Bankai Guild Alpha", "59.9 each: the more members")
+	eq(Honors.GuildTop({ { guild = "Bankai Guild Zeta", leader = "Zed", members = 100, avgLevel = 59.99 } }).avgLevel, 59.9, "never 60.0")
 end)
 
 test("honours: the best guild from the census as it is kept: one faction, the guilds the caller leaves out, and only fresh reports", function()
 	local now = 1790000000
 	local guilds = {
-		["Elfcore Aurora"] = { total = 400, leader = "Maelis", avgLevel = 31.2, faction = "Alliance", t = now - HOUR },
-		["Elfcore Kiln"] = { total = 400, leader = "Grom", avgLevel = 40.1, faction = "Horde", t = now - HOUR },
-		["Elfcore Nameless"] = { total = 400, leader = "Nox", avgLevel = 50, t = now - HOUR },  -- no faction said
+		["Bankai Guild Aurora"] = { total = 400, leader = "Maelis", avgLevel = 31.2, faction = "Alliance", t = now - HOUR },
+		["Bankai Guild Kiln"] = { total = 400, leader = "Grom", avgLevel = 40.1, faction = "Horde", t = now - HOUR },
+		["Bankai Guild Nameless"] = { total = 400, leader = "Nox", avgLevel = 50, t = now - HOUR },  -- no faction said
 	}
-	eq(Honors.GuildTop(guilds, { faction = "Alliance" }).guild, "Elfcore Aurora", "a row with no faction is no Alliance row")
-	eq(Honors.GuildTop(guilds, { faction = "Horde" }).guild, "Elfcore Kiln")
-	eq(Honors.GuildTop(guilds).guild, "Elfcore Nameless", "no faction asked: every row")
-	-- The census's rows don't say net-off (Data.NetOff) or no longer Elfcore (ns.IsFederation): skip.
-	guilds["Elfcore Gale"] = { total = 300, leader = "Ione", avgLevel = 59, faction = "Alliance", t = now - HOUR }
+	eq(Honors.GuildTop(guilds, { faction = "Alliance" }).guild, "Bankai Guild Aurora", "a row with no faction is no Alliance row")
+	eq(Honors.GuildTop(guilds, { faction = "Horde" }).guild, "Bankai Guild Kiln")
+	eq(Honors.GuildTop(guilds).guild, "Bankai Guild Nameless", "no faction asked: every row")
+	-- The census's rows don't say net-off (Data.NetOff) or no longer Bankai Guild (ns.IsFederation): skip.
+	guilds["Bankai Guild Gale"] = { total = 300, leader = "Ione", avgLevel = 59, faction = "Alliance", t = now - HOUR }
 	guilds["Gale Remnant"] = { total = 300, leader = "Ilse", avgLevel = 58, faction = "Alliance", t = now - HOUR }
 	local asked = {}
 	local top = Honors.GuildTop(guilds, { faction = "Alliance", skip = function(guild, row)
 		asked[guild] = row.leader
-		return guild == "Elfcore Gale" or guild == "Gale Remnant"
+		return guild == "Bankai Guild Gale" or guild == "Gale Remnant"
 	end })
-	eq(top.guild, "Elfcore Aurora")
-	eq(asked["Elfcore Gale"], "Ione", "skip is given the guild and its row")
-	eq(Honors.GuildTop(guilds, { faction = "Alliance" }).guild, "Elfcore Gale", "not skipped: it wins")
+	eq(top.guild, "Bankai Guild Aurora")
+	eq(asked["Bankai Guild Gale"], "Ione", "skip is given the guild and its row")
+	eq(Honors.GuildTop(guilds, { faction = "Alliance" }).guild, "Bankai Guild Gale", "not skipped: it wins")
 	-- With now: a report older than GUILD_MAX_AGE (kept 7 days by the census), or with no time, can't win.
 	local rows = {
-		{ guild = "Elfcore Aurora", leader = "Maelis", members = 100, avgLevel = 31.2, t = now - Honors.GUILD_MAX_AGE },
-		{ guild = "Elfcore Quiet", leader = "Hush", members = 100, avgLevel = 55, t = now - Honors.GUILD_MAX_AGE - 1 },
-		{ guild = "Elfcore Timeless", leader = "Ever", members = 100, avgLevel = 58 },
+		{ guild = "Bankai Guild Aurora", leader = "Maelis", members = 100, avgLevel = 31.2, t = now - Honors.GUILD_MAX_AGE },
+		{ guild = "Bankai Guild Quiet", leader = "Hush", members = 100, avgLevel = 55, t = now - Honors.GUILD_MAX_AGE - 1 },
+		{ guild = "Bankai Guild Timeless", leader = "Ever", members = 100, avgLevel = 58 },
 	}
-	eq(Honors.GuildTop(rows, { now = now }).guild, "Elfcore Aurora")
-	eq(Honors.GuildTop(rows, { now = now, maxAge = 7 * DAY }).guild, "Elfcore Quiet")
-	eq(Honors.GuildTop(rows).guild, "Elfcore Timeless", "no now: no age asked")
+	eq(Honors.GuildTop(rows, { now = now }).guild, "Bankai Guild Aurora")
+	eq(Honors.GuildTop(rows, { now = now, maxAge = 7 * DAY }).guild, "Bankai Guild Quiet")
+	eq(Honors.GuildTop(rows).guild, "Bankai Guild Timeless", "no now: no age asked")
 end)
 
 ---------------------------------------------------------------------------
@@ -582,7 +582,7 @@ local function Everything()
 		tiers = { ["Player-1-A"] = "gold" },
 		donors = donors,
 		levels = Honors.LevelRace({}, claims, 100000),
-		guild = Honors.GuildTop({ { guild = "Elfcore Aurora", leader = "Aldric", members = 100, avgLevel = 40 } }),
+		guild = Honors.GuildTop({ { guild = "Bankai Guild Aurora", leader = "Aldric", members = 100, avgLevel = 40 } }),
 	}
 end
 
@@ -642,7 +642,7 @@ test("honours: a player's holdings, each with its frame, mark and title, in ORDE
 	eq(lv.art, "comet-gold", "the gold comet: first to 60; the addon writes 60 on it")
 	eq(lv.frame, "level-race-60") eq(lv.mark, "comet-gold") eq(lv.title, "level-race-60") eq(lv.shape, "plain")
 	eq(Find(held, "donor-week"), nil, "the week's top donor is gone")
-	eq(Find(held, "guild-top-leader").guild, "Elfcore Aurora")
+	eq(Find(held, "guild-top-leader").guild, "Bankai Guild Aurora")
 	eq(Find(held, "guild-top-leader").art, "owl-gold") eq(Find(held, "guild-top-leader").shape, "winged")
 	eq(Find(held, "donor-top-1").art, "cornucopia-gold") eq(Find(held, "donor-month-1").art, "koi-gold")
 	eq(Find(held, "arena-class-mage").art, "mage-gold") eq(Find(held, "arena-race-nightelf").art, "nightsaber-gold")
@@ -715,7 +715,7 @@ test("honours: every honour's art is the design's beast in its metal (gold, silv
 	end
 	local inputs = { belts = belts, podium = podium, donors = Honors.Donors(gifts, NOW),
 		levels = Honors.LevelRace({}, claims, 100000), oracle = { month = oracle, monthNo = Honors.MonthOf(SEP_1) },
-		guild = { guild = "Elfcore Aurora", leader = "Una", members = 100, avgLevel = 40 },
+		guild = { guild = "Bankai Guild Aurora", leader = "Una", members = 100, avgLevel = 40 },
 		-- (1.2.3: the same three, the Church's top 3; 1.2.4: its Apostles, the Bones' month and the
 		-- slayers' signed top 3 too)
 		church = { missionaries = oracle, apostles = oracle }, bones = { month = oracle, monthNo = Honors.MonthOf(SEP_1) },
@@ -735,7 +735,7 @@ test("honours: every honour's art is the design's beast in its metal (gold, silv
 end)
 
 -- 1.2.1 (the author's ask): the new frames ship as a preview only. Their keys name their art for
--- /elf borders test, and no honour has them: everyone holding everything holds none of them, none
+-- /bk borders test, and no honour has them: everyone holding everything holds none of them, none
 -- can be picked, and a pick naming one shows the rank's frame. (1.2.4, the owner's call: the
 -- Apostles' crosses and the Bones' charms are honours now, their keys and art the same; the
 -- skyborn's owlcats and the red cross stay previews.)
@@ -1387,20 +1387,20 @@ end)
 -- (the design: no members' title for the best guild, only its leader's owl. This test was the
 -- members' title's and now expects nothing for them.)
 test("honours: the best guild's leader holds its owl (frame and title); its members and another guild's hold nothing", function()
-	local inputs = { guild = Honors.GuildTop({ { guild = "Elfcore Aurora", leader = "Maelis", members = 100, avgLevel = 40 } }) }
-	eq(#Honors.Holdings({ name = "Lida Fenn", guild = "Elfcore Aurora" }, inputs), 0, "a member: nothing")
-	eq(#Honors.Holdings({ name = "Lida Fenn", guild = "  elfcore AURORA " }, inputs), 0)
-	eq(#Honors.Holdings({ name = "Lida Fenn", guild = "Elfcore Dawn" }, inputs), 0)
-	eq(Keys(Honors.Holdings({ name = "Maelis", guild = "Elfcore Aurora" }, inputs)), "guild-top-leader", "the leader: his owl")
+	local inputs = { guild = Honors.GuildTop({ { guild = "Bankai Guild Aurora", leader = "Maelis", members = 100, avgLevel = 40 } }) }
+	eq(#Honors.Holdings({ name = "Lida Fenn", guild = "Bankai Guild Aurora" }, inputs), 0, "a member: nothing")
+	eq(#Honors.Holdings({ name = "Lida Fenn", guild = "  bankaiguild AURORA " }, inputs), 0)
+	eq(#Honors.Holdings({ name = "Lida Fenn", guild = "Bankai Guild Dawn" }, inputs), 0)
+	eq(Keys(Honors.Holdings({ name = "Maelis", guild = "Bankai Guild Aurora" }, inputs)), "guild-top-leader", "the leader: his owl")
 	eq(Keys(Honors.Holdings({ name = "Maelis" }, inputs)), "guild-top-leader", "his guild unknown: the census's word")
-	eq(#Honors.Holdings({ name = "Maelis", guild = "Elfcore Dawn" }, inputs), 0, "gone to another guild: nothing")
-	local lead = Honors.Holdings({ name = "Maelis", guild = "Elfcore Aurora" }, inputs)
+	eq(#Honors.Holdings({ name = "Maelis", guild = "Bankai Guild Dawn" }, inputs), 0, "gone to another guild: nothing")
+	local lead = Honors.Holdings({ name = "Maelis", guild = "Bankai Guild Aurora" }, inputs)
 	eq(lead[1].frame, "guild-top-leader") eq(lead[1].title, "guild-top-leader") eq(lead[1].art, "owl-gold")
 	-- He steps down: the owl is no longer his; his pick stays and shows the rank meanwhile.
 	local q = Honors.Update(nil, lead, true)
 	eq(q.frame, "guild-top-leader")
-	local held = Honors.Holdings({ name = "Maelis", guild = "Elfcore Aurora" },
-		{ guild = Honors.GuildTop({ { guild = "Elfcore Aurora", leader = "Tovan", members = 100, avgLevel = 40 } }) })
+	local held = Honors.Holdings({ name = "Maelis", guild = "Bankai Guild Aurora" },
+		{ guild = Honors.GuildTop({ { guild = "Bankai Guild Aurora", leader = "Tovan", members = 100, avgLevel = 40 } }) })
 	local earned, lost
 	q, earned, lost = Honors.Update(q, held, true)
 	eq(#earned, 0) eq(Keys(lost, "family"), "guild")
@@ -1416,9 +1416,9 @@ test("honours: ORDER: belts, their podium, the guild's plaque, donors of all tim
 		donors = donors,
 		levels = Honors.LevelRace({}, { Up("Aldric", "Player-1-A", 20, 100, true, 19) }, 100000),
 		oracle = { month = { { name = "Aldric", place = 2 } }, monthNo = donors.monthNo },
-		guild = { guild = "Elfcore Aurora", leader = "Maelis" },
+		guild = { guild = "Bankai Guild Aurora", leader = "Maelis" },
 	}
-	local held = Honors.Holdings({ name = "Aldric", guid = "Player-1-A", guild = "Elfcore Aurora" }, inputs)
+	local held = Honors.Holdings({ name = "Aldric", guid = "Player-1-A", guild = "Bankai Guild Aurora" }, inputs)
 	eq(Keys(held), "arena-race-nightelf,arena-champion-2,arena-class-mage-3,donor-top-1,level-race-20,oracle-2,"
 		.. "donor-month-1,arena-tier-silver")
 	-- All earned at once on a new profile: the first frame and the first title by ORDER.
@@ -1593,7 +1593,7 @@ test("1.2.3 honours: as Honors.lua ships them, a newly earned frame not worn yet
 			eq(Honors.Shown(r, held), "donor-top-1")
 		end
 		-- (1.2.4) The koi and the owl, worn now: each switches on by itself, frame and title.
-		for _, extra in ipairs({ { donors = donors }, { donors = all, guild = { guild = "Elfcore Aurora", leader = "Aldric", members = 100, avgLevel = 40 } } }) do
+		for _, extra in ipairs({ { donors = donors }, { donors = all, guild = { guild = "Bankai Guild Aurora", leader = "Aldric", members = 100, avgLevel = 40 } } }) do
 			local held = Honors.Holdings(ME, extra)
 			local key = extra.guild and "guild-top-leader" or "donor-month-1"
 			local r = Honors.Update(p, held, true)
@@ -1930,7 +1930,7 @@ test("1.2.4 honours: Moves and the cycles: a closed month's list (the koi, the c
 	eq(#Honors.Moves(hp, horse, true, { now = NOV }), 0)
 	eq(Honors.Moves(hp, {}, { wanted = true }, { now = NOV })[1].kind, "out")
 	-- Several at once: in ORDER (the guild's owl first, the Bones' last).
-	local all = Honors.Holdings(ME, { guild = { guild = "Elfcore Aurora", leader = "Aldric" }, bones = { month = Places({ "Aldric" }), monthNo = OCT - 1 },
+	local all = Honors.Holdings(ME, { guild = { guild = "Bankai Guild Aurora", leader = "Aldric" }, bones = { month = Places({ "Aldric" }), monthNo = OCT - 1 },
 		church = { apostles = Places({ "Aldric" }), at = NOW }, now = NOW })
 	eq(Keys(Honors.Moves(nil, all, true, { now = NOW }), "family"), "guild,apostle,bones")
 end)

@@ -1,4 +1,4 @@
--- 1.2.4: every actual ranking explains its live rules inside the main Elfcore window.
+-- 1.2.4: every actual ranking explains its live rules inside the main Bankai Guild window.
 local ns, test, eq = ...
 local Rules, L = ns.RankingRules, ns.L
 

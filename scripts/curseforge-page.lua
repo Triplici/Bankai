@@ -20,8 +20,8 @@ M.SOURCE = "docs/CURSEFORGE.md"
 M.TARGET = "docs/CURSEFORGE-STORE.md"
 M.README = "README.md"
 M.ROADMAP = "ROADMAP.md"
-M.TOC = "Elfcore/Elfcore.toc"
-M.REPO = "https://github.com/dnl-gentile/elfcore-addon"
+M.TOC = "BankaiGuild/BankaiGuild.toc"
+M.REPO = "https://github.com/dnl-gentile/bankai-addon"
 M.RECENT = 3 -- versions under "Recent versions": the TOC's and the two before it
 
 -- Sections cut to their opening: the heading's text, and how many of its first parts stay (a part
@@ -36,7 +36,7 @@ M.CUTS = {
 	{ title = "Privacy", keep = 1 },
 	{ title = "Security and trust", keep = 2 },
 	{ title = "What colluding characters can reach", keep = 1 },
-	{ title = "The Missionary Church of Elfcore (1.1.6)", keep = 1 }, -- (1.1.6: its details stay in the README)
+	{ title = "The Missionary Church of Bankai Guild (1.1.6)", keep = 1 }, -- (1.1.6: its details stay in the README)
 	-- (1.2.4: the page grew past the budget with the API's section: the menu's lines stay, its
 	-- Explanations and Answers paragraph is the README's.)
 	{ title = "Right-click a player (1.1.2)", keep = 2 },
@@ -51,26 +51,26 @@ M.CUTS = {
 	{ title = "Layer hop: join the King's layer without begging in chat", keep = 4 },
 	-- (1.2.5: the API's leader presence and wider area scope pushed it past the budget again: the
 	-- API's opening paragraph stays; its page-surface paragraph and the authors' link are the README's.)
-	{ title = "Other addons: the Elfcore API (1.2.4)", keep = 1 },
+	{ title = "Other addons: the Bankai Guild API (1.2.4)", keep = 1 },
 	-- (1.2.5.1 release integration: the merged lanes passed the budget by a few dozen bytes: the
 	-- Steward's "what he never does" paragraph is the README's.)
-	-- (1.2.5.1: the chat warnings, the Companion bridge and the Elfcore Accord's line together passed
+	-- (1.2.5.1: the chat warnings, the Companion bridge and the Bankai Guild Accord's line together passed
 	-- the budget: a High Councillor's tooltip paragraph is the README's.)
 	{ title = "Person details", keep = 1 },
-	-- (1.2.6: the Elfcore Companion named in the privacy section's first words passed the budget:
+	-- (1.2.6: the Bankai Guild Companion named in the privacy section's first words passed the budget:
 	-- the alt links' rules are the README's; their opening stays.)
 	{ title = "Alt links (1.1): one player, counted once", keep = 1 },
 }
 
 -- The commands table's rows that stay, by their first command as the table writes it. (1.2.4: the
--- page past the budget with the role rooms' section: /elf approved's row is the README's.)
+-- page past the budget with the role rooms' section: /bk approved's row is the README's.)
 M.COMMANDS_TITLE = "Commands"
 M.COMMANDS = {
-	"/elf", "/elf realm", "/elf privacy", "/elf chat on\\|off", "/ef <text>", "/elf talk [elfcore\\|captains\\|lords]",
-	"/elf mute elfcore", "/elf chatwindow tab", "/elf hop", "/elf lfg", "/elf week", "/elf craft [item or name]",
-	"/elf loot", "/elf helpme [text]", "/elf location on", "/elf borders on",
-	"/elf nameplates on", "/elf chatmarks on", "/elf block <name>", "/elf filter add\\|remove <word>",
-	"/elf alt add Name", "/elf sound", "/elf discord <code>", "/elf bug", "/elf status",
+	"/bk", "/bk realm", "/bk privacy", "/bk chat on\\|off", "/bg <text>", "/bk talk [bankaiguild\\|captains\\|lords]",
+	"/bk mute bankaiguild", "/bk chatwindow tab", "/bk hop", "/bk lfg", "/bk week", "/bk craft [item or name]",
+	"/bk loot", "/bk helpme [text]", "/bk location on", "/bk borders on",
+	"/bk nameplates on", "/bk chatmarks on", "/bk block <name>", "/bk filter add\\|remove <word>",
+	"/bk alt add Name", "/bk sound", "/bk discord <code>", "/bk bug", "/bk status",
 }
 
 local function Read(path)
@@ -268,7 +268,7 @@ local function RecentSection(recent)
 		end
 	end
 	body[#body + 1] = ""
-	body[#body + 1] = ("Every version's notes are in the [GitHub releases](%s/releases). This page is the short one for CurseForge: the [README](%s#elfcore) has every section in full."):format(M.REPO, M.REPO)
+	body[#body + 1] = ("Every version's notes are in the [GitHub releases](%s/releases). This page is the short one for CurseForge: the [README](%s#bankaiguild) has every section in full."):format(M.REPO, M.REPO)
 	body[#body + 1] = ""
 	return { heading = "## Recent versions", title = "Recent versions", level = 2, body = body }
 end

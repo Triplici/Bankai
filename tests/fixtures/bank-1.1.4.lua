@@ -1,8 +1,8 @@
--- Elfcore/Bank.lua as 1.1.4 ships it (the release live clients run while 1.2 is built), for the
+-- BankaiGuild/Bank.lua as 1.1.4 ships it (the release live clients run while 1.2 is built), for the
 -- Guild treasuries' mixed-version test in tests/run.lua: copied unchanged from `git show
--- v1.1.4:Elfcore/Bank.lua`. Its sister guilds' banks (TS) are 1.1's: the King, his Steward and his
+-- v1.1.4:BankaiGuild/Bank.lua`. Its sister guilds' banks (TS) are 1.1's: the King, his Steward and his
 -- Hands alone, the tabs' place in the message and nothing in a tab's name. Loaded in a namespace of
--- its own: loadfile("tests/fixtures/bank-1.1.4.lua")("Elfcore", ns).
+-- its own: loadfile("tests/fixtures/bank-1.1.4.lua")("BankaiGuild", ns).
 local ADDON, ns = ...
 local L = ns.L
 
@@ -461,7 +461,7 @@ function Bank.Find(snap, q)
 	return out
 end
 
--- Sister guilds' banks: an Elfcore guild other than the King's, whose treasurer (its guild
+-- Sister guilds' banks: an Bankai Guild guild other than the King's, whose treasurer (its guild
 -- master or an officer, by the server's own roster) says yes, has its snapshot whispered to the
 -- King, his Stewards and his Hands alone, never on the channel (the whole army would see another
 -- guild's stock), when their addon asks (TA, Treasury.lua) and when it changes:
@@ -502,7 +502,7 @@ function Bank.LordOrCaptain(sender, guild)
 end
 
 -- This character is its guild's treasurer for this: the guild master or an officer (the server's
--- rank), of an Elfcore guild that is not the King's.
+-- rank), of an Bankai Guild guild that is not the King's.
 function Bank.SisterTreasurer()
 	if not ns.IsMember() or not ns.me then return false end
 	local guild, _, rank = GetGuildInfo("player")
@@ -616,7 +616,7 @@ function Bank.SetSisterConsent(on)
 	end
 end
 
-StaticPopupDialogs["ELFCORE_SISTER_BANK"] = {
+StaticPopupDialogs["BANKAIGUILD_SISTER_BANK"] = {
 	text = L.BANK_SISTER_ASK,
 	button1 = L.BANK_SISTER_YES,
 	button2 = L.BANK_SISTER_NO,
@@ -635,7 +635,7 @@ function Bank.AskSister()
 	if sisterAsked or not Bank.SisterTreasurer() or Bank.SisterConsent() ~= nil then return false end
 	if InCombatLockdown and InCombatLockdown() then return false end
 	sisterAsked = true
-	ns.ShowDialog("ELFCORE_SISTER_BANK", GetGuildInfo("player") or "?")
+	ns.ShowDialog("BANKAIGUILD_SISTER_BANK", GetGuildInfo("player") or "?")
 	return true
 end
 
@@ -741,7 +741,7 @@ local function Field(s, n) return ns.Cut((tostring(s or ""):gsub("[~;:,|%c]", " 
 local function Open(state) return state == "sent" or state == "seen" or state == "open" end
 local function Expired(e) return ns.Now() - (tonumber(e.t) or 0) > Bank.REQUEST_DAYS * 86400 end
 
--- A Lord or a Captain of an Elfcore guild (the server's rank of this character); not the King, a
+-- A Lord or a Captain of an Bankai Guild guild (the server's rank of this character); not the King, a
 -- Steward or a keeper: the treasury is theirs already. (The treasury is the Alliance's <Elfcore>'s.)
 function Bank.MayRequest()
 	if ns.faction == "Horde" or not ns.IsMember() or ns.Treasury.IsInsider() then return false end
@@ -1082,7 +1082,7 @@ function Bank.Holds(item)
 end
 
 -- The count asked for an item (a click on it in the bank's grid), or for any item (typed).
-StaticPopupDialogs["ELFCORE_BANK_REQUEST"] = {
+StaticPopupDialogs["BANKAIGUILD_BANK_REQUEST"] = {
 	text = L.BANK_REQUEST_PROMPT,
 	button1 = L.BANK_REQUEST_ASK,
 	button2 = CANCEL or "Cancel",
@@ -1107,7 +1107,7 @@ StaticPopupDialogs["ELFCORE_BANK_REQUEST"] = {
 	hideOnEscape = true,
 	preferredIndex = 3,
 }
-StaticPopupDialogs["ELFCORE_BANK_REQUEST_ANY"] = {
+StaticPopupDialogs["BANKAIGUILD_BANK_REQUEST_ANY"] = {
 	text = L.BANK_REQUEST_ANY_PROMPT,
 	button1 = L.BANK_REQUEST_ASK,
 	button2 = CANCEL or "Cancel",
@@ -1133,7 +1133,7 @@ StaticPopupDialogs["ELFCORE_BANK_REQUEST_ANY"] = {
 	preferredIndex = 3,
 }
 -- A keeper (the King, a Steward): done (handed over by trade or mail) or declined.
-StaticPopupDialogs["ELFCORE_BANK_REQUEST_ANSWER"] = {
+StaticPopupDialogs["BANKAIGUILD_BANK_REQUEST_ANSWER"] = {
 	text = L.BANK_REQUEST_ANSWER,
 	button1 = L.BANK_REQUEST_MARK_DONE,
 	button2 = CANCEL or "Cancel",
@@ -1145,7 +1145,7 @@ StaticPopupDialogs["ELFCORE_BANK_REQUEST_ANSWER"] = {
 	hideOnEscape = true,
 	preferredIndex = 3,
 }
-StaticPopupDialogs["ELFCORE_BANK_REQUEST_CANCEL"] = {
+StaticPopupDialogs["BANKAIGUILD_BANK_REQUEST_CANCEL"] = {
 	text = L.BANK_REQUEST_CANCEL_ASK,
 	button1 = YES or "Yes",
 	button2 = NO or "No",
@@ -1157,11 +1157,11 @@ StaticPopupDialogs["ELFCORE_BANK_REQUEST_CANCEL"] = {
 }
 function Bank.RequestPrompt(item)
 	if not Bank.MayRequest() then return ns.Print(L.BANK_REQUEST_ONLY) end
-	if item then return ns.ShowDialog("ELFCORE_BANK_REQUEST", Label(item), nil, item) end
-	ns.ShowDialog("ELFCORE_BANK_REQUEST_ANY")
+	if item then return ns.ShowDialog("BANKAIGUILD_BANK_REQUEST", Label(item), nil, item) end
+	ns.ShowDialog("BANKAIGUILD_BANK_REQUEST_ANY")
 end
 
--- /elf need <count> <item>, or alone: our requests in the chat.
+-- /bk need <count> <item>, or alone: our requests in the chat.
 function Bank.Slash(rest)
 	rest = tostring(rest or "")
 	if rest:match("%S") then return Bank.RequestText(rest) end

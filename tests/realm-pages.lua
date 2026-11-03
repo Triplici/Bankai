@@ -1,4 +1,4 @@
--- The Realm tab's pages (ns.RealmPages) in the Elfcore window: the page modules, Views.lua and
+-- The Realm tab's pages (ns.RealmPages) in the Bankai Guild window: the page modules, Views.lua and
 -- UI.lua (H.LoadUI) in a client of their own over the harness's namespace, drawn on the
 -- harness's stand-in frames (H.WithUI) and clicked row by row as the player clicks them.
 local ns, test, eq, H = ...
@@ -8,7 +8,7 @@ local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]realm%-p
 -- the parchment pages ask for (line.font). The harness's toolkit has only the game's list fonts.
 local INK = { QuestFont = true, QuestTitleFont = true }
 
--- The client: every module with a Realm page, in Elfcore.toc's order, its own registry, locale
+-- The client: every module with a Realm page, in BankaiGuild.toc's order, its own registry, locale
 -- words and saved data; the harness's census, roster and the rest under it. Nothing it loads
 -- registers with the harness (its events, comm handlers and dialogs are its own or put back).
 -- The author's Workshop is open (the King's letters' previews are his alone: HonorsNet.PreviewKeys).
@@ -30,15 +30,15 @@ local function Client()
 	for k, v in pairs(StaticPopupDialogs) do dialogs[k] = v end
 	for _, file in ipairs({ "Locales/WeeklyBriefText", "Locales/GuildCharterText", "Locales/OfficerMusterText", "Locales/ArenaFightsText",
 		"RankingRules", "Loot", "War", "GuildCharter", "Views", "WeeklyBrief", "Carry", "OfficerMuster", "Honors", "HonorsNet" }) do
-		assert(loadfile(ROOT .. "Elfcore/" .. file .. ".lua"))("Elfcore", c)
+		assert(loadfile(ROOT .. "BankaiGuild/" .. file .. ".lua"))("BankaiGuild", c)
 	end
 	for k in pairs(StaticPopupDialogs) do if not dialogs[k] then StaticPopupDialogs[k] = nil end end
 	for k, v in pairs(dialogs) do StaticPopupDialogs[k] = v end
 	return w, c
 end
 
--- The Elfcore window over that client (UI.lua's own namespace, its Views the client's), opened on
--- the Realm tab as an ordinary member of an Elfcore guild; fn(ui, frame, w, c). The quest fonts
+-- The Bankai Guild window over that client (UI.lua's own namespace, its Views the client's), opened on
+-- the Realm tab as an ordinary member of an Bankai Guild guild; fn(ui, frame, w, c). The quest fonts
 -- and the saved data the pages write are put back after.
 local function WithRealm(fn)
 	H.WithUI(function()
@@ -47,13 +47,13 @@ local function WithRealm(fn)
 		for k in pairs(ns.rdb) do rdb[k] = true end
 		QuestFont, QuestTitleFont = { font = "QuestFont" }, { font = "QuestTitleFont" }
 		local ok, err = pcall(function()
-			GetGuildInfo = function() return "Elfcore II", "Member", 3 end
+			GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
 			local w, c = Client()
 			local ui, uns = H.LoadUI()
 			uns.Views, c.UI = c.Views, ui
 			ui.SelectTab("realm")
-			local frame = ElfcoreFrame or ElfcoreFrameHD or ElfcoreFrameBasic or ElfcoreFrameHDBasic
-			assert(frame and frame:IsShown(), "the Elfcore window")
+			local frame = BankaiGuildFrame or BankaiGuildFrameHD or BankaiGuildFrameBasic or BankaiGuildFrameHDBasic
+			assert(frame and frame:IsShown(), "the Bankai Guild window")
 			fn(ui, frame, w, c)
 		end)
 		QuestFont, QuestTitleFont = nil, nil
@@ -171,7 +171,7 @@ test("Realm pages: every page of the Realm tab has a Back as its first row and i
 			for _, pair in ipairs({ { "Locales/ArenaFightsText", "HONOR_LETTER_PREVIEW_BACK" }, { "Locales/CarryText", "CARRY_BACK" } }) do
 				local pt, saved = {}, GetLocale
 				GetLocale = function() return "ptBR" end
-				local loaded, why = pcall(function() assert(loadfile(ROOT .. "Elfcore/" .. pair[1] .. ".lua"))("Elfcore", { L = pt }) end)
+				local loaded, why = pcall(function() assert(loadfile(ROOT .. "BankaiGuild/" .. pair[1] .. ".lua"))("BankaiGuild", { L = pt }) end)
 				GetLocale = saved
 				assert(loaded, why)
 				eq(pt[pair[2]], "< Voltar ao Reino", pair[2] .. " in pt-BR")

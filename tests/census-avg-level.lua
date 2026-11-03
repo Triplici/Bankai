@@ -62,8 +62,8 @@ local function Words(code)
 	local savedLocale = GetLocale
 	GetLocale = function() return code end
 	local ok, err = pcall(function()
-		assert(loadfile(ROOT .. "Elfcore/Locales.lua"))("Elfcore", t)
-		if code == "deDE" or code == "esES" or code == "frFR" then assert(loadfile(ROOT .. "Elfcore/Locales/" .. code .. ".lua"))("Elfcore", t) end
+		assert(loadfile(ROOT .. "BankaiGuild/Locales.lua"))("BankaiGuild", t)
+		if code == "deDE" or code == "esES" or code == "frFR" then assert(loadfile(ROOT .. "BankaiGuild/Locales/" .. code .. ".lua"))("BankaiGuild", t) end
 	end)
 	GetLocale = savedLocale
 	if not ok then error(err, 0) end
@@ -101,7 +101,7 @@ end
 
 test("1.2.4 average level: to the tenth as the census carries it, our own guild's unrounded one cut the same way; none for 0, a missing one or one no guild can have", function()
 	-- Our own guild's from our roster, unrounded, and the same guild's report as another client hears it.
-	local heard = assert(ns.Codec.DecodeReport(ns.Codec.EncodeReport({ guild = "Elfcore Test", total = 100, online = 10, avgLevel = 47.96 })))
+	local heard = assert(ns.Codec.DecodeReport(ns.Codec.EncodeReport({ guild = "Bankai Guild Test", total = 100, online = 10, avgLevel = 47.96 })))
 	eq(heard.avgLevel, 47.9, "the wire cuts it down")
 	eq(D.AvgTenths({ avgLevel = 47.96 }), 479, "ours, cut the same way")
 	eq(D.AvgTenths(heard), 479, "theirs")
@@ -117,8 +117,8 @@ test("1.2.4 average level: to the tenth as the census carries it, our own guild'
 	L.DECIMAL_MARK = mark
 	if not ok then error(err, 0) end
 	-- A guild by its name, from the census kept: 0 for none, so it sorts as the lowest.
-	WithGuilds({ ["Elfcore A"] = Report(10, 33.3) }, function()
-		eq(D.AvgTenthsOf("Elfcore A"), 333); eq(D.AvgTenthsOf("ELFCORE A"), 333, "whatever the case"); eq(D.AvgTenthsOf("Elfcore Z"), 0)
+	WithGuilds({ ["Bankai Guild A"] = Report(10, 33.3) }, function()
+		eq(D.AvgTenthsOf("Bankai Guild A"), 333); eq(D.AvgTenthsOf("Bankai Guild A"), 333, "whatever the case"); eq(D.AvgTenthsOf("Bankai Guild Z"), 0)
 	end)
 end)
 
@@ -142,13 +142,13 @@ test("1.2.4 the Census: a column for the average level between Online and the Lo
 	eq(pt.COL_AVG_LEVEL, "Nv. méd."); eq(pt.AVG_LEVEL_TAG:format("47,9"), "(nv. méd. 47,9)"); eq(pt.DECIMAL_MARK, ",")
 	-- The rows: our own guild's unrounded one as every client has it, none as "-", the Lord after it.
 	WithGuilds({
-		["Elfcore Own"] = Report(300, 47.96, { leader = "Ownlord" }),
-		["Elfcore Old"] = Report(200, 0, { leader = "Oldlord" }), -- (a version that sent none)
-		["Elfcore Forged"] = Report(100, 1000, { leader = "Fakelord" }), -- (the field reads up to 1000.0)
+		["Bankai Guild Own"] = Report(300, 47.96, { leader = "Ownlord" }),
+		["Bankai Guild Old"] = Report(200, 0, { leader = "Oldlord" }), -- (a version that sent none)
+		["Bankai Guild Forged"] = Report(100, 1000, { leader = "Fakelord" }), -- (the field reads up to 1000.0)
 	}, function()
 		local rows = CensusRows()
 		eq(#rows, 3)
-		eq(Bare(rows[1].cols[1]), "Elfcore Own"); eq(rows[1].cols[4], "47.9"); eq(Bare(rows[1].cols[5]), "Ownlord")
+		eq(Bare(rows[1].cols[1]), "Bankai Guild Own"); eq(rows[1].cols[4], "47.9"); eq(Bare(rows[1].cols[5]), "Ownlord")
 		eq(rows[2].cols[4], Grey("-")); eq(rows[3].cols[4], Grey("-"), "what no guild can have is none")
 		-- The hover says the same number (it said 48.0 for our own 47.96: "%.1f" of the unrounded one).
 		local tip = {}
@@ -160,30 +160,30 @@ test("1.2.4 the Census: a column for the average level between Online and the Lo
 		-- The copy for Discord: the same column.
 		local copy = D.DiscordText()
 		assert(copy:find("Members  *Online  *Avg lvl  *Leader"), copy)
-		assert(copy:find("Elfcore Own%s+300%s+10%s+47%.9%s+Ownlord"), copy)
-		assert(copy:find("Elfcore Old%s+200%s+10%s+%-%s+Oldlord"), copy)
+		assert(copy:find("Bankai Guild Own%s+300%s+10%s+47%.9%s+Ownlord"), copy)
+		assert(copy:find("Bankai Guild Old%s+200%s+10%s+%-%s+Oldlord"), copy)
 	end)
 end)
 
 test("1.2.4 the Census: a click on Avg lvl sorts by it, the highest first, again the lowest first; a guild without one last both ways, a tie the larger guild first", function()
 	WithGuilds({
-		["Elfcore A"] = Report(100, 40),
-		["Elfcore B"] = Report(300, 55.5),
-		["Elfcore C"] = Report(200, 40),
-		["Elfcore D"] = Report(900, nil), -- (none: the largest guild)
-		["Elfcore E"] = Report(50, 20.04),
-		["Elfcore F"] = Report(800, 0),
-		["Elfcore Stale"] = Report(950, 60, { t = os.time() - D.FRESH - 1 }),
+		["Bankai Guild A"] = Report(100, 40),
+		["Bankai Guild B"] = Report(300, 55.5),
+		["Bankai Guild C"] = Report(200, 40),
+		["Bankai Guild D"] = Report(900, nil), -- (none: the largest guild)
+		["Bankai Guild E"] = Report(50, 20.04),
+		["Bankai Guild F"] = Report(800, 0),
+		["Bankai Guild Stale"] = Report(950, 60, { t = os.time() - D.FRESH - 1 }),
 	}, function()
 		-- By default: fresh first, the larger first.
-		eq(CensusNames(), "Elfcore D,Elfcore F,Elfcore B,Elfcore C,Elfcore A,Elfcore E,Elfcore Stale")
+		eq(CensusNames(), "Bankai Guild D,Bankai Guild F,Bankai Guild B,Bankai Guild C,Bankai Guild A,Bankai Guild E,Bankai Guild Stale")
 		V.SortBy("level")
 		eq(V.sort.key, "level"); eq(V.sort.desc, true, "a first click: the highest first")
-		eq(CensusNames(), "Elfcore B,Elfcore C,Elfcore A,Elfcore E,Elfcore D,Elfcore F,Elfcore Stale",
+		eq(CensusNames(), "Bankai Guild B,Bankai Guild C,Bankai Guild A,Bankai Guild E,Bankai Guild D,Bankai Guild F,Bankai Guild Stale",
 			"55.5, then 40 twice (200 members before 100), 20.0; none last; an old report after every current one")
 		V.SortBy("level")
 		eq(V.sort.desc, false)
-		eq(CensusNames(), "Elfcore E,Elfcore C,Elfcore A,Elfcore B,Elfcore D,Elfcore F,Elfcore Stale",
+		eq(CensusNames(), "Bankai Guild E,Bankai Guild C,Bankai Guild A,Bankai Guild B,Bankai Guild D,Bankai Guild F,Bankai Guild Stale",
 			"the lowest first; none still last, a tie still the larger guild first")
 		-- Another title, back to the highest first for a count, A to Z for a name.
 		V.SortBy("members"); eq(V.sort.desc, true)
@@ -193,61 +193,61 @@ end)
 
 test("1.2.4 tie-breaks: the higher average level first in every column's tie, whichever way it runs, after the exact <ELFCORE> (CR-04); the default order keeps it first at the same size", function()
 	WithGuilds({
-		["ELFCORE"] = Report(500, 10, { online = 50, leader = "King" }),
-		["Elfcore Hi"] = Report(500, 58, { online = 50, leader = "Same" }),
-		["Elfcore Lo"] = Report(500, 30, { online = 50, leader = "same" }),
-		["Elfcore None"] = Report(500, nil, { online = 50, leader = "Same" }),
-		["Elfcore Few"] = Report(100, 59, { online = 5, leader = "Zed" }),
+		["Bankai Guild"] = Report(500, 10, { online = 50, leader = "King" }),
+		["Bankai Guild Hi"] = Report(500, 58, { online = 50, leader = "Same" }),
+		["Bankai Guild Lo"] = Report(500, 30, { online = 50, leader = "same" }),
+		["Bankai Guild None"] = Report(500, nil, { online = 50, leader = "Same" }),
+		["Bankai Guild Few"] = Report(100, 59, { online = 5, leader = "Zed" }),
 	}, function()
 		-- The shared order (1.1.5): the standard-bearer at the same size, then the higher average level.
-		eq(CensusNames(), "ELFCORE,Elfcore Hi,Elfcore Lo,Elfcore None,Elfcore Few")
-		eq((RealmHeaders()), "ELFCORE,Elfcore Hi,Elfcore Lo,Elfcore None,Elfcore Few", "the Realm in the same order")
+		eq(CensusNames(), "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None,Bankai Guild Few")
+		eq((RealmHeaders()), "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None,Bankai Guild Few", "the Realm in the same order")
 		local names = {}
 		for i, e in ipairs(D.Summary().guilds) do names[i] = e.name end
-		eq(table.concat(names, ","), "ELFCORE,Elfcore Hi,Elfcore Lo,Elfcore None,Elfcore Few", "Data.Summary's")
+		eq(table.concat(names, ","), "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None,Bankai Guild Few", "Data.Summary's")
 		-- Members the other way: the smallest first; as many, the higher average level first.
 		-- (Changed on purpose, CR-04, the author's ask: the exact <ELFCORE> first on a tie of any
 		-- order, a column's too, before the average level; it sat by its average level, 10.0, before.)
 		V.SortBy("members")
 		eq(V.sort.desc, false)
-		eq(CensusNames(), "Elfcore Few,ELFCORE,Elfcore Hi,Elfcore Lo,Elfcore None")
+		eq(CensusNames(), "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None")
 		-- Online, both ways: as many online, the higher average level first.
 		V.sort = { key = "online", desc = true }
-		eq(CensusNames(), "ELFCORE,Elfcore Hi,Elfcore Lo,Elfcore None,Elfcore Few")
+		eq(CensusNames(), "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None,Bankai Guild Few")
 		V.sort = { key = "online", desc = false }
-		eq(CensusNames(), "Elfcore Few,ELFCORE,Elfcore Hi,Elfcore Lo,Elfcore None")
+		eq(CensusNames(), "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None")
 		-- The Lord: the same name (any case), the higher average level first.
 		V.sort = { key = "lord", desc = false }
-		eq(CensusNames(), "ELFCORE,Elfcore Hi,Elfcore Lo,Elfcore None,Elfcore Few")
+		eq(CensusNames(), "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None,Bankai Guild Few")
 	end)
 end)
 
 test("1.2.4 the Realm: its guilds' average level in parentheses after their Lord's online or offline, kept whole; its guilds in its own order, chosen on its line, the average level's among them", function()
 	WithGuilds({
-		["Elfcore Big"] = Report(900, 31.25, { leader = "Bigboss", leaderOnline = true }),
-		["Elfcore Mid"] = Report(500, 52, { leader = "Midboss", leaderOnline = false, leaderDays = 0 }),
-		["Elfcore Small"] = Report(100, nil, { leader = "Smallboss", leaderOnline = false, leaderDays = 5 }),
-		["Elfcore Grey"] = Report(50, 44, { leader = "Greyboss", leaderOnline = false, leaderDays = 0, t = os.time() - D.FRESH - 1 }),
+		["Bankai Guild Big"] = Report(900, 31.25, { leader = "Bigboss", leaderOnline = true }),
+		["Bankai Guild Mid"] = Report(500, 52, { leader = "Midboss", leaderOnline = false, leaderDays = 0 }),
+		["Bankai Guild Small"] = Report(100, nil, { leader = "Smallboss", leaderOnline = false, leaderDays = 5 }),
+		["Bankai Guild Grey"] = Report(50, 44, { leader = "Greyboss", leaderOnline = false, leaderDays = 0, t = os.time() - D.FRESH - 1 }),
 	}, function()
 		local order, header = RealmHeaders()
-		eq(order, "Elfcore Big,Elfcore Mid,Elfcore Small,Elfcore Grey", "by default the shared order, as before")
-		eq(header["Elfcore Big"].right, Green(L.ONLINE_NOW) .. "  " .. Grey("(avg lvl ") .. "31.2" .. Grey(")"),
+		eq(order, "Bankai Guild Big,Bankai Guild Mid,Bankai Guild Small,Bankai Guild Grey", "by default the shared order, as before")
+		eq(header["Bankai Guild Big"].right, Green(L.ONLINE_NOW) .. "  " .. Grey("(avg lvl ") .. "31.2" .. Grey(")"),
 			"its Lord online, then the average level: the number white, its words grey")
-		eq(Bare(header["Elfcore Mid"].right), L.OFFLINE_TODAY .. "  (avg lvl 52.0)")
-		eq(Bare(header["Elfcore Small"].right), L.OFFLINE_DAYS:format(5) .. " !", "none: nothing after it")
-		eq(header["Elfcore Grey"].right, Grey(L.OFFLINE_TODAY) .. "  " .. Grey("(avg lvl 44.0)"), "an old report: all grey")
+		eq(Bare(header["Bankai Guild Mid"].right), L.OFFLINE_TODAY .. "  (avg lvl 52.0)")
+		eq(Bare(header["Bankai Guild Small"].right), L.OFFLINE_DAYS:format(5) .. " !", "none: nothing after it")
+		eq(header["Bankai Guild Grey"].right, Grey(L.OFFLINE_TODAY) .. "  " .. Grey("(avg lvl 44.0)"), "an old report: all grey")
 		for name, line in pairs(header) do eq(line.rightWide, true, name) end
 		-- The hover as ever (the same number).
 		local tip = {}
-		header["Elfcore Big"].tooltip({ AddLine = function() end, AddDoubleLine = function(_, a, b) tip[a] = b end })
+		header["Bankai Guild Big"].tooltip({ AddLine = function() end, AddDoubleLine = function(_, a, b) tip[a] = b end })
 		eq(tip[L.AVG_LEVEL], "31.2")
 		-- (Changed on purpose, 1.2.4's review: the Realm's guilds followed the title last clicked in the
 		-- Census, unseen on the Realm, and only the Census could put them back. The Realm has its own
 		-- order now, on its own line, and a title clicked in the Census leaves it as it was.)
 		V.SortBy("level")
-		eq((RealmHeaders()), "Elfcore Big,Elfcore Mid,Elfcore Small,Elfcore Grey", "the Census's title clicked: the Realm as it was")
+		eq((RealmHeaders()), "Bankai Guild Big,Bankai Guild Mid,Bankai Guild Small,Bankai Guild Grey", "the Census's title clicked: the Realm as it was")
 		V.SortBy("name")
-		eq((RealmHeaders()), "Elfcore Big,Elfcore Mid,Elfcore Small,Elfcore Grey")
+		eq((RealmHeaders()), "Bankai Guild Big,Bankai Guild Mid,Bankai Guild Small,Bankai Guild Grey")
 		V.sort = { key = "members", desc = true }
 		-- Its line, above its guilds: the shared order by default; its choices the Census's five columns.
 		local line = OrderLine()
@@ -271,30 +271,30 @@ test("1.2.4 the Realm: its guilds' average level in parentheses after their Lord
 		Choose(L.AVG_LEVEL)
 		eq(refreshed, 1, "redrawn")
 		eq(V.realmSort, "level")
-		eq((RealmHeaders()), "Elfcore Mid,Elfcore Big,Elfcore Small,Elfcore Grey")
+		eq((RealmHeaders()), "Bankai Guild Mid,Bankai Guild Big,Bankai Guild Small,Bankai Guild Grey")
 		eq(OrderLine().filters[1].value, L.AVG_LEVEL, "the line says it")
-		eq(V.sort.key, "members"); eq(CensusNames(), "Elfcore Big,Elfcore Mid,Elfcore Small,Elfcore Grey", "the Census as it was")
+		eq(V.sort.key, "members"); eq(CensusNames(), "Bankai Guild Big,Bankai Guild Mid,Bankai Guild Small,Bankai Guild Grey", "the Census as it was")
 		-- A search's guilds in it too (no line over them).
-		V.SetFilter("realm", "elfcore")
-		eq((RealmHeaders()), "Elfcore Mid,Elfcore Big,Elfcore Small,Elfcore Grey"); eq(OrderLine(), nil, "no line over a search")
+		V.SetFilter("realm", "bankaiguild")
+		eq((RealmHeaders()), "Bankai Guild Mid,Bankai Guild Big,Bankai Guild Small,Bankai Guild Grey"); eq(OrderLine(), nil, "no line over a search")
 		V.SetFilter("realm", "")
 		-- By the Lord, A to Z; then back to the shared order.
 		Choose(L.COL_LORD)
-		eq((RealmHeaders()), "Elfcore Big,Elfcore Mid,Elfcore Small,Elfcore Grey")
+		eq((RealmHeaders()), "Bankai Guild Big,Bankai Guild Mid,Bankai Guild Small,Bankai Guild Grey")
 		Choose(L.COL_MEMBERS)
-		eq(V.realmSort, "members"); eq((RealmHeaders()), "Elfcore Big,Elfcore Mid,Elfcore Small,Elfcore Grey")
+		eq(V.realmSort, "members"); eq((RealmHeaders()), "Bankai Guild Big,Bankai Guild Mid,Bankai Guild Small,Bankai Guild Grey")
 	end)
 	-- One guild: nothing to order, no line.
-	WithGuilds({ ["Elfcore Alone"] = Report(100, 30) }, function() eq(OrderLine(), nil) end)
+	WithGuilds({ ["Bankai Guild Alone"] = Report(100, 30) }, function() eq(OrderLine(), nil) end)
 end)
 
 test("1.2.4 the Realm's guild header: a long guild and Lord give way to its online and average level, kept whole up to half the row (a third for other rows)", function()
 	WithUI(function()
 		WithGuilds({
-			["Elfcore Brotherhood Of Ages"] = Report(900, 47.9, { leader = "Longestlordname", leaderOnline = false, leaderDays = 0 }),
+			["Bankai Guild Brotherhood Of Ages"] = Report(900, 47.9, { leader = "Longestlordname", leaderOnline = false, leaderDays = 0 }),
 		}, function()
 			local _, header = RealmHeaders()
-			local line = header["Elfcore Brotherhood Of Ages"]
+			local line = header["Bankai Guild Brotherhood Of Ages"]
 			assert(line, "its header")
 			local function Kept(l)
 				local content = CreateFrame("Frame", nil, UIParent)
@@ -319,26 +319,26 @@ end)
 test("1.2.4 Recruiting and the zones: as many free slots, or soldiers in a zone, the higher average level first; its average level after its free slots", function()
 	local zones = { m1453 = 20 }
 	WithGuilds({
-		["Elfcore Q"] = Report(600, 25, { zones = zones }),
-		["Elfcore R"] = Report(600, 45, { zones = zones }),
-		["Elfcore S"] = Report(600, nil, { zones = zones }),
-		["Elfcore T"] = Report(100, 10, { zones = { m1453 = 30 } }),
+		["Bankai Guild Q"] = Report(600, 25, { zones = zones }),
+		["Bankai Guild R"] = Report(600, 45, { zones = zones }),
+		["Bankai Guild S"] = Report(600, nil, { zones = zones }),
+		["Bankai Guild T"] = Report(100, 10, { zones = { m1453 = 30 } }),
 	}, function()
 		local open = V.OpenGuilds(D.Summary())
 		local names = {}
 		for i, o in ipairs(open) do names[i] = o.name .. "=" .. o.free end
-		eq(table.concat(names, ","), "Elfcore T=900,Elfcore R=400,Elfcore Q=400,Elfcore S=400")
+		eq(table.concat(names, ","), "Bankai Guild T=900,Bankai Guild R=400,Bankai Guild Q=400,Bankai Guild S=400")
 		-- Who recruits are sent to (Recruit.lua's route answer) goes by it too.
 		names = {}
 		for i, o in ipairs(ns.Recruit.OpenGuilds()) do names[i] = o.name end
-		eq(table.concat(names, ","), "Elfcore T,Elfcore R,Elfcore Q,Elfcore S")
+		eq(table.concat(names, ","), "Bankai Guild T,Bankai Guild R,Bankai Guild Q,Bankai Guild S")
 		-- The Realm's Recruiting: the free slots, then the average level (none: nothing).
 		local rows = {}
 		for _, line in ipairs(V.Build("realm")) do
-			local name = line.text and Bare(line.text):match("^<(Elfcore %a)>$")
+			local name = line.text and Bare(line.text):match("^<(Bankai Guild %a)>$")
 			if name and line.right and Bare(line.right):find(L.FREE_SLOTS:format(""), 1, true) then rows[#rows + 1] = name .. ": " .. Bare(line.right) end
 		end
-		eq(table.concat(rows, " | "), "Elfcore T: 900 free  (avg lvl 10.0) | Elfcore R: 400 free  (avg lvl 45.0) | Elfcore Q: 400 free  (avg lvl 25.0) | Elfcore S: 400 free")
+		eq(table.concat(rows, " | "), "Bankai Guild T: 900 free  (avg lvl 10.0) | Bankai Guild R: 400 free  (avg lvl 45.0) | Bankai Guild Q: 400 free  (avg lvl 25.0) | Bankai Guild S: 400 free")
 		-- The Census's search for a zone: its guilds by their soldiers there, then the average level.
 		V.SetFilter("census", "stormwind")
 		local lines, at = V.Build("census"), nil
@@ -351,14 +351,14 @@ test("1.2.4 Recruiting and the zones: as many free slots, or soldiers in a zone,
 			found[#found + 1] = Bare(lines[i].text) .. " " .. Bare(lines[i].right)
 			eq(lines[i].rightWide, true, Bare(lines[i].text))
 		end
-		eq(table.concat(found, ","), "<Elfcore T> 30  (avg lvl 10.0),<Elfcore R> 20  (avg lvl 45.0),<Elfcore Q> 20  (avg lvl 25.0),<Elfcore S> 20")
+		eq(table.concat(found, ","), "<Bankai Guild T> 30  (avg lvl 10.0),<Bankai Guild R> 20  (avg lvl 45.0),<Bankai Guild Q> 20  (avg lvl 25.0),<Bankai Guild S> 20")
 		-- The Census's "recruiting": the same order, the same words after the free slots.
 		V.SetFilter("census", "recruiting")
 		found = {}
 		for _, line in ipairs(V.Build("census")) do
 			if line.indent == 1 and line.right then found[#found + 1] = Bare(line.text) .. " " .. Bare(line.right) end
 		end
-		eq(table.concat(found, ","), "<Elfcore T> 900 free  (avg lvl 10.0),<Elfcore R> 400 free  (avg lvl 45.0),<Elfcore Q> 400 free  (avg lvl 25.0),<Elfcore S> 400 free")
+		eq(table.concat(found, ","), "<Bankai Guild T> 900 free  (avg lvl 10.0),<Bankai Guild R> 400 free  (avg lvl 45.0),<Bankai Guild Q> 400 free  (avg lvl 25.0),<Bankai Guild S> 400 free")
 	end)
 end)
 
@@ -368,7 +368,7 @@ end)
 test("1.2.4's review: a long guild name gives way to Recruiting's free slots and average level, and a zone's count and average level, kept whole up to half the row", function()
 	WithUI(function()
 		WithGuilds({
-			["Elfcore Brotherhood Ages"] = Report(600, 45, { zones = { m1453 = 20 } }), -- (24 letters, the longest a guild's name)
+			["Bankai Guild Brotherhood Ages"] = Report(600, 45, { zones = { m1453 = 20 } }), -- (24 letters, the longest a guild's name)
 		}, function()
 			local function Find(lines, pred) for _, l in ipairs(lines) do if pred(l) then return l end end end
 			local function Free(l) return l.right and Bare(l.right):find(L.FREE_SLOTS:format(""), 1, true) and Bare(l.text):find("Brotherhood", 1, true) end
@@ -388,7 +388,7 @@ test("1.2.4's review: a long guild name gives way to Recruiting's free slots and
 			narrow.rightWide = nil
 			assert(kept > (Kept(narrow)), "more kept than a third: " .. kept)
 			V.SetFilter("census", "stormwind")
-			local zone = assert(Find(V.Build("census"), function(l) return l.indent == 1 and Bare(l.text) == "<Elfcore Brotherhood Ages>" end), "the zone's row")
+			local zone = assert(Find(V.Build("census"), function(l) return l.indent == 1 and Bare(l.text) == "<Bankai Guild Brotherhood Ages>" end), "the zone's row")
 			eq(Bare(zone.right), "20  (avg lvl 45.0)")
 			kept, whole = Kept(zone)
 			eq(kept, whole, "a zone's guild: whole")
@@ -410,7 +410,7 @@ test("1.2.4's review: the Royal Inspection's guilds, as many inspected, the high
 	local saved = { dev = ns.devThrone, member = ns.IsMember, rank = ns.Roster.RankOf, after = ns.After, enforced = ns.Authority and ns.Authority.Enforced }
 	local ok, err = pcall(function()
 		WithGuilds({
-			["Elfcore Alpha"] = Report(100, 20), ["Elfcore Beta"] = Report(100, 50), ["Elfcore Many"] = Report(100, 10),
+			["Bankai Guild Alpha"] = Report(100, 20), ["Bankai Guild Beta"] = Report(100, 50), ["Bankai Guild Many"] = Report(100, 10),
 		}, function()
 			K.Reset()
 			ns.devThrone = true -- (the Throne's preview: the King's own page, nothing sent)
@@ -420,19 +420,19 @@ test("1.2.4's review: the Royal Inspection's guilds, as many inspected, the high
 			ns.Roster.RankOf = function() return 1 end -- (each reporter one we can place in his guild)
 			eq(K.CanCall(), true)
 			K.Inspect()
-			K.ReceiveReport("Scouta-Realm", "T3~0~Elfcore Alpha~6~4~0~")
-			K.ReceiveReport("Scoutb-Realm", "T3~0~Elfcore Beta~3~7~0~")
-			K.ReceiveReport("Scoutc-Realm", "T3~0~Elfcore Many~20~0~0~")
-			K.ReceiveReport("Scoutd-Realm", "T3~0~Elfcore Abyss~5~5~0~") -- (no census of it: no average)
+			K.ReceiveReport("Scouta-Realm", "T3~0~Bankai Guild Alpha~6~4~0~")
+			K.ReceiveReport("Scoutb-Realm", "T3~0~Bankai Guild Beta~3~7~0~")
+			K.ReceiveReport("Scoutc-Realm", "T3~0~Bankai Guild Many~20~0~0~")
+			K.ReceiveReport("Scoutd-Realm", "T3~0~Bankai Guild Abyss~5~5~0~") -- (no census of it: no average)
 			local rows = {}
 			for _, l in ipairs(K.InspectionLines()) do
-				if l.indent == 2 and Bare(l.text):match("^<Elfcore") then
+				if l.indent == 2 and Bare(l.text):match("^<Bankai Guild") then
 					rows[#rows + 1] = Bare(l.text) .. " " .. Bare(l.right)
 					eq(l.rightWide, true, Bare(l.text))
 				end
 			end
-			eq(table.concat(rows, ","), "<Elfcore Many> 100%  (20/20)  (avg lvl 10.0),<Elfcore Beta> 30%  (3/10)  (avg lvl 50.0),"
-				.. "<Elfcore Alpha> 60%  (6/10)  (avg lvl 20.0),<Elfcore Abyss> 50%  (5/10)", "20 first; then 10 each: 50.0, 20.0, none (by name: Abyss first)")
+			eq(table.concat(rows, ","), "<Bankai Guild Many> 100%  (20/20)  (avg lvl 10.0),<Bankai Guild Beta> 30%  (3/10)  (avg lvl 50.0),"
+				.. "<Bankai Guild Alpha> 60%  (6/10)  (avg lvl 20.0),<Bankai Guild Abyss> 50%  (5/10)", "20 first; then 10 each: 50.0, 20.0, none (by name: Abyss first)")
 		end)
 	end)
 	ns.devThrone, ns.IsMember, ns.Roster.RankOf, ns.After = saved.dev, saved.member, saved.rank, saved.after
@@ -443,26 +443,26 @@ end)
 
 test("1.2.4 Data.SortGuildCounts: the larger first by each count in turn, then the higher average level, then the name; a row's own census entry read first", function()
 	WithGuilds({
-		["Elfcore A"] = Report(10, 20), ["Elfcore B"] = Report(10, 50), ["Elfcore C"] = Report(10, nil),
+		["Bankai Guild A"] = Report(10, 20), ["Bankai Guild B"] = Report(10, 50), ["Bankai Guild C"] = Report(10, nil),
 	}, function()
-		local rows = { { name = "Elfcore C", n = 3 }, { name = "Elfcore A", n = 3 }, { name = "Elfcore B", n = 3 }, { name = "Elfcore Z", n = 3 },
-			{ name = "Elfcore Y", n = 7 } }
+		local rows = { { name = "Bankai Guild C", n = 3 }, { name = "Bankai Guild A", n = 3 }, { name = "Bankai Guild B", n = 3 }, { name = "Bankai Guild Z", n = 3 },
+			{ name = "Bankai Guild Y", n = 7 } }
 		D.SortGuildCounts(rows, "n")
 		local names = {}
 		for i, r in ipairs(rows) do names[i] = r.name .. ":" .. r.avg end
-		eq(table.concat(names, ","), "Elfcore Y:0,Elfcore B:500,Elfcore A:200,Elfcore C:0,Elfcore Z:0",
+		eq(table.concat(names, ","), "Bankai Guild Y:0,Bankai Guild B:500,Bankai Guild A:200,Bankai Guild C:0,Bankai Guild Z:0",
 			"7 first; then 50.0, 20.0; none and unknown by name")
 		-- Two counts (the dues: gold paid, then members), then the average level.
-		rows = { { name = "Elfcore A", copper = 5, members = 10 }, { name = "Elfcore B", copper = 5, members = 10 },
-			{ name = "Elfcore C", copper = 5, members = 12 }, { name = "Elfcore Z", copper = 9 } }
+		rows = { { name = "Bankai Guild A", copper = 5, members = 10 }, { name = "Bankai Guild B", copper = 5, members = 10 },
+			{ name = "Bankai Guild C", copper = 5, members = 12 }, { name = "Bankai Guild Z", copper = 9 } }
 		D.SortGuildCounts(rows, "copper", "members")
 		names = {}
 		for i, r in ipairs(rows) do names[i] = r.name end
-		eq(table.concat(names, ","), "Elfcore Z,Elfcore C,Elfcore B,Elfcore A")
+		eq(table.concat(names, ","), "Bankai Guild Z,Bankai Guild C,Bankai Guild B,Bankai Guild A")
 		-- A row with its census entry (Data.Summary's, as Views.OpenGuilds keeps it): read from it.
-		rows = { { name = "Elfcore A", n = 1, e = { g = { avgLevel = 59 } } }, { name = "Elfcore B", n = 1 } }
+		rows = { { name = "Bankai Guild A", n = 1, e = { g = { avgLevel = 59 } } }, { name = "Bankai Guild B", n = 1 } }
 		D.SortGuildCounts(rows, "n")
-		eq(rows[1].name .. ":" .. rows[1].avg, "Elfcore A:590")
+		eq(rows[1].name .. ":" .. rows[1].avg, "Bankai Guild A:590")
 	end)
 end)
 
@@ -471,34 +471,34 @@ end)
 -- guilds does, a column's whichever way it runs, the Realm's own and the lists by a count. Its
 -- average level here the lowest of every tie, so only the standard-bearer rule puts it first.
 test("CR-04 the exact <ELFCORE> first on a tie of every order of guilds, whichever way a column runs, before the average level; a larger count and a current report still first", function()
-	for _, name in ipairs({ "ELFCORE", "Elfcore", "elfcore" }) do eq(D.IsStandardBearer(name), true, name) end
-	for _, name in ipairs({ "Elfcore II", "Knights of Elfcore", "<ELFCORE>", "Elfcore ", "", 7 }) do
+	for _, name in ipairs({ "Bankai Guild", "Bankai Guild", "bankaiguild" }) do eq(D.IsStandardBearer(name), true, name) end
+	for _, name in ipairs({ "Bankai Guild II", "Knights of Bankai Guild", "<ELFCORE>", "Bankai Guild ", "", 7 }) do
 		eq(D.IsStandardBearer(name), false, tostring(name))
 	end
 	eq(D.IsStandardBearer(nil), false)
 	local zones = { m1453 = 20 }
 	WithGuilds({
-		["ELFCORE"] = Report(500, 10, { online = 50, leader = "Same", zones = zones }),
-		["Alpha Elfcore"] = Report(500, 10, { online = 50, leader = "same", zones = zones }),
-		["Elfcore Hi"] = Report(500, 58, { online = 50, leader = "Same", zones = zones }),
-		["Elfcore Lo"] = Report(500, 30, { online = 50, leader = "SAME", zones = zones }),
-		["Elfcore Few"] = Report(100, 59, { online = 5, leader = "Zed", zones = { m1453 = 30 } }),
-		["Elfcore Stale"] = Report(500, 60, { online = 50, leader = "Same", t = os.time() - D.FRESH - 1 }),
+		["Bankai Guild"] = Report(500, 10, { online = 50, leader = "Same", zones = zones }),
+		["Alpha Bankai Guild"] = Report(500, 10, { online = 50, leader = "same", zones = zones }),
+		["Bankai Guild Hi"] = Report(500, 58, { online = 50, leader = "Same", zones = zones }),
+		["Bankai Guild Lo"] = Report(500, 30, { online = 50, leader = "SAME", zones = zones }),
+		["Bankai Guild Few"] = Report(100, 59, { online = 5, leader = "Zed", zones = { m1453 = 30 } }),
+		["Bankai Guild Stale"] = Report(500, 60, { online = 50, leader = "Same", t = os.time() - D.FRESH - 1 }),
 	}, function()
-		eq(CensusNames(), "ELFCORE,Elfcore Hi,Elfcore Lo,Alpha Elfcore,Elfcore Few,Elfcore Stale", "the default order, as in 1.1.5")
+		eq(CensusNames(), "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Few,Bankai Guild Stale", "the default order, as in 1.1.5")
 		-- Each Census column, both ways: as many, the standard-bearer first, then the higher average level.
 		local orders = {
-			{ "members", false, "Elfcore Few,ELFCORE,Elfcore Hi,Elfcore Lo,Alpha Elfcore,Elfcore Stale" },
-			{ "online", true, "ELFCORE,Elfcore Hi,Elfcore Lo,Alpha Elfcore,Elfcore Few,Elfcore Stale" },
-			{ "online", false, "Elfcore Few,ELFCORE,Elfcore Hi,Elfcore Lo,Alpha Elfcore,Elfcore Stale" },
+			{ "members", false, "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Stale" },
+			{ "online", true, "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Few,Bankai Guild Stale" },
+			{ "online", false, "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Stale" },
 			-- (The average level's own column: 10.0 twice, the standard-bearer before the name.)
-			{ "level", true, "Elfcore Few,Elfcore Hi,Elfcore Lo,ELFCORE,Alpha Elfcore,Elfcore Stale" },
-			{ "level", false, "ELFCORE,Alpha Elfcore,Elfcore Lo,Elfcore Hi,Elfcore Few,Elfcore Stale" },
+			{ "level", true, "Bankai Guild Few,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild,Alpha Bankai Guild,Bankai Guild Stale" },
+			{ "level", false, "Bankai Guild,Alpha Bankai Guild,Bankai Guild Lo,Bankai Guild Hi,Bankai Guild Few,Bankai Guild Stale" },
 			-- (The same Lord in any case.)
-			{ "lord", false, "ELFCORE,Elfcore Hi,Elfcore Lo,Alpha Elfcore,Elfcore Few,Elfcore Stale" },
-			{ "lord", true, "Elfcore Few,ELFCORE,Elfcore Hi,Elfcore Lo,Alpha Elfcore,Elfcore Stale" },
+			{ "lord", false, "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Few,Bankai Guild Stale" },
+			{ "lord", true, "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Stale" },
 			-- (A name A to Z: no tie, so its title's order alone.)
-			{ "name", false, "Alpha Elfcore,ELFCORE,Elfcore Few,Elfcore Hi,Elfcore Lo,Elfcore Stale" },
+			{ "name", false, "Alpha Bankai Guild,Bankai Guild,Bankai Guild Few,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild Stale" },
 		}
 		for _, o in ipairs(orders) do
 			V.sort = { key = o[1], desc = o[2] }
@@ -507,17 +507,17 @@ test("CR-04 the exact <ELFCORE> first on a tie of every order of guilds, whichev
 		V.sort = { key = "members", desc = true }
 		-- The Realm's own order, chosen on its line: the same.
 		V.realmSort = "online"
-		eq((RealmHeaders()), "ELFCORE,Elfcore Hi,Elfcore Lo,Alpha Elfcore,Elfcore Few,Elfcore Stale", "the Realm by online")
+		eq((RealmHeaders()), "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Few,Bankai Guild Stale", "the Realm by online")
 		V.realmSort = "level"
-		eq((RealmHeaders()), "Elfcore Few,Elfcore Hi,Elfcore Lo,ELFCORE,Alpha Elfcore,Elfcore Stale", "the Realm by average level")
+		eq((RealmHeaders()), "Bankai Guild Few,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild,Alpha Bankai Guild,Bankai Guild Stale", "the Realm by average level")
 		V.realmSort = "members"
 		-- Recruiting (and who recruits are sent to): as many free slots, the standard-bearer first.
 		local names = {}
 		for i, o in ipairs(V.OpenGuilds(D.Summary())) do names[i] = o.name .. "=" .. o.free end
-		eq(table.concat(names, ","), "Elfcore Few=900,ELFCORE=500,Elfcore Hi=500,Elfcore Lo=500,Alpha Elfcore=500")
+		eq(table.concat(names, ","), "Bankai Guild Few=900,Bankai Guild=500,Bankai Guild Hi=500,Bankai Guild Lo=500,Alpha Bankai Guild=500")
 		names = {}
 		for i, o in ipairs(ns.Recruit.OpenGuilds()) do names[i] = o.name end
-		eq(table.concat(names, ","), "Elfcore Few,ELFCORE,Elfcore Hi,Elfcore Lo,Alpha Elfcore")
+		eq(table.concat(names, ","), "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild")
 		-- A zone's guilds, by their soldiers there.
 		V.SetFilter("census", "stormwind")
 		local lines, at = V.Build("census"), nil
@@ -525,31 +525,31 @@ test("CR-04 the exact <ELFCORE> first on a tie of every order of guilds, whichev
 		assert(at, "the zone's header")
 		local found = {}
 		for i = at + 1, at + 5 do found[#found + 1] = Bare(lines[i].text) end
-		eq(table.concat(found, ","), "<Elfcore Few>,<ELFCORE>,<Elfcore Hi>,<Elfcore Lo>,<Alpha Elfcore>")
+		eq(table.concat(found, ","), "<Bankai Guild Few>,<ELFCORE>,<Bankai Guild Hi>,<Bankai Guild Lo>,<Alpha Bankai Guild>")
 		V.SetFilter("census", "")
 		-- Data.SortGuildCounts (the map's pins, the Royal Inspection, the dues table): the counts
 		-- first, then the standard-bearer, then the average level.
-		local rows = { { name = "Elfcore Hi", n = 3 }, { name = "Alpha Elfcore", n = 3 }, { name = "ELFCORE", n = 3 }, { name = "Elfcore Few", n = 7 } }
+		local rows = { { name = "Bankai Guild Hi", n = 3 }, { name = "Alpha Bankai Guild", n = 3 }, { name = "Bankai Guild", n = 3 }, { name = "Bankai Guild Few", n = 7 } }
 		D.SortGuildCounts(rows, "n")
 		names = {}
 		for i, r in ipairs(rows) do names[i] = r.name end
-		eq(table.concat(names, ","), "Elfcore Few,ELFCORE,Elfcore Hi,Alpha Elfcore")
-		rows = { { name = "Elfcore Hi", copper = 5, members = 10 }, { name = "ELFCORE", copper = 5, members = 10 },
-			{ name = "Elfcore Lo", copper = 5, members = 12 }, { name = "Elfcore Few", copper = 9 } }
+		eq(table.concat(names, ","), "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Alpha Bankai Guild")
+		rows = { { name = "Bankai Guild Hi", copper = 5, members = 10 }, { name = "Bankai Guild", copper = 5, members = 10 },
+			{ name = "Bankai Guild Lo", copper = 5, members = 12 }, { name = "Bankai Guild Few", copper = 9 } }
 		D.SortGuildCounts(rows, "copper", "members")
 		names = {}
 		for i, r in ipairs(rows) do names[i] = r.name end
-		eq(table.concat(names, ","), "Elfcore Few,Elfcore Lo,ELFCORE,Elfcore Hi", "the dues: gold, then members, then the standard-bearer")
+		eq(table.concat(names, ","), "Bankai Guild Few,Bankai Guild Lo,Bankai Guild,Bankai Guild Hi", "the dues: gold, then members, then the standard-bearer")
 	end)
 	-- An old report of it stays after every current one, whatever the column.
 	WithGuilds({
-		["ELFCORE"] = Report(500, 60, { online = 50, t = os.time() - D.FRESH - 1 }),
-		["Elfcore Hi"] = Report(500, 10, { online = 50 }),
+		["Bankai Guild"] = Report(500, 60, { online = 50, t = os.time() - D.FRESH - 1 }),
+		["Bankai Guild Hi"] = Report(500, 10, { online = 50 }),
 	}, function()
 		V.sort = { key = "online", desc = true }
-		eq(CensusNames(), "Elfcore Hi,ELFCORE")
+		eq(CensusNames(), "Bankai Guild Hi,Bankai Guild")
 		V.sort = { key = "members", desc = false }
-		eq(CensusNames(), "Elfcore Hi,ELFCORE")
+		eq(CensusNames(), "Bankai Guild Hi,Bankai Guild")
 	end)
 end)
 
@@ -605,13 +605,13 @@ local function OpenIn(Lx, hd, fn)
 			FriendsFrame = CreateFrame("Frame", "FriendsFrame", UIParent)
 			FriendsFrame:SetSize(385, 424)
 		end
-		assert(loadfile(ROOT .. "Elfcore/UI.lua"))("Elfcore", uns)
+		assert(loadfile(ROOT .. "BankaiGuild/UI.lua"))("BankaiGuild", uns)
 		WithGuilds({
-			["Elfcore A"] = Report(300, 40), ["Elfcore B"] = Report(200, 55), ["Elfcore C"] = Report(100, nil),
+			["Bankai Guild A"] = Report(300, 40), ["Bankai Guild B"] = Report(200, 55), ["Bankai Guild C"] = Report(100, nil),
 		}, function()
 			ns.UI = uns.UI
 			uns.UI.Toggle()
-			local main = hd and ElfcoreFrameHD or ElfcoreFrame
+			local main = hd and BankaiGuildFrameHD or BankaiGuildFrame
 			eq(main.views.census:GetWidth(), hd and 352 or 296, "the list's width")
 			eq(main.tab, "census")
 			eq(main.colHeader:IsShown(), true)
@@ -632,7 +632,7 @@ test("1.2.4 the Census window: five titles, Avg lvl the fourth, side by side acr
 			end
 			return table.concat(out, ",")
 		end
-		eq(Shown(), "Elfcore A=40.0,Elfcore B=55.0,Elfcore C=-")
+		eq(Shown(), "Bankai Guild A=40.0,Bankai Guild B=55.0,Bankai Guild C=-")
 		-- Each cell under its own title (to 3 px, the titles' shared edges), the numbers right-justified:
 		-- in the window's own units, the titles from the header row's left, the cells from the list's.
 		local row
@@ -647,9 +647,9 @@ test("1.2.4 the Census window: five titles, Avg lvl the fourth, side by side acr
 		end
 		t[4].b:Click()
 		eq(V.sort.key, "level"); eq(V.sort.desc, true)
-		eq(Shown(), "Elfcore B=55.0,Elfcore A=40.0,Elfcore C=-", "the highest first, none last")
+		eq(Shown(), "Bankai Guild B=55.0,Bankai Guild A=40.0,Bankai Guild C=-", "the highest first, none last")
 		t[4].b:Click()
-		eq(Shown(), "Elfcore A=40.0,Elfcore B=55.0,Elfcore C=-", "the lowest first, none still last")
+		eq(Shown(), "Bankai Guild A=40.0,Bankai Guild B=55.0,Bankai Guild C=-", "the lowest first, none still last")
 		-- A table of four columns (the Church's, the Tabards'): its rows' fifth cell hidden.
 		local content = CreateFrame("Frame", nil, UIParent)
 		content:SetWidth(300)

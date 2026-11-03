@@ -22,7 +22,7 @@ local SECRET = setmetatable({}, { __index = Boom, __newindex = Boom, __tostring 
 
 -- The player's target as the game gives it now. o.hidden: inside a battleground, the game hides who
 -- it is (every answer a secret; o.name: but its name, which the game shows). Else a plain player of
--- <Elfcore II>, out in the world.
+-- <Bankai Guild II>, out in the world.
 local function WithTarget(o, fn)
 	local saved = { player = UnitIsPlayer, full = UnitFullName, unitName = GetUnitName, guild = GetGuildInfo,
 		secret = issecretvalue, inst = IsInInstance }
@@ -48,7 +48,7 @@ local function WithTarget(o, fn)
 		GetGuildInfo = function(unit)
 			if unit ~= "target" then return own(unit) end
 			if o.hidden then return SECRET, SECRET, SECRET end
-			return "Elfcore II", "Member", 3
+			return "Bankai Guild II", "Member", 3
 		end
 		fn()
 	end)
@@ -92,8 +92,8 @@ local function WatchWho(w)
 	local _, uns = H.LoadUI()
 	local _, letWatchGo = H.LoadWatch(uns)
 	local ok, text = pcall(function()
-		ns.ShowDialog("ELFCORE_WATCH_WHO", L.WATCH_BAN_BTN, nil, { kind = "ban" })
-		return Popup(w, "ELFCORE_WATCH_WHO").text
+		ns.ShowDialog("BANKAIGUILD_WATCH_WHO", L.WATCH_BAN_BTN, nil, { kind = "ban" })
+		return Popup(w, "BANKAIGUILD_WATCH_WHO").text
 	end)
 	letWatchGo()
 	if not ok then error(text, 0) end
@@ -112,41 +112,41 @@ test("1.2.6 net-off in a battleground: while the game hides who the target is, t
 			WithTarget({ hidden = true }, function()
 				-- A character: "Hide a character", who (nothing filled in), an empty answer asks again.
 				Click(L.NETOFF_ADD)
-				local who = Popup(w, "ELFCORE_NETOFF_WHO")
+				local who = Popup(w, "BANKAIGUILD_NETOFF_WHO")
 				eq(who.text, "", "no name filled in from a hidden target")
 				who.Answer("")
 				assert(Printed(w, L.NETOFF_WHO_BAD), "asked for a name")
-				eq(w.popups[#w.popups].name, "ELFCORE_NETOFF_WHO", "no next question without a name")
+				eq(w.popups[#w.popups].name, "BANKAIGUILD_NETOFF_WHO", "no next question without a name")
 				-- The name typed: why, then the word, logged on the channel.
 				Click(L.NETOFF_ADD)
-				Popup(w, "ELFCORE_NETOFF_WHO").Answer("Spammer Guy")
-				Popup(w, "ELFCORE_NETOFF_WHY").Answer("flooding /ef")
+				Popup(w, "BANKAIGUILD_NETOFF_WHO").Answer("Spammer Guy")
+				Popup(w, "BANKAIGUILD_NETOFF_WHY").Answer("flooding /bg")
 				local e = M.Hidden("Spammer Guy-Realm")
 				assert(e, "the word, given")
-				eq(e.reason, "flooding /ef"); eq(e.by, H.HC)
+				eq(e.reason, "flooding /bg"); eq(e.by, H.HC)
 				local sent = w.sent[#w.sent]
-				assert(sent and sent.msg:find("^O1~c~1~%d+~Spammer Guy%-Realm~Test Councillor%-Realm~flooding /ef$"), sent and sent.msg)
+				assert(sent and sent.msg:find("^O1~c~1~%d+~Spammer Guy%-Realm~Test Councillor%-Realm~flooding /bg$"), sent and sent.msg)
 				eq(sent.logged, true)
 				-- A guild: "Take a guild off" and the exile's notice, nothing filled in, an empty answer asks.
 				Click(L.NETOFF_ADD_GUILD)
-				local guild = Popup(w, "ELFCORE_NETOFF_GUILD")
+				local guild = Popup(w, "BANKAIGUILD_NETOFF_GUILD")
 				eq(guild.text, "", "no guild filled in from a hidden target")
 				local before = #w.printed
 				guild.Answer("")
 				eq(w.printed[before + 1], L.NETOFF_GUILD_BAD)
 				M.AskExile()
-				local exile = Popup(w, "ELFCORE_EXILE_GUILD")
+				local exile = Popup(w, "BANKAIGUILD_EXILE_GUILD")
 				eq(exile.text, "")
 				before = #w.printed
 				exile.Answer("")
 				eq(w.printed[before + 1], L.NETOFF_GUILD_BAD)
-				-- /elf netoff with no name takes the target: none there, so it asks for one.
+				-- /bk netoff with no name takes the target: none there, so it asks for one.
 				before = #w.printed
 				M.Slash(true, ": spam")
 				eq(w.printed[before + 1], L.NETOFF_WHO_BAD)
 				M.Slash(true, "guild : spam")
 				eq(w.printed[before + 2], L.NETOFF_GUILD_BAD)
-				eq(M.Guild("Elfcore II"), nil, "no guild taken off")
+				eq(M.Guild("Bankai Guild II"), nil, "no guild taken off")
 				-- The Watch's Ban asks the name the same way: its box starts empty too.
 				eq(WatchWho(w), "", "the Ban's who: nothing filled in")
 			end)
@@ -154,7 +154,7 @@ test("1.2.6 net-off in a battleground: while the game hides who the target is, t
 			WithTarget({ hidden = true, name = "Spammer Guy" }, function()
 				eq(M.CharName("", true), nil)
 				Click(L.NETOFF_ADD)
-				eq(Popup(w, "ELFCORE_NETOFF_WHO").text, "")
+				eq(Popup(w, "BANKAIGUILD_NETOFF_WHO").text, "")
 				eq(WatchWho(w), "", "the Ban's who")
 			end)
 		end)
@@ -167,16 +167,16 @@ test("1.2.6 net-off out in the world: the target still fills each box in, and an
 			H.AsSoldier("Test Councillor")
 			WithTarget({}, function()
 				Click(L.NETOFF_ADD)
-				eq(Popup(w, "ELFCORE_NETOFF_WHO").text, ns.DisplayName("Spammer Guy-Realm"))
+				eq(Popup(w, "BANKAIGUILD_NETOFF_WHO").text, ns.DisplayName("Spammer Guy-Realm"))
 				Click(L.NETOFF_ADD_GUILD)
-				eq(Popup(w, "ELFCORE_NETOFF_GUILD").text, "Elfcore II")
+				eq(Popup(w, "BANKAIGUILD_NETOFF_GUILD").text, "Bankai Guild II")
 				M.AskExile()
-				eq(Popup(w, "ELFCORE_EXILE_GUILD").text, "Elfcore II")
+				eq(Popup(w, "BANKAIGUILD_EXILE_GUILD").text, "Bankai Guild II")
 				-- An empty answer: the target, then why.
 				Click(L.NETOFF_ADD)
-				Popup(w, "ELFCORE_NETOFF_WHO").Answer("")
+				Popup(w, "BANKAIGUILD_NETOFF_WHO").Answer("")
 				eq(w.popups[#w.popups].data.name, "Spammer Guy-Realm")
-				Popup(w, "ELFCORE_NETOFF_WHY").Answer("spam")
+				Popup(w, "BANKAIGUILD_NETOFF_WHY").Answer("spam")
 				assert(M.Hidden("Spammer Guy-Realm"), "the target, taken off")
 				eq(WatchWho(w), ns.DisplayName("Spammer Guy-Realm"), "the Ban's who: the target")
 			end)

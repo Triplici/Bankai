@@ -410,7 +410,7 @@ function methods:NoErrors()
 	end
 end
 
-MW.FIGHTER_GUILD = "Elfcore Ashvale"
+MW.FIGHTER_GUILD = "Bankai Guild Ashvale"
 
 function MW.New(opts)
 	local w = World.New(opts)

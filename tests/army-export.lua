@@ -32,8 +32,8 @@ local function Rows45()
 end
 
 test("Army QR: canonical aggregate JSON is byte-stable and contains no roster identity", function()
-	local payload, a = Army.Payload({ guild = "Elfcore II", faction = "Alliance", realmGroup = "ClassicBetaPvP", observedAt = 1800000000 }, Rows45())
-	local want = '{"format":"elfcore-stat-observation-v2","scope":"own-guild","source":"volunteer-client","sourceVerified":false,"membershipProof":false,"addonVersion":"0.2.0","realmGroup":"ClassicBetaPvP","faction":"Alliance","observedAt":1800000000,"guilds":[{"name":"Elfcore II","receivedAt":1800000000,"reportedCharacters":45,"online":10,"classes":[5,5,5,5,5,5,5,5,5],"levels":[5,5,5,5,5,5,15],"ranks":[5,5,5,5,5,5,5,5,5,0]}]}'
+	local payload, a = Army.Payload({ guild = "Bankai Guild II", faction = "Alliance", realmGroup = "ClassicBetaPvP", observedAt = 1800000000 }, Rows45())
+	local want = '{"format":"bankaiguild-stat-observation-v2","scope":"own-guild","source":"volunteer-client","sourceVerified":false,"membershipProof":false,"addonVersion":"0.2.0","realmGroup":"ClassicBetaPvP","faction":"Alliance","observedAt":1800000000,"guilds":[{"name":"Bankai Guild II","receivedAt":1800000000,"reportedCharacters":45,"online":10,"classes":[5,5,5,5,5,5,5,5,5],"levels":[5,5,5,5,5,5,15],"ranks":[5,5,5,5,5,5,5,5,5,0]}]}'
 	eq(payload, want)
 	eq(a.reportedCharacters, 45); eq(a.online, 10)
 	assert(not payload:find("Never serialized", 1, true) and not payload:find("Player-1-", 1, true), "no name or GUID in the payload")
@@ -63,47 +63,47 @@ end)
 test("Army QR: a post-60 client keeps totals but withholds the incompatible level marginal", function()
 	local rows = {}
 	for i = 1, 5 do rows[i] = { classFile = "WARRIOR", level = 70, rankIndex = 0, online = false } end
-	local payload, a = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = "Anniversary", observedAt = 1800000001 }, rows)
+	local payload, a = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = "Anniversary", observedAt = 1800000001 }, rows)
 	assert(payload); eq(a.reportedCharacters, 5); eq(a.levels, nil)
 	assert(payload:find('"levels":null', 1, true), "the level marginal is explicitly unavailable")
 	assert(payload:find('"classes":[5,0,0,0,0,0,0,0,0]', 1, true), "a safe independent marginal remains")
 end)
 
 test("Army QR: scope is fail-closed to exact official Alliance guilds and a known realm group", function()
-	eq(Army.OfficialGuild("Elfcore"), true); eq(Army.OfficialGuild("ELFCORE X"), true)
-	eq(Army.OfficialGuild("Holypmus"), false); eq(Army.OfficialGuild("Elfcore XI"), false); eq(Army.OfficialGuild("Anti Elfcore"), false)
+	eq(Army.OfficialGuild("Bankai Guild"), true); eq(Army.OfficialGuild("Bankai Guild X"), true)
+	eq(Army.OfficialGuild("Holypmus"), false); eq(Army.OfficialGuild("Bankai Guild XI"), false); eq(Army.OfficialGuild("Anti Bankai Guild"), false)
 	local p, why = Army.Payload({ guild = "Holypmus", faction = "Alliance", realmGroup = "Realm", observedAt = 1 }, {})
 	eq(p, nil); eq(why, "scope")
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Horde", realmGroup = "Realm", observedAt = 1 }, {})
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Horde", realmGroup = "Realm", observedAt = 1 }, {})
 	eq(p, nil); eq(why, "scope")
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = "", observedAt = 1 }, {})
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = "", observedAt = 1 }, {})
 	eq(p, nil); eq(why, "scope")
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = "Realm", observedAt = 1 }, {})
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = "Realm", observedAt = 1 }, {})
 	eq(p, nil); eq(why, "roster-count")
 	local tooMany = {}
 	for i = 1, 1001 do tooMany[i] = {} end
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = "Realm", observedAt = 1 }, tooMany)
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = "Realm", observedAt = 1 }, tooMany)
 	eq(p, nil); eq(why, "roster-count")
 	local five = {}
 	for i = 1, 5 do five[i] = { classFile = "WARRIOR", level = 60, rankIndex = 0, online = false } end
-	p = assert(Army.Payload({ guild = "ELFCORE X", faction = "Alliance", realmGroup = "Realm", observedAt = 4102444800 }, five))
-	assert(p:find('"name":"Elfcore X"', 1, true), "accepted guild casing is canonical on the wire")
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = "Realm|Other", observedAt = 1 }, five)
+	p = assert(Army.Payload({ guild = "Bankai Guild X", faction = "Alliance", realmGroup = "Realm", observedAt = 4102444800 }, five))
+	assert(p:find('"name":"Bankai Guild X"', 1, true), "accepted guild casing is canonical on the wire")
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = "Realm|Other", observedAt = 1 }, five)
 	eq(p, nil); eq(why, "scope")
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = "Realm\nOther", observedAt = 1 }, five)
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = "Realm\nOther", observedAt = 1 }, five)
 	eq(p, nil); eq(why, "scope")
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = string.rep("r", 97), observedAt = 1 }, five)
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = string.rep("r", 97), observedAt = 1 }, five)
 	eq(p, nil); eq(why, "scope")
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = " Realm", observedAt = 1 }, five)
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = " Realm", observedAt = 1 }, five)
 	eq(p, nil); eq(why, "scope")
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = "Realm ", observedAt = 1 }, five)
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = "Realm ", observedAt = 1 }, five)
 	eq(p, nil); eq(why, "scope")
-	p, why = Army.Payload({ guild = "Elfcore", faction = "Alliance", realmGroup = "Realm", observedAt = 4102444801 }, five)
+	p, why = Army.Payload({ guild = "Bankai Guild", faction = "Alliance", realmGroup = "Realm", observedAt = 4102444801 }, five)
 	eq(p, nil); eq(why, "time")
 end)
 
 test("Army QR: OLCS2 frames bind nonce, SHA-256, part order and the 1023-byte ceiling", function()
-	local payload = assert(Army.Payload({ guild = "Elfcore II", faction = "Alliance", realmGroup = "ClassicBetaPvP", observedAt = 1800000000 }, Rows45()))
+	local payload = assert(Army.Payload({ guild = "Bankai Guild II", faction = "Alliance", realmGroup = "ClassicBetaPvP", observedAt = 1800000000 }, Rows45()))
 	local frames, digest = Army.Frames(payload, "0123456789ABCDEF0123456789ABCDEF")
 	eq(digest, "ehTLrUPUrlP6dnx5gd0UyHjEsXY1vTz8JdWkVLtxeJw")
 	assert(#frames >= 1 and #frames <= 14)
@@ -138,7 +138,7 @@ test("Army QR: native scan requires a stable complete roster and one online matc
 	local ok, err = pcall(function()
 		ns.faction, ns.group = "Alliance", "Realm"
 		IsInGuild = function() return true end
-		GetGuildInfo = function() return "Elfcore III" end
+		GetGuildInfo = function() return "Bankai Guild III" end
 		UnitFactionGroup = function() return "Alliance" end
 		UnitGUID = function() return "Player-1-ME" end
 		local mode, countCalls, showCalls = nil, 0, 0
@@ -205,7 +205,7 @@ test("Army QR: Start binds the native GUID and a roster event completes real fra
 		Army.Cancel()
 		ns.faction, ns.group = "Alliance", "Realm"
 		IsInGuild = function() return true end
-		GetGuildInfo = function() return "ELFCORE III" end
+		GetGuildInfo = function() return "Bankai Guild III" end
 		UnitFactionGroup = function() return "Alliance" end
 		UnitGUID = function() return "Player-1-ME" end
 		GetGuildRosterShowOffline = function() return shown end
@@ -266,8 +266,8 @@ test("Army QR: the release gate is closed for both canonical and pilot commands"
 	local ok, err = pcall(function()
 		ns.Print = function(text) lines[#lines + 1] = text end
 		GuildRoster = function() calls = calls + 1 end
-		SlashCmdList.ELFCORE("army 0123456789abcdef0123456789abcdef")
-		SlashCmdList.ELFCOREARMY("0123456789abcdef0123456789abcdef")
+		SlashCmdList.BANKAIGUILD("army 0123456789abcdef0123456789abcdef")
+		SlashCmdList.BANKAIGUILDARMY("0123456789abcdef0123456789abcdef")
 		eq(calls, 0); eq(Army.Window(), nil)
 		eq(#lines, 2)
 		assert(lines[1]:find("not available", 1, true) and lines[2]:find("not available", 1, true))
@@ -320,10 +320,10 @@ end)
 
 test("Army QR: the shipped module has no storage, communication or upload path and loads after Link", function()
 	local f = assert(io.open(ADDON_DIR .. "ArmyExport.lua", "rb")); local source = f:read("*a"); f:close()
-	for _, forbidden in ipairs({ "SavedVariables", "ElfcoreDB", "SendAddonMessage", "SendChatMessage", "C_HTTP", "Upload" }) do
+	for _, forbidden in ipairs({ "SavedVariables", "BankaiGuildDB", "SendAddonMessage", "SendChatMessage", "C_HTTP", "Upload" }) do
 		assert(not source:find(forbidden, 1, true), "forbidden export path: " .. forbidden)
 	end
 	assert(not source:find('SetScript("OnUpdate"', 1, true), "no permanent animation loop")
-	f = assert(io.open(ADDON_DIR .. "Elfcore.toc", "rb")); local toc = f:read("*a"); f:close()
+	f = assert(io.open(ADDON_DIR .. "BankaiGuild.toc", "rb")); local toc = f:read("*a"); f:close()
 	assert(toc:find("Link.lua\nArmyExport.lua\nGuildCharter.lua", 1, true), "ArmyExport loads immediately after Link")
 end)

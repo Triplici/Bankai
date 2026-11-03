@@ -3,7 +3,7 @@ local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]justice%-
 -- Actual Comm queue/dispatch, native Roster.Scan/Fresh, Members manual removal and Watch UI.
 -- The simulated server supplies identity/appointment verdicts and its native roster rows.
 local function Client(name)
-	local w = { name = name, guild = "Elfcore II", now = 1800000000, sent = {}, events = {}, listeners = {}, ranks = {},
+	local w = { name = name, guild = "Bankai Guild II", now = 1800000000, sent = {}, events = {}, listeners = {}, ranks = {},
 		justice = "Justice-Realm", council = { ["Council-Realm"] = true }, native = {}, dialogs = {} }
 	local n = setmetatable({ me = name, realm = "Realm", group = "Realm", faction = "Alliance", CAPTAIN_RANK = 1,
 		db = { blocked = {} }, rdb = { guilds = {} }, ViewAs = {}, WatchChat = {}, Nominees = {}, King = {}, Workshop = {}, UI = {},
@@ -15,7 +15,7 @@ local function Client(name)
 	n.ShortName = function(s) return s:match("^[^-]+") end; n.DisplayName = n.ShortName
 	n.Moderation.CharName = function(s) return type(s) == "string" and n.FullName(s) or nil end
 	n.RealmOf = function(s) return s:match("%-(.+)$") end; n.GroupOf = function(s) return s end
-	n.IsMember = function() return w.guild ~= nil end; n.IsFederation = function(g) return g == "Elfcore II" or g == "Elfcore III" end
+	n.IsMember = function() return w.guild ~= nil end; n.IsFederation = function(g) return g == "Bankai Guild II" or g == "Bankai Guild III" end
 	n.IsKingCharacter = function(s) return s == "Crown-Realm" end; n.IsHighCouncillor = function(s) return w.council[s] == true end
 	n.KingRealm = function() return "Realm" end; n.IsKingGuild = function() return false end
 	n.King.Preview = function() return w.preview == true end; n.King.IsKing = function() return n.IsKingCharacter(n.me) end
@@ -51,7 +51,7 @@ local function Client(name)
 			SendAddonMessage = function(_, text, dist, target) w.sent[#w.sent + 1] = { text = text, dist = dist, target = target, logged = false }; return 0 end,
 			SendAddonMessageLogged = function(_, text, dist, target) w.sent[#w.sent + 1] = { text = text, dist = dist, target = target, logged = true }; return 0 end } }, { __index = _G })
 	w.env = env
-	local function Load(file) local f = assert(loadfile(ROOT .. "Elfcore/" .. file .. ".lua")); setfenv(f, env); f("Elfcore", n) end
+	local function Load(file) local f = assert(loadfile(ROOT .. "BankaiGuild/" .. file .. ".lua")); setfenv(f, env); f("BankaiGuild", n) end
 	Load("Comm"); for _, login in ipairs(w.listeners.LOGIN or {}) do login() end
 	Load("Roster"); Load("Members"); Load("Watch"); Load("Ed25519"); Load("JusticeTasks")
 	function w.scan()
@@ -84,7 +84,7 @@ local function Receive(a, b, key, text)
 end
 local function Attempt(a, b, key)
 	b.now = b.now + 30; b.scan(); assert(b.ns.JusticeTasks.AskRemoval(key))
-	local dialog = b.dialogs[#b.dialogs]; eq(dialog.which, "ELFCORE_GUILD_REMOVE")
+	local dialog = b.dialogs[#b.dialogs]; eq(dialog.which, "BANKAIGUILD_GUILD_REMOVE")
 	assert(b.ns.Members.Remove(dialog.data)); b.pump(); a.now = b.now; a.scan(); a.receive(b.name, assert(Last(b, "R")))
 end
 local function Absent(a, b, key)
@@ -225,13 +225,13 @@ test("Justice shared: receipt-less offline delivery is unknown, old JT1 facts st
 end)
 test("Justice shared: accepted sister-guild ordinary correspondent is addressable, but false or demoted appointments and stale own roster are not", function()
 	local a, b = Triple()
-	local n = a.ns; local guild, gm = "Elfcore III", "SisterMaster-Realm"
+	local n = a.ns; local guild, gm = "Bankai Guild III", "SisterMaster-Realm"
 	n.Data.KnownRank = function(who, g) if g == guild and who == gm then return 0, 2 end end
 	n.Data.AuthorizedRank = function(who, g) if g == guild and who == gm then return 0, "signed" end end
 	n.Data.Guild = function(g) if g == guild then return { leader = gm, realm = "Realm" } end end
 	n.Borders = { Changed = function() end }; n.ChatRooms = {}; n.PlayerMenu = {}
-	n.IsKingGuild = function(g) return g == "Elfcore" end; n.KingGuildName = function() return "Elfcore" end
-	local f = assert(loadfile(ROOT .. "Elfcore/Nominees.lua")); setfenv(f, a.env); f("Elfcore", n)
+	n.IsKingGuild = function(g) return g == "Bankai Guild" end; n.KingGuildName = function() return "Bankai Guild" end
+	local f = assert(loadfile(ROOT .. "BankaiGuild/Nominees.lua")); setfenv(f, a.env); f("BankaiGuild", n)
 	local packet = ("NM~1~%s~%d~1~1~d=Council of Justice=%s"):format(guild, a.now, b.name)
 	n.Nominees.Handle("CHANNEL", "Other-Realm", packet)
 	eq(n.JusticeTasks.Issue(guild, b.name, "Subject-Realm"), false, "unrecognized issuer cannot name the correspondent")
@@ -241,7 +241,7 @@ test("Justice shared: accepted sister-guild ordinary correspondent is addressabl
 	b.ns.Data.KnownRank = function() return nil end; b.ns.Data.Guild = function() return nil end
 	b.ns.Borders = { Changed = function() end }; b.ns.ChatRooms = {}; b.ns.PlayerMenu = {}
 	b.ns.IsKingGuild = n.IsKingGuild; b.ns.KingGuildName = n.KingGuildName
-	local recipient = assert(loadfile(ROOT .. "Elfcore/Nominees.lua")); setfenv(recipient, b.env); recipient("Elfcore", b.ns)
+	local recipient = assert(loadfile(ROOT .. "BankaiGuild/Nominees.lua")); setfenv(recipient, b.env); recipient("BankaiGuild", b.ns)
 	b.ns.Nominees.Handle("CHANNEL", gm, packet)
 	eq(b.ns.Nominees.IsCorrespondent(b.name, guild, "Council of Justice"), true, "the ordinary recipient is named by its actual native guild master")
 	Transfer(a, b); eq(#b.ns.JusticeTasks.Tasks(), 1); assert(b.ns.JusticeTasks.Tasks()[1].task.receivedAt)

@@ -7,7 +7,7 @@ local function Choice(fn)
 	-- This scene runs before the global moderation scene. Load the real renderer, rather than
 	-- treating the login stand-in as a live deletion module or copying its body into the test.
 	local cns = setmetatable({ On = function() end, RegisterEvent = function() end }, { __index = ns })
-	assert(loadfile(ROOT .. "Elfcore/WatchChat.lua"))("Elfcore", cns)
+	assert(loadfile(ROOT .. "BankaiGuild/WatchChat.lua"))("BankaiGuild", cns)
 	ns.WatchChat = cns.WatchChat
 	local ok, err = pcall(fn)
 	ns.db.chatHideGuildNames = saved
@@ -18,11 +18,11 @@ end
 test("Chat guild labels: visible by default, explicitly hidden locally, restored without changing the name link or message", function()
 	Choice(function()
 		local C = ns.Channels
-		local function Line() return C.FormatLine("A", "Test Speaker-" .. ns.realm, "Elfcore Fixture", "MA", "hello |cffff0000world", true) end
+		local function Line() return C.FormatLine("A", "Test Speaker-" .. ns.realm, "Bankai Guild Fixture", "MA", "hello |cffff0000world", true) end
 		for _, value in ipairs({ false, "not a boolean", 1 }) do
 			ns.db.chatHideGuildNames = value
 			eq(C.ShowGuildNames(), true)
-			assert(Line():find("<Elfcore Fixture>", 1, true), "malformed choices do not hide names")
+			assert(Line():find("<Bankai Guild Fixture>", 1, true), "malformed choices do not hide names")
 		end
 		ns.db.chatHideGuildNames = nil
 		local original = Line()
@@ -30,13 +30,13 @@ test("Chat guild labels: visible by default, explicitly hidden locally, restored
 		eq(C.SetGuildNamesShown(false), true)
 		eq(ns.db.chatHideGuildNames, true)
 		eq(C.ShowGuildNames(), false)
-		eq(Line(), (original:gsub(" <Elfcore Fixture>", "", 1)), "only the adjacent label changes")
+		eq(Line(), (original:gsub(" <Bankai Guild Fixture>", "", 1)), "only the adjacent label changes")
 		assert(Line():find("|Hplayer:", 1, true), "the real sender link remains")
 		assert(Line():find("hello ||cffff0000world", 1, true), "the existing sanitizer remains")
 		-- Reformatting saved history follows the account choice without mutating that history.
-		local entry = { tier = "A", sender = "Test Speaker-" .. ns.realm, guild = "Elfcore Fixture", text = "saved" }
+		local entry = { tier = "A", sender = "Test Speaker-" .. ns.realm, guild = "Bankai Guild Fixture", text = "saved" }
 		C.FormatLine(entry.tier, entry.sender, entry.guild, nil, entry.text)
-		eq(entry.guild, "Elfcore Fixture"); eq(entry.sender, "Test Speaker-" .. ns.realm); eq(entry.text, "saved")
+		eq(entry.guild, "Bankai Guild Fixture"); eq(entry.sender, "Test Speaker-" .. ns.realm); eq(entry.text, "saved")
 		eq(C.SetGuildNamesShown(true), true)
 		eq(ns.db.chatHideGuildNames, nil)
 		eq(Line(), original)
@@ -46,7 +46,7 @@ end)
 test("Chat guild labels: the actual gear changes normal and deleted headers while retaining search, tooltip identity and the draft", function()
 	WithWindow(function(w)
 		Choice(function()
-			local C, entry = ns.Channels, { t = 100, sender = "Test Speaker-" .. ns.realm, guild = "Elfcore Fixture", text = "fixture line" }
+			local C, entry = ns.Channels, { t = 100, sender = "Test Speaker-" .. ns.realm, guild = "Bankai Guild Fixture", text = "fixture line" }
 			ns.db.chatHideGuildNames = nil
 			ns.rdb.chat = { A = { entry } }
 			local f = w.CW.Open("A")
@@ -54,7 +54,7 @@ test("Chat guild labels: the actual gear changes normal and deleted headers whil
 				for _, b in ipairs(f.bubbles) do if b:IsShown() and b.entry == entry then return b end end
 				error("the actual sender bubble is absent")
 			end
-			assert(Bubble().who:GetText():find("<Elfcore Fixture>", 1, true))
+			assert(Bubble().who:GetText():find("<Bankai Guild Fixture>", 1, true))
 			f.input:SetText("draft still here")
 			local function Setting(label)
 				for _, row in ipairs(w.CW.SettingsLines()) do if row.text:find(label, 1, true) then return assert(row.onClick) end end
@@ -62,18 +62,18 @@ test("Chat guild labels: the actual gear changes normal and deleted headers whil
 			end
 			Setting(ns.L.CHATSET_GUILDS_SHOWN)()
 			eq(C.ShowGuildNames(), false)
-			eq(Bubble().who:GetText():find("<Elfcore Fixture>", 1, true), nil)
+			eq(Bubble().who:GetText():find("<Bankai Guild Fixture>", 1, true), nil)
 			assert(Bubble().who:GetText():find("Test Speaker", 1, true), "the sender remains")
-			assert(Bubble().header.full:find("<Elfcore Fixture>", 1, true), "the tooltip retains identity context")
+			assert(Bubble().header.full:find("<Bankai Guild Fixture>", 1, true), "the tooltip retains identity context")
 			eq(f.input:GetText(), "draft still here")
-			f.search:SetText("Elfcore Fixture")
+			f.search:SetText("Bankai Guild Fixture")
 			eq(Bubble().entry, entry, "search still knows the actual guild")
 			entry.del = true; w.CW.Render()
-			eq(Bubble().who:GetText():find("<Elfcore Fixture>", 1, true), nil, "deleted headers obey the same choice")
+			eq(Bubble().who:GetText():find("<Bankai Guild Fixture>", 1, true), nil, "deleted headers obey the same choice")
 			eq(Bubble().body:GetText(), ns.WatchChat.DeletedBody())
 			Setting(ns.L.CHATSET_GUILDS_HIDDEN)()
-			assert(Bubble().who:GetText():find("<Elfcore Fixture>", 1, true))
-			eq(entry.guild, "Elfcore Fixture", "never edit source evidence")
+			assert(Bubble().who:GetText():find("<Bankai Guild Fixture>", 1, true))
+			eq(entry.guild, "Bankai Guild Fixture", "never edit source evidence")
 		end)
 	end)
 end)

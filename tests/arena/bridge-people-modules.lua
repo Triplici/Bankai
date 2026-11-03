@@ -1,5 +1,5 @@
--- The Companion's people sections (Elfcore/BridgePeople.lua, and the rankings' boards of
--- Elfcore/BridgeSections.lua) on the real modules: the review of 2026-10-20 found every module in
+-- The Companion's people sections (BankaiGuild/BridgePeople.lua, and the rankings' boards of
+-- BankaiGuild/BridgeSections.lua) on the real modules: the review of 2026-10-20 found every module in
 -- tests/bridge-people.lua a stand-in, so a field a module gives in another type (ArenaLedger.History's
 -- `title`, a boolean, beside the events' text in the games' `title`) was never seen. Here the bridge's
 -- three files are loaded, as the TOC orders them, into a client of the test world with the Arena's
@@ -46,25 +46,25 @@ end
 ---------------------------------------------------------------------------
 
 -- The bridge's files (and, first, the Wanted board and the API) into client c: its own
--- ElfcoreBridge and ElfcoreAPI (Bridge.lua's `ElfcoreBridge or {}` would take the harness's
+-- BankaiGuildBridge and BankaiGuildAPI (Bridge.lua's `BankaiGuildBridge or {}` would take the harness's
 -- registry), kept as that client's globals; the harness's never touched.
 local function LoadBridge(w, c)
-	c.globals.ElfcoreBridge, c.globals.ElfcoreAPI = false, false
+	c.globals.BankaiGuildBridge, c.globals.BankaiGuildAPI = false, false
 	w:As(c, function()
 		local ui = rawget(c.ns, "UI")
 		rawset(c.ns, "UI", { AddTab = function() end })
-		assert(loadfile(H.ADDON_DIR .. "Wanted.lua"))("Elfcore", c.ns)
+		assert(loadfile(H.ADDON_DIR .. "Wanted.lua"))("BankaiGuild", c.ns)
 		rawset(c.ns, "UI", ui)
-		assert(loadfile(H.ADDON_DIR .. "Locales/APIText.lua"))("Elfcore", c.ns)
-		assert(loadfile(H.ADDON_DIR .. "API.lua"))("Elfcore", c.ns)
-		for _, f in ipairs(BRIDGE) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("Elfcore", c.ns) end
-		c.globals.ElfcoreBridge, c.globals.ElfcoreAPI = rawget(_G, "ElfcoreBridge"), rawget(_G, "ElfcoreAPI")
+		assert(loadfile(H.ADDON_DIR .. "Locales/APIText.lua"))("BankaiGuild", c.ns)
+		assert(loadfile(H.ADDON_DIR .. "API.lua"))("BankaiGuild", c.ns)
+		for _, f in ipairs(BRIDGE) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("BankaiGuild", c.ns) end
+		c.globals.BankaiGuildBridge, c.globals.BankaiGuildAPI = rawget(_G, "BankaiGuildBridge"), rawget(_G, "BankaiGuildAPI")
 	end)
-	assert(type(c.globals.ElfcoreBridge) == "table" and c.globals.ElfcoreBridge ~= rawget(_G, "ElfcoreBridge"), "the client's own bridge")
+	assert(type(c.globals.BankaiGuildBridge) == "table" and c.globals.BankaiGuildBridge ~= rawget(_G, "BankaiGuildBridge"), "the client's own bridge")
 end
 local function Section(w, c, name)
 	return w:As(c, function()
-		local s = ElfcoreBridge.GetSection(name)
+		local s = BankaiGuildBridge.GetSection(name)
 		return s and s.data
 	end)
 end
@@ -174,24 +174,24 @@ end)
 local CW = assert(loadfile(H.ROOT .. "tests/church-world.lua"))(H.ns, H.ROOT)
 
 -- The bridge's files into a Church client (its namespace over the harness's): its own registry,
--- the harness's ElfcoreBridge put back after; GetSection runs as that client with its registry.
+-- the harness's BankaiGuildBridge put back after; GetSection runs as that client with its registry.
 local function ChurchBridge(w, cl)
-	local was = rawget(_G, "ElfcoreBridge")
-	rawset(_G, "ElfcoreBridge", nil)
+	local was = rawget(_G, "BankaiGuildBridge")
+	rawset(_G, "BankaiGuildBridge", nil)
 	local ok, err = pcall(function()
 		w:As(cl, function()
-			for _, f in ipairs(BRIDGE) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("Elfcore", cl.c) end
+			for _, f in ipairs(BRIDGE) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("BankaiGuild", cl.c) end
 		end)
 	end)
-	local own = rawget(_G, "ElfcoreBridge")
-	rawset(_G, "ElfcoreBridge", was)
+	local own = rawget(_G, "BankaiGuildBridge")
+	rawset(_G, "BankaiGuildBridge", was)
 	if not ok then error(err, 0) end
 	assert(type(own) == "table" and own ~= was, "the client's own bridge")
 	return function(name)
-		local before = rawget(_G, "ElfcoreBridge")
-		rawset(_G, "ElfcoreBridge", own)
+		local before = rawget(_G, "BankaiGuildBridge")
+		rawset(_G, "BankaiGuildBridge", own)
 		local okGet, s = pcall(w.As, w, cl, own.GetSection, name)
-		rawset(_G, "ElfcoreBridge", before)
+		rawset(_G, "BankaiGuildBridge", before)
 		if not okGet then error(s, 0) end
 		return s and s.data
 	end

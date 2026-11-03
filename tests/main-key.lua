@@ -7,7 +7,7 @@ local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]main%-key
 -- whose base binding and override slot are both empty, and no saved binding is ever changed.
 local function World(fn)
 	local names = { "CreateFrame", "GetBindingAction", "GetBindingKey", "GetBindingText", "SetOverrideBindingClick", "ClearOverrideBindings",
-		"InCombatLockdown", "issecretvalue", "BINDING_HEADER_ELFCORE", "BINDING_NAME_ELFCORE_TOGGLE", "ElfcoreToggleBinding" }
+		"InCombatLockdown", "issecretvalue", "BINDING_HEADER_BANKAIGUILD", "BINDING_NAME_BANKAIGUILD_TOGGLE", "BankaiGuildToggleBinding" }
 	local saved = {}; for _, name in ipairs(names) do saved[name] = _G[name] end
 	local w = { events = {}, listeners = {}, member = true, calls = {}, bindings = {}, savedBindings = {}, toggles = 0, guildKey = "J", printed = {} }
 	local c = setmetatable({ db = {}, On = function(event, f) w.listeners[event] = f end,
@@ -26,7 +26,7 @@ local function World(fn)
 	GetBindingAction = function(key, overrides)
 		if w.readError then error("binding unavailable") end
 		if w.secret then return w.secret end
-		return overrides and (w.other or (w.bindings[key] and "CLICK ElfcoreMainKey:LeftButton")) or w.savedBindings[key] or ""
+		return overrides and (w.other or (w.bindings[key] and "CLICK BankaiGuildMainKey:LeftButton")) or w.savedBindings[key] or ""
 	end
 	-- The keys bound to an action (Blizzard's GetBindingKey: the first, then a second).
 	GetBindingKey = function(action)
@@ -37,7 +37,7 @@ local function World(fn)
 	end
 	GetBindingText = function(key) return "<" .. tostring(key) .. ">" end
 	CreateFrame = function(_, name)
-		eq(name, "ElfcoreMainKey")
+		eq(name, "BankaiGuildMainKey")
 		local b = { scripts = {} }; w.button = b
 		function b:RegisterForClicks(...) self.clicks = table.concat({ ... }, ",") end
 		function b:SetScript(event, f) self.scripts[event] = f end
@@ -46,7 +46,7 @@ local function World(fn)
 	SetOverrideBindingClick = function(owner, priority, key, button, click)
 		assert(not w.combat, "no protected binding change in combat")
 		w.calls[#w.calls + 1] = "set " .. key; w.bindings[key] = owner
-		eq(priority, false); eq(button, "ElfcoreMainKey"); eq(click, "LeftButton")
+		eq(priority, false); eq(button, "BankaiGuildMainKey"); eq(click, "LeftButton")
 		if w.reentrant then w.events.UPDATE_BINDINGS() end
 	end
 	ClearOverrideBindings = function(owner)
@@ -56,8 +56,8 @@ local function World(fn)
 	end
 	c.L = setmetatable({}, { __index = ns.L })
 	local ok, err = pcall(function()
-		assert(loadfile(ROOT .. "Elfcore/Locales/MainKeyText.lua"))("Elfcore", c)
-		assert(loadfile(ROOT .. "Elfcore/MainKey.lua"))("Elfcore", c)
+		assert(loadfile(ROOT .. "BankaiGuild/Locales/MainKeyText.lua"))("BankaiGuild", c)
+		assert(loadfile(ROOT .. "BankaiGuild/MainKey.lua"))("BankaiGuild", c)
 		fn(c.MainKey, w, c)
 	end)
 	for _, name in ipairs(names) do _G[name] = saved[name] end
@@ -199,7 +199,7 @@ test("Main shortcut: missing, restricted or failed binding reads fail closed; bi
 	end)
 end)
 
-test("Main shortcut: /elf hotkey names the key as the game writes it", function()
+test("Main shortcut: /bk hotkey names the key as the game writes it", function()
 	World(function(k, w, c)
 		w.listeners.LOGIN()
 		k.Slash("")
@@ -215,20 +215,20 @@ end)
 -- The game's Key Bindings menu: Bindings.xml in the addon's folder (the game reads it by itself;
 -- a TOC line would load it as a UI file), the header and the name the menu shows, and the player's
 -- own key opening and closing the window, the borrowed key's switch and the gamepad UI aside.
-test("Main shortcut: Toggle Elfcore is in the game's Key Bindings (AddOns) and toggles the window on a key press", function()
-	local f = assert(io.open(ROOT .. "Elfcore/Bindings.xml", "r")); local xml = f:read("*a"); f:close()
-	assert(xml:find('<Binding name="ELFCORE_TOGGLE" header="ELFCORE" category="ADDONS">', 1, true), "the binding")
-	assert(xml:find("ElfcoreToggleBinding(keystate)", 1, true), "its body")
+test("Main shortcut: Toggle Bankai Guild is in the game's Key Bindings (AddOns) and toggles the window on a key press", function()
+	local f = assert(io.open(ROOT .. "BankaiGuild/Bindings.xml", "r")); local xml = f:read("*a"); f:close()
+	assert(xml:find('<Binding name="BANKAIGUILD_TOGGLE" header="Bankai Guild" category="ADDONS">', 1, true), "the binding")
+	assert(xml:find("BankaiGuildToggleBinding(keystate)", 1, true), "its body")
 	eq(select(2, xml:gsub("<Binding ", "")), 1, "one binding; no key bound by the addon")
-	local toc = assert(io.open(ROOT .. "Elfcore/Elfcore.toc", "r")); local list = toc:read("*a"); toc:close()
+	local toc = assert(io.open(ROOT .. "BankaiGuild/BankaiGuild.toc", "r")); local list = toc:read("*a"); toc:close()
 	eq(list:find("Bindings.xml", 1, true), nil, "the game loads it by itself, never as a TOC file")
 	World(function(k, w, c)
-		eq(BINDING_HEADER_ELFCORE, "Elfcore"); eq(BINDING_NAME_ELFCORE_TOGGLE, c.L.MAINKEY_BINDING)
-		eq(type(ElfcoreToggleBinding), "function")
-		ElfcoreToggleBinding("down"); eq(w.toggles, 1)
-		ElfcoreToggleBinding("up"); eq(w.toggles, 1, "the key's release does nothing")
-		k.SetEnabled(false); ElfcoreToggleBinding("down"); eq(w.toggles, 2, "the player's own key, whatever /elf hotkey says")
-		w.pad = true; ElfcoreToggleBinding("down"); eq(w.toggles, 3, "with the gamepad UI too, as the minimap button")
+		eq(BINDING_HEADER_BANKAIGUILD, "Bankai Guild"); eq(BINDING_NAME_BANKAIGUILD_TOGGLE, c.L.MAINKEY_BINDING)
+		eq(type(BankaiGuildToggleBinding), "function")
+		BankaiGuildToggleBinding("down"); eq(w.toggles, 1)
+		BankaiGuildToggleBinding("up"); eq(w.toggles, 1, "the key's release does nothing")
+		k.SetEnabled(false); BankaiGuildToggleBinding("down"); eq(w.toggles, 2, "the player's own key, whatever /bk hotkey says")
+		w.pad = true; BankaiGuildToggleBinding("down"); eq(w.toggles, 3, "with the gamepad UI too, as the minimap button")
 		eq(#w.calls, 0, "no binding changed by it")
 	end)
 end)
@@ -238,11 +238,11 @@ test("Main shortcut: the 1.2.1 letter tells of Shift + the guild key and the gam
 	for _, locale in ipairs({ "enUS", "ptBR" }) do
 		local cns = setmetatable({ On = function() end, RegisterEvent = function() end }, { __index = ns })
 		GetLocale = function() return locale end
-		local ok, why = pcall(assert(loadfile(ROOT .. "Elfcore/Locales.lua")), "Elfcore", cns)
+		local ok, why = pcall(assert(loadfile(ROOT .. "BankaiGuild/Locales.lua")), "Bankai Guild", cns)
 		GetLocale = saved
 		if not ok then error(why, 0) end
 		local letter = cns.L.LETTER_1_2_2
 		assert(letter:find(locale == "enUS" and "Shift + your guild key (Shift-J by default)" or "Shift + a sua tecla da guilda (Shift-J por padrão)", 1, true), locale)
-		assert(letter:find(locale == "enUS" and "AddOns: Toggle Elfcore" or "AddOns: Abrir/fechar o Elfcore", 1, true), locale)
+		assert(letter:find(locale == "enUS" and "AddOns: Toggle Bankai Guild" or "AddOns: Abrir/fechar o Bankai Guild", 1, true), locale)
 	end
 end)

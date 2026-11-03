@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Signs the High Council's lists for the Elfcore addon.
+"""Signs the High Council's lists for the Bankai Guild addon.
 
-  python3 scripts/council-sign.py keygen                                  # once: ~/.elfcore/council-key.json
+  python3 scripts/council-sign.py keygen                                  # once: ~/.bankaiguild/council-key.json
   python3 scripts/council-sign.py sign "Name One,Name Two" [realm group]  # the names alone: dist/CouncilList.lua
   python3 scripts/council-sign.py council [council.json]                  # names, departments and titles: dist/CouncilList.lua
   python3 scripts/council-sign.py steward "<Name-Realm>" [Alliance|Horde] # mark the King's Steward, then sign as "council"
   python3 scripts/council-sign.py steward --remove "<Name-Realm>"         # end it: sign again without him
-  python3 scripts/council-sign.py guild "<Guild Name>" [Alliance|Horde]  # approve a guild of Elfcore, then sign as "council"
+  python3 scripts/council-sign.py guild "<Guild Name>" [Alliance|Horde]  # approve a guild of Bankai Guild, then sign as "council"
   python3 scripts/council-sign.py guild --remove "<Guild Name>"          # take it off: sign again without it
   python3 scripts/council-sign.py arbiter [--audit] "<Name-Realm>" [Alliance|Horde] # a signed arena arbiter (1.2), then sign as "council"
   python3 scripts/council-sign.py arbiter --remove "<Name-Realm>"        # end it: sign again without him
@@ -15,12 +15,12 @@
   python3 scripts/council-sign.py check [CouncilList.lua]                 # (or --check) read back what was signed
   python3 scripts/council-sign.py seal "RS1~..."                         # reviewed monthly Records request; prints its signed seal
 
-The private key never leaves ~/.elfcore. The addon carries only the public key (Sign.lua) and
+The private key never leaves ~/.bankaiguild. The addon carries only the public key (Sign.lua) and
 checks the signature: RSA-2048, e = 3, PKCS#1 v1.5 over SHA-256. CouncilList.lua holds the lists:
 it is copied to the author's own game only (never in the repository or the public zip).
 
 "sign" writes the name list alone (HS1, ns.COUNCIL_SIGNED), as before 0.9.9. "council" reads
-the council from a JSON file (~/.elfcore/council.json unless a path is given):
+the council from a JSON file (~/.bankaiguild/council.json unless a path is given):
 
   {"realm": "optional realm group", "public": false,
    "departments": [{"name": "Department of War", "icon": "INV_Sword_04",
@@ -52,8 +52,8 @@ rest kept) and signs the council at once; "steward --remove" takes him off and s
 newer list ends it on every client. "check" (or --check) reads a written CouncilList.lua back,
 checks both signatures with the key and prints the names, departments and Stewards it holds.
 
-The approved guilds (1.1): guilds of Asmon's Elfcore whose names the addon's name rule leaves out
-(it leaves Olympian and Olympia out on purpose) count as Elfcore guilds once an optional
+The approved guilds (1.1): guilds of Asmon's Bankai Guild whose names the addon's name rule leaves out
+(it leaves Olympian and Olympia out on purpose) count as Bankai Guild guilds once an optional
 "guilds" list in the same file names them:
 
   "guilds": ["Guild Name", {"name": "Guild Name", "faction": "Horde"}]
@@ -63,8 +63,8 @@ faction ("^guilds^<faction>^<Guild Name>,..."), three "^" again, so clients befo
 unread. At most 20 per faction; a name of letters and spaces, 24 characters at most, as the game
 allows; each once. "guild" adds one to the council file and signs the council at once; "guild
 --remove" takes it off and signs again. Both print the signed titles list whole, for pasting in
-game with /elf approved paste: the first member of such a guild has no other way to get it (its
-addon hears nothing of Elfcore until it holds it); his addon then passes it to his guild.
+game with /bk approved paste: the first member of such a guild has no other way to get it (its
+addon hears nothing of Bankai Guild until it holds it); his addon then passes it to his guild.
 
 The Blood Arena's signed arbiters (1.2): an optional "arbiters" list in the same file names the
 characters who may arbitrate public fights and direct rehearsals on test builds, whatever the
@@ -79,7 +79,7 @@ it out unread. A name as a Steward's (a realm of the list's group). "arbiter" ad
 --audit: an auditor too) and signs the council at once; "arbiter --remove" takes him off and signs
 again. No arena file names the author: this entry is how his own character arbitrates too.
 
-The Missionary Church of Elfcore's Twelve Apostles (1.1.6): an optional "apostles" list in the same
+The Missionary Church of Bankai Guild's Twelve Apostles (1.1.6): an optional "apostles" list in the same
 file names them, at most MAX_APOSTLES per faction, set once here so they hold on every client with
 nobody online (the Head of the Church, the King or the author may change them in game later, until
 a newer list):
@@ -98,7 +98,7 @@ Cross-guild leadership migration (1.2): absent by default, so the documented cen
 unchanged. It is activated only by the deliberately explicit "leadership" object below:
 
   "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"],
-    "guilds": [{"guild": "Elfcore II", "leader": "Lord Name-ClassicBetaPvP",
+    "guilds": [{"guild": "Bankai Guild II", "leader": "Lord Name-ClassicBetaPvP",
                 "officers": ["Captain One-ClassicBetaPvP2"], "faction": "Alliance"}]}
 
 Every character must carry an exact realm from the signed realm group. Each enforced faction gets
@@ -121,14 +121,14 @@ is signed: a "~" or "|" or a control character anywhere; a "," in a name; a "^",
 "," in a name, title or department of the titles list; a name or title of more than 48 bytes, a
 department of more than 40; more than 30 names, or a name twice; more than 8 departments; an icon
 that is not a game icon's name or number; a list longer than the addon takes.
-ELFCORE_COUNCIL_KEY, ELFCORE_COUNCIL_OUT and ELFCORE_COUNCIL_JSON give other paths for the key,
+BANKAIGUILD_COUNCIL_KEY, BANKAIGUILD_COUNCIL_OUT and BANKAIGUILD_COUNCIL_JSON give other paths for the key,
 the lists and the council (the tests use a throwaway key in a temporary folder).
 """
 import datetime, hashlib, json, os, re, secrets, sys, time
 
-KEY = os.environ.get("ELFCORE_COUNCIL_KEY") or os.path.expanduser("~/.elfcore/council-key.json")
-OUT = os.environ.get("ELFCORE_COUNCIL_OUT") or os.path.join("dist", "CouncilList.lua")
-COUNCIL = os.environ.get("ELFCORE_COUNCIL_JSON") or os.path.expanduser("~/.elfcore/council.json")
+KEY = os.environ.get("BANKAIGUILD_COUNCIL_KEY") or os.path.expanduser("~/.bankaiguild/council-key.json")
+OUT = os.environ.get("BANKAIGUILD_COUNCIL_OUT") or os.path.join("dist", "CouncilList.lua")
+COUNCIL = os.environ.get("BANKAIGUILD_COUNCIL_JSON") or os.path.expanduser("~/.bankaiguild/council.json")
 REALM = "ClassicBetaPvP+ClassicBetaPvP2"
 PREFIX = bytes.fromhex("3031300d060960864801650304020105000420")
 BASE, BITS = 1 << 24, 2048
@@ -829,8 +829,8 @@ if __name__ == "__main__":
         signed = guild(sys.argv[2:]); names, titles = signed[:2]
         print(COUNCIL, "updated;", OUT, "written:", names[:-SIG_LEN - 1])
         print("and:", titles[:-SIG_LEN - 1])
-        # Whole, for the first member of an approved guild to paste in game (/elf approved paste).
-        print("to paste in game with /elf approved paste:")
+        # Whole, for the first member of an approved guild to paste in game (/bk approved paste).
+        print("to paste in game with /bk approved paste:")
         print(titles)
     elif len(sys.argv) >= 3 and sys.argv[1] == "arbiter":
         signed = arbiter(sys.argv[2:]); names, titles = signed[:2]

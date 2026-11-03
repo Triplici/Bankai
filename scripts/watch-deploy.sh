@@ -3,7 +3,7 @@
 # scripts/deploy.sh (from that commit) whenever the branch moves. Then /reload in game.
 # Your working copy is not touched: each push is unpacked into a temp folder.
 #   WOW_HOST=user@192.168.0.10 scripts/watch-deploy.sh [branch]
-# Deploys to every WoW folder (_classic_era_, _anniversary_...) that already has Elfcore,
+# Deploys to every WoW folder (_classic_era_, _anniversary_...) that already has Bankai Guild,
 # or only to WOW_FLAVOR if set. Same optional WOW_DIR as deploy.sh; WATCH_INTERVAL in
 # seconds. Ctrl+C stops it.
 set -uo pipefail
@@ -16,10 +16,10 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 last=""
 
-# The WoW folders that have Elfcore installed (WOW_FLAVOR alone if set; empty = deploy.sh's default).
+# The WoW folders that have Bankai Guild installed (WOW_FLAVOR alone if set; empty = deploy.sh's default).
 flavors() {
 	if [ -n "${WOW_FLAVOR:-}" ]; then echo "$WOW_FLAVOR"; return; fi
-	ssh "$WOW_HOST" "powershell -NoProfile -Command \"Get-ChildItem -Directory -Path '$WOW_DIR/*/Interface/AddOns/Elfcore' -ErrorAction SilentlyContinue | ForEach-Object { \$_.Parent.Parent.Parent.Name }\"" | tr -d '\r'
+	ssh "$WOW_HOST" "powershell -NoProfile -Command \"Get-ChildItem -Directory -Path '$WOW_DIR/*/Interface/AddOns/BankaiGuild' -ErrorAction SilentlyContinue | ForEach-Object { \$_.Parent.Parent.Parent.Name }\"" | tr -d '\r'
 }
 
 deploy() {
@@ -44,16 +44,16 @@ while true; do
 		sha=$(git rev-parse FETCH_HEAD)
 		if [ "$sha" != "$last" ]; then
 			rm -rf "$WORK/tree" && mkdir -p "$WORK/tree"
-			# (1.2: the Elfcore Arena module folder too, on a branch that has it; 1.3.3: and the site
+			# (1.2: the Bankai Guild Arena module folder too, on a branch that has it; 1.3.3: and the site
 			# export's, which scripts/deploy.sh requires there.)
-			paths="Elfcore scripts"
-			git cat-file -e "$sha:Elfcore_Arena" 2>/dev/null && paths="$paths Elfcore_Arena"
-			git cat-file -e "$sha:ElfcoreSiteAggregate" 2>/dev/null && paths="$paths ElfcoreSiteAggregate"
+			paths="BankaiGuild scripts"
+			git cat-file -e "$sha:BankaiGuild_Arena" 2>/dev/null && paths="$paths BankaiGuild_Arena"
+			git cat-file -e "$sha:BankaiGuildSiteAggregate" 2>/dev/null && paths="$paths BankaiGuildSiteAggregate"
 			git archive "$sha" $paths | tar -xf - -C "$WORK/tree"
 			if deploy; then
 				last=$sha
 				echo "$(date +%H:%M:%S) deployed $(git log -1 --format='%h %s' "$sha") to ${DEPLOYED//$'\n'/ }  -> /reload in game"
-				osascript -e "display notification \"/reload in game\" with title \"Elfcore ${sha:0:7} deployed\"" 2>/dev/null || true
+				osascript -e "display notification \"/reload in game\" with title \"Bankai Guild ${sha:0:7} deployed\"" 2>/dev/null || true
 			else
 				echo "$(date +%H:%M:%S) deploy of ${sha:0:7} failed, trying again in ${INTERVAL}s"
 			fi

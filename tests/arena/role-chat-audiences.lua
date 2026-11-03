@@ -5,7 +5,7 @@ local test, eq = H.test, H.eq
 local function WithRoles(fn)
 	local oldGuild, oldTime = GetGuildInfo, GetTime
 	local popups = {}; for key, value in pairs(StaticPopupDialogs) do popups[key] = value end
-	local own, foreign = "Elfcore II", "Elfcore III"
+	local own, foreign = "Bankai Guild II", "Bankai Guild III"
 	local w = { time = 1000, ranks = {}, lists = {}, council = {}, titles = {}, jobs = {}, role = nil, fresh = true, census = {} }
 	local c = setmetatable({ L = H.ns.L, me = "Sage Owl-Realm", db = { chatRooms = true },
 		rdb = { guilds = {}, council = { names = {} } }, CAPTAIN_RANK = 1 }, { __index = H.ns })
@@ -65,7 +65,7 @@ local function WithRoles(fn)
 		c.rdb.guilds[guild] = { leader = head, officers = {} }
 	end
 	local ok, err = pcall(function()
-		assert(loadfile(H.ADDON_DIR .. "ChatRooms.lua"))("Elfcore", c)
+		assert(loadfile(H.ADDON_DIR .. "ChatRooms.lua"))("BankaiGuild", c)
 		fn(c.ChatRooms, c, w, Rank, List, own, foreign)
 	end)
 	GetGuildInfo, GetTime = oldGuild, oldTime
@@ -93,7 +93,7 @@ test("Role audiences: real nomination messages require the current master and ex
 		Rank("Sage Owl", own, 3); Rank("Head Owl", own, 0); Rank("Head Wren", foreign, 0)
 		c.rdb.guilds[foreign] = { leader = "Head Wren", officers = {} }
 		c.Data.KnownRank = function(name, guild) return c.Data.AuthorizedRank(name, guild), 2 end
-		assert(loadfile(H.ADDON_DIR .. "Nominees.lua"))("Elfcore", c)
+		assert(loadfile(H.ADDON_DIR .. "Nominees.lua"))("BankaiGuild", c)
 		local N = c.Nominees
 		local packet = "NM~1~" .. foreign .. "~1000~1~1~d=Department of War=Wren Thistle-Realm"
 		N.Handle("CHANNEL", "Ordinary Wren-Realm", packet)
@@ -125,7 +125,7 @@ test("Role audiences: department correspondents and heads follow current verifie
 		w.titles["Council Owl-Realm"] = { dept = "Department of War" }
 		eq(R.CanAccess("dept:war", "Council Owl"), true)
 		eq(R.CanAccess("dept:church", "Sage Owl"), false)
-		w.lists[own].entries[1].dept = "The Missionary Church of Elfcore"
+		w.lists[own].entries[1].dept = "The Missionary Church of Bankai Guild"
 		eq(R.CanAccess("dept:church"), true); eq(R.CanAccess("dept:war"), false)
 		w.lists[own].entries[1].dept = "Federal Treasury"
 		eq(R.CanAccess("dept:treasury"), true)

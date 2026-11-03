@@ -1,4 +1,4 @@
-# Elfcore 1.2.2
+# Bankai Guild 1.2.2
 
 A correction release: mostly fixes for the stutter and the problems the last updates brought, plus a round of security work. It contains everything in 1.2.1 (published on CurseForge on 8 October). Games stay free: no bets, gold stakes, paid Lottery tickets or entry-fee pots.
 
@@ -9,13 +9,13 @@ A correction release: mostly fixes for the stutter and the problems the last upd
 - The world map is no longer redrawn while it is closed. It is drawn once when you open it.
 - The Chat tab redraws less often and with less work: a message bubble that has not changed is moved, not laid out again.
 - Once-a-minute background jobs now start at different moments, so they no longer all run on the same frame.
-- **New: `/elf perf`.** Use `/elf perf on` to measure what Elfcore costs your game and `/elf perf` to open a report you can copy and send. `/elf perf off` stops it and `/elf perf reset` clears it. While off, it costs nothing.
+- **New: `/bk perf`.** Use `/bk perf on` to measure what Bankai Guild costs your game and `/bk perf` to open a report you can copy and send. `/bk perf off` stops it and `/bk perf reset` clears it. While off, it costs nothing.
 
 ## Fixes
 
-- Removing a member from the guild is no longer refused with "Interface action failed because of an AddOn" while an Elfcore question is open. With mouse and keyboard, while a game guild window is open, Elfcore asks its questions in its own windows. It also no longer adds lines to the game's guild roster right-click menu.
+- Removing a member from the guild is no longer refused with "Interface action failed because of an AddOn" while an Bankai Guild question is open. With mouse and keyboard, while a game guild window is open, Bankai Guild asks its questions in its own windows. It also no longer adds lines to the game's guild roster right-click menu.
 - The privacy page no longer opens by itself every session.
-- Bones: the innkeeper window no longer opens at every inn visit. After invitations from two players, Elfcore asks once whether to stop invitations. A die you picked stays lit while the table is busy.
+- Bones: the innkeeper window no longer opens at every inn visit. After invitations from two players, Bankai Guild asks once whether to stop invitations. A die you picked stays lit while the table is busy.
 - The King's letter about a new frame shows once per honour on each character, in a proper window, and never to the King about himself.
 - Church counts no longer drop when a keeper's ledger fills up, and all of a busy Apostle's invitations now reach the ledger.
 - A guild master who is online is no longer shown as away because of an old report.
@@ -26,17 +26,17 @@ A correction release: mostly fixes for the stutter and the problems the last upd
 ## Security
 
 - Only the author, the King and the High Council can send **Ask to update**. Asks from anyone else are ignored.
-- Layer hops: **Always invite**, **For Elfcore!** and auto-accept now act only for your own guild roster, the King, his Steward and Hands, and signed Lords and Captains. They no longer act for a census rank or a guild a player only claims. Officers of other guilds can still be invited with a click.
+- Layer hops: **Always invite**, **For Bankai Guild!** and auto-accept now act only for your own guild roster, the King, his Steward and Hands, and signed Lords and Captains. They no longer act for a census rank or a guild a player only claims. Officers of other guilds can still be invited with a click.
 - Signed leadership lists are only accepted once every part is in and verified, and only while they are valid. Old or expired lists can no longer lock a client out.
-- `/elf status` and `/elf bug` no longer show your sealed channel's name, and a key typed with `/elf key` never appears in errors, the log or a report.
+- `/bk status` and `/bk bug` no longer show your sealed channel's name, and a key typed with `/bk key` never appears in errors, the log or a report.
 - The crafting fee desk now books a fee mail only when the seller's own word or the desk's check names that fee, so a made-up buyer cannot claim it.
 - Text copied for Discord carries no formatting or pings from other players' words.
 
 ## New in this update
 
-- Clicking **[Elfcore]**, **[Captains]** or **[Lords]** in game chat opens the chat box for that channel, just like **[Party]**.
-- **Report to Elfcore**: right-click another player's line in the Chat tab, or their name on it, to report any line from the last day. Your report also reaches the King and the High Council.
-- **Toggle Elfcore** in the game's Key Bindings (under AddOns) lets you choose your own key. The built-in shortcut is now Shift + your guild key (Shift-J by default), used only while that key is free.
+- Clicking **[Bankai Guild]**, **[Captains]** or **[Lords]** in game chat opens the chat box for that channel, just like **[Party]**.
+- **Report to Bankai Guild**: right-click another player's line in the Chat tab, or their name on it, to report any line from the last day. Your report also reaches the King and the High Council.
+- **Toggle Bankai Guild** in the game's Key Bindings (under AddOns) lets you choose your own key. The built-in shortcut is now Shift + your guild key (Shift-J by default), used only while that key is free.
 - The Skyborn race room is open to both factions.
 
 ## Already in 1.2.1

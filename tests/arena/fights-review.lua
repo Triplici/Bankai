@@ -308,7 +308,7 @@ test("free duel qualification: native local completion and both reports retain g
 	local w, cast = W3.New({ world = { compliance = "shipped" } })
 	cast.A.target, cast.B.target = cast.B.name, cast.A.name
 	cast.A.level, cast.B.level = 40, 47
-	cast.B.guild = "Elfcore Other"
+	cast.B.guild = "Bankai Guild Other"
 	local oid = Agreed(w, cast, { bo = 1 })
 	-- (1.2.3: a round needs its known length, at least 15 s, for points: bug 8's limits.)
 	Fought(w, cast)
@@ -320,7 +320,7 @@ test("free duel qualification: native local completion and both reports retain g
 	local qa, qb = Fights(w, cast.A).Qualification(), Fights(w, cast.B).Qualification()
 	eq(#qa, 1); eq(#qb, 1)
 	eq(qa[1].fid, oid); eq(qa[1].levelA, 40); eq(qa[1].levelB, 47)
-	eq(qa[1].guildB, "Elfcore Other"); eq(qa[1].A, cast.A.ns.Arena.GK(cast.A.guid))
+	eq(qa[1].guildB, "Bankai Guild Other"); eq(qa[1].A, cast.A.ns.Arena.GK(cast.A.guid))
 	eq(qa[1].w, "A"); eq(qb[1].mine, "B")
 	eq(qa.pointsTenths, 17); eq(qa.points, 1.7); eq(qb.pointsTenths, 0, "losing earns no qualifying points")
 	local ownStore = w:As(cast.A, cast.A.ns.Arena.Store, "L")
@@ -397,7 +397,7 @@ test("free duel qualification: retained evidence cap folds points and replay bou
 	local q = Fights(w, cast.A).Qualification()
 	eq(#q, 1); eq(q.pointsTenths, 26); eq(q.wins, 2)
 	w:As(cast.A, function()
-		assert(loadfile(H.ADDON_DIR .. "ArenaFights.lua"))("Elfcore", cast.A.ns)
+		assert(loadfile(H.ADDON_DIR .. "ArenaFights.lua"))("BankaiGuild", cast.A.ns)
 	end)
 	q = Fights(w, cast.A).Qualification()
 	eq(#q, 1); eq(q.pointsTenths, 26); eq(q.wins, 2)
@@ -1047,7 +1047,7 @@ test("1.2 the fights part review: under the gamepad UI the King's letter never o
 	eq(letter == nil or not letter:IsShown(), true, "not by itself")
 	eq(Printed(A, A.ns.L.HONOR_LETTER_WAITING), true)
 	eq(#A.ns.HonorsNet.QueuedLetters(), 1)
-	-- (1.2.4: his profile is "My profile" in the Elfcore window, stood in here: W3.PageUI.)
+	-- (1.2.4: his profile is "My profile" in the Bankai Guild window, stood in here: W3.PageUI.)
 	W3.PageUI(w, A)
 	eq(w:As(A, A.ns.ProfileEdit.Open), true)
 	letter = A.ns.HonorsNet.LetterFrame()
@@ -1094,10 +1094,10 @@ test("1.2 the fights part review: the weigh-in's guild text goes through King.Cl
 	local sp = cast.spectator
 	w:As(sp, function()
 		sp.ns.Arena.Inject("CHANNEL", cast.arbiter.name, "AG~L1~" .. table.concat({ fid, "A", sp.ns.Arena.GK(cast.A.guid), "WA", "1", "2", "60", "A",
-			"Not Elfcore Evil Guild Name Here", "3", "5000", sp.ns.Arena.B36(w.clock), "-" }, "~"))
+			"Not Bankai Guild Evil Guild Name Here", "3", "5000", sp.ns.Arena.B36(w.clock), "-" }, "~"))
 	end)
 	local f = sp.ns.ArenaFights.Find("fights", fid)
-	eq(f.facts.A ~= nil, true); eq(f.facts.A.guild, nil, "not an Elfcore guild's name")
+	eq(f.facts.A ~= nil, true); eq(f.facts.A.guild, nil, "not an Bankai Guild guild's name")
 	W3.NoErrors(w)
 end)
 
@@ -1125,7 +1125,7 @@ test("1.2 the fights part review: the longest names and fields keep every single
 	msgs.AR = "AR~L1~" .. table.concat({ fid, "9", "9:9", "A", "K", A.B36(86400), A.B36(20), "A", "1", A.B36(w.clock), "disputed" }, "~")
 	-- (A staked direct fight's AW carries the loser's Ed25519 signature: 86 characters of base64url.)
 	msgs.AW = "AW~L1~" .. table.concat({ fid, "9", "K", long, long2, A.B36(w.clock), A.B36(86400000), string.rep("x", 86) }, "~")
-	msgs.AG = "AG~L1~" .. table.concat({ fid, "A", gk, "WL", "10", "3", "60", "H", "Elfcore Knights Of Blood", "9", "999999", A.B36(w.clock), "abcdefghij" }, "~")
+	msgs.AG = "AG~L1~" .. table.concat({ fid, "A", gk, "WL", "10", "3", "60", "H", "Bankai Guild Knights Of Blood", "9", "999999", A.B36(w.clock), "abcdefghij" }, "~")
 	msgs.AC = "AC~L1~" .. table.concat({ fid, "H", "9", A.B36(2000000), A.B36(2000000), A.B36(99999999), gk }, "~")
 	msgs.ASY = "AS~L1~" .. table.concat({ fid, "Y", "0", "notnow" }, "~")
 	msgs.ASQ = "AS~L1~" .. table.concat({ fid, "Q", long, long2, A.B36(21474836), "5" }, "~")
@@ -1161,9 +1161,9 @@ end)
 
 test("1.2 the fights part review: the honours' art keeps its provenance in the repository: media/honors/src/SHA256SUMS names every shipped file and the lab file it is (the Paladin's gold is paladin-new.tga); sampled files hash to it (the whole set: scripts/make-honors.py --check)", function()
 	local ns = {}
-	assert(loadfile(H.ADDON_DIR .. "Honors.lua"))("Elfcore", ns)
+	assert(loadfile(H.ADDON_DIR .. "Honors.lua"))("BankaiGuild", ns)
 	ns.Honors.FRAMES_SHIPPED = nil -- (every family's frame: the machinery's tests; 1.2.0 wears the donors' alone)
-	assert(loadfile(H.ADDON_DIR .. "Sign.lua"))("Elfcore", ns)
+	assert(loadfile(H.ADDON_DIR .. "Sign.lua"))("BankaiGuild", ns)
 	local f = assert(io.open(H.ROOT .. "media/honors/src/SHA256SUMS", "rb"), "the manifest")
 	local sums, n = {}, 0
 	for line in f:lines() do
@@ -1367,7 +1367,7 @@ test("1.2 the fights part review: the arbiter's own line overrules only a fighte
 	W3.NoErrors(w)
 end)
 
-test("1.2 the fights part review: under the gamepad UI a waiting letter opens with the Elfcore window even when the window was made after the letter came (on its first open, whatever its template)", function()
+test("1.2 the fights part review: under the gamepad UI a waiting letter opens with the Bankai Guild window even when the window was made after the letter came (on its first open, whatever its template)", function()
 	-- HonorsNet: the window's open shows the letter waiting for the player's click.
 	local w, cast = W3.New()
 	local A = cast.A
@@ -1388,9 +1388,9 @@ test("1.2 the fights part review: under the gamepad UI a waiting letter opens wi
 		uns.On = function() end
 		local shown = 0
 		uns.HonorsNet = { WindowShown = function() shown = shown + 1 end }
-		assert(loadfile(H.ADDON_DIR .. "UI.lua"))("Elfcore", uns)
+		assert(loadfile(H.ADDON_DIR .. "UI.lua"))("BankaiGuild", uns)
 		H.WithStub("UI", uns.UI, function()
-			eq(rawget(_G, "ElfcoreFrame") or rawget(_G, "ElfcoreFrameBasic"), nil, "no window yet")
+			eq(rawget(_G, "BankaiGuildFrame") or rawget(_G, "BankaiGuildFrameBasic"), nil, "no window yet")
 			uns.UI.Toggle()
 			eq(shown, 1, "the first open")
 			uns.UI.Toggle()

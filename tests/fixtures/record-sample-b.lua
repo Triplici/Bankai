@@ -1,15 +1,15 @@
 
-ElfcoreDB = {
+BankaiGuildDB = {
 	["log"] = {
 		"10-20 13:59:01 ---- session 3, v1.2.5.1 \"sample\" ----", -- [1]
 	},
 	["sessions"] = 3,
 }
 
-ElfcoreRecordDB = {
+BankaiGuildRecordDB = {
 	["events"] = 2,
 	["eventsDay"] = 20746,
-	["format"] = "elfcore-record",
+	["format"] = "bankaiguild-record",
 	["on"] = {
 		["Witness Second-ClassicBetaPvP"] = 1792505100,
 	},
@@ -21,8 +21,8 @@ ElfcoreRecordDB = {
 			["head"] = "d50c51179f068b5bffa0a396a70f33f037f941e6659c4eb0771cbc20cfb8dbf0",
 			["id"] = "Player-0000-0000000B:1792505100",
 			["lines"] = {
-				"S|1|1792505100|Witness Second-ClassicBetaPvP|Player-0000-0000000B|Elfcore Example|2|Captain|Alliance|ClassicBetaPvP|ClassicBetaPvP|1.2.5.1|||16001|1.60.1.70450|enUS", -- [1]
-				"E|1792505100|1792505098|Elfcore Third|420|96|12|Sample Herald-ClassicBetaPvP", -- [2]
+				"S|1|1792505100|Witness Second-ClassicBetaPvP|Player-0000-0000000B|Bankai Guild Example|2|Captain|Alliance|ClassicBetaPvP|ClassicBetaPvP|1.2.5.1|||16001|1.60.1.70450|enUS", -- [1]
+				"E|1792505100|1792505098|Bankai Guild Third|420|96|12|Sample Herald-ClassicBetaPvP", -- [2]
 				"M|1|Leader Example-ClassicBetaPvP|Player-0000-00000001|WARRIOR|60", -- [3]
 				"M|2|Witness Example-ClassicBetaPvP|Player-0000-0000000A|PALADIN|42", -- [4]
 				"M|3|Member Alpha-ClassicBetaPvP|Player-0000-00000002|MAGE|25", -- [5]
@@ -31,8 +31,8 @@ ElfcoreRecordDB = {
 				"M|6|Member Delta-ClassicBetaPvP2|Player-0000-00000005|HUNTER|59", -- [8]
 				"M|7|Witness Second-ClassicBetaPvP|Player-0000-0000000B|DRUID|50", -- [9]
 				"M|8|Member Foxtrot-ClassicBetaPvP|Player-0000-00000007|PALADIN|1", -- [10]
-				"C|Q|1792505700|1792505702|Elfcore Example|8|7|8|7|ff|f7|", -- [11]
-				"E|1792505760|1792505758|Elfcore Second|955|330|12|Sample Reporter-ClassicBetaPvP2", -- [12]
+				"C|Q|1792505700|1792505702|Bankai Guild Example|8|7|8|7|ff|f7|", -- [11]
+				"E|1792505760|1792505758|Bankai Guild Second|955|330|12|Sample Reporter-ClassicBetaPvP2", -- [12]
 				"Z|1792506000|logout|0", -- [13]
 			},
 			["marks"] = {

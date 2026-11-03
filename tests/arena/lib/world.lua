@@ -5,7 +5,7 @@
 --
 --   local World = H.World
 --   local w = World.New{ paced = false }             -- paced: Comm's 1.2 s and 60-item queue
---   local a = w:Client("Lida Fenn", { realm = "Emberfall", guild = "Elfcore Ember" })
+--   local a = w:Client("Lida Fenn", { realm = "Emberfall", guild = "Bankai Guild Ember" })
 --   a.Arena.Send(...)            -- a module's functions run as that client (w:As swaps its globals)
 --   w:Run(30)                    -- the clock moves: timers fire, queued messages go out
 --   w:Sent{ from = a, type = "AF", dist = "CHANNEL" }, w:ChannelText()
@@ -18,9 +18,9 @@ World.__index = World
 
 World.REALMS = { "Emberfall", "Emberfall2" }
 World.GROUP = "Emberfall+Emberfall2"
-World.GUILD = "Elfcore Ember"          -- an Elfcore guild (ns.IsFederation)
-World.KING_GUILD = "Elfcore"           -- the Alliance King's guild (ns.KING_GUILD.Alliance)
-World.KING_GUILD_HORDE = "Elfcore Horde" -- the Horde King's, in this world
+World.GUILD = "Bankai Guild Ember"          -- an Bankai Guild guild (ns.IsFederation)
+World.KING_GUILD = "Bankai Guild"           -- the Alliance King's guild (ns.KING_GUILD.Alliance)
+World.KING_GUILD_HORDE = "Bankai Guild Horde" -- the Horde King's, in this world
 World.CLOCK = 1790000000
 -- The cast (the design's invented names where it has them).
 World.NAMES = {
@@ -36,11 +36,11 @@ World.NAMES = {
 -- councillors, the Steward and the arena's signed arbiters above.
 World.COUNCIL = assert(loadfile(H.ROOT .. "tests/fixtures/arena-council.lua"))()
 
--- The core's files, as Elfcore.toc lists them, from ArenaMath.lua on; and every file of ours a
+-- The core's files, as BankaiGuild.toc lists them, from ArenaMath.lua on; and every file of ours a
 -- stack may name, for the weight rule's count.
 local function TocFiles()
 	local out, arena = {}, false
-	for line in io.lines(H.ADDON_DIR .. "Elfcore.toc") do
+	for line in io.lines(H.ADDON_DIR .. "BankaiGuild.toc") do
 		local file = line:match("^([%w_]+)%.lua%s*$")
 		if file == "ArenaMath" then arena = true end
 		if arena and file then out[#out + 1] = file end
@@ -52,10 +52,10 @@ local ARENA_SOURCE = {}
 for _, f in ipairs(World.ARENA_FILES) do ARENA_SOURCE[f] = true end
 local function FromArena()
 	local tb = debug.traceback("", 2)
-	for file in tb:gmatch("Elfcore[/\\]([%w_]+)%.lua") do
+	for file in tb:gmatch("BankaiGuild[/\\]([%w_]+)%.lua") do
 		if ARENA_SOURCE[file] then return true end
 	end
-	return tb:find("Elfcore_Arena[/\\]") ~= nil
+	return tb:find("BankaiGuild_Arena[/\\]") ~= nil
 end
 World.FromArena = FromArena
 
@@ -158,19 +158,19 @@ function World:As(c, fn, ...)
 	if ownPopups then rawset(_G, "StaticPopupDialogs", ownPopups) end
 	if ownSlashes then rawset(_G, "SlashCmdList", ownSlashes) end
 	-- The companion's saved variables are a global the client's own code writes: set, then taken back.
-	local savedDB, startDB = rawget(_G, "ElfcoreArenaDB"), g.ElfcoreArenaDB
+	local savedDB, startDB = rawget(_G, "BankaiGuildArenaDB"), g.BankaiGuildArenaDB
 	for k, v in pairs(g) do rawset(_G, k, v) end
-	rawset(_G, "ElfcoreArenaDB", startDB)
+	rawset(_G, "BankaiGuildArenaDB", startDB)
 	local was = self.current
 	self.current = c
 	local res = { pcall(fn, ...) }
-	local nowDB = rawget(_G, "ElfcoreArenaDB")
-	if nowDB ~= startDB then g.ElfcoreArenaDB = nowDB end
+	local nowDB = rawget(_G, "BankaiGuildArenaDB")
+	if nowDB ~= startDB then g.BankaiGuildArenaDB = nowDB end
 	if ownPopups then c.popups = rawget(_G, "StaticPopupDialogs") end
 	if ownSlashes then c.slashes = rawget(_G, "SlashCmdList") end
 	self.current = was
-	for k in pairs(g) do if k ~= "ElfcoreArenaDB" then rawset(_G, k, saved[k]) end end
-	rawset(_G, "ElfcoreArenaDB", savedDB)
+	for k in pairs(g) do if k ~= "BankaiGuildArenaDB" then rawset(_G, k, saved[k]) end end
+	rawset(_G, "BankaiGuildArenaDB", savedDB)
 	rawset(_G, "StaticPopupDialogs", savedPopups)
 	rawset(_G, "SlashCmdList", savedSlashes)
 	if not res[1] then error(res[2], 0) end
@@ -504,8 +504,8 @@ end
 ---------------------------------------------------------------------------
 
 -- What loading Core.lua and Channels.lua writes to the game's tables: put back after each client.
-local SAVED_GLOBALS = { "SLASH_ELFCORE1", "SLASH_ELFCORE2", "SLASH_ELFCOREARENA1", "SLASH_ELFCOREALL1", "SLASH_ELFCORECAPTAINS1",
-	"SLASH_ELFCORELORDS1", "ElfcoreDB" }
+local SAVED_GLOBALS = { "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARENA1", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1",
+	"SLASH_BANKAIGUILDLORDS1", "BankaiGuildDB" }
 local function Short(name) return (name:gsub("%-.*$", "")) end
 
 local function Globals(w, c)
@@ -566,10 +566,10 @@ local function Globals(w, c)
 	}
 	g.C_AddOns = {
 		LoadAddOn = function(name) return w:LoadAddOn(c, name) end,
-		IsAddOnLoaded = function(name) return name == "Elfcore" or (name == "Elfcore_Arena" and c.companion.loaded == true) end,
+		IsAddOnLoaded = function(name) return name == "BankaiGuild" or (name == "BankaiGuild_Arena" and c.companion.loaded == true) end,
 		GetAddOnMetadata = function(name, field)
 			if field ~= "Version" then return nil end
-			if name == "Elfcore_Arena" then return c.companion.version or World.CompanionVersion() end
+			if name == "BankaiGuild_Arena" then return c.companion.version or World.CompanionVersion() end
 			return c.ns and c.ns.VERSION
 		end,
 	}
@@ -580,8 +580,8 @@ local function Globals(w, c)
 	end
 	g.GetMoney = function() return c.money end
 	g.GetAddOnMemoryUsage = function(name)
-		if name == "Elfcore" then return 2048 end
-		if name == "Elfcore_Arena" then return c.companion.loaded and 512 or 0 end
+		if name == "BankaiGuild" then return 2048 end
+		if name == "BankaiGuild_Arena" then return c.companion.loaded and 512 or 0 end
 		return 0
 	end
 	g.UpdateAddOnMemoryUsage = function() c.memoryUpdates = (c.memoryUpdates or 0) + 1 end
@@ -595,7 +595,7 @@ local function Globals(w, c)
 		for i = 1, select("#", ...) do parts[i] = tostring((select(i, ...))) end
 		c.printed[#c.printed + 1] = table.concat(parts, " ")
 	end
-	g.ElfcoreArenaDB = nil
+	g.BankaiGuildArenaDB = nil
 	g.ERR_TRADE_COMPLETE = "Trade complete."
 	g.ERR_CHAT_PLAYER_NOT_FOUND_S = "No player named '%s' is currently playing."
 	-- Trade and mail (w:Trade, w:Mail): what this client's windows show now.
@@ -640,7 +640,7 @@ function World:UnitClient(c, unit)
 end
 
 function World.CompanionVersion()
-	for line in io.lines(H.ROOT .. "Elfcore_Arena/Elfcore_Arena.toc") do
+	for line in io.lines(H.ROOT .. "BankaiGuild_Arena/BankaiGuild_Arena.toc") do
 		local v = line:match("^## Version:%s*(%S+)")
 		if v then return v end
 	end
@@ -650,18 +650,18 @@ end
 -- ADDON_LOADED. c.companion.state: "ok", "missing", "disabled", "interface", "dep".
 local STATES = { missing = "MISSING", disabled = "DISABLED", interface = "INTERFACE_VERSION", dep = "DEP_DISABLED" }
 function World:LoadAddOn(c, name)
-	if name ~= "Elfcore_Arena" then return false, "MISSING" end
+	if name ~= "BankaiGuild_Arena" then return false, "MISSING" end
 	local state = c.companion.state or "ok"
 	if STATES[state] then return false, STATES[state] end
 	if c.companion.loaded then return true end
 	c.companion.loaded = true
 	c.companion.own = H.LoadCompanion(nil, { keepHandoff = true, version = c.companion.version, without = c.companion.without })
-	c.globals.ElfcoreArenaDB = c.saved and c.saved.heavy or nil
-	rawset(_G, "ElfcoreArenaDB", c.globals.ElfcoreArenaDB)
-	self:Fire(c, "ADDON_LOADED", "Elfcore_Arena")
+	c.globals.BankaiGuildArenaDB = c.saved and c.saved.heavy or nil
+	rawset(_G, "BankaiGuildArenaDB", c.globals.BankaiGuildArenaDB)
+	self:Fire(c, "ADDON_LOADED", "BankaiGuild_Arena")
 	return true
 end
--- The companion loaded some other way than Elfcore's (another addon's LoadAddOn, "load always"):
+-- The companion loaded some other way than Bankai Guild's (another addon's LoadAddOn, "load always"):
 -- no handoff, so it does nothing.
 function World:PreloadCompanion(c)
 	c = Of(self, c)
@@ -669,7 +669,7 @@ function World:PreloadCompanion(c)
 		c.companion.loaded = true
 		c.companion.own = H.LoadCompanion(false)
 	end)
-	self:Fire(c, "ADDON_LOADED", "Elfcore_Arena")
+	self:Fire(c, "ADDON_LOADED", "BankaiGuild_Arena")
 end
 
 -- A WoW event on that client's handlers (ns.RegisterEvent).
@@ -716,8 +716,8 @@ local function Load(w, c)
 		-- (1.1.5: the gamepad gate, the client's own, loaded first as the TOC has it, so Core.lua's
 		-- and the modules' hooks are never the harness's; its one event a no-op here.)
 		cns.RegisterEvent = function() end
-		assert(loadfile(H.ADDON_DIR .. "Gamepad.lua"))("Elfcore", cns)
-		assert(loadfile(H.ADDON_DIR .. "Core.lua"))("Elfcore", cns)
+		assert(loadfile(H.ADDON_DIR .. "Gamepad.lua"))("BankaiGuild", cns)
+		assert(loadfile(H.ADDON_DIR .. "Core.lua"))("BankaiGuild", cns)
 		cns.Now = function() return w.clock end
 		cns.RegisterEvent = function(event, fn)
 			c.events[event] = c.events[event] or {}
@@ -745,11 +745,11 @@ local function Load(w, c)
 		cns.AUTHOR, cns.AUTHOR_REALM = Short(World.NAMES.author), World.REALMS[1]
 		cns.TEST_BUILD = c.testBuild
 		cns.Comm = FakeComm(w, c)
-		for _, f in ipairs(World.OWN) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("Elfcore", cns) end
-		for _, f in ipairs(World.MODULES) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("Elfcore", cns) end
-		for _, f in ipairs(World.LOCALES) do assert(loadfile(H.ADDON_DIR .. "Locales/" .. f .. ".lua"))("Elfcore", cns) end
+		for _, f in ipairs(World.OWN) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("BankaiGuild", cns) end
+		for _, f in ipairs(World.MODULES) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("BankaiGuild", cns) end
+		for _, f in ipairs(World.LOCALES) do assert(loadfile(H.ADDON_DIR .. "Locales/" .. f .. ".lua"))("BankaiGuild", cns) end
 		-- (opts.arenaFiles: another list of the core's arena files, a package profile's TOC.)
-		for _, f in ipairs(w.arenaFiles or World.ARENA_FILES) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("Elfcore", cns) end
+		for _, f in ipairs(w.arenaFiles or World.ARENA_FILES) do assert(loadfile(H.ADDON_DIR .. f .. ".lua"))("BankaiGuild", cns) end
 		-- (Every family's honour frame in the machinery's worlds; a shipped-release world wears the donors' alone.)
 		if (c.compliance or w.compliance) ~= "shipped" and type(rawget(cns, "Honors")) == "table" then cns.Honors.FRAMES_SHIPPED = nil end
 		if (c.compliance or w.compliance) ~= "shipped" and type(rawget(cns, "Compliance")) == "table" then
@@ -787,7 +787,7 @@ local function OpenData(c)
 	db.links = db.links or {}
 	for _, r in ipairs(World.REALMS) do db.links[r] = World.GROUP end
 	db.addonChat, db.rollCall = true, true
-	-- (1.2.5.1: each account accepted the Elfcore Accord, as every account using Elfcore does; the
+	-- (1.2.5.1: each account accepted the Bankai Guild Accord, as every account using Bankai Guild does; the
 	-- Accord's own tests, tests/accord.lua, start without it. No fp and no BNGetInfo here.)
 	db.accord = db.accord or { v = 1, yes = true, at = 0 }
 	db.realms = db.realms or {}
@@ -856,7 +856,7 @@ function World:Login(c)
 	c.companion.loaded, c.companion.own = nil, nil
 	c.comm = nil
 	OpenData(c)
-	c.globals.ElfcoreArenaDB = nil
+	c.globals.BankaiGuildArenaDB = nil
 	Load(self, c)
 	c.online = true
 	if self.council and c.council ~= false then self:TakeCouncil(c) end
@@ -871,7 +871,7 @@ end
 function World:Logout(c)
 	c = Of(self, c)
 	self:Fire(c, "PLAYER_LOGOUT")
-	c.saved = c.persists and { db = Copy(c.db), heavy = Copy(c.globals.ElfcoreArenaDB) } or nil
+	c.saved = c.persists and { db = Copy(c.db), heavy = Copy(c.globals.BankaiGuildArenaDB) } or nil
 	c.online = false
 	c.comm.queue, c.comm.chatq = {}, {}
 	c.groupId = nil

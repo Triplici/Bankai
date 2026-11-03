@@ -2,7 +2,7 @@
 # Full static/aux checks; only complete mapped Arena modules may be omitted.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-for affected_filter in ELFCORE_TEST_FILTER ELFCORE_TEST_AUTHORITY_ONLY ELFCORE_TEST_WATCH_ONLY ELFCORE_TEST_ARENA_MODULES; do
+for affected_filter in BANKAIGUILD_TEST_FILTER BANKAIGUILD_TEST_AUTHORITY_ONLY BANKAIGUILD_TEST_WATCH_ONLY BANKAIGUILD_TEST_ARENA_MODULES; do
 	if [ -n "${!affected_filter:-}" ]; then
 		printf 'Refusing inherited selector %s: affected checks must retain shared setup.\n' "$affected_filter" >&2
 		exit 2
@@ -38,11 +38,11 @@ while IFS=$'\t' read -r affected_key affected_value; do
 done <<< "$affected_plan"
 if [ "$affected_mode" = AFFECTED ]; then
 	# Without the module-aware harness integration, running FULL is safer than pretending to focus.
-	if ! rg -q 'ELFCORE_TEST_ARENA_MODULES' tests/run.lua; then
+	if ! rg -q 'BANKAIGUILD_TEST_ARENA_MODULES' tests/run.lua; then
 		printf 'Module-aware harness unavailable; falling back FULL.\n'
 	else
 		[ -n "$affected_modules" ] || { printf 'Empty module selection.\n' >&2; exit 2; }
-		export ELFCORE_TEST_ARENA_MODULES="$affected_modules"
+		export BANKAIGUILD_TEST_ARENA_MODULES="$affected_modules"
 		printf 'Affected Arena modules selected; complete main harness, gamepad and auxiliary checks retained.\n'
 	fi
 elif [ "$affected_mode" != FULL ]; then

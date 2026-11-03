@@ -1,7 +1,7 @@
 local H = ...
 local ns = {}
-assert(loadfile(H.ADDON_DIR .. "Sign.lua"))("Elfcore", ns)
-assert(loadfile(H.ADDON_DIR .. "ArenaFarkle.lua"))("Elfcore", ns)
+assert(loadfile(H.ADDON_DIR .. "Sign.lua"))("BankaiGuild", ns)
+assert(loadfile(H.ADDON_DIR .. "ArenaFarkle.lua"))("BankaiGuild", ns)
 local R, eq, test = ns.FarkleRules, H.eq, H.test
 local function Game(rule)
 	return assert(R.New({ target = 2000, first = 1, hiccup = true, hiccupRule = rule }))

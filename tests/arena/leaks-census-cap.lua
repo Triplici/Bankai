@@ -19,12 +19,12 @@ test("1.2.1 leaks: the census keeps MAX_GUILDS reports at most: made-up guilds l
 			ns.rdb.guilds = {
 				[mine] = { total = 100, online = 10, zones = {}, t = clock - 3600, mine = true },
 				-- The King's guild, its reporters quiet for an hour: older than every made-up one.
-				Elfcore = { total = 900, online = 90, zones = {}, t = clock - 3600 },
+				BankaiGuild = { total = 900, online = 90, zones = {}, t = clock - 3600 },
 			}
 			local function Report(guild, sender)
 				return D.Receive({ guild = guild, faction = ns.faction, total = 20, online = 2, zones = {}, leader = ns.ShortName(sender), officers = {} }, sender)
 			end
-			eq(Report("Elfcore Steady", "Steadyvoice-Realm"), true, "a real guild's report")
+			eq(Report("Bankai Guild Steady", "Steadyvoice-Realm"), true, "a real guild's report")
 			-- (1.2.1's MAX_GUILDS, 300, and its count of the reports let go, read with a fallback: the
 			-- same flood shows a store without a cap.)
 			local cap = D.MAX_GUILDS or 300
@@ -32,22 +32,22 @@ test("1.2.1 leaks: the census keeps MAX_GUILDS reports at most: made-up guilds l
 			local flood = cap + 50
 			for k = 1, flood do
 				clock = clock + 1
-				eq(Report("Elfcore Phantom " .. k, "Phantomcaller" .. k .. "-Realm"), true, "each made-up guild is a report like any other")
+				eq(Report("Bankai Guild Phantom " .. k, "Phantomcaller" .. k .. "-Realm"), true, "each made-up guild is a report like any other")
 				-- The real guild's reporter speaks every few minutes, as ours do.
-				if k % 40 == 0 then Report("Elfcore Steady", "Steadyvoice-Realm") end
+				if k % 40 == 0 then Report("Bankai Guild Steady", "Steadyvoice-Realm") end
 			end
 			eq(Count(ns.rdb.guilds), cap, "never more than MAX_GUILDS")
 			assert(ns.rdb.guilds[mine] and ns.rdb.guilds[mine].mine, "ours stays")
-			assert(ns.rdb.guilds.Elfcore, "the King's guild stays")
-			assert(ns.rdb.guilds["Elfcore Steady"], "a guild still reporting stays")
-			eq(ns.rdb.guilds["Elfcore Phantom 1"], nil, "the oldest made-up one went")
-			assert(ns.rdb.guilds["Elfcore Phantom " .. flood], "the newest is in")
-			eq(D.Trimmed() - before, flood + 3 - cap, "each one let go is counted (/elf status)")
+			assert(ns.rdb.guilds.BankaiGuild, "the King's guild stays")
+			assert(ns.rdb.guilds["Bankai Guild Steady"], "a guild still reporting stays")
+			eq(ns.rdb.guilds["Bankai Guild Phantom 1"], nil, "the oldest made-up one went")
+			assert(ns.rdb.guilds["Bankai Guild Phantom " .. flood], "the newest is in")
+			eq(D.Trimmed() - before, flood + 3 - cap, "each one let go is counted (/bk status)")
 			assert(ns.StatusText():find(("cached guilds=%d (at most %d,"):format(cap, cap), 1, true), "and shown")
 			-- A guild already kept reporting again takes no room.
 			local n = Count(ns.rdb.guilds)
 			clock = clock + 1
-			eq(Report("Elfcore Steady", "Steadyvoice-Realm"), true)
+			eq(Report("Bankai Guild Steady", "Steadyvoice-Realm"), true)
 			eq(Count(ns.rdb.guilds), n); eq(D.Trimmed() - before, flood + 3 - cap, "nothing let go for it")
 		end)
 	end)
@@ -60,15 +60,15 @@ test("1.2.1 leaks: a census store an older version saved past MAX_GUILDS is cut 
 	-- as an older version left them.
 	local inits = {}
 	local now = ns.Now()
-	local guilds = { ["Elfcore Home"] = { total = 5, online = 1, zones = {}, t = now - 6 * 86400, mine = true } }
-	for k = 1, 420 do guilds["Elfcore Saved " .. k] = { total = 5, online = 1, zones = {}, t = now - 86400 + k } end
+	local guilds = { ["Bankai Guild Home"] = { total = 5, online = 1, zones = {}, t = now - 6 * 86400, mine = true } }
+	for k = 1, 420 do guilds["Bankai Guild Saved " .. k] = { total = 5, online = 1, zones = {}, t = now - 86400 + k } end
 	local dns = setmetatable({ rdb = { guilds = guilds, seen = {} }, Who = { Listen = function() end },
 		On = function(name, fn) if name == "INIT" then inits[#inits + 1] = fn end end }, { __index = ns })
-	assert(loadfile(H.ADDON_DIR .. "Data.lua"))("Elfcore", dns)
+	assert(loadfile(H.ADDON_DIR .. "Data.lua"))("BankaiGuild", dns)
 	for _, fn in ipairs(inits) do fn() end
 	eq(Count(dns.rdb.guilds), dns.Data.MAX_GUILDS)
-	assert(dns.rdb.guilds["Elfcore Home"], "ours, the oldest, stays")
-	eq(dns.rdb.guilds["Elfcore Saved 1"], nil, "the oldest other went")
-	assert(dns.rdb.guilds["Elfcore Saved 420"], "the newest stays")
+	assert(dns.rdb.guilds["Bankai Guild Home"], "ours, the oldest, stays")
+	eq(dns.rdb.guilds["Bankai Guild Saved 1"], nil, "the oldest other went")
+	assert(dns.rdb.guilds["Bankai Guild Saved 420"], "the newest stays")
 	eq(dns.Data.Trimmed(), 421 - dns.Data.MAX_GUILDS)
 end)

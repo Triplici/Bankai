@@ -10,9 +10,9 @@ local function WithTransport(fn)
 	local saved, g = {}, {}
 	for _, key in ipairs(fields) do saved[key] = ns[key] end
 	for _, key in ipairs(globals) do g[key] = _G[key] end
-	local w = { clock = 1800000000, mono = 1000, guild = "Elfcore", rank = 1, sent = {}, timers = {}, errors = {} }
+	local w = { clock = 1800000000, mono = 1000, guild = "Bankai Guild", rank = 1, sent = {}, timers = {}, errors = {} }
 	local ok, err = pcall(function()
-		-- (1.2.5.1: an account that accepted the Elfcore Accord, as every Elfcore account has: without
+		-- (1.2.5.1: an account that accepted the Bankai Guild Accord, as every Bankai Guild account has: without
 		-- it nothing is sent at all, ns.IsMember, and these transfers are about consent, not the Accord.)
 		ns.db, ns.rdb = { accord = { v = 1, yes = true, at = 0 } }, { treasuryEpoch = ns.Treasury.EPOCH }
 		ns.me, ns.splitNames = TREASURER, true
@@ -20,7 +20,7 @@ local function WithTransport(fn)
 		GetTime = function() return w.mono end
 		GetServerTime = function() return w.clock end
 		GetGuildInfo = function() return w.guild, "Officer", w.rank end
-		GetChannelName = function() return 5, "ElfcoreNet" end
+		GetChannelName = function() return 5, "BankaiGuildNet" end
 		JoinChannelByName = function() end
 		ns.Fire, ns.Print, ns.Log, ns.RegisterEvent, ns.On, ns.Every = function() end, function() end, function() end, function() end, function() end, function() end
 		ns.After = function(delay, _, run) w.timers[#w.timers + 1] = { at = w.mono + delay, run = run } end
@@ -28,7 +28,7 @@ local function WithTransport(fn)
 			w.sent[#w.sent + 1] = { msg = msg, dist = dist, to = to, at = w.mono }
 			return not w.fail
 		end }
-		assert(loadfile(ROOT .. "Elfcore/Comm.lua"))("Elfcore", ns)
+		assert(loadfile(ROOT .. "BankaiGuild/Comm.lua"))("BankaiGuild", ns)
 		ns.Treasury.Reset(); ns.Dues.Reset(); ns.Bank.Reset()
 		ns.db.keeperShares = { [TREASURER:lower()] = true }
 		ns.Comm.JoinChannel()
@@ -95,11 +95,11 @@ end)
 
 test("privacy: sister bank withdrawal cancels its independent transfer lifetime", function()
 	WithTransport(function(w, T, _, B)
-		w.guild = "Elfcore II"
+		w.guild = "Bankai Guild II"
 		ns.me = "Sister Officer-Realm"
 		ns.Comm.CheckMembership()
 		B.SetSisterConsent(true)
-		assert(T.Private(KING, "TS", "TS~Elfcore II~" .. string.rep("private", 100)))
+		assert(T.Private(KING, "TS", "TS~Bankai Guild II~" .. string.rep("private", 100)))
 		w.step(2) -- the guild transition's Q1 uses the first slot
 		eq(w.count("TW~TS~"), 1, "a bank fragment is already in flight")
 		B.SetSisterConsent(false)
@@ -112,7 +112,7 @@ end)
 test("privacy: guild changes invalidate waiting private snapshots", function()
 	WithTransport(function(w, T)
 		assert(T.Private(KING, "TB", "TB~" .. string.rep("private", 100)))
-		w.guild = "Elfcore II"
+		w.guild = "Bankai Guild II"
 		w.step(100)
 		eq(w.count("TW~"), 0)
 		eq(T.PrivateState().sentTo[KING], nil)
@@ -149,9 +149,9 @@ test("privacy: withdrawing treasury consent drops both dues queues", function()
 		book.opening, book.lines, book.sums = 0, {}, nil
 		for i = 1, 60 do
 			local name = "Private Donor" .. string.char(65 + math.floor(i / 26), 65 + i % 26)
-			book.lines[i] = { name = name, money = 10000, t = w.clock, wk = D.Week(), guild = "Elfcore II", gv = true }
+			book.lines[i] = { name = name, money = 10000, t = w.clock, wk = D.Week(), guild = "Bankai Guild II", gv = true }
 		end
-		D.HandleAsk("WHISPER", KING, "FQ~" .. D.Week() .. "~Elfcore II~0")
+		D.HandleAsk("WHISPER", KING, "FQ~" .. D.Week() .. "~Bankai Guild II~0")
 		assert(#D.Outbox() > 0, "remaining answer pieces in the dues outbox")
 		assert(ns.Comm.QueueSize() > 0, "first answer piece already in Comm")
 		T.SetConsent(false)
@@ -167,7 +167,7 @@ test("privacy: recipient permission is checked when a dues answer actually sends
 		local allowed = true
 		ns.Roster.RankOf = function() return allowed and 1 or 3 end
 		local ok, err = pcall(function()
-			D.HandleAsk("WHISPER", "Captain-Realm", "FQ~" .. D.Week() .. "~Elfcore~0")
+			D.HandleAsk("WHISPER", "Captain-Realm", "FQ~" .. D.Week() .. "~Bankai Guild~0")
 			assert(ns.Comm.QueueSize() > 0)
 			allowed = false
 			w.step(5)
@@ -198,7 +198,7 @@ end)
 test("privacy: long early-supporter lists retain every TE piece across bounded batches", function()
 	WithTransport(function(w, T)
 		local pieces = {}
-		for i = 1, 65 do pieces[i] = ("TE~Elfcore~1799990000~%d~65~Early Friend"):format(i) end
+		for i = 1, 65 do pieces[i] = ("TE~Bankai Guild~1799990000~%d~65~Early Friend"):format(i) end
 		local msg = table.concat(pieces, "\n")
 		assert(T.Private(KING, "TE", msg, "TE", pieces))
 		w.step(30)
@@ -217,7 +217,7 @@ end)
 
 test("privacy: sharing again restores an unchanged book that withdrawal removed", function()
 	WithTransport(function(w, T)
-		T.HandleAsk("CHANNEL", KING, "TA~Elfcore~0")
+		T.HandleAsk("CHANNEL", KING, "TA~Bankai Guild~0")
 		w.step(20)
 		local before = w.count("TW~TB~")
 		assert(before > 0, "the first shared book completed")

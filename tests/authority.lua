@@ -82,14 +82,14 @@ local ns, test, eq, extra = ...
 
 	test("authority: old HT1 absence preserves the documented census behaviour", function()
 		WithState(function()
-			Census("Elfcore Zeus", "Legacy-Realm", 0)
+			Census("Bankai Guild Zeus", "Legacy-Realm", 0)
 			Install("Department^INV_Sword_04^Someone=Title;^steward^Alliance^Steward-Realm;^guilds^Alliance^Test Guild;^arbiter^Alliance^Judge-Realm+a")
 			eq(A.Enforced(), false)
-			eq(D.AuthorizedRank("Legacy-Realm", "Elfcore Zeus"), 0)
-			eq(select(2, D.AuthorizedRank("Legacy-Realm", "Elfcore Zeus")), "census")
+			eq(D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus"), 0)
+			eq(select(2, D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus")), "census")
 			-- Every older extension parser continues to see its own entry with leaders beside it.
 			local mixed = "^steward^Alliance^Steward-Realm;^guilds^Alliance^Test Guild;^arbiter^Alliance^Judge-Realm+a;" ..
-				Entry("Elfcore Zeus=Signed-Realm")
+				Entry("Bankai Guild Zeus=Signed-Realm")
 			eq(ns.ReadStewards(mixed).Alliance[1], "Steward-Realm")
 			eq(ns.ReadApprovedGuilds(mixed).Alliance[1], "Test Guild")
 			eq(ns.ReadArbiters(mixed).Alliance[1].name, "Judge-Realm")
@@ -103,40 +103,40 @@ local ns, test, eq, extra = ...
 
 	test("authority: exact signed leadership grants ranks; faction, realm and expiry fail closed", function()
 		WithState(function()
-			Install(Entry("Elfcore Zeus=Zed-Realm,Cap-Other!Elfcore Ares=Ares-Realm", 7))
+			Install(Entry("Bankai Guild Zeus=Zed-Realm,Cap-Other!Bankai Guild Ares=Ares-Realm", 7))
 			eq(A.Enforced(), true)
-			eq(A.Rank("Zed-Realm", "ELFCORE ZEUS"), 0)
-			eq(A.Rank("Cap-Other", "Elfcore Zeus"), 1)
-			eq(A.Rank("Cap-Realm", "Elfcore Zeus"), nil, "a namesake on another realm")
-			eq(A.Rank("Zed-Other", "Elfcore Zeus"), nil)
-			eq(A.Rank("Zed-Realm", "Elfcore Ares"), nil, "a signed identity belongs to one guild")
+			eq(A.Rank("Zed-Realm", "Bankai Guild ZEUS"), 0)
+			eq(A.Rank("Cap-Other", "Bankai Guild Zeus"), 1)
+			eq(A.Rank("Cap-Realm", "Bankai Guild Zeus"), nil, "a namesake on another realm")
+			eq(A.Rank("Zed-Other", "Bankai Guild Zeus"), nil)
+			eq(A.Rank("Zed-Realm", "Bankai Guild Ares"), nil, "a signed identity belongs to one guild")
 			ns.faction = "Horde"
 			eq(A.Enforced(), false, "the other faction was not activated")
-			eq(A.Rank("Zed-Realm", "Elfcore Zeus"), nil)
+			eq(A.Rank("Zed-Realm", "Bankai Guild Zeus"), nil)
 			ns.faction = "Alliance"
 			ns.Now = function() return T0 + 1001 end
-			eq(A.Enforced(), true); eq(A.Rank("Zed-Realm", "Elfcore Zeus"), nil, "expired fails closed")
+			eq(A.Enforced(), true); eq(A.Rank("Zed-Realm", "Bankai Guild Zeus"), nil, "expired fails closed")
 			ns.Now = function() return T0 - A.CLOCK_SKEW - 11 end
-			eq(A.Rank("Zed-Realm", "Elfcore Zeus"), nil, "not valid yet")
+			eq(A.Rank("Zed-Realm", "Bankai Guild Zeus"), nil, "not valid yet")
 		end)
 	end)
 
 	test("authority: malformed, duplicate and oversized enforce manifests activate but grant nobody", function()
 		local bad = {
-			Entry("Elfcore Zeus=Zed-Realm,Zed-Realm"),
-			Entry("Elfcore Zeus=Zed-Realm!elfcore zeus=Cap-Realm"),
-			Entry("Elfcore Zeus=Zed-Realm!Elfcore Ares=Zed-Realm"),
-			Entry("Elfcore Zeus=Zed-Elsewhere"),
-			Entry("Elfcore Zeus=Zed-Realm", 1, T0, T0 + A.MAX_LIFETIME + 1),
-			Entry("Elfcore Zeus=Zed-Realm") .. ";" .. Entry("Elfcore Ares=Ares-Realm"),
-			"^leaders^Alliance^enforce^x^" .. T0 .. "^" .. (T0 + 10) .. "^Elfcore Zeus=Zed-Realm",
+			Entry("Bankai Guild Zeus=Zed-Realm,Zed-Realm"),
+			Entry("Bankai Guild Zeus=Zed-Realm!bankaiguild zeus=Cap-Realm"),
+			Entry("Bankai Guild Zeus=Zed-Realm!Bankai Guild Ares=Zed-Realm"),
+			Entry("Bankai Guild Zeus=Zed-Elsewhere"),
+			Entry("Bankai Guild Zeus=Zed-Realm", 1, T0, T0 + A.MAX_LIFETIME + 1),
+			Entry("Bankai Guild Zeus=Zed-Realm") .. ";" .. Entry("Bankai Guild Ares=Ares-Realm"),
+			"^leaders^Alliance^enforce^x^" .. T0 .. "^" .. (T0 + 10) .. "^Bankai Guild Zeus=Zed-Realm",
 		}
 		for i, list in ipairs(bad) do
 			WithState(function()
-				Census("Elfcore Zeus", "Zed-Realm", 0)
+				Census("Bankai Guild Zeus", "Zed-Realm", 0)
 				Install(list, T0 + i)
 				eq(A.Enforced(), true, "explicit marker case " .. i)
-				eq(D.AuthorizedRank("Zed-Realm", "Elfcore Zeus"), nil, "malformed case " .. i)
+				eq(D.AuthorizedRank("Zed-Realm", "Bankai Guild Zeus"), nil, "malformed case " .. i)
 			end)
 		end
 		WithState(function()
@@ -148,7 +148,7 @@ local ns, test, eq, extra = ...
 			end
 			for i = 1, A.MAX_GUILDS + 1 do
 				local suffix = Letters(i)
-				items[i] = "Elfcore " .. suffix .. "=P" .. suffix .. "-Realm"
+				items[i] = "Bankai Guild " .. suffix .. "=P" .. suffix .. "-Realm"
 			end
 			local parsed, why = A.Read(Entry(table.concat(items, "!")), "Realm")
 			eq(parsed, nil); eq(why, "guild-limit")
@@ -156,7 +156,7 @@ local ns, test, eq, extra = ...
 		WithState(function()
 			local names = {}
 			for i = 1, A.MAX_PEOPLE + 1 do names[i] = "P" .. string.char(64 + i) .. "-Realm" end
-			local parsed, why = A.Read(Entry("Elfcore Zeus=" .. table.concat(names, ",")), "Realm")
+			local parsed, why = A.Read(Entry("Bankai Guild Zeus=" .. table.concat(names, ",")), "Realm")
 			eq(parsed, nil); eq(why, "player-limit")
 		end)
 		WithState(function()
@@ -168,47 +168,47 @@ local ns, test, eq, extra = ...
 
 	test("authority: activation is sticky across absence, tombstone, expiry, epoch rollback and replay", function()
 		WithState(function()
-			Census("Elfcore Zeus", "Forger-Realm", 0)
-			eq(D.AuthorizedRank("Forger-Realm", "Elfcore Zeus"), 0, "legacy before activation")
-			Install(Entry("Elfcore Zeus=Real Lord-Realm,Real Captain-Other", 4), T0)
-			eq(D.AuthorizedRank("Forger-Realm", "Elfcore Zeus"), nil, "census loses authority on activation")
-			eq(D.AuthorizedRank("Real Lord-Realm", "Elfcore Zeus"), 0)
-			eq(D.AuthorizedRank("Real Captain-Other", "Elfcore Zeus"), 1)
-			local forgedLevel, forgedVerified = ns.Channels.VerifiedLevel("Forger-Realm", "Elfcore Zeus")
+			Census("Bankai Guild Zeus", "Forger-Realm", 0)
+			eq(D.AuthorizedRank("Forger-Realm", "Bankai Guild Zeus"), 0, "legacy before activation")
+			Install(Entry("Bankai Guild Zeus=Real Lord-Realm,Real Captain-Other", 4), T0)
+			eq(D.AuthorizedRank("Forger-Realm", "Bankai Guild Zeus"), nil, "census loses authority on activation")
+			eq(D.AuthorizedRank("Real Lord-Realm", "Bankai Guild Zeus"), 0)
+			eq(D.AuthorizedRank("Real Captain-Other", "Bankai Guild Zeus"), 1)
+			local forgedLevel, forgedVerified = ns.Channels.VerifiedLevel("Forger-Realm", "Bankai Guild Zeus")
 			eq(forgedLevel, 1); eq(forgedVerified, false, "a forged Lord cannot write privileged chat")
-			local signedLevel, signedVerified = ns.Channels.VerifiedLevel("Real Lord-Realm", "Elfcore Zeus")
+			local signedLevel, signedVerified = ns.Channels.VerifiedLevel("Real Lord-Realm", "Bankai Guild Zeus")
 			eq(signedLevel, 3); eq(signedVerified, true, "the signed Lord can write it")
-			eq(ns.Bank.LordOrCaptain("Forger-Realm", "Elfcore Zeus"), false, "nor issue a bank request")
-			eq(ns.Bank.LordOrCaptain("Real Captain-Other", "Elfcore Zeus"), true)
-			eq(ns.King.Verified("Forger-Realm", "Elfcore Zeus"), false, "nor write names onto the King's page")
-			eq(ns.King.Verified("Real Captain-Other", "Elfcore Zeus"), true)
+			eq(ns.Bank.LordOrCaptain("Forger-Realm", "Bankai Guild Zeus"), false, "nor issue a bank request")
+			eq(ns.Bank.LordOrCaptain("Real Captain-Other", "Bankai Guild Zeus"), true)
+			eq(ns.King.Verified("Forger-Realm", "Bankai Guild Zeus"), false, "nor write names onto the King's page")
+			eq(ns.King.Verified("Real Captain-Other", "Bankai Guild Zeus"), true)
 			eq(ns.Hop.Trusted("Forger-Realm"), false, "nor auto-accept a layer invite")
 			-- (1.2.3: another guild's signed Captain no more either: the King's guild's alone.)
 			eq(ns.Hop.Trusted("Real Captain-Other"), false)
-			Install(Entry("Elfcore Zeus=Rollback-Realm", 3), T0 + 1)
-			eq(D.AuthorizedRank("Rollback-Realm", "Elfcore Zeus"), nil, "lower epoch")
-			Install(Entry("Elfcore Zeus=Next-Realm", 5), T0 + 2)
-			eq(D.AuthorizedRank("Next-Realm", "Elfcore Zeus"), 0, "higher epoch")
-			Install(Entry("Elfcore Zeus=Replay-Realm", 5), T0 + 1)
-			eq(D.AuthorizedRank("Replay-Realm", "Elfcore Zeus"), nil, "older HT replay")
+			Install(Entry("Bankai Guild Zeus=Rollback-Realm", 3), T0 + 1)
+			eq(D.AuthorizedRank("Rollback-Realm", "Bankai Guild Zeus"), nil, "lower epoch")
+			Install(Entry("Bankai Guild Zeus=Next-Realm", 5), T0 + 2)
+			eq(D.AuthorizedRank("Next-Realm", "Bankai Guild Zeus"), 0, "higher epoch")
+			Install(Entry("Bankai Guild Zeus=Replay-Realm", 5), T0 + 1)
+			eq(D.AuthorizedRank("Replay-Realm", "Bankai Guild Zeus"), nil, "older HT replay")
 			Install(Entry("-", 5), T0 + 3)
-			eq(A.Enforced(), true); eq(D.AuthorizedRank("Next-Realm", "Elfcore Zeus"), nil, "empty tombstone")
+			eq(A.Enforced(), true); eq(D.AuthorizedRank("Next-Realm", "Bankai Guild Zeus"), nil, "empty tombstone")
 			Install("^^", T0 + 4)
-			eq(A.Enforced(), true); eq(D.AuthorizedRank("Forger-Realm", "Elfcore Zeus"), nil, "newer absence cannot reopen")
+			eq(A.Enforced(), true); eq(D.AuthorizedRank("Forger-Realm", "Bankai Guild Zeus"), nil, "newer absence cannot reopen")
 		end)
 	end)
 
 	-- (1.2.3, Daniel: a guild master has nothing at the level of the whole army.) Under signed
 	-- enforcement Hop.Trusted vouched for any guild's signed Lord or Captain on every client: his
-	-- invite accepted for the player, "Always invite" and "For Elfcore!" inviting him without a
+	-- invite accepted for the player, "Always invite" and "For Bankai Guild!" inviting him without a
 	-- click. Now only the King's guild's signed Lord and Captains, beside our roster, the King, his
 	-- Steward and his Hands.
 	test("authority: under enforcement layer-hop trust is the King's guild's signed Lord and Captains', never another guild's (1.2.3)", function()
 		WithState(function()
-			Install(Entry("Elfcore Zeus=Zeus Lord-Realm,Zeus Captain-Other!Elfcore=Crown Lord-Realm,Crown Captain-Other", 4), T0)
+			Install(Entry("Bankai Guild Zeus=Zeus Lord-Realm,Zeus Captain-Other!Bankai Guild=Crown Lord-Realm,Crown Captain-Other", 4), T0)
 			eq(A.Enforced(), true)
-			eq(D.AuthorizedRank("Zeus Lord-Realm", "Elfcore Zeus"), 0, "signed, as the author's list has him")
-			eq(D.AuthorizedRank("Crown Captain-Other", "Elfcore"), 1)
+			eq(D.AuthorizedRank("Zeus Lord-Realm", "Bankai Guild Zeus"), 0, "signed, as the author's list has him")
+			eq(D.AuthorizedRank("Crown Captain-Other", "Bankai Guild"), 1)
 			eq(ns.Hop.Trusted("Zeus Lord-Realm"), false, "another guild's signed master")
 			eq(ns.Hop.Trusted("Zeus Captain-Other"), false, "another guild's signed Captain")
 			eq(ns.Hop.Trusted("Crown Lord-Realm"), true, "the King's guild's signed master")
@@ -229,7 +229,7 @@ local ns, test, eq, extra = ...
 			local saved = { guild = GetGuildInfo, notice = RaidNotice_AddMessage, frame = RaidWarningFrame, alert = ns.PlayAlert,
 				print = ns.Print, chat = C_ChatInfo }
 			local ok, err = pcall(function()
-				GetGuildInfo = function() return "Elfcore II", "rank", 3 end
+				GetGuildInfo = function() return "Bankai Guild II", "rank", 3 end
 				local warnings = {}
 				RaidWarningFrame = {}
 				RaidNotice_AddMessage = function(_, text) warnings[#warnings + 1] = text end
@@ -238,21 +238,21 @@ local ns, test, eq, extra = ...
 				local cns, Deliver = extra.FreshComm()
 				cns.Now = function() return T0 end
 				cns.Comm.loginAt = T0 - 3600
-				assert(loadfile(ROOT .. "Elfcore/Decree.lua"))("Elfcore", cns)
+				assert(loadfile(ROOT .. "BankaiGuild/Decree.lua"))("BankaiGuild", cns)
 				local function Call(sender, kind, guild)
 					Deliver("CHANNEL", sender, ns.Codec.EncodeDecree(kind, 1453, 0.5, 0.5, guild, 1, "x"))
 				end
-				Install(Entry("Elfcore Zeus=Zeus Lord-Realm,Zeus Captain-Other!Elfcore=Crown Lord-Realm,Crown Captain-Other", 4), T0)
+				Install(Entry("Bankai Guild Zeus=Zeus Lord-Realm,Zeus Captain-Other!Bankai Guild=Crown Lord-Realm,Crown Captain-Other", 4), T0)
 				eq(A.Enforced(), true)
-				Call("Zeus Lord-Realm", "ARMS", "Elfcore Zeus")
-				Call("Zeus Captain-Other", "MUSTER", "Elfcore Zeus")
+				Call("Zeus Lord-Realm", "ARMS", "Bankai Guild Zeus")
+				Call("Zeus Captain-Other", "MUSTER", "Bankai Guild Zeus")
 				eq(#cns.Decree.Active(), 0, "another guild's signed master and Captain: never the whole army's")
-				Call("Crown Captain-Other", "ARMS", "Elfcore")
+				Call("Crown Captain-Other", "ARMS", "Bankai Guild")
 				eq(#cns.Decree.Active(), 1, "the King's guild's signed Captain: the whole army's Call to Arms")
 				eq(cns.Decree.Active()[1].kind, "ARMS"); eq(cns.Decree.Active()[1].scope, nil); eq(#warnings, 1, "its raid warning")
-				Call("Crown Lord-Realm", "MUSTER", "Elfcore")
+				Call("Crown Lord-Realm", "MUSTER", "Bankai Guild")
 				eq(#cns.Decree.Active(), 2, "and its signed master's Muster")
-				Call("Nobody Signed-Realm", "ARMS", "Elfcore")
+				Call("Nobody Signed-Realm", "ARMS", "Bankai Guild")
 				eq(#cns.Decree.Active(), 2, "a name the signed list lacks")
 			end)
 			GetGuildInfo, RaidNotice_AddMessage, RaidWarningFrame = saved.guild, saved.notice, saved.frame
@@ -263,12 +263,12 @@ local ns, test, eq, extra = ...
 
 	test("authority: a malformed replacement keeps its valid epoch as a downgrade floor", function()
 		WithState(function()
-			Install(Entry("Elfcore Zeus=Same-Realm,Same-Realm", 7), T0)
-			eq(A.Enforced(), true); eq(A.Rank("Same-Realm", "Elfcore Zeus"), nil)
-			Install(Entry("Elfcore Zeus=Lower-Realm", 6), T0 + 1)
-			eq(A.Rank("Lower-Realm", "Elfcore Zeus"), nil, "a lower generation cannot recover roles")
-			Install(Entry("Elfcore Zeus=Recovered-Realm", 8), T0 + 2)
-			eq(A.Rank("Recovered-Realm", "Elfcore Zeus"), 0, "a higher generation can repair it")
+			Install(Entry("Bankai Guild Zeus=Same-Realm,Same-Realm", 7), T0)
+			eq(A.Enforced(), true); eq(A.Rank("Same-Realm", "Bankai Guild Zeus"), nil)
+			Install(Entry("Bankai Guild Zeus=Lower-Realm", 6), T0 + 1)
+			eq(A.Rank("Lower-Realm", "Bankai Guild Zeus"), nil, "a lower generation cannot recover roles")
+			Install(Entry("Bankai Guild Zeus=Recovered-Realm", 8), T0 + 2)
+			eq(A.Rank("Recovered-Realm", "Bankai Guild Zeus"), 0, "a higher generation can repair it")
 		end)
 	end)
 
@@ -276,8 +276,8 @@ local ns, test, eq, extra = ...
 		WithState(function()
 			Install(Entry("-", 1))
 			ns.Roster.byName["Local Captain-Realm"] = 1
-			eq(select(2, D.AuthorizedRank("Local Captain-Realm", "Elfcore II")), "roster")
-			eq(select(2, D.AuthorizedRank(ns.KING_CHARACTER.Alliance .. "-Realm", "Elfcore")), "pinned")
+			eq(select(2, D.AuthorizedRank("Local Captain-Realm", "Bankai Guild II")), "roster")
+			eq(select(2, D.AuthorizedRank(ns.KING_CHARACTER.Alliance .. "-Realm", "Bankai Guild")), "pinned")
 		end)
 	end)
 
@@ -291,17 +291,17 @@ local ns, test, eq, extra = ...
 				C_ChatInfo = { SendAddonMessage = function(_, msg) sent[#sent + 1] = msg return true end,
 					SendAddonMessageLogged = function(_, msg) sent[#sent + 1] = msg return true end }
 				GetChannelName = function() return 7 end
-				assert(loadfile("Elfcore/Comm.lua"))("Elfcore", cns)
+				assert(loadfile("BankaiGuild/Comm.lua"))("BankaiGuild", cns)
 				cns.Comm.JoinChannel()
-				Install(Entry("Elfcore Zeus=Remote Lord-Realm", 1), T0)
-				local function Guard() return D.AuthorizedRank("Remote Lord-Realm", "Elfcore Zeus") == 0 end
-				eq(cns.Comm.SendChat("M1~L~Elfcore Zeus~1~~held", function(ok2, why) done[#done + 1] = { ok2, why } end, {}, Guard), true)
+				Install(Entry("Bankai Guild Zeus=Remote Lord-Realm", 1), T0)
+				local function Guard() return D.AuthorizedRank("Remote Lord-Realm", "Bankai Guild Zeus") == 0 end
+				eq(cns.Comm.SendChat("M1~L~Bankai Guild Zeus~1~~held", function(ok2, why) done[#done + 1] = { ok2, why } end, {}, Guard), true)
 				Install(Entry("-", 1), T0 + 1)
 				cns.Comm.Pump()
 				eq(#sent, 0, "revoked bytes never reach Blizzard's send API")
 				eq(done[1][1], false); eq(done[1][2], "invalid")
-				Install(Entry("Elfcore Zeus=Remote Lord-Realm", 2), T0 + 2)
-				eq(cns.Comm.SendChat("M1~L~Elfcore Zeus~2~~current", function(ok2) done[#done + 1] = { ok2 } end, {}, Guard), true)
+				Install(Entry("Bankai Guild Zeus=Remote Lord-Realm", 2), T0 + 2)
+				eq(cns.Comm.SendChat("M1~L~Bankai Guild Zeus~2~~current", function(ok2) done[#done + 1] = { ok2 } end, {}, Guard), true)
 				cns.Comm.Pump()
 				eq(#sent, 1); eq(done[2][1], true, "unchanged authority sends")
 			end)
@@ -313,7 +313,7 @@ local ns, test, eq, extra = ...
 	test("authority: signed multipart bundles activate atomically and reverify after reload", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local parts = Parts({ "Elfcore Zeus=Signed Lord-Realm", "Elfcore Ares=Signed Captain-Other" },
+				local parts = Parts({ "Bankai Guild Zeus=Signed Lord-Realm", "Bankai Guild Ares=Signed Captain-Other" },
 					{ at = T0 + 10, epoch = 7 })
 				local ok, why = A.TakePart(parts[2], nil, "LOCAL")
 				eq(ok, true); eq(why, "partial")
@@ -322,18 +322,18 @@ local ns, test, eq, extra = ...
 				eq(A.Enforced(), false, "one verified part moves no boundary: only the whole verified set does")
 				eq(next(ns.db.authorityEnforced), nil, "nothing account-wide is written for a part")
 				eq(A.Manifest(), nil, "a partial set grants nobody")
-				eq(A.Rank("Signed Captain-Other", "Elfcore Ares"), nil)
+				eq(A.Rank("Signed Captain-Other", "Bankai Guild Ares"), nil)
 				ok, why = A.TakePart(parts[2], nil, "LOCAL")
 				eq(ok, true); eq(why, "partial", "a duplicate does not advance the part count")
 				ok, why = A.TakePart(parts[1], nil, "LOCAL")
 				eq(ok, true); eq(why, "complete")
 				eq(A.Enforced(), true, "the whole verified set establishes the fail-closed boundary")
-				eq(A.Rank("Signed Lord-Realm", "Elfcore Zeus"), 0)
-				eq(A.Rank("Signed Captain-Other", "Elfcore Ares"), 0,
+				eq(A.Rank("Signed Lord-Realm", "Bankai Guild Zeus"), 0)
+				eq(A.Rank("Signed Captain-Other", "Bankai Guild Ares"), 0,
 					"the first identity in each guild is that guild's Lord")
 				assert(ns.rdb.authorityBundles["other+realm|Alliance"], "the complete raw signed set is scoped to the realm group and faction")
 				A.Reset()
-				eq(A.Rank("Signed Lord-Realm", "Elfcore Zeus"), 0, "the stored blobs are reverified after reload")
+				eq(A.Rank("Signed Lord-Realm", "Bankai Guild Zeus"), 0, "the stored blobs are reverified after reload")
 				local verify = ns.Sign.Verify
 				ns.Sign.Verify = function() return false end
 				A.Reset()
@@ -346,42 +346,42 @@ local ns, test, eq, extra = ...
 	test("authority: partial replacement, conflict, replay, bad digest and tombstone all fail closed", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local old = Parts({ "Elfcore Zeus=Old Lord-Realm" }, { at = T0 + 10, epoch = 3 })
+				local old = Parts({ "Bankai Guild Zeus=Old Lord-Realm" }, { at = T0 + 10, epoch = 3 })
 				eq(select(2, A.TakePart(old[1], nil, "LOCAL")), "complete")
-				eq(A.Rank("Old Lord-Realm", "Elfcore Zeus"), 0)
+				eq(A.Rank("Old Lord-Realm", "Bankai Guild Zeus"), 0)
 
-				local replacement = Parts({ "Elfcore Zeus=New Lord-Realm", "Elfcore Ares=New Ares-Other" },
+				local replacement = Parts({ "Bankai Guild Zeus=New Lord-Realm", "Bankai Guild Ares=New Ares-Other" },
 					{ at = T0 + 20, epoch = 4 })
 				eq(select(2, A.TakePart(replacement[2], nil, "LOCAL")), "partial")
 				-- (1.2.1: the first newer part used to revoke the older set at once, by moving the
 				-- account-wide boundary; a part alone no longer moves it, so the older set stands until
 				-- the newer one is whole.)
-				eq(A.Rank("Old Lord-Realm", "Elfcore Zeus"), 0, "a partial newer set moves nothing")
+				eq(A.Rank("Old Lord-Realm", "Bankai Guild Zeus"), 0, "a partial newer set moves nothing")
 				eq(select(2, A.TakePart(replacement[1], nil, "LOCAL")), "complete")
-				eq(A.Rank("New Lord-Realm", "Elfcore Zeus"), 0, "the newer set, once whole")
-				eq(A.Rank("Old Lord-Realm", "Elfcore Zeus"), nil, "revokes the older complete set")
-				local conflict = Parts({ "Elfcore Zeus=Other Lord-Realm" }, { at = T0 + 20, epoch = 4, sig = "b" })
+				eq(A.Rank("New Lord-Realm", "Bankai Guild Zeus"), 0, "the newer set, once whole")
+				eq(A.Rank("Old Lord-Realm", "Bankai Guild Zeus"), nil, "revokes the older complete set")
+				local conflict = Parts({ "Bankai Guild Zeus=Other Lord-Realm" }, { at = T0 + 20, epoch = 4, sig = "b" })
 				local ok, why = A.TakePart(conflict[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "conflict")
-				eq(A.Rank("Other Lord-Realm", "Elfcore Zeus"), nil, "another set of the same time never replaces it")
-				eq(A.Rank("New Lord-Realm", "Elfcore Zeus"), 0)
+				eq(A.Rank("Other Lord-Realm", "Bankai Guild Zeus"), nil, "another set of the same time never replaces it")
+				eq(A.Rank("New Lord-Realm", "Bankai Guild Zeus"), 0)
 
-				local downgrade = Parts({ "Elfcore Zeus=Downgrade-Realm" }, { at = T0 + 30, epoch = 2 })
+				local downgrade = Parts({ "Bankai Guild Zeus=Downgrade-Realm" }, { at = T0 + 30, epoch = 2 })
 				ok, why = A.TakePart(downgrade[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "replay"); eq(A.Manifest(), nil, "a newer time cannot lower the signed generation")
-				local recovered = Parts({ "Elfcore Zeus=Recovered-Realm" }, { at = T0 + 40, epoch = 5 })
+				local recovered = Parts({ "Bankai Guild Zeus=Recovered-Realm" }, { at = T0 + 40, epoch = 5 })
 				eq(select(2, A.TakePart(recovered[1], nil, "LOCAL")), "complete")
-				eq(A.Rank("Recovered-Realm", "Elfcore Zeus"), 0)
+				eq(A.Rank("Recovered-Realm", "Bankai Guild Zeus"), 0)
 				ok, why = A.TakePart(old[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "replay", "an older signed set cannot replay")
 
-				local bad = Parts({ "Elfcore Zeus=Digest One-Realm", "Elfcore Ares=Digest Two-Other" },
+				local bad = Parts({ "Bankai Guild Zeus=Digest One-Realm", "Bankai Guild Ares=Digest Two-Other" },
 					{ at = T0 + 50, epoch = 6, root = string.rep("0", 64) })
 				eq(select(2, A.TakePart(bad[1], nil, "LOCAL")), "partial")
 				ok, why = A.TakePart(bad[2], nil, "LOCAL")
 				eq(ok, false); eq(why, "digest")
-				eq(A.Rank("Digest One-Realm", "Elfcore Zeus"), nil, "individually signed parts with a false root grant nobody")
-				eq(A.Rank("Recovered-Realm", "Elfcore Zeus"), 0, "(1.2.1) nor move the boundary off the set held")
+				eq(A.Rank("Digest One-Realm", "Bankai Guild Zeus"), nil, "individually signed parts with a false root grant nobody")
+				eq(A.Rank("Recovered-Realm", "Bankai Guild Zeus"), 0, "(1.2.1) nor move the boundary off the set held")
 
 				local tombstone = Parts({ "-" }, { at = T0 + 60, epoch = 7 })
 				eq(select(2, A.TakePart(tombstone[1], nil, "LOCAL")), "complete")
@@ -397,7 +397,7 @@ local ns, test, eq, extra = ...
 	test("authority: bundle answers are private and net-off is rechecked at the actual send", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local parts = Parts({ "Elfcore Zeus=Answer Lord-Realm", "Elfcore Ares=Answer Ares-Other" },
+				local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm", "Bankai Guild Ares=Answer Ares-Other" },
 					{ at = T0 + 10, epoch = 2 })
 				eq(select(2, A.TakePart(parts[1], nil, "LOCAL")), "partial")
 				eq(select(2, A.TakePart(parts[2], nil, "LOCAL")), "complete")
@@ -453,12 +453,12 @@ local ns, test, eq, extra = ...
 	test("authority: one sender's parts spend his own share of the signature checks, never the whole lane's", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local function Junk(i) return Parts({ "Elfcore Zeus=Junk" .. i .. "-Realm" }, { at = T0 + i, epoch = 2, unsigned = true })[1] end
+				local function Junk(i) return Parts({ "Bankai Guild Zeus=Junk" .. i .. "-Realm" }, { at = T0 + i, epoch = 2, unsigned = true })[1] end
 				AskOnce() -- (1.2.1: whispered parts count only as answers to our own ask)
 				for i = 1, A.VERIFY_EACH or 4 do eq(select(2, A.HandlePart("WHISPER", "Spammer-Realm", "H2~" .. Junk(i))), "signature") end
 				eq(select(2, A.HandlePart("WHISPER", "Spammer-Realm", "H2~" .. Junk(99))), "budget", "past his share")
 				-- Another sender's part is still checked, and a real holder's set completes.
-				local parts = Parts({ "Elfcore Zeus=Answer Lord-Realm" }, { at = T0 + 10, epoch = 2 })
+				local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm" }, { at = T0 + 10, epoch = 2 })
 				eq(select(2, A.HandlePart("WHISPER", "Holder-Realm", "H2~" .. parts[1])), "complete")
 			end)
 		end)
@@ -481,7 +481,7 @@ local ns, test, eq, extra = ...
 				eq(A.Ask(false), false, "dormant: no ask after the burst")
 				-- Past the boundary (a verified first part), the client keeps asking for the rest.
 				WithFakeSign(function(Parts)
-					local parts = Parts({ "Elfcore Zeus=Answer Lord-Realm", "Elfcore Ares=Answer Ares-Other" }, { at = T0 + 10, epoch = 2 })
+					local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm", "Bankai Guild Ares=Answer Ares-Other" }, { at = T0 + 10, epoch = 2 })
 					eq(select(2, A.TakePart(parts[1], nil, "LOCAL")), "partial")
 				end)
 				-- (1.2.1: a part alone no longer moves the boundary; holding it, the client still asks.)
@@ -500,18 +500,18 @@ local ns, test, eq, extra = ...
 	test("authority: an expired, not yet valid or unfinished signed set never moves the account-wide boundary", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				Census("Elfcore Zeus", "Legacy-Realm", 0)
-				local expired = Parts({ "Elfcore Zeus=Old Lord-Realm" }, { at = T0 + 10, epoch = 3, issued = T0 - 2000, expires = T0 - 1000 })
+				Census("Bankai Guild Zeus", "Legacy-Realm", 0)
+				local expired = Parts({ "Bankai Guild Zeus=Old Lord-Realm" }, { at = T0 + 10, epoch = 3, issued = T0 - 2000, expires = T0 - 1000 })
 				local ok, why = A.TakePart(expired[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "window")
-				local early = Parts({ "Elfcore Zeus=Early Lord-Realm" }, { at = T0 + 11, epoch = 3, issued = T0 + A.CLOCK_SKEW + 100, expires = T0 + 5000 })
+				local early = Parts({ "Bankai Guild Zeus=Early Lord-Realm" }, { at = T0 + 11, epoch = 3, issued = T0 + A.CLOCK_SKEW + 100, expires = T0 + 5000 })
 				ok, why = A.TakePart(early[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "window")
 				eq(A.Enforced(), false, "an expired or future set sets no boundary")
 				eq(next(ns.db.authorityEnforced), nil, "nothing account-wide is written")
-				eq(select(2, D.AuthorizedRank("Legacy-Realm", "Elfcore Zeus")), "census", "the documented census behaviour stays")
+				eq(select(2, D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus")), "census", "the documented census behaviour stays")
 				-- A set whose window ends before its last part comes: never whole, never a boundary.
-				local slow = Parts({ "Elfcore Zeus=Slow Lord-Realm", "Elfcore Ares=Slow Ares-Other" }, { at = T0 + 12, epoch = 3 })
+				local slow = Parts({ "Bankai Guild Zeus=Slow Lord-Realm", "Bankai Guild Ares=Slow Ares-Other" }, { at = T0 + 12, epoch = 3 })
 				eq(select(2, A.TakePart(slow[1], nil, "LOCAL")), "partial")
 				eq(A.Enforced(), false, "a part alone moves nothing")
 				ns.Now = function() return T0 + 1001 end
@@ -520,46 +520,46 @@ local ns, test, eq, extra = ...
 				eq(A.Enforced(), false); eq(next(ns.db.authorityEnforced), nil)
 				-- The same kind of set, whole and current: the boundary, and its roles.
 				ns.Now = function() return T0 end
-				local current = Parts({ "Elfcore Zeus=Current Lord-Realm" }, { at = T0 + 13, epoch = 3 })
+				local current = Parts({ "Bankai Guild Zeus=Current Lord-Realm" }, { at = T0 + 13, epoch = 3 })
 				eq(select(2, A.TakePart(current[1], nil, "LOCAL")), "complete")
-				eq(A.Enforced(), true); eq(A.Rank("Current Lord-Realm", "Elfcore Zeus"), 0)
+				eq(A.Enforced(), true); eq(A.Rank("Current Lord-Realm", "Bankai Guild Zeus"), 0)
 			end)
 		end)
 	end)
 
 	test("authority: an old or expired legacy HT1 marker never moves the account-wide boundary", function()
 		WithState(function()
-			Census("Elfcore Zeus", "Legacy-Realm", 0)
-			Install(Entry("Elfcore Zeus=Zed-Realm", 2, T0 - 2000, T0 - 1000))
+			Census("Bankai Guild Zeus", "Legacy-Realm", 0)
+			Install(Entry("Bankai Guild Zeus=Zed-Realm", 2, T0 - 2000, T0 - 1000))
 			eq(A.Enforced(), false, "an expired marker sets no boundary")
 			eq(next(ns.db.authorityEnforced), nil)
-			eq(D.AuthorizedRank("Legacy-Realm", "Elfcore Zeus"), 0, "census authority as documented")
-			Install(Entry("Elfcore Zeus=Zed-Realm", 2, T0 + A.CLOCK_SKEW + 100, T0 + 5000), T0 + 1)
+			eq(D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus"), 0, "census authority as documented")
+			Install(Entry("Bankai Guild Zeus=Zed-Realm", 2, T0 + A.CLOCK_SKEW + 100, T0 + 5000), T0 + 1)
 			eq(A.Enforced(), false, "nor one not valid yet")
-			Install(Entry("Elfcore Zeus=Zed-Realm", 2), T0 + 2)
+			Install(Entry("Bankai Guild Zeus=Zed-Realm", 2), T0 + 2)
 			eq(A.Enforced(), true, "a current marker still does")
-			eq(D.AuthorizedRank("Zed-Realm", "Elfcore Zeus"), 0)
-			eq(D.AuthorizedRank("Legacy-Realm", "Elfcore Zeus"), nil)
+			eq(D.AuthorizedRank("Zed-Realm", "Bankai Guild Zeus"), 0)
+			eq(D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus"), nil)
 		end)
 	end)
 
 	test("authority: whispered H2 parts count only as answers to this client's own H3 ask", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local parts = Parts({ "Elfcore Zeus=Answer Lord-Realm" }, { at = T0 + 10, epoch = 2 })
+				local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm" }, { at = T0 + 10, epoch = 2 })
 				local ok, why = A.HandlePart("WHISPER", "Stranger-Realm", "H2~" .. parts[1])
 				eq(ok, false); eq(why, "unasked", "nobody asked: an unsolicited whisper is dropped unread")
 				eq(A.Enforced(), false); eq(next(ns.db.authorityEnforced), nil)
 				AskOnce()
-				local horde = Parts({ "Elfcore Zeus=Horde Lord-Realm" }, { at = T0 + 11, epoch = 2, faction = "Horde" })
+				local horde = Parts({ "Bankai Guild Zeus=Horde Lord-Realm" }, { at = T0 + 11, epoch = 2, faction = "Horde" })
 				eq(select(2, A.HandlePart("WHISPER", "Stranger-Realm", "H2~" .. horde[1])), "unasked", "not the faction asked for")
 				eq(select(2, A.HandlePart("WHISPER", "Holder-Realm", "H2~" .. parts[1])), "complete", "an answer to our ask")
-				eq(A.Enforced(), true); eq(A.Rank("Answer Lord-Realm", "Elfcore Zeus"), 0)
+				eq(A.Enforced(), true); eq(A.Rank("Answer Lord-Realm", "Bankai Guild Zeus"), 0)
 				-- The next ask says what we hold: the same set again is no answer to it.
 				AskOnce()
 				eq(select(2, A.HandlePart("WHISPER", "Stranger-Realm", "H2~" .. parts[1])), "unasked", "not newer than the set held")
 				-- Past the window of our last ask: nothing, however new.
-				local newer = Parts({ "Elfcore Zeus=Newer Lord-Realm" }, { at = T0 + 20, epoch = 3 })
+				local newer = Parts({ "Bankai Guild Zeus=Newer Lord-Realm" }, { at = T0 + 20, epoch = 3 })
 				ns.Now = function() return T0 + A.ANSWER_WINDOW + 1 end
 				eq(select(2, A.HandlePart("WHISPER", "Holder-Realm", "H2~" .. newer[1])), "unasked", "too long after our ask")
 				ns.Now = function() return T0 end
@@ -573,7 +573,7 @@ local ns, test, eq, extra = ...
 	test("authority: a holder answers no ask with a set past its window, and stops a transfer when it expires", function()
 		WithState(function()
 			WithFakeSign(function(Parts)
-				local parts = Parts({ "Elfcore Zeus=Answer Lord-Realm", "Elfcore Ares=Answer Ares-Other" },
+				local parts = Parts({ "Bankai Guild Zeus=Answer Lord-Realm", "Bankai Guild Ares=Answer Ares-Other" },
 					{ at = T0 + 10, epoch = 2, expires = T0 + 1000 })
 				eq(select(2, A.TakePart(parts[1], nil, "LOCAL")), "partial")
 				eq(select(2, A.TakePart(parts[2], nil, "LOCAL")), "complete")
@@ -621,32 +621,32 @@ local ns, test, eq, extra = ...
 				assert(FLOOR and FLOOR < T0 - 10, "this file's material is issued after the floor")
 				-- A clock just past the floor: material signed just before it is still inside its window.
 				ns.Now = function() return FLOOR + 100 end
-				local old = Parts({ "Elfcore Zeus=Old Lord-Realm" }, { at = FLOOR - 50, epoch = 9, issued = FLOOR - 200, expires = FLOOR + 1000 })
+				local old = Parts({ "Bankai Guild Zeus=Old Lord-Realm" }, { at = FLOOR - 50, epoch = 9, issued = FLOOR - 200, expires = FLOOR + 1000 })
 				local ok, why = A.TakePart(old[1], nil, "LOCAL")
 				eq(ok, false); eq(why, "window", "issued before the floor")
 				eq(A.Enforced(), false); eq(next(ns.db.authorityEnforced), nil)
-				Install(Entry("Elfcore Zeus=Zed-Realm", 9, FLOOR - 200, FLOOR + 1000), FLOOR - 40)
+				Install(Entry("Bankai Guild Zeus=Zed-Realm", 9, FLOOR - 200, FLOOR + 1000), FLOOR - 40)
 				eq(A.Enforced(), false, "nor an HT1 marker issued before it")
 				eq(next(ns.db.authorityEnforced), nil)
 				-- Material issued after the floor still does, at a lower epoch than the old one.
-				local new = Parts({ "Elfcore Zeus=New Lord-Realm" }, { at = FLOOR + 60, epoch = 1, issued = FLOOR + 50, expires = FLOOR + 5000 })
+				local new = Parts({ "Bankai Guild Zeus=New Lord-Realm" }, { at = FLOOR + 60, epoch = 1, issued = FLOOR + 50, expires = FLOOR + 5000 })
 				eq(select(2, A.TakePart(new[1], nil, "LOCAL")), "complete")
-				eq(A.Enforced(), true); eq(A.Rank("New Lord-Realm", "Elfcore Zeus"), 0)
+				eq(A.Enforced(), true); eq(A.Rank("New Lord-Realm", "Bankai Guild Zeus"), 0)
 			end)
 		end)
 		WithState(function()
 			-- What an older build wrote from old material: no issued time on or after the floor.
-			Census("Elfcore Zeus", "Legacy-Realm", 0)
+			Census("Bankai Guild Zeus", "Legacy-Realm", 0)
 			local stale = { at = T0 - 100, epoch = 9, kind = "HA", root = string.rep("0", 64) }
 			ns.db.authorityEnforced = { ["realm|Alliance"] = stale, ["other|Alliance"] = stale }
 			A.Reset()
 			eq(A.Enforced(), false, "a boundary recorded from older material no longer locks the client")
-			eq(select(2, D.AuthorizedRank("Legacy-Realm", "Elfcore Zeus")), "census", "the documented census behaviour is back")
+			eq(select(2, D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus")), "census", "the documented census behaviour is back")
 			WithFakeSign(function(Parts)
-				local fresh = Parts({ "Elfcore Zeus=Fresh Lord-Realm" }, { at = T0 - 50, epoch = 1 })
+				local fresh = Parts({ "Bankai Guild Zeus=Fresh Lord-Realm" }, { at = T0 - 50, epoch = 1 })
 				eq(select(2, A.TakePart(fresh[1], nil, "LOCAL")), "complete", "a current set is not a replay of it")
-				eq(A.Rank("Fresh Lord-Realm", "Elfcore Zeus"), 0)
-				eq(D.AuthorizedRank("Legacy-Realm", "Elfcore Zeus"), nil)
+				eq(A.Rank("Fresh Lord-Realm", "Bankai Guild Zeus"), 0)
+				eq(D.AuthorizedRank("Legacy-Realm", "Bankai Guild Zeus"), nil)
 			end)
 		end)
 	end)

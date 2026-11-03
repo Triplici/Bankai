@@ -2,7 +2,7 @@ local root, public, signed = arg[1], arg[2], arg[3]
 local f = assert(io.open(public)) local key = f:read("*a") f:close()
 f = assert(io.open(signed)) local seal = f:read("*a"):match("^%s*(.-)%s*$") f:close()
 local ns = {}
-assert(loadfile(root .. "/Elfcore/Sign.lua"))("Elfcore", ns)
+assert(loadfile(root .. "/BankaiGuild/Sign.lua"))("BankaiGuild", ns)
 local text, sig = seal:match("^(.-)~(%x+)$")
 local n, mu, k = key:match("N = (%x+)") , key:match("MU = (%x+)"), tonumber(key:match("K = (%d+)"))
 ns.Sign.WithKey(n, mu, k, function()
@@ -23,7 +23,7 @@ ns.Sign.WithKey(n, mu, k, function()
   ns.On, ns.Every, ns.Fire = function() end, function() return {} end, function() end
   ns.SafeCall = function(_, fn, ...) return fn(...) end
   StaticPopupDialogs, date = {}, os.date
-  assert(loadfile(root .. "/Elfcore/Records.lua"))("Elfcore", ns)
+  assert(loadfile(root .. "/BankaiGuild/Records.lua"))("BankaiGuild", ns)
   local R = ns.Records
   R.Register("b", { Read = function() end, Totals = function() return {} end })
   local store = R.Store("b", true)

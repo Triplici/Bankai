@@ -1,4 +1,4 @@
--- 1.1.6, the Missionary Church of Elfcore: a small world of clients for tests/church*.lua (not a test
+-- 1.1.6, the Missionary Church of Bankai Guild: a small world of clients for tests/church*.lua (not a test
 -- file itself: each Church test file loads it). Every client has its own namespace over the harness's
 -- (setmetatable, as tests/chat-rooms.lua builds its clients), its own saved data, roster, guild log
 -- and WoW globals (World:As swaps them), and loads the real Church files (and ChatRooms.lua) into it.
@@ -10,16 +10,16 @@ local ns, ROOT = ...
 local World = {}
 World.__index = World
 World.EPOCH = 1800000000
-World.GUILD = "Elfcore Ember"
-World.GUILD2 = "Elfcore Vale"
+World.GUILD = "Bankai Guild Ember"
+World.GUILD2 = "Bankai Guild Vale"
 World.AUTHOR = "Quill Scribe-Realm"
 World.KING = "Aldo Crown-Realm"
 World.HEAD = "Corin Ash-Realm"
 World.COUNCILLOR = "Brin Tallow-Realm"
 World.COUNCIL = assert(loadfile(ROOT .. "tests/fixtures/church-council.lua"))()
 -- The Church's words, into the harness's locale table, as the game loads Locales/ChurchText.lua.
-assert(loadfile(ROOT .. "Elfcore/Locales/ChurchText.lua"))("Elfcore", ns)
-assert(loadfile(ROOT .. "Elfcore/Locales/ChurchFullnessText.lua"))("Elfcore", ns)
+assert(loadfile(ROOT .. "BankaiGuild/Locales/ChurchText.lua"))("BankaiGuild", ns)
+assert(loadfile(ROOT .. "BankaiGuild/Locales/ChurchFullnessText.lua"))("BankaiGuild", ns)
 
 local GLOBALS = { "GetGuildInfo", "IsInGuild", "InCombatLockdown", "QueryGuildEventLog", "GetNumGuildEvents", "GetGuildEventInfo",
 	"UnitIsPlayer", "GetTime", "C_ChatInfo", "GetServerTime" }
@@ -137,7 +137,7 @@ function World:Client(name, opts)
 		Hash36 = ns.Comm.Hash36,
 		PeerCount = function() return cl.peers end,
 		ChannelReady = function() return true end,
-		ChannelName = function() return "ElfcoreNet" end,
+		ChannelName = function() return "BankaiGuildNet" end,
 		DeliveredLogged = function() return true end,
 		Cancel = function() end, CancelQueued = function() return 0 end,
 	}
@@ -168,12 +168,12 @@ function World:Client(name, opts)
 		-- (1.2.3: ChatRooms.lua no longer defines a dialog in the game's global table, the race and class
 		-- rooms' request warning gone with them: nothing of the harness's to put back after it.)
 		w:As(cl, function()
-			assert(loadfile(ROOT .. "Elfcore/RankingRules.lua"))("Elfcore", c)
-			assert(loadfile(ROOT .. "Elfcore/ChatRooms.lua"))("Elfcore", c)
-			assert(loadfile(ROOT .. "Elfcore/Church.lua"))("Elfcore", c)
-			assert(loadfile(ROOT .. "Elfcore/ChurchCount.lua"))("Elfcore", c)
-			assert(loadfile(ROOT .. "Elfcore/ChurchFullness.lua"))("Elfcore", c)
-			if opts.view then assert(loadfile(ROOT .. "Elfcore/ChurchView.lua"))("Elfcore", c) end
+			assert(loadfile(ROOT .. "BankaiGuild/RankingRules.lua"))("BankaiGuild", c)
+			assert(loadfile(ROOT .. "BankaiGuild/ChatRooms.lua"))("BankaiGuild", c)
+			assert(loadfile(ROOT .. "BankaiGuild/Church.lua"))("BankaiGuild", c)
+			assert(loadfile(ROOT .. "BankaiGuild/ChurchCount.lua"))("BankaiGuild", c)
+			assert(loadfile(ROOT .. "BankaiGuild/ChurchFullness.lua"))("BankaiGuild", c)
+			if opts.view then assert(loadfile(ROOT .. "BankaiGuild/ChurchView.lua"))("BankaiGuild", c) end
 		end)
 		c.Church.after = function(seconds, _, fn) w:Later(cl, seconds, fn) end
 		c.ChurchCount.after = c.Church.after

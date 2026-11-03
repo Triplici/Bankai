@@ -3,7 +3,7 @@
 -- different players within ten minutes one question asks whether to stop them; the privacy page's
 -- "Bones invitations" line (on until the player says No) refuses them quietly when off, with a
 -- reason the inviter sees. The innkeeper's offer is the quiet line in his conversation; where that
--- line cannot show, his Elfcore window opens only for a player who asked for him on the Bones
+-- line cannot show, his Bankai Guild window opens only for a player who asked for him on the Bones
 -- page, and the privacy page's "Bones at innkeepers" line hides it. On the test world with the
 -- Bones tables' additions (tests/arena/lib/farkle-world.lua). Every name is invented.
 local H = ...
@@ -40,7 +40,7 @@ local function Watch(guest, seen)
 end
 -- A guest and the players who invite him (all at the Goldshire inn, trained unless told). What
 -- the guest's screens would show is counted at their two doors: the invitation's own pop-up
--- (FarkleTable.ShowUI "invite") and Elfcore's dialogs (ns.ShowDialog).
+-- (FarkleTable.ShowUI "invite") and Bankai Guild's dialogs (ns.ShowDialog).
 local function World(o)
 	o = o or {}
 	local w = FW.New({ seed = 11 })
@@ -62,7 +62,7 @@ end
 -- unless the definition sets noCancelOnEscape, then the popup hides (Versions.lua's note; the
 -- dialog has no OnHide of its own).
 local function Answer(w, guest, button)
-	local def = assert(guest.popups.ELFCORE_BONES_INVITES, "the question's dialog")
+	local def = assert(guest.popups.BANKAIGUILD_BONES_INVITES, "the question's dialog")
 	w:As(guest, function()
 		if button == "stop" then def.OnAccept(nil, nil)
 		elseif button == "keep" then def.OnCancel(nil, nil, "clicked")
@@ -83,10 +83,10 @@ test("1.2.1 Bones invitations: from a second player within ten minutes, one ques
 	w:Run(120) -- (two minutes later; the first has expired by now)
 	local second = Invite(w, hosts[2], b)
 	eq(#seen.invites, 1, "the second player's: no pop-up of its own")
-	eq(#seen.dialogs, 1, "one question"); eq(seen.dialogs[1].which, "ELFCORE_BONES_INVITES")
+	eq(#seen.dialogs, 1, "one question"); eq(seen.dialogs[1].which, "BANKAIGUILD_BONES_INVITES")
 	eq(seen.dialogs[1].text, L.FARKLE_INVITES_ASK:format(2))
-	assert(seen.dialogs[1].text:find("/elf privacy", 1, true), "it says where to turn them back on")
-	local def = b.popups.ELFCORE_BONES_INVITES
+	assert(seen.dialogs[1].text:find("/bk privacy", 1, true), "it says where to turn them back on")
+	local def = b.popups.BANKAIGUILD_BONES_INVITES
 	eq(def.button1, L.FARKLE_INVITES_STOP); eq(def.button2, L.FARKLE_INVITES_KEEP)
 	eq(b.ns.FarkleTable.Get(second).state, "invite", "the invitation waits meanwhile")
 	Answer(w, b, "stop")
@@ -142,7 +142,7 @@ test("1.2.1 Bones invitations: Keep them keeps them and shows the waiting invita
 	local waiting = Invite(w2, hosts2[2], b2)
 	Answer(w2, b2, "escape")
 	eq(b2.db.bonesInvites, nil, "not answered")
-	eq(b2.popups.ELFCORE_BONES_INVITES.noCancelOnEscape, true, "Escape only closes it")
+	eq(b2.popups.BANKAIGUILD_BONES_INVITES.noCancelOnEscape, true, "Escape only closes it")
 	eq(#seen2.invites, 1, "nothing else pops up")
 	eq(b2.ns.FarkleTable.Get(waiting).state, "invite", "the invitation still waits for its answer")
 	w2:Run(61)
@@ -187,10 +187,10 @@ test("1.2.1 Bones invitations: a player who never played the innkeeper is asked 
 	NoErrors(w)
 end)
 
-test("1.2.1 Bones invitations: off, a matched partner's invitation still comes (the player searched); /elf farkle invites on|off is the same switch", function()
+test("1.2.1 Bones invitations: off, a matched partner's invitation still comes (the player searched); /bk farkle invites on|off is the same switch", function()
 	local w, b, hosts, seen = World()
-	w:As(b, function() SlashCmdList.ELFCORE("farkle invites off") end)
-	eq(b.db.bonesInvites, false, "/elf farkle invites off")
+	w:As(b, function() SlashCmdList.BANKAIGUILD("farkle invites off") end)
+	eq(b.db.bonesInvites, false, "/bk farkle invites off")
 	eq(seen.printed[#seen.printed], b.ns.L.FARKLE_INVITES_OFF)
 	rawset(b.ns, "ArenaMatch", { MatchedWith = function(sender) return b.ns.FarkleTable.Same(sender, hosts[1].name) end,
 		Vet = function() return true, "M9" end })
@@ -201,23 +201,23 @@ test("1.2.1 Bones invitations: off, a matched partner's invitation still comes (
 	local other = Invite(w, hosts[2], b)
 	eq(hosts[2].ns.FarkleTable.Get(other).why, "i", "anyone else's: refused")
 	eq(#seen.dialogs, 0)
-	w:As(b, function() SlashCmdList.ELFCORE("farkle invites on") end)
-	eq(b.db.bonesInvites, true, "/elf farkle invites on")
-	w:As(b, function() SlashCmdList.ELFCORE("farkle keeper off") end)
-	eq(b.db.bonesKeeper, false, "/elf farkle keeper off")
-	w:As(b, function() SlashCmdList.ELFCORE("farkle keeper") end)
+	w:As(b, function() SlashCmdList.BANKAIGUILD("farkle invites on") end)
+	eq(b.db.bonesInvites, true, "/bk farkle invites on")
+	w:As(b, function() SlashCmdList.BANKAIGUILD("farkle keeper off") end)
+	eq(b.db.bonesKeeper, false, "/bk farkle keeper off")
+	w:As(b, function() SlashCmdList.BANKAIGUILD("farkle keeper") end)
 	eq(seen.printed[#seen.printed], b.ns.L.FARKLE_KEEPER_OFFER_OFF, "alone, it says which")
 	NoErrors(w)
 end)
 
--- (Review: a wiped saved-data file turned both switches back on unasked: /elf backup did not carry
+-- (Review: a wiped saved-data file turned both switches back on unasked: /bk backup did not carry
 -- their No.) Backup.lua, as the game loads it (before the arena's files), into the guest's client.
 test("1.2.1 Bones switches: a backup carries their No, and only a No: after a wipe a restore turns invitations and the innkeeper's offer off again, quietly", function()
 	local w, b, hosts, seen = World()
-	w:As(b, function() assert(loadfile(H.ADDON_DIR .. "Backup.lua"))("Elfcore", b.ns) end)
+	w:As(b, function() assert(loadfile(H.ADDON_DIR .. "Backup.lua"))("BankaiGuild", b.ns) end)
 	local Bk, L = b.ns.Backup, b.ns.L
-	w:As(b, function() SlashCmdList.ELFCORE("farkle invites off") end)
-	w:As(b, function() SlashCmdList.ELFCORE("farkle keeper off") end)
+	w:As(b, function() SlashCmdList.BANKAIGUILD("farkle invites off") end)
+	w:As(b, function() SlashCmdList.BANKAIGUILD("farkle keeper off") end)
 	local text = w:As(b, Bk.Export)
 	b.db.bonesInvites, b.db.bonesKeeper = nil, nil -- the wipe
 	eq(w:As(b, b.ns.FarkleTable.InvitesOn), true, "wiped: on again")
@@ -237,7 +237,7 @@ test("1.2.1 Bones switches: a backup carries their No, and only a No: after a wi
 	NoErrors(w)
 end)
 
--- The innkeeper's visit with the Elfcore window as his offer (gamepad UI, or a conversation that
+-- The innkeeper's visit with the Bankai Guild window as his offer (gamepad UI, or a conversation that
 -- cannot hold the Bones line), the window's openings counted; a/ask/talk/relog as that player does.
 local function Keeper()
 	local w = FW.New({ seed = 3, compliance = "shipped" })

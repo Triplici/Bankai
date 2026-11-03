@@ -4,7 +4,7 @@
 # 1.2: the Arena and bundled site-aggregate addon folders too, and their Locales where present.
 cd "$(dirname "$0")/.."
 status=0
-for f in Elfcore/*.lua Elfcore/Locales/*.lua Elfcore_Arena/*.lua Elfcore_Arena/Locales/*.lua ElfcoreCompanionBridge/*.lua ElfcoreSiteAggregate/*.lua; do
+for f in BankaiGuild/*.lua BankaiGuild/Locales/*.lua BankaiGuild_Arena/*.lua BankaiGuild_Arena/Locales/*.lua BankaiGuildCompanionBridge/*.lua BankaiGuildSiteAggregate/*.lua; do
 	[ -f "$f" ] || continue
 	locals=$(grep -oE '^\s*local (function )?[A-Za-z_][A-Za-z0-9_]*' "$f" | awk '{print $NF}' | sort -u)
 	globals=$(luajit -bl "$f" | grep -oE 'GGET .*"[A-Za-z_][A-Za-z0-9_]*"' | grep -oE '"[^"]+"' | tr -d '"' | sort -u)

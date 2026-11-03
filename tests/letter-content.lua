@@ -7,8 +7,8 @@ local function Language(locale)
 	local cns = setmetatable({ On = function() end, RegisterEvent = function() end }, { __index = ns })
 	GetLocale = function() return locale end
 	local ok, why = pcall(function()
-		assert(loadfile(ROOT .. "Elfcore/Locales.lua"))("Elfcore", cns)
-		assert(loadfile(ROOT .. "Elfcore/Letters.lua"))("Elfcore", cns)
+		assert(loadfile(ROOT .. "BankaiGuild/Locales.lua"))("BankaiGuild", cns)
+		assert(loadfile(ROOT .. "BankaiGuild/Letters.lua"))("BankaiGuild", cns)
 	end)
 	GetLocale = saved
 	if not ok then error(why, 0) end
@@ -19,11 +19,11 @@ test("1.2.5 letter content: both languages describe only the shipped reply, offi
 	local order
 	local expected = {
 		enUS = {
-			"Right-click a saved line in Elfcore Chat and choose Reply",
+			"Right-click a saved line in Bankai Guild Chat and choose Reply",
 			"Legates now use the chosen Legate shield",
 			"High Council decision",
 			"normalized visible sizes and centering",
-			"/elf borders test role-legate",
+			"/bk borders test role-legate",
 			"Leaving Most Wanted collapses all three back to five",
 			"Only rows with independent membership evidence",
 			"deterministic across clients",
@@ -31,11 +31,11 @@ test("1.2.5 letter content: both languages describe only the shipped reply, offi
 			"Unverified public-channel strangers cannot create layer-hop demand",
 		},
 		ptBR = {
-			"Clique com o botão direito numa linha salva do Chat do Elfcore e escolha Responder",
+			"Clique com o botão direito numa linha salva do Chat do Bankai Guild e escolha Responder",
 			"Legates agora usam o badge escolhido de Legate",
 			"decisão do High Council",
 			"tamanhos visíveis e centralização normalizados",
-			"/elf borders test role-legate",
+			"/bk borders test role-legate",
 			"Sair de Most Wanted recolhe as três listas para cinco",
 			"Somente linhas com prova independente de filiação",
 			"determinística entre clientes",
@@ -71,10 +71,10 @@ test("1.3.3 letter content: both languages explain the deliberate site export, t
 		local title, body = cns.Letters.Text("1.3.3")
 		assert(type(title) == "string" and title ~= "", locale .. ": title")
 		assert(type(body) == "string" and body:find("1.3.3", 1, true), locale .. ": current letter")
-		assert(body:find("/elf site export", 1, true) and body:find("/reload", 1, true), locale .. ": the two steps")
+		assert(body:find("/bk site export", 1, true) and body:find("/reload", 1, true), locale .. ": the two steps")
 		assert(body:find(locale == "ptBR" and "Nada é enviado" or "Nothing is uploaded", 1, true), locale .. ": stays local")
 		assert(body:find(locale == "ptBR" and "o próximo logout ou /reload o esvazia" or "your next logout or /reload empties it", 1, true), locale .. ": when the file is emptied")
-		assert(body:find(locale == "ptBR" and "guilda da Aliança chamada Elfcore ou Elfcore I a X" or "Alliance guild named Elfcore or Elfcore I to X", 1, true), locale .. ": who can export")
+		assert(body:find(locale == "ptBR" and "guilda da Aliança chamada Bankai Guild ou Bankai Guild I a X" or "Alliance guild named Bankai Guild or Bankai Guild I to X", 1, true), locale .. ": who can export")
 		assert(not body:find("{[%a]+}"), locale .. ": all icons render or have text fallback")
 	end
 end)
@@ -188,10 +188,10 @@ test("1.2.4 Legate wording: current duty and letter replace the old council cent
 		local phrases = locale == "enUS" and { "optional", "offline", "events, raids and wars" }
 			or { "opcionais", "offline", "eventos, raides e guerras" }
 		for _, phrase in ipairs(phrases) do assert(L.NOMINEES_LEGATE_DUTY:find(phrase, 1, true), phrase) end
-		local notice = L.NOMINEES_LEGATE_APPOINTED:format("Issuer", "Elfcore", L.NOMINEES_LEGATE_DUTY, L.NOMINEES_BADGE_DECISION)
-		assert(notice:find("Issuer", 1, true) and notice:find("Elfcore", 1, true) and notice:find("39", 1, true))
+		local notice = L.NOMINEES_LEGATE_APPOINTED:format("Issuer", "Bankai Guild", L.NOMINEES_LEGATE_DUTY, L.NOMINEES_BADGE_DECISION)
+		assert(notice:find("Issuer", 1, true) and notice:find("BankaiGuild", 1, true) and notice:find("39", 1, true))
 		assert(notice:find(locale == "enUS" and "High Council" or "High Council", 1, true))
-		local correspondent = L.NOMINEES_CORRESPONDENT_APPOINTED:format("Issuer", "Department of War", "Elfcore", L.NOMINEES_CORRESPONDENT_DUTY, L.NOMINEES_BADGE_DECISION)
+		local correspondent = L.NOMINEES_CORRESPONDENT_APPOINTED:format("Issuer", "Department of War", "Bankai Guild", L.NOMINEES_CORRESPONDENT_DUTY, L.NOMINEES_BADGE_DECISION)
 		assert(correspondent:find("Department of War", 1, true) and correspondent:find("Issuer", 1, true))
 		eq(L.SQUAD_TOTAL:format(40), locale == "enUS" and "40/40 members" or "40/40 membros")
 		assert(not L.NOMINEES_NOTE:find("30", 1, true), "offline duration is no longer appointment revocation")

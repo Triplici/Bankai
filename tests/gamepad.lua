@@ -1,5 +1,5 @@
 -- The gamepad pass (1.1.5): whole sessions of the addon with Blizzard's gamepad UI simulated, from a
--- gamepad login and across switches both ways, failing when anything of Elfcore's reaches the
+-- gamepad login and across switches both ways, failing when anything of Bankai Guild's reaches the
 -- game's UI there. No controller needed: run with the offline suite (tests/run.lua loads it), or
 -- alone (luajit tests/gamepad.lua).
 --
@@ -7,10 +7,10 @@
 -- model below. Its globals are only what Forever's client has (tests/fixtures/forever-api.lua,
 -- made by scripts/forever-api.lua from the client's own UI source): a global the client has that
 -- the model doesn't fails as "unmodelled", one it lacks reads as nil, as in the game. The game's
--- frames are strict objects whose every method call from Elfcore's code is recorded, as is every
+-- frames are strict objects whose every method call from Bankai Guild's code is recorded, as is every
 -- call of a function the gamepad audit (scripts/gamepad-audit.lua) counts as a reach: that record
 -- is the ledger. Each record carries the gp: tag of the line that made it, so it says which
--- registry entry (Elfcore/GamepadRegistry.lua) it belongs to; with the gamepad UI on, only
+-- registry entry (BankaiGuild/GamepadRegistry.lua) it belongs to; with the gamepad UI on, only
 -- entries allowed there ("own", "exempt", "click" inside a click) may appear in it.
 --
 -- Mock fidelity (the model may not offer what the client lacks; each part cites what it follows):
@@ -23,7 +23,7 @@
 --      the way the game does.
 --   3. A slash command is called directly by the chat box, which then closes itself
 --      (Blizzard_ChatFrameBase/Shared/ChatFrameEditBox.lua:265-269): with the gamepad UI on, any
---      Elfcore code run that way is a taint event, a failure.
+--      Bankai Guild code run that way is a taint event, a failure.
 --   4. A restricted function (the fixture's restricted list, from the documentation's
 --      HasRestrictions and IsProtectedFunction) called outside a click on a button is refused, and
 --      the model sends ADDON_ACTION_BLOCKED as the client does.
@@ -34,7 +34,7 @@
 --      box) under it (Blizzard_GamepadSmartNavigation/Utility.lua:208-262, Utility.FindButtons).
 --   8. Popups and the chat box: StaticPopup_Show shows one of StaticPopup1..4 (Blizzard_StaticPopup),
 --      the chat box's functions set the last active edit box.
---   9. The map library is the real one (Elfcore/libs), on a model of the world map.
+--   9. The map library is the real one (BankaiGuild/libs), on a model of the world map.
 -- A mock that differs from Forever's code is a bug in the model, not a reason to change an
 -- assertion.
 --
@@ -46,7 +46,7 @@ local H = ...
 local MODE = type(H) == "string" and H or nil
 if type(H) ~= "table" then H = nil end
 local ROOT = H and H.ROOT or ((arg and arg[0] or ""):match("^(.*)tests[/\\]gamepad%.lua$") or "./")
-local ADDON_DIR = ROOT .. "Elfcore/"
+local ADDON_DIR = ROOT .. "BankaiGuild/"
 
 local passed, failed = 0, 0
 local test = H and H.test or function(name, fn)
@@ -90,20 +90,20 @@ local TEMPLATES = {}
 for name, t in pairs(FIX.templates) do TEMPLATES[name] = { type = t.type, keys = t.keys, methods = Set(t.methods), chain = Set(t.chain) } end
 
 ---------------------------------------------------------------------------
--- Which registry entry a runtime reach belongs to: the gp: tags of the Elfcore line that made it
+-- Which registry entry a runtime reach belongs to: the gp: tags of the Bankai Guild line that made it
 -- (the audit's own reading of the source), else of its function's first line.
 ---------------------------------------------------------------------------
 
-local TAGS = {} -- [file under Elfcore/] = { [line] = { ids } }
+local TAGS = {} -- [file under BankaiGuild/] = { [line] = { ids } }
 do
 	local root = (ROOT:gsub("[/\\]$", ""))
 	if root == "" then root = "." end
 	local vendor = {}
 	for id, e in pairs(REGISTRY) do for _, f in ipairs(type(e.vendor) == "table" and e.vendor or {}) do vendor[f] = id end end
-	local p = io.popen('cd "' .. root .. '" && find Elfcore -name "*.lua"')
+	local p = io.popen('cd "' .. root .. '" && find Bankai Guild -name "*.lua"')
 	for rel in p:lines() do
 		local scan = AUDIT.ScanFile(root, rel)
-		local short = rel:gsub("^Elfcore/", "")
+		local short = rel:gsub("^BankaiGuild/", "")
 		local t = {}
 		if scan then for line, tag in pairs(scan.tags) do t[line] = tag.ids end end
 		if vendor[short] then setmetatable(t, { __index = function() return { vendor[short] } end }) end
@@ -111,8 +111,8 @@ do
 	end
 	p:close()
 end
-local function ElfcoreFile(source)
-	return type(source) == "string" and source:match("[@/\\]Elfcore[/\\](.+%.lua)$")
+local function BankaiGuildFile(source)
+	return type(source) == "string" and source:match("[@/\\]BankaiGuild[/\\](.+%.lua)$")
 end
 -- The gate's own work at a switch (Gamepad.lua's Park, Leftovers and Switched, and the parks and
 -- leftover checks they run): what can be undone undone, what stays read. Its records are the
@@ -126,16 +126,16 @@ do
 		if fn == "Park" or fn == "Leftovers" or fn == "Switched" then GATE_WORK[n] = fn end
 	end
 end
--- The Elfcore line that made a reach: the first Elfcore function on the stack above the model,
+-- The Bankai Guild line that made a reach: the first Bankai Guild function on the stack above the model,
 -- with its tags (its line's, else its function's first line's); when it has none (a helper handed
--- one of the game's frames, ns.MakeRoundButton), the first tagged Elfcore caller above it.
+-- one of the game's frames, ns.MakeRoundButton), the first tagged Bankai Guild caller above it.
 local function Caller(level)
 	level = (level or 2) + 1
 	local found, gateWork
 	while true do
 		local info = debug.getinfo(level, "Sl")
 		if not info then break end
-		local file = ElfcoreFile(info.source)
+		local file = BankaiGuildFile(info.source)
 		if file then
 			file = file:gsub("\\", "/")
 			if file == "Gamepad.lua" and GATE_WORK[info.linedefined] then gateWork = GATE_WORK[info.linedefined] end
@@ -151,16 +151,16 @@ local function Caller(level)
 	if found then found.gateWork = gateWork end
 	return found
 end
--- Called directly from Elfcore's code (the model's own calls don't count): FromElfcore(1) in a
+-- Called directly from Bankai Guild's code (the model's own calls don't count): FromBankaiGuild(1) in a
 -- function of the model asks about that function's caller.
 -- (Through pcall and the like: C functions, and tests/run.lua's stand-ins for them, are skipped.)
-local function FromElfcore(level)
+local function FromBankaiGuild(level)
 	level = (level or 1) + 2
 	while true do
 		local info = debug.getinfo(level, "S")
 		if not info then return false end
 		if info.what ~= "C" and not (info.source or ""):find("tests[/\\]run%.lua$") then
-			return ElfcoreFile(info.source) ~= nil
+			return BankaiGuildFile(info.source) ~= nil
 		end
 		level = level + 1
 	end
@@ -184,7 +184,7 @@ local function NewClient(opts)
 	local E = {}
 	C.env = E
 
-	-- The ledger: a reach from Elfcore's code, with the entry its line is tagged for.
+	-- The ledger: a reach from Bankai Guild's code, with the entry its line is tagged for.
 	function C.Record(sym, kind, level)
 		local who = Caller((level or 2) + 1)
 		local r = { sym = sym, kind = kind, gamepad = C.style == 1, click = C.clicking, file = who and who.file, line = who and who.line,
@@ -210,14 +210,14 @@ local function NewClient(opts)
 		"^Adjust", "^Flash", "^Update", "^Refresh", "^Mark", "^Insert", "^Scroll", "^Pause", "^Finish", "^Restart",
 		"^Hook", "^Release", "^Acquire", "^Copy", "^Narration" }
 	local function IsSetter(k) for _, p in ipairs(SETTER) do if k:find(p) then return true end end return false end
-	-- What the audit counts per file instead of tagging (its ratchet): Elfcore's own tooltips (the
-	-- game's GameTooltip owned by one of Elfcore's frames) and its lines in the chat windows
+	-- What the audit counts per file instead of tagging (its ratchet): Bankai Guild's own tooltips (the
+	-- game's GameTooltip owned by one of Bankai Guild's frames) and its lines in the chat windows
 	-- ("chat-output"). Anything else on the tooltip (a player's, the game's) is a reach.
 	local TOOLTIP_OWN = AUDIT.RATCHET.GameTooltip.methods
 	local function Own(w, k, ...)
 		if rawget(w, "kind") == "GameTooltip" and TOOLTIP_OWN[k] then
 			local owner = (k == "SetOwner") and (...) or rawget(w, "owner")
-			return type(owner) == "table" and rawget(owner, "elfcore") == true
+			return type(owner) == "table" and rawget(owner, "bankaiguild") == true
 		end
 		return false
 	end
@@ -235,7 +235,7 @@ local function NewClient(opts)
 		if m and allowed then
 			if blizzard and not AUDIT.READS[k] then
 				return function(self, ...)
-					if FromElfcore(1) and not Own(w, k, ...) then RecordMethod(w, label, k) end
+					if FromBankaiGuild(1) and not Own(w, k, ...) then RecordMethod(w, label, k) end
 					return m(self, ...)
 				end
 			end
@@ -243,7 +243,7 @@ local function NewClient(opts)
 		end
 		if allowed and type(k) == "string" then
 			return function(self, ...)
-				if blizzard and not AUDIT.READS[k] and FromElfcore(1) and not Own(w, k, ...) then RecordMethod(w, label, k) end
+				if blizzard and not AUDIT.READS[k] and FromBankaiGuild(1) and not Own(w, k, ...) then RecordMethod(w, label, k) end
 				if IsSetter(k) then
 					self.set[k] = { ... }
 					return
@@ -254,7 +254,7 @@ local function NewClient(opts)
 		end
 		return nil
 	end
-	-- What a template's own scripts do, where Elfcore relies on it (Blizzard_SharedXML).
+	-- What a template's own scripts do, where Bankai Guild relies on it (Blizzard_SharedXML).
 	C.TEMPLATE_SCRIPTS = {
 		-- UIPanelCloseButton_OnClick (Blizzard_SharedXML/Mainline/SharedUIPanelTemplates.lua:150-162): the
 		-- parent's onCloseCallback first, then HideUIPanel unless it said no. HideUIPanel
@@ -275,7 +275,7 @@ local function NewClient(opts)
 		assert(methods, "the client has no widget type " .. tostring(kind))
 		local w = setmetatable({ kind = kind, name = name, parent = parent, children = {}, regions = {}, points = {},
 			shown = true, scripts = {}, hooks = {}, events = {}, set = {}, methods = methods, w = 0, h = 0, level = 1,
-			alpha = 1, scale = 1, blizzard = blizzard or false, elfcore = not blizzard, enabled = true, seq = #C.created + 1,
+			alpha = 1, scale = 1, blizzard = blizzard or false, bankaiguild = not blizzard, enabled = true, seq = #C.created + 1,
 			templateMethods = false }, meta)
 		if parent then
 			local list = (kind == "Texture" or kind == "FontString" or kind == "MaskTexture" or kind == "Line") and parent.regions or parent.children
@@ -333,7 +333,7 @@ local function NewClient(opts)
 		end
 		self.parent = p
 		if p then table.insert((self.kind == "Texture" or self.kind == "FontString") and p.regions or p.children, self) end
-		if p and p.blizzard and p ~= E.UIParent and self.elfcore and FromElfcore(1) then
+		if p and p.blizzard and p ~= E.UIParent and self.bankaiguild and FromBankaiGuild(1) then
 			C.Record((rawget(p, "name") or rawget(p, "path") or "?") .. " <- " .. (self.name or self.kind), "parent", 1)
 		end
 	end
@@ -434,8 +434,8 @@ local function NewClient(opts)
 	function W:Disable() self.enabled = false end
 	function W:SetEnabled(on) self.enabled = on and true or false end
 	function W:IsEnabled() return self.enabled end
-	function W:CreateTexture(name, layer) local t = NewWidget("Texture", name, self, nil, self.blizzard and not FromElfcore(1)); t.layer = layer; return t end
-	function W:CreateFontString(name, layer, font) local f = NewWidget("FontString", name, self, nil, self.blizzard and not FromElfcore(1)); f.layer, f.font = layer, font; return f end
+	function W:CreateTexture(name, layer) local t = NewWidget("Texture", name, self, nil, self.blizzard and not FromBankaiGuild(1)); t.layer = layer; return t end
+	function W:CreateFontString(name, layer, font) local f = NewWidget("FontString", name, self, nil, self.blizzard and not FromBankaiGuild(1)); f.layer, f.font = layer, font; return f end
 	function W:CreateMaskTexture(name) return NewWidget("MaskTexture", name, self) end
 	function W:CreateLine(name) return NewWidget("Line", name, self) end
 	function W:CreateAnimationGroup(name)
@@ -503,7 +503,7 @@ local function NewClient(opts)
 	function W:LockHighlight() self.locked = true end
 	function W:UnlockHighlight() self.locked = false end
 	function W:GetButtonState() return "NORMAL" end
-	-- A click from Elfcore's own code (not the player's): its script, no hardware event.
+	-- A click from Bankai Guild's own code (not the player's): its script, no hardware event.
 	function W:Click(button) C.RunScript(self, "OnClick", button or "LeftButton", false) end
 	-- Edit boxes.
 	function W:SetFocus() C.focus = self end
@@ -716,17 +716,17 @@ local function NewClient(opts)
 	-- Secret values (the client's issecretvalue): none in the pass.
 	E.issecretvalue = function() return false end
 	-- issecurevariable (the taint model, as far as the pass needs it): the game's own tables and
-	-- globals, as the model made them, are secure; a table Elfcore's code made (its own, or the
-	-- map library's in Elfcore/libs), or a global it wrote, is Elfcore's: false, "Elfcore".
+	-- globals, as the model made them, are secure; a table Bankai Guild's code made (its own, or the
+	-- map library's in BankaiGuild/libs), or a global it wrote, is Bankai Guild's: false, "Bankai Guild".
 	C.gameTables = setmetatable({}, { __mode = "k" })
 	C.gameValues = {}
 	E.issecurevariable = function(t, key)
 		if key == nil then
 			if rawget(E, t) == C.gameValues[t] then return true, nil end
-			return false, "Elfcore"
+			return false, "Bankai Guild"
 		end
 		if type(t) == "table" and C.gameTables[t] then return true, nil end
-		return false, "Elfcore"
+		return false, "Bankai Guild"
 	end
 	-- (After the world is made: everything in it is the game's.)
 	function C.SealGame()
@@ -746,7 +746,7 @@ local function NewClient(opts)
 	C.gameHandler = gameHandler
 	E.geterrorhandler = function() return C.handler end
 	E.seterrorhandler = function(fn)
-		if FromElfcore(1) then C.Record("seterrorhandler", "call", 1) end
+		if FromBankaiGuild(1) then C.Record("seterrorhandler", "call", 1) end
 		C.handler = fn
 	end
 	E.securecallfunction = function(fn, ...) return fn(...) end
@@ -766,7 +766,7 @@ local function NewClient(opts)
 	E.GetRealmID = function() return 1 end
 	-- Units: the player, and whoever a flow puts under the cursor or targets (C.units).
 	-- (opts.surname: a Forever player, whose name has a surname where a realm would be.)
-	C.units = { player = { name = "Tester", realm = opts.surname or "Realm", guid = "Player-1-00000001", guild = "Elfcore II", rank = "Hero", rankIndex = 2 } }
+	C.units = { player = { name = "Tester", realm = opts.surname or "Realm", guid = "Player-1-00000001", guild = "Bankai Guild II", rank = "Hero", rankIndex = 2 } }
 	local function U(unit) return C.units[unit] end
 	E.UnitFullName = function(unit) local u = U(unit); if u then return u.name, u.realm end end
 	E.UnitName = function(unit) local u = U(unit); if u then return u.name, u.realm ~= C.realmName and u.realm or nil end end
@@ -785,7 +785,7 @@ local function NewClient(opts)
 	E.PlaySound = function() end
 	E.GetMaxPlayerLevel = function() return 60 end
 	E.GetMoney = function() return C.money or 0 end
-	-- 1.2.5.1, the Elfcore Accord's BattleTag (Accord.ReadTag): Battle.net connected (BNConnected, as
+	-- 1.2.5.1, the Bankai Guild Accord's BattleTag (Accord.ReadTag): Battle.net connected (BNConnected, as
 	-- Blizzard_FriendsFrame's FriendsFrame_CheckBattlenetStatus asks it) and the player's own tag,
 	-- BNGetInfo's second value (a test tag, nobody's). C.bnet = false: disconnected, no tag. (The
 	-- fixture says Forever's source never calls BNFeaturesEnabledAndConnected: nil here.)
@@ -836,9 +836,9 @@ local function NewClient(opts)
 	-- Frames.
 	E.CreateFrame = function(kind, name, parent, template)
 		local w = NewWidget(kind, name, parent, template, false)
-		w.elfcore = FromElfcore(1) -- (else the model's own, a pool of the game's)
-		-- (Elfcore's frames hang from UIParent, the screen's root: no reach. Inside another of the game's, one.)
-		if parent and parent.blizzard and parent ~= E.UIParent and FromElfcore(1) then
+		w.bankaiguild = FromBankaiGuild(1) -- (else the model's own, a pool of the game's)
+		-- (Bankai Guild's frames hang from UIParent, the screen's root: no reach. Inside another of the game's, one.)
+		if parent and parent.blizzard and parent ~= E.UIParent and FromBankaiGuild(1) then
 			C.Record((rawget(parent, "name") or rawget(parent, "path") or "?") .. " <- " .. (name or kind), "parent", 1)
 		end
 		return w
@@ -879,7 +879,7 @@ end
 
 ---------------------------------------------------------------------------
 -- The game's side: its frames, its functions, its tables. Each modelled from what Forever's UI
--- source shows (the fixture, the files cited), as far as Elfcore uses it.
+-- source shows (the fixture, the files cited), as far as Bankai Guild uses it.
 ---------------------------------------------------------------------------
 
 local function World(C, opts)
@@ -907,23 +907,23 @@ local function World(C, opts)
 	C.Namespace = Namespace
 	E.C_Timer = Namespace("C_Timer", E.C_Timer)
 	E.C_InputInterfaceStyle = Namespace("C_InputInterfaceStyle", E.C_InputInterfaceStyle)
-	-- A function the audit counts as a reach: each call from Elfcore's code goes in the ledger.
+	-- A function the audit counts as a reach: each call from Bankai Guild's code goes in the ledger.
 	local function Reach(name, fn)
 		return function(...)
-			if FromElfcore(1) then C.Record(name, "call", 1) end
+			if FromBankaiGuild(1) then C.Record(name, "call", 1) end
 			return fn(...)
 		end
 	end
-	-- A restricted function (fidelity rule 4): from Elfcore's code outside the player's click, the
+	-- A restricted function (fidelity rule 4): from Bankai Guild's code outside the player's click, the
 	-- game refuses it and sends ADDON_ACTION_BLOCKED; inside a click, it runs.
 	local function Restricted(name, fn)
 		return function(...)
-			if FromElfcore(1) then
+			if FromBankaiGuild(1) then
 				local r = C.Record(name, "call", 1)
 				if not C.clicking then
 					r.kind = "blocked"
 					C.blocked[#C.blocked + 1] = name
-					C.After(0, function() C.Fire("ADDON_ACTION_BLOCKED", "Elfcore", name .. "()") end)
+					C.After(0, function() C.Fire("ADDON_ACTION_BLOCKED", "Bankai Guild", name .. "()") end)
 					return nil
 				end
 			end
@@ -963,10 +963,10 @@ local function World(C, opts)
 	end
 	C.Blizz = Blizz
 	-- A method of the game's own Lua (a mixin's) on one of its frames: what it does here, and the
-	-- call from Elfcore's code in the ledger.
+	-- call from Bankai Guild's code in the ledger.
 	local function Method(w, key, fn)
 		rawset(w, key, function(self, ...)
-			if FromElfcore(1) and not AUDIT.READS[key] then C.Record((w.name or "?") .. ":" .. key, "method", 1) end
+			if FromBankaiGuild(1) and not AUDIT.READS[key] then C.Record((w.name or "?") .. ":" .. key, "method", 1) end
 			return fn(self, ...)
 		end)
 	end
@@ -1065,7 +1065,7 @@ local function World(C, opts)
 	E.SetChannelPassword = function() end
 	E.ChannelUnban = function() end
 
-	-- Addon messages (Elfcore's comm): what it sends, kept.
+	-- Addon messages (Bankai Guild's comm): what it sends, kept.
 	C.sent = {}
 	local prefixes = {}
 	E.C_ChatInfo = Namespace("C_ChatInfo", {
@@ -1309,9 +1309,9 @@ local function World(C, opts)
 		Method(map, "GetMapID", function(self) return self.mapID end)
 		Method(map, "AddDataProvider", function(self, p) self.dataProviders[p] = true; p:OnAdded(self) end)
 		Method(map, "RemoveDataProvider", function(self, p) self.dataProviders[p] = nil end)
-		-- MapCanvasMixin:MarkCanvasDirty, from RemoveAllPinsByTemplate and AcquirePin: from Elfcore's copy
+		-- MapCanvasMixin:MarkCanvasDirty, from RemoveAllPinsByTemplate and AcquirePin: from Bankai Guild's copy
 		-- of the library, in the ledger (the gamepad map runs in its taint after it).
-		local function Dirty() map.marks = map.marks + 1; if FromElfcore(2) then C.Record("WorldMapFrame:MarkCanvasDirty", "method", 2) end end
+		local function Dirty() map.marks = map.marks + 1; if FromBankaiGuild(2) then C.Record("WorldMapFrame:MarkCanvasDirty", "method", 2) end end
 		Method(map, "RemoveAllPinsByTemplate", function(self, t) local p = self.pinPools[t]; if p then p:ReleaseAll() end Dirty() end)
 		Method(map, "AcquirePin", function(self, t, ...) local p = self.pinPools[t]; local pin = p:Acquire(); pin.owningMap = self; if pin.OnAcquired then pin:OnAcquired(...) end Dirty() return pin end)
 		Method(map, "RemovePin", function(self, pin) for _, p in pairs(self.pinPools) do p:Release(pin) end Dirty() end)
@@ -1359,7 +1359,7 @@ local function World(C, opts)
 	E.StaticPopup_FindVisible = Fn("StaticPopup_FindVisible", function(which, data) return FindPopup(which, data) end)
 	E.StaticPopup_Visible = Fn("StaticPopup_Visible", function(which) local p = FindPopup(which); return p and p:GetName() or nil end)
 
-	-- The game's tables Elfcore may read or write: the escape list, the slash commands.
+	-- The game's tables Bankai Guild may read or write: the escape list, the slash commands.
 	E.UISpecialFrames = { "GameMenuFrame", "SettingsPanel", "CharacterFrame" }
 	E.SlashCmdList = {}
 
@@ -1464,7 +1464,7 @@ local function World(C, opts)
 	E.CompactUnitFrame_UpdateName = function() end
 	E.NamePlateSetupOptions = {}
 
-	-- Templates' helpers (Blizzard_SharedXML: PanelTemplates_*), on Elfcore's own tabs.
+	-- Templates' helpers (Blizzard_SharedXML: PanelTemplates_*), on Bankai Guild's own tabs.
 	E.PanelTemplates_TabResize = function(tab, padding) tab:SetWidth((tab:GetFontString():GetStringWidth() or 0) + (padding or 20)) end
 	E.PanelTemplates_SelectTab = function(tab) tab.selectedTab = true end
 	E.PanelTemplates_DeselectTab = function(tab) tab.selectedTab = false end
@@ -1527,9 +1527,9 @@ end
 
 ---------------------------------------------------------------------------
 -- Tail calls. A function that ends in "return f(...)" leaves the stack when it calls f (LuaJIT,
--- like the client, reuses its frame), so a reach of the game's made that way would show no Elfcore
+-- like the client, reuses its frame), so a reach of the game's made that way would show no Bankai Guild
 -- line on the stack. The pass loads the addon's files with each such return made an ordinary call,
--- on the same lines: "return ElfcoreTailCall__(f(...))" returns the same values, nothing else changes
+-- on the same lines: "return BankaiGuildTailCall__(f(...))" returns the same values, nothing else changes
 -- but the depth of the stack.
 ---------------------------------------------------------------------------
 
@@ -1622,7 +1622,7 @@ local function NoTailCalls(src)
 					if m == k + 1 then isCall = false end -- "(expression)": not a call
 				end
 				if isCall then
-					inserts[#inserts + 1] = { first.s, "ElfcoreTailCall__(" }
+					inserts[#inserts + 1] = { first.s, "BankaiGuildTailCall__(" }
 					inserts[#inserts + 1] = { tail.e + 1, ")" }
 				end
 			end
@@ -1638,13 +1638,13 @@ end
 ---------------------------------------------------------------------------
 
 local TOC = {}
-for line in assert(io.open(ADDON_DIR .. "Elfcore.toc")):lines() do
+for line in assert(io.open(ADDON_DIR .. "BankaiGuild.toc")):lines() do
 	local f = line:match("^%s*([^#%s][^%s]*%.lua)%s*$")
 	if f then TOC[#TOC + 1] = (f:gsub("\\", "/")) end
 end
 
 -- A client with the addon loaded (opts.gamepad: the gamepad UI on from the start; opts.saved: the
--- saved variables, ElfcoreDB). Returns the client and the addon's namespace.
+-- saved variables, BankaiGuildDB). Returns the client and the addon's namespace.
 local function Boot(opts)
 	opts = opts or {}
 	local C = NewClient(opts)
@@ -1653,8 +1653,8 @@ local function Boot(opts)
 	C.SealGame()
 	local ns = {}
 	C.ns = ns
-	if opts.saved then rawset(C.env, "ElfcoreDB", opts.saved) end
-	rawset(C.env, "ElfcoreTailCall__", function(...) return ... end)
+	if opts.saved then rawset(C.env, "BankaiGuildDB", opts.saved) end
+	rawset(C.env, "BankaiGuildTailCall__", function(...) return ... end)
 	for _, file in ipairs(TOC) do
 		local f = assert(io.open(ADDON_DIR .. file, "rb"))
 		local src = f:read("*a")
@@ -1662,12 +1662,12 @@ local function Boot(opts)
 		local chunk = assert(loadstring(NoTailCalls(src), "@" .. ADDON_DIR .. file))
 		setfenv(chunk, C.env)
 		-- (A file that fails as it loads: the client reports it and loads the next one.)
-		local ok, err = pcall(chunk, "Elfcore", ns)
+		local ok, err = pcall(chunk, "Bankai Guild", ns)
 		if not ok then C.loadErrors[#C.loadErrors + 1] = file .. ": " .. tostring(err); pcall(C.handler, err) end
 	end
 	-- (opts.realmFrom(ns): a realm named by the addon itself, the Treasurer's group's for the dues.)
 	if opts.realmFrom then C.realmName = opts.realmFrom(ns) end
-	C.Fire("ADDON_LOADED", "Elfcore")
+	C.Fire("ADDON_LOADED", "BankaiGuild")
 	return C, ns
 end
 
@@ -1694,7 +1694,7 @@ local function AllowedUnderPad(r)
 	return false
 end
 local function Describe(r)
-	return ("%s (%s) from Elfcore/%s:%s, tagged %s%s%s"):format(r.sym, r.kind, tostring(r.file), tostring(r.line),
+	return ("%s (%s) from BankaiGuild/%s:%s, tagged %s%s%s"):format(r.sym, r.kind, tostring(r.file), tostring(r.line),
 		r.ids and table.concat(r.ids, ",") or "nothing", r.click and ", in a click" or "", r.gateWork and (", the gate's " .. r.gateWork) or "")
 end
 -- Every record must name its entry (the audit's tags at runtime); with the gamepad UI on, only an
@@ -1732,7 +1732,7 @@ end
 -- The frames the gamepad UI navigates with Smart Navigation (their visible buttons are targets).
 local MANAGED = { "CommunitiesFrame", "GuildFrame", "FriendsFrame", "WorldMapFrame", "PTR_IssueReporter", "GameMenuFrame" }
 -- (With every one of those frames shown, as the game would show them, then put back.)
-local function NavigableElfcore(C, show)
+local function NavigableBankaiGuild(C, show)
 	local out = {}
 	local shown = {}
 	if show then
@@ -1743,7 +1743,7 @@ local function NavigableElfcore(C, show)
 	end
 	local function Walk(f)
 		for _, c in ipairs(f.children) do
-			if c.elfcore and c:IsVisible() and (c:IsObjectType("Button") or c.kind == "EditBox" or c.scripts.OnMouseUp or c.scripts.OnMouseDown) then
+			if c.bankaiguild and c:IsVisible() and (c:IsObjectType("Button") or c.kind == "EditBox" or c.scripts.OnMouseUp or c.scripts.OnMouseDown) then
 				out[#out + 1] = c.name or c.kind
 			end
 			Walk(c)
@@ -1765,7 +1765,7 @@ local function Snapshot(C)
 	for k, v in pairs(E) do if type(k) == "string" and not AUDIT.Own(k) then s.globals[k] = v end end
 	for i, n in ipairs(rawget(E, "UISpecialFrames") or {}) do s.special[i] = n end
 	for k in pairs(rawget(E, "SlashCmdList") or {}) do s.slash[k] = true end
-	for k in pairs(rawget(E, "StaticPopupDialogs") or {}) do if not tostring(k):find("^ELFCORE_") then s.dialogs[k] = true end end
+	for k in pairs(rawget(E, "StaticPopupDialogs") or {}) do if not tostring(k):find("^BANKAIGUILD_") then s.dialogs[k] = true end end
 	for i = 1, 4 do local p = rawget(E, "StaticPopup" .. i); s.popups[i] = p and p.shown end
 	s.chat = rawget(E, "LAST_ACTIVE_CHAT_EDIT_BOX")
 	s.handler = C.handler
@@ -1790,7 +1790,7 @@ end
 ---------------------------------------------------------------------------
 
 local function Main(C)
-	for _, n in ipairs({ "ElfcoreFrameHD", "ElfcoreFrame", "ElfcoreFrameHDBasic", "ElfcoreFrameBasic" }) do
+	for _, n in ipairs({ "BankaiGuildFrameHD", "BankaiGuildFrame", "BankaiGuildFrameHDBasic", "BankaiGuildFrameBasic" }) do
 		local f = rawget(C.env, n)
 		if f and f:IsShown() then return f end
 	end
@@ -1800,7 +1800,7 @@ local function WindowFlow(C)
 	-- (Open already, from another flow: its X first.)
 	local open = Main(C)
 	if open then C.Click(rawget(open, "CloseButton")); C.Advance(0.5) end
-	local b = rawget(C.env, "ElfcoreMinimapButton")
+	local b = rawget(C.env, "BankaiGuildMinimapButton")
 	assert(b and b:IsVisible(), "the minimap button shows")
 	C.Click(b)
 	C.Advance(1)
@@ -1817,19 +1817,19 @@ local function WindowFlow(C)
 	return #tabs
 end
 
--- Every one of Elfcore's dialogs, shown the addon's way (ns.ShowDialog). In Elfcore's own window
+-- Every one of Bankai Guild's dialogs, shown the addon's way (ns.ShowDialog). In Bankai Guild's own window
 -- (the gamepad UI's), each of its buttons clicked by the player, the dialog shown again for each;
 -- the game's popup (mouse and keyboard) hidden again.
 local function DialogsFlow(C)
 	local ns, n, clicks = C.ns, 0, 0
 	local keys = {}
-	for k in pairs(C.env.StaticPopupDialogs) do if tostring(k):find("^ELFCORE_") then keys[#keys + 1] = k end end
+	for k in pairs(C.env.StaticPopupDialogs) do if tostring(k):find("^BANKAIGUILD_") then keys[#keys + 1] = k end end
 	table.sort(keys)
 	for _, which in ipairs(keys) do
 		for b = 1, 3 do
 			local shown = ns.ShowDialog(which, "Someone", "Something", { name = "Someone-Realm" })
 			if shown and b == 1 then n = n + 1 end
-			local own = type(shown) == "table" and rawget(shown, "elfcore") and rawget(shown, "buttons")
+			local own = type(shown) == "table" and rawget(shown, "bankaiguild") and rawget(shown, "buttons")
 			local button = own and own[b]
 			if button and button:IsVisible() then
 				C.Click(button)
@@ -1856,7 +1856,7 @@ local function KingViewFlow(C)
 	return tabs
 end
 
--- The game shows its guild windows, then hides them (their OnShow and OnHide, and Elfcore's hooks).
+-- The game shows its guild windows, then hides them (their OnShow and OnHide, and Bankai Guild's hooks).
 local function GuildWindowsFlow(C)
 	for _, name in ipairs({ "CommunitiesFrame", "FriendsFrame" }) do
 		local f = rawget(C.env, name)
@@ -1881,9 +1881,9 @@ end
 -- A player's tooltip: the game's post-calls, isolated, with the tooltip and its data.
 local function TooltipFlow(C)
 	local tip = C.env.GameTooltip
-	-- (Inspected before: the tabard line Elfcore adds to his tooltip, with mouse and keyboard.)
-	C.ns.Inspect.Record("Someone-Realm", "Elfcore II", "WARRIOR", 60, nil, true)
-	C.units.mouseover = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Elfcore II", rank = "Titan", rankIndex = 1 }
+	-- (Inspected before: the tabard line Bankai Guild adds to his tooltip, with mouse and keyboard.)
+	C.ns.Inspect.Record("Someone-Realm", "Bankai Guild II", "WARRIOR", 60, nil, true)
+	C.units.mouseover = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Bankai Guild II", rank = "Titan", rankIndex = 1 }
 	tip:SetOwner(C.env.UIParent, "ANCHOR_CURSOR")
 	tip:SetUnit("mouseover")
 	local unit = C.env.Enum.TooltipDataType.Unit
@@ -1910,7 +1910,7 @@ local function MenuFlow(C)
 	function root.CreateTitle() made = made + 1 return Element() end
 	function root.CreateButton() made = made + 1 return Element() end
 	function root.CreateDivider() return Element() end
-	C.units.target = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Elfcore II", rank = "Titan", rankIndex = 1 }
+	C.units.target = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Bankai Guild II", rank = "Titan", rankIndex = 1 }
 	local ran = 0
 	for tag, list in pairs(C.menus) do
 		for _, fn in ipairs(list) do
@@ -1933,7 +1933,7 @@ local function ChatLineFlow(C)
 end
 
 -- A slash command typed in the game's chat box (fidelity rule 3: called directly, then the box
--- closes in the caller's taint): with the gamepad UI on, any Elfcore code run that way is a taint event.
+-- closes in the caller's taint): with the gamepad UI on, any Bankai Guild code run that way is a taint event.
 local function TypeSlash(C, line)
 	local cmd, msg = line:match("^(/%S+)%s*(.-)$")
 	local E = C.env
@@ -1949,7 +1949,7 @@ local function TypeSlash(C, line)
 				local hook = debug.gethook()
 				debug.sethook(function()
 					local info = debug.getinfo(2, "S")
-					if info and ElfcoreFile(info.source) then ran = true end
+					if info and BankaiGuildFile(info.source) then ran = true end
 				end, "c")
 				local ok, err = pcall(fn, msg, E.ChatFrame1EditBox)
 				debug.sethook(hook)
@@ -1964,7 +1964,7 @@ local function TypeSlash(C, line)
 end
 
 -- A player who answered the first-open page (Consent.lua) before: the window opens on its tabs.
--- (1.2.5.1: and the Elfcore Accord accepted, as every account using Elfcore has it; a fresh session,
+-- (1.2.5.1: and the Bankai Guild Accord accepted, as every account using Bankai Guild has it; a fresh session,
 -- opts.fresh, is asked it first.)
 local function Answered()
 	return { addonChat = true, royalInspection = true, rollCall = true, layerHelp = true, treasurerShares = true,
@@ -1984,7 +1984,7 @@ local function Session(gamepad, opts)
 	return C, ns
 end
 
--- The player's click on one of Elfcore's buttons that runs fn (the hardware event).
+-- The player's click on one of Bankai Guild's buttons that runs fn (the hardware event).
 local function InClick(C, fn)
 	C.clicking = true
 	local ok, err = pcall(fn)
@@ -2147,13 +2147,13 @@ end
 -- A player's card (a row of the census), its Whisper, Invite and Who buttons clicked.
 local function PersonFlow(C)
 	local ns = C.ns
-	-- (1.2: UI.ShowPerson opens the player's profile in the Elfcore window; the side card, its
+	-- (1.2: UI.ShowPerson opens the player's profile in the Bankai Guild window; the side card, its
 	-- Whisper, Invite and Who on the same functions, stays for a client without PlayerProfile.lua.)
 	local Show = ns.UI.ShowPersonCard or ns.UI.ShowPerson
-	Show({ name = "Someone", realm = "Realm", guild = "Elfcore II", class = "WARRIOR", level = 60 })
+	Show({ name = "Someone", realm = "Realm", guild = "Bankai Guild II", class = "WARRIOR", level = 60 })
 	local card
 	-- (1.1.5's windows: ns.Window gives the metal frame its own name, the plain fallback "<name>Basic".)
-	for _, n in ipairs({ "ElfcorePersonFrameHD", "ElfcorePersonFrame", "ElfcorePersonFrameHDBasic", "ElfcorePersonFrameBasic" }) do
+	for _, n in ipairs({ "BankaiGuildPersonFrameHD", "BankaiGuildPersonFrame", "BankaiGuildPersonFrameHDBasic", "BankaiGuildPersonFrameBasic" }) do
 		local f = rawget(C.env, n)
 		if f and f:IsShown() then card = f end
 	end
@@ -2176,18 +2176,18 @@ local function QuietWhoFlow(C)
 	return C.ns.Who.IsPending()
 end
 
--- The Elfcore window on its Chat tab (ChatWindow.lua), which takes the Open chat key.
+-- The Bankai Guild window on its Chat tab (ChatWindow.lua), which takes the Open chat key.
 local function ChatTabFlow(C)
 	C.ns.ChatWindow.Toggle("A")
 	C.Advance(1)
 end
 
--- The game's target: a player of an Elfcore guild (the borders' and nameplates' events).
+-- The game's target: a player of an Bankai Guild guild (the borders' and nameplates' events).
 local function TargetFlow(C)
-	C.units.target = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Elfcore II", rank = "Titan", rankIndex = 1 }
+	C.units.target = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Bankai Guild II", rank = "Titan", rankIndex = 1 }
 	C.Fire("PLAYER_TARGET_CHANGED")
 	C.Advance(1)
-	-- The game's own refresh of the target frame and of a name, which Elfcore hooks.
+	-- The game's own refresh of the target frame and of a name, which Bankai Guild hooks.
 	C.env.TargetFrame:CheckClassification()
 	C.env.CompactUnitFrame_UpdateName({ unit = "target", name = C.NewWidget("FontString", nil, nil, nil, true) })
 	C.units.target = nil
@@ -2202,7 +2202,7 @@ local function CalendarFlow(C)
 	return opened
 end
 
--- The game's own /who: Elfcore's hook on C_FriendList.SendWho (Who.lua) runs after it.
+-- The game's own /who: Bankai Guild's hook on C_FriendList.SendWho (Who.lua) runs after it.
 local function GameWhoFlow(C) C.env.C_FriendList.SendWho("n-Someone") end
 
 -- An alert (ns.Alert: the raid warning frame) and a line in the chat (ns.Print).
@@ -2211,7 +2211,7 @@ local function AlertFlow(C)
 	C.ns.Print("A test line")
 end
 
--- The world map's Elfcore icons: what Elfcore's copy of the library holds there.
+-- The world map's Bankai Guild icons: what Bankai Guild's copy of the library holds there.
 local function WorldPins(C)
 	local lib = C.env.LibStub("HereBeDragons-Pins-2.0", true)
 	local n = 0
@@ -2219,19 +2219,19 @@ local function WorldPins(C)
 	return n, lib and lib.worldmapPinsPool and lib.worldmapPinsPool:GetNumActive() or 0
 end
 
-local function ElfcoreEscapeNames(C)
+local function BankaiGuildEscapeNames(C)
 	local out = {}
 	for _, n in ipairs(C.env.UISpecialFrames) do if AUDIT.Own(n) then out[#out + 1] = n end end
 	return out
 end
 
--- Elfcore's textures and frames on the game's own frames, shown.
+-- Bankai Guild's textures and frames on the game's own frames, shown.
 local function ShownOnGameFrames(C)
 	local out = {}
 	for _, w in ipairs(C.created) do
-		if w.elfcore and w:IsVisible() then
+		if w.bankaiguild and w:IsVisible() then
 			local p = w.parent
-			while p and p.elfcore do p = p.parent end
+			while p and p.bankaiguild do p = p.parent end
 			if p and p ~= C.env.UIParent and p.blizzard and p ~= C.env.Minimap then out[#out + 1] = (w.name or w.kind) .. " on " .. (rawget(p, "name") or rawget(p, "path") or "?") end
 		end
 	end
@@ -2304,9 +2304,9 @@ test("gamepad pass 1: a whole session with the gamepad UI on from the login reac
 	OnlyAllowed(C.ledger, "the login")
 	NoErrors(C, "the login")
 	-- No slash command at a gamepad login (D1): typed, it is the game's unknown command.
-	eq(rawget(C.env, "SLASH_ELFCORE1"), nil, "no /elf")
-	eq(TypeSlash(C, "/elf status"), false, "/elf typed: not Elfcore's")
-	eq(#C.taint, 0, "no Elfcore code from the chat box")
+	eq(rawget(C.env, "SLASH_BANKAIGUILD1"), nil, "no /bk")
+	eq(TypeSlash(C, "/bk status"), false, "/bk typed: not Bankai Guild's")
+	eq(#C.taint, 0, "no Bankai Guild code from the chat box")
 	GP.Covers("slash")
 	-- Its hidden channel joined all the same (the census), off the chat windows' lists.
 	assert(next(C.channels), "the census channel joined")
@@ -2314,7 +2314,7 @@ test("gamepad pass 1: a whole session with the gamepad UI on from the login reac
 	local mark = C.Mark()
 	WindowFlow(C)
 	local dialogs, all, clicks = DialogsFlow(C)
-	eq(dialogs, all, "every dialog shown, in Elfcore's own window")
+	eq(dialogs, all, "every dialog shown, in Bankai Guild's own window")
 	assert(clicks >= all, "their buttons clicked: " .. clicks)
 	KingViewFlow(C)
 	GuildWindowsFlow(C)
@@ -2325,7 +2325,7 @@ test("gamepad pass 1: a whole session with the gamepad UI on from the login reac
 	C.Advance(30)
 	OnlyAllowed(C.Since(mark), "the flows")
 	NoErrors(C, "the flows")
-	eq(#NavigableElfcore(C, true), 0, "no Elfcore button where the gamepad cursor goes")
+	eq(#NavigableBankaiGuild(C, true), 0, "no Bankai Guild button where the gamepad cursor goes")
 	local diff = Diff(before, Snapshot(C))
 	eq(#diff, 0, "the game's state written: " .. table.concat(diff, ", "))
 	eq(C.handler, C.gameHandler, "the game's own error handler")
@@ -2365,45 +2365,45 @@ test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the g
 	eq(CalendarFlow(C), true, "the calendar opens")
 	GameWhoFlow(C)
 	AlertFlow(C)
-	eq(TypeSlash(C, "/elf status"), true, "/elf typed with mouse and keyboard")
+	eq(TypeSlash(C, "/bk status"), true, "/bk typed with mouse and keyboard")
 	C.Advance(10)
 	Check(C.ledger, "with mouse and keyboard")
 	NoErrors(C, "with mouse and keyboard")
 	local used = Ids(C.ledger)
-	used.slash = E.SlashCmdList.ELFCORE and 1 -- (a table write, not a call: the commands registered)
+	used.slash = E.SlashCmdList.BANKAIGUILD and 1 -- (a table write, not a call: the commands registered)
 	for _, id in ipairs({ "slash", "communities-button", "tooltip-unit", "error-handler", "map-overlay", "dialogs", "chat-box", "who",
 		"who-quiet", "map-library", "chat-key", "player-menu", "borders", "chat-marks", "nameplates", "minimap", "roster-actions",
 		"calendar", "raid-notice", "chat-channels", "mail-hooks" }) do
 		assert(used[id], "with mouse and keyboard, used: " .. id)
 	end
-	-- A game popup of Elfcore's still up, its window on the escape list, the Communities window
-	-- open with Elfcore's button in it, the map showing Elfcore's icons: then the switch.
-	ns.ShowDialog("ELFCORE_CRAFT_ASK")
+	-- A game popup of Bankai Guild's still up, its window on the escape list, the Communities window
+	-- open with Bankai Guild's button in it, the map showing Bankai Guild's icons: then the switch.
+	ns.ShowDialog("BANKAIGUILD_CRAFT_ASK")
 	ns.UI.Toggle()
-	-- (1.2.1: a guild window the player sees moves a question of Elfcore's off the game's popups,
+	-- (1.2.1: a guild window the player sees moves a question of Bankai Guild's off the game's popups,
 	-- GuildFrame.lua, and none opens there while one is up: the Communities window here is open the
 	-- way ClassicUI Forever keeps it, unseen at alpha 0, which leaves the game's popup where it is.)
 	E.CommunitiesFrame:SetAlpha(0)
 	E.CommunitiesFrame:Show()
 	C.ShowMap()
-	-- (The author's preview of a border, on his own portrait: a texture of Elfcore's on the game's
+	-- (The author's preview of a border, on his own portrait: a texture of Bankai Guild's on the game's
 	-- player frame, and his nameplate mark's.)
 	ns.devWorkshop = true
 	ns.Borders.SetPreview(ns.Borders.TIERS[1].name)
 	ns.Borders.RefreshAll(true)
 	eq(QuietWhoFlow(C), true, "a quiet /who waiting for its answer")
 	eq(E.LFGWhoListFrame:IsEventRegistered("WHO_LIST_UPDATE"), false, "the game's who list silenced meanwhile")
-	assert(#ShownOnGameFrames(C) > 0, "Elfcore's border on the game's player frame, before the switch")
-	assert(#NavigableElfcore(C) > 0, "Elfcore's button where the gamepad cursor goes, before the switch")
-	assert(#ElfcoreEscapeNames(C) > 0, "Elfcore's windows on the escape list")
-	assert((WorldPins(C)) > 0, "Elfcore's icons on the world map")
-	assert(E.ChatFrame1EditBox:IsShown(), "the game's chat box opened from Elfcore (a whisper)")
+	assert(#ShownOnGameFrames(C) > 0, "Bankai Guild's border on the game's player frame, before the switch")
+	assert(#NavigableBankaiGuild(C) > 0, "Bankai Guild's button where the gamepad cursor goes, before the switch")
+	assert(#BankaiGuildEscapeNames(C) > 0, "Bankai Guild's windows on the escape list")
+	assert((WorldPins(C)) > 0, "Bankai Guild's icons on the world map")
+	assert(E.ChatFrame1EditBox:IsShown(), "the game's chat box opened from Bankai Guild (a whisper)")
 	assert(C.bindings and next(C.bindings), "the Chat tab's key")
-	assert(C.handler ~= C.gameHandler, "Elfcore's error handler")
+	assert(C.handler ~= C.gameHandler, "Bankai Guild's error handler")
 	local escapeBefore = table.concat(E.UISpecialFrames, ",")
 
 	C.Switch(true)
-	-- In the switch's own event: only Elfcore's borrowed keys given back.
+	-- In the switch's own event: only Bankai Guild's borrowed keys given back.
 	for _, r in ipairs(C.switchLedger) do
 		assert(r.ids and (r.ids[1] == "chat-key" or r.ids[1] == "main-key"), "in the switch's event: " .. Describe(r))
 	end
@@ -2412,21 +2412,21 @@ test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the g
 	GP.Covers("main-key")
 	C.Advance(1)
 	-- The next frame: each park.
-	eq(#NavigableElfcore(C, true), 0, "no Elfcore button where the gamepad cursor goes")
+	eq(#NavigableBankaiGuild(C, true), 0, "no Bankai Guild button where the gamepad cursor goes")
 	GP.Covers("communities-button")
 	local shown = ShownOnGameFrames(C)
-	eq(#shown, 0, "Elfcore's objects on the game's frames hidden: " .. table.concat(shown, ", "))
+	eq(#shown, 0, "Bankai Guild's objects on the game's frames hidden: " .. table.concat(shown, ", "))
 	GP.Covers("map-overlay"); GP.Covers("borders"); GP.Covers("nameplates")
 	eq(C.handler, C.gameHandler, "the game's error handler back")
 	GP.Covers("error-handler")
-	eq(#ElfcoreEscapeNames(C), 0, "Elfcore's names off the end of the escape list (" .. escapeBefore .. ")")
+	eq(#BankaiGuildEscapeNames(C), 0, "Bankai Guild's names off the end of the escape list (" .. escapeBefore .. ")")
 	GP.Covers("escape-list")
-	eq((WorldPins(C)), 0, "Elfcore's icons off the world map")
+	eq((WorldPins(C)), 0, "Bankai Guild's icons off the world map")
 	GP.Covers("worldmap-icons")
 	eq(ns.Who.IsPending(), false, "the quiet /who given up at the switch")
 	eq(E.LFGWhoListFrame:IsEventRegistered("WHO_LIST_UPDATE"), true, "the game's who list hears its answers again at once")
 	GP.Covers("who-quiet")
-	-- What stays until a /reload, told once in Elfcore's own window, whose Reload is the player's click.
+	-- What stays until a /reload, told once in Bankai Guild's own window, whose Reload is the player's click.
 	local left = table.concat(ns.Gate.leftovers, ",")
 	for _, id in ipairs({ "chat-box", "dialogs", "slash", "worldmap-icons" }) do
 		assert(left:find(id, 1, true), "until a /reload: " .. id .. " (" .. left .. ")")
@@ -2434,9 +2434,9 @@ test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the g
 	GP.Covers("slash"); GP.Covers("dialogs"); GP.Covers("chat-box")
 	eq(ns.Gate.Noticed(), true, "told")
 	local notice
-	for _, w in ipairs(C.created) do if w.elfcore and w.which == "ELFCORE_GAMEPAD_RELOAD" and w:IsShown() then notice = w end end
-	assert(notice, "the notice, in Elfcore's own window (Dialog.lua)")
-	eq(E.StaticPopup1.which == "ELFCORE_GAMEPAD_RELOAD", false, "not the game's popup")
+	for _, w in ipairs(C.created) do if w.bankaiguild and w.which == "BANKAIGUILD_GAMEPAD_RELOAD" and w:IsShown() then notice = w end end
+	assert(notice, "the notice, in Bankai Guild's own window (Dialog.lua)")
+	eq(E.StaticPopup1.which == "BANKAIGUILD_GAMEPAD_RELOAD", false, "not the game's popup")
 	Check(C.Since(mark), "the switch")
 	-- The notice's Reload: the player's click.
 	local reload
@@ -2466,10 +2466,10 @@ test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the g
 	PersonFlow(C)
 	GP.Covers("roster-actions"); GP.Covers("who")
 	DialogsFlow(C)
-	-- /elf typed now: registered before, the game's chat box still calls it (the leftover the
+	-- /bk typed now: registered before, the game's chat box still calls it (the leftover the
 	-- notice names); its first line refuses, nothing of the game's is touched.
-	eq(TypeSlash(C, "/elf status"), true, "the command the game keeps")
-	eq(#C.taint, 1, "the chat box ran Elfcore's function: the /reload the notice asks for")
+	eq(TypeSlash(C, "/bk status"), true, "the command the game keeps")
+	eq(#C.taint, 1, "the chat box ran Bankai Guild's function: the /reload the notice asks for")
 	C.Advance(30)
 	Check(C.Since(after), "the gamepad UI after the switch")
 	NoErrors(C, "after the switch")
@@ -2486,15 +2486,15 @@ test("gamepad pass 3: the gamepad UI and mouse and keyboard, back and forth thre
 		WindowFlow(C)
 		ChatTabFlow(C)
 		E.CommunitiesFrame:Show(); C.Advance(0.5)
-		assert(#NavigableElfcore(C) > 0, "round " .. round .. ": Elfcore's button back in the guild window")
+		assert(#NavigableBankaiGuild(C) > 0, "round " .. round .. ": Bankai Guild's button back in the guild window")
 		E.CommunitiesFrame:Hide()
 		MapFlow(C)
 		eq(select(2, TooltipFlow(C)), 1, "round " .. round .. ": the tooltip's post-call, once")
-		eq(TypeSlash(C, "/elf status"), true, "round " .. round .. ": /elf back")
+		eq(TypeSlash(C, "/bk status"), true, "round " .. round .. ": /bk back")
 		C.Switch(true)
 		C.Advance(1)
 		E.CommunitiesFrame:Show(); C.Advance(0.5)
-		eq(#NavigableElfcore(C), 0, "round " .. round .. ": none with the gamepad UI")
+		eq(#NavigableBankaiGuild(C), 0, "round " .. round .. ": none with the gamepad UI")
 		E.CommunitiesFrame:Hide()
 		WindowFlow(C)
 		eq(TooltipFlow(C), 0, "round " .. round .. ": no tooltip line")
@@ -2510,17 +2510,17 @@ test("gamepad pass 3: the gamepad UI and mouse and keyboard, back and forth thre
 	for key, n in pairs(count) do eq(n, 1, "registered once: " .. key) end
 	eq(#C.menus.MENU_UNIT_PLAYER, 1, "the player menu's callback, once")
 	local slash = 0
-	for k in pairs(E.SlashCmdList) do if k:find("^ELFCORE") then slash = slash + 1 end end
-	eq(slash, 7, "/elf and /ef, /efc, /efl, /elfa (1.2: a line in the fight room), /ogarmy and /olysite (1.3.3), once")
+	for k in pairs(E.SlashCmdList) do if k:find("^Bankai Guild") then slash = slash + 1 end end
+	eq(slash, 7, "/bk and /bg, /bgc, /bgl, /bka (1.2: a line in the fight room), /ogarmy and /olysite (1.3.3), once")
 	GP.Covers("player-menu"); GP.Covers("slash"); GP.Covers("minimap")
-	assert(rawget(E, "ElfcoreMinimapButton"):IsVisible(), "the minimap button in both modes")
+	assert(rawget(E, "BankaiGuildMinimapButton"):IsVisible(), "the minimap button in both modes")
 end)
 
 test("gamepad pass 4: blocked calls with the gamepad UI: counted, told once in a chat line, nothing of the game's touched; another addon's only logged", function()
 	local C, ns = Session(true)
 	local mark = C.Mark()
 	local printed = #C.printed
-	for i = 1, 500 do C.Fire("ADDON_ACTION_FORBIDDEN", "Elfcore", "SetPreferredGamepadInteractTarget()") end
+	for i = 1, 500 do C.Fire("ADDON_ACTION_FORBIDDEN", "Bankai Guild", "SetPreferredGamepadInteractTarget()") end
 	C.Fire("ADDON_ACTION_BLOCKED", "SomeOtherAddon", "SetPreferredGamepadInteractTarget()")
 	eq(#C.Since(mark), 0, "the handler reaches nothing of the game's")
 	C.Advance(5)
@@ -2538,8 +2538,8 @@ test("gamepad pass 4: blocked calls with the gamepad UI: counted, told once in a
 	NoErrors(C, "blocked calls")
 end)
 
-test("gamepad pass 5: the rest of the list with the gamepad UI on: the Issue Reporter, the map library half-loaded or loaded on demand, the layer hop's group, focus in Elfcore's own boxes, the game's look-ups", function()
-	-- A test client's Issue Reporter (Blizzard_PTRFeedback): Elfcore's Hide button on it with
+test("gamepad pass 5: the rest of the list with the gamepad UI on: the Issue Reporter, the map library half-loaded or loaded on demand, the layer hop's group, focus in Bankai Guild's own boxes, the game's look-ups", function()
+	-- A test client's Issue Reporter (Blizzard_PTRFeedback): Bankai Guild's Hide button on it with
 	-- mouse and keyboard, a gamepad target no more after the switch; none at a gamepad login.
 	local function Reporter(C)
 		local E = C.env
@@ -2553,15 +2553,15 @@ test("gamepad pass 5: the rest of the list with the gamepad UI on: the Issue Rep
 	ns.db.hideIssueReporter = false
 	ns.UI.ApplyIssueReporter()
 	C.env.PTR_IssueReporter:Show()
-	assert(#NavigableElfcore(C) > 0, "Elfcore's Hide button on the Issue Reporter")
+	assert(#NavigableBankaiGuild(C) > 0, "Bankai Guild's Hide button on the Issue Reporter")
 	C.Switch(true); C.Advance(1)
-	eq(#NavigableElfcore(C), 0, "hidden at the switch")
+	eq(#NavigableBankaiGuild(C), 0, "hidden at the switch")
 	GP.Covers("issue-reporter")
 	Check(C.ledger, "the Issue Reporter")
 	local P = Session(true, { setup = Reporter })
 	P.env.PTR_IssueReporter:Show()
 	P.ns.UI.ApplyIssueReporter()
-	eq(#NavigableElfcore(P), 0, "none at a gamepad login")
+	eq(#NavigableBankaiGuild(P), 0, "none at a gamepad login")
 	Check(P.ledger, "the Issue Reporter, gamepad login")
 
 	-- The map library on a client that loads the world map on demand: Bootstrap.lua loads it first.
@@ -2610,20 +2610,20 @@ test("gamepad pass 5: the rest of the list with the gamepad UI on: the Issue Rep
 	-- Focus: a dialog's box takes the keyboard only through ns.Focus, never from the game's chat box.
 	local F = Session(true)
 	F.env.ChatFrame1EditBox:Show(); F.focus = F.env.ChatFrame1EditBox
-	F.ns.ShowDialog("ELFCORE_CRAFT_ASK")
-	eq(F.focus, F.env.ChatFrame1EditBox, "the chat's box keeps the keyboard; the player clicks into Elfcore's")
+	F.ns.ShowDialog("BANKAIGUILD_CRAFT_ASK")
+	eq(F.focus, F.env.ChatFrame1EditBox, "the chat's box keeps the keyboard; the player clicks into Bankai Guild's")
 	GP.Covers("popup-focus")
 	-- The game's look-ups (fonts, strings, the popups' places, the who windows): reads only.
 	assert(F.ns.Who.WindowOpen() == false)
 	GP.Covers("lookups")
-	-- Forever has no who-list column helper (the old guild window's): Elfcore's HD headers size themselves.
+	-- Forever has no who-list column helper (the old guild window's): Bankai Guild's HD headers size themselves.
 	eq(F.env.WhoFrameColumn_SetWidth, nil, "the client has none")
 	GP.Covers("own-templates")
 	Check(F.ledger, "focus and look-ups")
 	NoErrors(F, "focus and look-ups")
 
 	-- Inspecting for the tabard patrol (NotifyInspect, not protected): with the gamepad UI too.
-	F.units.target = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Elfcore II" }
+	F.units.target = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Bankai Guild II" }
 	F.env.CanInspect = function() return true end
 	F.env.CheckInteractDistance = function() return true end
 	local before = F.Mark()
@@ -2669,26 +2669,26 @@ end)
 if MODE == "--debug" then
 	return { Boot = Boot, Login = Login, Session = Session, WindowFlow = WindowFlow, Main = Main, Errors = Errors, DialogsFlow = DialogsFlow,
 		GuildWindowsFlow = GuildWindowsFlow, MapFlow = MapFlow, TooltipFlow = TooltipFlow, MenuFlow = MenuFlow, ChatLineFlow = ChatLineFlow,
-		TypeSlash = TypeSlash, Snapshot = Snapshot, Diff = Diff, Check = Check, NavigableElfcore = NavigableElfcore, Describe = Describe,
+		TypeSlash = TypeSlash, Snapshot = Snapshot, Diff = Diff, Check = Check, NavigableBankaiGuild = NavigableBankaiGuild, Describe = Describe,
 		AllowedUnderPad = AllowedUnderPad }
 end
 -- 1.2.4: the honours' notices (HonorsNet.Notice: a place dropped, the list left, back on it, a place
--- won back) are strips of Elfcore's own, never the game's popups nor its raid warning: with the gamepad
+-- won back) are strips of Bankai Guild's own, never the game's popups nor its raid warning: with the gamepad
 -- UI on from the login, a strip shows and reaches nothing of the game's, takes neither the mouse nor
 -- the keyboard, has no button the gamepad's cursor could stop on, never goes on the escape list, and
 -- goes by itself.
-test("gamepad honour notices (1.2.4): with the gamepad UI on, a notice's strip is Elfcore's own on UIParent, shown without the mouse or the keyboard, no button, off the escape list, reaching nothing of the game's; gone by itself", function()
+test("gamepad honour notices (1.2.4): with the gamepad UI on, a notice's strip is Bankai Guild's own on UIParent, shown without the mouse or the keyboard, no button, off the escape list, reaching nothing of the game's; gone by itself", function()
 	local C, ns = Session(true)
 	local mark = C.Mark()
 	local before = Snapshot(C)
 	eq(ns.HonorsNet.Notice("Top donors: you dropped to 2nd place.", "donor-top-2"), true, "a strip with the gamepad UI on")
 	local f = ns.HonorsNet.NoticeFrames()[1]
 	assert(f and f:IsShown(), "shown")
-	eq(f.elfcore, true, "Elfcore's own frame") eq(f.parent, C.env.UIParent, "on UIParent")
+	eq(f.bankaiguild, true, "Bankai Guild's own frame") eq(f.parent, C.env.UIParent, "on UIParent")
 	eq(f:IsMouseEnabled(), false, "no mouse") eq(f.keyboard, false, "no keyboard")
 	for _, ch in ipairs(f.children) do assert(not ch:IsObjectType("Button"), "no button on it") end
-	eq(#NavigableElfcore(C, true), 0, "nothing for the gamepad's cursor")
-	eq(#ElfcoreEscapeNames(C), 0, "never on the escape list")
+	eq(#NavigableBankaiGuild(C, true), 0, "nothing for the gamepad's cursor")
+	eq(#BankaiGuildEscapeNames(C), 0, "never on the escape list")
 	C.Advance(ns.HonorsNet.NOTICE_SHOW + 1)
 	eq(f:IsShown(), false, "gone by itself")
 	OnlyAllowed(C.Since(mark), "a notice")
@@ -2699,8 +2699,8 @@ end)
 
 -- 1.2 (the Blood Arena): its restricted calls only inside the player's click, the match's waypoint
 -- and the chat filters on the game's system lines never with the gamepad UI (the filter left from
--- mouse and keyboard doing nothing), its companion loaded as Elfcore's own addon.
-test("gamepad pass 6: the Arena's integrations: restricted calls from a click alone, no waypoint and no chat filter with the gamepad UI, the companion loaded as Elfcore's own", function()
+-- mouse and keyboard doing nothing), its companion loaded as Bankai Guild's own addon.
+test("gamepad pass 6: the Arena's integrations: restricted calls from a click alone, no waypoint and no chat filter with the gamepad UI, the companion loaded as Bankai Guild's own", function()
 	local A = Session(true)
 	local ns = A.ns
 	local before = A.Mark()
@@ -2718,7 +2718,7 @@ test("gamepad pass 6: the Arena's integrations: restricted calls from a click al
 	eq(#A.Since(before), 0, "nothing of the game's map")
 	GP.Covers("map-waypoint")
 	-- A Wanted last-seen row follows the same boundary: its text remains available, but a gamepad
-	-- session never opens or focuses the game's map from Elfcore code.
+	-- session never opens or focuses the game's map from Bankai Guild code.
 	before = A.Mark()
 	eq(ns.Wanted.OpenSightingMap({ mapID = 1429 }), false, "no Wanted map focus with the gamepad UI")
 	eq(#A.Since(before), 0, "a Wanted row touches none of the game's map")
@@ -2749,13 +2749,13 @@ test("gamepad pass 6: the Arena's integrations: restricted calls from a click al
 	eq(filters[1].fn(nil, "CHAT_MSG_SYSTEM", "Someone rolls 3 (1-6)"), false, "inert with the gamepad UI")
 	FT.Opts().chatRolls = was
 	GP.Covers("system-filters")
-	-- The companion, Elfcore_Arena: Elfcore's own addon, loaded on demand with the gamepad UI too.
+	-- The companion, BankaiGuild_Arena: Bankai Guild's own addon, loaded on demand with the gamepad UI too.
 	before = A.Mark()
 	ns.Arena.LoadUI()
 	local loaded = false
 	for _, r in ipairs(A.Since(before)) do if r.sym == "C_AddOns.LoadAddOn" then loaded = true end end
 	assert(loaded, "the companion asked for, with the gamepad UI on")
-	eq(A.loadedAddOns.Elfcore_Arena, true)
+	eq(A.loadedAddOns.BankaiGuild_Arena, true)
 	GP.Covers("load-companion")
 	Check(A.ledger, "the Arena")
 end)
@@ -2797,7 +2797,7 @@ local function DuelScene(C)
 	E.CanInspect = function() return true end
 	E.CheckInteractDistance = function() return true end
 end
--- The player menu's callbacks the game's way, on his target: the lines Elfcore adds (text, click).
+-- The player menu's callbacks the game's way, on his target: the lines Bankai Guild adds (text, click).
 local function MenuLines(C)
 	local lines = {}
 	local function Element()
@@ -2872,14 +2872,14 @@ test("gamepad duel view (1.2.6): Watch duel's line only through the player menu'
 	NoErrors(C, "a duel watch")
 end)
 
--- 1.2.1: [Elfcore], [Captains] and [Lords] before a line in the game's chat, links where the player
+-- 1.2.1: [Bankai Guild], [Captains] and [Lords] before a line in the game's chat, links where the player
 -- may write there. A click on one the game's way: the chat window's OnHyperlinkClick calls SetItemRef
 -- (the hooks on it after).
 local function ClickTag(C, tier, button)
 	local E = C.env
 	C.chatBox = nil
 	local mark = C.Mark()
-	InClick(C, function() E.SetItemRef("addon:Elfcore:chan:" .. tier, "[x]", button or "LeftButton", E.ChatFrame1) end)
+	InClick(C, function() E.SetItemRef("addon:BankaiGuild:chan:" .. tier, "[x]", button or "LeftButton", E.ChatFrame1) end)
 	return C.chatBox and C.chatBox.text or nil, C.Since(mark)
 end
 local function TagHooks(C)
@@ -2891,9 +2891,9 @@ test("gamepad pass 7: the chat's channel names as links: hooked once with mouse 
 	local C, ns = Session(false)
 	local Chan = ns.Channels
 	eq(TagHooks(C), 1, "the post-hook on SetItemRef, with mouse and keyboard")
-	eq(Chan.Tag("A"), "|Haddon:Elfcore:chan:A|h[" .. ns.L.CHAN_ALL .. "]|h", "[Elfcore] a link: the player writes there")
+	eq(Chan.Tag("A"), "|Haddon:BankaiGuild:chan:A|h[" .. ns.L.CHAN_ALL .. "]|h", "[Bankai Guild] a link: the player writes there")
 	local text, ledger = ClickTag(C, "A")
-	eq(text, "/ef ", "a left click: the chat box, /ef in it")
+	eq(text, "/bg ", "a left click: the chat box, /bg in it")
 	eq(Ids(ledger)["chat-box"], 1, "the chat box, the gate's chat-box")
 	Check(ledger, "the click")
 	eq(C.itemRefs[#C.itemRefs].handled, "AddOn", "the game's own handling first, as for any link")
@@ -2910,7 +2910,7 @@ test("gamepad pass 7: the chat's channel names as links: hooked once with mouse 
 	-- Back to mouse and keyboard: the same hook, not a second one.
 	C.Switch(false); C.Advance(1)
 	eq(TagHooks(C), 1, "registered once a session")
-	eq((ClickTag(C, "A")), "/ef ")
+	eq((ClickTag(C, "A")), "/bg ")
 	Check(C.ledger, "the whole session")
 	NoErrors(C, "the chat's channel links")
 	-- A gamepad login: nothing hooked, no link; the first switch to mouse and keyboard hooks it, once.
@@ -2920,7 +2920,7 @@ test("gamepad pass 7: the chat's channel names as links: hooked once with mouse 
 	eq((ClickTag(P, "A")), nil)
 	P.Switch(false); P.Advance(1)
 	eq(TagHooks(P), 1, "hooked at the switch to mouse and keyboard")
-	eq((ClickTag(P, "A")), "/ef ")
+	eq((ClickTag(P, "A")), "/bg ")
 	Check(P.ledger, "a gamepad login, then mouse and keyboard")
 	NoErrors(P, "a gamepad login, then mouse and keyboard")
 	GP.Covers("chat-links"); GP.Covers("chat-box")
@@ -2934,7 +2934,7 @@ local function CoverScene(ns)
 	ns.db.coverConsent = true
 end
 local function CoverFlow(C)
-	C.units.target = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Elfcore II", rank = "Titan", rankIndex = 1 }
+	C.units.target = { name = "Someone", realm = "Realm", guid = "Player-1-00000002", guild = "Bankai Guild II", rank = "Titan", rankIndex = 1 }
 	local fs = C.NewWidget("FontString", nil, nil, nil, true)
 	fs:SetText("Someone")
 	local mark = C.Mark()
@@ -2968,19 +2968,19 @@ end)
 
 test("gamepad main shortcut (Shift + the guild key): no binding at gamepad login, both input-style switches and saved binding changes preserve the native owner", function()
 	local P, pad = Session(true)
-	eq(pad.MainKey.Held(), false); eq(P.env.ElfcoreMainKey, nil, "no key button at a gamepad login")
+	eq(pad.MainKey.Held(), false); eq(P.env.BankaiGuildMainKey, nil, "no key button at a gamepad login")
 	P.Switch(false); P.Advance(1); eq(pad.MainKey.Held(), true)
 	P.Switch(true); eq(pad.MainKey.Held(), false, "release in the switch before native rebinding")
 	P.Advance(1); Check(P.ledger, "main key switches")
 	local C, ns = Session(false)
-	eq(ns.MainKey.Held(), true); eq(C.bindings["SHIFT-J"], "ElfcoreMainKey")
+	eq(ns.MainKey.Held(), true); eq(C.bindings["SHIFT-J"], "BankaiGuildMainKey")
 	if ns.UI.IsShown() then ns.UI.Toggle() end
 	eq(ns.UI.IsShown() == true, false, "start with the main window closed")
-	C.Click(C.env.ElfcoreMainKey); eq(ns.UI.IsShown(), true)
-	C.Click(C.env.ElfcoreMainKey); eq(ns.UI.IsShown(), false)
+	C.Click(C.env.BankaiGuildMainKey); eq(ns.UI.IsShown(), true)
+	C.Click(C.env.BankaiGuildMainKey); eq(ns.UI.IsShown(), false)
 	C.baseBindings["SHIFT-J"] = "TOGGLEQUESTLOG"; C.Fire("UPDATE_BINDINGS")
 	eq(ns.MainKey.Held(), false); eq(C.bindings["SHIFT-J"], nil); eq(C.baseBindings["SHIFT-J"], "TOGGLEQUESTLOG")
-	C.Click(C.env.ElfcoreMainKey); eq(ns.UI.IsShown(), false, "a stale callback cannot steal the player's key")
+	C.Click(C.env.BankaiGuildMainKey); eq(ns.UI.IsShown(), false, "a stale callback cannot steal the player's key")
 	C.baseBindings["SHIFT-J"] = nil; C.Fire("UPDATE_BINDINGS"); eq(ns.MainKey.Held(), true)
 	C.Switch(true); eq(ns.MainKey.Held(), false); C.Advance(1)
 	C.Switch(false); C.Advance(1); eq(ns.MainKey.Held(), true)
@@ -2988,12 +2988,12 @@ test("gamepad main shortcut (Shift + the guild key): no binding at gamepad login
 	GP.Covers("main-key")
 end)
 
--- 1.2.5.1: the Elfcore Accord (Accord.lua) on a fresh account's first session, gamepad UI on from the
--- login: the Accord asks first, in Elfcore's own window (no game popup, nothing of the game's UI
--- reached); the controller's click on I accept starts Elfcore; the privacy page comes after it.
-test("gamepad: a fresh account's first session: the Elfcore Accord first, in Elfcore's own window; I accept by the controller's click, then the privacy page", function()
+-- 1.2.5.1: the Bankai Guild Accord (Accord.lua) on a fresh account's first session, gamepad UI on from the
+-- login: the Accord asks first, in Bankai Guild's own window (no game popup, nothing of the game's UI
+-- reached); the controller's click on I accept starts Bankai Guild; the privacy page comes after it.
+test("gamepad: a fresh account's first session: the Bankai Guild Accord first, in Bankai Guild's own window; I accept by the controller's click, then the privacy page", function()
 	local C, ns = Session(true, { fresh = true })
-	eq(ns.IsMember(), false, "nothing of Elfcore before it is accepted")
+	eq(ns.IsMember(), false, "nothing of Bankai Guild before it is accepted")
 	local f = ns.Accord.Frame()
 	assert(f and f:IsShown(), "the letter, LOGIN_WAIT after login")
 	eq(f.acceptEnabled, true, "the test tag is read")
@@ -3006,9 +3006,9 @@ test("gamepad: a fresh account's first session: the Elfcore Accord first, in Elf
 	C.Advance(5)
 	page = ns.Consent.Frame()
 	assert(page and page:IsShown(), "then the privacy page")
-	Check(C.ledger, "the Elfcore Accord with the gamepad UI")
-	NoErrors(C, "the Elfcore Accord with the gamepad UI")
-	-- Not now, on another fresh session: Elfcore stays off, nothing of the game's reached either.
+	Check(C.ledger, "the Bankai Guild Accord with the gamepad UI")
+	NoErrors(C, "the Bankai Guild Accord with the gamepad UI")
+	-- Not now, on another fresh session: Bankai Guild stays off, nothing of the game's reached either.
 	local C2, ns2 = Session(true, { fresh = true })
 	InClick(C2, function() ns2.Accord.Frame().notNow:Click() end)
 	eq(ns2.IsMember(), false); eq(ns2.Accord.Frame():IsShown(), false)
@@ -3021,7 +3021,7 @@ end)
 -- 1.2.5.1's review: the server's no-such-player line for the BattleTag's whisper to a team member
 -- who just left (Accord.Quiet): no chat filter with the gamepad UI; registered once with mouse and
 -- keyboard; doing nothing from its first line after a switch back to the gamepad UI.
-test("gamepad: the Elfcore Accord's quiet not-found line: no chat filter with the gamepad UI, one with mouse and keyboard, inert after the switch back", function()
+test("gamepad: the Bankai Guild Accord's quiet not-found line: no chat filter with the gamepad UI, one with mouse and keyboard, inert after the switch back", function()
 	local A = Session(true)
 	local ns = A.ns
 	local before = A.Mark()
@@ -3037,8 +3037,8 @@ test("gamepad: the Elfcore Accord's quiet not-found line: no chat filter with th
 	A.Switch(true); A.Advance(1)
 	eq(filters[1].fn(nil, "CHAT_MSG_SYSTEM", "No player named 'Iron Warden' is currently playing."), false, "inert with the gamepad UI")
 	GP.Covers("system-filters")
-	Check(A.ledger, "the Elfcore Accord's quiet line")
-	NoErrors(A, "the Elfcore Accord's quiet line")
+	Check(A.ledger, "the Bankai Guild Accord's quiet line")
+	NoErrors(A, "the Bankai Guild Accord's quiet line")
 end)
 
 if MODE == "--discover" then

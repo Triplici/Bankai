@@ -2,7 +2,7 @@ local ns, test, eq, H = ...
 local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]guild%-charter%.lua$")) or "./"
 
 local function Client()
-	local w = { clock = 1800000000, guild = "Elfcore Ember", rank = 0, member = true,
+	local w = { clock = 1800000000, guild = "Bankai Guild Ember", rank = 0, member = true,
 		locale = "enUS", class = "MAGE", jobs = {}, outside = {}, timers = {}, chats = {}, ranks = {} }
 	local c = setmetatable({ me = "Nova Crown-Realm", realm = "Realm", group = "Realm", faction = "Alliance",
 		L = setmetatable({}, { __index = ns.L }), db = {}, rdb = { guilds = {} }, Moderation = {}, RealmPages = {} }, { __index = ns })
@@ -29,39 +29,39 @@ local function Client()
 	c.UI = setmetatable({ WhisperText = function(name, text) w.letter = { name = name, text = text }; return true end }, { __index = ns.UI })
 	local dialogs = {}; for key, value in pairs(StaticPopupDialogs) do dialogs[key] = value end
 	for _, file in ipairs({ "Locales/GuildCharterText", "Data", "GuildCharter", "Recruit" }) do
-		assert(loadfile(ROOT .. "Elfcore/" .. file .. ".lua"))("Elfcore", c)
+		assert(loadfile(ROOT .. "BankaiGuild/" .. file .. ".lua"))("BankaiGuild", c)
 	end
-	w.dialog = StaticPopupDialogs.ELFCORE_CHARTER_FIELD
+	w.dialog = StaticPopupDialogs.BANKAIGUILD_CHARTER_FIELD
 	for key in pairs(StaticPopupDialogs) do if not dialogs[key] then StaticPopupDialogs[key] = nil end end
 	for key, value in pairs(dialogs) do StaticPopupDialogs[key] = value end
 	function w:As(fn, ...)
 		local saved = { guild = GetGuildInfo, server = GetServerTime, locale = GetLocale, class = UnitClass, level = UnitLevel,
-			info = C_ChatInfo, time = GetTime, say = SendChatMessage, dialog = StaticPopupDialogs.ELFCORE_CHARTER_FIELD }
+			info = C_ChatInfo, time = GetTime, say = SendChatMessage, dialog = StaticPopupDialogs.BANKAIGUILD_CHARTER_FIELD }
 		GetGuildInfo = function() return self.guild, "Rank", self.rank end
 		GetServerTime, GetTime, GetLocale = function() return self.clock end, function() return self.clock end, function() return self.locale end
 		UnitClass = function() return self.class, self.class end
 		UnitLevel = function() return 20 end
 		C_ChatInfo = setmetatable({ SendAddonMessageLogged = function() end }, { __index = saved.info })
 		SendChatMessage = function(text, dist, _, to) self.chats[#self.chats + 1] = { text = text, dist = dist, to = to } end
-		StaticPopupDialogs.ELFCORE_CHARTER_FIELD = self.dialog
+		StaticPopupDialogs.BANKAIGUILD_CHARTER_FIELD = self.dialog
 		local result = { pcall(fn, ...) }
 		GetGuildInfo, GetServerTime, GetLocale, UnitClass, GetTime, SendChatMessage = saved.guild, saved.server, saved.locale, saved.class, saved.time, saved.say
 		UnitLevel, C_ChatInfo = saved.level, saved.info
-		StaticPopupDialogs.ELFCORE_CHARTER_FIELD = saved.dialog
+		StaticPopupDialogs.BANKAIGUILD_CHARTER_FIELD = saved.dialog
 		if not result[1] then error(result[2], 0) end
 		return unpack(result, 2)
 	end
 	return w, c
 end
 local function Card(w, guild, by, language, wanted)
-	return { guild = guild or "Elfcore Ember", by = by or "Nova Crown-Realm", rev = w.clock,
+	return { guild = guild or "Bankai Guild Ember", by = by or "Nova Crown-Realm", rev = w.clock,
 		faction = w.c.faction == "Horde" and "H" or "A", language = language or "enUS",
 		wanted = wanted or "MA", nights = "Fri 20:00", purpose = "Friendly dungeon groups" }
 end
 local function QuerySources(w, c)
 	w.member, w.guild, w.rank = false, nil, nil
-	c.Recruit.found = { { name = "Echo Scout-Realm", guild = "Elfcore Ember" },
-		{ name = "Sage Scout-Realm", guild = "Elfcore Willow" }, { name = "Third Scout-Realm", guild = "Elfcore Grove" } }
+	c.Recruit.found = { { name = "Echo Scout-Realm", guild = "Bankai Guild Ember" },
+		{ name = "Sage Scout-Realm", guild = "Bankai Guild Willow" }, { name = "Third Scout-Realm", guild = "Bankai Guild Grove" } }
 	c.GuildCharter.Ask("Echo Scout-Realm"); c.GuildCharter.Ask("Sage Scout-Realm")
 end
 local function Names(list)
@@ -84,8 +84,8 @@ test("Guild charter: actual editing preserves bounds, canonical classes, logged 
 		eq(G.Parse(w.jobs[1].msg, c.me).wanted, "MA,PR")
 		eq(w.jobs[1].opts.guard(), true)
 		w.rank = 1; eq(w.jobs[1].opts.guard(), false); eq(G.SetField("purpose", "Not authorized"), false); eq(G.Send(true), false)
-		w.rank = 0; w.guild = "Elfcore Willow"; eq(w.jobs[1].opts.guard(), false); eq(G.Ours(), nil)
-		w.guild = "Elfcore Ember"; w.clock = w.clock + G.LIFE + 61; eq(G.Ours(), nil, "an edit past LIFE is not shown before his client says it again")
+		w.rank = 0; w.guild = "Bankai Guild Willow"; eq(w.jobs[1].opts.guard(), false); eq(G.Ours(), nil)
+		w.guild = "Bankai Guild Ember"; w.clock = w.clock + G.LIFE + 61; eq(G.Ours(), nil, "an edit past LIFE is not shown before his client says it again")
 		-- (1.2.4, the author's ask: lists are not erased: a repeat renews the card, which ended
 		-- LIFE after its last edit before, the master playing on or not)
 		G.Send(true)
@@ -105,7 +105,7 @@ test("Guild charter: current roster and actual two-report rank verification reje
 		eq(G.Handle("WHISPER", card.by, msg), false)
 		eq(G.Handle("CHANNEL", "Pretender-Realm", msg), false)
 		w.ranks[card.by] = 1; eq(G.Get(card.guild), nil, "rank loss removes held authority")
-		w.guild = "Elfcore Willow"; w.ranks = {}; c.me = "Reed Reader-Realm"
+		w.guild = "Bankai Guild Willow"; w.ranks = {}; c.me = "Reed Reader-Realm"
 		local function Report(source, leader)
 			return c.Data.Receive({ guild = card.guild, leader = leader or "Nova Crown", total = 20, online = 2,
 				faction = "Alliance", officers = {}, zones = {} }, source)
@@ -161,9 +161,9 @@ test("Guild charter: actual /who route asks correlate charter replies and bound 
 	w:As(function()
 		w.member, w.guild, w.rank = false, nil, nil
 		local G, R = c.GuildCharter, c.Recruit
-		R.OnFound({ { name = "Echo Scout-Realm", guild = "Elfcore Ember" },
-			{ name = "Sage Scout-Realm", guild = "Elfcore Willow" }, { name = "Third Scout-Realm", guild = "Elfcore Grove" },
-			{ name = "Fourth Scout-Realm", guild = "Elfcore Branch" } })
+		R.OnFound({ { name = "Echo Scout-Realm", guild = "Bankai Guild Ember" },
+			{ name = "Sage Scout-Realm", guild = "Bankai Guild Willow" }, { name = "Third Scout-Realm", guild = "Bankai Guild Grove" },
+			{ name = "Fourth Scout-Realm", guild = "Bankai Guild Branch" } })
 		eq(#w.outside, 2); eq(w.outside[1].msg, "J1~1"); eq(w.outside[2].msg, "QC~1~A")
 		local card = Card(w); local msg = G.Encode(card, "QD")
 		eq(R.OnRoute("Echo Scout-Realm", msg), true)
@@ -174,8 +174,8 @@ test("Guild charter: actual /who route asks correlate charter replies and bound 
 		eq(#w.outside, 6); eq(w.outside[5].to, "Third Scout")
 		eq(R.OnRoute("Third Scout-Realm", msg), true); eq(#w.outside, 6, "three route/card sources, never a fourth")
 		eq(R.OnRoute("Fourth Scout-Realm", msg), false)
-		eq(R.OnRoute("Sage Scout-Realm", "J2~y~~0~Elfcore Ember=10=Echo Scout"), true)
-		eq(R.Route().byName["Elfcore Ember"].free, 10, "the original J2 remains independent of the card")
+		eq(R.OnRoute("Sage Scout-Realm", "J2~y~~0~Bankai Guild Ember=10=Echo Scout"), true)
+		eq(R.Route().byName["Bankai Guild Ember"].free, 10, "the original J2 remains independent of the card")
 		eq(#w.chats, 0); eq(#w.jobs, 0, "confirmation asks only addons, not player chat")
 	end)
 end)
@@ -186,32 +186,32 @@ test("Guild charter: Join orders gates, language, class, local friend and room; 
 		local G, R = c.GuildCharter, c.Recruit
 		QuerySources(w, c)
 		R.ConfirmCharters = function() return false end -- transport solicitation is covered separately
-		R.found[#R.found + 1] = { name = "Mira Friend-Realm", guild = "Elfcore Ember" }
-		R.found[#R.found + 1] = { name = "Gate Keeper-Realm", guild = "Elfcore Gates" }
-		R.route = { t = w.clock, list = { { name = "Elfcore Willow", free = 800 }, { name = "Elfcore Grove", free = 500 },
-			{ name = "Elfcore Ember", free = 10 }, { name = "Elfcore Gates", free = 5 } }, byName = {
-			["Elfcore Willow"] = { free = 800 }, ["Elfcore Grove"] = { free = 500 },
-			["Elfcore Ember"] = { free = 10 }, ["Elfcore Gates"] = { free = 5 } } }
-		eq(Names(R.Guilds()), "Elfcore Willow,Elfcore Grove,Elfcore Ember,Elfcore Gates")
-		for _, spec in ipairs({ { "Elfcore Willow", "ptBR", "MA" }, { "Elfcore Grove", "enUS", "PR" },
-			{ "Elfcore Ember", "enUS", "MA" } }) do
+		R.found[#R.found + 1] = { name = "Mira Friend-Realm", guild = "Bankai Guild Ember" }
+		R.found[#R.found + 1] = { name = "Gate Keeper-Realm", guild = "Bankai Guild Gates" }
+		R.route = { t = w.clock, list = { { name = "Bankai Guild Willow", free = 800 }, { name = "Bankai Guild Grove", free = 500 },
+			{ name = "Bankai Guild Ember", free = 10 }, { name = "Bankai Guild Gates", free = 5 } }, byName = {
+			["Bankai Guild Willow"] = { free = 800 }, ["Bankai Guild Grove"] = { free = 500 },
+			["Bankai Guild Ember"] = { free = 10 }, ["Bankai Guild Gates"] = { free = 5 } } }
+		eq(Names(R.Guilds()), "Bankai Guild Willow,Bankai Guild Grove,Bankai Guild Ember,Bankai Guild Gates")
+		for _, spec in ipairs({ { "Bankai Guild Willow", "ptBR", "MA" }, { "Bankai Guild Grove", "enUS", "PR" },
+			{ "Bankai Guild Ember", "enUS", "MA" } }) do
 			local msg = G.Encode(Card(w, spec[1], nil, spec[2], spec[3]), "QD")
 			G.OnReported("Echo Scout-Realm", msg); G.OnReported("Sage Scout-Realm", msg)
 		end
-		eq(Names(R.Guilds()), "Elfcore Ember,Elfcore Grove,Elfcore Willow,Elfcore Gates")
+		eq(Names(R.Guilds()), "Bankai Guild Ember,Bankai Guild Grove,Bankai Guild Willow,Bankai Guild Gates")
 		eq(Names(R.RouteOrder(R.Route())), Names(R.Guilds()), "both visible routing lists agree")
 		local route = R.Route
-		R.Route = function() local r = route(); r.gates = "Elfcore Gates"; return r end
-		eq(Names(R.Guilds()), "Elfcore Gates,Elfcore Ember,Elfcore Grove,Elfcore Willow", "open gates beat affinity")
+		R.Route = function() local r = route(); r.gates = "Bankai Guild Gates"; return r end
+		eq(Names(R.Guilds()), "Bankai Guild Gates,Bankai Guild Ember,Bankai Guild Grove,Bankai Guild Willow", "open gates beat affinity")
 		R.Route = route
-		local grove = Card(w, "Elfcore Grove"); G.OnReported("Echo Scout-Realm", G.Encode(grove, "QD")); G.OnReported("Sage Scout-Realm", G.Encode(grove, "QD"))
-		eq(R.Guilds()[1].name, "Elfcore Grove", "equal language/class use room")
-		w.class = nil; eq(G.Affinity("Elfcore Ember")[2], 0, "an unavailable class cannot imply demand"); w.class = "MAGE"
-		eq(G.SetFriend("Mira Friend-Realm"), true); eq(R.Guilds()[1].name, "Elfcore Ember", "friend only from /who in that guild")
+		local grove = Card(w, "Bankai Guild Grove"); G.OnReported("Echo Scout-Realm", G.Encode(grove, "QD")); G.OnReported("Sage Scout-Realm", G.Encode(grove, "QD"))
+		eq(R.Guilds()[1].name, "Bankai Guild Grove", "equal language/class use room")
+		w.class = nil; eq(G.Affinity("Bankai Guild Ember")[2], 0, "an unavailable class cannot imply demand"); w.class = "MAGE"
+		eq(G.SetFriend("Mira Friend-Realm"), true); eq(R.Guilds()[1].name, "Bankai Guild Ember", "friend only from /who in that guild")
 		local sent = #w.outside; G.SetFriend(""); eq(#w.outside, sent, "friend preference is never sent")
-		R.route.byName["Elfcore Ember"].contacts = { "Invented Officer-Realm" }
-		assert(R.NextContact("Elfcore Ember").name ~= "Invented Officer-Realm", "charter/route cannot invent a /who contact")
-		local contact = R.NextContact("Elfcore Ember")
+		R.route.byName["Bankai Guild Ember"].contacts = { "Invented Officer-Realm" }
+		assert(R.NextContact("Bankai Guild Ember").name ~= "Invented Officer-Realm", "charter/route cannot invent a /who contact")
+		local contact = R.NextContact("Bankai Guild Ember")
 		eq(R.Ask(contact, "Hi! May I join your dungeon groups?"), true); eq(#w.chats, 1); eq(w.chats[1].dist, "WHISPER")
 		eq(R.Ask(contact, "Again"), false); eq(#w.chats, 1, "one edited whisper from the click, with the original cooldown")
 	end)
@@ -225,7 +225,7 @@ test("Guild charter: actual Join view shows reported cards and local preference 
 		local text = c.GuildCharter.Encode(Card(w), "QD")
 		c.GuildCharter.OnReported("Echo Scout-Realm", text); c.GuildCharter.OnReported("Sage Scout-Realm", text)
 		c.Who.StatusLines, c.Who.Searched = function() return {} end, function() return true end
-		assert(loadfile(ROOT .. "Elfcore/Views.lua"))("Elfcore", c)
+		assert(loadfile(ROOT .. "BankaiGuild/Views.lua"))("BankaiGuild", c)
 		local rows, reported, unknown, preference = c.Views.RecruitLines()
 		for _, row in ipairs(rows) do
 			if row.text == c.L.CHARTER_REPORTED:format(c.DisplayName("Nova Crown-Realm"), c.Ago(w.clock)) then reported = true end
@@ -251,7 +251,7 @@ test("Guild charter: private query answers are bounded, throttled and recheck so
 		eq(w.jobs[1].opts.guard(), true); w.rank = 1; eq(w.jobs[1].opts.guard(), false)
 		w.rank = 0
 		for i = 1, 4 do
-			local card = Card(w, "Elfcore Branch " .. i, "Branch Crown " .. i .. "-Realm")
+			local card = Card(w, "Bankai Guild Branch " .. i, "Branch Crown " .. i .. "-Realm")
 			for _, source in ipairs({ "Branch Scout " .. i .. "a-Realm", "Branch Scout " .. i .. "b-Realm" }) do
 				eq(c.Data.Receive({ guild = card.guild, leader = "Branch Crown " .. i, total = 20, online = 2,
 					faction = "Alliance", officers = {}, zones = {} }, source), true)
@@ -267,23 +267,23 @@ test("Guild charter: private query answers are bounded, throttled and recheck so
 	end)
 end)
 
-test("Guild charter: master UI and local friend dialog use Elfcore windows with gamepad and recheck stale edits", function()
+test("Guild charter: master UI and local friend dialog use Bankai Guild windows with gamepad and recheck stale edits", function()
 	for _, gamepad in ipairs({ false, true }) do
 		H.WithUI(function()
 			H.WithGamepadUI(gamepad, function(game)
 				local w, c = Client()
 				w:As(function()
 					c.GuildCharter.Prompt("purpose")
-					local f = assert(ns.Dialog.Find("ELFCORE_CHARTER_FIELD"))
+					local f = assert(ns.Dialog.Find("BANKAIGUILD_CHARTER_FIELD"))
 					f.editBox:SetText("Weekend groups"); f.buttons[1]:Click()
 					eq(c.GuildCharter.Ours().purpose, "Weekend groups")
 					c.GuildCharter.Link().onClick(); eq(w.page, "guildcharter")
 					local rows, editor = c.GuildCharter.Lines()
 					for _, row in ipairs(rows) do if row.text == "> " .. c.L.CHARTER_EDIT_FIELD:format(c.L.CHARTER_NIGHTS) then editor = row end end
 					assert(editor and editor.onClick); editor.onClick()
-					f = assert(ns.Dialog.Find("ELFCORE_CHARTER_FIELD")); f.editBox:SetText("Saturday")
+					f = assert(ns.Dialog.Find("BANKAIGUILD_CHARTER_FIELD")); f.editBox:SetText("Saturday")
 					w.rank = 1; f.buttons[1]:Click(); eq(c.GuildCharter.Ours(), nil, "stale prompt cannot publish after rank loss")
-					c.GuildCharter.Prompt("friend"); f = assert(ns.Dialog.Find("ELFCORE_CHARTER_FIELD")); f.editBox:SetText("Mira Friend"); f.buttons[1]:Click()
+					c.GuildCharter.Prompt("friend"); f = assert(ns.Dialog.Find("BANKAIGUILD_CHARTER_FIELD")); f.editBox:SetText("Mira Friend"); f.buttons[1]:Click()
 					eq(c.db.recruitFriend, "Mira Friend-Realm"); eq(#w.jobs, 0); eq(#w.chats, 0)
 					if gamepad then eq(#game.shown, 0, "no native game popup in gamepad mode") end
 				end)
@@ -308,7 +308,7 @@ test("Guild charter: real outsider transport admits only charter requests/answer
 		deliver("GUILD", "Echo Scout-Realm", "QD~1~A~card")
 		deliver("WHISPER", "Echo Scout-Realm", "GC~1~A~card")
 		eq(#heard, 1)
-		GetGuildInfo = function() return "Elfcore Ember" end; IsInGuild = function() return true end
+		GetGuildInfo = function() return "Bankai Guild Ember" end; IsInGuild = function() return true end
 		eq(c.Comm.WhisperOutside("Echo Scout", "QC~1~A"), false)
 	end)
 	GetGuildInfo, IsInGuild, C_ChatInfo = saved.guild, saved.inGuild, saved.info
@@ -319,7 +319,7 @@ test("Guild charter: Horde cards stay separate and Portuguese wording preserves 
 	local w, c = Client()
 	w:As(function()
 		c.faction, w.locale = "Horde", "ptBR"
-		assert(loadfile(ROOT .. "Elfcore/Locales/GuildCharterText.lua"))("Elfcore", c)
+		assert(loadfile(ROOT .. "BankaiGuild/Locales/GuildCharterText.lua"))("BankaiGuild", c)
 		eq(c.GuildCharter.SetField("purpose", "Grupos de masmorra"), true)
 		local msg = assert(c.GuildCharter.Encode(c.GuildCharter.Ours(), "QD"))
 		assert(msg:find("QD~1~H~", 1, true)); assert(c.L.CHARTER_REPORTED:find("Dois membros", 1, true))
@@ -359,13 +359,13 @@ test("Guild charter (1.2.4): an edit of a card past seven days keeps its other f
 	wm.ranks["Nova Crown-Realm"] = 0
 	wm:As(function()
 		eq(cm.GuildCharter.Handle("CHANNEL", "Nova Crown-Realm", msg), true)
-		eq(cm.GuildCharter.Get("Elfcore Ember").purpose, "Friendly dungeon groups")
+		eq(cm.GuildCharter.Get("Bankai Guild Ember").purpose, "Friendly dungeon groups")
 	end)
 	local wr, cr = Client()
 	wr.rank, wr.clock, cr.me, cr.rdb = 3, wm.clock + 3600, "Reed Reader-Realm", cm.rdb
 	wr.ranks["Nova Crown-Realm"] = 0
 	wr:As(function()
-		local got = cr.GuildCharter.Get("Elfcore Ember")
+		local got = cr.GuildCharter.Get("Bankai Guild Ember")
 		eq(got and got.purpose, "Friendly dungeon groups", "kept across a /reload")
 	end)
 end)

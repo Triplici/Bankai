@@ -10,14 +10,14 @@ local function Setup(w, name, options)
 	c.K = BoardUI.New(function() return w.clock end)
 	c.K.Install(c.globals)
 	w:As(c, function()
-		assert(loadfile(H.ADDON_DIR .. "Filter.lua"))("Elfcore", c.ns)
-		assert(loadfile(H.ADDON_DIR .. "Views.lua"))("Elfcore", c.ns)
-		assert(loadfile(H.ADDON_DIR .. "ChatWindow.lua"))("Elfcore", c.ns)
+		assert(loadfile(H.ADDON_DIR .. "Filter.lua"))("BankaiGuild", c.ns)
+		assert(loadfile(H.ADDON_DIR .. "Views.lua"))("BankaiGuild", c.ns)
+		assert(loadfile(H.ADDON_DIR .. "ChatWindow.lua"))("BankaiGuild", c.ns)
 	end)
 	return c
 end
 local function Command(w, c, tail)
-	return w:As(c, function() return c.slashes.ELFCORE("arena sim " .. tail) end)
+	return w:As(c, function() return c.slashes.BANKAIGUILD("arena sim " .. tail) end)
 end
 local function Copy(value)
 	if type(value) ~= "table" then return value end

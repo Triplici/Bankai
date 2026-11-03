@@ -6,24 +6,24 @@
 - v0.3 The Realm: King -> Lords -> Captains -> ranks tree, leader/officer offline days, inactive 7/30d,
   level race, recruiting (free slots); layers named after the highest ranked member; guildmates on map
   and minimap; royal decrees (Call to Arms / Muster) with raid warning and map marker; button in
-  Blizzard's Guild window that docks the Elfcore window next to it; realm-themed texts
-- Later versions up to v1.0.1: see the [GitHub releases](https://github.com/dnl-gentile/elfcore-addon/releases)
-- v1.1.0 The Fernmelder release: the LFG board (`/elf lfg`), the King's week with sign-ups (`/elf week`),
+  Blizzard's Guild window that docks the Bankai Guild window next to it; realm-themed texts
+- Later versions up to v1.0.1: see the [GitHub releases](https://github.com/dnl-gentile/bankai-addon/releases)
+- v1.1.0 The Fernmelder release: the LFG board (`/bk lfg`), the King's week with sign-ups (`/bk week`),
   a crafters' board and loot notes, a sound switch per alert, census search and marked rows, the
   first-open privacy page, the inactive list and mentors, net-off, block terms, alt links, the key
   rotation, a pinned line, the treasury's extras and the weekly dues; Spanish, French and German
-- v1.1.1 The Chat tab: the [Elfcore], [Captains] and [Lords] chats in the Elfcore window, with search,
-  a box to write in and the settings behind the gear (mute, chat window, an Elfcore tab in the game chat)
-- v1.1.2 Right-click a player for their Elfcore version (Ask to update, Tell them about Elfcore); the
-  answer bank; a ? on every page; bug reports on request; Chattynator tabs; marks on Elfcore lines in
+- v1.1.1 The Chat tab: the [Bankai Guild], [Captains] and [Lords] chats in the Bankai Guild window, with search,
+  a box to write in and the settings behind the gear (mute, chat window, an Bankai Guild tab in the game chat)
+- v1.1.2 Right-click a player for their Bankai Guild version (Ask to update, Tell them about Bankai Guild); the
+  answer bank; a ? on every page; bug reports on request; Chattynator tabs; marks on Bankai Guild lines in
   the game's chat
 - v1.1.3 Ordinary clicks never start a restricted `/who`: census and player searches only from their own
   controls
 - v1.1.4 Crafters as its own tab; the side tabs keep one order when they run out of room
 - v1.1.5 Three elite borders (the King gold, the High Council silver, guild masters bronze) and
-  their marks in the game's own chat (`/elf chatmarks`), none on Elfcore lines; councillors'
-  tooltips; a guild the High Council removed is no Elfcore guild, with an appeal through the signed
-  approved list; `<ELVES>` approved; the version letters (`/elf letters`); Blizzard's player
+  their marks in the game's own chat (`/bk chatmarks`), none on Bankai Guild lines; councillors'
+  tooltips; a guild the High Council removed is no Bankai Guild guild, with an appeal through the signed
+  approved list; `<ELVES>` approved; the version letters (`/bk letters`); Blizzard's player
   menus untouched in gamepad mode (#56); restricted secret values ignored safely; the Chat tab's
   second help "i" gone (the window's own, left of the X, is the one there); the gamepad gate (every
   way into the game's own UI listed and asked of one gate: with the gamepad UI no typed command, no
@@ -36,9 +36,9 @@
   consider levels; Find a player by level, distance and game
 - v1.2.1 Bones table chat; Watch and Wanted relay fixes; weekly briefs; local chat label options
 - v1.2.2 The stutter fixed (the level race's checks off the message handler, data changes taken once
-  a second, the map left alone while closed, the minute jobs spread out) and `/elf perf`; the
+  a second, the map left alone while closed, the minute jobs spread out) and `/bk perf`; the
   privacy page and Bones invitations; guild removal and rank changes; Church counts; chat reports to
-  the King and the High Council; [Elfcore] links; Shift + the guild key; the security reviews' fixes
+  the King and the High Council; [Bankai Guild] links; Shift + the guild key; the security reviews' fixes
 - v1.2.3 The King's stream fixes; the Chat tab's memory; guild masters' decrees to their own guild; Most Wanted
   from members' own kills and deaths, bounties by office and level; the missionaries' crook
 - v1.2.4 Implementation candidate: role rooms, retained signed game records, guild average levels,
@@ -48,23 +48,23 @@
 - v1.2.5 Follow-up candidate: chat replies, finalized office shields, normalized honour presentation,
   safer shared rankings and relay queues, and predictable Most Wanted list expansion.
 - v1.2.5.1 Hotfix: officers can return a guild separated by a mismatched private realm key to the
-  public Elfcore channel, restoring shared chat and live census relay without accepting an older key again.
+  public Bankai Guild channel, restoring shared chat and live census relay without accepting an older key again.
 - v1.3.0 Shared durable records and rankings; Church catch-up; Wanted and Slayers pagination,
   rebalanced history and recent map sightings; the current Legate structure; safer Watch records;
   Companion exports after the Accord; and integrated Arena, Bones and chat fixes.
 - v1.3.2 Correction: explicitly approximate Census people counts, preserve accepted Treasury rows,
   fix full-suite ordering regressions and export consented Companion identity evidence.
 - v1.3.3 Deliberate site export: an optional Site Aggregate folder writes a masked own-guild count for the
-  Elfcore website on /elf site export and /reload, never uploads, and empties at the next logout or reload.
+  Bankai Guild website on /bk site export and /reload, never uploads, and empties at the next logout or reload.
 
 ## Next (after the base is proven in game)
 - **Compact reply cards after sending** - keep the existing reply composer, but render a sent reply in
-  Elfcore Chat with a short, visually separate quote card above the new message (WhatsApp-style)
+  Bankai Guild Chat with a short, visually separate quote card above the new message (WhatsApp-style)
   instead of exposing the full textual reply prefix inline. Deferred beyond v1.2.5.
 - ~~Guild leader offline for X days~~ (v0.3)
 - ~~**Guild leader offline for X days (alerts)** - `GetGuildRosterLastOnline(i)` gives years/months/days/hours for
   our own guild; add `leaderLastSeen` to the report so every guild's leader age shows up. Alert above N days.~~
-  (1.1: one line when a Lord crosses `/elf warndays`.)
+  (1.1: one line when a Lord crosses `/bk warndays`.)
 - ~~**Inactive players** - same API: count members offline > 7/14/30 days per guild; list for officers to kick.~~
   (1.1: your own guild's list by name, one removal per click.)
 - ~~**Officers and org chart** - `GuildControlGetNumRanks` / `GuildControlGetRankName` + rankIndex per member:
@@ -74,11 +74,11 @@
 - ~~**Dues** (was tax collection) - Classic has no guild bank: track gold received through mail and trade from
   guild members (MAIL_INBOX_UPDATE / TRADE_* events), ledger per member, "who has not paid this week".~~
   (1.1: one fixed amount a week the King sets, counted from the treasury's books, never public.)
-- ~~**Layers** - zoneUID from NPC GUIDs (`/elf layer` is the probe); sample from addon users per layer.~~
+- ~~**Layers** - zoneUID from NPC GUIDs (`/bk layer` is the probe); sample from addon users per layer.~~
   (Each layer named after its highest ranked member since v0.3, announced by officers and a stable 1 in 8
   sample; the layer hop since v0.8.1.)
-- ~~**Share inspections** between officers over ElfcoreNet so several inspectors build one list.~~
-  (1.1: among your guild's officers over guild addon messages, `/elf patrolshare`, off until you say yes.)
+- ~~**Share inspections** between officers over BankaiGuildNet so several inspectors build one list.~~
+  (1.1: among your guild's officers over guild addon messages, `/bk patrolshare`, off until you say yes.)
 - ~~**Verification badge** when two reporters of the same guild agree~~ (1.1: the census marks a row whose
   senders disagree, and one a single sender stands behind).
 - ~~**Channels view** - per-tier history (`Channels.History`, `CHAT_CHANGED`) in the window.~~

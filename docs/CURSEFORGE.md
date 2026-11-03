@@ -1,67 +1,67 @@
-# Elfcore
+# Bankai Guild
 
-**The whole Elfcore army in one window, inside World of Warcraft: Forever.**
+**The whole Bankai Guild army in one window, inside World of Warcraft: Forever.**
 
-Elfcore is Asmongold's guild for *World of Warcraft: Forever*: Alliance, PvP ruleset, a
+Bankai Guild is Asmongold's guild for *World of Warcraft: Forever*: Alliance, PvP ruleset, a
 place to find dungeon groups, organize raids, share class knowledge and build the guild
 together. It grew past **10,000 members during the beta**. A WoW guild caps at 1,000
-members, so Elfcore is really a *realm* of many Elfcore guilds. In game each player
-only ever sees the roster of their own guild. Nobody could tell how many Elfcore guilds
+members, so Bankai Guild is really a *realm* of many Bankai Guild guilds. In game each player
+only ever sees the roster of their own guild. Nobody could tell how many Bankai Guild guilds
 exist, who leads them, or where the army is.
 
-This addon answers exactly that. It adds up every Elfcore guild live, in a window that
+This addon answers exactly that. It adds up every Bankai Guild guild live, in a window that
 looks like Blizzard's Guild window and docks right next to it.
 
-![The whole army at a glance: every Elfcore guild, live](https://raw.githubusercontent.com/dnl-gentile/elfcore-addon/main/docs/elfcore-1.jpg)
+![The whole army at a glance: every Bankai Guild guild, live](https://raw.githubusercontent.com/dnl-gentile/bankai-addon/main/docs/bankai-1.jpg)
 
-![Where the army stands: soldiers per zone on the world map](https://raw.githubusercontent.com/dnl-gentile/elfcore-addon/main/docs/elfcore-5.jpg)
+![Where the army stands: soldiers per zone on the world map](https://raw.githubusercontent.com/dnl-gentile/bankai-addon/main/docs/bankai-5.jpg)
 
 > **Status:** built for WoW: Forever and running on the Forever beta (1.60.1), where the
-> census already adds up reports from many Elfcore guilds. Also tested on Classic Era (1.15)
-> and Anniversary (2.5). Please report anything that looks wrong (`/elf bug`).
+> census already adds up reports from many Bankai Guild guilds. Also tested on Classic Era (1.15)
+> and Anniversary (2.5). Please report anything that looks wrong (`/bk bug`).
 
 ---
 
-**Horde too.** Elfcore guilds on the Horde side use the same addon. The factions can't see
+**Horde too.** Bankai Guild guilds on the Horde side use the same addon. The factions can't see
 each other's guilds, so each one gets its own census, channels, decrees and untabarded list: the
-addon picks yours from your character. On the Horde, the Crown is every Horde Elfcore guild
-master and the officers of the Horde guild named exactly "Elfcore", if there is one.
+addon picks yours from your character. On the Horde, the Crown is every Horde Bankai Guild guild
+master and the officers of the Horde guild named exactly "Bankai Guild", if there is one.
 
 ## Who can use it
 
-**Only members of a guild with "Elfcore" in its name**, however it was spelled: OLYMPVS the Roman way, Olimpus, Olmps, Olympuz, Olympos, Olimpo and other misspellings count too (Olympia or Olympic do not), and a guild against Elfcore ("ANTI ELFCORE", "Elfcore Haters") does not. The check is fixed in the code and
-cannot be switched off with a command. Outside an Elfcore guild the addon joins no channel
+**Only members of a guild with "Bankai Guild" in its name**, however it was spelled: OLYMPVS the Roman way, Olimpus, Olmps, Olympuz, Olympos, Olimpo and other misspellings count too (Olympia or Olympic do not), and a guild against Bankai Guild ("ANTI Bankai Guild", "Bankai Guild Haters") does not. The check is fixed in the code and
+cannot be switched off with a command. Outside an Bankai Guild guild the addon joins no channel
 and hears nothing of the army, but for the author's signed list below, over its own guild.
-The only thing it offers there is the **Join Elfcore**
+The only thing it offers there is the **Join Bankai Guild**
 screen described below, and its own few addon whispers are the only ones it sends or hears
 there (1.1: which guild to ask, the answer, and your request, each to or from the one member
-concerned). Using it requires accepting its terms, the Elfcore Accord, which shares your BattleTag with Elfcore's staff only.
+concerned). Using it requires accepting its terms, the Bankai Guild Accord, which shares your BattleTag with Bankai Guild's staff only.
 
-**Approved guilds (1.1).** A guild of Asmon's Elfcore whose name the rule leaves out (it leaves
-Olympian and Olympia out on purpose) counts as an Elfcore guild once the author names it in his
+**Approved guilds (1.1).** A guild of Asmon's Bankai Guild whose name the rule leaves out (it leaves
+Olympian and Olympia out on purpose) counts as an Bankai Guild guild once the author names it in his
 signed list: the same list, signed with the same key on his own computer, that names the High
 Council and the King's Steward, for one faction and realm group. No census vote counts, and nobody
 else can add one. A few ship with the addon itself, so their members have nothing to paste: since
-1.1, the Alliance's `<ELF>`, and since 1.1.5 its `<ELVES>` too (only a new version takes one of those off). Its members' addons, no Elfcore members
+1.1, the Alliance's `<ELF>`, and since 1.1.5 its `<ELVES>` too (only a new version takes one of those off). Its members' addons, no Bankai Guild members
 until they hold that list, take it over their own guild alone (the list only: nothing else is
-read, and they send nothing). The first of them pastes it with `/elf approved paste`, or a click
-on the Join Elfcore screen's last line (the author
+read, and they send nothing). The first of them pastes it with `/bk approved paste`, or a click
+on the Join Bankai Guild screen's last line (the author
 or a High Councillor hands out the signed text; it is checked like any list, so it can't be forged
-or changed), and his addon passes it to his guild every 5 minutes. `/elf approved` lists the
+or changed), and his addon passes it to his guild every 5 minutes. `/bk approved` lists the
 approved guilds of your faction. A newer signed list without a guild ends it on every client.
 
-**Removed guilds (1.1.5).** A guild the High Council removed from Elfcore is no Elfcore guild,
+**Removed guilds (1.1.5).** A guild the High Council removed from Bankai Guild is no Bankai Guild guild,
 whatever its name: its census, chats and marks are gone and its members' addon shows the Join
-Elfcore screen. Its way back is an appeal to the council: once the author names it in his signed
+Bankai Guild screen. Its way back is an appeal to the council: once the author names it in his signed
 approved list, it counts again, with no new version. Until a player updates, the council's
 [net-off](#net-off-11-the-moderators-hide-a-character-or-take-a-guild-off-the-network) word takes
 such a guild off the network live.
 
-### Not in Elfcore yet?
+### Not in Bankai Guild yet?
 First it asks the obvious question: *"<Your Guild>? Disband immediately. What are you
-doing?"* Then it helps you get in. The **Join Elfcore** screen uses the game's own `/who` to
-find Elfcore members online, groups them by guild, and whispers one of them a ready-made
-request that you can edit ("Hi! I'd love to join Elfcore. Does <Elfcore II> have room for
+doing?"* Then it helps you get in. The **Join Bankai Guild** screen uses the game's own `/who` to
+find Bankai Guild members online, groups them by guild, and whispers one of them a ready-made
+request that you can edit ("Hi! I'd love to join Bankai Guild. Does <Bankai Guild II> have room for
 one more?"). No answer? **Try someone else** picks a member you have not asked yet. Replies
 are highlighted. It is rate limited, so nobody gets spammed.
 
@@ -74,7 +74,7 @@ once `/who` found one of its members (the gates once a second member's answer ag
 is asked), the guilds found with `/who` too, and a click asks one of those officers that `/who`
 found in that guild, or another member it found there. Just before, their addon is asked
 whether they take recruit whispers (again if it never answered): a member who set **do not
-contact** (`/elf nocontact on`) is never offered, however many recruits ask him, and the
+contact** (`/bk nocontact on`) is never offered, however many recruits ask him, and the
 question closes before anything is sent. It stays **one whisper per click**, in your
 own words (no dues line), 20 seconds apart. With it goes your request to the same member, so an
 officer's addon shows it with **Invite** and **Decline** instead of a raw whisper. Members on
@@ -83,7 +83,7 @@ versions before 1.1 just get the whisper, as before.
 ## What it does
 
 ### Census: the army at a glance
-- Every Elfcore guild in one list: **Guild · Members · Online · Avg lvl · Lord**. Columns sort by
+- Every Bankai Guild guild in one list: **Guild · Members · Online · Avg lvl · Lord**. Columns sort by
   clicking, like the Guild window.
 - **Total soldiers** and **online now** across the whole realm.
 - **Where the army stands**: top zones ("Stormwind City 742") and totals per continent
@@ -94,9 +94,9 @@ versions before 1.1 just get the whisper, as before.
   after login: N guilds heard so far* for about 3 minutes, while every guild's reporter answers.
   The beta often loads an empty save: the army is not gone, and no `/reload` is needed. The line
   only waits: it asks nothing (no `/who`) and opens nothing.
-- **An update line** (1.1): when the author's own addon says on the Elfcore channel that a newer
+- **An update line** (1.1): when the author's own addon says on the Bankai Guild channel that a newer
   version than yours is out (he marks it once CurseForge lists it, never a build he is still
-  trying), a line at the foot of the Census, one line in chat once a session and `/elf status`
+  trying), a line at the foot of the Census, one line in chat once a session and `/bk status`
   say so. It is yours alone: nothing is sent and nobody is whispered.
 - **Marked rows** (1.1): a warning mark on a guild whose senders disagree (on its Lord or
   Captains, or on its size, by more than 5 members or 5% plus the 20 a minute a guild may gain or
@@ -104,13 +104,13 @@ versions before 1.1 just get the whisper, as before.
   sender stands behind. Its tooltip says which and who: check before calling a muster or opening
   the gates on it (the gates ask again, with the reason). A marked row can still be right, and
   the mark changes nothing that counts. Your own guild (your roster) is never marked.
-- **Asking to join** (1.1): a recruit who asked you from the Join Elfcore screen shows on top of
+- **Asking to join** (1.1): a recruit who asked you from the Join Bankai Guild screen shows on top of
   the Census, with their whisper. An officer (the game's guild invite permission) answers with
   **Invite** (the game's own guild invite) or **Decline** (one whisper pointing to the gates'
   guild while the King's gates are open, else naming your guild alone: never a guild the census
   lists for its room, which two made-up characters could report), one click each; anyone else
   can point them to an officer online. **Dismiss** sends nothing. In the Realm's Recruiting, one
-  click (or `/elf nocontact`) sets your **do not contact** flag.
+  click (or `/bk nocontact`) sets your **do not contact** flag.
 - **Search the census** (1.1): a guild, a Lord, a Captain, a player of a guild's top five or one
   seen online (the player shows under the guild's row), or a zone ("Stormwind": its soldiers
   and its guilds, most first). Type **recruiting** (or `free 50`) for every guild with room,
@@ -127,32 +127,32 @@ versions before 1.1 just get the whisper, as before.
 - The **King**, then every guild's **Lord** (guild master) and **Captains** (the officer rank
   right below the guild master).
   Each shows level, class and online or *offline 3d*. Long absences show in red
-  (`/elf warndays <days>`, 3 by default). **A Lord away** (1.1): when a Lord crosses that, one
+  (`/bk warndays <days>`, 3 by default). **A Lord away** (1.1): when a Lord crosses that, one
   chat line, once per absence: to his own guild's officers from their roster, and to the King,
   his Steward and his Hands for every guild's Lord, by the census's word (a guild that stopped
   reporting included, counted from its last report even when that showed him online). Never a
   popup, and nothing is done to anyone.
-- The **Treasurer of Elfcore** (Pyralis Ashandar, chosen by Asmongold's chat) right under
+- The **Treasurer of Bankai Guild** (Pyralis Ashandar, chosen by Asmongold's chat) right under
   the King, with a gold coin next to his name wherever he shows, his tooltip and his lines in
-  the Elfcore chats included. Only
-  that exact character of the guild ELFCORE gets it: look-alikes don't.
+  the Bankai Guild chats included. Only
+  that exact character of the guild Bankai Guild gets it: look-alikes don't.
 - **Members online** under each guild: your own guild's from your roster, any other's from
   `/who`. Opening a guild searches `/who` for that guild alone (up to 50 of its players).
   Click a name to whisper, invite or `/who` them.
 - The **ranks** of each guild with how many members hold them.
 - **Inactive members**: offline 7+ and 30+ days, per guild. Your own guild's line (or
-  `/elf inactive`) opens the list by name (1.1): members offline 7, 14 or 30 days and more,
+  `/bk inactive`) opens the list by name (1.1): members offline 7, 14 or 30 days and more,
   with rank, class, level and last online, from your own roster, longest away first. A rank
   that may remove members (as in the game's Guild window: ranks below yours) removes **one
   person per click**, after a question that shows their rank and days away, a few seconds
   apart. There is no kick-all, and nothing is sent.
-- **Mentors** (1.1): a Lord opens **Recruits and their mentors** on that page (or `/elf recruits`):
+- **Mentors** (1.1): a Lord opens **Recruits and their mentors** on that page (or `/bk recruits`):
   his guild's lowest rank and whoever joined since he logged in. He clicks a recruit who is
   online, then one of his Captains, and says yes: **one whisper to each** from that click, the
   Captain told who to look after, the recruit told who to ask. The pair shows on his list (his
   client's alone); nothing goes on the channel.
-- **Legates and correspondents** (1.1.5): a guild master of an Elfcore guild (not the King's)
-  has a tab of his own in the Throne's place, **Guild** (or `/elf nominees`), laid out as the
+- **Legates and correspondents** (1.1.5): a guild master of an Bankai Guild guild (not the King's)
+  has a tab of his own in the Throne's place, **Guild** (or `/bk nominees`), laid out as the
   King's Hands page: **+ Name a legate** (his target, or a name he types), his list (a click
   takes a title back, asked first), and a line per High Council department to name its
   correspondent. Since 1.2.4, up to 25
@@ -165,12 +165,12 @@ versions before 1.1 just get the whisper, as before.
   honours remain round the portrait underneath the separate badge. Offices count only while
   verified in the guild. Existing appointees receive this explanation once; a real office or
   department change explains the new badge again.
-  His own client sends the list on the Elfcore channel; every addon takes it from that guild's
+  His own client sends the list on the Bankai Guild channel; every addon takes it from that guild's
   master alone (proven as for his bronze wings: your roster for your own guild, two census senders
   for another), retains accepted bounded lists across logouts and offline periods, and drops the
-  duty when a verified removal or change of guild master is seen. `/elf nominees legate <name>`
-  (the old `centurion` spelling remains an alias), `/elf nominees correspondent
-  <department number> <name>` and `/elf nominees remove <name>` do it in chat.
+  duty when a verified removal or change of guild master is seen. `/bk nominees legate <name>`
+  (the old `centurion` spelling remains an alias), `/bk nominees correspondent
+  <department number> <name>` and `/bk nominees remove <name>` do it in chat.
   A confirmed correspondent also sees a **Guild** workspace for their own department. War and
   Justice duties apply only to their own guild, checked against its fresh roster and its current
   guild master's nomination; neither title grants federal powers. Artisanry links to its existing
@@ -189,16 +189,16 @@ versions before 1.1 just get the whisper, as before.
 - **Recruiting**: the guilds that still have free slots, so new players go where there is room
   (the five with the most, then every one on a click, 1.1).
   When the King opens **the gates** of a guild, it tops the list: send new recruits there.
-- **Layers** of your zone, named after the highest ranked Elfcore member on each one
+- **Layers** of your zone, named after the highest ranked Bankai Guild member on each one
   ("Asmongold's layer"), with how many members are there.
 
 ### Layer hop: join the King's layer without begging in chat
 While Asmongold is online, the top of the Census and the Realm shows **"Ask invite for Asmon
-Layer"** with his crown. One click (or `/elf hop`) and the addon does the asking:
+Layer"** with his crown. One click (or `/bk hop`) and the addon does the asking:
 
 - You must already be in his zone (a layer is read per zone): if you are not, the line says
   where he is and nothing is asked.
-- It asks the Elfcore players on his layer who can invite (alone, or leading a group with a
+- It asks the Bankai Guild players on his layer who can invite (alone, or leading a group with a
   free seat). Only a handful answer, picked at random on each player's side, so a crowd of
   askers is spread over many players instead of flooding one.
 - It picks one of them, favouring players outside a group and with fewer recent invites. They
@@ -208,7 +208,7 @@ Layer"** with his crown. One click (or `/elf hop`) and the addon does the asking
   lead a party or raid of their own, it also covers that group until it ends (1.1.5, GitHub
   issue #50: the window came back with every request there). That group's permission is never
   saved: a later group asks first again, after a `/reload` the window asks once more, and
-  `/elf layerauto off` ends it at once.
+  `/bk layerauto off` ends it at once.
 - The invite is accepted for you when that player is one the addon can vouch for (a member of
   your own guild, the King, his Steward or Hands, or, once the author's signed list is on, a Lord
   or Captain of `<Elfcore>` it names; never a census rank); anyone else's, and every invite
@@ -218,22 +218,22 @@ Layer"** with his crown. One click (or `/elf hop`) and the addon does the asking
 
 Players alone on the King's layer are asked once per login: **"Asmon is online and you are on
 his layer. May the addon invite the players who want to join, and take them out of the group
-once they are there?"** with **For Elfcore!**, **Can't right now** and **Invite manually**, and
-a **Don't ask me again** box. With For Elfcore! the addon invites on its own (only while you
+once they are there?"** with **For Bankai Guild!**, **Can't right now** and **Invite manually**, and
+a **Don't ask me again** box. With For Bankai Guild! the addon invites on its own (only while you
 are alone or with its guests, never into a group of your friends) and lets each guest go after
 90 seconds: the guest's addon leaves the group, since only a click may remove someone.
 
 Any other layer in the Realm tab's layer list works the same way: click it. Everyone who
-shares their zone and layer (`/elf location on`) and said yes to layer help (1.1: the
-first-open page, or `/elf layerhelp on`) helps: a player who keeps them private is never asked, since an offer would tell the asker where they are. `/elf layerhelp
-off` stops the requests, `/elf layerhelp on` also forgets the answer to the King's layer
-window, `/elf layerauto on` invites them without the window. Helpers must be in the same zone
+shares their zone and layer (`/bk location on`) and said yes to layer help (1.1: the
+first-open page, or `/bk layerhelp on`) helps: a player who keeps them private is never asked, since an offer would tell the asker where they are. `/bk layerhelp
+off` stops the requests, `/bk layerhelp on` also forgets the answer to the King's layer
+window, `/bk layerauto on` invites them without the window. Helpers must be in the same zone
 as the layer they are on, and the King himself is never asked.
 
 Layers are known from the members who share their zone and layer (see Privacy, below):
 the more share, the better hopping works. Asking works either way, and says on the channel
 the zone you are in and the layer you want. If the King's own layer announcement has not
-arrived yet, clicking his hop line sends one discovery question on the Elfcore channel while his crown is visible.
+arrived yet, clicking his hop line sends one discovery question on the Bankai Guild channel while his crown is visible.
 Clients that can see his exact nameplate keep that fact private until the question; eligible
 helpers answer the asker alone, and two independent answers must agree before the ordinary
 layer-hop ask begins. A lone or conflicting answer moves nobody. Turning location sharing,
@@ -246,19 +246,19 @@ the moment he shows the crown and repeats it every minute while it shows. With h
 hidden (or while he is in a dungeon, where it hides) the line says so instead of "try again in
 a minute". A layer is a copy of a zone inside one realm: when the census places him on another
 realm than yours, the line says that, even if his layer reaches your channel. The `king:` line
-of `/elf status` (and of `/elf bug`) says what your addon knows of him: online and how sure,
+of `/bk status` (and of `/bk bug`) says what your addon knows of him: online and how sure,
 his realm, his layer and his crown, and how long ago each was heard.
 
 ### Person details
-Click any Lord, Captain, racer or inspected player. Their profile opens in the Elfcore window, at
-its size, with the census facts Elfcore knows: level, class, zone, rank and status. **Back**
+Click any Lord, Captain, racer or inspected player. Their profile opens in the Bankai Guild window, at
+its size, with the census facts Bankai Guild knows: level, class, zone, rank and status. **Back**
 returns to the same list or Realm subpage, one opened from another first; **Whisper**,
 **Invite** and **Who** stay on it (offline: **Who** alone). It is not the Blood Arena
-companion's profile, and opening it sends no query. `/elf profile Name` (or `Name-Realm`) opens
-one by name. Yours is **My profile** (1.2.4: `/elf profile`, the Realm, the Games tab, the Games
+companion's profile, and opening it sends no query. `/bk profile Name` (or `Name-Realm`) opens
+one by name. Yours is **My profile** (1.2.4: `/bk profile`, the Realm, the Games tab, the Games
 window's **Edit my profile**): **Look** (frame, title, nickname, emblem; one not released yet in
 grey), **Icons**, **Who sees what**, **Letters** (the King's), and you as others see you.
-Any soldier can reach the Lord of another Elfcore guild in two clicks.
+Any soldier can reach the Lord of another Bankai Guild guild in two clicks.
 
 A High Councillor's tooltip (1.1.5) says so too: their mark and own icon after their name, then
 **High Councillor**, their department and their title, for whoever may see the council (the
@@ -266,14 +266,14 @@ same as their card); none on the King's screen while the council's names are hid
 
 ### Right-click a player (1.1.2)
 Right-click a player (the target frame, party and raid frames, a name in chat, the Who list, the
-friends list, a community roster) and the game's menu gets an **Elfcore** part at the bottom:
-- **Their version**: "Elfcore 1.1.1 (out of date)", "up to date" or "not seen yet", and under it
+friends list, a community roster) and the game's menu gets an **Bankai Guild** part at the bottom:
+- **Their version**: "Bankai Guild 1.1.1 (out of date)", "up to date" or "not seen yet", and under it
   where it came from and when. Guildmates show up by themselves (their addon says hello to your
   guild), and so does a known version on the person card. Opening the menu sends nothing.
 - **Check version**: for anyone else, one tiny addon whisper that their addon answers with its
   version and nothing else (a player once every 2 minutes, 6 a minute). Only 1.1.2 and newer
-  answer, so no answer in 10 seconds can mean no Elfcore, an older one, a dungeon or raid, or no
-  Elfcore guild (outside one the addon sends nothing). The author's check is his roll call to that
+  answer, so no answer in 10 seconds can mean no Bankai Guild, an older one, a dungeon or raid, or no
+  Bankai Guild guild (outside one the addon sends nothing). The author's check is his roll call to that
   player alone, which every version since 0.9.9 answers, and only after their yes to his roll calls.
 - **Ask to update** (1.2.1: the author, the King and the High Council only; others' asks are
   dropped), when they are behind the newest version your addon knows: nothing goes before you
@@ -282,16 +282,16 @@ friends list, a community roster) and the game's menu gets an **Elfcore** part a
   and the safe next step. For an older one, confirming opens a whisper you send with the ask. One
   ask per player a day, 5 an hour;
   they see one a day at most, **Don't remind me** hides them for 7 days (on the beta, which forgets
-  addon data at login, these last until you log out), and a player they block (`/elf block`) or
+  addon data at login, these last until you log out), and a player they block (`/bk block`) or
   ignore, or one the moderators took off, never gets through. The notice never names a version the
   author has not released. The author's pick sends his usual update window, naming the version he
-  marked as out (`/elf released`).
-- **Tell them about Elfcore**, when their addon did not answer: a whisper with a short invite and
-  the CurseForge link (to get it, or update an old one) opens in Elfcore's own window, for you to
+  marked as out (`/bk released`).
+- **Tell them about Bankai Guild**, when their addon did not answer: a whisper with a short invite and
+  the CurseForge link (to get it, or update an old one) opens in Bankai Guild's own window, for you to
   edit and send yourself. The click sends nothing.
 - **Ask for a bug report** (the author alone, on a player running 1.1.2 or newer): their addon
-  opens a window of its own, never a game popup, saying the author asks for their Elfcore bug
-  report, with **See what is sent** (the exact text, the same as `/elf bug`), **Send** and **Not
+  opens a window of its own, never a game popup, saying the author asks for their Bankai Guild bug
+  report, with **See what is sent** (the exact text, the same as `/bk bug`), **Send** and **Not
   now**. Send goes to him alone, in game; Not now sends nothing; an ask from anyone else is
   ignored. On his side the report he asked for opens by itself in a window you can copy from (the
   sender and time on top, **Select all**), and stays in the Workshop's list; chat gets one short
@@ -301,20 +301,20 @@ friends list, a community roster) and the game's menu gets an **Elfcore** part a
   day. The Forever beta, which forgets addon data at every login, still loses them at each logout
   or `/reload`. No other player's addon keeps any, and the Workshop's copy for Discord says only
   how many came, never who sent them or what they say. His version checks and his
-  `/elf status` open in copy windows too. A window that opens by itself takes no keyboard, waits
+  `/bk status` open in copy windows too. A window that opens by itself takes no keyboard, waits
   until a fight is over, and never covers a report he is reading.
 - In a dungeon, a raid or a match the game holds addon messages: the lines that send show greyed
   and say why. Not on yourself, enemies, offline names or Battle.net friends, and only while you
-  are in an Elfcore guild. It uses the game's own way for addons to add to its menus (a client
+  are in an Bankai Guild guild. It uses the game's own way for addons to add to its menus (a client
   without it gets no lines); no Blizzard function is replaced, and nothing opens the game's chat
   box.
 
-**Elfcore's own lines (1.2.5.1).** The profile, **Report to Elfcore**, the Arena's lines and the
-Church's show only for a player your client knows to be in an Elfcore guild: the guild the game
-gives for that player, your guild's roster, your last /who, his line on the Elfcore channel this
-session, the guild his own Elfcore messages spoke for, or the signed leadership list. Opening a menu still sends nothing to find out. The version
-lines and **Tell them about Elfcore** show for anyone, and the Elfcore window's own rows keep every
-line. None of it shows before you accepted the Elfcore Accord.
+**Bankai Guild's own lines (1.2.5.1).** The profile, **Report to Bankai Guild**, the Arena's lines and the
+Church's show only for a player your client knows to be in an Bankai Guild guild: the guild the game
+gives for that player, your guild's roster, your last /who, his line on the Bankai Guild channel this
+session, the guild his own Bankai Guild messages spoke for, or the signed leadership list. Opening a menu still sends nothing to find out. The version
+lines and **Tell them about Bankai Guild** show for anyone, and the Bankai Guild window's own rows keep every
+line. None of it shows before you accepted the Bankai Guild Accord.
 
 **Explanations and Answers.** Each page has a **?** in its bottom box: what the page shows and,
 where it counts, why the numbers can differ between players. The Chat tab has no bottom box and,
@@ -323,17 +323,17 @@ A count's tooltip (the header's totals, a guild's row, the Realm's online, Capta
 Recruiting, a layer's ~N, a zone and a map pin, the Treasury's week and ranking, the dues' guilds,
 the Throne's roll call) ends with **Why can this differ?** and a short answer. The author, the
 High Council and the Stewards also get an **Answers** button at the end of the Chat tab's box and
-in Elfcore's whisper window: ready answers by topic (the counts, each feature, installing and
+in Bankai Guild's whisper window: ready answers by topic (the counts, each feature, installing and
 updating), with a search. A click puts one in the box to edit (Shift-click: the longer one, to
 copy for Discord); nothing is sent until you do. The explanations and answers are in English: in
 another game language the tooltips leave them out, and a page's **?** says so first. The answers
-live in `docs/answers.json`, and `luajit scripts/answers.lua` writes `Elfcore/AnswerBank.lua`
+live in `docs/answers.json`, and `luajit scripts/answers.lua` writes `BankaiGuild/AnswerBank.lua`
 from it.
 
 ### Decrees
 | Decree | Who | What happens |
 |---|---|---|
-| **Call to arms!** | The Crown, the High Council, the King's Hands | Alarm for every Elfcore guild: raid warning, sound, red marker at the caller's position for 5 min |
+| **Call to arms!** | The Crown, the High Council, the King's Hands | Alarm for every Bankai Guild guild: raid warning, sound, red marker at the caller's position for 5 min |
 | **Muster here** | The Crown, the High Council, the King's Hands | Rally point: horn marker on the map for 30 min, soft alert |
 | **Royal decree** | The Crown, the High Council | A proclamation with free text, as a raid warning to the whole army |
 | **Tabard inspection** | The Crown, the High Council | Announces an inspection at the caller's position: wear your colors |
@@ -360,86 +360,86 @@ master's for his own guild alone. Each shows how many players sharing their loca
 that zone, never who; no popup or alert comes of it.
 
 **Alert sounds (1.1).** Each kind of alert has a sound switch of its own, at the bottom of the
-Decrees tab (a click on its line, with the gamepad UI too) or with `/elf sound <kind> on|off`:
+Decrees tab (a click on its line, with the gamepad UI too) or with `/bk sound <kind> on|off`:
 `arms` (Call to Arms), `muster`, `royal` (Royal decrees and Tabard inspections), `court`, `vox`,
 `agenda`, `throne` (the roll call, the Royal Inspection, writs), `help` (help requests and bug
 reports), `hop`, `treasury`, `patrol` and `update`. Silence the chimes you don't want and keep
-the Call to Arms: `/elf sound` alone is still the switch for every sound, and each kind keeps its
+the Call to Arms: `/bk sound` alone is still the switch for every sound, and each kind keeps its
 own switch under it. A softer chime never silences the Call to Arms that follows it. Only the
-sound changes: the chat line, the raid warning and the Elfcore window stay, and nothing is sent.
+sound changes: the chat line, the raid warning and the Bankai Guild window stay, and nothing is sent.
 
 **In an instance or Busy (1.1).** In a dungeon, raid, battleground or arena, or while you are
-Busy (`/dnd`), Elfcore's alerts wait: no raid warning, no sound and no popup from the addon. Each
+Busy (`/dnd`), Bankai Guild's alerts wait: no raid warning, no sound and no popup from the addon. Each
 one still prints its chat line and waits on top of the Decrees tab, where a click shows it now.
 Once you are out and not Busy, one line (and one raid warning and one sound) says what waited and
 is still current, and only what is still open pops up: a Vox question still open, the King's call
 to his audience within its two minutes, the Agenda still to come, a roll call within its minute,
 an unread writ. What is over by then (a Call to Arms lasts 5 minutes) only stays in its list, and
-nothing is ever answered for you. `/elf alerts always` shows them at once as before; `/elf alerts
+nothing is ever answered for you. `/bk alerts always` shows them at once as before; `/bk alerts
 quiet` (the default) holds them again; or a click on the line at the bottom of the Decrees tab.
 Only on your computer: nothing is sent.
 
 ### Channels
-Chat for the whole federation, carried by the addon over its hidden Elfcore channel (no
+Chat for the whole federation, carried by the addon over its hidden Bankai Guild channel (no
 WoW channel number to join). Each channel is exclusive to a rank:
 
 | Channel | Command | Who reads and writes |
 |---|---|---|
-| **[Elfcore]** | `/ef <text>` | every member of every Elfcore guild |
-| **[Captains]** | `/efc <text>` | the Captains (rank 1) and Lords of every Elfcore guild |
-| **[Lords]** | `/efl <text>` | the Lords (every guild master, the King included) and the officers of `<Elfcore>` (their lines show to `<Elfcore>`'s own members, and to everyone for the Hands the King's list or a Steward's own names, 1.0.0) |
+| **[Bankai Guild]** | `/bg <text>` | every member of every Bankai Guild guild |
+| **[Captains]** | `/bgc <text>` | the Captains (rank 1) and Lords of every Bankai Guild guild |
+| **[Lords]** | `/bgl <text>` | the Lords (every guild master, the King included) and the officers of `<Elfcore>` (their lines show to `<Elfcore>`'s own members, and to everyone for the Hands the King's list or a Steward's own names, 1.0.0) |
 
 - Higher ranks also use the channels below theirs: a Lord writes in all three.
-- `/elf mute captains` (or `elfcore`, `lords`) hides a channel in chat; the same command shows it again.
-- **The Elfcore tab (1.1.1).** One click in the Chat tab's settings (the gear), or
-  `/elf chatwindow tab` (`aba` works too), sends the three channels to a tab of your chat named
-  "Elfcore". There each line comes without the channel's name, in its channel's colour: gold for
-  [Elfcore], teal for [Captains], purple for [Lords] (the tab's first line gives that legend).
+- `/bk mute captains` (or `bankaiguild`, `lords`) hides a channel in chat; the same command shows it again.
+- **The Bankai Guild tab (1.1.1).** One click in the Chat tab's settings (the gear), or
+  `/bk chatwindow tab` (`aba` works too), sends the three channels to a tab of your chat named
+  "Bankai Guild". There each line comes without the channel's name, in its channel's colour: gold for
+  [Bankai Guild], teal for [Captains], purple for [Lords] (the tab's first line gives that legend).
   You make the tab yourself with the game's menu, as the click tells you: right-click the General
-  tab, Create New Window, and name it Elfcore; the lines land there as soon as it exists, in the
-  main window until then. The click shows you where on the Chat tab, as its **Add an Elfcore tab
+  tab, Create New Window, and name it Bankai Guild; the lines land there as soon as it exists, in the
+  main window until then. The click shows you where on the Chat tab, as its **Add an Bankai Guild tab
   to the game chat** line does, with a pointer by that tab, and sends the channels there the
   moment it exists
-  (1.1.1, below). Elfcore
+  (1.1.1, below). Bankai Guild
   cannot make it for you: the game's own code for a new chat window, run by
   an addon, taints the chat box, so `/cast`, `/target`, `/use` or `/click` typed there afterwards
   get blocked (with the gamepad UI, the game froze in 0.8.5). A new tab also shows Say, Guild,
-  whispers and more: right-click it, Settings, and untick everything to have the Elfcore chats
+  whispers and more: right-click it, Settings, and untick everything to have the Bankai Guild chats
   alone there (the tab's first line says so, after the legend, when the tab shows other chat;
-  `/elf chatwindow tab` says it again). The main window keeps Elfcore's own notices and the
-  pinned line's announcements. `/elf chatwindow main` brings the channels back to the main
+  `/bk chatwindow tab` says it again). The main window keeps Bankai Guild's own notices and the
+  pinned line's announcements. `/bk chatwindow main` brings the channels back to the main
   window.
-- `/elf chatwindow <number or name>` shows the three channels in another chat window of yours
+- `/bk chatwindow <number or name>` shows the three channels in another chat window of yours
   (make it in the game first: right-click a chat tab, Create New Window), by name or by number;
-  `/elf chatwindow Officers captains` moves one channel only, and `/elf chatwindow main` brings
-  them back. In a window named anything but Elfcore the lines keep the channel's name (name the
-  tab "Oly" and pick it with `/elf chatwindow Oly` to have it). Only where the lines are printed
+  `/bk chatwindow Officers captains` moves one channel only, and `/bk chatwindow main` brings
+  them back. In a window named anything but Bankai Guild the lines keep the channel's name (name the
+  tab "Oly" and pick it with `/bk chatwindow Oly` to have it). Only where the lines are printed
   changes: the addon never touches the chat box, so every command typed there works as always.
   A window closed or renamed sends its lines back to the main window, with a notice.
-  `/elf status` shows where each channel goes.
+  `/bk status` shows where each channel goes.
 - **Chattynator (1.1.2, from hypertectonic's pull request #47).** With the Chattynator chat
   addon, its tabs are your chat windows: the game's own windows are hidden behind them, so
-  Elfcore leaves those out and picks Chattynator's tabs instead. `/elf chatwindow tab` (or the
-  Chat tab's settings) sends the three channels to a Chattynator tab named Elfcore, without the
+  Bankai Guild leaves those out and picks Chattynator's tabs instead. `/bk chatwindow tab` (or the
+  Chat tab's settings) sends the three channels to a Chattynator tab named Bankai Guild, without the
   channel's name, and says how to make it: in Chattynator, click the + after its tabs, rename
-  the new tab Elfcore (right-click it, Rename tab), then right-click it, Tab Settings, and under
-  Addons tick Elfcore. `/elf chatwindow <name>` picks any other tab of Chattynator's by its
-  name, in any case (`/elf chatwindow Guild captains`), as the tab shows it or as Chattynator
-  keeps it ("GENERAL" for General); not by number. A tab shows Elfcore's lines only if its
-  filter lets Elfcore in, which Elfcore cannot see: each time you choose a Chattynator tab, the
+  the new tab Bankai Guild (right-click it, Rename tab), then right-click it, Tab Settings, and under
+  Addons tick Bankai Guild. `/bk chatwindow <name>` picks any other tab of Chattynator's by its
+  name, in any case (`/bk chatwindow Guild captains`), as the tab shows it or as Chattynator
+  keeps it ("GENERAL" for General); not by number. A tab shows Bankai Guild's lines only if its
+  filter lets Bankai Guild in, which Bankai Guild cannot see: each time you choose a Chattynator tab, the
   main window says how. A tab moved gets the new lines where it now is (the lines it showed
   before may not follow it: Chattynator files each line under the tab's place when it came);
-  one removed or renamed sends them back to the main window, with a notice. Elfcore only reads
+  one removed or renamed sends them back to the main window, with a notice. Bankai Guild only reads
   the names of Chattynator's tabs and prints its lines there through Chattynator's public API:
   it never makes, renames or sets up a tab, and your chat box works as always. Choosing a tab
-  does not turn the Elfcore chats on (the first-open page, or `/elf chat on`). Without
+  does not turn the Bankai Guild chats on (the first-open page, or `/bk chat on`). Without
   Chattynator nothing changes.
 - The flood guard keeps a busy channel readable: past 60 lines a minute (or 10 from one player
   while the channel is half full) the rest stay off the chat, and a notice says how many, at
   most once a minute. Those lines still go to the Chat tab (1.1.1), which keeps the last 100
   lines of each channel.
-- A line still waiting to leave when the Elfcore channel changes (a new realm key, from
-  `/elf key` or the King's rotation) is not sent, to either channel, and you are told: it was
+- A line still waiting to leave when the Bankai Guild channel changes (a new realm key, from
+  `/bk key` or the King's rotation) is not sent, to either channel, and you are told: it was
   written for the old channel's audience. Send it again to write on the new one (1.1.1, GitHub
   #34). The same holds for a line the privacy warning holds while the channel changes. Of a
   long line whose first parts had already left, the notice says how many went out, on the old
@@ -448,27 +448,27 @@ WoW channel number to join). Each channel is exclusive to a rank:
   up to 3 messages; if the game refuses one of them, the rest of that line is not sent
   either, and you are told (1.1.1).
 - The channels show only in the chat of players with the addon.
-- **Marks in the game's own chat (1.1.5).** Before the name of an Elfcore player in the game's
+- **Marks in the game's own chat (1.1.5).** Before the name of an Bankai Guild player in the game's
   channels (General, Trade, LocalDefense, LookingForGroup and any other), say, yell, emote,
   party, raid, instance chat and whispers both ways: the mark of their border's tier, the game's
   gold elite dragon for the King, its silver one for a High Councillor (then the icon they
-  picked), the bronze for a guild master of an Elfcore guild, the Legate or department shield for
-  a verified Legate or correspondent, and Elfcore's star for any other
+  picked), the bronze for a guild master of an Bankai Guild guild, the Legate or department shield for
+  a verified Legate or correspondent, and Bankai Guild's star for any other
   member your addon can check: your guild's roster, or for another guild its census, naming them
-  in the guild their own Elfcore messages speak for (someone else's report alone proves nothing,
+  in the guild their own Bankai Guild messages speak for (someone else's report alone proves nothing,
   and a plain member of another guild is in no census, so gets none). Guild and officer chat show
   the office marks alone (the King's gold, a High Councillor's silver, a guild master's bronze and
   the verified Legate or department shields), never
-  the star: everyone there is of your guild, and you know who they are. Never on Elfcore's own
-  lines ([Elfcore], [Captains], [Lords] and the Chat tab), which show the name in its colour alone.
+  the star: everyone there is of your guild, and you know who they are. Never on Bankai Guild's own
+  lines ([Bankai Guild], [Captains], [Lords] and the Chat tab), which show the name in its colour alone.
   Through the game's own name filter, so the name's link, right-click and /r stay the game's. On
-  by default (`/elf chatmarks off` hides them), hidden with the gamepad UI, and a High
+  by default (`/bk chatmarks off` hides them), hidden with the gamepad UI, and a High
   Councillor's on the King's screen while the council's names are hidden. The 1.1.5 letter
-  (`/elf letters 1.1.5`) draws each mark with who it is.
-- **Block terms (1.1).** `/elf filter add <word>` hides, on your screen, every line of addon
-  text with that word: the Elfcore chats, the King's writs, a decree's words and Vox Populi's
+  (`/bk letters 1.1.5`) draws each mark with who it is.
+- **Block terms (1.1).** `/bk filter add <word>` hides, on your screen, every line of addon
+  text with that word: the Bankai Guild chats, the King's writs, a decree's words and Vox Populi's
   question and answers. Whole words only, any case or accent, one word of 2 to 24 letters or
-  digits (`/elf filter remove <word>`, `/elf filter` lists them). It never reads names, guilds,
+  digits (`/bk filter remove <word>`, `/bk filter` lists them). It never reads names, guilds,
   the census, the treasury or the game's own chat (Say, Trade, General). A hit hides the line and
   nothing else: its sender is not ignored, blocked or cut off, and their next line shows. The
   Chat tab says how many lines your filter hides in a channel, and a click shows them, marked; the
@@ -476,10 +476,10 @@ WoW channel number to join). Each channel is exclusive to a rank:
   The pinned line's words hide the same way (1.1), and a click on the line shows them.
   A companion addon reading the chats (the bridge) still gets hidden lines, as with a muted
   channel. **The shared block terms**: a second list the King, his Steward, a Hand or a High
-  Councillor of the author's signed list edits for everyone (`/elf filter shared add|remove
+  Councillor of the author's signed list edits for everyone (`/bk filter shared add|remove
   <word>`, 50 words at most, each one word of 4 letters at least: a short common word such as
   "the" or "de" would hide nearly every line), used on every client unless its player says
-  `/elf filter shared off`. The shared list never hides the King's writs (your own filter still
+  `/bk filter shared off`. The shared list never hides the King's writs (your own filter still
   can). Each word is its own entry with the server's time of its edit, so two editors never undo
   each other's other words, and a removal is kept for 30 days (the list keeps 100 entries at
   most, the oldest removals going first, those of the same second in alphabetical order, so
@@ -488,20 +488,20 @@ WoW channel number to join). Each channel is exclusive to a rank:
   editor's own client, within 15 minutes of it, goes into its log of acts with the editor's name
   (another editor's repeat of it does not: it is not his act). Clients before 1.1 ignore the list.
 - **Your choice (1.1).** The chats are off until you say yes on the first-open page (or
-  `/elf chat on`). Off, `/ef`, `/efc`, `/efl` and `/elf pin` say so and send nothing, and no line
+  `/bk chat on`). Off, `/bg`, `/bgc`, `/bgl` and `/bk pin` say so and send nothing, and no line
   from anyone shows or is kept on this client, nor any pinned line; the Chat tab says the chats
   are off, with a click to choose. The Realm does not repeat a chat shortcut or status row.
-- Ranks follow the rule of the decrees: whoever founds a guild with "Elfcore" in its name is
+- Ranks follow the rule of the decrees: whoever founds a guild with "Bankai Guild" in its name is
   its Lord and gets [Lords], and its officers get [Captains].
 - **One pinned line** (1.1): the King, his Stewards and Hands can pin one short line (100
-  characters) on top of the Elfcore chats and the Realm, for every member, for 2 hours: a raid
+  characters) on top of the Bankai Guild chats and the Realm, for every member, for 2 hours: a raid
   move, a gates change (**Pin a line for the army...** in the Chat tab's settings). A guild
   master pins one for his own guild alone (**Pin a line for your guild...**): it goes over guild
   chat, and
   each guildmate's addon reads his rank in its own guild roster, never in the census (which
-  anyone on the Elfcore channel can report to). (The officers of <Elfcore> read [Lords] only on
-  its own members' addons, so they pin for the army as the King's Hands.) `/elf pin <text>` pins
-  where your rank allows; `/elf pin off` (or a click on the line) takes it down: its setter, or
+  anyone on the Bankai Guild channel can report to). (The officers of <Elfcore> read [Lords] only on
+  its own members' addons, so they pin for the army as the King's Hands.) `/bk pin <text>` pins
+  where your rank allows; `/bk pin off` (or a click on the line) takes it down: its setter, or
   a higher rank (the King anyone's, his Stewards and Hands a guild master's, over guild chat like
   the line itself, so it reaches his guildmates on every realm), and one line in chat says who
   took it down. A takedown sticks: every addon remembers the pins taken down for 2
@@ -512,11 +512,11 @@ WoW channel number to join). Each channel is exclusive to a rank:
   rank's go first. The addon that took it down says so again when it hears it repeated (once a
   minute at most), and the setter's addon lets it go. The setter's addon
   keeps its own pin through a `/reload`, to repeat it and take it down. On the Forever beta,
-  which forgets addon data at every login, a `/reload` forgets both: `/elf pin off` with nothing
+  which forgets addon data at every login, a `/reload` forgets both: `/bk pin off` with nothing
   pinned on your screen still takes your own line down wherever it shows (once a minute at most),
   and an addon that reloaded no longer knows the lines taken down, so one whose setter's addon
   missed the takedown can show there again until the addon that took it down hears it repeated
-  and says so again. A pin shows only where the Elfcore chats are on, and you pin only while
+  and says so again. A pin shows only where the Bankai Guild chats are on, and you pin only while
   yours are; none shows from a name or guild
   the moderators took off (net-off), whose own addon pins nothing and takes no one else's line
   down (only its own); your block terms hide its
@@ -528,23 +528,23 @@ WoW channel number to join). Each channel is exclusive to a rank:
   its setter's addon repeats it for late logins. Charters and dues stay in Discord, typed by a
   person. Addons before 1.1 don't show it.
 
-**Not encrypted, not private:** every client on the hidden Elfcore channel receives the text of
+**Not encrypted, not private:** every client on the hidden Bankai Guild channel receives the text of
 all three channels, and the addon only decides what to show. Anyone on that channel can read
-[Captains] and [Lords] with a one-line script: without `/elf key` that is anyone who joins
-"ElfcoreNet" by name; with a key, every member of the guilds that have it. The guild tag on an
-[Elfcore] line is not verified. Seal the channel with `/elf key`, and never share passwords there.
+[Captains] and [Lords] with a one-line script: without `/bk key` that is anyone who joins
+"BankaiGuildNet" by name; with a key, every member of the guilds that have it. The guild tag on an
+[Bankai Guild] line is not verified. Seal the channel with `/bk key`, and never share passwords there.
 Before your first line in each channel the addon tells you this and waits for **Send**.
 Since 1.1, while your channel is public, officers see one quiet grey line saying so on the
 Census, the Realm and the Chat tab's settings (its tooltip says who can read it and how to seal
 it);
-every member sees how many guildmates are already on the sealed channel, and `/elf status`
+every member sees how many guildmates are already on the sealed channel, and `/bk status`
 says public or sealed. It only tells: nothing is sent and nothing changes.
 
 ### The Chat tab (1.1.1)
-The Elfcore chats in a tab of the Elfcore window, **Chat**, right after the Realm, like the chat
-pane of the Guild & Communities window. Click the tab, type `/elf talk` (or `/ef`, `/efc` or
-`/efl` with nothing after it), or Shift-click the minimap button: each opens the Elfcore window
-on its Chat tab, on that channel. `/elf talk lords`
+The Bankai Guild chats in a tab of the Bankai Guild window, **Chat**, right after the Realm, like the chat
+pane of the Guild & Communities window. Click the tab, type `/bk talk` (or `/bg`, `/bgc` or
+`/bgl` with nothing after it), or Shift-click the minimap button: each opens the Bankai Guild window
+on its Chat tab, on that channel. `/bk talk lords`
 opens it on [Lords]; the same command again closes the window.
 When the side column of the new look runs out of room, its canonical tail continues from the
 bottom of the window's left edge upward. Reading the right top-to-bottom and then the left
@@ -557,7 +557,7 @@ bottom-to-top always gives the same tab order; changing role or debug view never
   one channel, a small switch with the channel shown, in its colour, and **+N** for the lines that
   came in on the others while the tab was open (a click lists your channels, each with its count,
   to pick one); then the gear of the settings (below). There is no row of channels: most players
-  read [Elfcore] alone, and the lines take that room. A channel muted in chat (`/elf mute`) still
+  read [Bankai Guild] alone, and the lines take that room. A channel muted in chat (`/bk mute`) still
   shows here, and a line you write here keeps it muted in chat. The pinned line shows over the
   lines, as on the Realm tab, and takes no room while nothing is pinned.
 - Every line whole, in a bubble that wraps: never cut, nothing to hover to read it. Other
@@ -571,9 +571,9 @@ bottom-to-top always gives the same tab order; changing role or debug view never
 - By each name, the name in its colour (the High Council's for a councillor, the writer's class
   for anyone else), the Treasurer's coin, **Steward** or **Hand** after the King's, and (1.2.4)
   **The Royal Dev** after the author's, on every line of his on the page. No mark
-  before a name since 1.1.5: Elfcore's marks show in the game's own chat instead, where players
-  outside Elfcore are ([Channels](#channels), `/elf chatmarks`). A click on a name whispers that
-  player, in Elfcore's whisper window.
+  before a name since 1.1.5: Bankai Guild's marks show in the game's own chat instead, where players
+  outside Bankai Guild are ([Channels](#channels), `/bk chatmarks`). A click on a name whispers that
+  player, in Bankai Guild's whisper window.
 - The gear can hide the adjacent guild label on this client (shown by default), including in
   the Bones table panel. Tooltips and guild search retain the guild; message identity and
   permissions do not change. Already printed lines in the game's chat are not rewritten.
@@ -594,57 +594,57 @@ bottom-to-top always gives the same tab order; changing role or debug view never
   and the chat says why. Replying changes no identity, delivery, permissions or moderation
   authority.
 - **The box** runs across the bottom, where the other tabs have their buttons, with no Send
-  button: Enter sends. It is Elfcore's own, not the game's chat box: it takes the keyboard only
+  button: Enter sends. It is Bankai Guild's own, not the game's chat box: it takes the keyboard only
   when you click into it or press your open-chat key (Enter, unless you changed it) while the tab
   shows (the tab never takes it when it opens, so your movement keys keep working; in a fight the
   key changes over when the fight ends). Enter sends to the channel shown and the cursor stays for
   the next line; Enter on an empty box, Escape or a left-click elsewhere gives the keyboard back to
   the game; Tab changes channel. With the gamepad UI only a click puts the cursor there, and Enter
   lets it go. It runs no command: a line that starts with `/` stays in the box and is not sent
-  (commands go in the game's chat box, which Elfcore never opens or touches). Your first line in
+  (commands go in the game's chat box, which Bankai Guild never opens or touches). Your first line in
   each channel still waits for the privacy warning's **Send**. A line of yours that did not leave
   shows a note in its channel, and a click puts it back in the box when the box is empty (what you
   are writing is never replaced: the note waits).
-- In Guild and the Roles rooms (1.2.4), a line Elfcore cannot send stays in the box, and the room
+- In Guild and the Roles rooms (1.2.4), a line Bankai Guild cannot send stays in the box, and the room
   says why on one line: too fast, nobody else in this room online right now, the game has not
   told your guild yet, chat rooms off, and so on. A Roles room's line shows at once, marked
   **(sending...)**, until its whispers have left (one every 1.2 seconds, so a full room takes a
   while); if none of them leaves, it goes from the room and the note says why. Nobody is added
   to a room to make a line go.
-- **Add an Elfcore tab to the game chat**: while your game chat has no Elfcore tab (see Channels
-  above), a line over the lines offers one. Elfcore cannot make that tab itself, so a click
-  shows you where: a small Elfcore pointer by your main chat tab says right-click it, Create New
-  Window, and name it Elfcore. The moment a chat window named Elfcore exists, Elfcore sends the
-  chats there (as `/elf chatwindow tab` does) and says so once; the pointer and the line go. It
+- **Add an Bankai Guild tab to the game chat**: while your game chat has no Bankai Guild tab (see Channels
+  above), a line over the lines offers one. Bankai Guild cannot make that tab itself, so a click
+  shows you where: a small Bankai Guild pointer by your main chat tab says right-click it, Create New
+  Window, and name it Bankai Guild. The moment a chat window named Bankai Guild exists, Bankai Guild sends the
+  chats there (as `/bk chatwindow tab` does) and says so once; the pointer and the line go. It
   only reads the game's chat windows to see the new one appear. With the gamepad UI there is no
   pointer (the game's chat tabs work otherwise there): the line gives the same steps as text. The
-  line stays away while you send a channel to a chat window of your own (`/elf chatwindow`), and
-  its **x** puts it away for good, on every character: the settings and `/elf chatwindow tab`
+  line stays away while you send a channel to a chat window of your own (`/bk chatwindow`), and
+  its **x** puts it away for good, on every character: the settings and `/bk chatwindow tab`
   still make the tab. With Chattynator (1.1.2) there is no pointer either (the game's tabs are
-  hidden behind Chattynator's): the click sends the chats to its tab named Elfcore at once, and
+  hidden behind Chattynator's): the click sends the chats to its tab named Bankai Guild at once, and
   chat says how to make that tab in Chattynator; the Chat tab reads Chattynator's tabs while it
   shows. The tab is announced once, by the Chat tab when it sees the tab or by the tab's first
   line if that comes first, and a channel you moved meanwhile stays where you put it.
 - **Settings**: the gear at the end of the top row shows them in place of the lines (a click on it
-  again, or **< Back to the lines**, goes back). The Elfcore chats on or off on this client, what
+  again, or **< Back to the lines**, goes back). The Bankai Guild chats on or off on this client, what
   that means, and a click to choose (the first-open page); for officers while your channel is
   public, its quiet grey line. For each channel your rank reads: whether it shows in your game
-  chat (a click mutes it there or shows it again, as `/elf mute`), and the chat window it prints
+  chat (a click mutes it there or shows it again, as `/bk mute`), and the chat window it prints
   in (a click moves it to the next chat window open in your game, then back to the main one, as
-  `/elf chatwindow`; with Chattynator, to its next tab, by name, 1.1.2). The Elfcore tab of the
+  `/bk chatwindow`; with Chattynator, to its next tab, by name, 1.1.2). The Bankai Guild tab of the
   game chat: add it (as the line over the lines does),
-  the steps while it is awaited, **on**, or waiting for a chat tab named Elfcore. And for whoever
+  the steps while it is awaited, **on**, or waiting for a chat tab named Bankai Guild. And for whoever
   may pin, **Pin a line for the army...** (or **for your guild...**). Each choice is the one its
   command makes, kept where it always was, so nothing chosen before 1.1.1 is lost; the game's chat
   windows are only read, and printed in.
-- The tab has no place or size of its own: it is the Elfcore window's, docked by your guild
+- The tab has no place or size of its own: it is the Bankai Guild window's, docked by your guild
   window or wherever you put it. Escape or the window's X closes it; it never opens by itself.
   With the chats off on this client it says so, what the choice means, and offers it.
-- **Blizzard's gamepad mode**: the same tab, opened from the Elfcore window (the minimap button
+- **Blizzard's gamepad mode**: the same tab, opened from the Bankai Guild window (the minimap button
   opens it; no command is typed with the gamepad UI, see below); click into the box with the
-  gamepad cursor to write. The Elfcore window stays off the
+  gamepad cursor to write. The Bankai Guild window stays off the
   Escape list there (its X closes it), and the tab opens no game popup: the whisper, a pinned
-  line's takedown and the settings' pin use Elfcore's own windows.
+  line's takedown and the settings' pin use Bankai Guild's own windows.
 
 #### Role rooms (1.2.4)
 **Roles**, after Guild: the rooms of the roles you hold, each line a logged whisper to each member.
@@ -657,22 +657,22 @@ arrives. The rooms, in the list's order (none of yours: no Roles tab):
 |---|---|
 | **High Council** | the signed councillors, the King and the Federal Treasurer |
 | **Secretariat** | the King and his Stewards |
-| **Guild Masters** | the guild master of every Elfcore guild, the King |
+| **Guild Masters** | the guild master of every Bankai Guild guild, the King |
 | **Masters & Legates** | every guild's master and legates (its officers and those its master names), the King |
-| One room a department (**Federal Treasury**, **Department of War**, **Council of Justice**, **Association of Artisanry**, **Department of Heritage**, **The Missionary Church of Elfcore**) | its councillors by the signed titles list, and each guild's correspondent of it; the Federal Treasury's also the Federal Treasurer |
+| One room a department (**Federal Treasury**, **Department of War**, **Council of Justice**, **Association of Artisanry**, **Department of Heritage**, **The Missionary Church of Bankai Guild**) | its councillors by the signed titles list, and each guild's correspondent of it; the Federal Treasury's also the Federal Treasurer |
 | **Master & Correspondents** (one a guild) | that guild's master and his correspondents (the King's guild has none) |
 | **Master & Legates** (one a guild) | that guild's master and his legates; the King's guild's: the King and the legates he and the High Council name |
 | **Apostles** | the author, the King, the Head and the signed Apostles |
 | **Apostles & Missionaries** | the Apostles' room and the missionaries |
 | **Church** | the whole Church, as in 1.1.6 |
-| **The Watch** | the author, the King, every councillor and the Elfcore moderators they name (a guild's own Watchers act on their guild alone and are not in it) |
+| **The Watch** | the author, the King, every councillor and the Bankai Guild moderators they name (a guild's own Watchers act on their guild alone and are not in it) |
 
 - The author's character is in every room but the High Council's and the Secretariat's: his
   lines carry **The Royal Dev** after his name, and another member's line reaches him only while
   his presence is heard (it repeats every 5 minutes). His list holds each guild's own rooms.
 - A guild's own rooms hold its own people: a member of one guild is in no other guild's room.
 - Another guild's guild masters and officers are known only from the author's signed leadership
-  list. Until it is out (`/elf status`, **signed leadership**), the rooms that reach other guilds
+  list. Until it is out (`/bk status`, **signed leadership**), the rooms that reach other guilds
   (the masters', the masters' and legates', the departments') reach your own guild and the
   signed people (the King, the councillors, the author) alone, and say so over their lines.
 - A line goes to 40 members of a room at most (the Church's rooms 30, those heard online), the
@@ -685,22 +685,22 @@ arrives. The rooms, in the list's order (none of yours: no Roles tab):
   in a room not shown only adds to its count, and the room shown is live.
 - A list of more than ten rooms folds each group (the departments, each kind of guild room, the
   Church's) into one row, **Departments (6) >**, whose click opens its own list beside it, eight a
-  page with **Previous** and **More (n)**. It is Elfcore's own, with the mouse and the gamepad UI.
+  page with **Previous** and **More (n)**. It is Bankai Guild's own, with the mouse and the gamepad UI.
 - A line from an older client to 1.2.3's treasurers', all departments' or one guild's legates'
   room is dropped quietly; 1.2.3 clients do not know the new rooms, and drop a guild master's line
   in the masters' and legates' room and the Treasurer's in the Federal Treasury's.
 
 ### The Board: who is looking for a group, and where (1.1)
-The Realm tab links **the Board** (or `/elf lfg`): who in Elfcore wants a group right now, from
+The Realm tab links **the Board** (or `/bk lfg`): who in Bankai Guild wants a group right now, from
 what each player chose to share, and the King's week.
 
-- **The King's week** (`/elf week`): the King's Agenda for the next 7 days, by day, with your own
-  guild's events from the game's calendar among them, so nobody books the army twice. Elfcore
+- **The King's week** (`/bk week`): the King's Agenda for the next 7 days, by day, with your own
+  guild's events from the game's calendar among them, so nobody books the army twice. Bankai Guild
   can't write into the game's calendar: an officer's click opens it on the right day's month and
   says which day to right-click for the guild event. Your client keeps the week across a
   `/reload` or a login, so it shows while the King is offline.
   **Heraldry and guild agendas (1.2.4).** The signed High Council's Heraldry holders and the author
-  also schedule for Elfcore, alongside the King's existing verified Steward and Hands. **Schedule
+  also schedule for Bankai Guild, alongside the King's existing verified Steward and Hands. **Schedule
   for your guild** belongs to its own master and verified Heraldry correspondent: a day and hour,
   or `30 Guild gathering`. Entries and signup counts reach that guild alone. Saved entries keep
   their audience, and a roster still loading keeps them hidden until it confirms the issuer.
@@ -714,36 +714,36 @@ what each player chose to share, and the King's week.
   that same guild while its setter still has that duty.
 - **Raise a flag** with one click: **Dungeon**, **Raid**, **PvP** or **Layer**, plus a short
   note if you want one (40 bytes at most). A box says first what goes out: your name, level,
-  class and guild, the flag and the note, to every Elfcore player of your realm and faction.
+  class and guild, the flag and the note, to every Bankai Guild player of your realm and faction.
   The note goes the way chat does (the game's servers keep it, so abuse can be reported); on the
   King's screen no note shows.
-- **Your zone shows on your card only while you share it** (`/elf location on`); otherwise the
+- **Your zone shows on your card only while you share it** (`/bk location on`); otherwise the
   card says the zone is hidden. Never your position.
 - **A click on someone's card whispers them.** Nothing invites anyone, queues or forms a group.
-- One flag each, an hour at most; a click on yours, or `/elf lfg off`, lowers it at once.
-- **Camps**: drop one where you stand (`/elf camp [note]`) so the army reuses a fire already up.
-  Its zone only, never your spot; it needs `/elf location on` and ends by itself after 30
+- One flag each, an hour at most; a click on yours, or `/bk lfg off`, lowers it at once.
+- **Camps**: drop one where you stand (`/bk camp [note]`) so the army reuses a fire already up.
+  Its zone only, never your spot; it needs `/bk location on` and ends by itself after 30
   minutes. The Board lists them by zone, and the world map shows one badge per zone with how
-  many (mouse and keyboard only; `/elf camps off` hides them). **Bones can be played at a tavern
+  many (mouse and keyboard only; `/bk camps off` hides them). **Bones can be played at a tavern
   or at a camp** (1.1.6): grouped, within about 10 yards, at the same inn or by your camp.
 
 ### Net-off (1.1): the moderators hide a character or take a guild off the network
 The King, his Steward, a Hand (the King's list or a Steward's) or a High Councillor of the
 author's signed list can hide one character for the whole army: **Hide a character** on the
-**Decrees** tab (the name or your target, then the reason), or `/elf netoff Name: reason`. Every
-addon then hides that character on every Elfcore surface: their [Elfcore], [Captains] and
-[Lords] lines (and the lines the Elfcore chats kept), their pinned line, their decrees, their layer and hop offers,
+**Decrees** tab (the name or your target, then the reason), or `/bk netoff Name: reason`. Every
+addon then hides that character on every Bankai Guild surface: their [Bankai Guild], [Captains] and
+[Lords] lines (and the lines the Bankai Guild chats kept), their pinned line, their decrees, their layer and hop offers,
 their Vox Populi votes and questions, their requests at court, and (1.1, Konig's review) their
 signups to the King's week, their flags and camps on the Board (the camps' map badges too),
 their listing, answers and recipe lists as a crafter, and their elite border and nameplate mark
-(they show as no Elfcore player). The names their player already linked as alts are hidden with
+(they show as no Bankai Guild player). The names their player already linked as alts are hidden with
 them (alt links, below). The rest of their guild, and
 the census, are not touched: one name stops the spam.
 - **A sanction follows the BattleTag** (the author: one with the same BattleTag as a banned or
-  censured player gets the same on that new character). A BattleTag the Elfcore Accord sends the
+  censured player gets the same on that new character). A BattleTag the Bankai Guild Accord sends the
   moderation team is one Battle.net account, so one person. When a character is taken off the
-  network, or given a timeout or a hold in Elfcore or guild scope, a moderation team client that
-  holds his BattleTag and may give that sanction itself sends a code of it on the Elfcore channel,
+  network, or given a timeout or a hold in Bankai Guild or guild scope, a moderation team client that
+  holds his BattleTag and may give that sanction itself sends a code of it on the Bankai Guild channel,
   logged, with his name (16 hex digits of SHA-256 of the BattleTag and a random key of his game
   account, which only the moderation team receives with his BattleTag: nobody else can tell whose
   BattleTag a code is, and a copied BattleTag gives a code no other account has): his sanction then
@@ -751,11 +751,11 @@ the census, are not touched: one name stops the spam.
   later, and (a team client online ten minutes) for the others' sanctions. A follow points at his
   sanction and never copies one: when his own sanction is lifted, ends or is replaced, whoever does
   it, his other characters are free at once. Each player's addon reads his own BattleTag from his own
-  game and applies a follow of it to himself alone (his Elfcore chats, what net-off holds, his
-  powers, games, map and Crafting, as every sanction); an Elfcore pop-up tells him, never who gave
+  game and applies a follow of it to himself alone (his Bankai Guild chats, what net-off holds, his
+  powers, games, map and Crafting, as every sanction); an Bankai Guild pop-up tells him, never who gave
   it, the Decrees say so, and a followed timeout is appealed as his own. A team client hides the
   other characters whose BattleTag it holds, and The Watch's BattleTags page marks them; a click
-  there stops a wrong follow (`/elf accord unfollow <name>`; `/elf accord follow <name>` follows one
+  there stops a wrong follow (`/bk accord unfollow <name>`; `/bk accord follow <name>` follows one
   by hand). The giver follows only within his reach: never when a character of that BattleTag he
   knows stands as high as he or the sanction does, or is the King; never on the King's game account,
   never at or below a character's own rank or protection (his addon remembers its account's highest
@@ -763,8 +763,8 @@ the census, are not touched: one name stops the spam.
   another game account that sent the same BattleTag (another computer or licence, or a copied tag:
   another code) waits for a team member's click. A follow given by itself never replaces one already
   kept and never passes a stop given since the sanction; a giver who loses his seat takes his follows
-  with him within a minute; `/elf accord forget` drops the follows of that BattleTag too.
-  Nothing goes out by name on a match alone: only when a followed character's Elfcore chat lines
+  with him within a minute; `/bk accord forget` drops the follows of that BattleTag too.
+  Nothing goes out by name on a match alone: only when a followed character's Bankai Guild chat lines
   (never the game's own guild chat) go on ten minutes after the follow reached him (sent while he
   was chatting: the giver's addon sends it again for his first such line) does a team client that
   may give that sanction by name give it, never above the follow's weight and never for a guild's
@@ -779,7 +779,7 @@ the census, are not touched: one name stops the spam.
 - The Decrees tab lists who is hidden, with the reason, who hid them and when (the server's
   clock), and who passed the word on when it reached you through another issuer's addon (the
   server's name for that one: nobody writes a word in someone else's name unseen). The same
-  people show a name again with a click there, or `/elf neton Name`.
+  people show a name again with a click there, or `/bk neton Name`.
 - Only a word from higher up reaches one who gives words: the King's reaches everyone but
   himself, a Steward's the Hands and High Councillors, and a Hand's or a councillor's no other
   issuer (nor the names they linked as alts). So a rogue Hand or councillor can't hide the
@@ -793,14 +793,14 @@ the census, are not touched: one name stops the spam.
   higher up, or from as high and is newer.
 - It never aims at the King (his name in any case), nor at the characters he linked as his
   alts. It uninvites nobody, demotes nobody and writes nothing to Blizzard's ignore list, and
-  `/elf block` stays one client's and one player's. No treasury code can call it.
+  `/bk block` stays one client's and one player's. No treasury code can call it.
 - The hidden player's addon tells them why, and sends none of it. A Hand or a Steward who is
   hidden calls the army in vain: their Agenda, roll call, Vox Populi, inspection and gates, and
   their entries on the King's week (their cancels of anyone else's too) and its signup sheets,
   show nowhere, and what an addon heard of them before the word leaves its week (whoever named
   them a Hand still decides whether they stay one). Taking their own entry off the week still
   reaches every addon, so it doesn't come back once they are shown again.
-- A word goes on the Elfcore channel with Blizzard's logged addon-message function (the issuer's
+- A word goes on the Bankai Guild channel with Blizzard's logged addon-message function (the issuer's
   own words: the server keeps them, so abuse can be reported), one word per name. Each issuer's
   addon repeats his own words for late logins, every 5 minutes, and never anyone else's (1.1,
   Konig's review: a word passed on in the King's name went out from the King's addon as his
@@ -825,19 +825,19 @@ the census, are not touched: one name stops the spam.
 - Each honest addon does it: a modified one can ignore it, and versions before 1.1 show
   everything.
 
-The same people can also **take a guild off the Elfcore network** (**Take a guild off the
+The same people can also **take a guild off the Bankai Guild network** (**Take a guild off the
 network** on the Decrees tab: the guild's name or your target's guild, then the reason; or
-`/elf netoff guild Name: reason`), and put it back on (`/elf neton guild Name`). While it is off,
+`/bk netoff guild Name: reason`), and put it back on (`/bk neton guild Name`). While it is off,
 honest addons stop sending and showing that guild's census (its size leaves the army's total),
-its zones on the map, its layers and hop, its decrees, its Vox Populi votes, its Elfcore chats
+its zones on the map, its layers and hop, its decrees, its Vox Populi votes, its Bankai Guild chats
 and pinned lines, and (1.1, Konig's review) its members' entries and signups on the King's
 week, their flags and camps on the Board, and their listings, answers and recipe lists on the
 crafters' board: its own members' addons send none of it and say why, and every other addon
 drops what still comes. Every addon also drops its members' requests at court, and shows them
-with no elite border or nameplate mark (as no Elfcore player). Blizzard's guild chat and Guild
+with no elite border or nameplate mark (as no Bankai Guild player). Blizzard's guild chat and Guild
 window stay up, and so do the guild's own addon messages among its members (its guild master's
 pinned line aside: hidden with its chats). A
-spam guild, or one that is not really Elfcore, is cut out of the
+spam guild, or one that is not really Bankai Guild, is cut out of the
 federation without touching anyone's rank. One guild per word and never the King's: there is
 no switch for the whole realm. Nothing about it is tied to the treasury or to any payment, and
 no treasury code can call it. Its members' hop asks and offers are known by the guild their own
@@ -847,7 +847,7 @@ someone else's report.
 ### Alt links (1.1): one player, counted once
 One player in three guilds used to swell the army by three and look like three donors. Link your
 alts and the census counts people:
-- On your main, `/elf alt add Name` names a character of this account; then log that character
+- On your main, `/bk alt add Name` names a character of this account; then log that character
   and say yes there. The offer waits in this account's saved variables, so only this account's
   characters can be linked, each confirming on itself: an officer can't attach anyone's alt,
   and a character added later is linked only once it confirms too. An alt never starts a link
@@ -856,10 +856,10 @@ alts and the census counts people:
   guild's own size stays its roster's; the header's tooltip says how many were counted once).
   The treasury's ranking and its week's donors put a player's characters on one line, under the
   main's name. Vox Populi takes one vote per player.
-- Each linked character's addon says so on the Elfcore channel (its name, its guild and the
+- Each linked character's addon says so on the Bankai Guild channel (its name, its guild and the
   names it confirmed), and a link counts on a client only when both characters said it: a name
   someone claims alone links nothing.
-- `/elf alt` shows your links; `/elf alt remove Name` takes one apart, from either character.
+- `/bk alt` shows your links; `/bk alt remove Name` takes one apart, from either character.
 - While any linked name is hidden by the moderators (net-off), the links freeze: your addon adds
   and removes none, and every addon keeps the links it knew (it takes new names, drops none), so
   nobody drops the punished character to walk back in on an alt.
@@ -868,7 +868,7 @@ alts and the census counts people:
 
 ### The Throne (the King and his Hands)
 A tab with a crown that only the King sees: the guild master of the guild named exactly
-"Elfcore" (of his faction), and on the Alliance that very character, Asmongold Asmongler: the
+"Bankai Guild" (of his faction), and on the Alliance that very character, Asmongold Asmongler: the
 addon knows him by name, like the Treasurer. It opens on **the Throne Room** (the queue of
 his court while it is open, and the army's key), and holding court takes him there. Since 1.1.5
 the Treasury has its own tab alone, and under the Throne Room are **the King's guild's Legates**:
@@ -885,7 +885,7 @@ does not automatically appoint a group leader. Each Legate organizes an agreed g
   empty, and a day and an hour typed after a number ("30 Sat 20:00 Raid night") still make a
   week entry, never a 30-minute Agenda.
 - **Hold Court** (a button on the Throne): the King opens his court where he stands. Every
-  Elfcore player in that zone gets a line on top of the Census and the Realm; one click asks
+  Bankai Guild player in that zone gets a line on top of the Census and the Realm; one click asks
   for an audience. The requests line up on his Throne and a click calls that player (a popup
   and a raid warning).
 - **Summon the Lords** (on top of the Realm tab): every Lord and Captain online gets a popup,
@@ -903,7 +903,7 @@ does not automatically appoint a group leader. Each Legate organizes an agreed g
   the addon gets a window with check boxes and a countdown; each vote goes to the King alone.
   He watches the bar chart fill, on his tab or on his screen for the stream ("Show on
   screen"); when time is up everyone gets the chart and the winner (shares of the votes, or
-  of the voters when each picked several). `/elf vox off` keeps the questions in chat.
+  of the voters when each picked several). `/bk vox off` keeps the questions in chat.
 - **Royal Writs** (in the Decrees tab): a letter from the King on parchment, to the Lords alone,
   to every Lord and Captain, or to the whole army. Lords and Captains can answer "As you
   command"; the King sees how many did. (1.2.4) His addon says each writ of the last seven days
@@ -914,7 +914,7 @@ does not automatically appoint a group leader. Each Legate organizes an agreed g
   should join for the next two hours; everyone sees it on top of Recruiting.
 - **Royal Pardon** (on the untabarded list): a click takes a name off it, for everyone, for a
   week.
-- **Rotate the army's key** (on the Throne, 1.1; or `/elf key rotate`): when the realm key
+- **Rotate the army's key** (on the Throne, 1.1; or `/bk key rotate`): when the realm key
   leaked, his addon (or his Steward's, acting for him) makes a new one (nobody sees it, he
   neither). He then picks the guilds that
   get it: those his own /who saw are checked, and a guild only the census names waits for his
@@ -929,7 +929,7 @@ does not automatically appoint a group leader. Each Legate organizes an agreed g
   never a name, and a guild again a minute after its last search; a click on a guild only checks
   it there, and the census's Refresh searches too). What his /who saw is kept with the rotation, through a /reload or
   relog too. Each hands it to his guild over guild chat, so
-  nobody types `/elf key` by hand. It never travels on the Elfcore channel. Whoever holds the
+  nobody types `/bk key` by hand. It never travels on the Bankai Guild channel. Whoever holds the
   old key outside the guilds he picks stays behind on the old channel; anyone in a guild that
   gets it has it too. For 10 minutes his addon keeps handing it to Lords and Captains who log in
   (once his /who saw them in their guild), on the old channel, a few
@@ -940,9 +940,9 @@ does not automatically appoint a group leader. Each Legate organizes an agreed g
   never the one his answer names). A guild with no officer online by then stays on the old channel
   until one of its officers types the key by hand. The King or his Steward: never a Hand.
   Each 1.1 addon keeps the newest key by the time it was made and remembers the keys a newer
-  one replaced: an officer's plain `/elf key` from a version before 1.1 still moves his guild,
+  one replaced: an officer's plain `/bk key` from a version before 1.1 still moves his guild,
   as ever, but never back to a key a newer one replaced (the leaked one). A 1.1 officer's own
-  `/elf key` is dated, and wins for his guild, as ever.
+  `/bk key` is dated, and wins for his guild, as ever.
 - **Hands of the King** (a button next to his map button): players he names use the roll
   call, the inspection, the agenda, Vox Populi and the gates in his name. Never the court,
   writs, pardons or his crown on the map. Their addons learn the list from his, keep it across a
@@ -965,8 +965,8 @@ Every command is checked on each client: it only counts if the sender is the Kin
 his to do in the King's name (1.0.0), or one of the Hands (the King's or a Steward's), for what
 is lent to them. No census vote can make anyone else King or silence him. On the
 Horde the King is Duskmonkey Boneback, guild master of `<Mudhutters>` (0.9.4): his guild counts
-as an Elfcore guild there, whatever its name. Answers go to the King alone. Nothing another player sends can put free text on his screen: only names and
-Elfcore guild names.
+as an Bankai Guild guild there, whatever its name. Answers go to the King alone. Nothing another player sends can put free text on his screen: only names and
+Bankai Guild guild names.
 
 ### The King's Steward (1.0.0)
 The King's right hand, so that he needn't set everything up himself: a character the author
@@ -1022,7 +1022,7 @@ dated more than a minute ahead of the server's clock is not taken.
 README on GitHub says how): no name is written in the addon, no census vote counts, and nobody
 else can make one. A Steward acts for the Alliance's King (the Horde's only when the list names
 one for the Horde), on the list's realm group, where a King is named. A newer signed list
-without him ends it on every client at once. `/elf status` says whom your addon knows as the
+without him ends it on every client at once. `/bk status` says whom your addon knows as the
 Steward and the lists of Hands it holds, whose each is.
 
 ### The Treasury (its keepers, the King, and the army when the King says so)
@@ -1039,14 +1039,14 @@ alone until then).
   public; keeper receipt identities and giver names stay private. The King closes with one
   Chronicle purchase note and removes the bar. Nothing moves money, adds dues, grants a perk,
   or changes donor-ranking publication and consent.
-- **Its keepers (1.0)**: the Treasurer of Elfcore (that exact character, in the guild ELFCORE),
+- **Its keepers (1.0)**: the Treasurer of Bankai Guild (that exact character, in the guild Bankai Guild),
   the King, and up to 5 characters the King adds on the Treasury tab (**The treasury's
   keepers**, then **Add a treasury character**, by name or target; a click on one takes it off).
   The list is the King's word (or his Steward's, in his name): every client checks it comes from
   his character or a Steward's and keeps it (it never runs out while he is away); their addons
   repeat it. No keeper's book carries it, the Treasurer's included (his could otherwise name
   anyone a keeper).
-- **The Treasurer's mail**: Pyralis Andarai, his hunter where the treasury's mail goes, keeps a book of its own like him (pinned by name on his realm group, in any guild or none; gold between the two is a transfer, and outside an Elfcore guild its book reaches the others through the Treasurer's addon).
+- **The Treasurer's mail**: Pyralis Andarai, his hunter where the treasury's mail goes, keeps a book of its own like him (pinned by name on his realm group, in any guild or none; gold between the two is a transfer, and outside an Bankai Guild guild its book reaches the others through the Treasurer's addon).
 - **Each keeper's book**: gold and items a keeper receives by trade or mail are a donation, gold
   and items he gives a payment, each written down by itself in his own character's book, by his
   own addon (mail when he takes its gold, or once its items reach his bags; the auction house,
@@ -1106,18 +1106,18 @@ alone until then).
   saved variables were wiped, or on a newly named keeper's first visit) is not sent, so nobody's
   screen lists its last items as gone.
 - **Taking donations** (1.1, the Treasurer's idea): a keeper (the Treasurer, the King, a
-  character he named) turns it on with **Taking donations** on the Treasury tab or `/elf
+  character he named) turns it on with **Taking donations** on the Treasury tab or `/bk
   donations on`: everyone with the addon sees a line on the Realm and Treasury tabs ("Pyralis
   Ashandar is taking donations in Stormwind City"), his zone only if he shares his location
-  (`/elf location`; the King: his crown on the map), and one line in the [Elfcore] chat when he
-  turns it on (not with that chat muted or the Elfcore chats off, nor for a late login; in the
-  Elfcore tab without "[Elfcore]"). His addon repeats it every 2 minutes and when his zone
+  (`/bk location`; the King: his crown on the map), and one line in the [Bankai Guild] chat when he
+  turns it on (not with that chat muted or the Bankai Guild chats off, nor for a late login; in the
+  Bankai Guild tab without "[Bankai Guild]"). His addon repeats it every 2 minutes and when his zone
   changes; it is never saved, so it is off when he logs out (his addon says so as it leaves;
-  otherwise it drops off every screen 5 minutes after his last word), and `/elf donations off`
+  otherwise it drops off every screen 5 minutes after his last word), and `/bk donations off`
   turns it off before.
-- **Requests to the treasury** (1.1): a Lord or a Captain of any Elfcore guild asks the treasury
+- **Requests to the treasury** (1.1): a Lord or a Captain of any Bankai Guild guild asks the treasury
   for an item and a count ("need 10 Ironwood"): a click on the item in the bank's grid (when he
-  sees the bank), `/elf need 10 <item>` (the item shift-clicked into the chat line, its name or its
+  sees the bank), `/bk need 10 <item>` (the item shift-clicked into the chat line, its name or its
   number), or **Ask the treasury for an item** on the Treasury tab. No text travels: the item's
   number and the count, 3 open requests per character, each for 3 days. His addon whispers it to
   the keepers, the King and his Steward heard online whose addon reads it (1.1 or later), and
@@ -1136,24 +1136,24 @@ alone until then).
   and a keeper's list on the channel once a minute at most (a change inside it goes when the
   minute is over).
 - **Sister guilds' banks** (1.1; 1.2: the **Guild treasuries**): the guild master or an officer
-  of another Elfcore guild is asked once, when he opens his guild's bank, whether it shows there
-  (`/elf bank share on|off`); his yes is for that guild alone (an officer who moves to another
-  Elfcore guild is asked again there, and shares nothing of it until he answers; his no stands
+  of another Bankai Guild guild is asked once, when he opens his guild's bank, whether it shows there
+  (`/bk bank share on|off`); his yes is for that guild alone (an officer who moves to another
+  Bankai Guild guild is asked again there, and shares nothing of it until he answers; his no stands
   wherever he goes). With his yes, his addon whispers its snapshot (items and counts, its
   gold, when it was seen; the tabs' names left out, shown as "Tab 1", "Tab 2" by their number in
   the bank) to the King, the High Council (his Stewards and Hands among them), the Treasurer and
-  the author when their addon asks, never on the Elfcore channel. A yes given to 1.1's question
+  the author when their addon asks, never on the Bankai Guild channel. A yes given to 1.1's question
   (the King, his Steward and his Hands) still covers those alone: he is asked once more whether the
   others see it too, and his "only the King's" keeps it as it was. Their addon takes it only from
   a Lord or Captain of that guild as the census confirms (a snapshot is its sender's word; 1.2.4:
   one heard before the census can say, in the first 200 seconds after a login or a `/reload`,
   while no report of that guild has come yet or its report is older than 15 minutes, or while only
-  its sender's own report names him, is held unseen, in memory, one a sender, of Elfcore guilds
+  its sender's own report names him, is held unseen, in memory, one a sender, of Bankai Guild guilds
   alone, and taken once the census confirms him, or dropped if it says he is none; nothing of it
   goes on the channel; before 1.2.4 it was dropped, and sent again only 3 hours later), keeps it
   (1.2.4, the author's call: in its saved variables too, across logouts, as <Elfcore>'s own bank
   is: the newest of each guild in the older's place, never dropped for its age, nor when the census
-  forgets its guild after a week unheard; one snapshot a guild, Elfcore guilds alone, 512 KB of
+  forgets its guild after a week unheard; one snapshot a guild, Bankai Guild guilds alone, 512 KB of
   them for a realm group's characters together, past which the one heard longest ago leaves the
   save; dropped at once, the save too, if that character leaves the High Council, and after 20
   minutes of a session outside the audience if it left while offline; what came to it as a Steward
@@ -1166,7 +1166,7 @@ alone until then).
   they hold, in the treasury ranking (below), <Elfcore>'s too when they see it (and their own
   guild's, as their own client last read it), the ledger apart (the Treasury's books are
   <Elfcore>'s alone: none is kept for another guild), who shared it and when (an old snapshot
-  marked), with a total; the Elfcore guilds of the census whose bank they hold no snapshot
+  marked), with a total; the Bankai Guild guilds of the census whose bank they hold no snapshot
   of listed apart as "no snapshot received" (not a refusal: their sharer may not have been online
   since, or may share with the King, his Stewards and his Hands alone). A click opens a guild's
   bank in place, as the guild bank shows its own (its tabs, slots, counts, tooltips, and what left
@@ -1182,7 +1182,7 @@ alone until then).
   no whispered while that player was logging off was lost), even after a `/reload` of his, for as
   long as his no stands (Konig's review: one who asked before could keep it all session); it
   counts from him even when the census no longer names him (1.2.4: one demoted since he shared
-  still gives it with `/elf bank share off`; a yes stays a guild master's or an officer's), and
+  still gives it with `/bk bank share off`; a yes stays a guild master's or an officer's), and
   takes it from their saved variables too, a copy kept unseen as well. The limit: one his addon did not hear ask in those 18 minutes
   (he was offline meanwhile) and does not hear again before he logs off keeps it, saved (1.2.4),
   until his no reaches that viewer's addon at a later ask while both are online.
@@ -1195,7 +1195,7 @@ alone until then).
   the total (gold plus value) and when its bank was read (an old snapshot marked). The highest
   total first; on the same total, the guild with the higher average level (the census), then by
   name. An item's value is what a vendor pays for it (the 11th return of the game's
-  `C_Item.GetItemInfo`, in copper: the item's own data, the same on every client), or Elfcore's own
+  `C_Item.GetItemInfo`, in copper: the item's own data, the same on every client), or Bankai Guild's own
   value for it where its table names the item (the table ships empty in 1.2.4: a later version
   fills it, never with a guess), times its count: not its market value, and no auction is read. An
   item the game has not loaded yet counts in the items, not in the value, which shows "at least"
@@ -1206,10 +1206,10 @@ alone until then).
   level and observation time) can be recovered privately by the same authorized Treasury viewers
   after two independent authorized live holders attest it. No bank item, tab, donor, book or
   snapshot is carried by that ranking relay; a relayed row cannot be opened as a bank, and nothing
-  is published on the Elfcore channel.
+  is published on the Bankai Guild channel.
 - **Sent by each keeper's addon by itself** (every 5 minutes and after a change), once he said
   yes: his book's balance, totals, ranking, items donated and latest lines (1.1: never a line of
-  gold given to the Treasurer's characters, see the dues below). On the Elfcore
+  gold given to the Treasurer's characters, see the dues below). On the Bankai Guild
   channel only the parts the King shows the army (1.1); the whole book goes by whisper, in
   pieces, to the King, his Steward and the keepers whose addon was heard in the last few minutes
   and reads it (1.1 or later: it asks for it after login, then every 15 minutes; a 1.0 addon is
@@ -1297,17 +1297,17 @@ alone until then).
     a keeper has none: gold between keepers is a transfer). Its click fills in what the usual
     miss gets wrong, the person and the amount: with your mailbox open on its Send Mail tab, a
     mail to the Treasurer's mail character (Pyralis Andarai, where he asked the treasury's mail
-    to go), the King's amount as money (never cash on delivery) and the note "Elfcore fund
+    to go), the King's amount as money (never cash on delivery) and the note "Bankai Guild fund
     <the week's first day> <your guild>"; with a trade open with the Treasurer (or his mail
     character), the trade's gold. You still press Send or Trade; closing the window sends
     nothing, and the addon never moves gold. Nothing fills itself in when the mailbox or a
     trade opens, and nothing pops up on loot. It never says you owe anything: nothing in
-    Elfcore depends on paying. With the gamepad interface it fills in nothing (the game's
+    Bankai Guild depends on paying. With the gamepad interface it fills in nothing (the game's
     windows are its own there) and says what to send instead; where the game refuses the
     addon a trade's gold, it says so once and from then on tells you the amount to type.
   - **Never a switch**: nothing about the dues can turn anyone off. A guild that pays nothing,
-    and its players under the amount, keep the census, the chats, the decrees and every Elfcore
-    feature (a test runs weeks of dues at 0% and checks it); nothing in Elfcore is locked behind
+    and its players under the amount, keep the census, the chats, the decrees and every Bankai Guild
+    feature (a test runs weeks of dues at 0% and checks it); nothing in Bankai Guild is locked behind
     paying.
   - **Never on the channel** (a switch that only hid them would still send them to
     every client on it: a list of who is short): the week's donors leave every keeper's book as a
@@ -1317,7 +1317,7 @@ alone until then).
     ranking of donors (all time) stays, as Fern said, but the Treasurer's books' part of it leaves
     out, of each giver's gold to his characters, each week's gold up to that week's amount (Konig's
     review: a ranked donor's total grew by the amount the week he paid it, which told who paid,
-    and so who did not), and all he sent with the dues' note ("Elfcore fund", as **Send this
+    and so who did not), and all he sent with the dues' note ("Bankai Guild fund", as **Send this
     week's dues** writes it). A week's amount is the one his book kept while that week ran: the
     amount his addon knew then, raised when it hears a higher one, never lowered, and never changed
     by a later word of the King's (Konig's review again: worked out anew from each word, a second
@@ -1345,12 +1345,12 @@ alone until then).
     it and asks again in a few minutes.
 
 ### Tabards: tabard inspection and the untabarded list
-- **Patrol**: walk through the crowd and the addon inspects nearby Elfcore members level 15
+- **Patrol**: walk through the crowd and the addon inspects nearby Bankai Guild members level 15
   and up, one by one (about 28 yards). Younger players are never flagged. It records who wears a tabard, who wears the wrong one and who
   wears none. Players it could not see properly are never accused.
-- **Mark** a player (with a note: `/elf mark complained about the rule`) or a whole guild.
+- **Mark** a player (with a note: `/bk mark complained about the rule`) or a whole guild.
 - **Gear seen** (1.1, officers): target a player in range (about 28 yards) and click **Inspect
-  gear** on the Tabards tab (or type `/elf gear`). The addon inspects him once, in turn with every
+  gear** on the Tabards tab (or type `/bk gear`). The addon inspects him once, in turn with every
   other inspection (one at a time, never in combat), and keeps what he wears in your saved
   variables, under **Gear seen**: a click shows his items in their slots, each with its own
   tooltip. A Captain can check a raid signup's last-seen gear days later without pulling him
@@ -1362,11 +1362,11 @@ alone until then).
   for the day's findings once a session: after its login, or at his yes if that came later. Each
   officer's Tabards page shows them with his own, the officer who found each in its tooltip, for a
   day (his own later inspection of that player replaces it). Nothing is inspected more or sooner for
-  it, nothing goes on the Elfcore channel, and only officers (the guild master and the rank right
+  it, nothing goes on the Bankai Guild channel, and only officers (the guild master and the rank right
   below, by each addon's own roster) send or keep it. The King's untabarded list stays his: another
   officer's finding never joins it, never rides in a Royal Inspection's report and never replaces
   what the King saw himself. Off until you say yes (officers get its line on the first-open page, or
-  `/elf patrolshare on`); `/elf patrolshare off` stops it.
+  `/bk patrolshare on`); `/bk patrolshare off` stops it.
 - Per guild: *"5 of 20 with problems"*.
 - **Untabarded** (the "Wall of Shame" before 0.9.2): the players the Royal Inspection found
   without the colors are on the King's list, which only he sees. He alone can let the army see
@@ -1378,7 +1378,7 @@ alone until then).
 
 ### Loot notes (1.1)
 Loot arguments restart every raid because nobody kept last week's decision: the **Loot notes** of
-your guild keep it (on the Realm tab, or `/elf loot`).
+your guild keep it (on the Realm tab, or `/bk loot`).
 - Your guild's officers (the guild master and the officer rank right below) write the decision:
   which item went to whom, and why ("Ann passed on the gloves, Bob gets the next belt"). The
   items your group loots show to them there this session, from the game's own loot lines, so a
@@ -1390,7 +1390,7 @@ your guild keep it (on the Realm tab, or `/elf loot`).
   for Discord. An officer's click removes a note for the whole guild.
 - It is not a bid window and not a loot tool: no bids, no rolls, no gold (GDKP is not allowed on
   Forever), and nothing is handed out, traded or looted for anyone.
-- Over guild addon messages only, never on the Elfcore channel: each change once, when an officer
+- Over guild addon messages only, never on the Bankai Guild channel: each change once, when an officer
   makes it, and what a guildmate's addon lacks of the book when it asks (an officer's at login,
   anyone else's when the page opens): an answer holds some 5 KB, the newest notes first, and the
   addon asks again after each until its book is whole, however large. One officer's addon answers
@@ -1408,19 +1408,19 @@ your guild keep it (on the Realm tab, or `/elf loot`).
 
 ### Crafters tab (1.1.4)
 "Who can make this?" is a chat scroll: the top-level **Crafters** tab turns it into one
-whisper to a named crafter (`/elf craft`).
-- When you open one of your professions, Elfcore reads it (its skill, and the recipes you know:
+whisper to a named crafter (`/bk craft`).
+- When you open one of your professions, Bankai Guild reads it (its skill, and the recipes you know:
   their recipe and item ids, never a specialization tree) and asks once, in a window of its own,
-  whether to list it. With your yes the board of every Elfcore player of your realm and faction
-  shows you: your name, guild, that profession and its skill. `/elf crafter off` takes you off at
-  once; `/elf crafter on` lists every profession read again.
-- **Ask who can make an item**: shift-click it after `/elf craft` (or type part of its name). The
+  whether to list it. With your yes the board of every Bankai Guild player of your realm and faction
+  shows you: your name, guild, that profession and its skill. `/bk crafter off` takes you off at
+  once; `/bk crafter on` lists every profession read again.
+- **Ask who can make an item**: shift-click it after `/bk craft` (or type part of its name). The
   crafters listed who know its recipe answer by whisper, their addons by themselves; the page shows
   who can, with their skill and the item, and a click whispers one of them. (From 1.2 the tab's
   **Ask who can make an item...** button opens the request page instead: see below.)
 - A crafter's row opens a whisper to him and, on a click, the recipes he listed (hover one for the
   item). Search the board by crafter, guild or profession.
-- It stays light on the Elfcore channel and on your own messages: your listing goes once at login,
+- It stays light on the Bankai Guild channel and on your own messages: your listing goes once at login,
   every 45 minutes, and after a change (a profession listed or taken off 2 minutes after the last
   at the soonest, a skill up 10 minutes), so about 1.3 an hour while you play and 6 at most while
   you level. Your recipes go a part each 6 seconds (10 messages a minute at most), to two players
@@ -1431,20 +1431,20 @@ whisper to a named crafter (`/elf craft`).
 
 ### Crafting requests (1.2)
 On the **Crafters** tab, **Ask who can make an item...** opens the request page: search an item
-(your own recipes, the recipe lists other crafters sent you, the answers to your `/elf craft` ask,
+(your own recipes, the recipe lists other crafters sent you, the answers to your `/bk craft` ask,
 and gathered herbs, ores and leathers) or paste its link, choose the quantity and the details, and
 publish the request to the board.
-- The request is a card on the board of every Elfcore player of your realm and faction: the item and
+- The request is a card on the board of every Bankai Guild player of your realm and faction: the item and
   quantity, your guild, who brings the materials, a price reference and your details. It only ever
   says open, taken, cancelled or expired: never who took it, the terms or how it ended.
 - A listed crafter who makes it, or for a gathered material a player whose own Herbalism, Mining or
   Skinning skill shows it (read on his client, sent nowhere), sees it marked and hears it once. The
   first claim to reach the requester wins; everything after it (the terms, the delivery, the
   request's chat) is a logged whisper between the two of them, and on the guild-mediated rail with
-  the treasury keeper who holds the goods and the gold. Elfcore fills a mail or says what to send:
+  the treasury keeper who holds the goods and the gold. Bankai Guild fills a mail or says what to send:
   you press Trade or Send.
-- Once a claim wins, Elfcore opens the request's own chat on both players' Chat tab, with the
-  Elfcore window in front. It waits as Elfcore's other windows do: in an instance or Busy until you
+- Once a claim wins, Bankai Guild opens the request's own chat on both players' Chat tab, with the
+  Bankai Guild window in front. It waits as Bankai Guild's other windows do: in an instance or Busy until you
   are out (its line waits on the Decrees tab), in a fight until it ends, and while you are typing
   in the Chat tab's box until you send or leave it; by then it opens only if the deal is still
   open. It stays while the deal is open; once the deal is over you may remove it, and the
@@ -1453,7 +1453,7 @@ publish the request to the board.
   the board, in gold, by 3 days after the sale the buyer confirmed (a sale the buyer never confirmed
   and nobody disputed owes it all the same, 3 days after the delivery the seller recorded or the
   trade both addons saw). He mails it to the guild's fee receiver (the Treasurer's mail character)
-  titled "Elfcore craft fee" and the request (his sale's line fills the mail). Late, he is warned and
+  titled "Bankai Guild craft fee" and the request (his sale's line fills the mail). Late, he is warned and
   takes no new requests until it is paid; a fee mail that comes back is owed again. Both parties'
   addons tell the Treasurer's characters of the sale. The Treasurer, the King, the High Council and
   the author see the debtors, the most overdue first, each with his step on the guild's ladder (late,
@@ -1462,7 +1462,7 @@ publish the request to the board.
   a buyer's price above the seller's, waits apart until the Treasurer confirms it. Nothing here
   removes anyone. There is no guarantee fund yet.
 
-### The Missionary Church of Elfcore (1.1.6)
+### The Missionary Church of Bankai Guild (1.1.6)
 
 **Guild fullness (1.2.4).** The correspondents' ranking counts the current correspondent's own
 management of that guild, not invitation points. Every new appointment starts afresh, including
@@ -1487,11 +1487,11 @@ that history unknown. A predecessor's proof, a person's former appointment and a
 guild aggregate cannot score the new management. Ordinary presence with an unchanged appointment
 does not reset its own proven streak. No new honour, gold rule or public/general-channel feed is added.
 
-The Church brings new players into Elfcore. **Asmongold is its Head**, using the addon's canonical
+The Church brings new players into Bankai Guild. **Asmongold is its Head**, using the addon's canonical
 King identity. This position cannot be nominated; a legacy signed Head marker grants no Head powers.
 The author's signed list sets the Twelve Apostles. The King, the author and the signed High Council may name
 other Apostles in game. Under the Apostles are their **missionaries**: an Apostle names missionaries, and each missionary may name more under himself, so
-every Apostle's network grows. Each Elfcore guild has one **Church correspondent**, named by its guild
+every Apostle's network grows. Each Bankai Guild guild has one **Church correspondent**, named by its guild
 master (or the Head, the King or the author), who keeps that guild full and answers to the Head.
 - **A guild master's correspondent shows everywhere, and stays** (1.2.4). Every addon takes it once that
   guild's census proves him its master, as for his bronze wings (two senders naming him; the author's
@@ -1511,15 +1511,15 @@ master (or the Head, the King or the author), who keeps that guild full and answ
 - **Counting is automatic.** The Church's addons read their own guild's log: an invite by a Church
   person followed by that player's join is reported to the Church's keepers (the Head, the Apostles
   and the author). It is **pending** while only the recruiter's own addon saw it and **confirmed**
-  once another player's addon did. Only players **new to Elfcore** count: a move from another Elfcore
+  once another player's addon did. Only players **new to Bankai Guild** count: a move from another Bankai Guild
   guild in the last 90 days, or an alt, never does. One recruit counts for one person only, the
   earliest. **Register a recruit** covers a player you brought whom someone else invited: he counts
-  if he joins an Elfcore guild within 14 days.
-- **Points, in game only.** 10 for each confirmed new member, 5 more if he is still in Elfcore 7 days
+  if he joins an Bankai Guild guild within 14 days.
+- **Points, in game only.** 10 for each confirmed new member, 5 more if he is still in Bankai Guild 7 days
   later, and a share of the points of the people under you: 25% of those you named, 10% of theirs,
   5% of the next level. Your own work always counts most, so someone below who brings in more people
   can outscore the one above him.
-- **People** is open to every Elfcore member, with Apostles, correspondents and missionaries in
+- **People** is open to every Bankai Guild member, with Apostles, correspondents and missionaries in
   separate groups. The missionaries' appointment action remains subject to its existing quota.
   **Mine** is for the Head, Apostles, missionaries and
   Church correspondents; **Name** appears only to someone with a naming duty. **Reassignments** is
@@ -1538,41 +1538,41 @@ master (or the Head, the King or the author), who keeps that guild full and answ
   crown where he stands; the Board's camps (1.1) one fire badge per zone, with how many. Over a
   zone's circle they move just outside its edge, top right first, so its number stays readable;
   several around one circle each take a place of their own.
-- The round **Elfcore** button in the bottom left corner of the map switches markers
+- The round **Bankai Guild** button in the bottom left corner of the map switches markers
   (army per zone, decrees, camps) on and off.
 - Every zone of the game counts, not only Azeroth's (1.1): on TBC Anniversary Outland's zones
   get their circles, and Outland's total shows on the map above Azeroth and Outland. A zone a
   new patch adds is found by itself the first time a guildmate stands in it; one the addon still
-  can't place shows as plain text in the census, and `/elf status` (and `/elf bug`) lists its
+  can't place shows as plain text in the census, and `/bk status` (and `/bk bug`) lists its
   name under "zones without a map id".
 
-### Elfcore Link: your Discord role (1.0.0, optional)
-Prove to the Elfcore bot on Discord that a character is yours, and the bot gives you your role.
-It is the one part of Elfcore that goes outside the game, and only if you choose to link a
+### Bankai Guild Link: your Discord role (1.0.0, optional)
+Prove to the Bankai Guild bot on Discord that a character is yours, and the bot gives you your role.
+It is the one part of Bankai Guild that goes outside the game, and only if you choose to link a
 character (or to confirm other players' links, below): no password, no Battle.net login, and
 nothing is sent before you say yes.
 
-Not open yet: the addon carries it, but `/elf discord` says it is not open until the Elfcore bot
+Not open yet: the addon carries it, but `/bk discord` says it is not open until the Bankai Guild bot
 is ready and its key is in the addon. Until then no addon makes, keeps, announces or uses a
 confirmer key.
 
-1. **Get a code** from the Elfcore bot on Discord (its `/verify` command, in the Elfcore server:
+1. **Get a code** from the Bankai Guild bot on Discord (its `/verify` command, in the Bankai Guild server:
    only you see the reply). It is good for 24 hours. Keep it to yourself, and don't show it (or
-   the Elfcore Link window) on a stream.
-2. **Type `/elf discord <code>`** in the game's chat. The addon checks the bot's signature on the
+   the Bankai Guild Link window) on a stream.
+2. **Type `/bk discord <code>`** in the game's chat. The addon checks the bot's signature on the
    code, then asks whether to link this character to the Discord account the code names (the
    bot's word: nobody can change it). **Cancel** sends nothing.
 3. **Players confirm in game**, by addon whisper, that this character asked: a High Councillor
    online, or, when none is, verified players drawn for your code (three of them must confirm).
    Each signs with a key of its own, for its character, which the bot certified. Every confirmer,
    High Councillors included, gets a key from the bot's keeper, made on a computer, and types it
-   in the game with `/elf discord key <id> <key>`, then its certificate with
-   `/elf discord cert <certificate>`; no addon makes a key of its own (the author's council
+   in the game with `/bk discord key <id> <key>`, then its certificate with
+   `/bk discord cert <certificate>`; no addon makes a key of its own (the author's council
    authority, which could certify keys made in game, is off). Once the bot is ready, a
-   confirmer's addon says so on the Elfcore channel every 5 minutes and signs other players'
-   requests by itself (`/elf discord key off` stops it).
-4. **The proof reaches the bot.** The **Elfcore Link** window shows a QR code and the same link
-   in a copy box. Open the Elfcore Link page, https://dnl-gentile.github.io/elfcore-addon/ (a
+   confirmer's addon says so on the Bankai Guild channel every 5 minutes and signs other players'
+   requests by itself (`/bk discord key off` stops it).
+4. **The proof reaches the bot.** The **Bankai Guild Link** window shows a QR code and the same link
+   in a copy box. Open the Bankai Guild Link page, https://dnl-gentile.github.io/bankai-addon/ (a
    static page on the project's GitHub Pages): point your phone's camera at the code, share the
    game's window with the page, or paste the link, then sign in with Discord there (Discord's own
    sign-in page, which tells the bot who you are on Discord) and the page sends the proof to the
@@ -1584,25 +1584,25 @@ the proof rides after the `#` of the link, which a browser never sends to any se
 loads its fonts from Google Fonts. The bot keeps which character (name, realm, guild and
 faction) is linked to which Discord account, and a record of each proof it received (for 90
 days). A linked character never moves to another Discord account by a new link: the bot refuses
-it. **Delete my link**, at the foot of the Elfcore Link page (signed in with Discord), takes the
+it. **Delete my link**, at the foot of the Bankai Guild Link page (signed in with Discord), takes the
 role away and deletes what the bot keeps about your account, except how many codes and links you
-used today, counted for a day at most. The Elfcore bot is Fernmelder's; how it checks a proof
-is on [GitHub](https://github.com/dnl-gentile/elfcore-addon) (the README and `web/FERN.md`).
-`/elf discord show` opens the window again, `/elf discord status` lists every character of your
-account, `/elf discord forget` drops this character's request and proof.
+used today, counted for a day at most. The Bankai Guild bot is Fernmelder's; how it checks a proof
+is on [GitHub](https://github.com/dnl-gentile/bankai-addon) (the README and `web/FERN.md`).
+`/bk discord show` opens the window again, `/bk discord status` lists every character of your
+account, `/bk discord forget` drops this character's request and proof.
 
 ### Everywhere
 - **Copy**: every tab produces a ready-to-paste text for Discord.
 - **Version letters** (1.1.5): after the addon updates, once a version, a short letter on
-  parchment, in a window like the Elfcore window's, says what changed in that version, in the
+  parchment, in a window like the Bankai Guild window's, says what changed in that version, in the
   dev's own words. It waits until the privacy page is closed, and never opens in combat, in a
-  dungeon or outside an Elfcore guild. Without saved history the letter stays quiet and unread.
+  dungeon or outside an Bankai Guild guild. Without saved history the letter stays quiet and unread.
   If the beta forgets saved data, it cannot detect updates; manual history stays available
-  without repeat login popups. With retained data, updates can show once. The Elfcore window's help button
+  without repeat login popups. With retained data, updates can show once. The Bankai Guild window's help button
   (the **i** left of the X) keeps every letter: **Version letters** on its page lists them,
-  newest first, and a click opens one; `/elf letters` (or `/elf letters 1.1.4`) does too. Nothing
+  newest first, and a click opens one; `/bk letters` (or `/bk letters 1.1.4`) does too. Nothing
   is sent: which letters you saw is kept on your computer, for your account.
-- **What this client saw** (1.1, the Decrees tab and `/elf log`): a log of the acts your addon
+- **What this client saw** (1.1, the Decrees tab and `/bk log`): a log of the acts your addon
   took while you were online (decrees, the gates opening and closing, pardons, the King's
   visibility switches for the treasury and the untabarded list, and the shared block terms'
   edits), each with the sender's name as the server stamped it, the newest 300. So "who opened the gates" has an answer after the message
@@ -1611,9 +1611,9 @@ account, `/elf discord forget` drops this character's request and proof.
   a state caught up on after a later login are not written. On the King's screen, while the
   council's names are hidden there (his stream), every sender but the King shows cut short, and
   the shared terms' words too, as everywhere on his screen. Kept on your computer only, never
-  sent, never in `/elf bug`; a record, not proof (anyone can edit their own saved files). The
-  Decrees tab lists it with a search box and a copy; `/elf log [n | word | copy | clear]` in chat.
-- **Backup** (1.1): `/elf backup` puts one text in the copy box (keepers also have **Copy a
+  sent, never in `/bk bug`; a record, not proof (anyone can edit their own saved files). The
+  Decrees tab lists it with a search box and a copy; `/bk log [n | word | copy | clear]` in chat.
+- **Backup** (1.1): `/bk backup` puts one text in the copy box (keepers also have **Copy a
   backup of your book and settings** on the Treasury tab): this character's book of the treasury
   (its opening, its 500 lines and its sums of all time, each giver's weeks of the dues and each
   week's amount with them; on the Treasurer's characters his mail
@@ -1623,14 +1623,14 @@ account, `/elf discord forget` drops this character's request and proof.
   (this month's and last month's Bones games, the newest 400, and your newest 200 duels; never
   the other player's: a Bones game's comes back when your addon asks him, a duel's from his
   repeats or the clerk's carousel). Keep it in a text file: when the beta wipes the saved
-  variables, `/elf restore` opens a box to paste it back, says what it restores and waits for
+  variables, `/bk restore` opens a box to paste it back, says what it restores and waits for
   your yes. Clipboard
   only: nothing is uploaded or sent anywhere (a keeper's book goes out afterwards as it always
   does). A book goes back only into that character's (merged with what it wrote since, nothing
   counted twice), a text that was cut or changed is refused, and it never holds your yeses to
   sharing (the addon asks them again). It never holds or sets the channel key, on anyone's
   character: a text someone else made would move your guild to another channel (your officers
-  hand the key out in game as ever, or `/elf key`); the confirm says a key in a text is left out,
+  hand the key out in game as ever, or `/bk key`); the confirm says a key in a text is left out,
   and warns when it is one your guild replaced. The players it would block are named one by one
   in the confirm (30 at most) and added only on your yes.
 - **Search**: a box on top of the Census (guilds, Lords, Captains, players, zones, recruiting),
@@ -1640,65 +1640,65 @@ account, `/elf discord forget` drops this character's request and proof.
   for you, a page of guilds at a time), with an **x** to empty it. Each tab keeps its text until
   you log out or `/reload`; a guild clicked in the Census opens in the Realm with its box emptied.
   It only changes what the list shows: **Copy** still gives everything, and nothing is sent.
-- The window opens from `/elf`, the minimap button, or the round button in your guild window:
+- The window opens from `/bk`, the minimap button, or the round button in your guild window:
   the old Guild tab or the new Guild & Communities window, whichever one you use.
   Shift-click the minimap button for the Chat tab (1.1.1, above).
 - Next to Forever's Guild & Communities window it takes that window's look: icon tabs down
   the right side, its rows, column headers, buttons and member card. When the tabs do not all fit
   down that side, the canonical tail continues from the bottom of the left edge upward. Reading
   the right top-to-bottom and then the left bottom-to-top always gives the same tab order.
-- **Blizzard's gamepad mode** (Forever's controller interface): Elfcore asks its questions in
+- **Blizzard's gamepad mode** (Forever's controller interface): Bankai Guild asks its questions in
   windows of its own instead of the game's popups, which Blizzard's gamepad code blocks (and
   freezes) when an addon opens one. With mouse and keyboard, the game's popups as always.
   Since 0.9.8 it also leaves the game's own frames alone there: no quiet `/who` on its own
-  (**Refresh** and **Find Elfcore online** still search, and so does the King's click on his
+  (**Refresh** and **Find Bankai Guild online** still search, and so does the King's click on his
   Throne's /who line for his key rotation, 1.1: the answer shows in the game's
   Who list), and the Issue Reporter is the game's to show. Since 0.9.9 it leaves the world map
   alone there too: no zone counts, decrees, crown or guildmate dots on it (the minimap keeps
   the crown and the dots), because each of those went through the map library into the gamepad
-  map's own state; since 1.1.5 its continent totals and Elfcore button go too, the gamepad map
+  map's own state; since 1.1.5 its continent totals and Bankai Guild button go too, the gamepad map
   being the game's alone. If the game still says it blocked
-  Elfcore, a `/reload` clears it; to tell us what it was, open the Elfcore window, press its
+  Bankai Guild, a `/reload` clears it; to tell us what it was, open the Bankai Guild window, press its
   help button (left of the X), then **Report a bug**.
-  **The gamepad gate (1.1.5).** Every way Elfcore reaches into the game's own windows is listed in
+  **The gamepad gate (1.1.5).** Every way Bankai Guild reaches into the game's own windows is listed in
   one place and asks one gate before it acts, so a new feature can't reach them with the gamepad
-  UI on by accident. With the gamepad UI on, Elfcore registers no typed command (`/elf`,
-  `/elfcore`, `/ef`, `/efc`, `/efl`): the game's chat box runs a command's function and then
+  UI on by accident. With the gamepad UI on, Bankai Guild registers no typed command (`/bk`,
+  `/bankai`, `/bg`, `/bgc`, `/bgl`): the game's chat box runs a command's function and then
   closes itself in that function's name, which is the very call the gamepad UI refuses. Nor does
   it put its round button in the game's guild windows, where the gamepad cursor would select it.
-  Open Elfcore with the minimap button (it shows there even when `/elf minimap` hid it), and use
+  Open Bankai Guild with the minimap button (it shows there even when `/bk minimap` hid it), and use
   its window (its help button: **Report a bug**). Switched to the gamepad UI in the middle of a
-  session (Options, Gamepad), Elfcore steps back from the game's windows on the next frame: its
+  session (Options, Gamepad), Bankai Guild steps back from the game's windows on the next frame: its
   marks, borders and buttons there hide, its tooltip lines and menu lines stop, and what the game
   keeps until a `/reload` (the commands typed with mouse and keyboard among it) is told once, in
-  Elfcore's own window, with a **Reload** button. Back to mouse and keyboard, it all comes back
+  Bankai Guild's own window, with a **Reload** button. Back to mouse and keyboard, it all comes back
   without a `/reload`.
 - English and Portuguese in full, and since 1.1 Spanish, French and German for the main
   screens, the alerts and decrees, the Join screen and its whisper, the chats and the privacy
   questions (the rest in English; the pages' **?** explanations and the Answers of 1.1.2 are in
   English too). It follows the game language, and only the text on your
-  screen changes: nothing sent between players does. `/elf status` shows the language in use.
+  screen changes: nothing sent between players does. `/bk status` shows the language in use.
 
-### Other addons: the Elfcore API (1.2.4)
+### Other addons: the Bankai Guild API (1.2.4)
 
-Another addon can read, with your permission, what Elfcore already shows you: the Wanted list
+Another addon can read, with your permission, what Bankai Guild already shows you: the Wanted list
 and its bounties, the public rankings (the Slayers, the Church's top three, the games the King
 made public, the donors' top three while he shows the Treasury's ranking), your own frame and
-title, your Elfcore guild, rank and role, and the King's presence as his lines and the Realm tab
+title, your Bankai Guild guild, rank and role, and the King's presence as his lines and the Realm tab
 show it (online, the zone they name, his crown while he shares it, whether you are on his layer,
-and his zone's layers with their "~N with Elfcore" counts while you are there). The King's
+and his zone's layers with their "~N with Bankai Guild" counts while you are there). The King's
 presence, the player-sighting searches and the profile presentation below are reserved for addons
-the Elfcore team has authorized; any other addon is asked only about the rest. An addon that asks gets its own line on the privacy
+the Bankai Guild team has authorized; any other addon is asked only about the rest. An addon that asks gets its own line on the privacy
 page and nothing until your **Yes** there or the page's deliberate **Authorize all** action
-(`/elf privacy` changes it at any time; **Keep current choices** grants nothing). Ordinary reads
+(`/bk privacy` changes it at any time; **Keep current choices** grants nothing). Ordinary reads
 send nothing. A compatible addon can also let an authorized player start a short exact-name
 last-seen search, maintain a bounded set of exact-name searches while a visible tool session the
 player started remains on, or start a five-minute hostile-area search for one selected zone or
-micro-map, which may be widened to labelled not-hostile players outside Elfcore guilds (or with
+micro-map, which may be widened to labelled not-hostile players outside Bankai Guild guilds (or with
 none), never the observer's group. Its visible Start declares selected/configured names and any included list source. A
 handle has one area at a time: current map or an owned exact-result map until its row expires, then cancel
 and wait 60 seconds to rotate. Its UI shows map/position and Stop/Off; it never opens the map or
-resumes after No or `/reload` automatically. Elfcore sends each exact **Name-Realm** sought, or the
+resumes after No or `/reload` automatically. Bankai Guild sends each exact **Name-Realm** sought, or the
 selected map ID, to the network.
 Members who separately enabled **Guild tools: player sightings** may answer privately from a
 current target, nameplate or mouseover observation or one their client kept only in memory after
@@ -1711,56 +1711,56 @@ point for the visible unit, or the same identity as a party or raid unit, the re
 target point. Otherwise it carries the observer's nearby encounter point, rounded to 0.1% of the
 map. The kind, observation time, expiry and layer are labelled, so this is last-seen information,
 not continuous tracking. Requests and answers expire, and turning either permission off cancels or
-withdraws them. On an explicit action the requester can show sanitized area rows with Elfcore-owned
-world-map pins; they clear on cancellation, expiry, permission revocation or `/reload`. Elfcore
+withdraws them. On an explicit action the requester can show sanitized area rows with BankaiGuild-owned
+world-map pins; they clear on cancellation, expiry, permission revocation or `/reload`. Bankai Guild
 can also host one bounded profile presentation. A current signed issuer or the addon's author opens it; an admitted
-member may enable only Elfcore's fixed style and pre-approved caption on themself. It accepts no target, asset path or arbitrary text,
-and **No** closes that addon's state. Elfcore
-never gives another addon the census, other players' private data or Elfcore's keys; each addon gets
+member may enable only Bankai Guild's fixed style and pre-approved caption on themself. It accepts no target, asset path or arbitrary text,
+and **No** closes that addon's state. Bankai Guild
+never gives another addon the census, other players' private data or Bankai Guild's keys; each addon gets
 its own bounded copy. What that addon then does with a copy is up to it, so authorize only addons
 you trust. After the update it loads once the game restarts (not on a `/reload`).
 
 An authorized addon can also turn on a quiet presence for the King, a High Councillor or the addon's
-author, for that session alone: Elfcore then stops sending, on its own, the words that announce
+author, for that session alone: Bankai Guild then stops sending, on its own, the words that announce
 that player online or say where he is (no hello, census report, layer, map dot, layer-hop offer,
 court, donations or duty notice, help or crafter answer, Wanted sighting or sighting answer, profile
-presentation, nor the King's crown or the lists his client repeats), and other Elfcore clients age
+presentation, nor the King's crown or the lists his client repeats), and other Bankai Guild clients age
 him out as after a logout. His guild roster, `/who` and chat still show him, and so does the census
 his guildmates build from the roster: a guild leader or officer still shows online there, and his
-zone may show for up to 12 minutes. Elfcore chat lines he types and what he posts himself still go
+zone may show for up to 12 minutes. Bankai Guild chat lines he types and what he posts himself still go
 out, reads go on working, and a `/reload` or logout ends it. A line on top of the Census and the
 Realm says so while it is on.
 
-The same registered handle can ask to contribute a client-owned page to the Elfcore window when
+The same registered handle can ask to contribute a client-owned page to the Bankai Guild window when
 this build reports `ui.surface`. The shared tab rail hosts one such page per session; the other
-addons' data handles still work if that slot is occupied. Elfcore keeps the window shell and puts
+addons' data handles still work if that slot is occupied. Bankai Guild keeps the window shell and puts
 the page in a fixed slot before Workshop; the addon builds and updates the content inside it. That
-page works while the data answer is pending or refused, and hosting it grants no Elfcore data. Its
+page works while the data answer is pending or refused, and hosting it grants no Bankai Guild data. Its
 behavior remains the responsibility of the addon that supplied it.
-For addon authors: [docs/API.md](https://github.com/dnl-gentile/elfcore-addon/blob/main/docs/API.md).
+For addon authors: [docs/API.md](https://github.com/dnl-gentile/bankai-addon/blob/main/docs/API.md).
 
 ## Install
 
-**Easiest:** install **Elfcore Guild** from the CurseForge app or WowUp. It installs in the
+**Easiest:** install **Bankai Guild Guild** from the CurseForge app or WowUp. It installs in the
 right place and keeps it updated. For Forever, pick the Forever (beta) installation of the
 game in the app, not Classic Era.
 
 **By hand:**
-1. Download `Elfcore-x.y.z.zip` from the **Files** tab here (or [GitHub Releases](https://github.com/dnl-gentile/elfcore-addon/releases)).
+1. Download `BankaiGuild-x.y.z.zip` from the **Files** tab here (or [GitHub Releases](https://github.com/dnl-gentile/bankai-addon/releases)).
 2. Open your World of Warcraft folder. On Windows it is usually
    `C:\Program Files (x86)\World of Warcraft\` (on Mac: `/Applications/World of Warcraft/`).
 3. Open the folder of the game version you play. For the **Forever beta** it is the one with
    *beta* in its name (for example `_classic_beta_`); Classic Era is `_classic_era_`, TBC
    Anniversary is `_anniversary_`.
 4. Go into `Interface\AddOns\` (create `Interface` and `AddOns` if they don't exist) and
-   extract the zip there, so you end up with `...\Interface\AddOns\Elfcore\Elfcore.toc`.
+   extract the zip there, so you end up with `...\Interface\AddOns\BankaiGuild\BankaiGuild.toc`.
    Careful: Windows' *Extract All* adds a folder named after the zip
-   (`AddOns\Elfcore-0.8.1\Elfcore\...`). If that happens, move the `Elfcore` folder up into
-   `AddOns`; the game only loads it from `AddOns\Elfcore\`.
-   From 1.3.3 the zip holds three folders: `Elfcore`, `Elfcore_Arena` (the Blood Arena's screens,
-   loaded only when you open the arena) and `ElfcoreSiteAggregate` (the deliberate, no-upload
+   (`AddOns\BankaiGuild-0.8.1\BankaiGuild\...`). If that happens, move the `Bankai Guild` folder up into
+   `AddOns`; the game only loads it from `AddOns\BankaiGuild\`.
+   From 1.3.3 the zip holds three folders: `Bankai Guild`, `BankaiGuild_Arena` (the Blood Arena's screens,
+   loaded only when you open the arena) and `BankaiGuildSiteAggregate` (the deliberate, no-upload
    website reporter). All three go in `AddOns`, and all three move up if *Extract All* added a
-   folder. Keep them together and update them together; both additional folders need Elfcore enabled.
+   folder. Keep them together and update them together; both additional folders need Bankai Guild enabled.
 5. **Restart the game.** If the addon list says *out of date*, tick **Load out of date AddOns**.
 
 The addon only shows **live data**: guilds appear as soon as one of their members with the
@@ -1770,21 +1770,21 @@ addon is online (give it a few minutes). There is no demo mode any more.
 have at least one install, the more complete the census gets.
 
 ### For officers: seal the channel (recommended)
-Type once, with a secret the Elfcore officers agree on:
+Type once, with a secret the Bankai Guild officers agree on:
 ```
-/elf key <secret>
+/bk key <secret>
 ```
 Your guildmates with the addon receive it automatically through guild chat. From then on
-the Elfcore channel has a name and password derived from the secret, and outsiders can't
-find or join it. Share the same secret with the officers of the other Elfcore guilds
+the Bankai Guild channel has a name and password derived from the secret, and outsiders can't
+find or join it. Share the same secret with the officers of the other Bankai Guild guilds
 (for example in the officers' Discord), so all guilds meet on the same sealed channel.
 Since 1.1 the King (or his Steward, for him) can also rotate the army's key from the Throne: his new key reaches the
 Lords and Captains online of the guilds he picks whom his own /who saw in them by whisper, and
-their guilds over guild chat, never on the Elfcore channel.
+their guilds over guild chat, never on the Bankai Guild channel.
 
 If a guild was accidentally given a different private key and lost the shared census and
-Elfcore chat, one of its current officers can use `/elf key off`. The recovery instruction stays
-inside Blizzard's guild channel, returns updated guildmates to the public Elfcore channel, and
+Bankai Guild chat, one of its current officers can use `/bk key off`. The recovery instruction stays
+inside Blizzard's guild channel, returns updated guildmates to the public Bankai Guild channel, and
 retires the old private key so a delayed message cannot split them again.
 
 ## How it works
@@ -1796,15 +1796,15 @@ retires the old private key so a delayed message cannot split them again.
    computes the same answer.
    Each realm of WoW: Forever has a hidden channel of its own, so a guild with members on
    several realms elects one reporter on each realm (since 1.0.0).
-3. The reporter sends a compact summary of its guild about every 3 minutes on the hidden Elfcore channel.
+3. The reporter sends a compact summary of its guild about every 3 minutes on the hidden Bankai Guild channel.
 4. Every client adds up all the summaries: that is the census.
 
 The addon itself talks only in game, through the game's own addon messages: it has no server of
-its own, and nothing it sends leaves the game. One exception is Elfcore Link (above), and
-only when you choose to link a character: it uses a website (the Elfcore Link page, on the
-project's GitHub Pages) and the Elfcore bot on Discord. A confirmer (a key from the bot's keeper)
+its own, and nothing it sends leaves the game. One exception is Bankai Guild Link (above), and
+only when you choose to link a character: it uses a website (the Bankai Guild Link page, on the
+project's GitHub Pages) and the Bankai Guild bot on Discord. A confirmer (a key from the bot's keeper)
 signs other players' requests by itself once the bot is ready, and those signatures reach the bot
-in their proofs. The other is the Elfcore Companion app, only if you install it (Privacy, below).
+in their proofs. The other is the Bankai Guild Companion app, only if you install it (Privacy, below).
 
 **Realms vs layers.** A realm (ClassicBetaPvP, ClassicBetaPvP2...) is a separate world
 with its own guilds; layers are copies of a zone *inside* one realm. Guilds on the same
@@ -1819,132 +1819,132 @@ window shows which realms you are counting.
 ## Privacy
 
 The addon itself talks only through the game's own addon messages: it has no server of its own,
-and what it sends stays in the game. One exception is Elfcore Link, and only when you choose
-to link a character, or to confirm other players' links: a link's proof goes to the Elfcore bot
-on Discord, through the Elfcore Link page on GitHub Pages (where you sign in with Discord) or a
+and what it sends stays in the game. One exception is Bankai Guild Link, and only when you choose
+to link a character, or to confirm other players' links: a link's proof goes to the Bankai Guild bot
+on Discord, through the Bankai Guild Link page on GitHub Pages (where you sign in with Discord) or a
 High Councillor's watcher. A confirmer, a High Councillor too, is someone who typed in a key the
 bot's keeper made them (no addon makes or announces a key by itself, and the author's council
-authority is off): once the bot is ready, their addon says so on the Elfcore channel every 5
+authority is off): once the bot is ready, their addon says so on the Bankai Guild channel every 5
 minutes and signs other players' requests by itself, and their character's name and signature
-reach the bot in those players' proofs, until `/elf discord key off`. The other is the Elfcore
+reach the bot in those players' proofs, until `/bk discord key off`. The other is the Bankai Guild
 Companion app, only if you install it: its own bridge addon takes your character's name and
-BattleTag and the Elfcore and guild chat lines your client shows to Elfcore's server, for its staff
+BattleTag and the Bankai Guild and guild chat lines your client shows to Bankai Guild's server, for its staff
 alone (the Companion's rows below). Your name is on every message (the game adds it). What goes where:
 
 | What | Who receives it | When |
 |---|---|---|
-| Your guild's census: size, online count, classes, levels, rank names, the leader and officers (name, online, days away, class, level), addon versions | everyone on the Elfcore channel | from one elected member per guild (and a runner-up), every few minutes |
-| The census names people: your guild's leader and officers (above) and its five highest-level members (name, level and class), online or not, with the addon or not; the Realm's level race shows them | everyone on the Elfcore channel | in every census report of your guild, from the member it elects: nobody named is asked |
-| Zones in that census: members per zone (numbers only), a leader's or officer's zone | everyone on the Elfcore channel | only if the member sending it shares their zone and layer; a leader's or officer's zone only if they share theirs too |
-| Your zone, layer, guild rank and guild (layer announcements) | everyone on the Elfcore channel | only if you share: officers and one member in eight announce, every 10 minutes and when their layer changes |
-| A layer hop ask: the zone you are in and the layer you want; or a King-layer discovery question: the map and current crown lease, but no claimed destination layer | everyone on the Elfcore channel | when you ask to hop or explicitly click the King's unknown-layer line |
-| An answer to an ask for your layer (it tells the asker you are on it), including a direct sighting when an active asker is discovering the King's layer | the asker alone (a whisper; a direct sighting is never broadcast by itself) | only if you share your zone and layer and said yes to layer help (1.1: off until you answer, on the first-open page or with `/elf layerhelp on`; `/elf layerhelp off` stops it); direct sightings require two independent answers, last only for that request and are withdrawn on opt-out while it remains active |
-| [Elfcore], [Captains] and [Lords] lines | everyone on the Elfcore channel, all three | when you write one, only while the Elfcore chats are on (1.1: off until you say yes, on the first-open page or with `/elf chat on`) |
-| A pinned line (1.1): its words, your guild and, as on every message, your name | the King's, his Stewards' and Hands': everyone on the Elfcore channel. A guild master's, and a higher rank's takedown of it: his guild alone (over guild chat) | when you pin one (only while your Elfcore chats are on, never while the moderators have you off), again every 5 minutes while it lasts (2 hours at most, a `/reload` included), and when you take it down (`/elf pin off` with nothing pinned on your screen too, once a minute at most: a `/reload` on the Forever beta forgets your pin); a pin you took down (its number and your guild), when you take it down and again when its setter's addon repeats it, once a minute at most, never while the moderators have you off |
-| A flag on the Board (1.1): your guild, level and class, the flag (dungeon, raid, PvP or layer), your note (with the logged API), and your zone only while you share it | everyone on the Elfcore channel, and whispered to a player whose Board asked for the flags up | when you raise it, then every 10 to 30 minutes for an hour at most, until you lower it |
-| The Board's ask (1.1): nothing but your name | everyone on the Elfcore channel | once a session, the first time you open the Board |
+| Your guild's census: size, online count, classes, levels, rank names, the leader and officers (name, online, days away, class, level), addon versions | everyone on the Bankai Guild channel | from one elected member per guild (and a runner-up), every few minutes |
+| The census names people: your guild's leader and officers (above) and its five highest-level members (name, level and class), online or not, with the addon or not; the Realm's level race shows them | everyone on the Bankai Guild channel | in every census report of your guild, from the member it elects: nobody named is asked |
+| Zones in that census: members per zone (numbers only), a leader's or officer's zone | everyone on the Bankai Guild channel | only if the member sending it shares their zone and layer; a leader's or officer's zone only if they share theirs too |
+| Your zone, layer, guild rank and guild (layer announcements) | everyone on the Bankai Guild channel | only if you share: officers and one member in eight announce, every 10 minutes and when their layer changes |
+| A layer hop ask: the zone you are in and the layer you want; or a King-layer discovery question: the map and current crown lease, but no claimed destination layer | everyone on the Bankai Guild channel | when you ask to hop or explicitly click the King's unknown-layer line |
+| An answer to an ask for your layer (it tells the asker you are on it), including a direct sighting when an active asker is discovering the King's layer | the asker alone (a whisper; a direct sighting is never broadcast by itself) | only if you share your zone and layer and said yes to layer help (1.1: off until you answer, on the first-open page or with `/bk layerhelp on`; `/bk layerhelp off` stops it); direct sightings require two independent answers, last only for that request and are withdrawn on opt-out while it remains active |
+| [Bankai Guild], [Captains] and [Lords] lines | everyone on the Bankai Guild channel, all three | when you write one, only while the Bankai Guild chats are on (1.1: off until you say yes, on the first-open page or with `/bk chat on`) |
+| A pinned line (1.1): its words, your guild and, as on every message, your name | the King's, his Stewards' and Hands': everyone on the Bankai Guild channel. A guild master's, and a higher rank's takedown of it: his guild alone (over guild chat) | when you pin one (only while your Bankai Guild chats are on, never while the moderators have you off), again every 5 minutes while it lasts (2 hours at most, a `/reload` included), and when you take it down (`/bk pin off` with nothing pinned on your screen too, once a minute at most: a `/reload` on the Forever beta forgets your pin); a pin you took down (its number and your guild), when you take it down and again when its setter's addon repeats it, once a minute at most, never while the moderators have you off |
+| A flag on the Board (1.1): your guild, level and class, the flag (dungeon, raid, PvP or layer), your note (with the logged API), and your zone only while you share it | everyone on the Bankai Guild channel, and whispered to a player whose Board asked for the flags up | when you raise it, then every 10 to 30 minutes for an hour at most, until you lower it |
+| The Board's ask (1.1): nothing but your name | everyone on the Bankai Guild channel | once a session, the first time you open the Board |
 | A guild Agenda entry (1.2.4): its title, time, setter and guild | that guild alone (over guild chat), from its own master or verified Heraldry correspondent | when scheduled, then every 10 minutes while within a day, every 30 otherwise; the saved audience and current authority are checked again |
-| A voluntary campaign (1.2.4): purpose, goal, 14-day receipt window, aggregate gold/material progress and the King's closing purchase note; no giver or receipt identity | everyone on the Elfcore channel, from the actual King's client only | when he creates, updates or closes it, then every 5 minutes for late logins |
+| A voluntary campaign (1.2.4): purpose, goal, 14-day receipt window, aggregate gold/material progress and the King's closing purchase note; no giver or receipt identity | everyone on the Bankai Guild channel, from the actual King's client only | when he creates, updates or closes it, then every 5 minutes for late logins |
 | A keeper's campaign report (1.2.4): campaign id, aggregate assigned voluntary gold and material counts, no giver names | the pinned King alone (a whisper) | after explicit assignment/correction and every 5 minutes while open; current keeper authority is checked again before sending |
 | A signup (1.1): the Agenda entry, the role you claim (or that you withdraw) and your guild | whoever set that entry, alone (a whisper); a guild entry accepts only its own current roster members | only when you click Sign up |
-| A signup sheet (1.1): the counts per role of each entry, no names, and when the next one comes | the entry's audience: everyone on the Elfcore channel for an army entry, its own guild alone for a guild entry | from the client of whoever set the entries, soon after a change, then every 5 minutes while one of them has signups or is within 2 days, every 15 otherwise |
-| A camp on the Board (1.1): your guild, level and class, the camp's zone (never your spot) and your note (with the logged API) | everyone on the Elfcore channel, and whispered to a player whose Board asked | only with `/elf location on`, when you drop it, then every 10 minutes for its 30 minutes, until you take it down |
-| A net-off word (1.1): the character's name, hidden or shown again (or the guild's name, off or on again), the time, who gave it and the reason | everyone on the Elfcore channel | when the King, his Steward, a Hand or a High Councillor gives one, then from the giver's own addon every few minutes for late logins |
-| The army's key (1.1, when the King or his Steward rotates it): the new key, the time it was made and the hashes of the keys it replaces | each Lord and Captain the census confirms online in the guilds the King picks whom his own /who saw in that guild (a whisper from the King each), then each one's guild over guild chat; never the Elfcore channel. Each 1.1 addon that has it tells the King so (a whisper), and after login asks its guild whether a newer key exists | only when the King rotates it on the Throne; a guildmate's ask once a login |
-| Your alt links (1.1, only if you link your characters): each linked character's name and guild, and the names it confirmed (its main, or its alts) | everyone on the Elfcore channel | from each character you linked yourself, confirmed on each: at login, when a link changes and every 30 minutes while you play |
+| A signup sheet (1.1): the counts per role of each entry, no names, and when the next one comes | the entry's audience: everyone on the Bankai Guild channel for an army entry, its own guild alone for a guild entry | from the client of whoever set the entries, soon after a change, then every 5 minutes while one of them has signups or is within 2 days, every 15 otherwise |
+| A camp on the Board (1.1): your guild, level and class, the camp's zone (never your spot) and your note (with the logged API) | everyone on the Bankai Guild channel, and whispered to a player whose Board asked | only with `/bk location on`, when you drop it, then every 10 minutes for its 30 minutes, until you take it down |
+| A net-off word (1.1): the character's name, hidden or shown again (or the guild's name, off or on again), the time, who gave it and the reason | everyone on the Bankai Guild channel | when the King, his Steward, a Hand or a High Councillor gives one, then from the giver's own addon every few minutes for late logins |
+| The army's key (1.1, when the King or his Steward rotates it): the new key, the time it was made and the hashes of the keys it replaces | each Lord and Captain the census confirms online in the guilds the King picks whom his own /who saw in that guild (a whisper from the King each), then each one's guild over guild chat; never the Bankai Guild channel. Each 1.1 addon that has it tells the King so (a whisper), and after login asks its guild whether a newer key exists | only when the King rotates it on the Throne; a guildmate's ask once a login |
+| Your alt links (1.1, only if you link your characters): each linked character's name and guild, and the names it confirmed (its main, or its alts) | everyone on the Bankai Guild channel | from each character you linked yourself, confirmed on each: at login, when a link changes and every 30 minutes while you play |
 | Hello: addon version, realm, public or sealed channel, whether you share your zone | your guild | every minute or so |
-| The signed leadership snapshot (1.2, only after the author explicitly activates it): each Elfcore guild's Lord and Captains for this realm group and faction, its generation, issue and expiry times, and the author's signatures | Elfcore addons in that realm group and faction; a client asks on the Elfcore channel and in its guild, then a holder answers that client alone by whisper, one bounded signed part at a time | after login while missing or behind (four short retries, then every 10 minutes); a holder answers one requester at most every 2 minutes and stops immediately if its own membership, net-off state or signed generation changes |
+| The signed leadership snapshot (1.2, only after the author explicitly activates it): each Bankai Guild guild's Lord and Captains for this realm group and faction, its generation, issue and expiry times, and the author's signatures | Bankai Guild addons in that realm group and faction; a client asks on the Bankai Guild channel and in its guild, then a holder answers that client alone by whisper, one bounded signed part at a time | after login while missing or behind (four short retries, then every 10 minutes); a holder answers one requester at most every 2 minutes and stops immediately if its own membership, net-off state or signed generation changes |
 | Check version (1.1.2): nothing but a number to match the answer | the player you right-clicked, alone (a whisper) | only when you pick **Check version** (a player once every 2 minutes, 6 a minute) |
 | The answer to a version check (1.1.2): your addon's version | the player whose addon asked, alone (a whisper) | when a player's addon asks: each once every 30 seconds at most, 20 a minute in all; never to a player you block or ignore, and to the author only after your yes to his roll calls (his checks are roll calls) |
 | Ask to update (1.1.2): the newest version your addon knows | the player you right-clicked, alone (a whisper) | only after you pick **Ask to update** and confirm (the author, the King and the High Council alone, since 1.2.1), for a player on 1.1.2 or newer (a player once a day, 5 an hour); cancelling sends nothing and spends no limit, and for an older one confirmation only opens a whisper you send yourself |
-| Your bug report (the same text as `/elf bug`) | the author alone (whispers); since 1.1.5 his addon keeps the last 30 it got in his saved variables | only when you press **Send to** him in Report a bug, or **Send** in the window his ask opens (1.1.2) |
-| The shared block terms (1.1): each word, whether it was added or removed, and when; for 15 minutes after an edit, the editor's own client adds his name to it (never to anyone else's) | everyone on the Elfcore channel | only from the client of the King, his Steward, a Hand or a High Councillor: at once when they edit it, and every 10 minutes while they play (not when another client just sent the same list). Your own filter is never sent |
-| Your position as a dot on the map | your guild | only with `/elf share` (off by default) |
+| Your bug report (the same text as `/bk bug`) | the author alone (whispers); since 1.1.5 his addon keeps the last 30 it got in his saved variables | only when you press **Send to** him in Report a bug, or **Send** in the window his ask opens (1.1.2) |
+| The shared block terms (1.1): each word, whether it was added or removed, and when; for 15 minutes after an edit, the editor's own client adds his name to it (never to anyone else's) | everyone on the Bankai Guild channel | only from the client of the King, his Steward, a Hand or a High Councillor: at once when they edit it, and every 10 minutes while they play (not when another client just sent the same list). Your own filter is never sent |
+| Your position as a dot on the map | your guild | only with `/bk share` (off by default) |
 | A Lord's mentor pair (1.1): the recruit's name to the Captain, the Captain's name to the recruit, as whispers in his words | those two players | only when the Lord clicks **Send both** |
-| A guild master's Legates and correspondents: names and each correspondent's department | everyone on the Elfcore channel; each client saves up to 300 accepted guild lists, including its own, while the source is offline; verified removal or change of master revokes the duty | only from that guild master's client: after a change and every 5 minutes while online |
-| The King's guild's manually appointed Legates (1.2.4): up to 25 names, original issuer and revision, including an empty removal list | everyone on the Elfcore channel; retained appointments use compatible historical ids, with current King/High Council issuer verification | only from the King or an actual High Councillor's client after an authorized edit or repeat; no automatic retirement message |
-| Join Elfcore (1.1, outside an Elfcore guild): "which guild should I ask?" (J1), and your request (J3: the guild you ask, your level and class) | the one member the screen asks: one found with `/who` at a search, and the one you are about to whisper | J1 at a search (one member every 15 seconds at most, none while a recent answer is known; while only one answer names the gates, one more member at once, three in 10 minutes at most) and just before a whisper (again if that member never answered); J3 with each whisper you send |
+| A guild master's Legates and correspondents: names and each correspondent's department | everyone on the Bankai Guild channel; each client saves up to 300 accepted guild lists, including its own, while the source is offline; verified removal or change of master revokes the duty | only from that guild master's client: after a change and every 5 minutes while online |
+| The King's guild's manually appointed Legates (1.2.4): up to 25 names, original issuer and revision, including an empty removal list | everyone on the Bankai Guild channel; retained appointments use compatible historical ids, with current King/High Council issuer verification | only from the King or an actual High Councillor's client after an authorized edit or repeat; no automatic retirement message |
+| Join Bankai Guild (1.1, outside an Bankai Guild guild): "which guild should I ask?" (J1), and your request (J3: the guild you ask, your level and class) | the one member the screen asks: one found with `/who` at a search, and the one you are about to whisper | J1 at a search (one member every 15 seconds at most, none while a recent answer is known; while only one answer names the gates, one more member at once, three in 10 minutes at most) and just before a whisper (again if that member never answered); J3 with each whisper you send |
 | The answer (J2): whether you take recruit whispers, the King's gates, and up to 8 guilds with room the census confirms, each with its free slots and up to 2 of its Lords and Captains online that two reports name (never the King) | the recruit who asked, alone | when a recruit's addon asks you, once a minute per recruit and 10 a minute at most (with do not contact on, a bare "no" to the rest) |
-| A treasury keeper's book (balance, gold and items given and who gave them, the ranking) and the guild bank of `<Elfcore>` (its gold and items) | the parts the King shows the army (his switches): everyone on the Elfcore channel. The rest (1.1): the King, his Steward and the keepers alone, by whisper, never on the channel (from a keeper whose addon is 1.1: one still on 1.0 sends his whole book on the channel, as 1.0 did) | only after that keeper says yes (each keeper, the King too, is asked once; `/elf treasurer on\|off`), withdrawn at once when he turns it off, and again every 5 minutes while he plays, for clients that were offline |
-| Your character's name and what you gave, when you give gold or items to a treasury keeper (by trade or mail): in the ranking of donors (the top 100, with each one's total), the items donated (with who gave each last) and the book's latest lines (1.1: never the lines of gold given to the Treasurer's characters, which are the dues; this week's donors only as a count, never by name; in the Treasurer's part of the ranking, your gold to his characters less each week's up to the dues' amount his addon knew that week, and less all you sent with the dues' note) | with the King's ranking or book switch on: everyone on the Elfcore channel. Otherwise (1.1): the keepers, the King and his Steward alone, by whisper | while that keeper shares his book: his yes, and a donor is not asked |
-| That you are taking donations, if you keep a book of the treasury (1.1), with your zone only if you share your location | everyone on the Elfcore channel | only while you turn it on (**Taking donations**, `/elf donations on`): every 2 minutes and when your zone changes, off when you log out |
-| A request to the treasury, if you are a Lord or a Captain (1.1): the item's number, the count, your guild | the treasury's keepers, the King and his Steward heard online (their addon 1.1 or later), by whisper; while the King shows the army the book, the open ones also on the Elfcore channel, from the keepers' addons | when you ask (a click on an item, or `/elf need`; 6 new requests an hour at most), then every 15 minutes while it is open |
-| Your guild bank's snapshot, if you are the guild master or an officer of an Elfcore guild other than the King's (1.1): items and counts, its gold, when it was seen (not the tabs' names) | the King, the High Council (his Stewards and Hands among them), the Treasurer and the author alone (1.2; a yes given to 1.1's question: the King, his Steward and his Hands until you answer again), by whisper, when their addon asks (never on the Elfcore channel) | only after your yes (asked once when you open the bank; `/elf bank share on\|off`); your no takes it back from their screens: at once from those whose addon asked in the last 18 minutes, from the others at their next ask while you are online, from their saved variables too, even once you are no longer an officer (1.2.4: each one's addon keeps the newest of each guild there, across logouts, and ranks the guilds' treasuries by their numbers on its own screen, sending nothing of it; one never heard again keeps it, saved, until your no reaches him) |
-| Your character's name, if you gave to the treasury before 1.0 (the early supporters): names only, no amounts, in alphabetical order | with the King's ranking switch on: everyone on the Elfcore channel, shown at the end of the Treasury tab. Otherwise (1.1): the keepers, the King and his Steward alone, by whisper | from the Treasurer's addon once he said yes to 1.0's question or to his line on the first-open page, both of which say their names go to everyone on the channel (his 0.9.3 yes is not enough), after his login and when a client asks: a donor is not asked |
-| The dues' amount (1.1): one amount a week, the same for everyone | everyone on the Elfcore channel | from the King's and his Steward's addons alone, when they set it and every 5 minutes |
+| A treasury keeper's book (balance, gold and items given and who gave them, the ranking) and the guild bank of `<Elfcore>` (its gold and items) | the parts the King shows the army (his switches): everyone on the Bankai Guild channel. The rest (1.1): the King, his Steward and the keepers alone, by whisper, never on the channel (from a keeper whose addon is 1.1: one still on 1.0 sends his whole book on the channel, as 1.0 did) | only after that keeper says yes (each keeper, the King too, is asked once; `/bk treasurer on\|off`), withdrawn at once when he turns it off, and again every 5 minutes while he plays, for clients that were offline |
+| Your character's name and what you gave, when you give gold or items to a treasury keeper (by trade or mail): in the ranking of donors (the top 100, with each one's total), the items donated (with who gave each last) and the book's latest lines (1.1: never the lines of gold given to the Treasurer's characters, which are the dues; this week's donors only as a count, never by name; in the Treasurer's part of the ranking, your gold to his characters less each week's up to the dues' amount his addon knew that week, and less all you sent with the dues' note) | with the King's ranking or book switch on: everyone on the Bankai Guild channel. Otherwise (1.1): the keepers, the King and his Steward alone, by whisper | while that keeper shares his book: his yes, and a donor is not asked |
+| That you are taking donations, if you keep a book of the treasury (1.1), with your zone only if you share your location | everyone on the Bankai Guild channel | only while you turn it on (**Taking donations**, `/bk donations on`): every 2 minutes and when your zone changes, off when you log out |
+| A request to the treasury, if you are a Lord or a Captain (1.1): the item's number, the count, your guild | the treasury's keepers, the King and his Steward heard online (their addon 1.1 or later), by whisper; while the King shows the army the book, the open ones also on the Bankai Guild channel, from the keepers' addons | when you ask (a click on an item, or `/bk need`; 6 new requests an hour at most), then every 15 minutes while it is open |
+| Your guild bank's snapshot, if you are the guild master or an officer of an Bankai Guild guild other than the King's (1.1): items and counts, its gold, when it was seen (not the tabs' names) | the King, the High Council (his Stewards and Hands among them), the Treasurer and the author alone (1.2; a yes given to 1.1's question: the King, his Steward and his Hands until you answer again), by whisper, when their addon asks (never on the Bankai Guild channel) | only after your yes (asked once when you open the bank; `/bk bank share on\|off`); your no takes it back from their screens: at once from those whose addon asked in the last 18 minutes, from the others at their next ask while you are online, from their saved variables too, even once you are no longer an officer (1.2.4: each one's addon keeps the newest of each guild there, across logouts, and ranks the guilds' treasuries by their numbers on its own screen, sending nothing of it; one never heard again keeps it, saved, until your no reaches him) |
+| Your character's name, if you gave to the treasury before 1.0 (the early supporters): names only, no amounts, in alphabetical order | with the King's ranking switch on: everyone on the Bankai Guild channel, shown at the end of the Treasury tab. Otherwise (1.1): the keepers, the King and his Steward alone, by whisper | from the Treasurer's addon once he said yes to 1.0's question or to his line on the first-open page, both of which say their names go to everyone on the channel (his 0.9.3 yes is not enough), after his login and when a client asks: a donor is not asked |
+| The dues' amount (1.1): one amount a week, the same for everyone | everyone on the Bankai Guild channel | from the King's and his Steward's addons alone, when they set it and every 5 minutes |
 | Your guild's dues list (1.1): each of its players who paid the Treasurer in the last 5 weeks with that guild on the payment (name, gold this week, hours since his last payment), how many hours ago the Treasurer's mail character last played, and a digest (with a secret of his session) that changes when this week's payers with no guild change | the King, his Steward, or a Captain or Lord of that guild who asked, alone (whispers from the Treasurer's addon); when nothing changed, one whisper saying so | when they open the dues page, once every 5 minutes per asker at most, while the Treasurer shares his book |
 | A Captain's ask about his roster (1.1): five letters of the hash of each name on his guild's roster missing from its dues list | the Treasurer alone (whispers) | from a Captain's or Lord's dues page while this week's list says some paid with no guild on it, when that changes or his roster does, once a minute at most |
 | Its answer (1.1): which of those codes paid the Treasurer this week with no guild on the payment, with the gold and the hours since | that Captain or Lord alone (whispers from the Treasurer's addon) | once per ask, as many codes as the guild has members at most |
 | Every guild's dues this week (1.1): how many paid the amount, the gold in, how many players | the King or his Steward who asked, alone (whispers from the Treasurer's addon) | when they open the dues page, once every 5 minutes at most |
 | An ask for a dues list (1.1): the week, the guild and the id of the list already held | the Treasurer alone (a whisper) | while the King, his Steward, a Captain or a Lord has the dues page open, once every 5 minutes per list |
 | The dues' note (1.1): the fund, the week and your guild's name, in the subject of the mail the Send this week's dues button fills in | the Treasurer's mail character, in your mail | only when you click that button and then press Send yourself |
-| The King's crown on the map, and with it his zone and layer | everyone on the Elfcore channel | only while the King turns it on (Throne tab), whatever he answered to the question |
-| A Royal Inspection's report (1.1: off until you say yes, on the first-open page or with `/elf inspection on`): when the King, his Steward or a Hand calls one and your addon is in the sample, it patrols for 2 minutes, inspecting the Elfcore players of your faction around you, level 15 and up, with the game's own inspect, and records whether each wears the guild tabard, another one or none (kept in your saved variables); then it reports your guild, how many it found in each case (your own tabard counted) and up to 6 names, with their guild, of players caught without the colors | whoever called it, alone (a whisper); the King can show the names to the army on his untabarded list | each Royal Inspection you are sampled for (one every 30 minutes at most, for the whole realm), once you said yes and until `/elf inspection off`; you still get its raid warning either way |
-| An officer's patrol findings (1.1): the name and guild of each player your own inspections caught without the colors or with another tabard (or wearing ours again after that), and how long ago | your guild's officers (a guild addon message: every guildmate's client receives the bytes, and only officers' addons keep them), for their Tabards pages alone: never the King's untabarded list, nor a Royal Inspection's report | only while you are an officer (the guild master or the rank right below) and said yes (1.1: off until you answer, on the first-open page or with `/elf patrolshare on`): each new finding once, at most once a minute, and the day's findings when another officer's addon asks (once a session: after its login, or at its officer's yes if later); `/elf patrolshare off` stops it. Nothing more is inspected for it |
+| The King's crown on the map, and with it his zone and layer | everyone on the Bankai Guild channel | only while the King turns it on (Throne tab), whatever he answered to the question |
+| A Royal Inspection's report (1.1: off until you say yes, on the first-open page or with `/bk inspection on`): when the King, his Steward or a Hand calls one and your addon is in the sample, it patrols for 2 minutes, inspecting the Bankai Guild players of your faction around you, level 15 and up, with the game's own inspect, and records whether each wears the guild tabard, another one or none (kept in your saved variables); then it reports your guild, how many it found in each case (your own tabard counted) and up to 6 names, with their guild, of players caught without the colors | whoever called it, alone (a whisper); the King can show the names to the army on his untabarded list | each Royal Inspection you are sampled for (one every 30 minutes at most, for the whole realm), once you said yes and until `/bk inspection off`; you still get its raid warning either way |
+| An officer's patrol findings (1.1): the name and guild of each player your own inspections caught without the colors or with another tabard (or wearing ours again after that), and how long ago | your guild's officers (a guild addon message: every guildmate's client receives the bytes, and only officers' addons keep them), for their Tabards pages alone: never the King's untabarded list, nor a Royal Inspection's report | only while you are an officer (the guild master or the rank right below) and said yes (1.1: off until you answer, on the first-open page or with `/bk patrolshare on`): each new finding once, at most once a minute, and the day's findings when another officer's addon asks (once a session: after its login, or at its officer's yes if later); `/bk patrolshare off` stops it. Nothing more is inspected for it |
 | A loot note (1.1): an officer's words, the item and whom it went to; a member's points set by hand; and your addon's ask for the book (the spans of change times it lacks) | your guild (guild addon messages): every guildmate's addon keeps the notes and points; the ask is answered by one officer's addon, with the changes in those spans | a note or points when an officer writes or removes them (only officers do); the ask when the Loot notes page opens (an officer's at login), again after each answer while the book lacks something (16 a session at most) |
-| Your crafter listing (1.1): your guild, and each profession you listed with its skill and how many recipes you know | everyone on the Elfcore channel | only after your yes when you open that profession (asked once), once at login, then every 45 minutes while you play, and after a change: a profession listed or taken off (2 minutes after the last at the soonest), a skill up or a new recipe (10 minutes); `/elf crafter off` withdraws it at once |
-| An answer to "who can make it" (1.1): your guild, the profession, your skill and the recipe and item ids of up to 6 recipes that match | the asker alone (a whisper) | only while you are listed, to asks heard on the Elfcore channel, by your addon by itself (10 a minute at most) |
+| Your crafter listing (1.1): your guild, and each profession you listed with its skill and how many recipes you know | everyone on the Bankai Guild channel | only after your yes when you open that profession (asked once), once at login, then every 45 minutes while you play, and after a change: a profession listed or taken off (2 minutes after the last at the soonest), a skill up or a new recipe (10 minutes); `/bk crafter off` withdraws it at once |
+| An answer to "who can make it" (1.1): your guild, the profession, your skill and the recipe and item ids of up to 6 recipes that match | the asker alone (a whisper) | only while you are listed, to asks heard on the Bankai Guild channel, by your addon by itself (10 a minute at most) |
 | Your recipes of a profession you listed (1.1): their recipe and item ids | the player who clicked "Show his recipes" (a whisper) | only while you are listed, on his click, once each 2 minutes to the same player: a part each 6 seconds, two players' lists at a time (the next is told you are busy) |
-| Your ask "who can make it" (1.1): the item's id, or the words you typed | everyone on the Elfcore channel | when you ask (one each 15 seconds at most) |
-| Your crafting request's card (1.2): its id, the item, its name and quantity, crafting or gathering and the profession, open, taken, cancelled or expired, who brings the materials, your guild, a price reference and its time, a cost floor and your details | everyone on the Elfcore channel | when you publish it, every 20 minutes while it is open, when it is taken (and once more 20 minutes later) or cancelled; 8 cards each 10 minutes at most |
+| Your ask "who can make it" (1.1): the item's id, or the words you typed | everyone on the Bankai Guild channel | when you ask (one each 15 seconds at most) |
+| Your crafting request's card (1.2): its id, the item, its name and quantity, crafting or gathering and the profession, open, taken, cancelled or expired, who brings the materials, your guild, a price reference and its time, a cost floor and your details | everyone on the Bankai Guild channel | when you publish it, every 20 minutes while it is open, when it is taken (and once more 20 minutes later) or cancelled; 8 cards each 10 minutes at most |
 | A claim on a request, and the two parties' words after it (1.2): your guild, the terms (the price, the rail, how it is paid), the start, the delivery (quantity, price and how), the confirmation, a cancel, a dispute | the other party alone (logged whispers) | when you claim, propose or confirm terms, start, deliver, confirm, cancel or dispute |
 | A request's private chat (1.2): your lines | the other party alone (logged whispers) | when you write in it |
 | A line in a role room (1.2.4): your words, your guild | one logged whisper to each member of that room your addon verifies (40 at most; the Church's rooms 30, heard online), and the author's character in every room but the High Council's and the Secretariat's while his presence is heard | when you write one, with the rooms' consent on |
-| Your chat-warning report: the lines Elfcore refused to send (up to 5, 140 bytes each around the word), the matched words, when, which chat, your guild | The moderation team online: the author while online, the King, the High Council, the Elfcore moderators. By logged whisper | From your third warning in 24 hours, again until each one's client confirms (3 tries each), and again to one who says he no longer has it. Kept 30 days on their clients and on yours. |
+| Your chat-warning report: the lines Bankai Guild refused to send (up to 5, 140 bytes each around the word), the matched words, when, which chat, your guild | The moderation team online: the author while online, the King, the High Council, the Bankai Guild moderators. By logged whisper | From your third warning in 24 hours, again until each one's client confirms (3 tries each), and again to one who says he no longer has it. Kept 30 days on their clients and on yours. |
 | A chat-warning decision: your character's name and that your block was lifted or a timeout given | Your client, the characters you linked, and the team online, by logged whisper (a timeout as today's moderator timeout) | When a moderator decides, again until each one's client confirms (3 tries each), and when your blocked client asks. |
 | The guild-mediated rail and a dispute's review (1.2): the parties, the item, quantity and price, what reached the custodian, a dispute's reason and its verdict | the custodian (the treasury keeper who holds the goods and the gold), the reviewer the parties put the dispute to, and the parties (logged whispers) | while that deal or its dispute is open |
 | Your word of a direct sale to the guild's fee desk (1.2): the request, the buyer's and the seller's names, the price, the item and quantity, the seller's guild | the Treasurer's characters alone (logged whispers), from the buyer's addon and the seller's | when the buyer confirms the sale, when it completes, or 3 days after a sale the buyer never confirmed; again each 30 minutes while the seller's fee is open; only while a Treasurer's character's addon is heard online |
 | The fee desk's answer (1.2): the fee, what was paid, its deadline, and whether it is due, paid or waived | that party alone (a whisper from the Treasurer's character) | once for each word of a sale |
 | The crafting fees owed (1.2): each fee's seller and buyer, price, fee, gold paid, deadline, item, quantity and the seller's guild, who reported it and whether the Treasurer confirmed it | the King's character alone (whispers from the Treasurer's character) | at his ask, when he opens the Guild fees page or asks again: once each 5 minutes at most, 40 fees an answer |
 | A reminder of a crafting fee owed (1.2): the amount and the deadline | that seller alone (a whisper from the Treasurer's or the King's character) | when they press Remind him, once a day per seller at most |
-| Other players' lines in the Elfcore chats as your addon accepted them (channel, sender and text; [Captains] and [Lords] only if your rank reads them), and the High Council list; and (1.2.6, `RegisterChatRecorder`) the lines of the Elfcore chats and rooms as your client receives them, yours included and locally hidden lines too: [Elfcore], [Captains], [Lords], the rooms you are in (Guild, guildmates without Elfcore included, role rooms, squads, crafting deals' private chats) and the fight and Bones rooms | other addons in your own game, through `ElfcoreBridge` (made for OfficerSpy, the moderators' companion addon, and for the Elfcore Companion's chat record, but any addon you install can read it, with no Companion) | always, while such an addon is loaded (no chat line while the Elfcore chats are off on your client; the chat record's lines only once you accepted the Elfcore Accord): Elfcore sends nothing through it and never learns what that addon does with what it read |
-| A requested player sighting (PS, 1.2.5): an exact query carries one Name-Realm; a hostile-area query carries one selected zone or micro-map ID and lasts five minutes. Both use a short opaque request id. Exact answers carry the consenting observer's name and guild; public area rows omit both. Every answer carries target, observation time, expiry, layer, point kind and map position. The point is the target's native visible-unit or matching party/raid-unit position when WoW returns one; otherwise it is the observer's encounter position, rounded to 0.1% of the map | the query: everyone on the Elfcore channel, only from a currently signed authorized requester; each answer: that requester alone (a whisper). One observer contributes at most six rows to an area search and the requester keeps at most 48 distinct players. On an explicit action Elfcore can show sanitized rows as host-owned world-map pins, cleared on cancel, expiry, permission revocation or reload | only after the requester's addon permission is enabled by its own **Yes** or the page's deliberate **Authorize all** action; an observer answers only after the separate **Guild tools: player sightings** permission is enabled the same way and while sharing location. The exact-name session's visible Start declares selected/configured names and any included list source. One handle has one live area, on its current map or an owned exact-result map until its row expires, and rotates only after cancel plus 60 seconds. Its visible UI shows the map and rotation position, never opens the world map automatically, and stops on Off, No or reload without automatic resume. The game must have shown the exact or hostile target, mouseover or nameplate either now or within the last 15 minutes while both choices stayed on. Each client keeps at most 64 such observations only in memory and clears them on permission, location-sharing or network opt-out. A live answer rechecks the visible identity and coordinate before send; a cached answer rechecks its age and fields plus current eligibility. Requests and results expire; cancellation, either No and net-off cancel queued data and withdraw or discard live results |
-| Elfcore Link (1.0.0): a request (your guild, faction, a random number, your code's id and a tag made from your code's signature and your name) | the confirmers asked (a whisper each): a High Councillor, or verified players drawn for your code | only after you press **Accept** on `/elf discord <code>` |
-| Elfcore Link: the finished proof (your character name, realm, guild, faction, the tag, and the confirmers' names, how each knew your guild, their signatures and their keys' certificates) | the Elfcore bot, through the page you scan it with, or a watcher (a High Councillor, by whisper) who hands it to the bot | when it is ready, until it is delivered (5 days after your code expired at most) |
-| Elfcore Link, if you confirm (a key and its certificate from the bot's keeper, High Councillors' too): your proof for another player's request (its time, your key's id, how you know their guild, your signature), and in their finished proof your character's name and your key's certificate | that player alone (a whisper), then the Elfcore bot in their finished proof | by itself, without asking you each time, once the bot is ready: only for players of an Elfcore guild of your faction, never your own account's characters, one a minute and five a day per character, thirty a minute in all, until `/elf discord key off` |
-| Elfcore Link: "a confirmer's key is online" (its certificate: the key's id, public half, tier, expiry and character), "a watcher is online" | everyone on the Elfcore channel | every 5 minutes, only from characters with a key from the bot's keeper and its certificate, once the bot is ready (no addon makes or announces a key by itself), or a High Councillor's watcher on (`/elf discord watcher on`) |
-| Elfcore Link: a High Councillor's key's public half, and the certificate for it | the author's character, and back (a whisper each) | never while the council authority is off (as it ships: only the author turns it on, and only once the bot is ready); then only from a councillor of the signed list whose addon made its own key, once a session when it hears the author |
-| The Church (1.1.6): a naming or a removal (who, the place, under whom, the guild for a correspondent, the time), the author's switch for the public ranking | everyone on the Elfcore channel and your guild (logged); your naming or removal also to each of the Church's keepers (the Head, the Apostles, the author) who was not online then, alone (a logged whisper each). Each addon saves the Church's book it takes; since 1.2.4 it also saves, with a guild master's correspondent, when it last confirmed him that guild's master (kept on that computer, never sent) | only when an Apostle, a missionary, a guild master, the Head, the King, a signed High Councillor or the author makes one within their authority; to a keeper who was away, once, when his addon is next heard, up to 7 days after |
-| The Church: that you hold a place (your role, your guild; a keeper also a digest of his book and the author's switch for the public ranking as his addon holds it) | everyone on the Elfcore channel and your guild | while you hold one: every 5 minutes for the Head, the Apostles and the author, every 10 for the others |
+| Other players' lines in the Bankai Guild chats as your addon accepted them (channel, sender and text; [Captains] and [Lords] only if your rank reads them), and the High Council list; and (1.2.6, `RegisterChatRecorder`) the lines of the Bankai Guild chats and rooms as your client receives them, yours included and locally hidden lines too: [Bankai Guild], [Captains], [Lords], the rooms you are in (Guild, guildmates without Bankai Guild included, role rooms, squads, crafting deals' private chats) and the fight and Bones rooms | other addons in your own game, through `BankaiGuildBridge` (made for OfficerSpy, the moderators' companion addon, and for the Bankai Guild Companion's chat record, but any addon you install can read it, with no Companion) | always, while such an addon is loaded (no chat line while the Bankai Guild chats are off on your client; the chat record's lines only once you accepted the Bankai Guild Accord): Bankai Guild sends nothing through it and never learns what that addon does with what it read |
+| A requested player sighting (PS, 1.2.5): an exact query carries one Name-Realm; a hostile-area query carries one selected zone or micro-map ID and lasts five minutes. Both use a short opaque request id. Exact answers carry the consenting observer's name and guild; public area rows omit both. Every answer carries target, observation time, expiry, layer, point kind and map position. The point is the target's native visible-unit or matching party/raid-unit position when WoW returns one; otherwise it is the observer's encounter position, rounded to 0.1% of the map | the query: everyone on the Bankai Guild channel, only from a currently signed authorized requester; each answer: that requester alone (a whisper). One observer contributes at most six rows to an area search and the requester keeps at most 48 distinct players. On an explicit action Bankai Guild can show sanitized rows as host-owned world-map pins, cleared on cancel, expiry, permission revocation or reload | only after the requester's addon permission is enabled by its own **Yes** or the page's deliberate **Authorize all** action; an observer answers only after the separate **Guild tools: player sightings** permission is enabled the same way and while sharing location. The exact-name session's visible Start declares selected/configured names and any included list source. One handle has one live area, on its current map or an owned exact-result map until its row expires, and rotates only after cancel plus 60 seconds. Its visible UI shows the map and rotation position, never opens the world map automatically, and stops on Off, No or reload without automatic resume. The game must have shown the exact or hostile target, mouseover or nameplate either now or within the last 15 minutes while both choices stayed on. Each client keeps at most 64 such observations only in memory and clears them on permission, location-sharing or network opt-out. A live answer rechecks the visible identity and coordinate before send; a cached answer rechecks its age and fields plus current eligibility. Requests and results expire; cancellation, either No and net-off cancel queued data and withdraw or discard live results |
+| Bankai Guild Link (1.0.0): a request (your guild, faction, a random number, your code's id and a tag made from your code's signature and your name) | the confirmers asked (a whisper each): a High Councillor, or verified players drawn for your code | only after you press **Accept** on `/bk discord <code>` |
+| Bankai Guild Link: the finished proof (your character name, realm, guild, faction, the tag, and the confirmers' names, how each knew your guild, their signatures and their keys' certificates) | the Bankai Guild bot, through the page you scan it with, or a watcher (a High Councillor, by whisper) who hands it to the bot | when it is ready, until it is delivered (5 days after your code expired at most) |
+| Bankai Guild Link, if you confirm (a key and its certificate from the bot's keeper, High Councillors' too): your proof for another player's request (its time, your key's id, how you know their guild, your signature), and in their finished proof your character's name and your key's certificate | that player alone (a whisper), then the Bankai Guild bot in their finished proof | by itself, without asking you each time, once the bot is ready: only for players of an Bankai Guild guild of your faction, never your own account's characters, one a minute and five a day per character, thirty a minute in all, until `/bk discord key off` |
+| Bankai Guild Link: "a confirmer's key is online" (its certificate: the key's id, public half, tier, expiry and character), "a watcher is online" | everyone on the Bankai Guild channel | every 5 minutes, only from characters with a key from the bot's keeper and its certificate, once the bot is ready (no addon makes or announces a key by itself), or a High Councillor's watcher on (`/bk discord watcher on`) |
+| Bankai Guild Link: a High Councillor's key's public half, and the certificate for it | the author's character, and back (a whisper each) | never while the council authority is off (as it ships: only the author turns it on, and only once the bot is ready); then only from a councillor of the signed list whose addon made its own key, once a session when it hears the author |
+| The Church (1.1.6): a naming or a removal (who, the place, under whom, the guild for a correspondent, the time), the author's switch for the public ranking | everyone on the Bankai Guild channel and your guild (logged); your naming or removal also to each of the Church's keepers (the Head, the Apostles, the author) who was not online then, alone (a logged whisper each). Each addon saves the Church's book it takes; since 1.2.4 it also saves, with a guild master's correspondent, when it last confirmed him that guild's master (kept on that computer, never sent) | only when an Apostle, a missionary, a guild master, the Head, the King, a signed High Councillor or the author makes one within their authority; to a keeper who was away, once, when his addon is next heard, up to 7 days after |
+| The Church: that you hold a place (your role, your guild; a keeper also a digest of his book and the author's switch for the public ranking as his addon holds it) | everyone on the Bankai Guild channel and your guild | while you hold one: every 5 minutes for the Head, the Apostles and the author, every 10 for the others |
 | The Church: what your addon read in your guild's log (an invite by a Church person and the join after it: both names, your guild, the hours), a registration (the name), your public-row choice | the Church's keepers online (the Head, the Apostles, the author), alone (whispers); kept on your client up to 7 days while none is online | a Church person's own addon every 5 minutes; any other member's only where a Church person was heard in the guild lately, drawn so that about two of each guild read; your own invite count and your guild's joins and leaves are never sent |
-| The Church's seen-check (a name) and its answer (the guild your roster saw him in, the first and last day, whether he is in it now) | the check: everyone on the Elfcore channel, from the desk (a keeper). The answer: that keeper alone (a whisper) | the desk asks about each new recruit, a registered one on its days and 7 days after a join; about two clients of each guild that knew the name answer |
+| The Church's seen-check (a name) and its answer (the guild your roster saw him in, the first and last day, whether he is in it now) | the check: everyone on the Bankai Guild channel, from the desk (a keeper). The answer: that keeper alone (a whisper) | the desk asks about each new recruit, a registered one on its days and 7 days after a join; about two clients of each guild that knew the name answer |
 | The Church's numbers (rankings, a person's detail) and the keepers' ledger | the Church's audience who asked (the Church, the High Council, the King, the author), alone; the ledger between keepers alone, and a keeper's copy of it to the signed High Councillors' addons online, which pass it to each other only while no keeper is online (never the King's). A councillor's addon saves its copy apart from the ledger of a keeper character on the same account, which never reads it | when a member of that audience opens the tab or refreshes; the ledger when a keeper confirms a record or closes its check, and in a catch-up; never on the channel, except, while the author's switch is open, the rows of the people who chose to show theirs and the top 3 of each ranking (names only) |
-| Your BattleTag, the Elfcore Accord's version and when you accepted it, your guild, and your game account's random follow key (made at your first accept: the code a sanction that follows your BattleTag carries needs it) (BT, 1.2.5.1) | one moderation team member alone (the author, the King, a High Councillor or an Elfcore moderator they named) at your team level or higher, by a logged whisper; never the Elfcore channel, guild chat or any other player | once you accepted the Accord, only to a team member whose addon just asked on your channel, at most once every 20 hours to each, from each of your characters; his client keeps it up to 180 days after he last got it |
-| A moderation team member's ask for BattleTags (BQ, 1.2.5.1): nothing but his name | everyone on the Elfcore channel | from a team member's addon, 90 seconds after login and every 30 minutes |
-| A sanction that follows a BattleTag (TF): a 16-character code of a sanctioned player's BattleTag (SHA-256 of the BattleTag and a random key of his game account that only the moderation team receives: nobody else can tell whose it is), the sanctioned character's name, which sanction (net-off or chat timeout), when, and the team member who gave it | everyone on the Elfcore channel (logged); each addon keeps only the ones made from its own player's BattleTag, without the code (a moderation team addon keeps them all), never the BattleTag itself | when a team member's addon follows or stops following a sanction it may give and whose player's BattleTag it holds, then every 5 minutes from that addon while the sanction lasts (a stop every 30 minutes, for 30 days) |
-| Your own character's name (Name-Realm), own BattleTag, current native Elfcore guild, roles (officer, guild master, council, King, author) and actual tabs (the Companion's `self` section, 1.3.2) | the private Elfcore Companion Bridge addon, only if you installed it with the Elfcore Companion app: it saves them in its own file on your computer (`ElfcoreCompanionDB`) for the Companion; the BattleTag is visible only to staff and is display/linking data, never membership or witness authority. Any addon in your game can read them through `ElfcoreBridge` too | only once you accepted both the Elfcore Accord and the separate Elfcore Companion Accord, saved at logout or `/reload`; before consent, after withdrawal, outside an Elfcore guild or while the game cannot authenticate your own tag, the section carries only an anonymous revocation so a stale identity can be removed; your own tag as the game gives it, never another player's BattleTag, and never a census-inferred membership or role |
-| The Elfcore and guild chat lines your client receives (the Companion's chat record, `ElfcoreBridge.RegisterChatRecorder`, 1.2.6): each line's chat ([Elfcore], [Captains], [Lords], a room you are in, or a fight or Bones room; Guild is your guild's own chat as the game gives it, guildmates without Elfcore included), its sender, its sanitized words, and whether it is your own | Elfcore's staff, through your own Elfcore Companion: the private Elfcore Companion Bridge addon, only if you installed it with the Elfcore Companion app, saves them in its own file on your computer, and the Companion sends them to Elfcore's server, where only the staff see them and keep them, to confirm what was said (several players' Companions agreeing on a line) and to moderate; never other players or the public. Any addon in your game can read them through `ElfcoreBridge` too | every accepted line your client receives, your own once one of its sends left (never one that reached nobody, a squad leader's alone included), including those a muted channel, the Elfcore channels' flood guard or your own block terms hide locally; never a line a chat warning refused, nor one Elfcore kept off for moderation (net-off, a timeout, a deleted line's late copy), nor a pinned line (its own row above); only once you accepted the Elfcore Accord, and only from the chats and rooms you have on; saved at logout or `/reload` |
+| Your BattleTag, the Bankai Guild Accord's version and when you accepted it, your guild, and your game account's random follow key (made at your first accept: the code a sanction that follows your BattleTag carries needs it) (BT, 1.2.5.1) | one moderation team member alone (the author, the King, a High Councillor or an Bankai Guild moderator they named) at your team level or higher, by a logged whisper; never the Bankai Guild channel, guild chat or any other player | once you accepted the Accord, only to a team member whose addon just asked on your channel, at most once every 20 hours to each, from each of your characters; his client keeps it up to 180 days after he last got it |
+| A moderation team member's ask for BattleTags (BQ, 1.2.5.1): nothing but his name | everyone on the Bankai Guild channel | from a team member's addon, 90 seconds after login and every 30 minutes |
+| A sanction that follows a BattleTag (TF): a 16-character code of a sanctioned player's BattleTag (SHA-256 of the BattleTag and a random key of his game account that only the moderation team receives: nobody else can tell whose it is), the sanctioned character's name, which sanction (net-off or chat timeout), when, and the team member who gave it | everyone on the Bankai Guild channel (logged); each addon keeps only the ones made from its own player's BattleTag, without the code (a moderation team addon keeps them all), never the BattleTag itself | when a team member's addon follows or stops following a sanction it may give and whose player's BattleTag it holds, then every 5 minutes from that addon while the sanction lasts (a stop every 30 minutes, for 30 days) |
+| Your own character's name (Name-Realm), own BattleTag, current native Bankai Guild guild, roles (officer, guild master, council, King, author) and actual tabs (the Companion's `self` section, 1.3.2) | the private Bankai Guild Companion Bridge addon, only if you installed it with the Bankai Guild Companion app: it saves them in its own file on your computer (`BankaiGuildCompanionDB`) for the Companion; the BattleTag is visible only to staff and is display/linking data, never membership or witness authority. Any addon in your game can read them through `BankaiGuildBridge` too | only once you accepted both the Bankai Guild Accord and the separate Bankai Guild Companion Accord, saved at logout or `/reload`; before consent, after withdrawal, outside an Bankai Guild guild or while the game cannot authenticate your own tag, the section carries only an anonymous revocation so a stale identity can be removed; your own tag as the game gives it, never another player's BattleTag, and never a census-inferred membership or role |
+| The Bankai Guild and guild chat lines your client receives (the Companion's chat record, `BankaiGuildBridge.RegisterChatRecorder`, 1.2.6): each line's chat ([Bankai Guild], [Captains], [Lords], a room you are in, or a fight or Bones room; Guild is your guild's own chat as the game gives it, guildmates without Bankai Guild included), its sender, its sanitized words, and whether it is your own | Bankai Guild's staff, through your own Bankai Guild Companion: the private Bankai Guild Companion Bridge addon, only if you installed it with the Bankai Guild Companion app, saves them in its own file on your computer, and the Companion sends them to Bankai Guild's server, where only the staff see them and keep them, to confirm what was said (several players' Companions agreeing on a line) and to moderate; never other players or the public. Any addon in your game can read them through `BankaiGuildBridge` too | every accepted line your client receives, your own once one of its sends left (never one that reached nobody, a squad leader's alone included), including those a muted channel, the Bankai Guild channels' flood guard or your own block terms hide locally; never a line a chat warning refused, nor one Bankai Guild kept off for moderation (net-off, a timeout, a deleted line's late copy), nor a pinned line (its own row above); only once you accepted the Bankai Guild Accord, and only from the chats and rooms you have on; saved at logout or `/reload` |
 
 Decrees and the King's calls go out when someone sends one (a decree carries its sender's
 position on the map).
 
-**The Elfcore Accord (1.2.5.1).** Before anything else the addon asks every game account once to
-accept its terms of use, the Elfcore Accord: a letter on parchment in Elfcore's own window (no X,
+**The Bankai Guild Accord (1.2.5.1).** Before anything else the addon asks every game account once to
+accept its terms of use, the Bankai Guild Accord: a letter on parchment in Bankai Guild's own window (no X,
 never on the escape list, never the game's popup, the gamepad UI included), its version and date at
-the bottom. It says what Elfcore is (the free addon of Asmongold's Elfcore guilds, not
+the bottom. It says what Bankai Guild is (the free addon of Asmongold's Bankai Guild guilds, not
 Blizzard's), that Blizzard's rules come first,
 what is not allowed (the rules the addon already keeps: abuse, slurs, harassment, spam or scams,
-any language but English in Elfcore's chats, bets or gold stakes, another player's BattleTag or
+any language but English in Bankai Guild's chats, bets or gold stakes, another player's BattleTag or
 personal details, coming back on another character to get around a sanction, a modified addon),
 how moderation works (people decide; a warning, then 1 hour, 24 hours and 7 days out of the chats;
 a public appeal), what is shared, that a new version is asked again, and that there is no
-warranty. **I accept** or **Not now**; `/elf accord` shows it again, accepted or not, and
-`/elf privacy` shows it first while it waits. Until it is accepted nothing of Elfcore works on
+warranty. **I accept** or **Not now**; `/bk accord` shows it again, accepted or not, and
+`/bk privacy` shows it first while it waits. Until it is accepted nothing of Bankai Guild works on
 that client: it sends nothing (the census, the hello, the chats), joins no channel and hears
 nothing of the army, and the window shows the Accord's page alone. Accepted once per game account
 (its alts are not asked again), it is kept with its version and time; a higher version asks again,
 and so does another BattleTag on the account. Not now saves nothing: the next login asks again (on
 the Forever beta, which forgets addon data at every login, every session asks). A client updated
-with the game running and then reloaded does not have the Accord's file yet: Elfcore stays off
+with the game running and then reloaded does not have the Accord's file yet: Bankai Guild stays off
 there until the game restarts, and says so.
 The Accord asks for **your BattleTag**. Your own addon reads it from your own game (Battle.net's,
-locally: Elfcore Link still needs no Battle.net login) and shows it on the letter with its digits
+locally: Bankai Guild Link still needs no Battle.net login) and shows it on the letter with its digits
 masked (**Show** reveals them for ten seconds; on the King's screen, and on any character of his
 game account once his own was seen there, no part of it shows and there is no Show). **I accept** works only while Battle.net gives it; while Battle.net can't be
 reached the letter says so and tries again by itself, and an account that accepted is never locked
 out by an outage. Only 8 bits of its hash are kept on your client, to see whether it changed (one
 change in 256 goes unseen), never the tag itself, and too few bits to give its digits back. In
-game, your BattleTag goes to the moderation team alone (the author, the King, the High Council and the Elfcore
+game, your BattleTag goes to the moderation team alone (the author, the King, the High Council and the Bankai Guild
 moderators they named), by a logged whisper, only to a team member whose addon just asked on your
 channel and whose team level is yours or higher (a moderator's own goes to the moderators and
 above, a councillor's to the council, the King and the author, the King's to the author alone), at
@@ -1953,7 +1953,7 @@ server's "No player named" line drops it, and with mouse and keyboard that line,
 whisper, stays out of your chat. His client keeps it up to 180 days after he last received it (The
 Watch's BattleTags, the digits hidden until its **Show**), and drops them all once it is off the
 team: at once on its own sanction or a lost seat, else after two days. A player who asks to have
-his removed: `/elf accord forget <name>` on a team client. It never goes on the Elfcore channel or
+his removed: `/bk accord forget <name>` on a team client. It never goes on the Bankai Guild channel or
 guild chat, and no other player's client keeps or shows one. Its one automatic use: a sanction follows
 it (TF, above), each addon applying a follow of its own player's BattleTag to him alone, never a word
 by name on a match alone. A modified addon can send someone else's, so a wrong follow is stopped from
@@ -1961,22 +1961,22 @@ The Watch.
 
 **What waits for your yes.** Your zone and layer (below), layer help, your dot on your guild's
 map, a treasury keeper's book, a sister guild's bank (1.1), a Royal Inspection's report, your answers to the author's roll
-calls, the Elfcore chats, an officer's patrol findings to his guild's officers, your crafter
-listing (and with it your addon's answers to who can make it), another addon's use of the Elfcore API (1.2.4: each
-addon its own Yes or the page's deliberate **Authorize all**; ordinary reads send nothing; an authorized exact-name search sends the Name-Realm, while a five-minute hostile-area search sends one selected map ID; a visible Start declares selected/configured names and included list sources; one live area uses the current or an owned exact-result map until its row expires, cancels before a 60-second rotation, stays visibly stoppable and never auto-resumes or opens the map; both receive only opted-in observers' private, expiring last-seen reports labelled as a native target point or observer encounter point; an area row omits observer identity and guild, with at most six rows from one observer and 48 distinct players at the requester; for an addon the Elfcore team authorized, the same permission may let a current signed issuer or the addon's author open the bounded host-owned profile-presentation session and an admitted member enable its single fixed style on themself; it never accepts a target, asset path or arbitrary message; what the addon does with its bounded copies is its own; it may also read the King's presence as his lines and the Realm tab show it, and widen an area search to labelled not-hostile players outside Elfcore guilds and the observer's group), **Guild tools: player sightings** (a separate permission enabled by its own Yes or **Authorize all**; while it and location sharing stay on, up to 64 direct observations may remain only in memory for up to 15 minutes; the same permission also permits bounded hostile-area answers on a selected map and, for a wider search, labelled not-hostile players outside Elfcore guilds and your group) and Elfcore Link (your **Accept**, or a confirmer's typing in the key the
+calls, the Bankai Guild chats, an officer's patrol findings to his guild's officers, your crafter
+listing (and with it your addon's answers to who can make it), another addon's use of the Bankai Guild API (1.2.4: each
+addon its own Yes or the page's deliberate **Authorize all**; ordinary reads send nothing; an authorized exact-name search sends the Name-Realm, while a five-minute hostile-area search sends one selected map ID; a visible Start declares selected/configured names and included list sources; one live area uses the current or an owned exact-result map until its row expires, cancels before a 60-second rotation, stays visibly stoppable and never auto-resumes or opens the map; both receive only opted-in observers' private, expiring last-seen reports labelled as a native target point or observer encounter point; an area row omits observer identity and guild, with at most six rows from one observer and 48 distinct players at the requester; for an addon the Bankai Guild team authorized, the same permission may let a current signed issuer or the addon's author open the bounded host-owned profile-presentation session and an admitted member enable its single fixed style on themself; it never accepts a target, asset path or arbitrary message; what the addon does with its bounded copies is its own; it may also read the King's presence as his lines and the Realm tab show it, and widen an area search to labelled not-hostile players outside Bankai Guild guilds and the observer's group), **Guild tools: player sightings** (a separate permission enabled by its own Yes or **Authorize all**; while it and location sharing stay on, up to 64 direct observations may remain only in memory for up to 15 minutes; the same permission also permits bounded hostile-area answers on a selected map and, for a wider search, labelled not-hostile players outside Bankai Guild guilds and your group) and Bankai Guild Link (your **Accept**, or a confirmer's typing in the key the
 bot's keeper made them) wait for your yes. The rest of the table goes out while you are in an
-Elfcore guild, once you accepted the Elfcore Accord, with no question first: your guild's census (from the member it elects, with the
+Bankai Guild guild, once you accepted the Bankai Guild Accord, with no question first: your guild's census (from the member it elects, with the
 names above), the hello, your BattleTag to the moderation team alone in game, signed-leadership synchronization after the author activates it, and your addon's answer to a version check (1.1.2), an officer's loot notes and points to his guild and your addon's ask for what its book lacks
 (when the page opens), your addon's word of a direct crafting sale to the Treasurer's characters (1.2), and what other
 addons read through the bridge.
 
-**The first-open page (1.1).** It is the first question the addon asks after the Elfcore Accord. About 45 seconds after
-login, or when you open the Elfcore window first (never in combat or in an instance, and once for
+**The first-open page (1.1).** It is the first question the addon asks after the Bankai Guild Accord. About 45 seconds after
+login, or when you open the Bankai Guild window first (never in combat or in an instance, and once for
 each question: closed with a line unanswered, it never opens by itself again for it), a page of
 its own says in plain words what always goes out (the census, with the names it carries, and the
 hello) and asks **Yes** or **No** for
 each of the rest: your zone and layer, layer help, your book of the treasury (keepers only), the
-Royal Inspection, the author's roll call, the Elfcore chats and your patrols' findings to your
+Royal Inspection, the author's roll call, the Bankai Guild chats and your patrols' findings to your
 guild's officers (officers only). Each one stays off until its Yes or the page's deliberate
 **Authorize all** action.
 The separate **Guild tools: player sightings** line also stays off until its own Yes or
@@ -1992,12 +1992,12 @@ requester keeps at most 48 distinct players; the public area copy omits the obse
 explains the selected map broadcast, native target point when WoW supplies one, observer
 encounter-point fallback, every field and recipient, and that results are last-seen rather than
 continuous tracking.
-No on the chats means this client neither sends nor shows [Elfcore], [Captains] or [Lords]. The
+No on the chats means this client neither sends nor shows [Bankai Guild], [Captains] or [Lords]. The
 window, the census and your own guild's roster work whatever you answer, location included.
-`/elf privacy` opens the page again, and each answer has its own command too (`/elf location`,
-`/elf layerhelp`, `/elf treasurer`, `/elf inspection`, `/elf rollcall`, `/elf chat`,
-`/elf patrolshare`). It is
-Elfcore's own window, never the game's popup, so it works with Blizzard's gamepad UI. The
+`/bk privacy` opens the page again, and each answer has its own command too (`/bk location`,
+`/bk layerhelp`, `/bk treasurer`, `/bk inspection`, `/bk rollcall`, `/bk chat`,
+`/bk patrolshare`). It is
+Bankai Guild's own window, never the game's popup, so it works with Blizzard's gamepad UI. The
 author's update notices, which send nothing, still show until you say No to his roll call. The
 Treasurer's line says what his 0.9.3 yes still sends until he answers there (his book), and that
 his Yes also sends the early supporters' names to everyone on the channel, as 1.0's question
@@ -2009,7 +2009,7 @@ reads it: since 1.1 on the first-open page (the question's own popup only on a c
 without restarting the game). Until you answer, and after **Keep private**, it announces no
 layer, and the census
 your addon sends for your guild names nobody's zone and counts nobody per zone. **Share**
-turns both on. Change it any time with `/elf location on` or `/elf location off`; `/elf status`
+turns both on. Change it any time with `/bk location on` or `/bk location off`; `/bk status`
 shows it. Layers and hops work better the more members share. Versions before
 0.9.1 still send all of it: update.
 
@@ -2018,20 +2018,20 @@ after your last announcement. Turning sharing off (or the King hiding his crown)
 at once from 0.9.2 clients; older ones keep it until it expires. Your location is always your
 own message: nothing relays another player's zone or layer, and nobody can withdraw yours.
 
-**Public or sealed channel.** Without a realm key the Elfcore channel ("ElfcoreNet", the
-Horde's "ElfcoreNetH") is public: anyone can join it by name and read everything on it with a
-script. With a key (`/elf key`) it gets a hidden name and the key as its password, and only
+**Public or sealed channel.** Without a realm key the Bankai Guild channel ("BankaiGuildNet", the
+Horde's "BankaiGuildNetH") is public: anyone can join it by name and read everything on it with a
+script. With a key (`/bk key`) it gets a hidden name and the key as its password, and only
 the key's holders can join. A shared key is only as private as its least careful holder:
 every member of every guild that has it can read the channel, anyone can pass it on, and
 nobody can take it back. If it leaks, the King or his Steward rotates it for the whole army (1.1, on the
 Throne: a new key by whisper to the Lords and Captains his /who saw in the guilds he picks and
-over guild chat, never on the Elfcore channel), or officers set a new one (`/elf key <new secret>`) and
+over guild chat, never on the Bankai Guild channel), or officers set a new one (`/bk key <new secret>`) and
 hand it out again.
 
-**Chat is never private.** Every client on the channel receives [Elfcore], [Captains] and
+**Chat is never private.** Every client on the channel receives [Bankai Guild], [Captains] and
 [Lords] alike; the addon only decides what to show. Before your first line in each of them
 the addon says so and waits for **Send** (**Cancel** sends nothing), once per channel. Since
-1.1 the chats are off until you say yes (the first-open page, or `/elf chat on`): off, this
+1.1 the chats are off until you say yes (the first-open page, or `/bk chat on`): off, this
 client neither sends nor shows them, and a line that arrives is dropped before anything keeps it.
 
 ## Security and trust
@@ -2047,24 +2047,24 @@ the same answer, and each addon answers him once every 4 minutes at most, howeve
 He can also ask a player on an old version to update: a fixed window with the two version
 numbers and nothing else. Only his character on his realm group
 can do either: every addon checks the sender's name, which nobody else can carry. Since 1.1
-a roll call is answered only after the player's yes (the first-open page, or `/elf rollcall on`),
-and `/elf rollcall off` refuses both. Since 1.1 your addon also reads the released version his addon
-announces on the channel (his presence): newer than yours, the Census, `/elf status` and one chat
+a roll call is answered only after the player's yes (the first-open page, or `/bk rollcall on`),
+and `/bk rollcall off` refuses both. Since 1.1 your addon also reads the released version his addon
+announces on the channel (his presence): newer than yours, the Census, `/bk status` and one chat
 line a session tell you to update. That is local to your client, sends nothing, and shows
-whatever `/elf rollcall` says. He runs a new build on his own PC before it is published, so his
-presence names only the version he marked as out with `/elf released [version]` (his character
+whatever `/bk rollcall` says. He runs a new build on his own PC before it is published, so his
+presence names only the version he marked as out with `/bk released [version]` (his character
 only; the Workshop tab shows it) once CurseForge lists it, never the build he runs, and never one
-newer than that build; addons before 1.1 read none of it. The addon's error catcher keeps only Elfcore's own errors (for
-`/elf bug`), never another addon's. For the store's screenshots he has a photo mode (`/elf
-photo`, his character only): on his own screen it fades everything but Elfcore and the world
-map to invisible, and gives every frame its look back on the second `/elf photo` or a
+newer than that build; addons before 1.1 read none of it. The addon's error catcher keeps only Bankai Guild's own errors (for
+`/bk bug`), never another addon's. For the store's screenshots he has a photo mode (`/bk
+photo`, his character only): on his own screen it fades everything but Bankai Guild and the world
+map to invisible, and gives every frame its look back on the second `/bk photo` or a
 `/reload`. Never in combat, not with the gamepad UI, not on a screen of more than 1000 frames
 (it says so and leaves them as they are), and nothing is sent to anyone.
-To check the elite borders his own rank doesn't carry, `/elf borders test <tier>` (his
+To check the elite borders his own rank doesn't carry, `/bk borders test <tier>` (his
 character only) shows one of the borders round his own portrait, and on his target frame when he
 targets himself, and its nameplate mark after his own name on his player frame and on every
-friendly player's nameplate (`/elf borders test member`: the member's star alone), on his screen
-alone until `/elf borders test off` or a `/reload`. It follows the borders' and the marks' own
+friendly player's nameplate (`/bk borders test member`: the member's star alone), on his screen
+alone until `/bk borders test off` or a `/reload`. It follows the borders' and the marks' own
 rules (none with the gamepad UI, made out of combat), and nothing is sent.
 
 The addon is plain Lua running on each player's computer, so anyone can edit their own
@@ -2121,7 +2121,7 @@ few characters working together can still reach is said plainly further down
   - **The King's Legates** (1.2.4) are explicitly appointed by the King or real High Council,
     up to 25 members of the King's guild. A council title alone does not make its holder a
     Legate. Historical appointment ids remain compatible; role previews appoint nobody.
-| A guild master's Legates and correspondents: names and each correspondent's department | everyone on the Elfcore channel; each client saves up to 300 accepted guild lists, including its own, while the source is offline; verified removal or change of master revokes the duty | only from that guild master's client: after a change and every 5 minutes while online |
+| A guild master's Legates and correspondents: names and each correspondent's department | everyone on the Bankai Guild channel; each client saves up to 300 accepted guild lists, including its own, while the source is offline; verified removal or change of master revokes the duty | only from that guild master's client: after a change and every 5 minutes while online |
     client sends (the sender the server stamps), and only while the census or your roster proves
     him that guild's master as for his bronze wings; a list from anyone else is refused and never
     replaces his. Their border shows only on a player the server puts in that guild, so nobody can
@@ -2139,10 +2139,10 @@ few characters working together can still reach is said plainly further down
     guild not heard from for a day leaves the total.
 - **Only our channel counts**: addon messages that arrive on any other chat channel are
   ignored, so the sealed channel really keeps outsiders out.
-- **Sealed channel** (`/elf key`): outsiders can't find the channel or join it.
-- **The Join screen** (1.1): outside an Elfcore guild the addon hears one message alone, a
+- **Sealed channel** (`/bk key`): outsiders can't find the channel or join it.
+- **The Join screen** (1.1): outside an Bankai Guild guild the addon hears one message alone, a
   member's answer to its own question, and only from the member it asked in the last minute;
-  a guild it names counts only if it is an Elfcore guild. A member answers each recruit once a
+  a guild it names counts only if it is an Bankai Guild guild. A member answers each recruit once a
   minute and ten a minute in all. A recruit's request shows only for your own guild, once per
   ten minutes per recruit, thirty kept at most, six chat lines a minute at most.
 - **Validation**: every number is range checked, names are length limited, and malformed
@@ -2161,10 +2161,10 @@ few characters working together can still reach is said plainly further down
   nobody. The offline tests send hostile messages for each of these rules and check they
   are refused.
 - **Channels**: [Captains]/[Lords] lines count only if the sender's rank is verified like
-  decrees; everyone else can use [Elfcore] only. Sent with Blizzard's logged addon-message
+  decrees; everyone else can use [Bankai Guild] only. Sent with Blizzard's logged addon-message
   function (lines sent any other way are dropped); rate limited per sender and per channel, and
   no single sender can fill a channel.
-- `/elf block <name>` ignores a player completely.
+- `/bk block <name>` ignores a player completely.
 - **Block terms** (1.1) only hide lines on each screen: no word can ignore, block, kick or cut
   anyone off. The shared list is taken only from the King's, his Steward's, a Hand's or a signed
   High Councillor's character (the server stamps the sender), newest time first word by word, a
@@ -2182,7 +2182,7 @@ code.
 
 - **Two characters make a Lord.** Two characters, even two alts of one account logged in one
   after the other (a report counts as a vote for 30 minutes), make one of them the Lord of a
-  made-up Elfcore guild on every client. He gets [Lords] lines (since 1.2.3 never a decree on
+  made-up Bankai Guild guild on every client. He gets [Lords] lines (since 1.2.3 never a decree on
   another guild's screen: a guild master's and his officers' Calls to Arms, Musters, Royal decrees
   and Tabard inspections reach his own guild alone), for as long as their reports keep coming (15
   minutes after the last one). Anyone who really founds such a guild can do
@@ -2239,8 +2239,8 @@ code.
   not checked unless his own /who saw a guild of that name, and he can uncheck any guild. Either
   way his addon whispers the key only to the Lords and Captains his own /who saw in that very
   guild (the server's word), so two characters who call themselves a real guild's Lord and
-  Captain in the census get nothing either. Anyone in a real Elfcore guild he picks gets the key
-  from its officers, whoever leaked the old one. (Every member of an Elfcore guild that has the
+  Captain in the census get nothing either. Anyone in a real Bankai Guild guild he picks gets the key
+  from its officers, whoever leaked the old one. (Every member of an Bankai Guild guild that has the
   key can read the sealed channel anyway.)
 
 What 1.0.0 hardened: the King's decrees and [Lords] lines count by his name, with no census at
@@ -2255,7 +2255,7 @@ names (the King can't take back a Steward's Hand: that Steward does, or the auth
 him).
 
 On the public channel anyone can try all of the legacy census paths above; **seal it with
-`/elf key`** and only members of Elfcore guilds can (any of them still can). Version 1.2 adds the
+`/bk key`** and only members of Bankai Guild guilds can (any of them still can). Version 1.2 adds the
 dormant structural replacement: an explicit, author-signed leadership snapshot, split only
 between complete guild entries so the full federation fits. The first valid signed part creates
 a one-way fail-closed boundary; no role is granted until every part verifies and their complete
@@ -2266,7 +2266,7 @@ snapshot for a realm group and faction, the documented legacy census limits abov
 authenticates ranks; it does not encrypt officer chat.
 
 Other limits:
-- **A BattleTag is what each player's own addon reads and sends** (the Elfcore Accord, 1.2.5.1):
+- **A BattleTag is what each player's own addon reads and sends** (the Bankai Guild Accord, 1.2.5.1):
   a modified addon can send someone else's. The moderation team sees it as a lead, never as proof.
   Its one automatic use is a sanction that follows it: a false BattleTag's code takes the sender's
   own account's key, so it reaches nobody else; each follow shows in The Watch, where a click stops
@@ -2277,7 +2277,7 @@ Other limits:
   it back ([a known beta bug](https://us.forums.blizzard.com/en/wow/t/savedvariables-never-load-in-the-beta-%E2%80%94-all-addon-settings-reset-on-login-69913/2354798)),
   so settings and the realm key reset every session. The census still refills in seconds: a
   client that logs in asks the channel, and each guild's reporter and runner-up answer at once.
-- A real Elfcore member who edits their copy could still send a wrong report for **their own**
+- A real Bankai Guild member who edits their copy could still send a wrong report for **their own**
   guild. Their guildmates' reports make it visible, but it can't be made impossible: since 1.1
   the census marks a row whose senders disagree on its leader, its officers or its size, and,
   fainter, one that a single sender stands behind (hover it for what the mark says).
@@ -2309,73 +2309,73 @@ Other limits:
 
 | Command | |
 |---|---|
-| `/elf` | open or close the window |
-| `/elf realm` · `/elf decrees` · `/elf tabard` | open a tab |
-| `/elf inactive [7\|14\|30]` | your guild's members offline that long, by name (a rank that may remove members removes one per click, asked first) |
-| `/elf warndays <days>` | when a Lord or Captain counts as away: red in the Realm, and one line when a Lord crosses it |
-| `/elf recruits` | Lords: your recruits, and a Captain as each one's mentor (one whisper to each, from your click) |
-| `/elf nominees [legate <name> \| correspondent <n> <name> \| remove <name>]` | guild masters: up to 25 Legates and one correspondent per department from their own guild. The King or real High Council explicitly appoints up to 25 Legates of the King's guild; being on the council alone appoints nobody. The historical `centurion` command remains an alias |
-| `/elf nocontact on\|off` | do not contact: recruits' Join screens skip you (on), or may ask you (off) |
-| `/elf patrol` | start or stop the tabard patrol |
-| `/elf mark [note]` | mark your target |
-| `/elf gear` (or **Inspect gear** on the Tabards tab) | officers: inspect the player you target (in range) once and keep what he wears, under **Gear seen** on the Tabards tab; nothing is scored or sent |
-| `/elf patrolshare on\|off` | officers: pass what your inspections find to your guild's officers and take theirs (off until you say yes, here or on the first-open page), or not |
-| `/elf loot` | your guild's loot notes and points on the Realm tab (its officers write them; not a bid window) |
-| `/elf craft [item or name]` · `/elf crafter on\|off` | who can make it (the top-level Crafters tab: shift-click an item after `/elf craft`); list your professions read so far, or take them off |
-| `/elf approved` · `/elf approved paste` | the guilds of Asmon's Elfcore the author's signed list makes Elfcore guilds (their names don't say Elfcore), and whether yours is one; paste that signed list (the first member of such a guild: his addon then passes it to the guild) |
-| `/elf church` · `/elf church status` · `/elf church name <Name>` · `/elf church register <Name>` | the Missionary Church of Elfcore's tab; its status in a window you can copy from; name a missionary of your network; register a recruit you brought |
-| `/elf arms [text]` · `/elf muster [text]` | send a decree (`test` = local preview) |
-| `/ef <text>` · `/efc <text>` · `/efl <text>` | write in [Elfcore], [Captains] or [Lords]; alone (`/ef`, `/efc`, `/efl`): open the Chat tab on that channel (1.1.1) |
-| `/elf all <text>` · `/elf captains <text>` · `/elf lords <text>` | the same, as `/elf` commands |
-| `/elf mute elfcore` · `/elf mute captains` · `/elf mute lords` | hide or show a channel in chat |
-| `/elf pin <text>` · `/elf pin off` · `/elf pin` | the King, his Stewards and Hands: pin one line for the army on top of the Elfcore chats and the Realm (2 hours); a guild master: one for his own guild. Take it down, or see what is pinned |
-| `/elf chatwindow tab` · `/elf chatwindow <number or name> [elfcore\|captains\|lords]` · `/elf chatwindow main` | the Elfcore chats in a chat tab named Elfcore (without the channel's name; it says how to make the tab), in another chat window (with Chattynator, one of its tabs, by name), or back in the main one |
-| `/elf treasurer on\|off` | a keeper of the treasury (the Treasurer, the King, a character he named) shares his book and the guild bank, or keeps them private (1.1: what the King hides goes only to the King, his Steward and the keepers, by whisper) |
-| `/elf backup` · `/elf restore` | copy a backup of your treasury book and your settings as text, or paste one back after a wipe (nothing is sent anywhere, never the channel key) (1.1) |
-| `/elf donations on\|off` | a keeper of the treasury tells everyone with the addon he is taking donations (a line on the Realm and Treasury tabs, with his zone if he shares it, one line in the [Elfcore] chat), until he logs out (1.1) |
-| `/elf need <count> <item>` · `/elf need` | Lords and Captains: ask the treasury for an item (shift-click it into the chat line, or its name or number); alone, your requests and where each stands (1.1) |
-| `/elf bank share on\|off` | the guild master or an officer of an Elfcore guild other than the King's shows his guild bank's snapshot to the King, his Steward and his Hands (by whisper, never on the channel), or not (1.1) |
-| `/elf rollcall on\|off` | answer the author's roll calls (version, client, channel state) or not (1.1: not until you say yes) |
-| `/elf accord` · `/elf accord forget <name>` · `/elf accord follow <name>` · `/elf accord unfollow <name>` | the Elfcore Accord (Elfcore's terms of use) again: its version and date; while it waits, I accept or Not now. On a moderation team client, forget drops the BattleTag a player asked to have removed (1.2.5.1); follow makes that player's sanction follow his BattleTag by hand (another game account's that sent it too included), unfollow stops it (his other characters are free, his own sanction stays) |
-| `/elf privacy` | the first-open page again: what the addon shares, and your Yes or No to each (1.1) |
-| `/elf profile [Name]` | a player's profile in the Elfcore window, yours (**My profile**) with no name |
-| `/elf letters [version]` | the version letters (1.1.5): every one, newest first, a click opens one; with a version, that letter |
-| `/elf chat on\|off` | the Elfcore chats on this client; off, nothing is sent or shown (1.1: off until you say yes) |
-| `/elf talk [elfcore\|captains\|lords]` | open or close the Elfcore window on its Chat tab, on that channel; also `/ef`, `/efc` or `/efl` with nothing after it, or Shift-click the minimap button (1.1.1) |
-| `/elf inspection on\|off` | take part in the King's Royal Inspection when sampled (a 2-minute patrol reported to him), or not (1.1: not until you say yes) |
-| `/elf issuereporter hide\|show` | hide Blizzard's Issue Reporter box (beta clients) at every login, or show it again (also a "Hide" button on it) |
-| `/elf helpme [text]` (or **Ask a High Councillor** on the Realm tab) | ask the High Council (the moderators) for help: it goes by whisper to up to three of them online who take requests |
-| `/elf council list` · `/elf council help on\|off` | the High Council as your addon knows it; moderators: take help requests or not. The list is signed by the author on his own computer and checked by every client: no name is written in the addon's code, and nobody can forge or change it. An addon without the list (`High Council: -`) asks the channel for it a minute or so after login, and again until it has it (two and a half minutes later when nobody answered, up to 3 times). Since 1.0.0 the list also crosses realms through guild chat: guildmates on another realm answer the ask and pass the list on, and it goes on to your realm's channel |
-| `/elf council icon` (or **My council icon** on the Realm tab, councillors only; 1.2.4: **My profile**'s **Icons**) | moderators: a councillor's name always carries the High Council's mark, which nobody can change: in the game's own chat (1.1.5, `/elf chatmarks`) the game's silver elite dragon, on their tooltip and in the census the game's target-frame skull. An icon of your own after it is optional: pick it from the game's icons, like a macro's. Your addon announces it on the channel (at once, then every 20 minutes), and other clients take it only from a councillor and only as a game icon |
-| `/elf discord <code>` · `/elf discord` | Elfcore Link: link this character to your Discord account with the bot's code (or paste it in a box) |
-| `/elf discord show` · `status` · `forget` | the Elfcore Link window (QR code and link) again; every character's request or proof; drop this character's |
-| `/elf hop` | ask for an invite to the King's layer (while he is online) |
-| `/elf lfg` · `/elf lfg dungeon\|raid\|pvp\|layer [note]` · `/elf lfg off` | the Board (1.1): who is looking for a group; raise your flag (a box with your note first) or lower it |
-| `/elf week` | the week on the Board and Decrees: army and own-guild Agenda entries for 7 days, alongside your guild's calendar; eligible schedulers see separate army and guild buttons ("Sat 20:00 Raid night") |
-| `/elf camp [note]` · `/elf camp off` · `/elf camps on\|off` | drop a camp in your zone (1.1: it needs `/elf location on`) or take yours down; the camps' badges on the world map |
-| `/elf vox off` · `/elf vox on` | Vox Populi questions in chat only, or in a window |
-| `/elf layerhelp on` · `/elf layerhelp off` | get (or not) requests to invite players to your layer (1.1: not until you say yes) |
-| `/elf layerauto on` · `/elf layerauto off` | invite layer requests without the window |
-| `/elf location on` · `/elf location off` | share (or not) your zone and layer on the Elfcore channel |
-| `/elf borders on` · `/elf borders off` | elite borders round the portrait of your target, focus, party members and your own frame (Forever): the game's gold wings for the King, silver wings for the High Council and Max's bronze wings for Elfcore guild masters (none for a character or guild the moderators took off, net-off). Legates and correspondents use separate verified office shields instead of the old wingless bronze role frame; signed High Council departments use the same shield family without replacing silver, and earned honours remain. Since 1.1.5 the old rank borders (gold for Lords, silver for Captains, bronze for Raiders and Veterans) are gone, and any other member has the nameplate star alone. On by default, hidden with the gamepad UI. Off, the nameplate marks go too |
-| `/elf nameplates on` · `/elf nameplates off` | a small mark left of the name on friendly players' nameplates (Forever; friendly nameplates show with Shift+V): the game's gold elite mark for the King, silver for the High Council, bronze for guild masters, the verified Legate or department shield for an appointee, and a star for any other member of an Elfcore guild (none for a character or a guild the moderators took off, net-off); on by default, hidden with the gamepad UI and with `/elf borders off` |
-| `/elf chatmarks on` · `/elf chatmarks off` | 1.1.5: the verified mark before a player's name in the game's own chat (channels, say, yell, emote, party, raid, instance and whispers; guild and officer chat the office marks alone, never the star): the King's gold dragon, a High Councillor's silver then their icon, a guild master's bronze, the Legate or department shield for an appointee, and the star for any other member your addon can check. Elfcore's own lines carry none. Through the game's own name filter, so the name's link, right-click and /r stay the game's; on by default, hidden with the gamepad UI, and a councillor's on the King's screen while the council's names are hidden |
-| `/elf key <secret>` | officers: seal the Elfcore channel |
-| `/elf key off` | officers: remove a mismatched guild-only key and return the guild to the public Elfcore channel (1.2.5.1) |
-| `/elf key rotate` | the King or his Steward: a new key for the whole army, by whisper to the Lords and Captains his /who saw in the guilds he picks and over guild chat, never on the Elfcore channel (also on the Throne) (1.1) |
-| `/elf block <name>` | ignore a player |
-| `/elf filter add\|remove <word>` · `/elf filter` | block terms: hide, on your screen, lines of addon text (Elfcore chats, writs, decrees, Vox) with a word; the list (1.1) |
-| `/elf filter shared on\|off` · `/elf filter shared add\|remove <word>` | use the shared block terms or not; the King, his Steward, his Hands and the High Council edit them (1.1) |
-| `/elf netoff Name: reason` · `/elf neton Name` · `/elf netoff` | the King, his Steward, a Hand or a High Councillor: hide a character for the whole army, or show them again (also on the Decrees tab); alone, who is hidden (1.1) |
-| `/elf netoff guild Name: reason` · `/elf neton guild Name` | the same people: take a guild off the Elfcore network for the army, or put it back on (also on the Decrees tab) (1.1) |
-| `/elf alt add Name` · `/elf alt remove Name` · `/elf alt` | link a character of this account as your alt (log it and say yes there), take a link apart, or see your links: the census and the treasury count you once (1.1) |
-| `/elf map` | zone markers on the world map |
-| `/elf sound` · `/elf sound on\|off` | every alert sound on or off |
-| `/elf alerts quiet\|always` | in an instance or Busy, Elfcore's raid warnings, sounds and popups wait until you are out (quiet, the default), or show at once (1.1) |
-| `/elf sound <kind> on\|off` | one kind's sound (1.1): `arms`, `muster`, `royal`, `court`, `vox`, `agenda`, `throne`, `help`, `hop`, `treasury`, `patrol`, `update`; also a click on its line at the bottom of the Decrees tab |
-| `/elf bug` | copyable bug report (also: the help button left of the window's X, then **Report a bug**) |
-| `/elf log [n \| word \| copy \| clear]` | the acts this client saw (decrees, gates, pardons, visibility switches), each with the sender's name; kept on this computer, never sent (1.1) |
-| `/elf status` | diagnostics in chat (1.0.0: whom your addon knows as the King's Steward, and the lists of Hands it holds, whose each is; 1.1.2: the author's in a copy window) |
+| `/bk` | open or close the window |
+| `/bk realm` · `/bk decrees` · `/bk tabard` | open a tab |
+| `/bk inactive [7\|14\|30]` | your guild's members offline that long, by name (a rank that may remove members removes one per click, asked first) |
+| `/bk warndays <days>` | when a Lord or Captain counts as away: red in the Realm, and one line when a Lord crosses it |
+| `/bk recruits` | Lords: your recruits, and a Captain as each one's mentor (one whisper to each, from your click) |
+| `/bk nominees [legate <name> \| correspondent <n> <name> \| remove <name>]` | guild masters: up to 25 Legates and one correspondent per department from their own guild. The King or real High Council explicitly appoints up to 25 Legates of the King's guild; being on the council alone appoints nobody. The historical `centurion` command remains an alias |
+| `/bk nocontact on\|off` | do not contact: recruits' Join screens skip you (on), or may ask you (off) |
+| `/bk patrol` | start or stop the tabard patrol |
+| `/bk mark [note]` | mark your target |
+| `/bk gear` (or **Inspect gear** on the Tabards tab) | officers: inspect the player you target (in range) once and keep what he wears, under **Gear seen** on the Tabards tab; nothing is scored or sent |
+| `/bk patrolshare on\|off` | officers: pass what your inspections find to your guild's officers and take theirs (off until you say yes, here or on the first-open page), or not |
+| `/bk loot` | your guild's loot notes and points on the Realm tab (its officers write them; not a bid window) |
+| `/bk craft [item or name]` · `/bk crafter on\|off` | who can make it (the top-level Crafters tab: shift-click an item after `/bk craft`); list your professions read so far, or take them off |
+| `/bk approved` · `/bk approved paste` | the guilds of Asmon's Bankai Guild the author's signed list makes Bankai Guild guilds (their names don't say Bankai Guild), and whether yours is one; paste that signed list (the first member of such a guild: his addon then passes it to the guild) |
+| `/bk church` · `/bk church status` · `/bk church name <Name>` · `/bk church register <Name>` | the Missionary Church of Bankai Guild's tab; its status in a window you can copy from; name a missionary of your network; register a recruit you brought |
+| `/bk arms [text]` · `/bk muster [text]` | send a decree (`test` = local preview) |
+| `/bg <text>` · `/bgc <text>` · `/bgl <text>` | write in [Bankai Guild], [Captains] or [Lords]; alone (`/bg`, `/bgc`, `/bgl`): open the Chat tab on that channel (1.1.1) |
+| `/bk all <text>` · `/bk captains <text>` · `/bk lords <text>` | the same, as `/bk` commands |
+| `/bk mute bankaiguild` · `/bk mute captains` · `/bk mute lords` | hide or show a channel in chat |
+| `/bk pin <text>` · `/bk pin off` · `/bk pin` | the King, his Stewards and Hands: pin one line for the army on top of the Bankai Guild chats and the Realm (2 hours); a guild master: one for his own guild. Take it down, or see what is pinned |
+| `/bk chatwindow tab` · `/bk chatwindow <number or name> [bankaiguild\|captains\|lords]` · `/bk chatwindow main` | the Bankai Guild chats in a chat tab named Bankai Guild (without the channel's name; it says how to make the tab), in another chat window (with Chattynator, one of its tabs, by name), or back in the main one |
+| `/bk treasurer on\|off` | a keeper of the treasury (the Treasurer, the King, a character he named) shares his book and the guild bank, or keeps them private (1.1: what the King hides goes only to the King, his Steward and the keepers, by whisper) |
+| `/bk backup` · `/bk restore` | copy a backup of your treasury book and your settings as text, or paste one back after a wipe (nothing is sent anywhere, never the channel key) (1.1) |
+| `/bk donations on\|off` | a keeper of the treasury tells everyone with the addon he is taking donations (a line on the Realm and Treasury tabs, with his zone if he shares it, one line in the [Bankai Guild] chat), until he logs out (1.1) |
+| `/bk need <count> <item>` · `/bk need` | Lords and Captains: ask the treasury for an item (shift-click it into the chat line, or its name or number); alone, your requests and where each stands (1.1) |
+| `/bk bank share on\|off` | the guild master or an officer of an Bankai Guild guild other than the King's shows his guild bank's snapshot to the King, his Steward and his Hands (by whisper, never on the channel), or not (1.1) |
+| `/bk rollcall on\|off` | answer the author's roll calls (version, client, channel state) or not (1.1: not until you say yes) |
+| `/bk accord` · `/bk accord forget <name>` · `/bk accord follow <name>` · `/bk accord unfollow <name>` | the Bankai Guild Accord (Bankai Guild's terms of use) again: its version and date; while it waits, I accept or Not now. On a moderation team client, forget drops the BattleTag a player asked to have removed (1.2.5.1); follow makes that player's sanction follow his BattleTag by hand (another game account's that sent it too included), unfollow stops it (his other characters are free, his own sanction stays) |
+| `/bk privacy` | the first-open page again: what the addon shares, and your Yes or No to each (1.1) |
+| `/bk profile [Name]` | a player's profile in the Bankai Guild window, yours (**My profile**) with no name |
+| `/bk letters [version]` | the version letters (1.1.5): every one, newest first, a click opens one; with a version, that letter |
+| `/bk chat on\|off` | the Bankai Guild chats on this client; off, nothing is sent or shown (1.1: off until you say yes) |
+| `/bk talk [bankaiguild\|captains\|lords]` | open or close the Bankai Guild window on its Chat tab, on that channel; also `/bg`, `/bgc` or `/bgl` with nothing after it, or Shift-click the minimap button (1.1.1) |
+| `/bk inspection on\|off` | take part in the King's Royal Inspection when sampled (a 2-minute patrol reported to him), or not (1.1: not until you say yes) |
+| `/bk issuereporter hide\|show` | hide Blizzard's Issue Reporter box (beta clients) at every login, or show it again (also a "Hide" button on it) |
+| `/bk helpme [text]` (or **Ask a High Councillor** on the Realm tab) | ask the High Council (the moderators) for help: it goes by whisper to up to three of them online who take requests |
+| `/bk council list` · `/bk council help on\|off` | the High Council as your addon knows it; moderators: take help requests or not. The list is signed by the author on his own computer and checked by every client: no name is written in the addon's code, and nobody can forge or change it. An addon without the list (`High Council: -`) asks the channel for it a minute or so after login, and again until it has it (two and a half minutes later when nobody answered, up to 3 times). Since 1.0.0 the list also crosses realms through guild chat: guildmates on another realm answer the ask and pass the list on, and it goes on to your realm's channel |
+| `/bk council icon` (or **My council icon** on the Realm tab, councillors only; 1.2.4: **My profile**'s **Icons**) | moderators: a councillor's name always carries the High Council's mark, which nobody can change: in the game's own chat (1.1.5, `/bk chatmarks`) the game's silver elite dragon, on their tooltip and in the census the game's target-frame skull. An icon of your own after it is optional: pick it from the game's icons, like a macro's. Your addon announces it on the channel (at once, then every 20 minutes), and other clients take it only from a councillor and only as a game icon |
+| `/bk discord <code>` · `/bk discord` | Bankai Guild Link: link this character to your Discord account with the bot's code (or paste it in a box) |
+| `/bk discord show` · `status` · `forget` | the Bankai Guild Link window (QR code and link) again; every character's request or proof; drop this character's |
+| `/bk hop` | ask for an invite to the King's layer (while he is online) |
+| `/bk lfg` · `/bk lfg dungeon\|raid\|pvp\|layer [note]` · `/bk lfg off` | the Board (1.1): who is looking for a group; raise your flag (a box with your note first) or lower it |
+| `/bk week` | the week on the Board and Decrees: army and own-guild Agenda entries for 7 days, alongside your guild's calendar; eligible schedulers see separate army and guild buttons ("Sat 20:00 Raid night") |
+| `/bk camp [note]` · `/bk camp off` · `/bk camps on\|off` | drop a camp in your zone (1.1: it needs `/bk location on`) or take yours down; the camps' badges on the world map |
+| `/bk vox off` · `/bk vox on` | Vox Populi questions in chat only, or in a window |
+| `/bk layerhelp on` · `/bk layerhelp off` | get (or not) requests to invite players to your layer (1.1: not until you say yes) |
+| `/bk layerauto on` · `/bk layerauto off` | invite layer requests without the window |
+| `/bk location on` · `/bk location off` | share (or not) your zone and layer on the Bankai Guild channel |
+| `/bk borders on` · `/bk borders off` | elite borders round the portrait of your target, focus, party members and your own frame (Forever): the game's gold wings for the King, silver wings for the High Council and Max's bronze wings for Bankai Guild guild masters (none for a character or guild the moderators took off, net-off). Legates and correspondents use separate verified office shields instead of the old wingless bronze role frame; signed High Council departments use the same shield family without replacing silver, and earned honours remain. Since 1.1.5 the old rank borders (gold for Lords, silver for Captains, bronze for Raiders and Veterans) are gone, and any other member has the nameplate star alone. On by default, hidden with the gamepad UI. Off, the nameplate marks go too |
+| `/bk nameplates on` · `/bk nameplates off` | a small mark left of the name on friendly players' nameplates (Forever; friendly nameplates show with Shift+V): the game's gold elite mark for the King, silver for the High Council, bronze for guild masters, the verified Legate or department shield for an appointee, and a star for any other member of an Bankai Guild guild (none for a character or a guild the moderators took off, net-off); on by default, hidden with the gamepad UI and with `/bk borders off` |
+| `/bk chatmarks on` · `/bk chatmarks off` | 1.1.5: the verified mark before a player's name in the game's own chat (channels, say, yell, emote, party, raid, instance and whispers; guild and officer chat the office marks alone, never the star): the King's gold dragon, a High Councillor's silver then their icon, a guild master's bronze, the Legate or department shield for an appointee, and the star for any other member your addon can check. Bankai Guild's own lines carry none. Through the game's own name filter, so the name's link, right-click and /r stay the game's; on by default, hidden with the gamepad UI, and a councillor's on the King's screen while the council's names are hidden |
+| `/bk key <secret>` | officers: seal the Bankai Guild channel |
+| `/bk key off` | officers: remove a mismatched guild-only key and return the guild to the public Bankai Guild channel (1.2.5.1) |
+| `/bk key rotate` | the King or his Steward: a new key for the whole army, by whisper to the Lords and Captains his /who saw in the guilds he picks and over guild chat, never on the Bankai Guild channel (also on the Throne) (1.1) |
+| `/bk block <name>` | ignore a player |
+| `/bk filter add\|remove <word>` · `/bk filter` | block terms: hide, on your screen, lines of addon text (Bankai Guild chats, writs, decrees, Vox) with a word; the list (1.1) |
+| `/bk filter shared on\|off` · `/bk filter shared add\|remove <word>` | use the shared block terms or not; the King, his Steward, his Hands and the High Council edit them (1.1) |
+| `/bk netoff Name: reason` · `/bk neton Name` · `/bk netoff` | the King, his Steward, a Hand or a High Councillor: hide a character for the whole army, or show them again (also on the Decrees tab); alone, who is hidden (1.1) |
+| `/bk netoff guild Name: reason` · `/bk neton guild Name` | the same people: take a guild off the Bankai Guild network for the army, or put it back on (also on the Decrees tab) (1.1) |
+| `/bk alt add Name` · `/bk alt remove Name` · `/bk alt` | link a character of this account as your alt (log it and say yes there), take a link apart, or see your links: the census and the treasury count you once (1.1) |
+| `/bk map` | zone markers on the world map |
+| `/bk sound` · `/bk sound on\|off` | every alert sound on or off |
+| `/bk alerts quiet\|always` | in an instance or Busy, Bankai Guild's raid warnings, sounds and popups wait until you are out (quiet, the default), or show at once (1.1) |
+| `/bk sound <kind> on\|off` | one kind's sound (1.1): `arms`, `muster`, `royal`, `court`, `vox`, `agenda`, `throne`, `help`, `hop`, `treasury`, `patrol`, `update`; also a click on its line at the bottom of the Decrees tab |
+| `/bk bug` | copyable bug report (also: the help button left of the window's X, then **Report a bug**) |
+| `/bk log [n \| word \| copy \| clear]` | the acts this client saw (decrees, gates, pardons, visibility switches), each with the sender's name; kept on this computer, never sent (1.1) |
+| `/bk status` | diagnostics in chat (1.0.0: whom your addon knows as the King's Steward, and the lists of Hands it holds, whose each is; 1.1.2: the author's in a copy window) |
 
 ## Reporting a bug
 
@@ -2387,16 +2387,16 @@ only once he answers, and you are told when he got it.
 Since 1.1.2 the author can also ask you for it from the right-click menu: your addon shows you
 the exact text first, in a window of its own, and sends nothing without your **Send**.
 
-Type `/elf bug` (or press **Report a bug**), copy the text and open an issue on [GitHub](https://github.com/dnl-gentile/elfcore-addon/issues). Errors are
-also saved in `WTF/Account/<ACCOUNT>/SavedVariables/Elfcore.lua`.
+Type `/bk bug` (or press **Report a bug**), copy the text and open an issue on [GitHub](https://github.com/dnl-gentile/bankai-addon/issues). Errors are
+also saved in `WTF/Account/<ACCOUNT>/SavedVariables/BankaiGuild.lua`.
 
 ## Credits
 
 - **Asmongold** and his team (Daily Dose of Asmongold, Max, Heuto, Fernmelder and the High
-  Council), for making Elfcore the army's addon and for the ideas.
+  Council), for making Bankai Guild the army's addon and for the ideas.
 - **Security reviews:** Konig, bjess9 (jess), lordjumper and Fadirstave, who read the code and
   showed what an attacker could do.
-- **Code and ideas:** RoyLeviGit (Elfcore chats in their own chat window), Artz (hiding the
+- **Code and ideas:** RoyLeviGit (Bankai Guild chats in their own chat window), Artz (hiding the
   Issue Reporter), bjess9 (CI and the shared checks), hypertectonic (Chattynator's tabs),
   Bernardo Costa / Costafitness (exact layer-hop confirmation and stale-request regressions,
   adapted from PR #51), and Rick-laboratory (bounded transport, cancellation and admission
@@ -2413,12 +2413,12 @@ also saved in `WTF/Account/<ACCOUNT>/SavedVariables/Elfcore.lua`.
 
 ## License
 
-MIT. Not made or endorsed by Blizzard Entertainment. The Elfcore emblem belongs to its owners
+MIT. Not made or endorsed by Blizzard Entertainment. The Bankai Guild emblem belongs to its owners
 and is used for the community.
 
-*Sources for the Elfcore description: the Elfcore Discord welcome message,
+*Sources for the Bankai Guild description: the Bankai Guild Discord welcome message,
 [Prism on X](https://x.com/fwprism/status/2101809316382847172) (10K+ members in the beta),
-[Dexerto](https://www.dexerto.com/world-of-warcraft/asmongold-responds-as-wow-forever-players-want-him-banned-over-massive-elfcore-guild-3411199/).*
+[Dexerto](https://www.dexerto.com/world-of-warcraft/asmongold-responds-as-wow-forever-players-want-him-banned-over-massive-bankaiguild-guild-3411199/).*
 
 
-Source code: https://github.com/dnl-gentile/elfcore-addon
+Source code: https://github.com/dnl-gentile/bankai-addon

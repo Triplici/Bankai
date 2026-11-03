@@ -1,7 +1,7 @@
 local ns, test, eq, H = ...
 local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]guild%-finance%.lua$") or "./"
-local FINANCE = os.getenv("ELFCORE_FINANCE_MODULE_PREFIX") or ROOT .. "Elfcore/GuildFinance.lua"
-local World = assert(loadfile(ROOT .. "tests/arena/lib/world.lua"))({ ROOT = ROOT, ADDON_DIR = ROOT .. "Elfcore/", ns = ns })
+local FINANCE = os.getenv("BANKAIGUILD_FINANCE_MODULE_PREFIX") or ROOT .. "BankaiGuild/GuildFinance.lua"
+local World = assert(loadfile(ROOT .. "tests/arena/lib/world.lua"))({ ROOT = ROOT, ADDON_DIR = ROOT .. "BankaiGuild/", ns = ns })
 -- Actual RSA-2048/e=3 public fixture and HA1 signatures, made in memory with the existing
 -- council-sign.py algorithm. Its private half was discarded; no user key is read or changed.
 -- Every scenario runs the real verifier with this public key, never a true-returning mock.
@@ -9,8 +9,8 @@ local AUTH = {
 	N = "a090122fd7db1b1a7605d1bfa33051bf175acec3e69a15d643022623065acdbb71fd2c45a373022f12762951ac796d61e536ef610207f5e347a015ab49abdd29b9ad570dd6103c208ab49e04cf9fd8474a1bddb9097c73c5a78373125c77bf40128fad0933e8d905bcd26481c3f812a46732ea8c8bc466ed8f2731ec3cc93ab2e4e9d3b99170c255c523a6eda722164819b71e60466987dd428672d63bec250eff21ee4b47b5cff5a2d1d2c221b640b2f3074163d6bd42578cdf058030387fbe8d7537ed43bf92e8781fa33e4d09ac5d6883cb05cee94d94b95cef7f5e4ef782e122f2b66a9833072b000935e6700f849c42f96f3487872e4f75e2de31623717",
 	MU = "1982a12241743cb767e1d256ada5ac726bc6b6c2a07bad1eceb001738d6701c0d906f948680f5a22930e8f4ae5deae1b5acaf16c96fdbb5a8441ef1e23af521b946aa5716abdd8109b7cf91c0a2c861ca20d460767a5f904b574f8e66f45d0f368645851ade01a70d6f9a6fbcac6fc669d60027350d41ff869e40bdf847c4cb9b2e7b897e5024d8a5ce19f7751d5b7b1496d8e404326a7016dc6de3aaec137baf448e7f09c005368aca14b02dec5bbee82739c3c10fbf9117d7be7c0d7c78b4057e12a35cca668ae0fb0a396bfc124258f7f3d855395150926556f2ee7bf4475eefd0a94b991214d21c80572cf0ea21a1ef499d031502475e3b6f5a8f19df52fa9376ccc0",
 	K = 86,
-	INITIAL = "HA1~1800000000~Emberfall+Emberfall2~Alliance~enforce~1~1800000000~1800100000~719efef9470684bd5667ff7ccc8189164f1ff1bfac71df1a04a3d5c12e4cdc84~1~1~Elfcore Ember=Torvin Hale-Emberfall!Elfcore Willow=Selka Drummond-Emberfall~0c62b1cbdc44e928c15421a94668b3c82ffd5ed4a75baef70c9d4cb3a458123ce7be8f6fba71a543453cd27bd44df0d1633e5a2a0e8e606a3a59cf40c2b50ac8b436badba11b981fd641fbe398ad17f4538b0c66a347103875c5c604f48b803065105dc34fc41140cfde36791031f9d8bbb729027033dd2f0a1003e53cd5d1fb1e4c8272f792985d8570c4d288c3265b2047348ac939fd2fce037f9d880a9a33dd699ec33078bbd71ef4ae68bda1570b11ef1d4d3cb686feb5e0db2f652c592787df249187d56f1e3b8898ec929e0dc45615df3765f10ded4bb6e9d5a28ac182f28495ce2f99ee75aa0ee123ec8dbbbc48752ad8166f5d44674baaf882094cc2",
-	REVOKED = "HA1~1800000001~Emberfall+Emberfall2~Alliance~enforce~2~1800000000~1800100000~ee88405fe9cd0427166746a9c4b7a056204404dff1a693fb5a1c09ab8cb1212d~1~1~Elfcore Willow=Selka Drummond-Emberfall~1804c05934eb85a125c6eaf554fde25136793b26369ded24f992b3e26fe2e55466e3cdb6ef0ffa2aa6c46d90dea70dfbee036609acce5a17347204e78839bb67ef805ec8717b696f95808fa136b59a94f3ea686ff893697e69b98f9e8a077f621e6fe2a1491411047877e7c1bcf95f9f7b506291e014452e988530fb94e7d54dfce8b2468ad828c05390a74d8d33222dac6a2349fd991f86ef54ce281946e88e35bbadc91e34dcc6077c27adbdd3c906191346a8c5416b48af00e9faf81ac33a73a82bd28362f3d8957fa5483b9ca76cfe8fae0297d2a92bc69f0820b4a35a5c059c9cda17b02ee5144b67ad669d7770194003d0c22cd7356d7b94701f912386",
+	INITIAL = "HA1~1800000000~Emberfall+Emberfall2~Alliance~enforce~1~1800000000~1800100000~719efef9470684bd5667ff7ccc8189164f1ff1bfac71df1a04a3d5c12e4cdc84~1~1~Bankai Guild Ember=Torvin Hale-Emberfall!Bankai Guild Willow=Selka Drummond-Emberfall~0c62b1cbdc44e928c15421a94668b3c82ffd5ed4a75baef70c9d4cb3a458123ce7be8f6fba71a543453cd27bd44df0d1633e5a2a0e8e606a3a59cf40c2b50ac8b436badba11b981fd641fbe398ad17f4538b0c66a347103875c5c604f48b803065105dc34fc41140cfde36791031f9d8bbb729027033dd2f0a1003e53cd5d1fb1e4c8272f792985d8570c4d288c3265b2047348ac939fd2fce037f9d880a9a33dd699ec33078bbd71ef4ae68bda1570b11ef1d4d3cb686feb5e0db2f652c592787df249187d56f1e3b8898ec929e0dc45615df3765f10ded4bb6e9d5a28ac182f28495ce2f99ee75aa0ee123ec8dbbbc48752ad8166f5d44674baaf882094cc2",
+	REVOKED = "HA1~1800000001~Emberfall+Emberfall2~Alliance~enforce~2~1800000000~1800100000~ee88405fe9cd0427166746a9c4b7a056204404dff1a693fb5a1c09ab8cb1212d~1~1~Bankai Guild Willow=Selka Drummond-Emberfall~1804c05934eb85a125c6eaf554fde25136793b26369ded24f992b3e26fe2e55466e3cdb6ef0ffa2aa6c46d90dea70dfbee036609acce5a17347204e78839bb67ef805ec8717b696f95808fa136b59a94f3ea686ff893697e69b98f9e8a077f621e6fe2a1491411047877e7c1bcf95f9f7b506291e014452e988530fb94e7d54dfce8b2468ad828c05390a74d8d33222dac6a2349fd991f86ef54ce281946e88e35bbadc91e34dcc6077c27adbdd3c906191346a8c5416b48af00e9faf81ac33a73a82bd28362f3d8957fa5483b9ca76cfe8fae0297d2a92bc69f0820b4a35a5c059c9cda17b02ee5144b67ad669d7770194003d0c22cd7356d7b94701f912386",
 }
 local runTest = test
 test = function(name, fn) runTest(name, function() ns.Sign.WithKey(AUTH.N, AUTH.MU, AUTH.K, fn) end) end
@@ -19,20 +19,20 @@ local function Client(w, role, options)
 	w:As(c, function()
 		c.ns.L = setmetatable({}, { __index = ns.L })
 		c.ns.ViewAs = { Previewing = function() return false end }
-		local prefix = os.getenv("ELFCORE_FINANCE_TREASURY_PREFIX")
+		local prefix = os.getenv("BANKAIGUILD_FINANCE_TREASURY_PREFIX")
 		if prefix then
 			-- Prefix proof uses the old complete Treasury source, including its real native
 			-- event registrations; it must not retain the world's newer expense callbacks.
 			local on, login = c.ns.On
 			c.ns.On = function(event, fn) if event == "LOGIN" then login = fn else on(event, fn) end end
-			assert(loadfile(prefix))("Elfcore", c.ns)
+			assert(loadfile(prefix))("BankaiGuild", c.ns)
 			c.ns.On = on
 			for _, event in ipairs({ "TRADE_SHOW", "TRADE_MONEY_CHANGED", "TRADE_ACCEPT_UPDATE", "TRADE_PLAYER_ITEM_CHANGED", "TRADE_TARGET_ITEM_CHANGED",
 				"UI_INFO_MESSAGE", "TRADE_CLOSED", "MAIL_SEND_SUCCESS", "MAIL_FAILED", "PLAYER_MONEY" }) do c.events[event] = {} end
 			assert(login); login()
 		end
-		for _, file in ipairs({ "Roster", "Authority", "Data" }) do assert(loadfile(ROOT .. "Elfcore/" .. file .. ".lua"))("Elfcore", c.ns) end
-		assert(loadfile(FINANCE))("Elfcore", c.ns)
+		for _, file in ipairs({ "Roster", "Authority", "Data" }) do assert(loadfile(ROOT .. "BankaiGuild/" .. file .. ".lua"))("BankaiGuild", c.ns) end
+		assert(loadfile(FINANCE))("BankaiGuild", c.ns)
 		c.ns.Comm.Hash36 = ns.Comm.Hash36
 		c.ns.Comm.Cancel = function() end
 		-- The existing Treasury private-batch fixture: every piece still runs its real
@@ -79,7 +79,7 @@ end
 local function Setup(legacy)
 	local w = World.New({ clock = 1800000000, council = false, arenaFiles = {}, compliance = "shipped" })
 	local king, keeper = Client(w, "king"), Client(w, "treasurer")
-	local lord, other, member = Client(w, "fighterA", { rank = 0 }), Client(w, "fighterB", { guild = "Elfcore Willow", rank = 0 }), Client(w, "bettor1")
+	local lord, other, member = Client(w, "fighterA", { rank = 0 }), Client(w, "fighterB", { guild = "Bankai Guild Willow", rank = 0 }), Client(w, "bettor1")
 	Scan(w); Reports(w)
 	if not legacy then for _, c in ipairs(w.clients) do w:As(c, function()
 		assert(c.ns.Authority.TakePart(AUTH.INITIAL, nil, "LOCAL"), "the actual signed HA1 fixture must be accepted")
@@ -172,7 +172,7 @@ test("Guild finance: correction and ambiguous returned mail zero attribution, st
 		t.ns.Treasury.Toggle(e); eq(F.LocalRows()[1].out, 0)
 		local b = t.ns.Treasury.Book(); b.lines = {}
 		t.ns.rdb = World.Copy(t.ns.rdb)
-		assert(loadfile(FINANCE))("Elfcore", t.ns)
+		assert(loadfile(FINANCE))("BankaiGuild", t.ns)
 		eq(t.ns.GuildFinance.LocalRows()[1].out, 0, "eviction/reload cannot revive corrected attributed money")
 	end)
 end)
@@ -202,7 +202,7 @@ test("Guild finance: two census claims cannot grant a private financial audience
 	local event = Event(w, t, lord.guild)
 	eq(Allocate(w, t, Receipt(w, t, lord, 19000), event), true)
 	w:As(t, function()
-		local invented = "Elfcore Phony"
+		local invented = "Bankai Guild Phony"
 		for _, witness in ipairs({ "False Witness-Emberfall", "Other Witness-Emberfall" }) do
 			assert(t.ns.Data.Receive({ guild = invented, leader = member.short, total = 20, online = 2, faction = "Alliance", officers = {}, zones = {} }, witness))
 		end
@@ -244,7 +244,7 @@ test("Guild finance: fresh requested snapshots survive offline/reload as stale p
 		eq(F.Handle("CHANNEL", t.name, msg), false); eq(F.Handle("WHISPER", lord.name, msg), false)
 		eq(F.Handle("WHISPER", t.name, msg), true); eq(F.Handle("WHISPER", t.name, msg), true)
 		local saved = World.Copy(king.ns.rdb); king.ns.rdb = saved
-		assert(loadfile(FINANCE))("Elfcore", king.ns)
+		assert(loadfile(FINANCE))("BankaiGuild", king.ns)
 		eq(#king.ns.GuildFinance.Held("*"), 1, "old offline facts persist without pretending to be fresh")
 	end)
 	w:Run(901)

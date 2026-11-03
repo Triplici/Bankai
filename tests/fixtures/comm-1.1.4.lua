@@ -1,13 +1,13 @@
--- Elfcore/Comm.lua as 1.1.4 ships it (the release live clients run while 1.2 is built), for
--- tests/wanted-sightings.lua: copied unchanged from `git show v1.1.4:Elfcore/Comm.lua`. It hands a
+-- BankaiGuild/Comm.lua as 1.1.4 ships it (the release live clients run while 1.2 is built), for
+-- tests/wanted-sightings.lua: copied unchanged from `git show v1.1.4:BankaiGuild/Comm.lua`. It hands a
 -- message to a handler by its type and knows none of 1.2's. Loaded like the addon loads its files:
--- loadfile("tests/fixtures/comm-1.1.4.lua")("Elfcore", ns).
+-- loadfile("tests/fixtures/comm-1.1.4.lua")("BankaiGuild", ns).
 local ADDON, ns = ...
 
 -- GUILD: "hello" pings so members with the addon know each other and elect one reporter.
--- CHANNEL (hidden "ElfcoreNet"): the elected reporter of each guild broadcasts its summary.
+-- CHANNEL (hidden "BankaiGuildNet"): the elected reporter of each guild broadcasts its summary.
 -- Chat lines of the channels (Channels.lua) ride the same hidden channel in a lane of their own.
--- One reporter per guild on each realm (1.0.0): on WoW: Forever each realm has an ElfcoreNet of
+-- One reporter per guild on each realm (1.0.0): on WoW: Forever each realm has an BankaiGuildNet of
 -- its own, while GUILD reaches a guild's members on every realm, so the election counts the
 -- peers of our realm (see Electable).
 
@@ -281,7 +281,7 @@ end
 -- Chat lines wait in a short lane of their own: they never go through Enqueue, so they can
 -- never push report chunks out of MAX_QUEUE. done(sent, why) is called once the part went out
 -- (true) or was dropped (false, why): "moved" the channel changed before it left (a new realm
--- key), "late" it waited CHAT_TTL, "failed" the game refused it, "left" we are out of an Elfcore
+-- key), "late" it waited CHAT_TTL, "failed" the game refused it, "left" we are out of an Bankai Guild
 -- guild. Each part carries the channel it was written for, and never goes out on another one
 -- (GitHub #34: a line typed for one channel's audience is not sent to the next). line (1.1.1):
 -- any value the parts of one line share, for Comm.DropLine. Returns false when the lane is full,
@@ -334,11 +334,11 @@ local function SendNow(dist, msg, logged, whisperTo)
 	return false
 end
 
--- The Join screen's own addon whispers (1.1, Fern's #20, Recruit.lua): outside an Elfcore guild
+-- The Join screen's own addon whispers (1.1, Fern's #20, Recruit.lua): outside an Bankai Guild guild
 -- the addon sends nothing else, and these only: J1 (which guild should I ask? to a member /who
 -- found) and J3 (my request, with the whisper the player sends himself), one per click or
 -- search, straight to that one player, never through the queue (Pump sends nothing for a
--- non-member). A member of an Elfcore guild sends neither.
+-- non-member). A member of an Bankai Guild guild sends neither.
 local OUTSIDE_TYPES = { J1 = true, J3 = true }
 function Comm.WhisperOutside(target, msg)
 	if ns.IsMember() or type(target) ~= "string" or target == "" or type(msg) ~= "string" then return false end
@@ -382,7 +382,7 @@ end
 local function Pump()
 	if not queue[1] and not chatQueue[1] then return end
 	if not ns.IsMember() then
-		-- Outside an Elfcore guild the addon sends nothing.
+		-- Outside an Bankai Guild guild the addon sends nothing.
 		local dropped = {}
 		for i, item in ipairs(queue) do dropped[i] = item end
 		wipe(queue)
@@ -433,8 +433,8 @@ end
 Comm.Pump = Pump -- for tests
 
 ---------------------------------------------------------------------------
--- The shared channel. Without a key it is the public "ElfcoreNet". With a realm key (set by
--- an officer with /elf key, then passed to guildmates over GUILD messages, which the server
+-- The shared channel. Without a key it is the public "BankaiGuildNet". With a realm key (set by
+-- an officer with /bk key, then passed to guildmates over GUILD messages, which the server
 -- only delivers to members of that guild) the channel gets a name derived from the key and
 -- the key as its password: outsiders can neither find it nor join it, edited code or not.
 ---------------------------------------------------------------------------
@@ -478,7 +478,7 @@ end
 -- another member, so any player with the addon can end up owning it. An owner could /password
 -- it (nobody who logs in afterwards gets in, and the network dies as people relog), /ban or
 -- /ckick players (the King, the Treasurer), make a friend /moderator or give it away with
--- /owner. Elfcore never uses these powers against anyone. It follows the channel's notices,
+-- /owner. Bankai Guild never uses these powers against anyone. It follows the channel's notices,
 -- tells a player who was handed the channel what that means, and while the channel is ours it
 -- only undoes harm (Comm.HealChannel). A channel locked against us is tried again, slower and
 -- slower (Comm.JoinChannel). There is no other name to flee to: whoever locks one name can
@@ -504,7 +504,7 @@ local function GuardFor(name)
 	return guard
 end
 
--- Our channel, whatever form a notice gives its name ("ElfcoreNet" or "5. ElfcoreNet").
+-- Our channel, whatever form a notice gives its name ("BankaiGuildNet" or "5. BankaiGuildNet").
 local function OurChannel(...)
 	local ours = joinedName or Comm.ChannelSpec()
 	if type(ours) ~= "string" then return nil end
@@ -680,7 +680,7 @@ local function Unlocked(g)
 end
 
 -- CHAT_MSG_CHANNEL_NOTICE and CHAT_MSG_CHANNEL_NOTICE_USER: (notice type, player, language,
--- "5. ElfcoreNet", second player, flags, zone channel id, channel number, "ElfcoreNet", ...).
+-- "5. BankaiGuildNet", second player, flags, zone channel id, channel number, "BankaiGuildNet", ...).
 -- With two players (banned, kicked, unbanned) the first is the one it happened to and the
 -- second who did it. Only our channel's notices count.
 function Comm.OnChannelNotice(notice, player, _, channelName, player2, _, _, _, baseName)
@@ -770,7 +770,7 @@ function Comm.OnActionRefused(addon, func)
 	end
 end
 
--- For /elf status: the channel's owner as last seen, our seat, what was seen.
+-- For /bk status: the channel's owner as last seen, our seat, what was seen.
 function Comm.GuardStats()
 	local g, now = guard, ns.Now()
 	local function Size(t) local n = 0 for _ in pairs(t) do n = n + 1 end return n end
@@ -837,7 +837,7 @@ function Comm.Audience()
 end
 
 -- The channel is public (1.1): no realm key, so anyone who joins it by name reads what is sent
--- there. nil outside an Elfcore guild (the addon is on no channel there).
+-- there. nil outside an Bankai Guild guild (the addon is on no channel there).
 function Comm.IsPublic()
 	if not ns.IsMember() then return nil end
 	return not (ns.rdb and ns.rdb.realmKey)
@@ -858,7 +858,7 @@ function Comm.RequestKey()
 	if ns.IsMember() and ns.rdb and not ns.rdb.realmKey then Enqueue("GUILD", "K0~", "keyreq") end
 end
 
--- /elf key <secret>: officers seal the channel; guildmates receive the key automatically.
+-- /bk key <secret>: officers seal the channel; guildmates receive the key automatically.
 function Comm.SetRealmKey(secret)
 	if not ns.IsMember() or not ns.Roster.IsOfficer() then
 		ns.Print(ns.L.KEY_OFFICERS_ONLY)
@@ -880,7 +880,7 @@ function Comm.SetRealmKey(secret)
 end
 
 ---------------------------------------------------------------------------
--- Realms (1.0.0). WoW: Forever's PvP and PvP 2 each have an ElfcoreNet of their own, and a
+-- Realms (1.0.0). WoW: Forever's PvP and PvP 2 each have an BankaiGuildNet of their own, and a
 -- guild has members on both: a reporter on one realm is never heard on the other one's
 -- channel, and a guild that elected a single reporter was missing from the other realm's
 -- census (older versions left that reporter out after GUARD_AFTER unheard, one name at a time).
@@ -934,7 +934,7 @@ Comm.CAPABILITY = "a"
 -- (where the server vouches for our guild) named another realm, was heard on it within
 -- SHARED_FOR, in this session. Every realm's peers hear one reporter there then, and the
 -- election counts them all. Nothing else proves it: the realm a report names (field 21, `from`;
--- ns.rdb.shared in /elf status) is whatever its sender wrote, and anyone on the public channel
+-- ns.rdb.shared in /bk status) is whatever its sender wrote, and anyone on the public channel
 -- may send one; a flag saved by an earlier session proves nothing of this one.
 function Comm.ElectsAcrossRealms(now)
 	return (now or ns.Now()) - crossedAt <= SHARED_FOR
@@ -981,7 +981,7 @@ function Comm.Hello(force)
 	end
 	if not force and before >= Comm.QuietAfter(now) and now - lastHello < 600 then return end
 	lastHello = now
-	-- Our realm rides along: guildmates on another realm show in /elf status (topology). So does
+	-- Our realm rides along: guildmates on another realm show in /bk status (topology). So does
 	-- our channel: without the key we can't hear a reporter on the sealed one (MaybeBroadcast).
 	-- And "z" when we share our zone (0.9.1): our guild's reporter may name it then, never
 	-- otherwise. Older versions read the fields before it and ignore the rest.
@@ -1093,7 +1093,7 @@ function Comm.MaybeBroadcast(report)
 end
 
 function Comm.Broadcast(report)
-	-- 1.1: our guild is off the Elfcore network (net-off, Moderation.lua): its census stays home.
+	-- 1.1: our guild is off the Bankai Guild network (net-off, Moderation.lua): its census stays home.
 	local M = ns.Moderation
 	if M and not M.missing and M.OwnGuildOff() then
 		if not Comm.heldReport then ns.Log("census of %s not sent: the guild is off the network", tostring(report and report.guild)) end
@@ -1274,7 +1274,7 @@ function Comm.Admit(sender, now)
 end
 function Comm.ResetAdmission() wipe(admit); admitCount = 0 end
 
--- A client outside any Elfcore guild (1.1): over its own guild it puts together the pieces of the
+-- A client outside any Bankai Guild guild (1.1): over its own guild it puts together the pieces of the
 -- author's signed titles list alone (HT), which names the approved guilds (ns.IsApprovedGuild):
 -- the members of such a guild have nothing else to learn it from. Nothing else is read, kept or
 -- answered; a blocked sender, and one past the admission budget, are dropped as ever, and the list
@@ -1329,9 +1329,9 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 		return
 	end
 	if not ns.IsMember() then
-		-- Outside an Elfcore guild the addon hears nothing of the army, but for two things (1.1): the
+		-- Outside an Bankai Guild guild the addon hears nothing of the army, but for two things (1.1): the
 		-- Join screen's answer, J2, whispered by a member it asked (Comm.WhisperOutside), and the
-		-- author's signed titles list over its own guild, which may make that guild an Elfcore guild
+		-- author's signed titles list over its own guild, which may make that guild an Bankai Guild guild
 		-- (Comm.Outsider).
 		if dist == "WHISPER" and text:sub(1, 3) == "J2~" and outsideHandler and not ns.db.blocked[sender:lower()]
 			and Comm.Admit(sender, ns.Now()) then
@@ -1343,7 +1343,7 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 	if ns.db.blocked[sender:lower()] then return end
 	if not Comm.Admit(sender, ns.Now()) then return end
 	stats.recv = stats.recv + 1
-	-- Elfcore Link (0.9.10): a High Councillor's addon waiting to hear the author (Link.HeardFrom)
+	-- Bankai Guild Link (0.9.10): a High Councillor's addon waiting to hear the author (Link.HeardFrom)
 	-- sees who speaks; only while it waits: otherwise nil, and no message pays for it.
 	local hook = Comm.senderHook
 	if hook then ns.SafeCall("link author", hook, sender, dist) end
@@ -1357,7 +1357,7 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 			local key = text:sub(4)
 			if key ~= "" and key ~= ns.rdb.realmKey then
 				-- 1.1 (Keys.lua): a key a newer one replaced here (the King's rotation, an officer's
-				-- 1.1 /elf key) no longer comes back without an epoch; any other still does.
+				-- 1.1 /bk key) no longer comes back without an epoch; any other still does.
 				if ns.Keys.TakesLegacy and ns.Keys.TakesLegacy(key) == false then
 					ns.Log("realm key from officer %s ignored: a key a newer one replaced", sender)
 				else
@@ -1440,7 +1440,7 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 			return
 		end
 		stats.reports = stats.reports + 1
-		-- A report naming another realm: the channel may cross realms (/elf status). Its sender
+		-- A report naming another realm: the channel may cross realms (/bk status). Its sender
 		-- wrote that realm, so it never turns the election (Comm.ElectsAcrossRealms).
 		Count(stats.reportRealms, r.from or "old")
 		if r.from and r.from ~= ns.realm then ns.rdb.shared = { realm = r.from, to = ns.realm, t = now } end
@@ -1461,11 +1461,11 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 	end
 end
 
--- Outside an Elfcore guild the addon stays out of the channel (called when the guild changes).
+-- Outside an Bankai Guild guild the addon stays out of the channel (called when the guild changes).
 -- Joining is left to the housekeeping ticker, so we never jump ahead of General/Trade at login.
 function Comm.CheckMembership()
 	if ns.IsMember() then
-		-- Joined an Elfcore guild after login: ask for the census once we are on the channel.
+		-- Joined an Bankai Guild guild after login: ask for the census once we are on the channel.
 		if stats.asked + stats.askSkipped == 0 then
 			askTries = 0
 			Comm.AskCensus()
@@ -1474,7 +1474,7 @@ function Comm.CheckMembership()
 	end
 	if joinedName and GetChannelName(joinedName) > 0 then
 		LeaveChannelByName(joinedName)
-		ns.Log("left channel %s: not in an Elfcore guild", joinedName)
+		ns.Log("left channel %s: not in an Bankai Guild guild", joinedName)
 		joinedName, channelIndex = nil, 0
 		wipe(queue)
 		DropChat("left")

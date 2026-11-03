@@ -1,16 +1,16 @@
--- Elfcore/King.lua as 0.9.8 ships it, for tests/run.lua: copied unchanged from
--- `git show v0.9.8:Elfcore/King.lua`. 0.9.9's differs only in how the crown is drawn on the map
+-- BankaiGuild/King.lua as 0.9.8 ships it, for tests/run.lua: copied unchanged from
+-- `git show v0.9.8:BankaiGuild/King.lua`. 0.9.9's differs only in how the crown is drawn on the map
 -- (the gamepad UI): its Hands of the King (Authorized, OnHands, HandleCommand) are these. A client
 -- of those versions takes the list of Hands from the King's pinned character alone, reads the
 -- names after the guild and never reads the number before it, and leaves out a kind of T1 it
 -- does not know (1.0.0: a Steward's own list, T1~N). Loaded on a namespace of its own:
---   loadfile("tests/fixtures/king-0.9.8.lua")("Elfcore", kns)   -- kns.King
+--   loadfile("tests/fixtures/king-0.9.8.lua")("BankaiGuild", kns)   -- kns.King
 local ADDON, ns = ...
 local L = ns.L
 
 -- The Throne: a tab for the King alone (the guild master of the guild named exactly
--- "Elfcore" of his faction, and that very character where the addon knows him by name,
--- ns.KING_CHARACTER), and for the Hands he names. What he sends goes out on the Elfcore
+-- "Bankai Guild" of his faction, and that very character where the addon knows him by name,
+-- ns.KING_CHARACTER), and for the Hands he names. What he sends goes out on the Bankai Guild
 -- channel as T1 messages, and every client checks that the sender really is him (his name,
 -- which the server sets: never a census vote, which anyone on the channel can cast), or one
 -- of his Hands for the tools he lends them (HAND_MAY). Answers go back to whoever asked,
@@ -61,7 +61,7 @@ local lastSummonSent, lastInspectSent = -math.huge, -math.huge
 local lastAgendaSent, lastAgendaWarn = -math.huge, -math.huge
 
 -- Text other players send that ends up on the King's screen (on stream): only what looks
--- like a character name ("Pyralis Ashandar") or an Elfcore guild name, nothing else.
+-- like a character name ("Pyralis Ashandar") or an Bankai Guild guild name, nothing else.
 local function CleanName(s)
 	s = tostring(s or ""):gsub("%-.*$", "")
 	if #s > 30 or not s:match("^[%a\128-\255]+ ?[%a\128-\255]*$") then return nil end
@@ -273,7 +273,7 @@ local function OnHands(king, rest)
 	Changed()
 end
 
-StaticPopupDialogs["ELFCORE_KING_HAND"] = {
+StaticPopupDialogs["BANKAIGUILD_KING_HAND"] = {
 	text = L.HANDS_PROMPT,
 	button1 = OKAY or "OK",
 	button2 = CANCEL or "Cancel",
@@ -303,7 +303,7 @@ StaticPopupDialogs["ELFCORE_KING_HAND"] = {
 	preferredIndex = 3,
 }
 
-StaticPopupDialogs["ELFCORE_KING_UNHAND"] = {
+StaticPopupDialogs["BANKAIGUILD_KING_UNHAND"] = {
 	text = L.HANDS_REMOVE_CONFIRM,
 	button1 = YES or "Yes",
 	button2 = NO or "No",
@@ -325,7 +325,7 @@ King.CleanName = function(s) return CleanName(s) end
 King.CleanGuild = function(s) return CleanGuild(s) end
 King.Verified = function(sender, guild) return Verified(sender, guild) end
 
--- Our tabard, checked the way a patrol checks others (level 15+ only: the Elfcore rule).
+-- Our tabard, checked the way a patrol checks others (level 15+ only: the Bankai Guild rule).
 local function OwnTabard()
 	local level = UnitLevel and UnitLevel("player") or 0
 	if level > 0 and level < (ns.Inspect.MIN_LEVEL or 15) then return nil end
@@ -364,7 +364,7 @@ local function OnSummon(king, id, guild)
 	ns.PlayAlert("soft")
 	-- The King by the army's name for him; a Hand by theirs.
 	local who = King.FromKing(king, guild) and L.THRONE_SUMMONED:format(ns.KingName(king)) or L.THRONE_SUMMONED_HAND:format(ns.DisplayName(king))
-	ns.ShowDialog("ELFCORE_KING_SUMMON", who, nil, { king = king, id = id })
+	ns.ShowDialog("BANKAIGUILD_KING_SUMMON", who, nil, { king = king, id = id })
 end
 
 local function Answer(data, word)
@@ -372,7 +372,7 @@ local function Answer(data, word)
 	ns.Comm.Whisper(data.king, ("T2~%d~%s~%s"):format(data.id, word, GetGuildInfo("player") or ""))
 end
 
-StaticPopupDialogs["ELFCORE_KING_SUMMON"] = {
+StaticPopupDialogs["BANKAIGUILD_KING_SUMMON"] = {
 	text = "%s",
 	button1 = L.THRONE_PRESENT,
 	button2 = L.THRONE_BUSY,
@@ -510,9 +510,9 @@ local function OnInspect(king, id)
 	if now - lastInspectSeen < King.INSPECT_GAP then return end
 	lastInspectSeen = now
 	-- Everyone hears the King's call; only a sample of the army patrols (and reports), and never
-	-- a player who said no (/elf inspection off, 0.9.3).
+	-- a player who said no (/bk inspection off, 0.9.3).
 	if ns.db and ns.db.royalInspection == false then
-		ns.Log("inspection %d: not taking part (/elf inspection off)", id or 0)
+		ns.Log("inspection %d: not taking part (/bk inspection off)", id or 0)
 		return Warn(L.THRONE_INSPECT_WARN, true)
 	end
 	if King.random() > King.InspectShare() then
@@ -602,7 +602,7 @@ local function OnUntabarded(sender, rest)
 	if King.IsKing() then return end
 	local on, body = tostring(rest or ""):match("^(%d)~?(.*)$")
 	if on == "1" then
-		local s = ns.Codec.DecodeShame("S1~Elfcore~0~" .. body)
+		local s = ns.Codec.DecodeShame("S1~Bankai Guild~0~" .. body)
 		if s then ns.Inspect.ShowShame({ by = ns.KingName(sender), list = s.list, t = ns.Now() }) end
 	elseif on == "0" then
 		ns.Inspect.ShowShame(nil)
@@ -698,12 +698,12 @@ local function OnAgenda(king, id, rest, guild)
 		local where = agenda.zone ~= "" and agenda.zone or "?"
 		local text = King.FromKing(king, guild) and L.THRONE_AGENDA_POPUP:format(ns.KingName(king), agenda.title, minutes, where)
 			or L.THRONE_AGENDA_POPUP_HAND:format(ns.DisplayName(king), agenda.title, minutes, where)
-		ns.ShowDialog("ELFCORE_AGENDA_CALL", text)
+		ns.ShowDialog("BANKAIGUILD_AGENDA_CALL", text)
 	end
 	Changed()
 end
 
-StaticPopupDialogs["ELFCORE_AGENDA_CALL"] = {
+StaticPopupDialogs["BANKAIGUILD_AGENDA_CALL"] = {
 	text = "%s",
 	button1 = OKAY or "OK",
 	timeout = 120,
@@ -904,7 +904,7 @@ ns.On("LOGIN", function()
 	end)
 end)
 
-StaticPopupDialogs["ELFCORE_KING_AGENDA"] = {
+StaticPopupDialogs["BANKAIGUILD_KING_AGENDA"] = {
 	text = L.THRONE_AGENDA_PROMPT,
 	button1 = OKAY or "OK",
 	button2 = CANCEL or "Cancel",
@@ -931,7 +931,7 @@ StaticPopupDialogs["ELFCORE_KING_AGENDA"] = {
 }
 
 function King.AgendaPrompt()
-	ns.ShowDialog("ELFCORE_KING_AGENDA")
+	ns.ShowDialog("BANKAIGUILD_KING_AGENDA")
 	Changed()
 end
 
@@ -1121,10 +1121,10 @@ end
 local function HandsLines()
 	local lines = Para({ Line(L.HANDS_TITLE, TITLE) }, L.HANDS_HINT, INK, { gapAfter = true })
 	if King.IsKing() or King.Preview() then
-		lines[#lines + 1] = Line("+ " .. L.HANDS_ADD, TITLE, { onClick = function() ns.ShowDialog("ELFCORE_KING_HAND") end })
+		lines[#lines + 1] = Line("+ " .. L.HANDS_ADD, TITLE, { onClick = function() ns.ShowDialog("BANKAIGUILD_KING_HAND") end })
 		for _, name in ipairs(myHands) do
 			lines[#lines + 1] = Line(ns.DisplayName(name), INK, { indent = 1, key = name,
-				onClick = function() ns.ShowDialog("ELFCORE_KING_UNHAND", ns.DisplayName(name), nil, name) end,
+				onClick = function() ns.ShowDialog("BANKAIGUILD_KING_UNHAND", ns.DisplayName(name), nil, name) end,
 				tooltip = function(tt) tt:AddLine(ns.DisplayName(name), 1, 0.82, 0); tt:AddLine(L.HANDS_CLICK_REMOVE, 1, 1, 1, true) end })
 		end
 		if #myHands == 0 then lines[#lines + 1] = Line(L.HANDS_NONE, INK, { indent = 1 }) end

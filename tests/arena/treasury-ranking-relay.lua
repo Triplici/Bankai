@@ -10,7 +10,7 @@ local function Client(w, name)
 			DirectoryViewer = function(who) return allowed[c.ns.Fold(c.ns.FullName(who))] == true end,
 			SeesSisters = function() return true end,
 			LordOrCaptain = function(who, guild)
-				return c.ns.Fold(c.ns.FullName(who)) == c.ns.Fold("Aster Officer-Emberfall") and guild == "Elfcore Ash"
+				return c.ns.Fold(c.ns.FullName(who)) == c.ns.Fold("Aster Officer-Emberfall") and guild == "Bankai Guild Ash"
 			end,
 			Current = function() return nil end,
 			Own = function() return nil end,
@@ -33,7 +33,7 @@ test("treasury ranking relay: two distinct authorized holders make a dated numer
 	w:As(late, function()
 		late.rankAllowed[late.ns.Fold(first)] = true
 		late.rankAllowed[late.ns.Fold(second)] = true
-		local row = { guild = "Elfcore Ash", by = "Aster Officer-Emberfall", t = w.clock - 20,
+		local row = { guild = "Bankai Guild Ash", by = "Aster Officer-Emberfall", t = w.clock - 20,
 			money = 120000, units = 41, stacks = 12, value = 33000, pending = 2, unpriced = 1,
 			total = 153000, level = 57, correspondent = "Cora Ledger-Emberfall", home = false }
 		local wire = assert(late.ns.Treasury.RankRelayWire(row))
@@ -48,11 +48,11 @@ test("treasury ranking relay: two distinct authorized holders make a dated numer
 		ok, why = late.ns.Treasury.HandleRankRelay("WHISPER", second, wire)
 		eq(ok, true); eq(why, "accepted")
 		local rows = late.ns.Treasury.RelayedRanking()
-		eq(#rows, 1); eq(rows[1].guild, "Elfcore Ash"); eq(rows[1].total, 153000)
+		eq(#rows, 1); eq(rows[1].guild, "Bankai Guild Ash"); eq(rows[1].total, 153000)
 		local ranking = late.ns.Treasury.Ranking()
 		eq(#ranking.rows, 1, "the accepted total appears without a local bank snapshot")
-		eq(ranking.rows[1].guild, "Elfcore Ash"); eq(ranking.rows[1].relay, true)
-		eq(late.rdb.treasuryRankRelay.rows[late.ns.Fold("Elfcore Ash")][wire].accepted, true,
+		eq(ranking.rows[1].guild, "Bankai Guild Ash"); eq(ranking.rows[1].relay, true)
+		eq(late.rdb.treasuryRankRelay.rows[late.ns.Fold("Bankai Guild Ash")][wire].accepted, true,
 			"the accepted row is saved for later logins and relays")
 	end)
 end)
@@ -63,7 +63,7 @@ test("treasury ranking relay: malformed totals and a sender without source autho
 	local first = "Brannoc Weald-Emberfall"
 	w:As(late, function()
 		late.rankAllowed[late.ns.Fold(first)] = true
-		local row = { guild = "Elfcore Ash", by = "Aster Officer-Emberfall", t = w.clock,
+		local row = { guild = "Bankai Guild Ash", by = "Aster Officer-Emberfall", t = w.clock,
 			money = 100, units = 1, stacks = 1, value = 20, pending = 0, unpriced = 0,
 			total = 120, level = 60, home = false }
 		local wire = assert(late.ns.Treasury.RankRelayWire(row))
@@ -84,7 +84,7 @@ test("treasury ranking relay: unconfirmed newer candidates cannot evict a row al
 	w:As(late, function()
 		late.rankAllowed[late.ns.Fold(first)] = true
 		late.rankAllowed[late.ns.Fold(second)] = true
-		local base = { guild = "Elfcore Ash", by = "Aster Officer-Emberfall", t = w.clock - 100,
+		local base = { guild = "Bankai Guild Ash", by = "Aster Officer-Emberfall", t = w.clock - 100,
 			money = 120000, units = 41, stacks = 12, value = 33000, pending = 2, unpriced = 1,
 			total = 153000, level = 57, correspondent = "Cora Ledger-Emberfall", home = false }
 		local accepted = assert(late.ns.Treasury.RankRelayWire(base))

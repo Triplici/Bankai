@@ -2,7 +2,7 @@
 
 ## Reporting a problem
 
-If you find a way to abuse Elfcore (pass yourself off as the King or the Treasurer, forge
+If you find a way to abuse Bankai Guild (pass yourself off as the King or the Treasurer, forge
 ranks, lock the channel, read or send what your rank shouldn't, break other players'
 clients), please tell the author privately first:
 
@@ -13,21 +13,21 @@ Please don't post a working exploit publicly before a fix ships. Reporters are c
 the release notes, unless they'd rather not be.
 
 Bugs that are not about security, and ideas, are welcome as
-[issues](https://github.com/dnl-gentile/elfcore-addon/issues) and pull requests.
+[issues](https://github.com/dnl-gentile/bankai-addon/issues) and pull requests.
 
 ## What an addon can and cannot do
 
-Elfcore is plain Lua, run by World of Warcraft's addon sandbox, the same for every addon:
+Bankai Guild is plain Lua, run by World of Warcraft's addon sandbox, the same for every addon:
 
 - It **can't** read or write any file except its own saved data
-  (`WTF/Account/<account>/SavedVariables/Elfcore.lua`), open a network connection, reach
+  (`WTF/Account/<account>/SavedVariables/BankaiGuild.lua`), open a network connection, reach
   the internet, see your password, your Battle.net account or anything else on your
   computer, or start programs. The game doesn't give addons any of that.
 - It talks only **inside the game**, with addon messages: its hidden chat channel, your
   guild's addon messages, and whispers to one player.
 - It never moves items or gold, and it never sends chat for you unless you type it.
 
-The code is public (MIT). The download on CurseForge is this repository's `Elfcore` folder at
+The code is public (MIT). The download on CurseForge is this repository's `Bankai Guild` folder at
 the release tag; each GitHub release carries the same zip.
 
 ## What it sends
@@ -63,7 +63,7 @@ until you turn it on.
 - **Ranks of other guilds come from the census**, the picture most senders agree on, and a
   census report is its sender's word: nothing the server tells an addon proves which guild a
   sender belongs to. So a few characters working together can, today (1.0.0):
-  - make one of them the Lord of a made-up Elfcore guild with two characters, even two alts of
+  - make one of them the Lord of a made-up Bankai Guild guild with two characters, even two alts of
     one account logged in one after the other: [Lords] lines and his Calls to Arms and Musters
     (raid warnings) on every client (since 1.2.3 never a Royal decree or a Tabard inspection:
     a guild master's reach his own guild alone);
@@ -92,7 +92,7 @@ until you turn it on.
   [What colluding characters can reach](README.md#what-colluding-characters-can-reach) has
   each outcome. A full structural fix would require **signed leadership**: ranks that come
   with a signature every client checks, instead of a count of votes. Meanwhile seal your
-  channel with `/elf key`, so that only members of Elfcore guilds can take part.
+  channel with `/bk key`, so that only members of Bankai Guild guilds can take part.
 
   The 1.2 code contains a deliberately dormant migration reader for such a list. An ordinary
   signed titles list has exactly the behaviour above. Only an explicit author-signed `enforce`
@@ -104,9 +104,9 @@ until you turn it on.
   mixed-version realm would not enforce one authority boundary either. This limitation remains
   open until a complete, scalable distribution and revocation protocol, plus its client migration,
   is reviewed and deployed.
-- **Nothing on the channel is encrypted.** Everyone on it receives [Elfcore], [Captains] and
+- **Nothing on the channel is encrypted.** Everyone on it receives [Bankai Guild], [Captains] and
   [Lords]; the addon only decides what to show. Don't write anything there that must stay
   secret.
 - **The channel is an ordinary WoW chat channel.** WoW hands its ownership to one of its members.
-  Elfcore never uses that power. If someone locks the channel, the addon keeps retrying,
+  Bankai Guild never uses that power. If someone locks the channel, the addon keeps retrying,
   and an honest owner's addon undoes the lock.

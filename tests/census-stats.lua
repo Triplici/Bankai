@@ -9,7 +9,7 @@ local WithUI, LoadUI = extra.WithUI, extra.LoadUI
 local L, V = ns.L, ns.Views
 
 -- The page's words, as the game loads them (English here; Portuguese below).
-assert(loadfile(ROOT .. "Elfcore/Locales/CensusStatsText.lua"))("Elfcore", ns)
+assert(loadfile(ROOT .. "BankaiGuild/Locales/CensusStatsText.lua"))("BankaiGuild", ns)
 
 local function Bare(s) return (tostring(s or ""):gsub("|T.-|t", ""):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")) end
 
@@ -36,7 +36,7 @@ local function World(o)
 		On = function(name, fn) w.on[name] = w.on[name] or {}; table.insert(w.on[name], fn) end,
 		Every = function(seconds, where, fn) w.every[#w.every + 1] = { seconds = seconds, where = where, fn = fn } end,
 	}, { __index = ns })
-	assert(loadfile(ROOT .. "Elfcore/CensusStats.lua"))("Elfcore", cns)
+	assert(loadfile(ROOT .. "BankaiGuild/CensusStats.lua"))("BankaiGuild", cns)
 	w.ns, w.CS = cns, cns.CensusStats
 	function w.History() return cns.rdb.censusHistory end
 	function w.Fire(name) for _, fn in ipairs(w.on[name] or {}) do fn() end end
@@ -184,9 +184,9 @@ end
 
 test("census page: characters, people, linked alts, online, guilds counted, the weighted average level, the largest guilds against the cap and the levels online", function()
 	WithCensus({
-		["Elfcore"] = Report(900, { online = 200, avgLevel = 40, levels = { 10, 20, 30, 40, 50, 30, 20 } }),
-		["Elfcore II"] = Report(300, { online = 50, avgLevel = 60, levels = { 0, 0, 0, 0, 10, 20, 20 } }),
-		["Elfcore III"] = Report(100, { online = 0, avgLevel = nil, t = os.time() - ns.Data.FRESH - 60 }),
+		["Bankai Guild"] = Report(900, { online = 200, avgLevel = 40, levels = { 10, 20, 30, 40, 50, 30, 20 } }),
+		["Bankai Guild II"] = Report(300, { online = 50, avgLevel = 60, levels = { 0, 0, 0, 0, 10, 20, 20 } }),
+		["Bankai Guild III"] = Report(100, { online = 0, avgLevel = nil, t = os.time() - ns.Data.FRESH - 60 }),
 	}, 4, function()
 		local w = World({ realData = true, clock = os.time() })
 		local lines, title, text = w.CS.Build()
@@ -210,9 +210,9 @@ test("census page: characters, people, linked alts, online, guilds counted, the 
 		-- The largest guilds, each a meter of the game's 1,000 cap, an old report grey.
 		local largest, at = Find(lines, L.CENSUS_STATS_LARGEST)
 		eq(largest.header, true)
-		eq(Bare(lines[at + 1].text), "Elfcore"); eq(Bare(lines[at + 1].right), "900 " .. L.CENSUS_STATS_OF_CAP:format("1,000"))
+		eq(Bare(lines[at + 1].text), "Bankai Guild"); eq(Bare(lines[at + 1].right), "900 " .. L.CENSUS_STATS_OF_CAP:format("1,000"))
 		eq(lines[at + 1].meter.value, 900); eq(lines[at + 1].meter.total, ns.Codec.GUILD_CAP)
-		eq(lines[at + 3].text, V.Grey("Elfcore III"), "an old report: grey")
+		eq(lines[at + 3].text, V.Grey("Bankai Guild III"), "an old report: grey")
 		tip = {}
 		lines[at + 1].tooltip({ AddLine = function(_, s) tip[#tip + 1] = s end, AddDoubleLine = function(_, a, b) tip[#tip + 1] = a .. "=" .. b end })
 		eq(tip[#tip], L.CENSUS_STATS_SHARE:format("69"), "900 of 1,300 characters")
@@ -235,44 +235,44 @@ end)
 test("census page: the largest guilds by their size, a large guild not reporting now still among them (grey); ties: the exact <ELFCORE>, the average level, the name", function()
 	local old = os.time() - ns.Data.FRESH - 10 * 60
 	WithCensus({
-		["Elfcore"] = Report(300, { online = 30 }),
-		["Elfcore II"] = Report(200, { online = 20 }),
-		["Elfcore III"] = Report(150, { online = 15 }),
-		["Elfcore IV"] = Report(120, { online = 12 }),
-		["Elfcore V"] = Report(110, { online = 11, avgLevel = 30 }),
-		["Elfcore VI"] = Report(950, { online = 0, t = old }),
-		["Elfcore VII"] = Report(110, { online = 0, avgLevel = 50, t = old }),
+		["Bankai Guild"] = Report(300, { online = 30 }),
+		["Bankai Guild II"] = Report(200, { online = 20 }),
+		["Bankai Guild III"] = Report(150, { online = 15 }),
+		["Bankai Guild IV"] = Report(120, { online = 12 }),
+		["Bankai Guild V"] = Report(110, { online = 11, avgLevel = 30 }),
+		["Bankai Guild VI"] = Report(950, { online = 0, t = old }),
+		["Bankai Guild VII"] = Report(110, { online = 0, avgLevel = 50, t = old }),
 	}, 0, function()
 		local w = World({ realData = true, clock = os.time() })
 		local lines = w.CS.Build()
 		local _, at = Find(lines, L.CENSUS_STATS_LARGEST)
 		local names = {}
 		for i = at + 1, at + w.CS.TOP_GUILDS do names[#names + 1] = Bare(lines[i].text) end
-		eq(table.concat(names, " | "), "Elfcore VI | Elfcore | Elfcore II | Elfcore III | Elfcore IV")
-		eq(lines[at + 1].text, V.Grey("Elfcore VI"), "not reporting now: grey, still the largest")
+		eq(table.concat(names, " | "), "Bankai Guild VI | Bankai Guild | Bankai Guild II | Bankai Guild III | Bankai Guild IV")
+		eq(lines[at + 1].text, V.Grey("Bankai Guild VI"), "not reporting now: grey, still the largest")
 		eq(lines[at + 1].meter.value, 950)
-		eq(lines[at + 2].text, "Elfcore", "reporting now: plain")
+		eq(lines[at + 2].text, "Bankai Guild", "reporting now: plain")
 		eq(Bare(lines[at + w.CS.TOP_GUILDS + 1].text), L.CENSUS_STATS_MORE_GUILDS:format(2))
 	end)
 	-- A tie at the same size: the exact <ELFCORE> first, then the higher average level, then the name,
 	-- whether reporting now or not.
 	WithCensus({
-		["Elfcore Reborn"] = Report(400, { online = 40, avgLevel = 20 }),
-		["Elfcore Rising"] = Report(400, { online = 0, avgLevel = 55, t = old }),
-		["ELFCORE"] = Report(400, { online = 0, avgLevel = 10, t = old }),
-		["Elfcore Alpha"] = Report(400, { online = 40, avgLevel = 20 }),
+		["Bankai Guild Reborn"] = Report(400, { online = 40, avgLevel = 20 }),
+		["Bankai Guild Rising"] = Report(400, { online = 0, avgLevel = 55, t = old }),
+		["Bankai Guild"] = Report(400, { online = 0, avgLevel = 10, t = old }),
+		["Bankai Guild Alpha"] = Report(400, { online = 40, avgLevel = 20 }),
 	}, 0, function()
 		local w = World({ realData = true, clock = os.time() })
 		local lines = w.CS.Build()
 		local _, at = Find(lines, L.CENSUS_STATS_LARGEST)
 		local names = {}
 		for i = at + 1, at + 4 do names[#names + 1] = Bare(lines[i].text) end
-		eq(table.concat(names, " | "), "ELFCORE | Elfcore Rising | Elfcore Alpha | Elfcore Reborn")
+		eq(table.concat(names, " | "), "Bankai Guild | Bankai Guild Rising | Bankai Guild Alpha | Bankai Guild Reborn")
 	end)
 end)
 
 test("census page: the graphs: 30 days of characters, the scale's ends written on its left, today last and brighter; 24 hours of online from 0; each slot its own tooltip", function()
-	WithCensus({ ["Elfcore"] = Report(900, { online = 200 }) }, 0, function()
+	WithCensus({ ["Bankai Guild"] = Report(900, { online = 200 }) }, 0, function()
 		-- (Noon today: the samples' days and hours whatever the time the test runs.)
 		local d = os.date("*t")
 		local now = os.time({ year = d.year, month = d.month, day = d.day, hour = 12 })
@@ -370,8 +370,8 @@ end)
 local function OpenWindow(fn)
 	WithUI(function()
 		WithCensus({
-			["Elfcore"] = Report(900, { online = 200, avgLevel = 40 }),
-			["Elfcore II"] = Report(300, { online = 50 }),
+			["Bankai Guild"] = Report(900, { online = 200, avgLevel = 40 }),
+			["Bankai Guild II"] = Report(300, { online = 50 }),
 		}, 4, function()
 			local w = World({ realData = true, clock = os.time() })
 			local saved = ns.CensusStats
@@ -379,7 +379,7 @@ local function OpenWindow(fn)
 			local ok, err = pcall(function()
 				local UI = LoadUI()
 				UI.Toggle()
-				fn(ElfcoreFrame, UI, w)
+				fn(BankaiGuildFrame, UI, w)
 			end)
 			ns.CensusStats = saved
 			if not ok then error(err, 0) end
@@ -414,10 +414,10 @@ test("census header: the characters, and next to them, smaller and darker, the p
 		Minimap = CreateFrame("Frame", "Minimap", UIParent)
 		Minimap:SetSize(140, 140)
 		UI.UpdateMinimapButton()
-		ElfcoreMinimapButton:Fire("OnEnter")
+		BankaiGuildMinimapButton:Fire("OnEnter")
 		eq(GameTooltip.lines[2], L.ARMY_TOTAL:format("1,200") .. "  " .. UI.PEOPLE_CODE .. L.ARMY_PEOPLE:format("1,196") .. "|r")
 		Minimap = nil
-		-- On the Join screen (no Elfcore guild) the header is the roast's alone.
+		-- On the Join screen (no Bankai Guild guild) the header is the roast's alone.
 		GetGuildInfo = function() return nil end
 		UI.Refresh()
 		eq(main.people:IsShown(), false)
@@ -467,7 +467,7 @@ end)
 
 test("census page: a client updated without a restart (no CensusStats.lua yet) keeps the Census list, says to restart on a click, and offers no click in the tooltip", function()
 	WithUI(function()
-		WithCensus({ ["Elfcore"] = Report(900) }, 0, function()
+		WithCensus({ ["Bankai Guild"] = Report(900) }, 0, function()
 			local saved = ns.CensusStats
 			ns.CensusStats = nil
 			local printed = {}
@@ -476,7 +476,7 @@ test("census page: a client updated without a restart (no CensusStats.lua yet) k
 			local ok, err = pcall(function()
 				local UI = LoadUI()
 				UI.Toggle()
-				local main = ElfcoreFrame
+				local main = BankaiGuildFrame
 				eq(main.people:GetText(), L.ARMY_PEOPLE:format("900"))
 				main.headerHover:Fire("OnEnter")
 				for _, line in ipairs(GameTooltip.lines) do assert(line ~= L.HEADER_TIP_OPEN, "no click offered") end
@@ -496,13 +496,13 @@ test("census page: every line in English and Portuguese, the Portuguese its own"
 	GetLocale = function() return "ptBR" end
 	local ok, err = pcall(function()
 		pt.L = setmetatable({}, { __index = function(_, k) return k end })
-		assert(loadfile(ROOT .. "Elfcore/Locales/CensusStatsText.lua"))("Elfcore", pt)
+		assert(loadfile(ROOT .. "BankaiGuild/Locales/CensusStatsText.lua"))("BankaiGuild", pt)
 	end)
 	GetLocale = savedLocale
 	if not ok then error(err, 0) end
 	local en = {}
 	en.L = setmetatable({}, { __index = function(_, k) return k end })
-	assert(loadfile(ROOT .. "Elfcore/Locales/CensusStatsText.lua"))("Elfcore", en)
+	assert(loadfile(ROOT .. "BankaiGuild/Locales/CensusStatsText.lua"))("BankaiGuild", en)
 	local same = { CENSUS_STATS_TIME_FORMAT = true, CENSUS_STATS_WHEN = true, CENSUS_STATS_OF_CAP = true }
 	local n = 0
 	for key, text in pairs(en.L) do

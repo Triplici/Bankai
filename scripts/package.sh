@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# Builds dist/Elfcore-<version>.zip with Elfcore, Elfcore_Arena and ElfcoreSiteAggregate (the
+# Builds dist/BankaiGuild-<version>.zip with Bankai Guild, BankaiGuild_Arena and BankaiGuildSiteAggregate (the
 # deliberate, no-upload site reporter); unzip it into World of Warcraft/<flavor>/Interface/AddOns.
 # Every zip also gets a sorted .files.txt manifest and a .sha256 checksum.
-#   scripts/package.sh            the release; refused while Elfcore/TestBuild.lua exists
+#   scripts/package.sh            the release; refused while BankaiGuild/TestBuild.lua exists
 #   scripts/package.sh --test N   arena test build N (1-999) of the TOC's version, into dist/testN/
-#                                 and dist/Elfcore-<version>-testN.zip; the repository is not touched
+#                                 and dist/BankaiGuild-<version>-testN.zip; the repository is not touched
 #   scripts/package.sh --release116
-#                                 legacy output path, dist/release116/Elfcore-<version>.zip
+#                                 legacy output path, dist/release116/BankaiGuild-<version>.zip
 #                                 (the same no-wager policy as every other package)
-# A test build: dist/testN/Elfcore/TestBuild.lua (ns.TEST_BUILD: its number, the base version, the
-# build time, an expiry 21 days later, the short commit), and only that copy of Elfcore.toc edited
-# (its Version and Title, TestBuild.lua after Core.lua). The Elfcore Arena module's Version stays
-# the base version, ns.VERSION, which its handoff compares (Elfcore_Arena/Handoff.lua).
+# A test build: dist/testN/BankaiGuild/TestBuild.lua (ns.TEST_BUILD: its number, the base version, the
+# build time, an expiry 21 days later, the short commit), and only that copy of BankaiGuild.toc edited
+# (its Version and Title, TestBuild.lua after Core.lua). The Bankai Guild Arena module's Version stays
+# the base version, ns.VERSION, which its handoff compares (BankaiGuild_Arena/Handoff.lua).
 # Every package: each file bets-only.txt names is left out of the stage and its line out of its
 # folder's TOC (the repository is not touched); every line left in each TOC must name a file of
-# the stage. Shared paths remain refused by the compliance gate (Elfcore/Compliance.lua).
+# the stage. Shared paths remain refused by the compliance gate (BankaiGuild/Compliance.lua).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -37,8 +37,8 @@ clean_source() {
 			*) printf 'package.sh refuses untracked or ignored addon file: %s\n' "$path" >&2; found=true ;;
 		esac
 	done < <(
-		git ls-files -z --others --exclude-standard -- Elfcore Elfcore_Arena ElfcoreSiteAggregate
-		git ls-files -z --others --ignored --exclude-standard -- Elfcore Elfcore_Arena ElfcoreSiteAggregate
+		git ls-files -z --others --exclude-standard -- Bankai Guild BankaiGuild_Arena BankaiGuildSiteAggregate
+		git ls-files -z --others --ignored --exclude-standard -- Bankai Guild BankaiGuild_Arena BankaiGuildSiteAggregate
 	)
 	if $found; then exit 1; fi
 }
@@ -56,7 +56,7 @@ sha256_file() {
 	fi
 }
 
-FOLDERS=(Elfcore Elfcore_Arena ElfcoreSiteAggregate)
+FOLDERS=(BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate)
 
 MODE=release
 N=
@@ -75,8 +75,8 @@ elif [ -n "${1:-}" ]; then
 	exit 2
 fi
 
-if [ "$MODE" != test ] && [ -e Elfcore/TestBuild.lua ]; then
-	fail "Elfcore/TestBuild.lua exists: a release never carries a test build (delete it first)"
+if [ "$MODE" != test ] && [ -e BankaiGuild/TestBuild.lua ]; then
+	fail "BankaiGuild/TestBuild.lua exists: a release never carries a test build (delete it first)"
 fi
 clean_source
 
@@ -84,19 +84,19 @@ clean_source
 # silently producing a package that drops the load-on-demand Arena module. The module handoff
 # already requires the two base versions to match at runtime; enforce the same invariant before
 # publishing so a mixed install cannot be created by this script.
-for toc in Elfcore/Elfcore.toc Elfcore_Arena/Elfcore_Arena.toc ElfcoreSiteAggregate/ElfcoreSiteAggregate.toc; do
-	git cat-file -e "HEAD:$toc" 2>/dev/null || fail "package.sh requires $toc in the Elfcore release bundle"
+for toc in BankaiGuild/BankaiGuild.toc BankaiGuild_Arena/BankaiGuild_Arena.toc BankaiGuildSiteAggregate/BankaiGuildSiteAggregate.toc; do
+	git cat-file -e "HEAD:$toc" 2>/dev/null || fail "package.sh requires $toc in the Bankai Guild release bundle"
 done
-VERSION=$(git show HEAD:Elfcore/Elfcore.toc | awk '/^## Version:/ { sub(/\r$/, "", $3); print $3; exit }')
-ARENA_VERSION=$(git show HEAD:Elfcore_Arena/Elfcore_Arena.toc | awk '/^## Version:/ { sub(/\r$/, "", $3); print $3; exit }')
-SITE_VERSION=$(git show HEAD:ElfcoreSiteAggregate/ElfcoreSiteAggregate.toc | awk '/^## Version:/ { sub(/\r$/, "", $3); print $3; exit }')
-[ -n "$VERSION" ] || fail "package.sh cannot read Elfcore/Elfcore.toc Version"
-[ -n "$ARENA_VERSION" ] || fail "package.sh cannot read Elfcore_Arena/Elfcore_Arena.toc Version"
-[ -n "$SITE_VERSION" ] || fail "package.sh cannot read ElfcoreSiteAggregate/ElfcoreSiteAggregate.toc Version"
-[ "$ARENA_VERSION" = "$VERSION" ] || fail "package.sh requires one bundle version: Elfcore is $VERSION but Elfcore_Arena is $ARENA_VERSION"
+VERSION=$(git show HEAD:BankaiGuild/BankaiGuild.toc | awk '/^## Version:/ { sub(/\r$/, "", $3); print $3; exit }')
+ARENA_VERSION=$(git show HEAD:BankaiGuild_Arena/BankaiGuild_Arena.toc | awk '/^## Version:/ { sub(/\r$/, "", $3); print $3; exit }')
+SITE_VERSION=$(git show HEAD:BankaiGuildSiteAggregate/BankaiGuildSiteAggregate.toc | awk '/^## Version:/ { sub(/\r$/, "", $3); print $3; exit }')
+[ -n "$VERSION" ] || fail "package.sh cannot read BankaiGuild/BankaiGuild.toc Version"
+[ -n "$ARENA_VERSION" ] || fail "package.sh cannot read BankaiGuild_Arena/BankaiGuild_Arena.toc Version"
+[ -n "$SITE_VERSION" ] || fail "package.sh cannot read BankaiGuildSiteAggregate/BankaiGuildSiteAggregate.toc Version"
+[ "$ARENA_VERSION" = "$VERSION" ] || fail "package.sh requires one bundle version: Bankai Guild is $VERSION but BankaiGuild_Arena is $ARENA_VERSION"
 case "$SITE_VERSION" in
 	"$VERSION"-site.*) ;;
-	*) fail "package.sh requires the site reporter for Elfcore $VERSION: ElfcoreSiteAggregate is $SITE_VERSION" ;;
+	*) fail "package.sh requires the site reporter for Bankai Guild $VERSION: BankaiGuildSiteAggregate is $SITE_VERSION" ;;
 esac
 
 if ! command -v zip >/dev/null 2>&1; then fail "package.sh requires zip"; fi
@@ -122,8 +122,8 @@ leave_out_bets() {
 		path=${path%$'\r'}
 		case "$path" in ''|'#'*) continue ;; esac
 		case "$path" in
-			Elfcore/*.lua|Elfcore_Arena/*.lua) ;;
-			*) fail "bets-only.txt: $path is not a Lua file of Elfcore or Elfcore_Arena" ;;
+			BankaiGuild/*.lua|BankaiGuild_Arena/*.lua) ;;
+			*) fail "bets-only.txt: $path is not a Lua file of Bankai Guild or BankaiGuild_Arena" ;;
 		esac
 		folder=${path%%/*}
 		file=${path#*/}
@@ -173,7 +173,7 @@ if [ "$MODE" = test ]; then
 	BUILT=$(date +%s)
 	EXPIRES=$((BUILT + 21 * 86400))
 	COMMIT=$(git rev-parse --short HEAD)
-	cat > "$OUT/Elfcore/TestBuild.lua" <<LUA
+	cat > "$OUT/BankaiGuild/TestBuild.lua" <<LUA
 local ADDON, ns = ...
 -- Written by scripts/package.sh --test $N: arena test build $N of $VERSION. Never committed.
 ns.TEST_BUILD = { n = $N, base = "$VERSION", built = $BUILT, expires = $EXPIRES, commit = "$COMMIT", lane = "group" }
@@ -181,34 +181,34 @@ LUA
 	awk -v v="$VERSION-test.$N" -v n="$N" '
 		{ line = $0; sub(/\r$/, "", line) }
 		line ~ /^## Version:/ { print "## Version: " v; next }
-		line ~ /^## Title:/ { print "## Title: |cffe6c35cElfcore|r |cffff4040(arena test " n ")|r"; next }
+		line ~ /^## Title:/ { print "## Title: |cffe6c35cBankaiGuild|r |cffff4040(arena test " n ")|r"; next }
 		{ print }
 		line == "Core.lua" { print "TestBuild.lua" }
-	' "$OUT/Elfcore/Elfcore.toc" > "$OUT/Elfcore/Elfcore.toc.test"
-	mv "$OUT/Elfcore/Elfcore.toc.test" "$OUT/Elfcore/Elfcore.toc"
-	ZIP="dist/Elfcore-$VERSION-test$N.zip"
+	' "$OUT/BankaiGuild/BankaiGuild.toc" > "$OUT/BankaiGuild/BankaiGuild.toc.test"
+	mv "$OUT/BankaiGuild/BankaiGuild.toc.test" "$OUT/BankaiGuild/BankaiGuild.toc"
+	ZIP="dist/BankaiGuild-$VERSION-test$N.zip"
 	write_package "$OUT" "$ZIP"
-	cat > "dist/Elfcore-$VERSION-test$N.txt" <<TXT
-Elfcore arena test build $N (of $VERSION), commit $COMMIT, expires $(date -r "$EXPIRES" +%Y-%m-%d 2>/dev/null || date -d "@$EXPIRES" +%Y-%m-%d)
+	cat > "dist/BankaiGuild-$VERSION-test$N.txt" <<TXT
+Bankai Guild arena test build $N (of $VERSION), commit $COMMIT, expires $(date -r "$EXPIRES" +%Y-%m-%d 2>/dev/null || date -d "@$EXPIRES" +%Y-%m-%d)
 
 For the named testers only: never put it on CurseForge or GitHub.
 1. Quit the game.
-2. Verify the zip against Elfcore-$VERSION-test$N.sha256.
-3. In the CurseForge app or WowUp, turn off auto-update for Elfcore (or stop managing it).
-4. Keep a copy of WTF/Account/<ACCOUNT>/SavedVariables/Elfcore.lua (/elf backup works too).
-5. Delete Interface/AddOns/Elfcore, Interface/AddOns/Elfcore_Arena and
-   Interface/AddOns/ElfcoreSiteAggregate, then unzip this zip in
-   Interface/AddOns, so that Interface/AddOns/Elfcore/Elfcore.toc and
-   Interface/AddOns/Elfcore_Arena/Elfcore_Arena.toc and
-   Interface/AddOns/ElfcoreSiteAggregate/ElfcoreSiteAggregate.toc exist (the folders keep those names).
-6. Start the game: /elf arena status says "arena test build $N".
-Going back: quit, delete all three folders, reinstall Elfcore from the app, turn auto-update on again.
+2. Verify the zip against BankaiGuild-$VERSION-test$N.sha256.
+3. In the CurseForge app or WowUp, turn off auto-update for Bankai Guild (or stop managing it).
+4. Keep a copy of WTF/Account/<ACCOUNT>/SavedVariables/BankaiGuild.lua (/bk backup works too).
+5. Delete Interface/AddOns/BankaiGuild, Interface/AddOns/BankaiGuild_Arena and
+   Interface/AddOns/BankaiGuildSiteAggregate, then unzip this zip in
+   Interface/AddOns, so that Interface/AddOns/BankaiGuild/BankaiGuild.toc and
+   Interface/AddOns/BankaiGuild_Arena/BankaiGuild_Arena.toc and
+   Interface/AddOns/BankaiGuildSiteAggregate/BankaiGuildSiteAggregate.toc exist (the folders keep those names).
+6. Start the game: /bk arena status says "arena test build $N".
+Going back: quit, delete all three folders, reinstall Bankai Guild from the app, turn auto-update on again.
 TXT
 	echo "$ZIP"
 	exit 0
 fi
 
-RELEASE_STAGE=$(mktemp -d "${TMPDIR:-/tmp}/elfcore-package.XXXXXX")
+RELEASE_STAGE=$(mktemp -d "${TMPDIR:-/tmp}/bankai-package.XXXXXX")
 cleanup() { if [ -n "${RELEASE_STAGE:-}" ] && [ -d "$RELEASE_STAGE" ]; then rm -rf "$RELEASE_STAGE"; fi; }
 trap cleanup EXIT
 stage_source "$RELEASE_STAGE"
@@ -216,12 +216,12 @@ leave_out_bets "$RELEASE_STAGE"
 
 if [ "$MODE" = release116 ]; then
 	mkdir -p dist/release116
-	ZIP="dist/release116/Elfcore-$VERSION.zip"
+	ZIP="dist/release116/BankaiGuild-$VERSION.zip"
 	write_package "$RELEASE_STAGE" "$ZIP"
 	echo "$ZIP"
 	exit 0
 fi
 
-ZIP="dist/Elfcore-$VERSION.zip"
+ZIP="dist/BankaiGuild-$VERSION.zip"
 write_package "$RELEASE_STAGE" "$ZIP"
 echo "$ZIP"

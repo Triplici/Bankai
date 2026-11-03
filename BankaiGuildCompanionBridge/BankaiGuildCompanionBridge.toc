@@ -1,0 +1,10 @@
+## Interface: 11509, 16001, 20506
+## Title: Bankai Guild Companion Bridge
+## Notes: Private, consent-gated handoff for the Bankai Guild Companion.
+## Author: Bankai Guild addon contributors
+## Version: 0.1.0
+## Dependencies: Bankai Guild
+## SavedVariables: BankaiGuildCompanionDB
+## X-License: MIT
+
+Checkpoint.lua

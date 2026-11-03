@@ -1,9 +1,9 @@
--- 1.2 (the Blood Arena): the championship's knockout brackets (Elfcore/ArenaBracket.lua).
+-- 1.2 (the Blood Arena): the championship's knockout brackets (BankaiGuild/ArenaBracket.lua).
 -- Run by tests/run.lua with its helpers; the module is loaded into a table of its own.
 local H = ...
 local test, eq = H.test, H.eq
 local ns = {}
-assert(loadfile(H.ADDON_DIR .. "ArenaBracket.lua"))("Elfcore", ns)
+assert(loadfile(H.ADDON_DIR .. "ArenaBracket.lua"))("BankaiGuild", ns)
 local B = ns.ArenaBracket
 
 -- Invented fighters: entrant i has id Id(i) and a rating that makes him seed i.
@@ -174,13 +174,13 @@ test("arena bracket: entrant lists are checked (count, ids, duplicates, ratings)
 end)
 
 test("arena bracket: an entrant's fields are plain values, so the bracket shares no table with its caller", function()
-	local facts = { guild = "Elfcore" }
+	local facts = { guild = "Bankai Guild" }
 	local br, err = B.Build({ { id = "a", facts = facts }, { id = "b", facts = facts }, "c" })
 	eq(br, nil, "a table field would be the same table in both entrants and in the caller's list"); eq(err, "entrant")
 	eq(select(2, B.Seed({ "x", { id = "y", onClick = function() end }, "z" })), "entrant")
 	eq(select(2, B.ApplyDraw({ "x", { id = "y", [{}] = 1 }, "z" }, { 1 })), "entrant", "a table key")
-	br = assert(B.Build({ { id = "a", name = "Morvenna", guild = "Elfcore", title = true, wins = 3 }, "b", "c" }))
-	eq(br.entrants.a.guild, "Elfcore"); eq(br.entrants.a.title, true); eq(br.entrants.a.wins, 3)
+	br = assert(B.Build({ { id = "a", name = "Morvenna", guild = "Bankai Guild", title = true, wins = 3 }, "b", "c" }))
+	eq(br.entrants.a.guild, "Bankai Guild"); eq(br.entrants.a.title, true); eq(br.entrants.a.wins, 3)
 end)
 
 -- The public draw ----------------------------------------------------------

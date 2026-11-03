@@ -1,5 +1,5 @@
--- 1.2.4: Most Wanted across Elfcore guilds, with the real trust chain on every receiver.
--- Every client here runs the real Elfcore/Wanted.lua over the harness's real Channels
+-- 1.2.4: Most Wanted across Bankai Guild guilds, with the real trust chain on every receiver.
+-- Every client here runs the real BankaiGuild/Wanted.lua over the harness's real Channels
 -- (VerifiedLevel), Data (the census: ClaimGuild, AuthorizedRank), Roster, Moderation and Authority;
 -- each client's own guild roster is put in place while the game runs it. The game's API is shaped as
 -- the Forever client's own UI source documents it (wow-ui-source, branch forever, 1.60.1.70338,
@@ -13,14 +13,14 @@
 -- log (COMBAT_LOG_EVENT_UNFILTERED HasRestrictions, CombatLogDocumentation.lua).
 -- Until 1.2.4 a member's row counted only where its sender was proven: on his guildmates' clients
 -- (their roster) and for a leader or officer his guild's census names. An ordinary member of another
--- guild, the most of the army, was refused "elfcore" by every other client, the author's and the
+-- guild, the most of the army, was refused "bankaiguild" by every other client, the author's and the
 -- reviewers' too, so nothing was relayed and Most Wanted stayed empty. Every name here is made up.
 local ns, test, eq = ...
 local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]wanted%-guilds%.lua$")) or "./"
 
-local DIALOGS = { "ELFCORE_WANTED_ADD", "ELFCORE_WANTED_REMOVE", "ELFCORE_WANTED_SEND", "ELFCORE_WANTED_REVIEW",
-	"ELFCORE_WANTED_WITHDRAW", "ELFCORE_WANTED_PUBLISH", "ELFCORE_WANTED_REVOKE", "ELFCORE_WANTED_CORRECT",
-	"ELFCORE_WANTED_REVIEWER", "ELFCORE_WANTED_AVENGED" }
+local DIALOGS = { "BANKAIGUILD_WANTED_ADD", "BANKAIGUILD_WANTED_REMOVE", "BANKAIGUILD_WANTED_SEND", "BANKAIGUILD_WANTED_REVIEW",
+	"BANKAIGUILD_WANTED_WITHDRAW", "BANKAIGUILD_WANTED_PUBLISH", "BANKAIGUILD_WANTED_REVOKE", "BANKAIGUILD_WANTED_CORRECT",
+	"BANKAIGUILD_WANTED_REVIEWER", "BANKAIGUILD_WANTED_AVENGED" }
 
 local function StandIn(kind)
 	local o = { kind = kind, shown = false }
@@ -39,7 +39,7 @@ local GLOBALS = { "UnitGUID", "UnitIsPlayer", "UnitFactionGroup", "GetGuildInfo"
 	"GetPlayerInfoByGUID", "UnitTokenFromGUID", "IsInInstance", "UnitLevel", "GetMaxPlayerLevel", "InCombatLockdown",
 	"GetServerTime", "issecretvalue", "CombatLogGetCurrentEventInfo", "C_DamageMeter", "UnitName", "UnitFullName" }
 
-local G1, G2, G3 = "Elfcore Wgone", "Elfcore Wgtwo", "Elfcore Wgthree"
+local G1, G2, G3 = "Bankai Guild Wgone", "Bankai Guild Wgtwo", "Bankai Guild Wgthree"
 
 local function WithGuilds(fn)
 	local saved = {}
@@ -104,7 +104,7 @@ local function WithGuilds(fn)
 		end
 		GetFileIDFromPath = function() return nil end
 		GetTime = function() return world.epoch end
-		GetChannelName = function() return 7, "ElfcoreNet" end
+		GetChannelName = function() return 7, "BankaiGuildNet" end
 		C_ChatInfo = { RegisterAddonMessagePrefix = function() end, SendAddonMessage = function() return true end }
 		local function Fold(name) return ns.Fold(ns.FullName(name)) end
 
@@ -175,7 +175,7 @@ local function WithGuilds(fn)
 			c.HonorsNet = { QueueLetter = function() end, LetterToSender = function() return false end,
 				LetterFrame = function() return nil end, WaitForWindow = function() end }
 			cl.handlers, cl.listeners, cl.events, cl.ns, cl.copies = {}, {}, {}, c, {}
-			world:As(cl, function() assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c) end)
+			world:As(cl, function() assert(loadfile(ROOT .. "BankaiGuild/Wanted.lua"))("BankaiGuild", c) end)
 			cl.W = c.Wanted
 			if cl.listeners.INIT then world:As(cl, cl.listeners.INIT) end
 			c.me = cl.name
@@ -290,7 +290,7 @@ local function WithGuilds(fn)
 		end
 		function world:Target(cl, guid) return world:As(cl, cl.W.Target, nil, guid) end
 		function world:Status(cl) return world:As(cl, cl.W.StatusText) end
-		-- The last line /elf wanted status lists about one Horde player's name.
+		-- The last line /bk wanted status lists about one Horde player's name.
 		function world:Line(cl, horde)
 			for line in world:Status(cl):gmatch("[^\n]+") do
 				if line:find("^%s+%d%d:%d%d:%d%d") and line:find(horde, 1, true) then return line end
@@ -329,12 +329,12 @@ end
 
 for _, enforced in ipairs({ false, true }) do
 	local tag = enforced and "e" or "c"
-	test("wanted 1.2.4 guilds: an ordinary member of another Elfcore guild, whom no census names, counts on every member's client at once, his death and his kill (the real trust chain on every receiver" .. (enforced and ", the signed leadership manifest enforced" or "") .. ")", function()
+	test("wanted 1.2.4 guilds: an ordinary member of another Bankai Guild guild, whom no census names, counts on every member's client at once, his death and his kill (the real trust chain on every receiver" .. (enforced and ", the signed leadership manifest enforced" or "") .. ")", function()
 		WithGuilds(function(world)
 			if enforced then ns.Authority.Enforced = function() return true end end
 			local sender, mate, author, third = Scene(world, tag)
 			local level, verified = world:As(author, ns.Channels.VerifiedLevel, sender.name, G1)
-			eq(level, 1, "a member as the [Elfcore] chat takes one"); eq(verified, false, "proven by nothing this client holds")
+			eq(level, 1, "a member as the [Bankai Guild] chat takes one"); eq(verified, false, "proven by nothing this client holds")
 			-- His death to a Horde player nobody listed or targeted (the recap's rows without flags).
 			local killer = "Player-1-0F00" .. (enforced and "A001" or "C001")
 			world:Death(sender, "Wgganker" .. tag .. "-Realm", killer)
@@ -357,7 +357,7 @@ for _, enforced in ipairs({ false, true }) do
 			-- global board. A roster-backed reviewer can later promote the same row without replaying it.
 			eq(world:As(author, author.W.Rankings).all[1].name, sender.name, "the local ranking remains visible")
 			eq(#world:As(author, author.W.SignableRankings), 0, "unverified membership is not globally signed")
-			-- The author's /elf wanted status: counted, and the guild the row names.
+			-- The author's /bk wanted status: counted, and the guild the row names.
 			local line = assert(world:Line(author, "Wgganker" .. tag), "a line about the death")
 			assert(line:find(ns.L.WANTED_STATUS_BOUNTY:format(60), 1, true), line)
 			assert(line:find(sender.name .. " <" .. G1 .. ">", 1, true), line)
@@ -412,7 +412,7 @@ test("wanted 1.2.4 guilds review: a later roster-backed relay promotes the same 
 	end)
 end)
 
-test("wanted 1.2.4 guilds: the rules against forged rows stay, each refusal with its own reason in /elf wanted status", function()
+test("wanted 1.2.4 guilds: the rules against forged rows stay, each refusal with its own reason in /bk wanted status", function()
 	WithGuilds(function(world)
 		local sender, mate, author = Scene(world, "f")
 		-- A row the sender's own client sent (WK~2): the model of the hand-written ones below.
@@ -430,12 +430,12 @@ test("wanted 1.2.4 guilds: the rules against forged rows stay, each refusal with
 			f[10] = "1." .. from.guid:match("%-(%x+)$"):lower()
 			return table.concat(f, "~")
 		end
-		-- A character of no Elfcore guild: his own client sends nothing (Share.Send), and a row he
-		-- writes by hand is refused, whether it names a guild of no Elfcore name or his claim to an
-		-- Elfcore guild meets that guild's own roster.
+		-- A character of no Bankai Guild guild: his own client sends nothing (Share.Send), and a row he
+		-- writes by hand is refused, whether it names a guild of no Bankai Guild name or his claim to an
+		-- Bankai Guild guild meets that guild's own roster.
 		local outsider = world:Client("Wgoutsider-Realm", "Silver Hand Lodge")
 		local function Hand(to, text) return select(2, world:As(to, to.handlers.WK, "CHANNEL", outsider.name, text)) end
-		eq(Hand(author, Forge(outsider, "Silver Hand Lodge", "Wgnobody-Realm")), "stranger", "no Elfcore guild")
+		eq(Hand(author, Forge(outsider, "Silver Hand Lodge", "Wgnobody-Realm")), "stranger", "no Bankai Guild guild")
 		eq(Hand(mate, Forge(outsider, G1, "Wgnobody-Realm")), "stranger", "not in the roster of the guild he names")
 		assert(world:Line(author, "Wgnobody"):find(ns.L.WANTED_STATUS_REFUSAL:format("stranger"), 1, true))
 		-- One whose own census report spoke for <G3> a moment ago, now naming <G1>: one guild a sender.

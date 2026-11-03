@@ -22,9 +22,9 @@ local function RealComm(fn)
 	end
 	C_ChatInfo = { RegisterAddonMessagePrefix = function() end, SendAddonMessage = Send, SendAddonMessageLogged = Send }
 	IsInGuild = function() return true end
-	GetGuildInfo = function() return "Elfcore II" end
+	GetGuildInfo = function() return "Bankai Guild II" end
 	local ok, err = pcall(function()
-		assert(loadfile(H.ADDON_DIR .. "Comm.lua"))("Elfcore", cns)
+		assert(loadfile(H.ADDON_DIR .. "Comm.lua"))("BankaiGuild", cns)
 		for _, f in ipairs(login) do f() end
 		fn(cns.Comm, cns, results, sent)
 	end)

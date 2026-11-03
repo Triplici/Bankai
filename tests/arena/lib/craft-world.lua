@@ -14,7 +14,7 @@ local World = H.World
 local M = assert(loadfile(H.ROOT .. "tests/arena/lib/money-world.lua"))(H)
 local K = { M = M }
 
--- The files CraftRequests.lua needs of its own in each client, in Elfcore.toc's order.
+-- The files CraftRequests.lua needs of its own in each client, in BankaiGuild.toc's order.
 K.EXTRA = { "Crafters", "ChatRooms", "CraftRequests" }
 
 local function WithModules(fn, ...)
