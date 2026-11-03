@@ -380,7 +380,7 @@ function Codec.DecodeLayer(s)
 	return { mapID = tonumber(mapID), zoneUID = tonumber(zoneUID), rank = math.min(tonumber(rank), 9), guild = guild }
 end
 
-Codec.DECREE_KINDS = { ARMS = true, MUSTER = true, ROYAL = true, HERALDRY = true }
+Codec.DECREE_KINDS = { ARMS = true, MUSTER = true, ROYAL = true } -- (11-02: no Tabard inspection any more)
 
 -- Wall of Shame (chunked, channel): S1~guild~rankIndex~name:guild,name:guild,...
 Codec.MAX_SHAME = 40

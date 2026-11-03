@@ -834,12 +834,12 @@ function ArenaUI.RaceWord(x)
 end
 
 -- The profile (the owner's page, 2026-09-30, the arena's structure): in the grey block the stat
--- blocks (Fights, Bones, Lottery, Donations, Ranking places, Tabard, Usually online), each a
+-- blocks (Fights, Bones, Lottery, Donations, Ranking places, Usually online), each a
 -- header and its lines; on the parchment the portrait in the honour's frame (the live portrait
 -- where he is near, else a token: his race's portrait where the client has it, else his class's
 -- icon), the name, the title, the guild and its rank, class, race and level. The player's own
 -- page: Visibility opens the privacy page's Profile lines.
-local PROFILE_BLOCKS = { "ARENA_PROF_FIGHTS", "ARENA_PROF_BONES", "ARENA_PROF_LOTTERY", "ARENA_PROF_DONATIONS", "ARENA_PROF_PLACES", "ARENA_PROF_TABARD", "ARENA_PROF_ONLINE" }
+local PROFILE_BLOCKS = { "ARENA_PROF_FIGHTS", "ARENA_PROF_BONES", "ARENA_PROF_LOTTERY", "ARENA_PROF_DONATIONS", "ARENA_PROF_PLACES", "ARENA_PROF_ONLINE" }
 local function ProfileHistory(m)
 	local mine = m.mine and HistoryMine()
 	local all = Data.History({ mine = mine, limit = 30 }) or {}
@@ -992,14 +992,7 @@ local function ProfileLines(st)
 		end
 	else None(L.ARENA_PROF_NOT_RANKED) end
 	Close()
-	-- Tabard (self-reported, a planned check), usual hours
-	Head("ARENA_PROF_TABARD")
-	local t = stats.tabard
-	if type(t) == "table" and t.wears ~= nil then
-		None(t.wears and L.ARENA_PROF_TABARD_YES or L.ARENA_PROF_TABARD_NO)
-		lines[#lines].text = t.wears and C("green", L.ARENA_PROF_TABARD_YES) or C("grey", L.ARENA_PROF_TABARD_NO)
-	else None(L.ARENA_PROF_NOT_REPORTED) end
-	Close()
+	-- Usual hours (11-02: no Tabard block, the tabard checks are gone)
 	Head("ARENA_PROF_ONLINE")
 	if type(stats.online) == "string" and stats.online ~= "" then Row(L.ARENA_PROF_HOURS, stats.online) else None(L.ARENA_PROF_NOT_SHARED) end
 	return lines

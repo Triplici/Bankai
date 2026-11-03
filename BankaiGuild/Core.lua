@@ -555,10 +555,10 @@ end
 --   court, poll, agenda    the Shogun's court, Poll, the Shogun's Agenda
 --   throne                the Shogun's other calls: the roll call, the Royal Inspection, writs, a Hand or Steward named
 --   help                  a High Councillor's help requests, the author's bug reports
---   hop, treasury, patrol a layer hop, a donation, a patrol's player without the tabard
+--   hop, treasury         a layer hop, a donation
 --   update                the author's update notice
 --   arena, watch, craft   1.2's Blood Arena, private guild moderation notices, crafting requests
-ns.SOUND_KINDS = { "arms", "muster", "royal", "court", "poll", "agenda", "throne", "help", "hop", "treasury", "patrol", "update", "arena", "watch", "craft" }
+ns.SOUND_KINDS = { "arms", "muster", "royal", "court", "poll", "agenda", "throne", "help", "hop", "treasury", "update", "arena", "watch", "craft" }
 local SOUND_KIND = {}
 for _, k in ipairs(ns.SOUND_KINDS) do SOUND_KIND[k] = true end
 
@@ -2172,13 +2172,8 @@ ns.RegisterEvent("PLAYER_REGEN_ENABLED", ns.RunAfterCombat)
 local function Help()
 	ns.Print(L.HELP_CMD_HEAD:format(ns.VERSION))
 	print(L.HELP_CMD_OPEN)
-	print(L.HELP_CMD_TABARD)
 	print(L.HELP_SOUND)
 	print(L.HELP_ALERTS)
-	print(L.HELP_CMD_PATROL)
-	print(L.HELP_CMD_MARK)
-	print(L.HELP_GEAR)
-	print(L.HELP_PATROLSHARE)
 	print(L.HELP_APPROVED)
 	print(L.HELP_LOOT)
 	print(L.HELP_WAR)
@@ -2211,7 +2206,6 @@ local function Help()
 	print(L.HELP_NEED)
 	print(L.HELP_DONATIONS)
 	print(L.HELP_BACKUP)
-	print(L.HELP_INSPECTION)
 	print(L.HELP_BORDERS)
 	print(L.HELP_NAMEPLATES)
 	print(L.HELP_CHATMARKS)
@@ -2278,19 +2272,10 @@ local function Slash(input)
 		cmd = (cmd or ""):lower()
 		if cmd == "" then
 			ns.UI.Toggle()
-		elseif cmd == "inspect" or cmd == "tabard" or cmd == "heraldry" then
-			ns.Watch.Slash("tabards") -- (1.2: the Tabards are The Watch's)
 		elseif cmd == "sound" then
 			ns.SoundSlash(rest)
 		elseif cmd == "alerts" then
 			ns.AlertsSlash(rest)
-		elseif cmd == "patrol" then
-			ns.Inspect.SetPatrol(not ns.Inspect.IsPatrolling())
-		elseif cmd == "mark" then
-			ns.Inspect.MarkTarget(rest)
-		elseif cmd == "gear" then
-			-- 1.1 (Fern's #28): officers keep the gear of the player they target, in range.
-			ns.Inspect.InspectGear()
 		elseif cmd == "loot" then
 			-- 1.1 (Fern's #22): the guild's loot notes and points, on the Realm tab.
 			ns.UI.SelectTab("realm")
@@ -2310,11 +2295,6 @@ local function Slash(input)
 		elseif cmd == "approved" then
 			-- 1.1: the guilds the author's signed list makes Bankai Guild guilds; "paste" to paste that list.
 			ns.Workshop.Approved(rest)
-		elseif cmd == "patrolshare" then
-			-- 1.1 (Fern's #29): officers pass their patrols' findings to their guild's officers.
-			local word, on = rest:lower(), nil
-			if word == "on" then on = true elseif word == "off" then on = false end
-			ns.Inspect.SetSharing(on)
 		elseif cmd == "map" then
 			ns.Map.SetEnabled(not ns.db.showMap)
 		elseif cmd == "throne" or cmd == "trono" then
@@ -2386,13 +2366,6 @@ local function Slash(input)
 			local how = rest:lower()
 			local hide = (how == "hide" or how == "off") and true or ((how == "show" or how == "on") and false or not ns.UI.IssueReporterHidden())
 			ns.UI.SetIssueReporterHidden(hide)
-		elseif cmd == "inspection" then
-			-- Taking part in the Shogun's Royal Inspection (a patrol of 2 minutes that reports to him).
-			local on = rest:lower()
-			if on == "on" or on == "off" then ns.db.royalInspection = on == "on" end
-			-- (1.1: never answered is off, and says so.)
-			local v = ns.db.royalInspection
-			ns.Print(v == true and L.INSPECTION_OPT_ON or (v == false and L.INSPECTION_OPT_OFF or L.INSPECTION_OPT_UNANSWERED))
 		elseif cmd == "chatmarks" then
 			-- 1.1.5: Bankai Guild's marks before names in the game's own chat (Borders.lua): on or off;
 			-- test [mark|off], the author's own lines for this session.

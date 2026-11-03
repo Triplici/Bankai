@@ -240,7 +240,6 @@ function Inspect.Record(name, guild, classFile, level, tabardID, anyGear)
 	if (p.status == "NONE" or p.status == "OTHER") and previous ~= p.status then
 		local label = p.status == "NONE" and L.TABARD_NONE or L.TABARD_OTHER
 		ns.Print(("|cffff4040%s|r <%s>: %s"):format(ns.ShortName(name), guild or "?", label))
-		ns.PlayAlert("soft", "patrol")
 	end
 	if not previous then Inspect.Prune() end -- (only a new player makes the store grow)
 	ns.Fire("INSPECT_CHANGED")
@@ -814,7 +813,6 @@ function Inspect.HandleShare(dist, sender, text)
 	end
 	if changed then ns.Fire("INSPECT_CHANGED") end
 end
-ns.Comm.Handle("U1", function(...) Inspect.HandleShare(...) end)
 
 -- Our own findings of the last SHARE_KEEP (never another officer's), newest first.
 local function OwnFindings(now)
@@ -864,7 +862,6 @@ function Inspect.HandleAsk(dist, sender)
 		Send(entries, "tabardanswer")
 	end)
 end
-ns.Comm.Handle("U0", function(dist, sender) Inspect.HandleAsk(dist, sender) end)
 
 -- `/bk patrolshare on|off`: alone, says which.
 function Inspect.SetSharing(on)
@@ -973,7 +970,6 @@ end
 function Inspect.HandleShame(dist, sender, text)
 	ns.Log("ignored a wall of shame from %s (0.9.2: only the Shogun's list, quietly)", tostring(sender))
 end
-ns.Comm.Handle("S1", function(...) Inspect.HandleShame(...) end)
 
 -- Tests start from a clean state.
 function Inspect.ResetShame()
@@ -1073,13 +1069,10 @@ function Inspect.TooltipUnit(tooltip) -- gp:tooltip-unit
 	local name = TooltipUnitName(unit)
 	if not name then return false end
 	Inspect.CoverTooltip(tooltip, name)
-	local line = Inspect.TooltipLine(name)
-	if line then tooltip:AddLine(line) end
 	-- The Treasurer of Bankai Guild: his name and the game's own word on his guild.
 	local guild = GetGuildInfo and GetGuildInfo(unit)
 	if not SecretTooltipValue(guild) and not Inspect.CoverOf(name) and ns.IsTreasurer(name, guild) then tooltip:AddLine(ns.COIN .. L.TREASURER_TITLE, 1, 0.82, 0) end
 	Inspect.CouncilTooltip(tooltip, name, not SecretTooltipValue(guild) and guild or nil)
-	if patrol then Enqueue(unit) end
 	return true
 end
 
@@ -1088,9 +1081,8 @@ ns.On("INIT", function() Inspect.Prune(); Inspect.PruneGear() end) -- (Prune mak
 ns.On("LOGIN", function()
 	ns.RegisterEvent("INSPECT_READY", OnInspectReady)
 	ns.Every(INTERVAL, "inspect pump", Pump)
-	-- 1.1: an officer's findings to his guild's officers, and the day's asked for once our roster is in.
-	ns.Every(15, "tabard share", Inspect.FlushShare)
-	ns.After(40 + Inspect.random() * 30, "tabard share ask", Inspect.AskShared)
+	-- (11-02: the tabard checks are gone, patrol, officers' sharing and the untabarded list; the
+	-- pump stays for the duel view's gear and talents, Inspect.Want.)
 	ns.Gate.Install("tooltip-unit")
 end)
 

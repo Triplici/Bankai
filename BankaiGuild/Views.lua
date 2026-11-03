@@ -2980,7 +2980,7 @@ end
 
 local function DecreeHelp(lines)
 	lines[#lines + 1] = { header = true, text = L.DECREE_HELP_TITLE }
-	for _, k in ipairs({ "ARMS", "MUSTER", "ROYAL", "HERALDRY" }) do
+	for _, k in ipairs({ "ARMS", "MUSTER", "ROYAL" }) do
 		local who = ns.Decree.CROWN_ONLY[k] and L.WHO_CROWN or L.WHO_COUNCIL
 		lines[#lines + 1] = { text = Gold(L["HELP_" .. k .. "_NAME"]) .. "  " .. Grey("(" .. who .. ")") }
 		lines[#lines + 1] = { indent = 1, text = Grey(L["HELP_" .. k]) }

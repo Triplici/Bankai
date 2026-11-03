@@ -229,11 +229,6 @@ local BUTTONS = {
 		DecreeButton("MUSTER_BTN", "MUSTER"),
 		DecreeButton("ROYAL_BTN", "ROYAL"),
 	},
-	heraldry = {
-		{ "PATROL_BTN", function() ns.Inspect.SetPatrol(not ns.Inspect.IsPatrolling()) end },
-		{ "MARK_TARGET", function() ns.Inspect.MarkTarget() end },
-		{ "COPY_BTN", function() UI.ShowCopy(L.INSPECT_TITLE, ns.Inspect.DiscordText()) end },
-	},
 	-- The Throne: the agenda, Hold Court and the Shogun's/Steward's own administration. The
 	-- restricted court queue (Judgment) lives in The Watch.
 	-- The roll call lives in the Realm, the inspection in the Tabards (Shogun.RollCallLines...).
@@ -359,10 +354,6 @@ local DETAIL_BUTTONS = {
 		{ "VIEW_AS_TITLE", function() ns.ViewAs.ToggleMenu() end, refresh = true,
 			label = function() return ns.ViewAs.Previewing() and L.VIEW_AS_PREVIEW_BTN:format(ns.ViewAs.Label()) or L.VIEW_AS_TITLE end },
 	},
-	heraldry = {
-		DecreeButton("HERALDRY_BTN", "HERALDRY"),
-		{ "CLEAR", function() ns.ShowDialog("BANKAIGUILD_CLEAR_INSPECT") end },
-	},
 	-- The Shogun's switches: what the army sees of the treasury (each its own).
 	treasury = { TreasuryFlag("balance"), TreasuryFlag("ranking"), TreasuryFlag("book") },
 	-- The Shogun's letters to his Elders (Acts.lua): his button alone.
@@ -394,9 +385,6 @@ function UI.OpenIconPicker()
 end
 table.insert(DETAIL_BUTTONS.realm, { "COUNCIL_ICON_BTN", function() UI.OpenIconPicker() end,
 	shown = function() return ns.IsHighCouncillor(ns.me) end })
--- 1.1 (Fern's #28): an officer keeps the gear of the player he targets, in range (Inspect.lua).
-table.insert(DETAIL_BUTTONS.heraldry, 1, { "GEAR_BTN", function() ns.Inspect.InspectGear() end,
-	shown = function() return ns.IsMember() and ns.Roster.IsOfficer() end })
 
 -- The same buttons, greyed (the Join screen's under the author's "Not in Bankai Guild" preview).
 local function InertButtons(defs)
@@ -2973,7 +2961,6 @@ function UI.BasePersonDetails(p)
 	-- right-click menu's). Nothing is asked by opening the card.
 	local version = ns.Versions and ns.Versions.CardLine and ns.Versions.CardLine(full)
 	if version then Add("|cff9d9d9d" .. version .. "|r", "version", "addon", nil, "derived") end
-	if p.tabard then Add(L.TABARD .. ": " .. ns.Codec.Plain(tostring(p.tabard)), "tabard", "inspection", at) end
 	if p.note then Add('|cffff8080"' .. ns.Codec.Plain(tostring(p.note)) .. '"|r', "note", source, at) end
 	return {
 		person = p,
@@ -3262,7 +3249,6 @@ function UI.HelpText()
 		"  " .. L.TAB_REALM .. ": " .. L.HELP_TAB_REALM,
 		"  " .. L.TAB_CHAT .. ": " .. L.HELP_TAB_CHAT,
 		"  " .. L.TAB_DECREES .. ": " .. L.HELP_TAB_DECREES,
-		"  " .. L.TAB_HERALDRY .. ": " .. L.HELP_TAB_HERALDRY,
 		"  " .. L.TAB_CRAFTERS .. ": " .. L.HELP_TAB_CRAFTERS,
 		"  " .. L.HELP_TAB_OTHERS,
 		"",
@@ -3271,7 +3257,6 @@ function UI.HelpText()
 		L.HELP_PRIVACY,
 		L.HELP_LOCATION,
 		L.HELP_ROLLCALL,
-		L.HELP_INSPECTION,
 		L.HELP_CHAT,
 		L.HELP_PRIVACY_PAGE,
 		L.HELP_FILTER,

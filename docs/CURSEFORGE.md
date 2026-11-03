@@ -1344,38 +1344,6 @@ alone until then).
     census report) go first, and when his outbox is full he says so in one whisper: the page shows
     it and asks again in a few minutes.
 
-### Tabards: tabard inspection and the untabarded list
-- **Patrol**: walk through the crowd and the addon inspects nearby Bankai Guild members level 15
-  and up, one by one (about 28 yards). Younger players are never flagged. It records who wears a tabard, who wears the wrong one and who
-  wears none. Players it could not see properly are never accused.
-- **Mark** a player (with a note: `/bk mark complained about the rule`) or a whole guild.
-- **Gear seen** (1.1, officers): target a player in range (about 28 yards) and click **Inspect
-  gear** on the Tabards tab (or type `/bk gear`). The addon inspects him once, in turn with every
-  other inspection (one at a time, never in combat), and keeps what he wears in your saved
-  variables, under **Gear seen**: a click shows his items in their slots, each with its own
-  tooltip. A Council member can check a raid signup's last-seen gear days later without pulling him
-  again. Only the guild master and the officer rank right below keep gear; nothing is scored,
-  compared or sent, and nobody is told how to play.
-- **Shared among officers** (1.1): what an officer's own inspections find (a player without the
-  colors or with another tabard, and one caught before who wears ours again) goes to his guild's
-  officers over guild addon messages, once a minute at most, and an officer's addon asks the others
-  for the day's findings once a session: after its login, or at his yes if that came later. Each
-  officer's Tabards page shows them with his own, the officer who found each in its tooltip, for a
-  day (his own later inspection of that player replaces it). Nothing is inspected more or sooner for
-  it, nothing goes on the Bankai Guild channel, and only officers (the guild master and the rank right
-  below, by each addon's own roster) send or keep it. The Shogun's untabarded list stays his: another
-  officer's finding never joins it, never rides in a Royal Inspection's report and never replaces
-  what the Shogun saw himself. Off until you say yes (officers get its line on the first-open page, or
-  `/bk patrolshare on`); `/bk patrolshare off` stops it.
-- Per guild: *"5 of 20 with problems"*.
-- **Untabarded** (the "Wall of Shame" before 0.9.2): the players the Royal Inspection found
-  without the colors are on the Shogun's list, which only he sees. He alone can let the army see
-  it (a switch on the Throne, off by default): then it shows on the Tabards page, quietly (no
-  raid warning, no chat line, no sound), and it leaves every screen when he turns it off or
-  stops repeating it. Nobody else can publish one. Players under level 15 are exempt: never
-  flagged, never listed.
-- Hover any player in the world to see their last inspection in the tooltip.
-
 ### Loot notes (1.1)
 Loot arguments restart every raid because nobody kept last week's decision: the **Loot notes** of
 your guild keep it (on the Realm tab, or `/bk loot`).

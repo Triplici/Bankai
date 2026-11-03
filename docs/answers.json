@@ -1101,64 +1101,6 @@
       ]
     },
     {
-      "id": "feat-patrol",
-      "topic": "features",
-      "status": "current (1.1.1)",
-      "questions": [
-        "How does the tabard patrol work?",
-        "What's /bk mark?"
-      ],
-      "answer": "Start a patrol in The Watch's Tabards (or /bk patrol) and walk through the crowd: it checks nearby members level 15 and up for the Bankai Guild tabard. /bk mark flags your target with a note. Hover anyone to see their last check.",
-      "in_game": "Type /bk patrol, then walk around: it checks nearby members (15+) for the tabard. /bk mark flags your target.",
-      "notes": "1.2: the Tabards are a section of The Watch (no tab of their own); /bk tabard opens it there.",
-      "sources": [
-        "README.md:1027-1058"
-      ]
-    },
-    {
-      "id": "feat-gear-seen",
-      "topic": "features",
-      "status": "current (1.1.1)",
-      "questions": [
-        "How do officers save someone's gear?",
-        "What's Gear seen?"
-      ],
-      "answer": "Officers: target someone in range and click Inspect gear in The Watch's Tabards (or /bk gear). What they wear is kept under Gear seen, to check later. Nothing is scored or sent.",
-      "in_game": "Officers: target someone, /bk gear. It keeps what they wear under Gear seen. Nothing is scored or sent.",
-      "sources": [
-        "README.md:1032-1038"
-      ]
-    },
-    {
-      "id": "feat-patrolshare",
-      "topic": "features",
-      "status": "current (1.1.1)",
-      "questions": [
-        "Can officers share patrol findings?",
-        "What's /bk patrolshare?"
-      ],
-      "answer": "If you say yes. /bk patrolshare on sends what your patrols find to your guild's officers over guild chat only, and shows you theirs for a day. /bk patrolshare off stops it.",
-      "in_game": "Officers: /bk patrolshare on shares your patrol findings with your guild's officers. Off stops it.",
-      "sources": [
-        "README.md:1039-1049"
-      ]
-    },
-    {
-      "id": "feat-untabarded",
-      "topic": "features",
-      "status": "current (1.1.1)",
-      "questions": [
-        "What's the untabarded list?",
-        "What's a Royal Pardon?"
-      ],
-      "answer": "Players the Shogun's Royal Inspection caught without the colors; only the Shogun sees it unless he chooses to show it. A Royal Pardon takes a name off for a week. Players under 15 are never listed.",
-      "in_game": "The Shogun's list of players caught without the tabard. Only he sees it unless he shows it. A Pardon clears a name for a week.",
-      "notes": "L.PARDON_TIP still says 'Wall of Shame', the old name.",
-      "sources": [
-        "README.md:1051-1056,668-669"
-      ]
-    },
-    {
       "id": "feat-throne",
       "topic": "features",
       "status": "current (1.1.1)",
@@ -1166,8 +1108,8 @@
         "What can the Shogun do in the addon?",
         "What's the Throne tab?"
       ],
-      "answer": "The Shogun's own tab holds his Agenda, week, key rotation and Hold Court button. His other tools sit where they belong: the private court queue in The Watch, Summon the Elders and the gates on Realm, the Royal Inspection in The Watch's Tabards, and writs in Decrees.",
-      "in_game": "The Shogun's tab has his Agenda, week, key rotation and Hold Court. Its private queue is in The Watch; Summon the Elders and gates are on Realm, inspection in The Watch's Tabards.",
+      "answer": "The Shogun's own tab holds his Agenda, week, key rotation and Hold Court button. His other tools sit where they belong: the private court queue in The Watch, Summon the Elders and the gates on Realm, and writs in Decrees.",
+      "in_game": "The Shogun's tab has his Agenda, week, key rotation and Hold Court. Its private queue is in The Watch; Summon the Elders and gates are on Realm.",
       "sources": [
         "README.md:739-831"
       ]
@@ -1212,22 +1154,6 @@
       "in_game": "The Shogun opens court from the Throne and calls its queue from The Watch. Players in his zone get a line; one click asks for an audience.",
       "sources": [
         "README.md:757-760"
-      ]
-    },
-    {
-      "id": "feat-royal-inspection",
-      "topic": "features",
-      "status": "current (1.1.1)",
-      "questions": [
-        "What's the Royal Inspection?",
-        "Why am I patrolling for the Shogun?"
-      ],
-      "answer": "The Shogun calls a tabard check: a raid warning, then a sample of players who said yes patrol the tabards around them for 2 minutes and report to him. At most once every 30 minutes. /bk inspection off opts you out.",
-      "in_game": "A tabard check for the Shogun: players who said yes patrol for 2 min and report. /bk inspection off opts out.",
-      "notes": "L.THRONE_INSPECT_TIP says 'every soldier' and 'once every 10 minutes'; the code is a sample of opted-in players and Shogun.INSPECT_GAP = 1800.",
-      "sources": [
-        "README.md:650-656",
-        "Shogun.lua:36"
       ]
     },
     {
@@ -1447,7 +1373,7 @@
         "Can I search the lists?",
         "How do I find a name on a tab?"
       ],
-      "answer": "The Census, Realm, Treasury, Decrees and Chat tabs and The Watch's Tabards have a search box: guilds, Elders, players or zones on the Census, members on the Realm, players on the Tabards, donors and bank items on the Treasury, the log on Decrees, lines on Chat. It only filters.",
+      "answer": "The Census, Realm, Treasury, Decrees and Chat tabs have a search box: guilds, Elders, players or zones on the Census, members on the Realm, donors and bank items on the Treasury, the log on Decrees, lines on Chat. It only filters.",
       "in_game": "Most tabs have a search box on top. It only filters what you see.",
       "sources": [
         "README.md:1258-1264 (not Throne, Poll or Workshop)"

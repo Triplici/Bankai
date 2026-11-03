@@ -4131,12 +4131,14 @@ test("1.2 the person card: other files' rows after the rank (UI.personRows); on 
 		eq(person.editProfile:IsShown(), false, "never on someone else's card")
 		-- More rows than its six lines (two of other files'): none cut, the card taller.
 		table.insert(UI.personRows, function(p, rows) rows[#rows + 1] = "Arena profile" end)
+		-- (11-02: no Tabard row any more, so a third row of another file's keeps the card past six.)
+		table.insert(UI.personRows, function(p, rows) rows[#rows + 1] = "Arena rank" end)
 		local base = person:GetHeight()
 		UI.ShowPerson({ name = "Other Guy-Realm", rank = "Knight", level = 60, online = true, tabard = "yes", note = "back at nine" })
 		local texts = {}
 		for i, fs in ipairs(person.lines) do texts[i] = fs:GetText() end
 		eq(#person.lines, 7)
-		eq(texts[3], "Arena Champion"); eq(texts[4], "Arena profile"); eq(texts[6], ns.L.TABARD .. ": yes")
+		eq(texts[3], "Arena Champion"); eq(texts[4], "Arena profile"); eq(texts[5], "Arena rank")
 		eq(texts[7], '|cffff8080"back at nine"|r', "the note kept")
 		eq(person:GetHeight(), base + 15)
 		UI.ShowPerson({ name = "Other Guy-Realm", rank = "Knight" })
@@ -15172,10 +15174,10 @@ local function CheckHelpBox(box)
 	-- metal now, without its portrait.)
 	Harness.Win.Metal(box, ns.L.HELP_TITLE, "the help")
 	for _, link in ipairs(HELP_LINKS) do assert(box.text:find(link, 1, true), "link " .. link) end
-	for _, command in ipairs({ "/bk help", "/bk location", "/bk rollcall", "/bk inspection", "/bg ", "/bk chatwindow" }) do
+	for _, command in ipairs({ "/bk help", "/bk location", "/bk rollcall", "/bg ", "/bk chatwindow" }) do -- (11-02: no /bk inspection, the tabard checks are gone)
 		assert(box.text:find(command, 1, true), "mentions " .. command)
 	end
-	for _, tab in ipairs({ "TAB_CENSUS", "TAB_REALM", "TAB_DECREES", "TAB_HERALDRY" }) do
+	for _, tab in ipairs({ "TAB_CENSUS", "TAB_REALM", "TAB_DECREES" }) do -- (11-02: no Tabards)
 		assert(box.text:find(ns.L[tab] .. ": ", 1, true), "a line for " .. tab)
 	end
 	eq(box.eb:GetText(), box.text, "shown in the box")
@@ -35044,7 +35046,7 @@ test("1.1 alert sounds: every alert names its kind (ns.PlayAlert, Shogun.Warn), 
 	end
 	p:close()
 	assert(calls >= 25, "the alerts: " .. calls)
-	for _, k in ipairs({ "court", "poll", "agenda", "throne", "help", "hop", "treasury", "patrol", "update", "muster" }) do assert(seen[k], k) end
+	for _, k in ipairs({ "court", "poll", "agenda", "throne", "help", "hop", "treasury", "update", "muster" }) do assert(seen[k], k) end
 	-- The decrees: each kind its switch, the Tabard inspection with the Royal decree.
 	eq(ns.Decree.SOUND.ARMS, "arms"); eq(ns.Decree.SOUND.MUSTER, "muster"); eq(ns.Decree.SOUND.ROYAL, "royal"); eq(ns.Decree.SOUND.HERALDRY, "royal")
 end)
@@ -37342,7 +37344,7 @@ do
 					eq(page:GetName(), "BankaiGuildConsentFrame"); eq(page:GetFrameStrata(), "DIALOG")
 					eq(BankaiGuildFrame:IsShown(), true, "the window stays open under it")
 					-- One line each, in this order; a keeper's book only for a keeper.
-					eq(Keys(page), "location,layerhelp,inspection,rollcall,chat,chatrooms,tabardselfv2,tabardnearbyv2")
+					eq(Keys(page), "location,layerhelp,rollcall,chat,chatrooms") -- (11-02: the tabard questions are gone)
 					-- What always goes out, so it never promises nothing does: the census and its names.
 					local intro = page.intro:GetText()
 					for _, words in ipairs({ "census", "leader and officers", "five highest-level members", "online or not", "hello", ns.L.CHANNEL_PUBLIC }) do
@@ -37439,16 +37441,15 @@ do
 						return savedFire(name, key, value)
 					end
 					local page = ns.Consent.Show()
-					eq(Keys(page), "location,layerhelp,inspection,rollcall,chat,chatrooms,tabardselfv2,tabardnearbyv2")
+					eq(Keys(page), "location,layerhelp,rollcall,chat,chatrooms") -- (11-02: the tabard questions are gone)
 					eq(page.all:IsShown(), true)
 					page.all:Click()
 					eq(page:IsShown(), false, "all requested setters succeeded")
 					eq(ns.db.shareLocation, true); eq(ns.db.layerHelp, true)
-					eq(ns.db.royalInspection, true); eq(ns.db.addonChat, true); eq(ns.db.chatRooms, true)
+					-- (11-02: no tabard questions any more: no Royal Inspection, patrol share or Tabards lines.)
+					eq(ns.db.addonChat, true); eq(ns.db.chatRooms, true)
 					eq(ns.db.rollCall, false, "a prior No is never overwritten")
-					eq(ns.db.patrolShare, nil, "an officer-only hidden line is untouched")
-					eq(ns.TabardsV2.Consent("self"), true); eq(ns.TabardsV2.Consent("nearby"), true)
-					eq(table.concat(events, ","), "location:true,layerhelp:true,inspection:true,chat:true,chatrooms:true,tabardselfv2:true,tabardnearbyv2:true")
+					eq(table.concat(events, ","), "location:true,layerhelp:true,chat:true,chatrooms:true")
 					-- Reopening has no bulk work. A later No uses the same real setter and persists.
 					page = ns.Consent.Show()
 					eq(page.all:IsShown(), false, "nothing waits: no Authorize all")
@@ -37482,7 +37483,7 @@ do
 				GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
 				visible = true
 				local page = ns.Consent.Show()
-				eq(Keys(page), "location,layerhelp,inspection,rollcall,chat,chatrooms,tabardselfv2,tabardnearbyv2,test-explicit-consent")
+				eq(Keys(page), "location,layerhelp,rollcall,chat,chatrooms,test-explicit-consent") -- (11-02: the tabard questions are gone)
 				eq(page.all:IsShown(), true, "the explicit pending line has the primary action")
 				eq(page.all:GetText(), ns.L.CONSENT_ACCEPT_ALL)
 				eq(page.done:GetText(), ns.L.CONSENT_KEEP_CURRENT)
@@ -37503,6 +37504,10 @@ do
 	test("1.2 authorizations: the responsive page uses two balanced columns, contains odd and hidden rows, and falls back to one scrolling column", function()
 		local oddVisible, hiddenVisible = false, false
 		assert(ns.Consent.Register({ key = "test-layout-odd", label = "Odd visible row", text = "A test row that makes the visible count odd.",
+			shown = function() return oddVisible end, get = function() return false end, set = function() end }))
+		-- (11-02: the page's own rows are five now, the tabard questions gone: a second row shown with
+		-- the odd one keeps the count odd, as the test wants.)
+		assert(ns.Consent.Register({ key = "test-layout-odd-2", label = "Second odd row", text = "Keeps the visible count odd.",
 			shown = function() return oddVisible end, get = function() return false end, set = function() end }))
 		assert(ns.Consent.Register({ key = "test-layout-hidden", label = "Hidden row", text = "Must not take layout space.",
 			shown = function() return hiddenVisible end, get = function() return false end, set = function() end }))

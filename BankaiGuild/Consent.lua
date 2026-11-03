@@ -729,14 +729,6 @@ Consent.Register({
 	end,
 })
 Consent.Register({
-	key = "inspection", label = "CONSENT_INSPECTION", text = "CONSENT_INSPECTION_TEXT",
-	get = function() return ns.db.royalInspection end,
-	set = function(on)
-		ns.db.royalInspection = on
-		ns.Print(on and L.INSPECTION_OPT_ON or L.INSPECTION_OPT_OFF)
-	end,
-})
-Consent.Register({
 	key = "rollcall", label = "CONSENT_ROLLCALL", text = "CONSENT_ROLLCALL_TEXT",
 	get = function() return ns.db.rollCall end,
 	set = function(on) ns.Workshop.SetAnswers(on) end,
@@ -745,15 +737,6 @@ Consent.Register({
 	key = "chat", label = "CONSENT_CHAT", text = "CONSENT_CHAT_TEXT",
 	get = function() return ns.db.addonChat end,
 	set = function(on) ns.Channels.SetChatOn(on) end,
-})
--- An officer's patrol findings to his guild's officers (Inspect.lua, Fern's #29): officers alone
--- send and keep them, so only they are asked (Konig's review of 1.1: it was on by default and
--- missing from this page).
-Consent.Register({
-	key = "patrolshare", label = "CONSENT_PATROLSHARE", text = "CONSENT_PATROLSHARE_TEXT",
-	shown = function() return ns.IsMember() == true and ns.Roster.IsOfficer() == true end,
-	get = function() return ns.db.patrolShare end,
-	set = function(on) ns.Inspect.SetSharing(on) end,
 })
 
 -- The first question after login: the page, once the login settled, then on the minute until it

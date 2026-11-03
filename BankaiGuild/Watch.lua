@@ -2443,12 +2443,8 @@ local cardFrame     -- the judgment card (built on first use)
 -- their client is already authorized to read.
 ---------------------------------------------------------------------------
 
--- The Tabards show here (a client updated without a restart, with no TabardsV2.lua: as the old
--- tab did then, always).
-function Watch.TabardsShown()
-	local T = ns.TabardsV2
-	return type(T) ~= "table" or T.missing == true or type(T.SurfaceVisible) ~= "function" or T.SurfaceVisible() == true
-end
+-- (11-02: the Tabards section is gone, the tabard checks with it.)
+function Watch.TabardsShown() return false end
 
 -- Council access is presentation only. It never makes a councillor an officer in this roster,
 -- authorizes recovery, or exposes guild-local reports and audit records.
@@ -3518,12 +3514,6 @@ function Watch.Slash(rest)
 	if verb == "report" then
 		-- 1.1.6: any member, the name or the target.
 		return Watch.AskReport(arg)
-	elseif verb == "tabards" or verb == "tabard" then
-		-- 1.2 (also /bk tabard): The Watch's Tabards. Not shown to this player yet (no fresh
-		-- publication of the Shogun's): the window opens on what he sees, as the old tab did.
-		Watch.Show("tabards")
-		if ns.UI and ns.UI.SelectTab then ns.UI.SelectTab("watch") end
-		return true
 	elseif verb == "judgments" or verb == "judgment" then
 		-- 1.2: the Shogun's and the High Council's (Judgment.lua).
 		if not Watch.JudgmentsShown() then return ns.Print(L.WATCH_NO_ACCESS) end

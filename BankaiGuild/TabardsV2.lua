@@ -58,10 +58,10 @@ local function ConsentEntry(which)
 	return e
 end
 
+-- (11-02: the tabard checks are gone. Nothing of a tabard is sent, whatever was answered before;
+-- the Shogun's lease, T.Collector, stays: The Watch and the judgments find his client by it.)
 function T.Consent(which)
-	local e = (which == "self" or which == "nearby") and ConsentEntry(which) or nil
-	if not e then return nil end
-	return e.value
+	return false
 end
 
 local function Cancel(which, why)
@@ -457,24 +457,6 @@ end
 ns.Comm.Handle("U2", function(...) T.HandleLease(...) end)
 ns.Comm.Handle("U3", function(...) T.HandleSelf(...) end)
 ns.Comm.Handle("U4", function(...) T.HandleNearby(...) end)
-
--- A changed contract drops both answers (ConsentEntry): its version makes the lines new questions
--- on the privacy page, asked once again (1.2.1: the page keeps what it asked for good).
-local function Contract() return T.CONTRACT end
-if ns.Consent and ns.Consent.Register then
-	ns.Consent.Register({
-		key = "tabardselfv2", label = "CONSENT_TABARD_SELF_V2", text = "CONSENT_TABARD_SELF_V2_TEXT",
-		get = function() return T.Consent("self") end,
-		set = function(on) T.SetConsent("self", on) end,
-		version = Contract,
-	})
-	ns.Consent.Register({
-		key = "tabardnearbyv2", label = "CONSENT_TABARD_NEARBY_V2", text = "CONSENT_TABARD_NEARBY_V2_TEXT",
-		get = function() return T.Consent("nearby") end,
-		set = function(on) T.SetConsent("nearby", on) end,
-		version = Contract,
-	})
-end
 
 ns.On("INIT", function() T.Prune() end)
 ns.On("LOGIN", function()
