@@ -5859,7 +5859,7 @@ test("players below a tier never see it", function()
 		eq(select(2, Chan.Receive("CHANNEL", "Member4", Msg("A", MY_GUILD, 782), 2006)), "ignored")
 	end)
 	C_FriendList = nil
-	eq(#CHAT_LINES, 2)
+	eq(#CHAT_LINES, 1, "the [Bankai Guild] line alone ([Elders] retired 11-03)")
 end)
 
 test("duplicate ids are shown once", function()
