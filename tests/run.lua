@@ -10597,7 +10597,7 @@ test("the soldier count explains the census on hover; the minimap logo sits on i
 		local a = b.icon:Anchor("TOPLEFT")
 		-- (UP-12: the disc and the logo both moved onto the gold ring's centre, test below; the logo
 		-- still on the disc's centre, now (16, -16), where 0.9.0 had both on (17, -15).)
-		eq(a[4] .. " " .. a[5], "7 -7", "the logo's centre on the disc's (16, -16)")
+		eq(a[4] .. " " .. a[5], "8 -7", "the logo's centre on the disc's (17, -16)") -- (1 unit right since 11-02: it sat left of the ring)
 	end)
 end)
 
@@ -10613,7 +10613,9 @@ end)
 -- button: the minimap's (31), the world map's (30) and the guild windows' (26 and 22).
 test("UP-12 round buttons: the logo and its dark disc sit on the gold ring's centre at every size", function()
 	WithUI(function()
-		local RING_CENTRE = 15.9 / 53 -- (of the ring's size, from its top left, across and down: measured, above)
+		-- (of the ring's size, from its top left: measured, above; across moved 1 unit right on 11-02, when
+		-- the owner's screenshot showed the tree emblem left of the ring's centre)
+		local RING_X, RING_Y = 16.9 / 53, 15.9 / 53
 		local function Centre(t)
 			local p = t:Anchor("TOPLEFT")
 			return p[4] + t.w / 2, p[5] - t.h / 2
@@ -10625,7 +10627,7 @@ test("UP-12 round buttons: the logo and its dark disc sit on the gold ring's cen
 			local ring, disc = of["Interface\\Minimap\\MiniMap-TrackingBorder"], of["Interface\\Minimap\\UI-Minimap-Background"]
 			assert(ring and disc and of[ns.LOGO] == b.icon, size .. ": the ring, the dark disc and the logo")
 			local p = ring:Anchor("TOPLEFT")
-			local rx, ry = p[4] + ring.w * RING_CENTRE, p[5] - ring.h * RING_CENTRE
+			local rx, ry = p[4] + ring.w * RING_X, p[5] - ring.h * RING_Y
 			local near = 0.25 * size / 31
 			for label, t in pairs({ logo = b.icon, disc = disc }) do
 				local cx, cy = Centre(t)
