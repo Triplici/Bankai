@@ -28,6 +28,7 @@ local ns = {}
 for _, file in ipairs({ "Locales", "Core", "Codec", "Sign", "Authority", "Workshop" }) do
 	if file == "Workshop" then ns.Comm = { Handle = stub } end
 	assert(loadfile(root .. "/BankaiGuild/" .. file .. ".lua"))("BankaiGuild", ns)
+	if file == "Core" then assert(loadfile(root .. "/tests/world.lua"))(ns) end -- (11-02: the tests' world)
 end
 local Sign, W = ns.Sign, ns.Workshop
 
@@ -130,7 +131,7 @@ Sign.WithKey(n, mu, k, function()
 	check(ns.Authority.LoadLocal(c1.authority), "council 1: its separate signed authority set is taken")
 	check(ns.Authority.Enforced(), "council 1: its explicit signed leadership activates enforcement")
 	check(ns.Authority.Rank("Test Elder-ClassicBetaPvP", "Bankai Guild Zeus") == 0
-		and ns.Authority.Rank("Test Council member-ClassicBetaPvP2", "Bankai Guild Zeus") == 1,
+		and ns.Authority.Rank("Test Officer-ClassicBetaPvP2", "Bankai Guild Zeus") == 1,
 		"council 1: exact-realm Elder and Council member ranks come from the signed extension")
 	local _, _, realm, names = Parts(c1.names)
 	check(realm == "ClassicBetaPvP+ClassicBetaPvP2", "Forever's realm group by default")

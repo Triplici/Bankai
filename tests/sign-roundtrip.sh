@@ -76,7 +76,7 @@ cat > "$BANKAIGUILD_COUNCIL_JSON" <<'JSON'
  "members": [{"name": " Test Councillor ", "title": " Council Speaker "}],
  "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"],
   "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Test Elder-ClassicBetaPvP",
-               "officers": ["Test Council member-ClassicBetaPvP2"]}]}}
+               "officers": ["Test Officer-ClassicBetaPvP2"]}]}}
 JSON
 BANKAIGUILD_COUNCIL_OUT="$scratch/council1.lua" python3 "$signer" council > /dev/null
 grep -Fq 'ns.COUNCIL_AUTHORITY = {' "$scratch/council1.lua" || fail 'leadership was not written as a separate signed authority set'

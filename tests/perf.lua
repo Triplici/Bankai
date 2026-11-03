@@ -14,7 +14,7 @@ local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]perf%.lua
 
 local GLOBALS = { "CreateFrame", "debugprofilestop", "GetTime", "C_Timer", "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARENA1",
 	"collectgarbage", "UpdateAddOnMemoryUsage", "GetAddOnMemoryUsage" }
-local SLASH = { "Bankai Guild", "BANKAIGUILDARENA" }
+local SLASH = { "BANKAIGUILD", "BANKAIGUILDARENA" }
 
 local function World(db, fn, before)
 	local w = { now = 0, t = 1000, frames = {}, printed = {}, errors = {}, copies = {}, timers = {},

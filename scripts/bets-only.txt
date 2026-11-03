@@ -2,8 +2,5 @@
 # out of the package and drops its line from its folder's TOC. Shared betting paths remain
 # inert behind the compliance gate (BankaiGuild/Compliance.lua); tests/arena/compliance.lua loads
 # the core's TOC without these and plays the games. One path per line, from the repository root.
-BankaiGuild/Markets.lua
-BankaiGuild/MarketBank.lua
-# The lab's animal lottery (a bet on a beast; only a Wallet-on lab session opens it). The Lottery's
-# practice (LotteryBoard.lua) is not this file and ships.
-BankaiGuild_Arena/Games/Bicho.lua
+# (11-02: none left. Markets.lua, MarketBank.lua and the lab's animal lottery, Games/Bicho.lua, were
+# removed from the source with ELFCORE 1.3.3, so there is nothing for the package to leave out.)

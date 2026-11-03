@@ -1651,7 +1651,7 @@ end)
 -- online but the reporter), with the note, the case and its reporters' names.
 test("watch: a report on an officer goes to the other officers online, never to him nor to a name his player linked; with only him online it waits", function()
 	WithWatch(function(w, W, c)
-		local RUDE, ALT = "Rude Council member-Realm", "Rude Alt-Realm"
+		local RUDE, ALT = "Rude Officer-Realm", "Rude Alt-Realm"
 		w.setRank(c.me, 3); w.setRank("Council member One-Realm", 1); w.setRank(RUDE, 1); w.setRank(ALT, 1)
 		w.links[c.Fold(RUDE)] = { ALT }
 		w.online(c.me, "Council member One-Realm", RUDE, ALT)
@@ -1666,8 +1666,8 @@ test("watch: a report on an officer goes to the other officers online, never to 
 		w.links[c.Fold(RUDE)] = { ALT }
 		-- Only the accused (and his alt) online: it waits for another officer.
 		w.jobs = {}
-		w.epoch = w.epoch + W.REPORT_GAP; w.online(c.me, "Lone Council member-Realm"); w.setRank("Lone Council member-Realm", 1); w.refreshRoster()
-		ok, how = W.SendReport("Lone Council member-Realm", "S", "")
+		w.epoch = w.epoch + W.REPORT_GAP; w.online(c.me, "Lone Officer-Realm"); w.setRank("Lone Officer-Realm", 1); w.refreshRoster()
+		ok, how = W.SendReport("Lone Officer-Realm", "S", "")
 		eq(ok, true); eq(how, "held"); eq(#w.jobs, 0)
 		-- An officer closing a case on another officer tells the others, never him.
 		w.setRank(c.me, 0); w.online(c.me, "Council member One-Realm", RUDE, ALT)

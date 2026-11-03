@@ -13,7 +13,7 @@ local WithGamepadUI = assert(extra and extra.WithGamepadUI, "WithGamepadUI")
 -- loadDeprecationFallbacks setting is on: Deprecated_ChatFrame.lua:4/74), the main chat window,
 -- Shift. Generic names alone.
 local GUILD = "Bankai Guild II"
-local SPEAKER, COUNCIL_MEMBER, ELDER = "Test Speaker-Realm", "Test Council member-Realm", "Test Elder-Realm"
+local SPEAKER, COUNCIL_MEMBER, ELDER = "Test Speaker-Realm", "Test Officer-Realm", "Test Elder-Realm"
 
 local function WithLinks(fn)
 	local GLOBALS = { "hooksecurefunc", "SetItemRef", "ChatFrameUtil", "ChatFrame_OpenChat", "IsShiftKeyDown", "DEFAULT_CHAT_FRAME", "GetGuildInfo",

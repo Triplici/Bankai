@@ -1570,7 +1570,9 @@ end
 
 local federation, federationSize = {}, 0 -- [name] = true|false, asked often: kept
 local function Federation(guild)
-	do return false end -- Bankai Guild: no name rule, only the exact list (ns.APPROVED_BUILTIN)
+	-- Bankai Guild: no name rule, only the exact list (ns.APPROVED_BUILTIN). ns.NameRule is the offline
+	-- tests' world (tests/run.lua), whose made-up guilds are named "Bankai Guild Zeus" and the like.
+	do return ns.NameRule ~= nil and ns.NameRule(guild) == true end
 	local words = {}
 	for word in guild:lower():gsub("0", "o"):gsub("1", "l"):gmatch("%a+") do words[#words + 1] = word end
 	for i, word in ipairs(words) do

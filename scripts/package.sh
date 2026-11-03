@@ -37,8 +37,8 @@ clean_source() {
 			*) printf 'package.sh refuses untracked or ignored addon file: %s\n' "$path" >&2; found=true ;;
 		esac
 	done < <(
-		git ls-files -z --others --exclude-standard -- Bankai Guild BankaiGuild_Arena BankaiGuildSiteAggregate
-		git ls-files -z --others --ignored --exclude-standard -- Bankai Guild BankaiGuild_Arena BankaiGuildSiteAggregate
+		git ls-files -z --others --exclude-standard -- BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate
+		git ls-files -z --others --ignored --exclude-standard -- BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate
 	)
 	if $found; then exit 1; fi
 }

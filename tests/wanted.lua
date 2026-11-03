@@ -5785,7 +5785,7 @@ end)
 test("Most Wanted: no Bankai Guild file registers a restricted combat log event (Forever blocks the addon at login)", function()
 	local RESTRICTED = { "COMBAT_LOG_EVENT_UNFILTERED", "COMBAT_LOG_EVENT" }
 	local found = {}
-	for _, dir in ipairs({ "Bankai Guild", "BankaiGuild_Arena" }) do
+	for _, dir in ipairs({ "BankaiGuild", "BankaiGuild_Arena" }) do
 		local p = io.popen('find "' .. ROOT .. dir .. '" -name "*.lua"')
 		for path in p:lines() do
 			local f = io.open(path, "rb")

@@ -93,19 +93,13 @@ function Honor.Thank(name)
 	return true
 end
 
--- Our own emote: a /bow within BOW_WINDOW of our killing blow on a player counts.
--- shortcut: the emote's text is read in English and Portuguese ("bow", "reverência"); another
--- client language counts nothing, until a check by the emote's token is added (DoEmote).
-local BOW_WORDS = { "bow", "reverência", "reverencia" }
-function Honor.OnTextEmote(text, sender)
-	if type(text) ~= "string" or type(sender) ~= "string" or (issecretvalue and (issecretvalue(text) or issecretvalue(sender))) then return false end
-	if ns.ShortName(sender) ~= ns.ShortName(ns.me or "") then return false end
+-- Our own emote (the game's DoEmote, which /bow calls, by its token in every client language): a
+-- BOW within BOW_WINDOW of our killing blow on a player counts.
+function Honor.OnEmote(token)
+	if type(token) ~= "string" or (issecretvalue and issecretvalue(token)) or token:upper() ~= "BOW" then return false end
 	local Bow = ns.Bow
 	if not Bow or GetTime() - (Bow.killAt or -math.huge) > Honor.BOW_WINDOW then return false end
-	local lower = text:lower()
-	local found = false
-	for _, w in ipairs(BOW_WORDS) do if lower:find(w, 1, true) then found = true break end end
-	if not found or not Honor.AddBow(ns.me) then return false end
+	if not Honor.AddBow(ns.me) then return false end
 	Bow.killAt = -math.huge -- (one bow a kill)
 	ns.Comm.Send("CHANNEL", "HB~B~", "honor bow")
 	ns.Print(L.BOW_COUNTED)
@@ -148,7 +142,10 @@ function Honor.Lines(lines, Gold, Grey)
 	lines[#lines + 1] = { indent = 1, text = Grey(L.KUDOS_HOW) }
 end
 
-ns.RegisterEvent("CHAT_MSG_TEXT_EMOTE", function(text, sender) ns.SafeCall("honor bow", Honor.OnTextEmote, text, sender) end)
+-- (A post-hook: the emote is the game's own, read after it ran; GamepadRegistry.lua's "emote-hook".)
+if hooksecurefunc and DoEmote then -- gp:emote-hook
+	hooksecurefunc("DoEmote", function(token) ns.SafeCall("honor bow", Honor.OnEmote, token) end) -- gp:emote-hook
+end
 
 -- The right-click line on a member: thank him.
 if ns.PlayerMenu and ns.PlayerMenu.Add then

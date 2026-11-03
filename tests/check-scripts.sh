@@ -209,7 +209,7 @@ for missing in BankaiGuild_Arena BankaiGuildSiteAggregate; do
 	deploy_root="$scratch_root/deploy-missing-$missing"
 	mkdir -p "$deploy_root/scripts" "$deploy_root/bin"
 	cp "$repo_root/scripts/deploy.sh" "$deploy_root/scripts/"
-	for folder in Bankai Guild BankaiGuild_Arena BankaiGuildSiteAggregate; do
+	for folder in BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate; do
 		mkdir -p "$deploy_root/$folder"
 		printf '## Interface: 16001\n' > "$deploy_root/$folder/$folder.toc"
 	done
@@ -271,8 +271,9 @@ package_has_no_wager_modules() {
 		unzip -p "$zip" "${path%%/*}/${path%%/*}.toc" | tr -d '\r' | grep -qxF "$entry" && package_fail "$(basename "$zip") TOC lists $entry"
 		[ -f "$pkg/$path" ] || package_fail "the repository copy lost $path"
 	done < "$repo_root/scripts/bets-only.txt"
-	[ "$left_out" -ge 1 ] || package_fail 'bets-only.txt names no file'
-	for folder in Bankai Guild BankaiGuild_Arena BankaiGuildSiteAggregate; do
+	# (11-02: the list may be empty: the wager modules it named were removed from the source.)
+	: "$left_out"
+	for folder in BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate; do
 		unzip -p "$zip" "$folder/$folder.toc" | tr -d '\r' | while IFS= read -r entry; do
 			case "$entry" in ''|'#'*) continue ;; esac
 			grep -qxF "$folder/${entry//\\//}" "$listing" || { printf 'FAIL: package.sh: %s.toc lists %s, not in %s\n' "$folder" "$entry" "$zip" >&2; exit 1; }
@@ -294,7 +295,7 @@ if command -v git >/dev/null 2>&1 && command -v zip >/dev/null 2>&1 && command -
 		git init -q
 		git config user.name "Package Test"
 		git config user.email "package-test@example.invalid"
-		git add Bankai Guild scripts/package.sh scripts/bets-only.txt
+		git add BankaiGuild scripts/package.sh scripts/bets-only.txt
 		git commit -qm "package fixture without Arena"
 	)
 	if (cd "$missing_pkg" && bash scripts/package.sh > out.txt 2>&1); then
@@ -314,7 +315,7 @@ if command -v git >/dev/null 2>&1 && command -v zip >/dev/null 2>&1 && command -
 		git init -q
 		git config user.name "Package Test"
 		git config user.email "package-test@example.invalid"
-		git add Bankai Guild BankaiGuild_Arena scripts/package.sh scripts/bets-only.txt
+		git add BankaiGuild BankaiGuild_Arena scripts/package.sh scripts/bets-only.txt
 		git commit -qm "package fixture without site aggregate"
 	)
 	if (cd "$missing_site" && bash scripts/package.sh > out.txt 2>&1); then
@@ -337,7 +338,7 @@ if command -v git >/dev/null 2>&1 && command -v zip >/dev/null 2>&1 && command -
 		git init -q
 		git config user.name "Package Test"
 		git config user.email "package-test@example.invalid"
-		git add Bankai Guild BankaiGuild_Arena BankaiGuildSiteAggregate scripts/package.sh scripts/bets-only.txt
+		git add BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate scripts/package.sh scripts/bets-only.txt
 		git commit -qm "package fixture with mismatched versions"
 	)
 	if (cd "$mismatch_pkg" && bash scripts/package.sh > out.txt 2>&1); then
@@ -359,7 +360,7 @@ if command -v git >/dev/null 2>&1 && command -v zip >/dev/null 2>&1 && command -
 		git init -q
 		git config user.name "Package Test"
 		git config user.email "package-test@example.invalid"
-		git add Bankai Guild BankaiGuild_Arena BankaiGuildSiteAggregate scripts/package.sh scripts/bets-only.txt
+		git add BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate scripts/package.sh scripts/bets-only.txt
 		git commit -qm "package fixture with stale site aggregate"
 	)
 	if (cd "$site_mismatch" && bash scripts/package.sh > out.txt 2>&1); then
@@ -378,7 +379,7 @@ if command -v git >/dev/null 2>&1 && command -v zip >/dev/null 2>&1 && command -
 		git init -q
 		git config user.name "Package Test"
 		git config user.email "package-test@example.invalid"
-		git add Bankai Guild BankaiGuild_Arena BankaiGuildSiteAggregate scripts/package.sh scripts/bets-only.txt
+		git add BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate scripts/package.sh scripts/bets-only.txt
 		git commit -qm "package fixture"
 	)
 	version=$(grep '^## Version:' "$pkg/BankaiGuild/BankaiGuild.toc" | awk '{print $3}' | tr -d '\r')

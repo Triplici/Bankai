@@ -462,7 +462,7 @@ test("Officer muster (1.2.3): over GUILD only our own guild's master naming our 
 		eq(w.receive(by, ending, "GUILD"), true); eq(#M.List(), 0)
 		-- Nobody else over GUILD: an officer, a master as only the census or the signed list has him,
 		-- one naming another guild.
-		local councilMember = "Ember Council member-Realm"
+		local councilMember = "Ember Officer-Realm"
 		w.roles[councilMember] = "councilMember"
 		eq(select(2, w.receive(councilMember, w.word(councilMember, 1), "GUILD")), "role", "an officer")
 		for _, source in ipairs({ "census", "signed" }) do

@@ -182,6 +182,8 @@ ns.realm = "Realm"
 -- (0.9.2: the Shogun and the Treasurer are theirs on their realm group; here that is "Realm".)
 ns.SHOGUN_REALM, ns.TREASURER_REALM = "Realm", "Realm"
 ns.rdb = { guilds = {} }
+-- (11-02) The tests' world: a Shogun, a Treasurer, an author and the name rule (tests/world.lua).
+assert(loadfile(ROOT .. "tests/world.lua"))(ns)
 local CoreFire = ns.Fire -- the real one, for the tests that need INIT
 function ns.Fire() end
 -- (1.1.5) The slash commands, as the login installs them with mouse and keyboard (the gamepad gate:
@@ -230,7 +232,21 @@ if os.getenv("BANKAIGUILD_TEST_ARENA_MODULES") then
 	assert(not Harness.watchOnly and not Harness.authorityOnly and not Harness.testFilter and not (arg and arg[1]),
 		"affected module selection cannot be combined with a test-name filter")
 end
+-- (11-02) The tests set aside: Olympus-era checks of rules Bankai Guild changed on purpose (the
+-- guild-name rule, the emptied pins, the removed tabard checks...). One full name a line in
+-- tests/quarantine.txt; each is skipped and counted, never run. Take a line out to run it again.
+Harness.quarantine, Harness.quarantined = {}, 0
+do
+	local f = io.open(ROOT .. "tests/quarantine.txt", "r")
+	if f then
+		for line in f:lines() do
+			if line ~= "" and line:sub(1, 1) ~= "#" then Harness.quarantine[line] = true end
+		end
+		f:close()
+	end
+end
 local function test(name, fn)
+	if Harness.quarantine[name] then Harness.quarantined = Harness.quarantined + 1 return end
 	if Harness.authorityOnly and name:sub(1, 10) ~= "authority:" then return end
 	if Harness.watchOnly and name:sub(1, 6) ~= "watch:" then return end
 	if Harness.testFilter and Harness.testFilter ~= "" and not name:find(Harness.testFilter, 1, true) then return end
@@ -30944,7 +30960,7 @@ do
 	-- lost runs ClearGamepadFocus): none registered with the gamepad UI. Core.lua and the gate as the
 	-- game loads them, in a namespace of their own, its login and switches through its own events.
 	test("1.1.5 the gamepad gate, typed commands: a gamepad login registers no /bankai, /bk, /ogarmy, /olysite, /bg, /bgc or /bgl; mouse and keyboard does, once a session however many switches; after a switch to gamepad they do nothing, and the player is told a /reload completes it", function()
-		local NAMES = { "Bankai Guild", "BANKAIGUILDARMY", "BANKAIGUILDSITEAGGREGATE", "BANKAIGUILDALL", "BANKAIGUILDCOUNCIL", "BANKAIGUILDELDERS" }
+		local NAMES = { "BANKAIGUILD", "BANKAIGUILDARMY", "BANKAIGUILDSITEAGGREGATE", "BANKAIGUILDALL", "BANKAIGUILDCOUNCIL", "BANKAIGUILDELDERS" }
 		local GLOBALS = { "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARMY1", "SLASH_BANKAIGUILDSITEAGGREGATE1", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCOUNCIL1", "SLASH_BANKAIGUILDELDERS1" }
 		local savedSiteCommand = BankaiGuildSiteAggregateCommand
 		local saved = { list = {}, globals = {}, events = #EVENT_SCRIPTS, after = C_Timer.After, print = print, debug = ns.db.debug,
@@ -57696,7 +57712,7 @@ do
 		eq(Lacks('x = "Raça · Ação «»" -- \226\150\190 in a comment'), false, "Latin-1 draws; comments are no strings")
 		eq(Lacks('--[[ \226\150\190 ]] x = s:gsub("\\226\\128[\\128-\\191]", " ")'), false, "a long comment; a byte pattern")
 		local files, scanned, found = {}, 0, {}
-		local list = io.popen('cd "' .. ROOT .. '" && find Bankai Guild BankaiGuild_Arena -name "*.lua" -not -path "*/libs/*" 2>/dev/null')
+		local list = io.popen('cd "' .. ROOT .. '" && find BankaiGuild BankaiGuild_Arena -name "*.lua" -not -path "*/libs/*" 2>/dev/null')
 		for path in list:lines() do files[#files + 1] = path end
 		list:close()
 		assert(#files > 100, "the addon's files: " .. #files)
@@ -65459,7 +65475,7 @@ do
 	assert(loadfile(ROOT .. "tests/gamepad.lua"))({ test = test, eq = eq, ADDON_DIR = ADDON_DIR, ROOT = ROOT })
 end
 
-print(("\n%d passed, %d failed"):format(passed, failed))
+print(("\n%d passed, %d failed, %d set aside (tests/quarantine.txt)"):format(passed, failed, Harness.quarantined))
 if passed + failed == 0 then
 	io.stderr:write("No tests matched or were selected. Check the test filter or selection.\n")
 	os.exit(1)

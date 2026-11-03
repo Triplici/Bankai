@@ -6,11 +6,13 @@ GetTime = function() return clock end
 issecretvalue = nil
 
 local sent, printed, handler, emote = {}, {}, nil, nil
+DoEmote = function() end
+hooksecurefunc = function(name, fn) assert(name == "DoEmote"); emote = fn end
 local ns = {
 	L = setmetatable({}, { __index = function(_, k) return k end }), rdb = {}, me = "Trip-Realm", realm = "Realm",
 	Print = function(m) printed[#printed + 1] = m end, Fire = function() end, IsMember = function() return true end,
 	SafeCall = function(_, fn, ...) return fn(...) end,
-	RegisterEvent = function(e, fn) if e == "CHAT_MSG_TEXT_EMOTE" then emote = fn end end,
+	RegisterEvent = function() end,
 	Fold = function(s) return s:lower() end,
 	ShortName = function(n) return n and (n:gsub("%-.*$", "")) end,
 	FullName = function(n) if not n or n:find("-", 1, true) then return n end return n .. "-Realm" end,
@@ -21,7 +23,7 @@ local ns = {
 assert(loadfile(ROOT .. "BankaiGuild/Honor.lua"))("BankaiGuild", ns)
 local H = ns.Honor
 H.now = function() return server end
-assert(handler and emote, "the HB type and the emote listener are registered")
+assert(handler and emote, "the HB type and the DoEmote post-hook are registered")
 
 -- Kudos: one per player a day, KUDOS_PER_DAY players a day, never oneself; told on the channel.
 assert(H.Thank("twee") == true and sent[#sent] == "CHANNEL HB~K~Twee-Realm", "a kudo goes out")
@@ -41,13 +43,14 @@ assert(not handler("CHANNEL", "Other-Realm", "HB~K~Other-Realm"), "never himself
 assert(not handler("CHANNEL", "Other-Realm", "HB~K~not a name"), "a name with a realm")
 
 -- Bows: within a minute of our own killing blow on a player, once, 30 s apart, 20 a week.
-assert(not H.OnTextEmote("You bow before Enemy.", "Trip"), "no kill: no bow counted")
+assert(not H.OnEmote("BOW"), "no kill: no bow counted")
 ns.Bow.killAt = clock - 10
-assert(not H.OnTextEmote("Twee bows before you.", "Twee"), "another's emote")
-assert(H.OnTextEmote("You bow before Enemy.", "Trip") and sent[#sent] == "CHANNEL HB~B~", "our bow after the kill")
+assert(not H.OnEmote("WAVE"), "another emote")
+emote("BOW") -- (through the post-hook, as /bow calls DoEmote)
+assert(sent[#sent] == "CHANNEL HB~B~" and printed[#printed] == "BOW_COUNTED", "our bow after the kill")
 assert(ns.Bow.killAt == -math.huge, "one bow a kill")
 ns.Bow.killAt = clock - 61
-assert(not H.OnTextEmote("You bow before Enemy.", "Trip"), "past the minute")
+assert(not H.OnEmote("bow"), "past the minute")
 assert(handler("CHANNEL", "Twee-Realm", "HB~B~"))
 assert(not handler("CHANNEL", "Twee-Realm", "HB~B~"), "30 s apart")
 server = server + 31

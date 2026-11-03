@@ -95,10 +95,13 @@ if [ -f scripts/gamepad-audit.lua ]; then
 	luajit scripts/gamepad-audit.lua
 fi
 
-printf 'Checking the Settings tab...\n'
-luajit tests/settings.lua
-luajit tests/way.lua
-luajit tests/honor.lua
+# 11-02: the Settings tab, The Way page and the /bow nudge, and the honor boards, each on its own.
+for t in settings way honor; do
+	if [ -f "tests/$t.lua" ]; then
+		printf 'Checking %s...\n' "tests/$t.lua"
+		luajit "tests/$t.lua"
+	fi
+done
 printf 'Running offline tests...\n'
 luajit tests/run.lua
 

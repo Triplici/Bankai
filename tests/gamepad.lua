@@ -100,7 +100,7 @@ do
 	if root == "" then root = "." end
 	local vendor = {}
 	for id, e in pairs(REGISTRY) do for _, f in ipairs(type(e.vendor) == "table" and e.vendor or {}) do vendor[f] = id end end
-	local p = io.popen('cd "' .. root .. '" && find Bankai Guild -name "*.lua"')
+	local p = io.popen('cd "' .. root .. '" && find BankaiGuild -name "*.lua"')
 	for rel in p:lines() do
 		local scan = AUDIT.ScanFile(root, rel)
 		local short = rel:gsub("^BankaiGuild/", "")
@@ -2329,13 +2329,14 @@ test("gamepad pass 1: a whole session with the gamepad UI on from the login reac
 	local diff = Diff(before, Snapshot(C))
 	eq(#diff, 0, "the game's state written: " .. table.concat(diff, ", "))
 	eq(C.handler, C.gameHandler, "the game's own error handler")
-	-- Registered with the game: only the exempt mail post-hooks (Treasury.lua, "mail-hooks").
+	-- Registered with the game: only the exempt post-hooks (Treasury.lua's "mail-hooks", Honor.lua's "emote-hook").
 	local kinds = {}
 	for _, cb in ipairs(C.callbacks) do kinds[#kinds + 1] = cb.kind .. " " .. tostring(cb.key or cb.tag or cb.script or "") end
 	table.sort(kinds)
-	eq(table.concat(kinds, ", "), "hooksecurefunc AutoLootMailItem, hooksecurefunc SendMail, hooksecurefunc TakeInboxItem, hooksecurefunc TakeInboxMoney",
+	eq(table.concat(kinds, ", "), "hooksecurefunc AutoLootMailItem, hooksecurefunc DoEmote, hooksecurefunc SendMail, hooksecurefunc TakeInboxItem, hooksecurefunc TakeInboxMoney",
 		"what is registered with the game")
 	GP.Covers("mail-hooks")
+	GP.Covers("emote-hook") -- (11-02: the honor board's /bow, Honor.lua, the same kind of post-hook)
 end)
 
 test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the gate steps back on the next frame, every callback left with the game does nothing, the player is told once what a /reload clears", function()
@@ -2373,7 +2374,7 @@ test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the g
 	used.slash = E.SlashCmdList.BANKAIGUILD and 1 -- (a table write, not a call: the commands registered)
 	for _, id in ipairs({ "slash", "communities-button", "tooltip-unit", "error-handler", "map-overlay", "dialogs", "chat-box", "who",
 		"who-quiet", "map-library", "chat-key", "player-menu", "borders", "chat-marks", "nameplates", "minimap", "roster-actions",
-		"calendar", "raid-notice", "chat-channels", "mail-hooks" }) do
+		"calendar", "raid-notice", "chat-channels", "mail-hooks", "emote-hook" }) do
 		assert(used[id], "with mouse and keyboard, used: " .. id)
 	end
 	-- A game popup of Bankai Guild's still up, its window on the escape list, the Communities window
