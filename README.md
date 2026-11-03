@@ -2,28 +2,21 @@
 
 # Bankai Guild
 
-**The whole Bankai Guild army in one window, inside World of Warcraft: Forever.**
+**All Bankai & Elfcore guilds, all in one window inside of World of Warcraft: Forever.**
 
-Bankai Guild is Shobek's guild for *World of Warcraft: Forever*: Alliance, PvP ruleset, a
-place to find dungeon groups, organize raids, share class knowledge and build the guild
-together. It grew past **10,000 members during the beta**. A WoW guild caps at 1,000
-members, so Bankai Guild is really a *realm* of many Bankai Guild guilds. In game each player
-only ever sees the roster of their own guild. Nobody could tell how many Bankai Guild guilds
-exist, who leads them, or where the army is.
+Bankai Guild is Shobek's add-on for *World of Warcraft: Forever* (based on the Olympus add-on used in Beta).
+This add-on enables multiple guilds to virtually become one in WoW Forever. 
 
-This addon answers exactly that. It adds up every Bankai Guild guild live, in a window that
-looks like Blizzard's Guild window and docks right next to it.
-
-<p align="center"><img src="docs/bankai-1.jpg" alt="The whole army at a glance: every Bankai Guild guild, live"></p>
+<p align="center"><img src="docs/bankai-1.jpg" alt="The whole guild at a glance: every Bankai and Elfcore guild, live"></p>
 
 <table>
 <tr>
-<td><img src="docs/bankai-2.jpg" alt="The Realm: the Shogun, the Treasurer and every Elder and Council member"></td>
-<td><img src="docs/bankai-3.jpg" alt="Every guild in detail: hover a guild for members, online, Elder, free slots, level and classes"></td>
+<td><img src="docs/bankai-2.jpg" alt="The Realm: All leaders, listed and shown across all guilds."></td>
+<td><img src="docs/bankai-3.jpg" alt="Guild Summary: How many members total, how many online, which classes and average level in the guild."></td>
 </tr>
 <tr>
-<td><img src="docs/bankai-4.jpg" alt="One click to anyone: whisper, invite or find an Elder or Council member"></td>
-<td><img src="docs/bankai-5.jpg" alt="Where the army stands: soldiers per zone on the world map"></td>
+<td><img src="docs/bankai-4.jpg" alt="One click to anyone: whisper, invite or find an officer."></td>
+<td><img src="docs/bankai-5.jpg" alt="Where the guild stands: members per zone on the world map"></td>
 </tr>
 </table>
 
