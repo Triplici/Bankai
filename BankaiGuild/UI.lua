@@ -712,6 +712,27 @@ function UI.DockSize(hostW, hostH, heightOnly, baseW, baseH)
 	return baseW, baseH
 end
 
+-- (11-02) The window's width, wider than the game's guild window if the player likes (the
+-- Settings tab): extra pixels on top of the width worked out below, the layout following
+-- (OnSizeChanged). Each window keeps its base width (baseW) to change it in place.
+UI.WIDTH_STEPS = { 0, 160, 320 } -- Normal, Wide, Wider
+function UI.WidthStep()
+	local i = tonumber(ns.db and ns.db.windowWidth)
+	return (i and UI.WIDTH_STEPS[i]) and i or 1
+end
+local function Wide(f, w, h)
+	f.baseW = w
+	f:SetSize(w + UI.WIDTH_STEPS[UI.WidthStep()], h)
+end
+function UI.SetWidthStep(i)
+	if not UI.WIDTH_STEPS[i] then return false end
+	ns.db.windowWidth = i ~= 1 and i or nil
+	for _, f in pairs(frames) do
+		if f.baseW then f:SetWidth(f.baseW + UI.WIDTH_STEPS[i]) end
+	end
+	return true
+end
+
 -- Size of a new window: as if docked to the guild window in use (GuildFrame.lua knows
 -- which), else the Social window's (the HD one with the Communities window's height).
 local function HostSize(style)
@@ -1160,7 +1181,7 @@ end
 -- selected; every native page restores the Bankai Guild emblem. Forever refuses texture-coordinate
 -- changes after a mask has been attached, so the mask and initial coordinates are applied once.
 local function ApplyPortrait(f, asset)
-	asset = asset or ns.LOGO
+	asset = asset or ns.PORTRAIT
 	f.portraitAsset = asset
 	if not f.hasPortrait then return end
 	local portrait = f.portrait or f.Portrait or (f.PortraitContainer and f.PortraitContainer.portrait)
@@ -1187,7 +1208,7 @@ local function CreateMain(style)
 		f = CreateFrame("Frame", hd and "BankaiGuildFrameHDBasic" or "BankaiGuildFrameBasic", UIParent, "BasicFrameTemplateWithInset")
 	end
 	f.style = style
-	f:SetSize(HostSize(style))
+	Wide(f, HostSize(style))
 	f:SetPoint("CENTER", 0, 40)
 	f:SetFrameStrata("MEDIUM")
 	f:SetToplevel(true)
@@ -1223,7 +1244,7 @@ local function CreateMain(style)
 	elseif f.TitleContainer and f.TitleContainer.TitleText then
 		f.TitleContainer.TitleText:SetText(L.TITLE)
 	end
-	ApplyPortrait(f, ns.LOGO)
+	ApplyPortrait(f, ns.PORTRAIT)
 	f.helpButton = HelpButton(f)
 	f.viewAs = ViewAsButton(f)
 
@@ -1954,7 +1975,7 @@ local function ShowTab(key, focus)
 	-- A tab opened: its list starts at the top, or at the row it opens on (UI.KeepPlace).
 	main.page, main.wantScroll, main.focus = nil, nil, focus
 	if surface then SetParchment(false) end
-	ApplyPortrait(main, surface and surface.portrait or ns.LOGO)
+	ApplyPortrait(main, surface and surface.portrait or ns.PORTRAIT)
 	for i, tab in ipairs(main.tabs) do
 		if main.tabStyle == "side" then
 			-- The HD window's icon tabs: the selected one stays checked.
@@ -2551,7 +2572,7 @@ function UI.OpenDocked(host, tab, heightOnly, style)
 	if not ns.Gate.Allowed("communities-button") then return UI.SelectTab(tab or "census") end
 	UseStyle(style or UI.Style())
 	main.host, main.heightOnly = host, heightOnly
-	main:SetSize(UI.DockSize(host:GetWidth(), host:GetHeight(), heightOnly, SocialSize()))
+	Wide(main, UI.DockSize(host:GetWidth(), host:GetHeight(), heightOnly, SocialSize()))
 	DockTo(host)
 	main.docked = true
 	local ok = ShowTab(tab or main.tab or "census")
@@ -2565,7 +2586,7 @@ end
 function UI.FollowHost(host)
 	if not ns.Gate.Allowed("communities-button") then return end
 	if main and main.docked and main.host == host then
-		main:SetSize(UI.DockSize(host:GetWidth(), host:GetHeight(), main.heightOnly, SocialSize()))
+		Wide(main, UI.DockSize(host:GetWidth(), host:GetHeight(), main.heightOnly, SocialSize()))
 		if main.style == "hd" then DockTo(host) end
 	end
 end

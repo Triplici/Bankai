@@ -38,7 +38,7 @@ Settings.NextWarnDays = NextWarnDays -- (tests)
 -- each option's default). Privacy answers and the chats (Consent.lua's questions) are not here:
 -- the setup page shows them again after the next /reload, to change any of them.
 Settings.RESET_KEYS = { "hideMinimap", "showMates", "sharePosition", "showCamps", "borders", "nameplates",
-	"chatMarks", "warnDays", "sound", "soundOff", "alertsAlways", "bowNudge" }
+	"chatMarks", "warnDays", "sound", "soundOff", "alertsAlways", "bowNudge", "windowWidth" }
 
 function Settings.Reset()
 	local defaults = ns.DEFAULTS or {}
@@ -46,6 +46,7 @@ function Settings.Reset()
 	ns.db.setupDue = true -- the setup page (Consent.lua) opens again after a /reload
 	local function Run(name, fn, ...) if type(fn) == "function" then ns.SafeCall("settings reset " .. name, fn, ...) end end
 	Run("minimap", ns.UI and ns.UI.UpdateMinimapButton)
+	Run("width", ns.UI and ns.UI.SetWidthStep, 1)
 	Run("mates", ns.Positions and ns.Positions.Refresh)
 	Run("camps", ns.Board and ns.Board.RefreshCamps)
 	Run("borders", ns.Borders and ns.Borders.RefreshAll, true)
@@ -63,6 +64,18 @@ function Settings.Lines()
 	local lines = {}
 	local db = ns.db
 	lines[#lines + 1] = { header = true, text = L.SETTINGS_DISPLAY }
+	-- The window's width (UI.SetWidthStep): Normal, Wide, Wider, round again.
+	if ns.UI.SetWidthStep and ns.UI.WIDTH_STEPS then
+		local step = ns.UI.WidthStep()
+		lines[#lines + 1] = {
+			text = L.SETTINGS_WIDTH, right = Gold(L["SETTINGS_WIDTH_" .. step]), setting = "width",
+			onClick = function() ns.UI.SetWidthStep(step % #ns.UI.WIDTH_STEPS + 1); Refresh() end,
+			tooltip = function(tt)
+				tt:AddLine(L.SETTINGS_WIDTH, 1, 0.82, 0)
+				tt:AddLine(L.SETTINGS_WIDTH_TIP, 1, 1, 1, true)
+			end,
+		}
+	end
 	Toggle(lines, L.SETTINGS_MINIMAP, "/bk minimap", function() return not db.hideMinimap end,
 		function() ns.db.hideMinimap = not ns.db.hideMinimap; ns.UI.UpdateMinimapButton() end)
 	if ns.Positions then

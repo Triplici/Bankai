@@ -8,6 +8,8 @@ ns.CHANNEL = "BankaiGuildNet"    -- hidden chat channel shared by every Bankai G
 ns.CHANNEL_HORDE = "BankaiGuildNetH" -- the Horde's: the two factions never see each other's guilds
 ns.ICON = "Interface\\AddOns\\BankaiGuild\\media\\logo64"
 ns.LOGO = "Interface\\AddOns\\BankaiGuild\\media\\logo128"
+-- (11-02) The window's portrait: the emblem at 80%, so the portrait's round crop keeps its gold and red rings.
+ns.PORTRAIT = "Interface\\AddOns\\BankaiGuild\\media\\portrait128"
 ns.EMBLEM = "Interface\\AddOns\\BankaiGuild\\media\\emblem128"
 ns.COLOR = "ff4fd36b"
 

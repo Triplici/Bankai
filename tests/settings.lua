@@ -17,7 +17,9 @@ local ns = {
 	Fire = Rec("Fire"), Print = Rec("Print"),
 }
 ns.UI = { AddTab = function(t) added = t; return true end, RefreshSoon = Rec("RefreshSoon"),
-	UpdateMinimapButton = Rec("UpdateMinimapButton") }
+	UpdateMinimapButton = Rec("UpdateMinimapButton"), WIDTH_STEPS = { 0, 160, 320 },
+	WidthStep = function() return ns.db.windowWidth or 1 end,
+	SetWidthStep = function(i) ns.db.windowWidth = i ~= 1 and i or nil end }
 ns.Positions = { SetEnabled = function(on) ns.db.showMates = on end, SetSharing = function(on) ns.db.sharePosition = on end,
 	Refresh = Rec("Positions.Refresh") }
 ns.Board = { SetCampsShown = function(on) ns.db.showCamps = on end, RefreshCamps = Rec("RefreshCamps") }
@@ -45,6 +47,8 @@ end
 
 -- Each line runs its setter with the opposite of what it shows.
 Row("/bk minimap").onClick(); assert(ns.db.hideMinimap == false, "minimap shown")
+Row("width").onClick(); assert(ns.db.windowWidth == 2, "Wide")
+Row("width").onClick(); assert(ns.db.windowWidth == 3, "Wider")
 Row("/bk mates").onClick(); assert(ns.db.showMates == false)
 Row("/bk camps").onClick(); assert(ns.db.showCamps == true)
 Row("/bk borders").onClick(); assert(ns.db.borders == true)
@@ -73,7 +77,7 @@ now = now + 1
 Row("reset").onClick()
 assert(ns.db.hideMinimap == false and ns.db.warnDays == 3 and ns.db.sound == true and ns.db.showCamps == true)
 assert(ns.db.borders == nil and ns.db.chatMarks == nil and ns.db.nameplates == nil and ns.db.soundOff == nil
-	and ns.db.alertsAlways == nil and ns.db.bowNudge == nil and ns.db.showMates == false and ns.db.sharePosition == false)
+	and ns.db.alertsAlways == nil and ns.db.bowNudge == nil and ns.db.windowWidth == nil and ns.db.showMates == false and ns.db.sharePosition == false)
 assert(ns.db.addonChat == true and ns.db.shareLocation == true, "privacy answers and the chats are kept")
 assert(ns.db.setupDue == true, "the setup page is due at the next load")
 assert(not Row("reset").text:find("SETTINGS_RESET_CONFIRM", 1, true), "back to its label")

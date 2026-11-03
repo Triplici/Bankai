@@ -3914,7 +3914,7 @@ test("1.2.4 API surface: one lazy canvas follows old and HD shells with portrait
 
 		UI.SelectTab("census")
 		eq(oldCanvas:IsShown(), false)
-		eq(old.portraitAsset, ns.LOGO)
+		eq(old.portraitAsset, ns.PORTRAIT) -- (11-02: the portrait's own emblem, its rings inside the crop)
 		visible = false
 		eq(UI.RefreshAPISurface(owner), true)
 		eq(surfaceTab:IsShown(), false, "refresh re-evaluates surface visibility")
@@ -65273,7 +65273,7 @@ end)()
 				UI.Toggle()
 				local main = BankaiGuildFrame
 				eq(main.template, "PortraitFrameTemplate", "the Bankai Guild window: as it was")
-				eq(main.portrait.texture, ns.LOGO, "its logo in its portrait"); eq(main.metal, nil)
+				eq(main.portrait.texture, ns.PORTRAIT, "its emblem in its portrait"); eq(main.metal, nil)
 				-- The help (its "i") and every copy window: one function makes them all.
 				UI.ShowHelp()
 				local help = BankaiGuildCopyFrame
