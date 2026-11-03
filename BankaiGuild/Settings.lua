@@ -38,7 +38,7 @@ Settings.NextWarnDays = NextWarnDays -- (tests)
 -- each option's default). Privacy answers and the chats (Consent.lua's questions) are not here:
 -- the setup page shows them again after the next /reload, to change any of them.
 Settings.RESET_KEYS = { "hideMinimap", "showMates", "sharePosition", "showCamps", "borders", "nameplates",
-	"chatMarks", "warnDays", "sound", "soundOff", "alertsAlways" }
+	"chatMarks", "warnDays", "sound", "soundOff", "alertsAlways", "bowNudge" }
 
 function Settings.Reset()
 	local defaults = ns.DEFAULTS or {}
@@ -82,6 +82,9 @@ function Settings.Lines()
 	end
 	if ns.Channels then
 		Toggle(lines, L.SETTINGS_CHAT, "/bk chat", ns.Channels.ChatOn, ns.Channels.SetChatOn)
+	end
+	if ns.Bow then
+		Toggle(lines, L.SETTINGS_BOW, "/bk bow", ns.Bow.Enabled, ns.Bow.SetEnabled)
 	end
 	if ns.Members and ns.Members.WarnDays then
 		local days = ns.Members.WarnDays()

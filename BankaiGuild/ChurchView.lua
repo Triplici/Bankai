@@ -23,7 +23,7 @@ local View = {}
 ns.ChurchView = View
 local Church, Count = ns.Church, ns.ChurchCount
 
-View.page, View.list, View.window = "ranking", "a", "m"
+View.page, View.list, View.window = "way", "a", "m"
 View.open = {}
 View.rulesReturn = nil
 
@@ -92,6 +92,10 @@ end
 function View.Pages()
 	local out = {}
 	if not View.Visible() then return out end
+	-- 11-02: the tab is the guild charter, The Way of the Grove, alone. The officers chose not to run
+	-- the mentorship network, so its pages (below) are not offered; its code and saved book stay.
+	if not View.NETWORK then return { "way" } end
+	out[#out + 1] = "way"
 	local audience = Audience()
 	if audience then out[#out + 1] = "ranking" end
 	if Person() then out[#out + 1] = "mine" end
@@ -129,7 +133,7 @@ local function CloseRules()
 	Redraw()
 end
 
-local PAGE_LABEL = { ranking = "CHURCH_NAV_RANKING", mine = "CHURCH_NAV_MINE", people = "CHURCH_NAV_PEOPLE", name = "CHURCH_NAV_NAME",
+local PAGE_LABEL = { way = "CHURCH_NAV_WAY", ranking = "CHURCH_NAV_RANKING", mine = "CHURCH_NAV_MINE", people = "CHURCH_NAV_PEOPLE", name = "CHURCH_NAV_NAME",
 	review = "CHURCH_NAV_REVIEW", public = "CHURCH_NAV_PUBLIC" }
 
 local function Nav(current)
@@ -711,6 +715,74 @@ function View.PublicLines()
 end
 
 ---------------------------------------------------------------------------
+-- The Way of the Grove (11-02): the guild charter, a blend of ELFCORE's and BANKAI's
+---------------------------------------------------------------------------
+
+-- The two ladders, from each guild's charter (top to bottom: its in-game ranks, in order). A guild
+-- with "core" in its name (ELFCORE, and any later -core guild) reads the first; every other, the second.
+View.RANKS = {
+	core = {
+		{ "Elder", "Guild founder (Shobek)" }, { "Elder Council", "Trusted co-leader (Tweelala)" },
+		{ "Council", "Trusted lieutenants; our guild officers" }, { "Sentinel", "Proven veteran, committed to the guild mission. 12+ months" },
+		{ "Guardian", "Faithful Sentinel-in-training. 9+ months" }, { "Warden", "Holding the line. 6+ months" },
+		{ "Ranger", "Seasoned pathfinder. 3+ months" }, { "Scout", "Exploring the Grove. 1+ months" }, { "Wisp", "A new leaf." },
+	},
+	bankai = {
+		{ "Shogun", "Guild founder" }, { "Daimyo", "Trusted co-leader" }, { "Hatamoto", "The Shogun's bannermen; our guild officers" },
+		{ "Sensei", "Veteran and mentor. 12+ months" }, { "Samurai", "Sworn to the clan. 9+ months" },
+		{ "Kenshi", "Swordsman on the path. 6+ months" }, { "Ronin", "A wandering blade who found a home. 3+ months" },
+		{ "Deshi", "Student of the way. 1+ months" }, { "Mercenary", "A new arrival, yet unproven in BANKAI." },
+	},
+}
+-- Words of `text` in rows of `width` characters at most (a word longer than that keeps its row).
+-- shortcut: counts characters, not pixels; fits the narrow old window, a wide one has room to spare.
+View.WRAP = 62
+function View.Wrap(text, width)
+	local rows, row = {}, ""
+	for word in tostring(text or ""):gmatch("%S+") do
+		if row ~= "" and #row + 1 + #word > width then rows[#rows + 1], row = row, word
+		else row = row == "" and word or (row .. " " .. word) end
+	end
+	if row ~= "" then rows[#rows + 1] = row end
+	return rows
+end
+
+function View.LadderFor(guild)
+	return (type(guild) == "string" and guild:lower():find("core", 1, true)) and View.RANKS.core or View.RANKS.bankai
+end
+
+function View.WayLines()
+	local lines = {}
+	local function Head(text) lines[#lines + 1] = { header = true, text = text } end
+	-- A list row is one line high: a long text goes over several rows, the rest under the first.
+	local function Para(text, first)
+		for i, part in ipairs(View.Wrap(text, View.WRAP)) do
+			lines[#lines + 1] = { indent = i == 1 and 1 or 2, text = i == 1 and first and (first .. part) or part }
+		end
+	end
+	local function Item(name, text) Para(text, Gold(name) .. "  ") end
+	local function Gap() lines[#lines].gapAfter = true end
+	Head(L.WAY_MISSION_TITLE); Para(L.WAY_MISSION); Gap()
+	Head(L.WAY_VIRTUES_TITLE); Para(L.WAY_VIRTUES_ABOUT)
+	for i = 1, 5 do Item(L["WAY_VIRTUE_" .. i], L["WAY_VIRTUE_" .. i .. "_TEXT"]) end
+	Gap()
+	Head(L.WAY_CODE_TITLE); Para(L.WAY_CODE_ABOUT)
+	for i = 1, 9 do Item(L["WAY_CODE_" .. i], L["WAY_CODE_" .. i .. "_TEXT"]) end
+	Gap()
+	Head(L.WAY_SUCCESS_TITLE); Para(L.WAY_SUCCESS); Gap()
+	-- The player's own guild's ladder, his rank marked (the game's rank name, as his guild set it).
+	local guild, rankName = GetGuildInfo("player")
+	local mine = type(rankName) == "string" and rankName:lower() or nil
+	Head(L.WAY_RANKS_TITLE)
+	for _, r in ipairs(View.LadderFor(guild)) do
+		local you = mine ~= nil and r[1]:lower() == mine
+		lines[#lines + 1] = { indent = 1, text = (you and Green(r[1]) or Gold(r[1])) .. "  " .. r[2],
+			right = you and Green(L.WAY_RANKS_YOU) or nil }
+	end
+	return lines, L.CHURCH_TITLE, L.WAY_DETAIL
+end
+
+---------------------------------------------------------------------------
 -- The tab
 ---------------------------------------------------------------------------
 
@@ -734,6 +806,7 @@ function View.Build()
 	end
 	if not Allowed(page) then page = View.Pages()[1] end
 	View.page = page
+	if page == "way" then return View.WayLines() end
 	if page == "ranking" then return View.RankingLines()
 	elseif page == "mine" then return View.MineLines()
 	elseif page == "people" then return View.PeopleLines()
@@ -810,11 +883,11 @@ if ns.UI and ns.UI.AddTab then
 			return ns.UI.FirstTexture and ns.UI.FirstTexture({ "Interface\\Icons\\Spell_Holy_PrayerOfFortitude", "Interface\\Icons\\INV_Misc_Book_09" })
 				or "Interface\\Icons\\INV_Misc_Book_09"
 		end,
-		visible = View.Visible, build = View.Build, buttons = buttons })
+		visible = View.Visible, build = View.Build, buttons = View.NETWORK and buttons or nil })
 end
 
 -- The page's "?": what the Church is and how its numbers are counted (the answer bank's).
-if ns.Answers and type(ns.Answers.PAGES) == "table" then ns.Answers.PAGES.church = { "feat-church", "feat-church-count" } end
+if View.NETWORK and ns.Answers and type(ns.Answers.PAGES) == "table" then ns.Answers.PAGES.church = { "feat-church", "feat-church-count" } end
 
 -- The right-click line on a player (PlayerMenu.lua: Blizzard's own menus, none under the gamepad
 -- UI): an Apostle or a missionary names him a missionary of his network, a root an Apostle.
@@ -839,7 +912,7 @@ function View.MenuLines(target, menu)
 			L.CHURCH_APOSTLE, L.CHURCH_MENU_APOSTLE_TIP, not target.locked)
 	end
 end
-if ns.PlayerMenu and ns.PlayerMenu.Add then
+if View.NETWORK and ns.PlayerMenu and ns.PlayerMenu.Add then
 	-- (1.2.5.1: an Bankai Guild line, for a player this client knows to be in Bankai Guild alone.)
 	ns.PlayerMenu.Add("church", function(target, menu) View.MenuLines(target, menu) end, 40, { bankaiguild = true })
 end

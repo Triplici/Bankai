@@ -29,6 +29,7 @@ ns.Nameplates = { Enabled = function() return ns.db.nameplates ~= false end, Set
 ns.Channels = { ChatOn = function() return ns.db.addonChat == true end, SetChatOn = function(on) ns.db.addonChat = on end }
 ns.Members = { WarnDays = function() return ns.db.warnDays end, SetWarnDays = function(t) ns.db.warnDays = tonumber(t) end }
 ns.Consent = { Show = Rec("Consent.Show") }
+ns.Bow = { Enabled = function() return ns.db.bowNudge ~= false end, SetEnabled = function(on) if on then ns.db.bowNudge = nil else ns.db.bowNudge = false end end }
 
 assert(loadfile(ROOT .. "BankaiGuild/Settings.lua"))("BankaiGuild", ns)
 local S = ns.Settings
@@ -50,6 +51,7 @@ Row("/bk borders").onClick(); assert(ns.db.borders == true)
 Row("/bk chatmarks").onClick(); assert(ns.db.chatMarks == true)
 Row("/bk nameplates").onClick(); assert(ns.db.nameplates == true)
 Row("/bk chat").onClick(); assert(ns.db.addonChat == false)
+Row("/bk bow").onClick(); assert(ns.db.bowNudge == false, "the /bow nudge off")
 ns.db.addonChat = true
 
 -- The absence days go 3, 7, 14, 30 and round again.
@@ -71,7 +73,7 @@ now = now + 1
 Row("reset").onClick()
 assert(ns.db.hideMinimap == false and ns.db.warnDays == 3 and ns.db.sound == true and ns.db.showCamps == true)
 assert(ns.db.borders == nil and ns.db.chatMarks == nil and ns.db.nameplates == nil and ns.db.soundOff == nil
-	and ns.db.alertsAlways == nil and ns.db.showMates == false and ns.db.sharePosition == false)
+	and ns.db.alertsAlways == nil and ns.db.bowNudge == nil and ns.db.showMates == false and ns.db.sharePosition == false)
 assert(ns.db.addonChat == true and ns.db.shareLocation == true, "privacy answers and the chats are kept")
 assert(ns.db.setupDue == true, "the setup page is due at the next load")
 assert(not Row("reset").text:find("SETTINGS_RESET_CONFIRM", 1, true), "back to its label")

@@ -2366,6 +2366,10 @@ local function Slash(input)
 			local how = rest:lower()
 			local hide = (how == "hide" or how == "off") and true or ((how == "show" or how == "on") and false or not ns.UI.IssueReporterHidden())
 			ns.UI.SetIssueReporterHidden(hide)
+		elseif cmd == "bow" then
+			-- 11-02: the charter's /bow nudge after our killing blow on a player (Bow.lua): on|off, alone switched.
+			local w = rest:lower()
+			ns.Bow.SetEnabled(w == "on" or (w ~= "off" and not ns.Bow.Enabled()))
 		elseif cmd == "chatmarks" then
 			-- 1.1.5: Bankai Guild's marks before names in the game's own chat (Borders.lua): on or off;
 			-- test [mark|off], the author's own lines for this session.
@@ -2425,7 +2429,7 @@ local function Slash(input)
 			ns.Filter.Slash(rest)
 		elseif cmd == "watch" or cmd == "vigia" then
 			ns.Watch.Slash(rest)
-		elseif cmd == "church" or cmd == "igreja" then
+		elseif cmd == "grove" or cmd == "way" or cmd == "bosque" or cmd == "church" or cmd == "igreja" then
 			ns.Church.Slash(rest) -- 1.1.6
 		elseif cmd == "log" then
 			-- 1.1 (Fern's #12): the acts this client saw (Chronicle.lua): [n], a word, copy, clear.

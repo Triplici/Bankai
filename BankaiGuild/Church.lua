@@ -1746,7 +1746,7 @@ function Church.Slash(rest)
 		return
 	elseif verb == "name" or verb == "nomear" then
 		return Church.NameMissionary(arg)
-	elseif verb == "apostle" or verb == "apostolo" or verb == "apóstolo" then
+	elseif verb == "sensei" or verb == "apostle" or verb == "apostolo" or verb == "apóstolo" then
 		return Church.NameApostle(arg)
 	elseif verb == "register" or verb == "registrar" then
 		if ns.ChurchCount and ns.ChurchCount.Register then return ns.ChurchCount.Register(arg) end
