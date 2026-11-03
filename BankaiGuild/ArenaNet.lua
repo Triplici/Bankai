@@ -1866,7 +1866,7 @@ local function Help()
 		if s.usage then print("  " .. s.usage) end
 	end
 end
--- The Games' switch (ns.GAMES_OPEN, Core.lua: open). Closed, there is no Games tab
+-- The Games' switch (ns.GAMES_OPEN, Core.lua: unset, so closed for now, 11-03). Closed, there is no Games tab
 -- (ArenaHome.TabVisible) and no game command (/bka, /bk arena, bones, lottery...) opens anything;
 -- the engine still loads. Read at each call.
 function Arena.Closed() return ns.GAMES_OPEN ~= true end

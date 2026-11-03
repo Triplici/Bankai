@@ -1,6 +1,6 @@
--- The Games' switch (ns.GAMES_OPEN, open as the addon ships): closed, no Games tab, and every game
--- command (/bka, /bk arena, bones, lottery...) only says so; the engine still loads. This client
--- closes them for itself.
+-- The Games' switch (ns.GAMES_OPEN, unset in Core.lua: closed as the addon ships, 11-03): closed, no Games
+-- tab, and every game command (/bka, /bk arena, bones, lottery...) only says so; the engine still
+-- loads. The test world opens them (tests/world.lua), so this client closes them for itself.
 local H = ...
 local test, eq = H.test, H.eq
 local World = H.World
@@ -9,7 +9,7 @@ test("the Games are closed: no Games tab, and /bka and /bk arena only say so", f
 	local w = World.New()
 	local c = w:Client(World.NAMES.fighterA)
 	local A, Home = c.ns.Arena, c.ns.ArenaHome
-	eq(A.Closed(), false, "open as shipped")
+	eq(A.Closed(), false, "open in the test world")
 	rawset(c.ns, "GAMES_OPEN", false)
 	w:As(c, function()
 		eq(A.Closed(), true)

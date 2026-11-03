@@ -14,3 +14,7 @@ function ns.NameRule(guild)
 	local g = guild:lower()
 	return g:find("bankai guild", 1, true) ~= nil and not (g:find("anti", 1, true) or g:find("against", 1, true))
 end
+
+-- The Games ship closed (Core.lua's ns.GAMES_OPEN, 11-03); the test world opens them so the arena's
+-- own tests run, and tests/arena/games-closed.lua closes them again on one client.
+ns.GAMES_OPEN = true
