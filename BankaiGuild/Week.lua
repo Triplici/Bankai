@@ -353,7 +353,7 @@ local function Send(e, fresh)
 		"week" .. e.id, nil, nil, nil, { owner = Week, guard = function() return entries[e.id] == e and Week.MayEdit(e) and Week.Visible(e) end })
 end
 
--- The King, his Steward or a Hand puts an entry on the week (Asmon's view: on his screen alone).
+-- The King, his Steward or a Hand puts an entry on the week (Shobek's view: on his screen alone).
 function Week.SetEntry(input, scope)
 	scope = ns.King.AgendaScope(scope)
 	if not ns.King.Preview() and SelfOff() then return false end

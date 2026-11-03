@@ -356,7 +356,7 @@ end)
 
 ---------------------------------------------------------------------------
 -- 1.1: the bank's search, what left it since the last visit, and the sister guilds' banks
--- (asked by Fern, a moderator on Asmon's team: finding one item in eight tabs is slow, and a
+-- (asked by Fern, a moderator on Shobek's team: finding one item in eight tabs is slow, and a
 -- missing stack is either a withdrawal nobody noted or theft). Counts only: the game's bank log
 -- (who took what) is never read, and nothing in any bank is ever moved.
 ---------------------------------------------------------------------------

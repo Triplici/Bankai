@@ -565,7 +565,7 @@ local function Source()
 	return shown
 end
 
--- "Asmon asks the army", "Helper, Hand of the King, asks the High Council", "Zed asks <Bankai Guild Zeus>".
+-- "Shobek asks the army", "Helper, Hand of the King, asks the High Council", "Zed asks <Bankai Guild Zeus>".
 local function Title(s, name)
 	local to = s.to or "E"
 	if to == "G" then return L.VOX_ASKS_G:format(name, s.guild or "") end

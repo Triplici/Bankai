@@ -10,7 +10,7 @@ local L = ns.L
 -- A word of the built-in list in the words a player typed is refused on his own client, before
 -- anything leaves (WatchChat.RefuseSevere: the three chats, a pin, every room, the fight rooms):
 --   1st in a rolling 24 hours (the server's clock): not sent, his box and reply cleared, a pop-up
---       saying why (no age can be checked, Blizzard's Terms of Service, screenshots, Asmongold's
+--       saying why (no age can be checked, Blizzard's Terms of Service, screenshots, Shobek's
 --       team moderates), his Bankai Guild chats paused 5 minutes;
 --   2nd: the same, "you're doing it again", 30 minutes;
 --   3rd and every later one in the window: held out of the chats until an Bankai Guild moderator decides

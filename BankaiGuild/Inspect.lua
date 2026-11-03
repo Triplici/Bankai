@@ -898,7 +898,7 @@ end
 -- the list (King.lua, a switch like the Treasury's), in The Watch's Tabards and nowhere else. No
 -- raid warning, no chat line, no sound, for anyone; turned off, it leaves every screen.
 -- Nobody else publishes one any more: walls from older versions (S1) are ignored.
--- Closed until the tabard rule is in force, midnight in Texas (where Asmongold is) between
+-- Closed until the tabard rule is in force, midnight in Texas (where Shobek is) between
 -- September 24 and 25, 2026: the Tabards page counts down to it.
 ---------------------------------------------------------------------------
 

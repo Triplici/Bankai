@@ -77,9 +77,9 @@ local function Realistic()
 	RAID_CLASS_COLORS = { WARRIOR = { colorStr = "ffc79c6e" }, PALADIN = { colorStr = "fff58cba" }, MAGE = { colorStr = "ff69ccf0" },
 		PRIEST = { colorStr = "ffffffff" }, ROGUE = { colorStr = "fffff569" }, DRUID = { colorStr = "ffff7d0a" } }
 	ns.db.filterWords = { spam = true }
-	ns.rdb.filterShared = { slur = { on = true, at = T0, by = "Asmongold Asmongler-Realm" } }
+	ns.rdb.filterShared = { slur = { on = true, at = T0, by = "Shobek Shobekler-Realm" } }
 	ns.rdb.council = { at = 1, names = { writer3 = "Writer3", writer7 = "Writer7" } }
-	ns.rdb.netoff = { c = { ["zeusy-realm"] = { name = "Zeusy-Realm", off = true, at = T0, by = "Asmongold Asmongler-Realm", reason = "spam" } }, g = {} }
+	ns.rdb.netoff = { c = { ["zeusy-realm"] = { name = "Zeusy-Realm", off = true, at = T0, by = "Shobek Shobekler-Realm", reason = "spam" } }, g = {} }
 	ns.Fire("NETOFF_CHANGED")
 	return function()
 		RAID_CLASS_COLORS, ns.db.filterWords, ns.rdb.filterShared, ns.rdb.council = saved.colours, saved.words, saved.shared, saved.council
@@ -216,7 +216,7 @@ test("1.2.3 memory: what the Chat tab draws for lines that came is what a redraw
 		w.fire("CHAT_CHANGED", "A"); w.tick(0.3); Same("the deletion's mark gone")
 		-- A moderator's word on a writer (NETOFF_CHANGED): his lines leave the history.
 		local before = #Drawn(w.f)
-		ns.rdb.netoff = { c = { ["writer8-realm"] = { name = "Writer8-Realm", off = true, at = T0, by = "Asmongold Asmongler-Realm", reason = "spam" } }, g = {} }
+		ns.rdb.netoff = { c = { ["writer8-realm"] = { name = "Writer8-Realm", off = true, at = T0, by = "Shobek Shobekler-Realm", reason = "spam" } }, g = {} }
 		w.fire("NETOFF_CHANGED"); w.tick(0.3)
 		assert(#Drawn(w.f) < before, "his lines gone")
 		Same("a moderator's word")

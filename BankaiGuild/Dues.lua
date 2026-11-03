@@ -224,7 +224,7 @@ function Dues.Available()
 	if ns.faction == "Horde" or not ns.splitNames or not ns.IsMember() then return false end
 	return ns.GroupOf(ns.realm or "") == ns.GroupOf(ns.TREASURER_REALM)
 end
--- The King, his Steward, the author's Asmon's view: the amount is theirs to set.
+-- The King, his Steward, the author's Shobek's view: the amount is theirs to set.
 local function KingView() return ns.King.IsKing() or ns.King.IsSteward() or ns.King.Preview() end
 Dues.KingView = KingView
 -- The Treasurer himself (or the author's Treasurer's view): his books are the dues' ledger.
@@ -297,7 +297,7 @@ function Dues.SendAmount(force)
 end
 
 -- The King (or his Steward) sets it: one amount for everyone, dated, from the next weekly reset
--- (this week's stays: the word carries it). The author's Asmon's view: its own, on his screen alone.
+-- (this week's stays: the word carries it). The author's Shobek's view: its own, on his screen alone.
 function Dues.SetAmount(input)
 	if not KingView() then return ns.Print(L.THRONE_ONLY_KING) end
 	local copper = ns.Treasury.ParseGold(input)

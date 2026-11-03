@@ -667,7 +667,7 @@ function Data.KnownRank(sender, guild, soft)
 	-- they all agree on counts), named by someone else too: a report never proves its own
 	-- sender's rank. The Lords (every guild master, the officers of <Elfcore>: ns.IsLordRank)
 	-- need two senders naming them (theirs may be one).
-	-- A sender is itself by its name alone: "Asmon-OtherRealm" can't vouch for "Asmon-Realm".
+	-- A sender is itself by its name alone: "Shobek-OtherRealm" can't vouch for "Shobek-Realm".
 	local self = ns.ShortName(who)
 	local bySig, total, named, others = {}, 0, 0, 0
 	for src, v in pairs(votes) do

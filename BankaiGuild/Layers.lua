@@ -5,7 +5,7 @@ local L = ns.L
 -- NPC GUIDs (Creature-0-server-instance-zoneUID-npc-spawn): players who see the same
 -- zoneUID in the same zone share a layer. Each addon user announces its layer and rank on
 -- BankaiGuildNet, and a layer is named after the highest ranked Bankai Guild member on it:
--- "Asmongold's layer". Experimental until tested on a live realm.
+-- "Shobek's layer". Experimental until tested on a live realm.
 
 local Layers = {}
 ns.Layers = Layers

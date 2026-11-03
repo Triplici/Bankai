@@ -843,7 +843,7 @@ test("Throne: only the King sees it and his commands are checked; Lords answer h
 		ns.devThrone = nil
 		-- The King: guild master of <Elfcore>, the character the addon knows as him (ns.KING_CHARACTER).
 		GetGuildInfo = function() return "Bankai Guild", "King", 0 end
-		ns.me = "Asmongold Asmongler-Realm"
+		ns.me = "Shobek Shobekler-Realm"
 		eq(K.IsKing(), true); eq(K.Visible(), true)
 		K.Reset() -- 1.0.0: the Throne opens on the Throne Room itself, no letter before it
 		local lines = K.Build(ns.Data.Summary())
@@ -873,15 +873,15 @@ test("Throne: only the King sees it and his commands are checked; Lords answer h
 		-- An officer of another guild gets the summons, and answers the King alone.
 		GetGuildInfo = function() return "Bankai Guild II", "Officer", 1 end
 		ns.me = savedMe
-		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 90, zones = {}, t = os.time(), leader = "Asmongold Asmongler", realm = "Realm" }, "W1-Realm", "W2-Realm"),
+		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 90, zones = {}, t = os.time(), leader = "Shobek Shobekler", realm = "Realm" }, "W1-Realm", "W2-Realm"),
 			["Bankai Guild Zeus"] = Vouched({ total = 100, online = 9, zones = {}, t = os.time(), leader = "Zed", realm = "Realm" }, "W3-Realm", "W4-Realm") }
 		K.HandleCommand("CHANNEL", "Faker-Realm", "T1~S~7~Bankai Guild")
 		eq(#popups, 0, "not the King: ignored")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~S~7~Bankai Guild")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~S~7~Bankai Guild")
 		eq(#popups, 1, "our officer rank gets the summons"); eq(popups[1].name, "BANKAIGUILD_KING_SUMMON")
 		-- Back on the King's side: answers counted, checked against the census.
 		GetGuildInfo = function() return "Bankai Guild", "King", 0 end
-		ns.me = "Asmongold Asmongler-Realm"
+		ns.me = "Shobek Shobekler-Realm"
 		K.HandleAnswer("WHISPER", "Zed-Realm", ("T2~%d~P~Bankai Guild Zeus"):format(id))
 		K.HandleAnswer("WHISPER", "Nobody-Realm", ("T2~%d~B~Bankai Guild Zeus"):format(id))
 		K.HandleAnswer("WHISPER", "Late-Realm", "T2~1~P~Bankai Guild Zeus")
@@ -889,7 +889,7 @@ test("Throne: only the King sees it and his commands are checked; Lords answer h
 		eq(st.summon.answers["Zed-Realm"].verified, true, "a Lord from the census")
 		eq(st.summon.answers["Nobody-Realm"], nil, "not a confirmed Lord: not listed by name...")
 		eq(st.summon.others["Nobody-Realm"], "B", "...only counted (the answer kept for the mark in the tree)")
-		K.HandleAnswer("WHISPER", "Troll-Realm", ("T2~%d~P~Asmongold|cffff0000 smells"):format(id))
+		K.HandleAnswer("WHISPER", "Troll-Realm", ("T2~%d~P~Shobek|cffff0000 smells"):format(id))
 		eq(st.summon.answers["Troll-Realm"], nil, "no free text on the King's screen")
 		eq(st.summon.answers["Late-Realm"], nil, "another roll call's answer")
 		-- (1.1.2's review: the unconfirmed answers say why the roll call's counts can be off, the
@@ -931,10 +931,10 @@ test("Throne: only the King sees it and his commands are checked; Lords answer h
 		eq(K.ParseAgenda("Raid"), nil)
 		GetGuildInfo = savedGuild
 		ns.me = savedMe
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~A~9~Bankai Guild~45~Stormwind City~Raid on Crossroads")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~A~9~Bankai Guild~45~Stormwind City~Raid on Crossroads")
 		local a = K.Agenda()
 		eq(a.title, "Raid on Crossroads"); eq(a.zone, "Stormwind City")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~X~9~Bankai Guild")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~X~9~Bankai Guild")
 		eq(K.Agenda(), nil, "cancelled")
 	end)
 	GetGuildInfo, StaticPopup_Show, ns.Comm.Send, ns.Comm.Whisper, ns.devThrone = savedGuild, savedPopup, savedSend, savedWhisper, savedDev
@@ -1168,10 +1168,10 @@ end)
 test("ranks are verified, not taken from the message", function()
 	ns.Roster.Scan()
 	ns.rdb.guilds = {
-		["Bankai Guild"] = Vouched({ guild = "Bankai Guild", leader = "Asmongold", officers = { { name = "Capt" } }, total = 1000, online = 1, zones = {}, t = os.time() }, "W1-Realm", "W2-Realm"),
+		["Bankai Guild"] = Vouched({ guild = "Bankai Guild", leader = "Shobek", officers = { { name = "Capt" } }, total = 1000, online = 1, zones = {}, t = os.time() }, "W1-Realm", "W2-Realm"),
 		["Bankai Guild Bad"] = { guild = "Bankai Guild Bad", leader = "X", conflict = true, total = 1, online = 1, zones = {}, t = os.time() },
 	}
-	eq(ns.Data.KnownRank("Asmongold-Realm", "Bankai Guild"), 0)
+	eq(ns.Data.KnownRank("Shobek-Realm", "Bankai Guild"), 0)
 	eq(ns.Data.KnownRank("Capt-Realm", "Bankai Guild"), 1)
 	eq(ns.Data.KnownRank("Random-Realm", "Bankai Guild"), nil, "claims mean nothing")
 	eq(ns.Data.KnownRank("X-Realm", "Bankai Guild Bad"), nil, "conflicting guild is not trusted")
@@ -1245,7 +1245,7 @@ local function SampleGuilds()
 	local now = os.time()
 	return {
 		-- Two other senders name its leader, so the census knows its King (Data.KnownRank).
-		["Bankai Guild"] = Vouched({ total = 990, online = 210, zones = { m1453 = 120, m1429 = 40 }, t = now, leader = "Asmongold",
+		["Bankai Guild"] = Vouched({ total = 990, online = 210, zones = { m1453 = 120, m1429 = 40 }, t = now, leader = "Shobek",
 			leaderOnline = true, leaderLevel = 24, leaderClass = "WA", ranks = { { name = "King", count = 1 }, { name = "Knight", count = 989 } },
 			officers = { { name = "Capt", online = true, days = 0, class = "PA", level = 22 } },
 			top = { { name = "Racer", level = 25, class = "MA" } }, inactive7 = 10, inactive30 = 2, avgLevel = 14 }, "W1-Realm", "W2-Realm"),
@@ -1441,8 +1441,8 @@ end)
 test("realm view lists king, lords, captains and level race", function()
 	ns.rdb.guilds = SampleGuilds()
 	local lines = ns.Views.RealmLines()
-	assert(lines[1].text:find("Asmon Layer", 1, true), "the King is online: his layer line comes first")
-	assert(lines[2].text:find("King") and lines[2].text:find("Asmongold"), lines[2].text)
+	assert(lines[1].text:find("Shobek Layer", 1, true), "the King is online: his layer line comes first")
+	assert(lines[2].text:find("King") and lines[2].text:find("Shobek"), lines[2].text)
 	local sawRace = false
 	for _, l in ipairs(lines) do if l.text == "Level race" then sawRace = true end end
 	assert(sawRace)
@@ -3123,7 +3123,7 @@ test("HD person panel: the roster's member card, hanging off the HD window", fun
 		-- The Lord of Bankai Guild: his line opens his card and stays lit while it is open.
 		local row
 		for _, r in ipairs(main.views.realm.rows) do
-			if r:IsShown() and r.line and r.line.key == "Asmongold" and r.line.indent == 1 then row = r break end
+			if r:IsShown() and r.line and r.line.key == "Shobek" and r.line.indent == 1 then row = r break end
 		end
 		assert(row, "the Lord's line")
 		row:Click()
@@ -3156,7 +3156,7 @@ test("HD person panel: the roster's member card, hanging off the HD window", fun
 		ns.Who.SendPlain = function(query) sent = query end
 		person.who:Click()
 		ns.Who.SendPlain = savedSend
-		eq(sent, 'n-"Asmongold"')
+		eq(sent, 'n-"Shobek"')
 		eq(person.mark:IsShown(), false, "no Mark outside the Heraldry tab")
 		person:Hide()
 		eq(row.locked, false, "closing the card lets the line go")
@@ -3169,7 +3169,7 @@ test("HD person panel: the roster's member card, hanging off the HD window", fun
 		eq(escape, true, "closed by Escape")
 		local marked
 		row:Click()
-		UI.ShowPerson({ name = "Asmongold", guild = "Bankai Guild", onMark = function() marked = true end })
+		UI.ShowPerson({ name = "Shobek", guild = "Bankai Guild", onMark = function() marked = true end })
 		person.mark:Click()
 		eq(marked, true); eq(person:IsShown(), false, "Mark closes it"); eq(row.locked, false)
 		-- With room on the right (the Communities window minimized), it hangs off the right side
@@ -3264,7 +3264,7 @@ test("HD window: side tabs preserve canonical order from the right column into t
 		eq(ws:IsShown(), true); eq(ws.points[1][2], Tab("crafters")); eq(Anchor(ws), "TOPLEFT nil BOTTOMLEFT 0 -20")
 		eq(ws.onLeft or false, false); eq(main.clampInsets[1], 0)
 		W.Visible = saved[4]
-		-- Asmon's view has eight. The first seven stay right; Vox continues bottom-up on the left,
+		-- Shobek's view has eight. The first seven stay right; Vox continues bottom-up on the left,
 		-- exactly where it occurs in the canonical list.
 		K.Visible, V.Visible, T.Visible = Yes, Yes, Yes
 		UI.Refresh()
@@ -3298,7 +3298,7 @@ test("HD window: side tabs preserve canonical order from the right column into t
 		eq(ws.onLeft, false); eq(tr.onLeft or false, false); eq(main.clampInsets[1], 0)
 		eq(Keys(Right()), "census realm chat decrees crafters treasury throne vox workshop")
 		main:SetHeight(426)
-		-- Asmon's view off: back under the others, their art as it was.
+		-- Shobek's view off: back under the others, their art as it was.
 		K.Visible, V.Visible, T.Visible = saved[1], saved[2], saved[3]
 		UI.Refresh()
 		eq(ws.onLeft, false); eq(Anchor(ws), "TOPLEFT nil BOTTOMLEFT 0 -20"); eq(ws.points[1][2], Tab("crafters"))
@@ -3341,7 +3341,7 @@ test("HD window on a client without Blizzard's new parts: built from what is the
 		UI.SelectTab("realm")
 		local row
 		for _, r in ipairs(main.views.realm.rows) do
-			if r:IsShown() and r.line and r.line.key == "Asmongold" and r.line.indent == 1 then row = r break end
+			if r:IsShown() and r.line and r.line.key == "Shobek" and r.line.indent == 1 then row = r break end
 		end
 		assert(row, "the Lord's line")
 		row:Click()
@@ -3583,7 +3583,7 @@ test("Issue Reporter: the person panel steps above it too", function()
 		-- Window at 514..852 x 212..636; the panel hangs off its right, 850..1080 x 398..608.
 		-- The reporter with its border: 376..416.
 		IssueReporter(900, 380)
-		UI.ShowPerson({ name = "Asmongold-Realm", class = "WARRIOR", level = 25, online = true })
+		UI.ShowPerson({ name = "Shobek-Realm", class = "WARRIOR", level = 25, online = true })
 		local person = BankaiGuildPersonFrame
 		eq(Anchor(BankaiGuildFrame), "CENTER UIParent CENTER 0 40", "the window is not in the way: not moved")
 		eq(Anchor(person), "TOPLEFT BankaiGuildFrame TOPRIGHT -2 -6", "panel up 22: 4 above the reporter")
@@ -3592,7 +3592,7 @@ test("Issue Reporter: the person panel steps above it too", function()
 		UI.ShowPerson({ name = "Bellattrixxlestrange-ClassicBetaPvP" })
 		eq(person.name.font, "GameFontNormal", "a long one drops to the normal font")
 		PTR_IssueReporter = nil
-		UI.ShowPerson({ name = "Asmongold-Realm" })
+		UI.ShowPerson({ name = "Shobek-Realm" })
 		eq(Anchor(person), "TOPLEFT BankaiGuildFrame TOPRIGHT -2 -28", "back in its place without it")
 	end)
 end)
@@ -5464,8 +5464,8 @@ test("census: /who sightings for every Bankai Guild guild we can see, never a re
 		eq(#s.seen, 3, "seen and not reported"); eq(s.seen[1].name, "Bankai Guild VII")
 		eq(s.seen[2].name, "Bankai Guild LXIX"); eq(s.seen[3].name, "Bankai Guild XXL")
 		local realm = ns.Views.RealmLines()
-		eq(realm[1].text:find("Asmon Layer", 1, true) ~= nil, true, "the King's layer line comes first")
-		eq(realm[2].text:find("Asmongold", 1, true) ~= nil, true, "the King is a reported guild's")
+		eq(realm[1].text:find("Shobek Layer", 1, true) ~= nil, true, "the King's layer line comes first")
+		eq(realm[2].text:find("Shobek", 1, true) ~= nil, true, "the King is a reported guild's")
 		for _, l in ipairs(realm) do
 			assert(not (l.text or ""):find("BankaiGuild", 1, true), "in the Realm tree: " .. tostring(l.text))
 		end
@@ -5769,7 +5769,7 @@ end)
 test("sender ranks are verified on receipt, never taken from the message", function()
 	ns.Roster.Scan()
 	ns.rdb.guilds = {
-		["Bankai Guild"] = Vouched({ guild = "Bankai Guild", leader = "Asmongold", officers = { { name = "Capt" } }, total = 1000, online = 1, zones = {}, t = os.time() }, "W1-Realm", "W2-Realm"),
+		["Bankai Guild"] = Vouched({ guild = "Bankai Guild", leader = "Shobek", officers = { { name = "Capt" } }, total = 1000, online = 1, zones = {}, t = os.time() }, "W1-Realm", "W2-Realm"),
 		["Bankai Guild Bad"] = { guild = "Bankai Guild Bad", leader = "X", conflict = true, total = 1, online = 1, zones = {}, t = os.time() },
 	}
 	eq(ns.Data.Receive({ guild = "Bankai Guild Zeus", total = 5, online = 1, zones = {} }, "Liar2-Realm"), true)
@@ -5787,7 +5787,7 @@ test("sender ranks are verified on receipt, never taken from the message", funct
 		eq(R("Member500", "C", MY_GUILD), "rank", "our member on [Captains]")
 		eq(R("Stranger-Realm", "A", MY_GUILD), "forged", "not in our roster")
 		eq(R("Member3", "A", "Bankai Guild"), "forged", "a guildmate speaking for another guild")
-		eq(R("Asmongold", "L", "Bankai Guild"), "ok", "the King, from the report")
+		eq(R("Shobek", "L", "Bankai Guild"), "ok", "the King, from the report")
 		-- (1.0.0: an officer of <Elfcore> the report names is a Captain here, not a Lord.)
 		eq(R("Capt", "L", "Bankai Guild"), "rank", "officer of <Elfcore>, from the report: no [Lords] outside <Elfcore>")
 		eq(R("Capt", "C", "Bankai Guild"), "ok", "officer of <Elfcore>, from the report: [Captains]")
@@ -5948,8 +5948,8 @@ test("a report never vouches for its own sender", function()
 		eq(ns.rdb.guilds["Bankai Guild Zeus"].conflict, true, "an added officer is a conflict")
 		eq(Line("Grunt", "C", "Bankai Guild Zeus"), "unverified")
 		-- The same on <Elfcore>, whose officers are Lords.
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0", "Herald-Realm"), true)
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0,Peon:1:0", "Peon-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0", "Herald-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0,Peon:1:0", "Peon-Realm"), true)
 		eq(Line("Peon", "L", "Bankai Guild"), "unverified")
 		-- An elected reporter who leads the guild: proven by the report someone else sent before.
 		eq(Report("Bankai Guild Ares", "Ares", "", "Squire-Realm"), true)
@@ -5976,42 +5976,42 @@ test("ranks come from the picture most senders agree on; forgers can't move it",
 	ns.Now = function() return clock end
 	local ok, err = pcall(function()
 		-- <Elfcore> as its reporter and runner-up send it.
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0", "Crier-Realm"), true)
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0", "Clerk-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0", "Crier-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0", "Clerk-Realm"), true)
 		eq(D.KnownRank("Duke-Realm", "Bankai Guild"), 1, "two senders name the officer")
-		eq(D.KnownRank("Asmongold Asmongler-Realm", "Bankai Guild"), 0, "and the King")
+		eq(D.KnownRank("Shobek Shobekler-Realm", "Bankai Guild"), 0, "and the King")
 		-- One outsider copies the report (fine), then adds an accomplice: one vote against two.
 		-- The row everyone sees stays the majority's (the forged report is a vote, not the row).
 		clock = clock + 60
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0", "Aaa-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0", "Aaa-Realm"), true)
 		clock = clock + 1
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0,Bbb:1:0", "Aaa-Realm"), false, "against the majority: not the row")
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0,Bbb:1:0", "Aaa-Realm"), false, "against the majority: not the row")
 		eq(D.KnownRank("Bbb-Realm", "Bankai Guild"), nil, "the copy-then-add trick gives nothing")
 		eq(D.KnownRank("Duke-Realm", "Bankai Guild"), 1, "and costs the real officers nothing")
 		eq(ns.rdb.guilds.BankaiGuild.outvoted, true, "the minority report is noted"); eq(ns.rdb.guilds.BankaiGuild.conflict, nil)
 		eq(#ns.rdb.guilds.BankaiGuild.officers, 1, "the row shows the majority's picture")
 		-- Its own report never makes a sender anything.
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0,Aaa:1:0", "Aaa-Realm"), false)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0,Aaa:1:0", "Aaa-Realm"), false)
 		eq(D.KnownRank("Aaa-Realm", "Bankai Guild"), nil)
 		-- Two forgers against two reporters: contested, nobody's rank counts until it is settled.
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0,Aaa:1:0", "Ccc-Realm"), true, "a tie: no majority to hold the row")
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0,Aaa:1:0", "Ccc-Realm"), true, "a tie: no majority to hold the row")
 		eq(ns.rdb.guilds.BankaiGuild.conflict, true, "split senders show as a conflict")
 		eq(D.KnownRank("Aaa-Realm", "Bankai Guild"), nil, "a tie is no majority")
 		eq(D.KnownRank("Duke-Realm", "Bankai Guild"), 1, "contested: what both pictures agree on still counts")
 		-- Their votes expire when they stop; the real reporters' stay fresh.
 		clock = clock + 20 * 60
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0", "Crier-Realm"), true)
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0", "Clerk-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0", "Crier-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0", "Clerk-Realm"), true)
 		clock = clock + 11 * 60
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0", "Crier-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0", "Crier-Realm"), true)
 		eq(D.KnownRank("Duke-Realm", "Bankai Guild"), 1, "the forgers' votes are over 30 minutes old")
 		eq(D.KnownRank("Aaa-Realm", "Bankai Guild"), nil)
 		-- A real promotion: split while only one of the two has reported it, then agreed.
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0,Earl:1:0", "Clerk-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0,Earl:1:0", "Clerk-Realm"), true)
 		eq(D.KnownRank("Earl-Realm", "Bankai Guild"), nil, "one sender so far")
 		eq(D.KnownRank("Duke-Realm", "Bankai Guild"), 1, "the others keep their ranks meanwhile")
-		eq(D.KnownRank("Asmongold Asmongler-Realm", "Bankai Guild"), 0)
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Duke:1:0,Earl:1:0", "Crier-Realm"), true)
+		eq(D.KnownRank("Shobek Shobekler-Realm", "Bankai Guild"), 0)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0,Earl:1:0", "Crier-Realm"), true)
 		eq(D.KnownRank("Earl-Realm", "Bankai Guild"), 1, "both reporters name him")
 		-- Another guild: an outsider swapping the leader for an accomplice gets no Lord.
 		eq(Report("Bankai Guild Zeus", "Zeus", "", "Zclerk-Realm"), true)
@@ -6126,7 +6126,7 @@ test("guild names ignore case, so another spelling can't pass for a guild", func
 	ns.Roster.Scan()
 	ns.rdb.guilds = {}
 	local function Report(guild, officers, sender)
-		return ns.Data.Receive(Codec.DecodeReport("R2~" .. guild .. "~900~90~Asmongold Asmongler~1~9~~~0,0,0,0,0,0,0~~" .. officers), sender)
+		return ns.Data.Receive(Codec.DecodeReport("R2~" .. guild .. "~900~90~Shobek Shobekler~1~9~~~0,0,0,0,0,0,0~~" .. officers), sender)
 	end
 	AsRank(0, function()
 		eq(select(2, Chan.Receive("CHANNEL", "Mimic", Msg("A", "bankaiguild ii", 1), 9500)), "forged", "our guild, other capitals")
@@ -6143,7 +6143,7 @@ test("guild names ignore case, so another spelling can't pass for a guild", func
 		eq(Report("BankaiGuild", "Duke:1:0", "Herald3-Realm"), true)
 		eq(Report("BankaiGuild", "", "Forger2-Realm"), false, "outvoted")
 		eq(ns.rdb.guilds.BANKAIGUILD, nil); eq(ns.rdb.guilds.BankaiGuild.conflict, nil)
-		eq(ns.Data.KnownRank("Asmongold Asmongler-Realm", "Bankai Guild"), 0, "the King keeps his crown"); eq(ns.Data.KnownRank("Asmongold Asmongler-Realm", "Bankai Guild"), 0, "in any spelling")
+		eq(ns.Data.KnownRank("Shobek Shobekler-Realm", "Bankai Guild"), 0, "the King keeps his crown"); eq(ns.Data.KnownRank("Shobek Shobekler-Realm", "Bankai Guild"), 0, "in any spelling")
 	end)
 	ns.rdb.guilds = {}
 end)
@@ -7911,13 +7911,13 @@ end)
 test("layer hop: 'For Bankai Guild!' shows a line to stop it, and /bk layerauto off stops it too", function()
 	WithHop(function(w, H)
 		ns.rdb.guilds = SampleGuilds()
-		ns.Layers.Receive("Asmongold-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
+		ns.Layers.Receive("Shobek-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
 		w.see(9)
 		eq(#H.KingLines(), 1, "on his layer, nothing on its own: one line")
 		H.ChooseKing("auto")
 		local lines = H.KingLines()
 		eq(#lines, 2)
-		assert(lines[2].text:find(ns.L.HOP_AUTO_LINE:format("Asmon"), 1, true), lines[2].text)
+		assert(lines[2].text:find(ns.L.HOP_AUTO_LINE:format("Shobek"), 1, true), lines[2].text)
 		lines[2].onClick()
 		eq(#H.KingLines(), 1, "stopped")
 		ns.db.hopKingChoice = "auto"
@@ -7944,14 +7944,14 @@ test("layer hop: the King's line needs a report nobody disputes, and never one r
 		ns.Print = function(m) said = m end
 		H.AskKing()
 		ns.Print = savedPrint
-		eq(said, ns.L.HOP_KING_CHECKING:format("Asmon"), "not 'offline': still being confirmed")
-		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1, online = 1, zones = {}, t = os.time(), leader = "Asmongold Asmongler", leaderOnline = true }, "W1-Realm", "W2-Realm") }
-		eq(H.King().name, "Asmon")
+		eq(said, ns.L.HOP_KING_CHECKING:format("Shobek"), "not 'offline': still being confirmed")
+		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1, online = 1, zones = {}, t = os.time(), leader = "Shobek Shobekler", leaderOnline = true }, "W1-Realm", "W2-Realm") }
+		eq(H.King().name, "Shobek")
 		-- One report is enough for the line while nobody disagrees (the Crown's powers need two).
-		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1, online = 1, zones = {}, t = os.time(), leader = "Asmongold Asmongler", leaderOnline = true }, "W1-Realm") }
-		eq(H.King().name, "Asmon", "one reporter")
+		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1, online = 1, zones = {}, t = os.time(), leader = "Shobek Shobekler", leaderOnline = true }, "W1-Realm") }
+		eq(H.King().name, "Shobek", "one reporter")
 		eq(H.King(true), nil, "not strictly: 'For Bankai Guild!' does not invite on its own for him")
-		eq(ns.Data.KnownRank("Asmongold Asmongler-Realm", "Bankai Guild"), nil, "but no Crown powers from one")
+		eq(ns.Data.KnownRank("Shobek Shobekler-Realm", "Bankai Guild"), nil, "but no Crown powers from one")
 		-- Right after login a lone report proves nothing: the real ones have not come yet.
 		local loginAt = ns.Comm.loginAt
 		ns.Comm.loginAt = ns.Now() - 10
@@ -7967,10 +7967,10 @@ test("layer hop: the King's line needs a report nobody disputes, and never one r
 		ns.Data.Receive(r, "Atk-Realm")
 		eq(H.King(), nil, "a lone forged report at login")
 		ns.Comm.loginAt = loginAt
-		local real = { guild = "Bankai Guild", total = 1000, online = 200, leader = "Asmongold Asmongler", leaderOnline = true, users = 5, zones = {}, officers = {},
+		local real = { guild = "Bankai Guild", total = 1000, online = 200, leader = "Shobek Shobekler", leaderOnline = true, users = 5, zones = {}, officers = {},
 			ranks = {}, top = {}, faction = "Alliance" }
 		ns.Data.Receive(real, "Honest-Realm")
-		eq(H.King() and H.King().name, "Asmon", "forged against real: the forged report counted for nothing")
+		eq(H.King() and H.King().name, "Shobek", "forged against real: the forged report counted for nothing")
 		-- A same-named character on another realm can't vouch for itself.
 		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1, online = 1, zones = {}, t = os.time(), leader = "Atk", leaderOnline = true }, "Atk-Elsewhere") }
 		eq(H.King(), nil, "its own vote from another realm")
@@ -7991,9 +7991,9 @@ test("layer hop: the King's layer line tops the Census and the Realm only while 
 		line.onClick()
 		eq(#w.sent, 0, "his layer is not known yet: nothing asked")
 		-- His addon announces his layer: one click asks for it.
-		ns.Layers.Receive("Asmongold-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
+		ns.Layers.Receive("Shobek-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
 		local k = H.King()
-		eq(k.name, "Asmon", "the name the army calls him, whatever his character's"); eq(k.zoneUID, 9)
+		eq(k.name, "Shobek", "the name the army calls him, whatever his character's"); eq(k.zoneUID, 9)
 		-- In another zone: the button says where he is, and asks nothing.
 		w.see(7)
 		w.map = 1429
@@ -8004,16 +8004,16 @@ test("layer hop: the King's layer line tops the Census and the Realm only while 
 		eq(H.OnKingLayer(true), false, "the API's answer (API.lua's leader presence) is the line's: not on his layer")
 		w.map = 1453
 		eq(#H.KingLines(), 1, "in his zone: the button alone")
-		assert(H.KingLine().text:find("Ask invite for Asmon Layer", 1, true), H.KingLine().text)
+		assert(H.KingLine().text:find("Ask invite for Shobek Layer", 1, true), H.KingLine().text)
 		H.KingLine().onClick()
 		eq(w.sent[1], "CHANNEL LQ~1~1453~9", "asks for the King's layer")
-		assert(ns.Views.Build("census")[2].text:find("Asmon", 1, true), "tops the Census (under its search box, 1.0.0)")
-		assert(ns.Views.RealmLines()[1].text:find("Asmon", 1, true), "tops the Realm")
+		assert(ns.Views.Build("census")[2].text:find("Shobek", 1, true), "tops the Census (under its search box, 1.0.0)")
+		assert(ns.Views.RealmLines()[1].text:find("Shobek", 1, true), "tops the Realm")
 		-- On his layer: says so, nothing to click.
 		H.Reset()
 		w.see(9)
 		line = H.KingLine()
-		assert(line.text:find(ns.L.HOP_KING_HERE:format("Asmon"), 1, true) and not line.onClick, line.text)
+		assert(line.text:find(ns.L.HOP_KING_HERE:format("Shobek"), 1, true) and not line.onClick, line.text)
 		eq(H.OnKingLayer(true), true, "the API's answer is the line's: on his layer")
 		-- Offline: no line at all.
 		ns.rdb.guilds["Bankai Guild"].leaderOnline = false
@@ -8023,7 +8023,7 @@ test("layer hop: the King's layer line tops the Census and the Realm only while 
 		ns.rdb.guilds["Bankai Guild"].leaderOnline = true
 		GetGuildInfo = function() return "Bankai Guild", "King", 0 end
 		local savedMe = ns.me
-		ns.me = "Asmongold Asmongler-Realm" -- (the character the addon knows as the King)
+		ns.me = "Shobek Shobekler-Realm" -- (the character the addon knows as the King)
 		local line, help = H.KingLine(), H.CanHelp(1453, 9)
 		ns.me = savedMe
 		eq(line, nil, "the King's own window")
@@ -8053,7 +8053,7 @@ test("layer hop: alone on the King's layer, a window asks whether the addon may 
 		WithHop(function(w, H)
 			H.prompt = nil
 			-- The King is on 1453 / 9 (SampleGuilds: online); we stand there too.
-			ns.Layers.Receive("Asmongold-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
+			ns.Layers.Receive("Shobek-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
 			w.see(9)
 			w.group = 2
 			H.CheckKingPrompt()
@@ -8062,7 +8062,7 @@ test("layer hop: alone on the King's layer, a window asks whether the addon may 
 			H.CheckKingPrompt()
 			local f = H.prompt
 			assert(f and f:IsShown(), "alone on his layer: the window")
-			assert(f.text:GetText():find("Asmon is online and you are on his layer", 1, true), f.text:GetText())
+			assert(f.text:GetText():find("Shobek is online and you are on his layer", 1, true), f.text:GetText())
 			-- Left to right: the way out (grey), by hand, and For Bankai Guild! (lit), all one size.
 			eq(f.buttons[1]:GetText(), "Can't right now"); eq(f.buttons[2]:GetText(), "Invite manually")
 			eq(f.buttons[3]:GetText(), "For Bankai Guild!"); eq(f.checkLabel:GetText(), "Don't ask me again")
@@ -8140,7 +8140,7 @@ test("layer hop: alone on the King's layer, a window asks whether the addon may 
 			w.see(9)
 			GetGuildInfo = function() return "Bankai Guild", "King", 0 end
 			local savedMe = ns.me
-			ns.me = "Asmongold Asmongler-Realm" -- (the character the addon knows as the King)
+			ns.me = "Shobek Shobekler-Realm" -- (the character the addon knows as the King)
 			H.CheckKingPrompt()
 			ns.me = savedMe
 			eq(f:IsShown(), false, "the King")
@@ -8155,7 +8155,7 @@ test("Throne: the King's map button fits its label, says whether he is shown, an
 		local ok, err = pcall(function()
 			ns.db.throneLocation = nil
 			GetGuildInfo = function() return "Bankai Guild", "King", 0 end
-			ns.me = "Asmongold Asmongler-Realm"
+			ns.me = "Shobek Shobekler-Realm"
 			ns.Comm.Send = function() end
 			-- A genuinely publishable map needs both the real API's map id and coordinates.
 			-- The old UI-only fixture supplied coordinates without a map, while the sender refused it.
@@ -8213,7 +8213,7 @@ test("Treasury: the King's three switches say on hover who sees each part (hidde
 			ns.rdb.treasuryFlags = nil
 			ns.splitNames = true -- Forever: a Treasurer's name (first and surname) can be there
 			GetGuildInfo = function() return "Bankai Guild", "King", 0 end
-			ns.me = "Asmongold Asmongler-Realm"
+			ns.me = "Shobek Shobekler-Realm"
 			ns.Comm.Send = function() end
 			local w, UI = ForeverWorld(true)
 			CommunitiesFrame:Show(); w.buttons[1]:Click()
@@ -8261,7 +8261,7 @@ test("Throne: the King shows himself on the map with a button, everyone checks i
 		eq(#sent, 0); eq(K.SharingLocation(), false, "off by default")
 		-- The King turns it on: his position goes out on the channel.
 		GetGuildInfo = function() return "Bankai Guild", "King", 0 end
-		ns.me = "Asmongold Asmongler-Realm"
+		ns.me = "Shobek Shobekler-Realm"
 		K.ToggleLocation()
 		eq(K.SharingLocation(), true)
 		assert(sent[1]:find("^CHANNEL T1~P~%d+~Bankai Guild~1453~420~510$"), sent[1])
@@ -8269,25 +8269,25 @@ test("Throne: the King shows himself on the map with a button, everyone checks i
 		-- Everyone else: only the King's own message draws the crown.
 		GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
 		ns.me = savedMe
-		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 90, zones = {}, t = os.time(), leader = "Asmongold Asmongler", realm = "Realm" }, "W1-Realm", "W2-Realm") }
+		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 90, zones = {}, t = os.time(), leader = "Shobek Shobekler", realm = "Realm" }, "W1-Realm", "W2-Realm") }
 		K.HandleCommand("CHANNEL", "Faker-Realm", ("T1~P~%s~Bankai Guild~100~100~100"):format(id))
 		eq(K.Location(), nil, "not the King: no crown")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", ("T1~P~%s~Bankai Guild~1453~420~510"):format(id))
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~P~%s~Bankai Guild~1453~420~510"):format(id))
 		local at = K.Location()
-		eq(at.mapID, 1453); eq(at.x, 0.42); eq(at.y, 0.51); eq(at.name, "Asmon"); eq(at.id, tonumber(id))
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", ("T1~P~%s~Bankai Guild~1453~2000~5"):format(id))
+		eq(at.mapID, 1453); eq(at.x, 0.42); eq(at.y, 0.51); eq(at.name, "Shobek"); eq(at.id, tonumber(id))
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~P~%s~Bankai Guild~1453~2000~5"):format(id))
 		eq(K.Location().x, 0.42, "off the map: ignored")
 		-- No news for a while: the crown goes away on its own.
 		clock = clock + K.LOCATION_EXPIRE + 1
 		eq(K.Location(), nil, "expired")
 		-- He hides it again: gone at once.
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", ("T1~P~%s~Bankai Guild~1453~420~510"):format(id))
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", ("T1~Q~%d~Bankai Guild"):format(tonumber(id) % 99999 + 1))
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~P~%s~Bankai Guild~1453~420~510"):format(id))
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~Q~%d~Bankai Guild"):format(tonumber(id) % 99999 + 1))
 		assert(K.Location(), "a stale revocation cannot hide another crown lease")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", ("T1~Q~%s~Bankai Guild"):format(id))
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~Q~%s~Bankai Guild"):format(id))
 		eq(K.Location(), nil, "hidden")
 		GetGuildInfo = function() return "Bankai Guild", "King", 0 end
-		ns.me = "Asmongold Asmongler-Realm"
+		ns.me = "Shobek Shobekler-Realm"
 		K.ToggleLocation()
 		eq(K.SharingLocation(), false)
 		assert(sent[#sent]:find("^CHANNEL T1~Q~%d+~Bankai Guild$"), sent[#sent])
@@ -8621,7 +8621,7 @@ test("Treasurer: exactly Pyralis Ashandar of Bankai Guild, under the King and be
 	eq(ns.IsTreasurer("Pyralis Ashandar", "LXIX"), false, "another guild")
 	eq(ns.IsTreasurer("Pyralis Ashandar", "Bankai Guild II"), false, "another Bankai Guild guild")
 	local saved = ns.rdb.guilds
-	ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 110, zones = {}, t = os.time(), leader = "Asmongold Asmongler", leaderOnline = true,
+	ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 110, zones = {}, t = os.time(), leader = "Shobek Shobekler", leaderOnline = true,
 		officers = { { name = "Pyralis Ashandar", online = true, days = 0, class = "PR", level = 20 } } }, "W1-Realm", "W2-Realm") }
 	local ok, err = pcall(function()
 		local lines = ns.Views.RealmLines()
@@ -8712,7 +8712,7 @@ local function WithThrone(fn)
 		ns.Vox.after = function(seconds, _, f) w.timers[#w.timers + 1] = { at = w.clock + seconds, fn = f } end
 		RaidNotice_AddMessage = nil
 		ns.db.voxOff = nil
-		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 90, zones = {}, t = w.clock, leader = "Asmongold Asmongler", realm = "Realm",
+		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 90, zones = {}, t = w.clock, leader = "Shobek Shobekler", realm = "Realm",
 				officers = { { name = "Pyralis Ashandar", online = true, days = 0 } } }, "W1-Realm", "W2-Realm"),
 			["Bankai Guild Zeus"] = Vouched({ total = 100, online = 9, zones = {}, t = w.clock, leader = "Zed", realm = "Realm" }, "W3-Realm", "W4-Realm"),
 			["Bankai Guild II"] = Vouched({ total = 300, online = 3, zones = {}, t = w.clock, leader = "Ceo", realm = "Realm" }, "W5-Realm", "W6-Realm") }
@@ -8731,7 +8731,7 @@ local function RunTimers(w)
 	w.timers = {}
 	for _, t in ipairs(due) do if t.at <= w.clock then t.fn() else w.timers[#w.timers + 1] = t end end
 end
-local function AsKing() GetGuildInfo = function() return "Bankai Guild", "King", 0 end; ns.me = "Asmongold Asmongler-Realm" end
+local function AsKing() GetGuildInfo = function() return "Bankai Guild", "King", 0 end; ns.me = "Shobek Shobekler-Realm" end
 local function AsLord() GetGuildInfo = function() return "Bankai Guild Zeus", "Lord", 0 end; ns.me = "Zed-Realm" end
 local function AsCaptain() GetGuildInfo = function() return "Bankai Guild II", "Officer", 1 end; ns.me = "Cap-Realm" end
 local function AsSoldier(name) GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end; ns.me = (name or "Soldier") .. "-Realm" end
@@ -8761,22 +8761,22 @@ test("Hands of the King: he names them, they use the tools he lends them, nothin
 		-- The Hand's client: the Throne opens, his tools work.
 		AsSoldier("Helper")
 		eq(K.Visible(), false)
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 		eq(K.IsHand(), true); eq(K.Visible(), true); eq(K.CanCommand(), true)
 		assert(Printed(w, "named you a Hand"), "told")
 		local lines, _, detail = K.Build()
-		eq(lines[1].text, ns.L.THRONE_ROOM_HAND:format("Asmon"), "the King's own pages (his Hands) are not a Hand's")
+		eq(lines[1].text, ns.L.THRONE_ROOM_HAND:format("Shobek"), "the King's own pages (his Hands) are not a Hand's")
 		K.Show("home")
 		lines, _, detail = K.Build()
-		eq(lines[1].text, ns.L.THRONE_ROOM_HAND:format("Asmon"))
-		eq(detail, ns.L.THRONE_YOU_ARE_HAND:format("Asmon"))
+		eq(lines[1].text, ns.L.THRONE_ROOM_HAND:format("Shobek"))
+		eq(detail, ns.L.THRONE_YOU_ARE_HAND:format("Shobek"))
 		assert(not Texts(lines):find("Hands of the King", 1, true), "the Hands are the King's page alone")
 		assert(not Texts(lines):find("Treasury", 1, true) and not Texts(lines):find("Court", 1, true), "so are the court and the treasury")
 		-- Anyone else's client: a forged list does nothing; the King's is trusted.
 		AsSoldier("Other")
 		K.HandleCommand("CHANNEL", "Faker-Realm", "T1~H~1~Bankai Guild~Faker-Realm")
 		eq(K.Authorized("A", "Faker-Realm", "Bankai Guild II"), false, "not named by the King")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 		K.HandleCommand("CHANNEL", "Helper-Realm", "T1~A~4~Bankai Guild II~600~Stormwind City~Raid at dawn")
 		eq(K.Agenda() and K.Agenda().title, "Raid at dawn", "a Hand sets the agenda")
 		-- Never what is the King's alone: naming Hands, writs, pardons, the court.
@@ -8839,13 +8839,13 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			AsSoldier("Voter")
 			K.HandleCommand("CHANNEL", "Faker-Realm", "T1~V~9~Bankai Guild~60~M~Fake?~A~B")
 			eq(select(3, V.State()), nil, "not the King: no window")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", msg)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 			local f = V.Frame()
 			assert(f and f:IsShown(), "the window")
-			eq(f.title:GetText(), ns.L.VOX_ASKS:format("Asmon"))
+			eq(f.title:GetText(), ns.L.VOX_ASKS:format("Shobek"))
 			-- (1.1.5: the Bankai Guild window's metal without its portrait, where it was the game's dialog
 			-- box: who asks in its title bar, the question under it.)
-			Harness.Win.Metal(f, ns.L.VOX_ASKS:format("Asmon"), "the vote window")
+			Harness.Win.Metal(f, ns.L.VOX_ASKS:format("Shobek"), "the vote window")
 			eq(f.title, f.TitleContainer.TitleText, "who asks: the title bar's text")
 			Harness.Win.UnderBar(f, { question = f.question, kind = f.kind, answer = f.rows[1] }, "the vote window")
 			eq(f.close, f.CloseButton)
@@ -8857,7 +8857,7 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			f.vote:Click()
 			f.vote:Click()
 			eq(#w.whispered, 1, "one vote")
-			eq(w.whispered[1].to, "Asmongold Asmongler-Realm"); eq(w.whispered[1].msg, ("Y1~%d~13~Bankai Guild II"):format(id)); eq(w.whispered[1].urgent, true)
+			eq(w.whispered[1].to, "Shobek Shobekler-Realm"); eq(w.whispered[1].msg, ("Y1~%d~13~Bankai Guild II"):format(id)); eq(w.whispered[1].urgent, true)
 			eq(f.vote:IsShown(), false, "voted")
 			-- The King counts: one vote each, answers that exist, Bankai Guild only.
 			AsKing()
@@ -8889,7 +8889,7 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			-- The soldier's window: the chart, the verdict, his picks still checked.
 			AsSoldier("Voter")
 			f.live = nil
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", ("T1~E~%d~Bankai Guild~4~3~1~2"):format(id))
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~E~%d~Bankai Guild~4~3~1~2"):format(id))
 			local shown = select(3, V.State())
 			eq(shown.voters, 4); eq(shown.counts[1], 3)
 			eq(f.rows[1].bar:IsShown(), true); eq(f.rows[1].check:GetChecked(), true)
@@ -8898,7 +8898,7 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			-- Pick one: a second click moves the pick.
 			V.Reset(); AsKing(); K.AddHand("Helper"); K.SendHands(true); local list = LastSent(w)
 			AsSoldier("Voter")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~88~Bankai Guild II~30~1~Pizza?~Yes~No")
 			eq(f.title:GetText(), ns.L.VOX_ASKS_HAND:format("Helper"))
 			f.rows[1].check:Click(); f.rows[2].check:Click()
@@ -9098,7 +9098,7 @@ do
 				eq(#select(2, V.State()), 0)
 				AsKing()
 				eq(#select(2, V.State()), V.MAX_HISTORY)
-				-- The author's preview (Asmon's view): its questions for the session alone.
+				-- The author's preview (Shobek's view): its questions for the session alone.
 				V.Reset()
 				AsSoldier("Author")
 				ns.devThrone = true
@@ -9230,14 +9230,14 @@ do
 					-- A soldier: not on the council's signed list, no window, no line in chat.
 					AsSoldier("Voter")
 					local printed = #w.printed
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", msg)
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 					eq(select(3, V.State()), nil, "not for him"); eq(#w.printed, printed)
 					-- A councillor: the window says who it is for.
 					AsSoldier("Sage")
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", msg)
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 					local f = V.Frame()
 					assert(f and f:IsShown(), "the councillor's window")
-					eq(f.title:GetText(), L.VOX_ASKS_H:format("Asmon"))
+					eq(f.title:GetText(), L.VOX_ASKS_H:format("Shobek"))
 					f.rows[1].check:Click(); f.vote:Click()
 					eq(w.whispered[#w.whispered].msg, ("Y1~%d~1~Bankai Guild II"):format(id))
 					-- The King's end: the councillor's vote counts; one from off the list (a modified
@@ -9258,7 +9258,7 @@ do
 					assert(V.DiscordText():find(L.VOX_TO_H, 1, true), V.DiscordText())
 					-- The councillor's window: the results.
 					AsSoldier("Sage"); f.live = nil
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", ("T1~E~%d~Bankai Guild~1~1~0"):format(id))
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~E~%d~Bankai Guild~1~1~0"):format(id))
 					eq(select(3, V.State()).voters, 1)
 					-- Letters a question to the army never carries open nothing, even for whoever
 					-- they would name; the guild masters' opens for a guild master.
@@ -9266,19 +9266,19 @@ do
 					w.clock = w.clock + V.GAP
 					AsLord()
 					for i, to in ipairs({ "G", "X", "E" }) do
-						K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", ("T1~V~%d~Bankai Guild~%s~60~1~Sneaky?~Yes~No"):format(70 + i, to))
+						K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~V~%d~Bankai Guild~%s~60~1~Sneaky?~Yes~No"):format(70 + i, to))
 						eq(select(3, V.State()), nil, to)
 					end
 					K.HandleCommand("CHANNEL", "Faker-Realm", "T1~V~74~Bankai Guild~M~60~1~Fake?~Yes~No")
 					eq(select(3, V.State()), nil, "not the Throne")
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~75~Bankai Guild~M~60~1~Muster at dawn?~Yes~No")
-					eq(f:IsShown(), true); eq(f.title:GetText(), L.VOX_ASKS_M:format("Asmon"))
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~75~Bankai Guild~M~60~1~Muster at dawn?~Yes~No")
+					eq(f:IsShown(), true); eq(f.title:GetText(), L.VOX_ASKS_M:format("Shobek"))
 					-- A Hand asks the guild masters: a Captain gets nothing, a guild master the window.
 					V.Reset(); f:Hide()
 					AsKing(); K.AddHand("Helper"); K.SendHands(true)
 					local list = LastSent(w)
 					AsSoldier("Helper")
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 					eq(K.IsHand(), true)
 					eq(table.concat(V.Audiences(), " "), "E H M", "not a guild master: no guild of his own to ask")
 					V.Ask("Muster at dawn?", nil, "G")
@@ -9384,12 +9384,12 @@ do
 					AsKing(); K.AddHand("Helper"); K.SendHands(true)
 					local list = LastSent(w)
 					AsZeus("Mate", 3)
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 					K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~501~Bankai Guild II~60~1~Pizza?~Yes~No")
 					V.HandleGuild("GUILD", "Zed-Realm", "Y3~V~502~60~1~Tacos?~Yes~No")
 					eq(select(3, V.State()).q, "Pizza?", "a guild's question waits behind the Throne's")
 					V.Reset()
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 					V.HandleGuild("GUILD", "Zed-Realm", "Y3~V~503~60~1~Tacos?~Yes~No")
 					K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~504~Bankai Guild II~60~1~Pizza?~Yes~No")
 					eq(select(3, V.State()).q, "Pizza?", "the Throne's takes the window")
@@ -9404,13 +9404,13 @@ do
 					assert(LastSent(w):find("^T1~V~%d+~Bankai Guild Zeus~90~1~Pizza%?~Yes~No$"), LastSent(w))
 					-- The King's own guild: his question to the army ends on the channel, never by GUILD.
 					V.Reset()
-					ns.Roster.byName = { ["Asmongold Asmongler-Realm"] = 0, ["Pyralis Ashandar-Realm"] = 1 }
+					ns.Roster.byName = { ["Shobek Shobekler-Realm"] = 0, ["Pyralis Ashandar-Realm"] = 1 }
 					AsTreasurer()
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~601~Bankai Guild~60~1~Onyxia?~Yes~No")
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~601~Bankai Guild~60~1~Onyxia?~Yes~No")
 					eq(select(3, V.State()).id, 601)
-					V.HandleGuild("GUILD", "Asmongold Asmongler-Realm", "Y3~E~601~7~7~0")
+					V.HandleGuild("GUILD", "Shobek Shobekler-Realm", "Y3~E~601~7~7~0")
 					eq(select(3, V.State()).counts, nil, "a question to the army's results come on the channel")
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~E~601~Bankai Guild~5~4~1")
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~E~601~Bankai Guild~5~4~1")
 					eq(select(3, V.State()).voters, 5)
 				end)
 			end)
@@ -9500,7 +9500,7 @@ test("watch: Hold Court opens from the Throne and the King calls its private que
 		AsSoldier()
 		K.HandleCommand("CHANNEL", "Faker-Realm", "T1~C~5~Bankai Guild~1453~Stormwind City")
 		eq(C.Current(), nil, "only the King holds court")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", open)
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", open)
 		assert(Printed(w, "holds court in Stormwind City"), "told once")
 		local census = ns.Views.Build("census")
 		assert(census[2].text:find("holds court in Stormwind City", 1, true), census[2].text) -- (under the search box, 1.0.0)
@@ -9508,14 +9508,14 @@ test("watch: Hold Court opens from the Throne and the King calls its private que
 		eq(C.Line(), nil, "another zone: no line")
 		map = 1453
 		C.Line().onClick()
-		eq(w.whispered[1].to, "Asmongold Asmongler-Realm"); eq(w.whispered[1].msg, ("T4~%d~Bankai Guild II"):format(id))
+		eq(w.whispered[1].to, "Shobek Shobekler-Realm"); eq(w.whispered[1].msg, ("T4~%d~Bankai Guild II"):format(id))
 		C.Seek()
 		eq(#w.whispered, 1, "one request"); eq(C.Line().right:find(ns.L.COURT_STATE_ASKED, 1, true) ~= nil, true)
 		-- The King's queue: Bankai Guild names only, once each.
 		AsKing()
 		C.HandleRequest("WHISPER", "Soldier-Realm", ("T4~%d~Bankai Guild II"):format(id))
 		C.HandleRequest("WHISPER", "Soldier-Realm", ("T4~%d~Bankai Guild II"):format(id))
-		C.HandleRequest("WHISPER", "Troll-Realm", ("T4~%d~Asmongold smells"):format(id))
+		C.HandleRequest("WHISPER", "Troll-Realm", ("T4~%d~Shobek smells"):format(id))
 		C.HandleRequest("WHISPER", "Old-Realm", "T4~1~Bankai Guild II")
 		eq(#C.Holding().queue, 1)
 		-- A Lord the census confirms shows with his guild; anyone else is a name alone (what
@@ -9539,17 +9539,17 @@ test("watch: Hold Court opens from the Throne and the King calls its private que
 		AsSoldier()
 		C.HandleCall("WHISPER", "Faker-Realm", ("T5~%d"):format(id))
 		eq(#w.popups, 0)
-		C.HandleCall("WHISPER", "Asmongold Asmongler-Realm", ("T5~%d"):format(id))
+		C.HandleCall("WHISPER", "Shobek Shobekler-Realm", ("T5~%d"):format(id))
 		eq(w.popups[1].name, "BANKAIGUILD_COURT_CALLED")
 		assert(C.Line().right:find(ns.L.COURT_STATE_CALLED, 1, true), "called")
 		-- Closed: the line goes.
 		AsKing(); C.Toggle()
 		assert(LastSent(w):find(("^T1~Z~%d~Bankai Guild$"):format(id)), LastSent(w))
 		AsSoldier()
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", LastSent(w))
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", LastSent(w))
 		eq(C.Current(), nil)
 		-- Not repeated for a while (he logged off): over.
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", open)
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", open)
 		w.clock = w.clock + C.EXPIRE + 1
 		eq(C.Current(), nil)
 	end)
@@ -9577,7 +9577,7 @@ test("The Treasury: the Treasurer's book (not his gold), the King's three switch
 			AsKing()
 			ns.splitNames = true
 			eq(T.Visible(), true, "the King on Forever")
-			T.MailTaking(1); eq(#T.Lines(), 1, "the King's own book (1.0: Asmon receives donations too)")
+			T.MailTaking(1); eq(#T.Lines(), 1, "the King's own book (1.0: Shobek receives donations too)")
 			eq(T.Lines()[1].name, "Giver")
 			ns.rdb.treasuryBooks = nil -- (his own book has its own test; here the Treasurer's alone)
 			AsSoldier(); eq(T.Visible(), false, "a soldier: nothing shown by the King yet")
@@ -9669,10 +9669,10 @@ test("The Treasury: the Treasurer's book (not his gold), the King's three switch
 			AsKing(); K.AddHand("Helper"); K.SendHands(true); local list = LastSent(w)
 			ns.rdb.treasuryFlags = nil
 			AsSoldier()
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~T~9~Bankai Guild II~111~" .. (w.clock + 5))
 			eq(T.Shows("balance"), false, "not a Hand's switch")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", flags)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", flags)
 			eq(T.Shows("balance"), true); eq(T.Shows("ranking"), false); eq(T.Shows("book"), false)
 			eq(T.Visible(), true, "the tab appears")
 			page = Texts((T.Build()))
@@ -9682,16 +9682,16 @@ test("The Treasury: the Treasurer's book (not his gold), the King's three switch
 			assert(not page:find("Crafter", 1, true), "the book stays closed")
 			assert(T.RealmText():find("117g", 1, true), "under the Treasurer in the Realm")
 			-- The King shows the ranking and the book too.
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~T~10~Bankai Guild~111~" .. (w.clock + 10))
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~T~10~Bankai Guild~111~" .. (w.clock + 10))
 			T.Show("book"); page = Texts((T.Build()))
 			assert(page:find("Crafter", 1, true), "the book: " .. page)
 			T.Show("summary"); page = Texts((T.Build()))
 			assert(page:find("1. Trader", 1, true), page)
 			-- He hides it all: the tab goes.
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~T~11~Bankai Guild~000~" .. (w.clock + 20))
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~T~11~Bankai Guild~000~" .. (w.clock + 20))
 			eq(T.Visible(), false)
 			-- An older word of his (repeated late) does not undo it.
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~T~12~Bankai Guild~111~" .. (w.clock + 15))
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~T~12~Bankai Guild~111~" .. (w.clock + 15))
 			eq(T.Visible(), false)
 		end)
 		GetInboxHeaderInfo, GetInboxInvoiceInfo, GetTargetTradeMoney, GetPlayerTradeMoney, GetTradePlayerItemInfo,
@@ -9840,7 +9840,7 @@ test("Treasury review fixes: the week survives the update, the King's word reach
 			-- The King's word, dated, reaches a soldier through the Treasurer's treasury.
 			AsKing(); T.SetFlag("balance", true)
 			local at = w.clock
-			AsTreasurer(); K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", LastSent(w))
+			AsTreasurer(); K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", LastSent(w))
 			local savedChunked = ns.Comm.SendChunked
 			ns.Comm.SendChunked = function(msg) w.sent[#w.sent + 1] = { dist = "CHANNEL", msg = msg, chunked = true } end
 			T.Share(true)
@@ -9855,10 +9855,10 @@ test("Treasury review fixes: the week survives the update, the King's word reach
 			-- (Konig's review of 1.1: the Treasurer's copy is for 1.0's addons alone; 1.1 takes the King's
 			-- word from his and his Stewards' own clients, the only ones who give it.)
 			eq(T.Shows("balance"), false, "the Treasurer's copy is no word of the King's")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~T~4~Bankai Guild~100~" .. at)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~T~4~Bankai Guild~100~" .. at)
 			eq(T.Shows("balance"), true, "his own")
 			-- A newer word of his is not undone by the Treasurer repeating the older one.
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~T~5~Bankai Guild~000~" .. (at + 60))
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~T~5~Bankai Guild~000~" .. (at + 60))
 			T.HandleReport("CHANNEL", "Pyralis Ashandar-Realm", report)
 			eq(T.Shows("balance"), false)
 			-- Two clicks of his in one second: the second word still reaches the army.
@@ -9866,19 +9866,19 @@ test("Treasury review fixes: the week survives the update, the King's word reach
 			T.SetFlag("ranking", true); local first = LastSent(w)
 			T.SetFlag("ranking", false); local second = LastSent(w)
 			AsSoldier(); ns.rdb.treasuryFlags = nil
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", first); eq(T.Shows("ranking"), true)
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", second); eq(T.Shows("ranking"), false, "the newer word, same second")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", first); eq(T.Shows("ranking"), true)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", second); eq(T.Shows("ranking"), false, "the newer word, same second")
 			-- The Treasurer is told what the King shows, and told again when it changes.
 			AsTreasurer(); ns.rdb.treasuryFlags = { balance = true, at = at }
 			assert(T.WhoSees():find(ns.L.TREASURY_PART_BALANCE, 1, true), T.WhoSees())
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~T~6~Bankai Guild~101~" .. (at + 900 - 300))
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~T~6~Bankai Guild~101~" .. (at + 900 - 300))
 			assert(Printed(w, ns.L.TREASURY_PART_BOOK), "told the King now shows the book")
 			-- The way back from the book names what the viewer finds there.
 			AsSoldier(); ns.rdb.treasuryFlags = { book = true, at = at }
 			eq(T.SummaryTip(), ns.L.TREASURY_SUMMARY_BTN_TIP_PLAIN)
 			ns.rdb.treasuryFlags = { book = true, balance = true, at = at }
 			eq(T.SummaryTip(), ns.L.TREASURY_SUMMARY_BTN_TIP:format(ns.L.TREASURY_PART_BALANCE))
-			-- Asmon's view keeps its own switches: the King's word stays, and goes with the view.
+			-- Shobek's view keeps its own switches: the King's word stays, and goes with the view.
 			AsSoldier(); ns.rdb.treasuryFlags = { balance = true, at = at }
 			K.Preview = function() return true end
 			local sent = #w.sent
@@ -10146,7 +10146,7 @@ test("gamepad UI: the King's summons in our dialog; a layer invite is the player
 				AsKing(); K.Summon()
 				local id = tonumber(LastSent(w):match("T1~S~(%d+)"))
 				AsLord()
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", ("T1~S~%d~Bankai Guild"):format(id))
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~S~%d~Bankai Guild"):format(id))
 				eq(#w.popups, 0, "not the game's popup"); eq(#game.shown, 0)
 				local f = ns.Dialog.Find("BANKAIGUILD_KING_SUMMON")
 				assert(f and f:IsShown(), "our dialog")
@@ -10333,7 +10333,7 @@ test("Royal Writs to the whole army: every member gets the parchment, nobody ack
 			local id = tonumber(msg:match("T1~W~(%d+)"))
 			-- A soldier gets it, on parchment, without the acknowledge button.
 			AsSoldier()
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", msg)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 			local got = ns.Acts.WritLines()
 			assert(Texts(got):find(ns.L.WRIT_TO_EVERYONE, 1, true), Texts(got))
 			eq(BankaiGuildWritFrame:IsShown(), true); eq(BankaiGuildWritFrame.ack.shown, false, "no 'As you command' for the army")
@@ -10462,12 +10462,12 @@ test("the King's Agenda arrives as a popup with the appointment, once per agenda
 	WithThrone(function(w, K)
 		AsSoldier()
 		K.Reset()
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~A~77~Bankai Guild~1800~The Crossroads~Raid on the Crossroads")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~A~77~Bankai Guild~1800~The Crossroads~Raid on the Crossroads")
 		local p = w.popups[#w.popups]
 		eq(p.name, "BANKAIGUILD_AGENDA_CALL")
 		eq(p.a, ns.L.THRONE_AGENDA_POPUP:format(ns.KING_NAME, "Raid on the Crossroads", 30, "The Crossroads"))
 		local n = #w.popups
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~A~77~Bankai Guild~1790~The Crossroads~Raid on the Crossroads")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~A~77~Bankai Guild~1790~The Crossroads~Raid on the Crossroads")
 		eq(#w.popups, n, "a resend: no second popup")
 		eq(StaticPopupDialogs.BANKAIGUILD_AGENDA_CALL.timeout, 120)
 	end)
@@ -10652,7 +10652,7 @@ test("Royal Writs: the King writes to his Lords, each can acknowledge, nobody el
 			local id = tonumber(msg:match("T1~W~(%d+)"))
 			-- A Lord: on parchment, one click acknowledges.
 			AsLord()
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", msg)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 			eq(#ns.rdb.writs, 1)
 			local f = BankaiGuildWritFrame
 			assert(f:IsShown(), "the writ")
@@ -10667,27 +10667,27 @@ test("Royal Writs: the King writes to his Lords, each can acknowledge, nobody el
 			Harness.Win.UnderBar(f, { title = f.title, body = f.body }, "the writ")
 			eq(f.close, f.CloseButton)
 			eq(f.body:GetText(), "Muster at dawn cffff0000 in Goldshire")
-			eq(f.sign:GetText(), ns.L.WRIT_SIGNED:format("Asmon"))
+			eq(f.sign:GetText(), ns.L.WRIT_SIGNED:format("Shobek"))
 			f.ack:Click()
-			eq(w.whispered[1].to, "Asmongold Asmongler-Realm"); eq(w.whispered[1].msg, ("T6~%d~Bankai Guild Zeus"):format(id))
+			eq(w.whispered[1].to, "Shobek Shobekler-Realm"); eq(w.whispered[1].msg, ("T6~%d~Bankai Guild Zeus"):format(id))
 			local decrees = Texts(ns.Views.Build("decrees"))
 			assert(decrees:find(ns.L.WRITS, 1, true) and decrees:find("Muster at dawn", 1, true), decrees)
 			-- A Captain reads the writs to Lords and Captains only; a soldier none.
 			ns.rdb.writs = nil; A.Reset()
 			AsCaptain()
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", msg)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 			eq(ns.rdb.writs, nil, "for the Lords")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~W~12~Bankai Guild~C~Hold the bridge")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~W~12~Bankai Guild~C~Hold the bridge")
 			eq(#ns.rdb.writs, 1, "for Lords and Captains")
 			A.Reset(); ns.rdb.writs = nil
 			AsSoldier()
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~W~13~Bankai Guild~C~Hold the bridge")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~W~13~Bankai Guild~C~Hold the bridge")
 			eq(ns.rdb.writs, nil)
 			assert(not Texts(ns.Views.Build("decrees")):find(ns.L.WRITS, 1, true), "no section for a soldier")
 			-- A Hand's writ is no writ.
 			AsKing(); K.AddHand("Helper"); K.SendHands(true); local list = LastSent(w)
 			AsLord(); A.Reset()
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~W~14~Bankai Guild II~L~Obey me")
 			eq(ns.rdb.writs, nil, "a Hand writes no writ")
 			-- The King counts who acknowledged: once each.
@@ -10713,35 +10713,35 @@ test("Open the Gates and the Royal Pardon: the King's word in the Realm and on t
 		AsSoldier()
 		K.HandleCommand("CHANNEL", "Faker-Realm", "T1~G~3~Bankai Guild~7200~Bankai Guild Faker")
 		eq(A.Gates(), nil, "not the King nor a Hand")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~G~3~Bankai Guild~7200~Horde Heroes")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~G~3~Bankai Guild~7200~Horde Heroes")
 		eq(A.Gates(), nil, "an Bankai Guild guild only")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", msg)
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 		eq(A.Gates().guild, "Bankai Guild Zeus")
-		assert(Printed(w, "Asmon opened the gates of <Bankai Guild Zeus>"), "told")
+		assert(Printed(w, "Shobek opened the gates of <Bankai Guild Zeus>"), "told")
 		local realm = Texts(ns.Views.RealmLines())
 		assert(realm:find(ns.L.GATES_LINE:format("Bankai Guild Zeus"), 1, true), realm)
 		-- A Hand may open them; only the opener or the King closes them.
 		AsKing(); K.AddHand("Helper"); K.AddHand("Other"); K.SendHands(true); local list = LastSent(w)
 		AsSoldier()
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 		K.HandleCommand("CHANNEL", "Helper-Realm", "T1~G~4~Bankai Guild II~7200~Bankai Guild II")
 		eq(A.Gates().guild, "Bankai Guild II")
 		K.HandleCommand("CHANNEL", "Other-Realm", "T1~G~4~Bankai Guild II~0~")
 		eq(A.Gates().guild, "Bankai Guild II", "another Hand can't close them")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~G~4~Bankai Guild~0~")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~G~4~Bankai Guild~0~")
 		eq(A.Gates(), nil, "the King can")
 		K.HandleCommand("CHANNEL", "Helper-Realm", "T1~G~5~Bankai Guild II~7200~Bankai Guild II")
 		w.clock = w.clock + A.GATES_TIME + 1
 		eq(A.Gates(), nil, "two hours at most")
 		-- (A census as fresh as the clock: two hours on, the old one no longer names the King.)
-		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 90, zones = {}, t = w.clock, leader = "Asmongold Asmongler", realm = "Realm" }, "W1-Realm", "W2-Realm") }
+		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 90, zones = {}, t = w.clock, leader = "Shobek Shobekler", realm = "Realm" }, "W1-Realm", "W2-Realm") }
 		-- The pardon: off the Wall for everyone, the King's alone.
-		ns.Inspect.shame = { by = "Asmon", list = { { name = "Naked", guild = "Bankai Guild II" }, { name = "Pirate", guild = "Bankai Guild II" } }, t = w.clock }
+		ns.Inspect.shame = { by = "Shobek", list = { { name = "Naked", guild = "Bankai Guild II" }, { name = "Pirate", guild = "Bankai Guild II" } }, t = w.clock }
 		K.HandleCommand("CHANNEL", "Helper-Realm", "T1~F~6~Bankai Guild II~Naked")
 		eq(#ns.Inspect.shame.list, 2, "not a Hand's to give")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~F~6~Bankai Guild~Naked")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~F~6~Bankai Guild~Naked")
 		eq(#ns.Inspect.shame.list, 1); eq(ns.Inspect.shame.list[1].name, "Pirate")
-		assert(Printed(w, "By royal pardon of Asmon, Naked leaves the Wall of Shame"), "told")
+		assert(Printed(w, "By royal pardon of Shobek, Naked leaves the Wall of Shame"), "told")
 		-- A list published later does not bring the name back (for a week).
 		ns.Inspect.ShowShame({ by = "Zed", list = { { name = "Naked", guild = "Bankai Guild II" }, { name = "Pirate", guild = "Bankai Guild II" } }, t = w.clock })
 		eq(#ns.Inspect.shame.list, 1)
@@ -10768,23 +10768,23 @@ test("Throne review fixes: the King sees his Hands' acts, one question at a time
 			eq(#w.popups, popups, "no roll call popup for the King")
 			-- Another Hand can't close gates a Hand opened: told so, nothing sent.
 			AsSoldier("Other2"); A.Reset()
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~G~33~Bankai Guild II~7200~Bankai Guild Zeus")
 			local sent = #w.sent
 			A.CloseGates()
 			eq(#w.sent, sent); assert(Printed(w, ns.L.GATES_ONLY_OPENER), "told")
 			-- Vox: a Hand's question does not replace the King's; the King's replaces a Hand's.
 			V.Reset(); AsSoldier("Voter")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~41~Bankai Guild II~60~1~Pizza?~Yes~No")
 			eq(select(3, V.State()).id, 41)
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~42~Bankai Guild~60~1~Raid?~Yes~No")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~42~Bankai Guild~60~1~Raid?~Yes~No")
 			eq(select(3, V.State()).id, 42, "the King's question comes first")
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~43~Bankai Guild II~60~1~Tacos?~Yes~No")
 			eq(select(3, V.State()).id, 42, "a Hand's waits for the King's")
 			-- The window comes back when questions are turned on again.
 			V.Reset(); ns.db.voxOff = true
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~44~Bankai Guild~60~1~Raid again?~Yes~No")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~44~Bankai Guild~60~1~Raid again?~Yes~No")
 			eq(V.Frame() and V.Frame():IsShown() or false, false)
 			V.SetOff(false)
 			assert(V.Frame():IsShown(), "the window to vote")
@@ -10800,8 +10800,8 @@ test("Throne review fixes: the King sees his Hands' acts, one question at a time
 			assert(Printed(w, ns.L.PARDON_BAD_NAME), "a name that is no name is refused")
 			AsSoldier()
 			ns.rdb.pardons = nil
-			ns.Inspect.shame = { by = "Asmon", list = { { name = "Naked" }, { name = "Pirate" }, { name = "Honest" } }, t = w.clock }
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~F~9~Bankai Guild~Naked,Pirate")
+			ns.Inspect.shame = { by = "Shobek", list = { { name = "Naked" }, { name = "Pirate" }, { name = "Honest" } }, t = w.clock }
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~F~9~Bankai Guild~Naked,Pirate")
 			eq(#ns.Inspect.shame.list, 1); eq(ns.Inspect.shame.list[1].name, "Honest")
 			-- A Wall of Shame name carries no codes.
 			local decoded = ns.Codec.DecodeShame("S1~Bankai Guild~0~Bad|cffff0000Guy:BankaiGuild II,Good:BankaiGuild II")
@@ -10812,8 +10812,8 @@ test("Throne review fixes: the King sees his Hands' acts, one question at a time
 			C_Map.GetMapInfo = function() return { mapType = 3 } end
 			GetRealZoneText = function() return "Stormwind City" end
 			C.Reset()
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~C~51~Bankai Guild~1453~Stormwind City")
-			C.HandleCall("WHISPER", "Asmongold Asmongler-Realm", "T5~51")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~C~51~Bankai Guild~1453~Stormwind City")
+			C.HandleCall("WHISPER", "Shobek Shobekler-Realm", "T5~51")
 			assert(C.Current().calledAt, "called")
 		end)
 	end)
@@ -10831,15 +10831,15 @@ test("Round 2 fixes: shares add up to 100, the King is never shut out, a trade i
 			-- A Hand's short question just over: the King's, 10 s later, still reaches everyone.
 			AsKing(); K.AddHand("Helper"); K.SendHands(true); local list = LastSent(w)
 			AsSoldier("Voter")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~51~Bankai Guild II~30~1~Pizza?~Yes~No")
 			w.clock = w.clock + 31
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~E~51~Bankai Guild II~2~1~1")
 			w.clock = w.clock + 10
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~52~Bankai Guild~60~1~Raid?~Yes~No")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~52~Bankai Guild~60~1~Raid?~Yes~No")
 			eq(select(3, V.State()).id, 52, "the King's question")
 			-- The same asker again within SHOW_GAP: not shown.
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~53~Bankai Guild~60~1~Again?~Yes~No")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~53~Bankai Guild~60~1~Again?~Yes~No")
 			eq(select(3, V.State()).id, 52)
 			-- A trade opened right after another closed is still counted.
 			local saved = { GetTargetTradeMoney, UnitFullName, ERR_TRADE_COMPLETE, ns.After }
@@ -11013,7 +11013,7 @@ test("#18: outsiders on the channel can't crown one of their own, and the King's
 		local D, savedLogin = ns.Data, ns.Comm.loginAt
 		local ok, err = pcall(function()
 			ns.Comm.loginAt = w.clock - 3600 -- long after login: the old census rules let two senders crown
-			local KING = "Asmongold Asmongler-Realm"
+			local KING = "Shobek Shobekler-Realm"
 			local function Report(leader, officers, sender)
 				return D.Receive(Codec.DecodeReport("R2~Bankai Guild~900~90~" .. leader .. "~1~1~~~0,0,0,0,0,0,0~~" .. officers), sender)
 			end
@@ -11043,12 +11043,12 @@ test("#18: outsiders on the channel can't crown one of their own, and the King's
 			eq(K.Authorized("S", KING, "Bankai Guild II"), false, "speaking for another guild")
 			-- The real reporter and runner-up, then three outsiders against them: the forged
 			-- reports count for nothing, not even as votes.
-			eq(Report("Asmongold Asmongler", "Duke:1:0", "Crier-Realm"), true)
-			eq(Report("Asmongold Asmongler", "Duke:1:0", "Clerk-Realm"), true)
+			eq(Report("Shobek Shobekler", "Duke:1:0", "Crier-Realm"), true)
+			eq(Report("Shobek Shobekler", "Duke:1:0", "Clerk-Realm"), true)
 			for _, atk in ipairs({ "Atk-Realm", "Accomplice-Realm", "Third-Realm" }) do
 				eq(Report("Atk", "Accomplice:1:0", atk), false, atk)
 			end
-			eq(ns.rdb.guilds.BankaiGuild.leader, "Asmongold Asmongler", "the row keeps the King")
+			eq(ns.rdb.guilds.BankaiGuild.leader, "Shobek Shobekler", "the row keeps the King")
 			eq(ns.rdb.guilds.BankaiGuild.vouch["Atk-Realm"], nil, "no vote")
 			eq(D.KnownRank(KING, "Bankai Guild"), 0); eq(D.KnownRank("Atk-Realm", "Bankai Guild"), nil)
 			eq(D.KnownRank("Duke-Realm", "Bankai Guild"), 1, "the real officers keep theirs")
@@ -11079,7 +11079,7 @@ test("#18: an officer of <Elfcore> the census names is never the King, and (1.0.
 		local ok, err = pcall(function()
 			ns.Comm.loginAt = w.clock - 3600
 			local function Report(officers, sender)
-				return D.Receive(Codec.DecodeReport("R2~Bankai Guild~900~90~Asmongold Asmongler~1~1~~~0,0,0,0,0,0,0~~" .. officers), sender)
+				return D.Receive(Codec.DecodeReport("R2~Bankai Guild~900~90~Shobek Shobekler~1~1~~~0,0,0,0,0,0,0~~" .. officers), sender)
 			end
 			AsSoldier()
 			ns.rdb.guilds = {}
@@ -11087,7 +11087,7 @@ test("#18: an officer of <Elfcore> the census names is never the King, and (1.0.
 			eq(Report("Duke:1:0", "Clerk-Realm"), true)
 			-- Three outsiders keep the King at its head and add one of their own as an officer.
 			for _, s in ipairs({ "Atk-Realm", "Accomplice-Realm", "Third-Realm" }) do Report("Atk:1:0", s) end
-			eq(D.KnownRank("Asmongold Asmongler-Realm", "Bankai Guild"), 0, "every picture names the King")
+			eq(D.KnownRank("Shobek Shobekler-Realm", "Bankai Guild"), 0, "every picture names the King")
 			-- (1.0.0) Outside <Elfcore> an officer of it is a Captain like any guild's: no [Lords], no
 			-- Crown decree; before, three outsiders' reports made one of theirs of the Crown here.
 			eq(ns.Channels.LevelOf("BankaiGuild", 1), ns.Channels.LevelOf("Bankai Guild Zeus", 1))
@@ -11126,7 +11126,7 @@ test("#18: the Horde, with no King named yet: the census King commands nothing, 
 			K.HandleCommand("CHANNEL", "Hordeking-Realm", "T1~P~3~Bankai Guild~1453~420~510")
 			eq(K.Location() and K.Location().mapID, 1453, "his crown")
 			eq(K.Authorized("P", "Other-Realm", "Bankai Guild"), false, "nobody else's")
-			eq(K.Authorized("S", "Asmongold Asmongler-Realm", "Bankai Guild"), false, "the Alliance's King is none here")
+			eq(K.Authorized("S", "Shobek Shobekler-Realm", "Bankai Guild"), false, "the Alliance's King is none here")
 			eq(ns.KingCharacter(), nil)
 			eq(ns.Data.OtherKing("BankaiGuild", "Anyone"), false, "no King named to check the reports against")
 			-- His own client still has the Throne (his crown on the map works).
@@ -11146,7 +11146,7 @@ test("#18: the Treasurer by his name alone: forged votes can't silence his treas
 		ns.rdb.bankReport = nil
 		AsSoldier()
 		-- A census the forgers won: nobody names him an officer of <Elfcore> now.
-		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 900, online = 90, zones = {}, t = w.clock, leader = "Asmongold Asmongler", realm = "Realm" },
+		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 900, online = 90, zones = {}, t = w.clock, leader = "Shobek Shobekler", realm = "Realm" },
 			"Atk-Realm", "Accomplice-Realm", "Third-Realm") }
 		eq(ns.Data.KnownRank("Pyralis Ashandar-Realm", "Bankai Guild", true), nil, "the census doesn't name him")
 		T.HandleReport("CHANNEL", "Faker-Realm", "TB~1.0~Bankai Guild~0~500~100~0~5~1~Giver~-~-~Giver:100~~~400:0")
@@ -11176,16 +11176,16 @@ test("#18: the King's own client: guild master of <Elfcore> and the character th
 		eq(#K.Hands(), 0)
 		-- His name without the guild master's rank: not the King either.
 		GetGuildInfo = function() return "Bankai Guild", "Knight", 1 end
-		ns.me = "Asmongold Asmongler-Realm"
+		ns.me = "Shobek Shobekler-Realm"
 		eq(K.IsKing(), false)
 		-- His name, whatever realm of the group it carries; nobody else's.
 		local realm, kingRealm = ns.realm, ns.KING_REALM
 		ns.realm, ns.KING_REALM = "ClassicBetaPvP", "ClassicBetaPvP"
-		local both = ns.IsKingCharacter("Asmongold Asmongler-ClassicBetaPvP2") and ns.IsKingCharacter("Asmongold Asmongler")
-		local other = ns.IsKingCharacter("Asmongold Asmongler-ClassicBetaPvE")
+		local both = ns.IsKingCharacter("Shobek Shobekler-ClassicBetaPvP2") and ns.IsKingCharacter("Shobek Shobekler")
+		local other = ns.IsKingCharacter("Shobek Shobekler-ClassicBetaPvE")
 		ns.realm, ns.KING_REALM = realm, kingRealm
 		eq(both, true, "PvP and PvP 2 are one group"); eq(other, false, "a namesake on another realm group is not him")
-		eq(ns.IsKingCharacter("Asmongold-Realm"), false); eq(ns.IsKingCharacter("Asmongold Asmongler2"), false)
+		eq(ns.IsKingCharacter("Shobek-Realm"), false); eq(ns.IsKingCharacter("Shobek Shobekler2"), false)
 		eq(ns.IsKingCharacter(nil), false)
 	end)
 end)
@@ -11220,9 +11220,9 @@ test("#18: rows of <Elfcore> naming another leader go at login; refused reports 
 		eq(ns.rdb.guilds["Bankai Guild Zeus"].leader, "Zed", "other guilds stay")
 		assert(Logged("dropped guild Bankai Guild: names Atk its leader, not the King"), table.concat(ns.db.log, "\n"))
 		-- ...the King's stays, and so does ours, from our own roster (the server's word).
-		ns.rdb = { seen = {}, guilds = { ["Bankai Guild"] = { total = 900, online = 90, zones = {}, t = clock - 60, leader = "Asmongold Asmongler" } } }
+		ns.rdb = { seen = {}, guilds = { ["Bankai Guild"] = { total = 900, online = 90, zones = {}, t = clock - 60, leader = "Shobek Shobekler" } } }
 		CoreFire("INIT")
-		eq(ns.rdb.guilds.BankaiGuild and ns.rdb.guilds.BankaiGuild.leader, "Asmongold Asmongler")
+		eq(ns.rdb.guilds.BankaiGuild and ns.rdb.guilds.BankaiGuild.leader, "Shobek Shobekler")
 		ns.rdb = { seen = {}, guilds = { ["Bankai Guild"] = { total = 900, online = 90, zones = {}, t = clock - 60, leader = "Other", mine = true } } }
 		CoreFire("INIT")
 		eq(ns.rdb.guilds.BankaiGuild and ns.rdb.guilds.BankaiGuild.leader, "Other", "our own roster's")
@@ -11533,14 +11533,14 @@ test("0.9.2 untabarded: the King's list, the army sees it only while he lets it,
 			eq(I.Shame(), nil, "not the King: nothing shown")
 			-- The King's list: shown in the Tabards tab only, no alert, no sound, no line.
 			local printed = #w.printed
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~U~6~Bankai Guild~1~Naked:BankaiGuild II,Pirate:BankaiGuild II")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~U~6~Bankai Guild~1~Naked:BankaiGuild II,Pirate:BankaiGuild II")
 			eq(#I.Shame().list, 2); eq(alerts, 0, "no alert, no sound"); eq(#w.printed, printed, "no chat line")
 			K.HandleCommand("CHANNEL", "Faker Guy-Realm", "T1~U~7~Bankai Guild~0")
 			eq(#I.Shame().list, 2, "only the King takes it off")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~U~8~Bankai Guild~0")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~U~8~Bankai Guild~0")
 			eq(I.Shame(), nil, "off: it leaves the screen")
 			-- A list he stopped repeating leaves too.
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~U~9~Bankai Guild~1~Naked:BankaiGuild II")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~U~9~Bankai Guild~1~Naked:BankaiGuild II")
 			w.clock = w.clock + I.SHARED_FRESH + 1
 			eq(I.Shame(), nil, "not repeated: gone")
 			-- The King's switch: off until he turns it on; on sends the list, off takes it back.
@@ -11652,13 +11652,13 @@ test("0.9.1 the agenda popup names a Hand as the Hand, the King by the army's na
 		K.SendHands(true)
 		local list = LastSent(w)
 		AsSoldier("Other")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 		K.HandleCommand("CHANNEL", "Helper-Realm", "T1~A~4~Bankai Guild II~600~Stormwind City~Raid at dawn")
 		local p = w.popups[#w.popups]
 		eq(p.name, "BANKAIGUILD_AGENDA_CALL")
 		eq(p.a, ns.L.THRONE_AGENDA_POPUP_HAND:format("Helper", "Raid at dawn", 10, "Stormwind City"))
 		w.clock = w.clock + K.AGENDA_GAP
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~A~5~Bankai Guild~1800~The Crossroads~Raid on the Crossroads")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~A~5~Bankai Guild~1800~The Crossroads~Raid on the Crossroads")
 		eq(w.popups[#w.popups].a, ns.L.THRONE_AGENDA_POPUP:format(ns.KING_NAME, "Raid on the Crossroads", 30, "The Crossroads"))
 	end)
 end)
@@ -11837,7 +11837,7 @@ do
 			-- He logs off and WoW hands the channel to us: what he did is undone, once.
 			w.Notice(USER, "OWNER_CHANGED", "Tester")
 			w.Wait(2)
-			eq(Sorted(calls), "moderate BankaiGuildNet; password BankaiGuildNet,; unban BankaiGuildNet,Asmongold Asmongler; unban BankaiGuildNet,Kingchar; unban BankaiGuildNet,Pyralis Ashandar; unmute BankaiGuildNet,Mutey")
+			eq(Sorted(calls), "moderate BankaiGuildNet; password BankaiGuildNet,; unban BankaiGuildNet,Shobek Shobekler; unban BankaiGuildNet,Kingchar; unban BankaiGuildNet,Pyralis Ashandar; unmute BankaiGuildNet,Mutey")
 			-- Troll (still a moderator) does it again at once: undone again, not before a minute.
 			wipe(calls)
 			w.Notice(USER, "PASSWORD_CHANGED", "Troll")
@@ -11880,13 +11880,13 @@ do
 		WithMocks(function(calls)
 			-- In the King's guild: his character from our own roster.
 			GetGuildInfo = function() return "Bankai Guild", "Knight", 3 end
-			ns.Roster.byName = { ["Knight1-Realm"] = 3, ["Asmon-Realm"] = 0 }
+			ns.Roster.byName = { ["Knight1-Realm"] = 3, ["Shobek-Realm"] = 0 }
 			local w = OwnerComm()
 			w.C.JoinChannel()
 			w.Notice(NOTICE, "YOU_JOINED")
 			w.Notice(USER, "OWNER_CHANGED", "Tester")
 			w.Wait(2)
-			eq(Sorted(calls), "unban BankaiGuildNet,Asmon; unban BankaiGuildNet,Asmongold Asmongler; unban BankaiGuildNet,Pyralis Ashandar", "watched since joining: no password call")
+			eq(Sorted(calls), "unban BankaiGuildNet,Shobek; unban BankaiGuildNet,Shobek Shobekler; unban BankaiGuildNet,Pyralis Ashandar", "watched since joining: no password call")
 			-- Another guild: the character pinned in Core.lua when there is one, else the Treasurer alone.
 			GetGuildInfo = function() return MY_GUILD, "Hero", 3 end
 			wipe(calls)
@@ -11903,7 +11903,7 @@ do
 			n.Notice(NOTICE, "YOU_JOINED")
 			n.Notice(USER, "OWNER_CHANGED", "Tester")
 			n.Wait(2)
-			eq(Sorted(calls), "unban BankaiGuildNet,Asmongold Asmongler; unban BankaiGuildNet,Pyralis Ashandar", "the pinned King is always known")
+			eq(Sorted(calls), "unban BankaiGuildNet,Shobek Shobekler; unban BankaiGuildNet,Pyralis Ashandar", "the pinned King is always known")
 		end)
 	end)
 
@@ -11984,7 +11984,7 @@ do
 			o.Notice(NOTICE, "YOU_JOINED")
 			o.Notice(USER, "OWNER_CHANGED", "Tester")
 			o.Wait(2)
-			eq(Sorted(calls), "password; unban BankaiGuildNet,Asmongold Asmongler; unban BankaiGuildNet,Pyralis Ashandar")
+			eq(Sorted(calls), "password; unban BankaiGuildNet,Shobek Shobekler; unban BankaiGuildNet,Pyralis Ashandar")
 		end)
 	end)
 
@@ -12150,7 +12150,7 @@ test("0.9.1 privacy: no layer announcement without the player's yes, officers an
 		-- own answer like anyone's.
 		GetGuildInfo = function() return "Bankai Guild", "King", 0 end
 		local me = ns.me
-		ns.me = "Asmongold Asmongler-Realm"
+		ns.me = "Shobek Shobekler-Realm"
 		ns.db.throneLocation = true
 		w.observe()
 		ns.me = me
@@ -12163,7 +12163,7 @@ end)
 
 -- 1.0.0: the King's layer went out only every ten minutes, and not at all when he showed his
 -- crown again within ten minutes of hiding it: players who logged in or reloaded while he
--- shared, and everyone after an off and on, clicked "Ask invite for Asmon Layer" and read
+-- shared, and everyone after an off and on, clicked "Ask invite for Shobek Layer" and read
 -- "try again in a minute" for up to ten.
 test("1.0.0 the King's layer goes with his crown: at once when he shows it, again after hiding it, and every minute", function()
 	local K = ns.King
@@ -12173,7 +12173,7 @@ test("1.0.0 the King's layer goes with his crown: at once when he shows it, agai
 			C_Map.GetPlayerMapPosition = function() return { GetXY = function() return 0.42, 0.51 end } end
 			K.Reset()
 			GetGuildInfo = function() return "Bankai Guild", "King", 0 end
-			ns.me = "Asmongold Asmongler-Realm"
+			ns.me = "Shobek Shobekler-Realm"
 			ns.db.throneLocation = nil
 			w.observe()
 			eq(w.layers(), 0, "his crown hidden (the default): his layer stays home")
@@ -12305,37 +12305,37 @@ test("1.0.0 the King's line says why his layer is unknown: hidden crown, another
 			ns.King.Reset()
 			ns.rdb.guilds = SampleGuilds() -- the King online, two senders name him
 			ns.Print = function(m) said[#said + 1] = m end
-			local unknown = ns.L.HOP_KING_UNKNOWN:format("Asmon")
+			local unknown = ns.L.HOP_KING_UNKNOWN:format("Shobek")
 			-- His crown is not on the map: nothing will come until he shows it.
 			H.AskKing()
 			assert(said[1] ~= unknown, "not 'try again in a minute' while his crown is hidden")
-			eq(said[1], ns.L.HOP_KING_HIDDEN:format("Asmon"))
+			eq(said[1], ns.L.HOP_KING_HIDDEN:format("Shobek"))
 			local tips = {}
 			H.KingLine().tooltip({ AddLine = function(_, text) tips[#tips + 1] = text end })
-			eq(tips[2], ns.L.HOP_KING_HIDDEN:format("Asmon"), "the line's tooltip says the same")
+			eq(tips[2], ns.L.HOP_KING_HIDDEN:format("Shobek"), "the line's tooltip says the same")
 			eq(#w.sent, 0, "nothing asked")
 			-- His crown shows: ask nearby observers privately. This is a discovery question, not
 			-- an LQ hop to a destination supplied by one observer.
-			ns.King.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~P~3~Bankai Guild~1453~420~510")
+			ns.King.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~P~3~Bankai Guild~1453~420~510")
 			H.AskKing()
-			eq(said[2], ns.L.HOP_SIGHTING_ASKING:format("Asmon"))
+			eq(said[2], ns.L.HOP_SIGHTING_ASKING:format("Shobek"))
 			assert(w.sent[#w.sent]:match("^CHANNEL LY~Q~1~%d+~3~1453$"), w.sent[#w.sent])
 			-- It came: the ask goes out.
-			ns.Layers.Receive("Asmongold-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
+			ns.Layers.Receive("Shobek-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
 			H.AskKing()
 			eq(w.sent[#w.sent], "CHANNEL LQ~1~1453~9")
 			-- The census places him on another realm (a guild across two realms, the next realm's
 			-- reporter): a layer is a copy of a zone inside one realm, nobody here can join his.
 			-- Said so, whatever the crown.
-			local other = ns.L.HOP_KING_OTHER_REALM:format("Asmon", "OtherRealm")
+			local other = ns.L.HOP_KING_OTHER_REALM:format("Shobek", "OtherRealm")
 			ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 990, online = 210, zones = {}, t = os.time(),
-				leader = "Asmongold-OtherRealm", leaderOnline = true }, "W1-Realm", "W2-Realm") }
+				leader = "Shobek-OtherRealm", leaderOnline = true }, "W1-Realm", "W2-Realm") }
 			H.AskKing()
 			eq(said[#said], other)
 			-- Even with his layer heard here (a channel the two realms share, Comm.ElectsAcrossRealms,
 			-- carries his announcements): his realm comes first, nothing is asked, and the line
 			-- neither sends us to his zone nor says we are on his layer.
-			ns.Layers.Receive("Asmongold-OtherRealm", { mapID = 1453, zoneUID = 7, rank = 0, guild = "Bankai Guild" })
+			ns.Layers.Receive("Shobek-OtherRealm", { mapID = 1453, zoneUID = 7, rank = 0, guild = "Bankai Guild" })
 			eq(H.King().zoneUID, 7, "his layer is known")
 			local asked = #w.sent
 			H.AskKing()
@@ -12344,7 +12344,7 @@ test("1.0.0 the King's line says why his layer is unknown: hidden crown, another
 			w.see(7) -- (the same zone UID on our realm is another layer)
 			local lines = H.KingLines()
 			eq(#lines, 1, "no 'go there' line")
-			eq(lines[1].text:find(ns.L.HOP_KING_HERE:format("Asmon"), 1, true), nil, "not 'on his layer'")
+			eq(lines[1].text:find(ns.L.HOP_KING_HERE:format("Shobek"), 1, true), nil, "not 'on his layer'")
 			tips = {}
 			lines[1].tooltip({ AddLine = function(_, text) tips[#tips + 1] = text end })
 			eq(tips[2], other, "the tooltip says the same")
@@ -12392,7 +12392,7 @@ test("1.0.0 one forged report can't place the King on another realm: his realm a
 			eq(H.KingOtherRealm(k), false, "a report never places him on another realm")
 			eq(k.realm, nil, "nothing of his heard yet: his realm is not known")
 			H.AskKing()
-			eq(said[#said], ns.L.HOP_KING_HIDDEN:format("Asmon"), "not 'he plays on another realm'")
+			eq(said[#said], ns.L.HOP_KING_HIDDEN:format("Shobek"), "not 'he plays on another realm'")
 			-- His crown and his layer, from his own client on our realm: his layer can be asked for.
 			ns.King.HandleCommand("CHANNEL", king .. "-Realm", "T1~P~3~Bankai Guild~1453~420~510")
 			ns.Layers.Receive(king .. "-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
@@ -12411,7 +12411,7 @@ test("1.0.0 one forged report can't place the King on another realm: his realm a
 			k = H.King()
 			eq(k.realm, "OtherRealm"); eq(H.KingOtherRealm(k), true, "his own word")
 			H.AskKing()
-			eq(said[#said], ns.L.HOP_KING_OTHER_REALM:format("Asmon", "OtherRealm"))
+			eq(said[#said], ns.L.HOP_KING_OTHER_REALM:format("Shobek", "OtherRealm"))
 		end)
 		ns.Print, ns.db.links = savedPrint, savedLinks
 		ns.King.Reset()
@@ -12434,10 +12434,10 @@ test("1.0.0 /bk status and /bk bug say what this client knows of the King: offli
 			eq(Line(), "offline")
 			assert(ns.BuildBugReport():find("\nking: offline\n", 1, true), "in /bk bug too")
 			-- <Elfcore> reports him online, nobody else names him yet.
-			ns.rdb.guilds = { ["Bankai Guild"] = { total = 990, online = 210, zones = {}, t = w.clock, leader = "Asmongold", leaderOnline = true } }
+			ns.rdb.guilds = { ["Bankai Guild"] = { total = 990, online = 210, zones = {}, t = w.clock, leader = "Shobek", leaderOnline = true } }
 			eq(Line(), "checking (reported online, not confirmed yet)")
 			-- One other sender names him: shown, not yet what "For Bankai Guild!" waits for.
-			ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 990, online = 210, zones = {}, t = w.clock, leader = "Asmongold",
+			ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 990, online = 210, zones = {}, t = w.clock, leader = "Shobek",
 				leaderOnline = true }, "W1-Realm") }
 			eq(Line(), "online (one report)  |  realm Realm (ours)  |  layer not known  |  crown not heard")
 			-- Two: confirmed. His crown, then his layer, and how long ago each came.
@@ -12445,12 +12445,12 @@ test("1.0.0 /bk status and /bk bug say what this client knows of the King: offli
 			eq(Line(), "confirmed  |  realm Realm (ours)  |  layer not known  |  crown not heard")
 			ns.King.HandleCommand("CHANNEL", ns.KingCharacter() .. "-Realm", "T1~P~3~Bankai Guild~1453~420~510")
 			w.clock = w.clock + 30
-			ns.Layers.Receive("Asmongold-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
+			ns.Layers.Receive("Shobek-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
 			w.clock = w.clock + 5
 			eq(Line(), "confirmed  |  realm Realm (ours)  |  layer map 1453 zone 9, heard 5s ago  |  crown map 1453, heard 35s ago")
 			-- On another realm, said so.
 			ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 990, online = 210, zones = {}, t = w.clock,
-				leader = "Asmongold-OtherRealm", leaderOnline = true }, "W1-Realm", "W2-Realm") }
+				leader = "Shobek-OtherRealm", leaderOnline = true }, "W1-Realm", "W2-Realm") }
 			assert(Line():find("^confirmed  |  realm OtherRealm %(another realm%)  |  layer not known"), Line())
 			-- On the King's own client: his crown, and when his layer last went out.
 			GetGuildInfo = function() return "Bankai Guild", "King", 0 end
@@ -13195,15 +13195,15 @@ test("0.9.2 Royal Inspection: a realm-wide budget, once every 30 minutes, a pace
 			AsSoldier("Other")
 			if ns.Inspect.IsPatrolling() then ns.Inspect.SetPatrol(false) end
 			K.random = function() return 0.5 end
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~I~11~Bankai Guild")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~I~11~Bankai Guild")
 			eq(ns.Inspect.IsPatrolling(), false, "not in this sample")
 			-- A second call within 30 minutes (King or Hand): nothing, even for the sample.
 			K.random = function() return 0 end
 			w.clock = w.clock + 600
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~I~12~Bankai Guild")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~I~12~Bankai Guild")
 			eq(ns.Inspect.IsPatrolling(), false, "within 30 minutes")
 			w.clock = w.clock + 1201
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~I~13~Bankai Guild")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~I~13~Bankai Guild")
 			eq(ns.Inspect.IsPatrolling(), true, "in the sample, 30 minutes later")
 		end)
 		K.random, ns.Data.Summary = saved.random, saved.summary
@@ -13233,7 +13233,7 @@ test("0.9.2 hostile: a spoofed share, a relayed share and a guest offer are all 
 		assert(not (after and after.zoneUID == 99), "a spoofed share is not the King's layer")
 		eq(after and after.zoneUID, king and king.zoneUID, "the King's layer did not move")
 		-- A namesake on another realm group is not him either.
-		eq(ns.IsKingCharacter("Asmongold Asmongler-ClassicBetaPvE"), false)
+		eq(ns.IsKingCharacter("Shobek Shobekler-ClassicBetaPvE"), false)
 		-- Relayed: a share counts for its sender alone, and nobody can withdraw someone else's.
 		L.Receive("Real Guy-Realm", { mapID = 1453, zoneUID = 5, rank = 9, guild = "Bankai Guild II" })
 		eq(OnLayer(5), 1)
@@ -13312,12 +13312,12 @@ test("0.9.3 hostile: the King's layer comes from his own announcement alone, not
 		assert(k, "the King is online (the census says so)")
 		eq(k.zoneUID, nil, "his layer is not inferred from the others on it")
 		-- A share in his name from anyone else is not his.
-		ns.Layers.Receive("Asmongold-OtherRealm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
+		ns.Layers.Receive("Shobek-OtherRealm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
 		eq(H.King().zoneUID, nil, "a namesake's share is not his")
 		-- His own announcement (crown on) and its withdrawal.
-		ns.Layers.Receive("Asmongold-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
+		ns.Layers.Receive("Shobek-Realm", { mapID = 1453, zoneUID = 9, rank = 0, guild = "Bankai Guild" })
 		eq(H.King().zoneUID, 9)
-		ns.Layers.Forget("Asmongold-Realm")
+		ns.Layers.Forget("Shobek-Realm")
 		eq(H.King().zoneUID, nil, "withdrawn: gone at once")
 	end) end)
 end)
@@ -13355,13 +13355,13 @@ test("0.9.3 the Treasurer shares his book and the bank only with his yes, and wi
 		eq(#sent, before, "private: nothing more")
 		-- Receivers: his withdrawal clears his book and his copy of the bank; anyone else's is
 		-- ignored (1.0: another keeper's book stays).
-		ns.rdb.treasuryReports = { ["Pyralis Ashandar-Realm"] = { rank = {}, t = 1 }, ["Asmongold Asmongler-Realm"] = { rank = {}, t = 1 } }
+		ns.rdb.treasuryReports = { ["Pyralis Ashandar-Realm"] = { rank = {}, t = 1 }, ["Shobek Shobekler-Realm"] = { rank = {}, t = 1 } }
 		ns.rdb.bankReport = { t = 1, tabs = {}, by = "Pyralis Ashandar-Realm", guild = "Bankai Guild" }
 		T.HandleWithdraw("CHANNEL", "Faker Guy-Realm", "TX~Bankai Guild")
 		assert(ns.rdb.treasuryReports["Pyralis Ashandar-Realm"] and ns.rdb.bankReport, "not a keeper: nothing")
 		T.HandleWithdraw("CHANNEL", "Pyralis Ashandar-Realm", "TX~Bankai Guild")
 		eq(ns.rdb.treasuryReports["Pyralis Ashandar-Realm"], nil); eq(ns.rdb.bankReport, nil)
-		assert(ns.rdb.treasuryReports["Asmongold Asmongler-Realm"], "the King's book stays")
+		assert(ns.rdb.treasuryReports["Shobek Shobekler-Realm"], "the King's book stays")
 		-- Not the Treasurer: no question, no switch.
 		ns.me = "Someone Else-Realm"
 		T.Reset()
@@ -13406,7 +13406,7 @@ test("0.9.3 a player can say no to Royal Inspections: the call is heard, nothing
 			if ns.Inspect.IsPatrolling() then ns.Inspect.SetPatrol(false) end
 			K.random = function() return 0 end -- in the sample
 			ns.db.royalInspection = false
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~I~21~Bankai Guild")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~I~21~Bankai Guild")
 			eq(ns.Inspect.IsPatrolling(), false, "said no: no patrol")
 		end)
 		K.random, ns.db.royalInspection = saved.random, saved.opt
@@ -13434,7 +13434,7 @@ test("0.9.4 the Horde's King: Duskmonkey Boneback of <Mudhutters>, a guild of th
 			eq(ns.IsKingCharacter("Duskmonkey Boneback-ClassicBetaPvE"), false, "then only there")
 			ns.rdb.kingRealmHorde, ns.realm = nil, ourRealm
 			eq(ns.IsKingCharacter("Duskmonkey Boneback"), true)
-			eq(ns.IsKingCharacter("Asmongold Asmongler"), false, "the Alliance's King is not the Horde's")
+			eq(ns.IsKingCharacter("Shobek Shobekler"), false, "the Alliance's King is not the Horde's")
 			-- His own client: guild master of <Mudhutters>, the addon on.
 			GetGuildInfo = function() return "Mudhutters", "Chief", 0 end
 			ns.me = "Duskmonkey Boneback-Realm"
@@ -14971,7 +14971,7 @@ end)
 local function CouncilCensus()
 	local now = os.time()
 	ns.rdb.guilds = {
-		["Bankai Guild"] = Vouched({ total = 1000, online = 110, zones = {}, t = now, leader = "Asmongold Asmongler", leaderOnline = true, realm = "Realm",
+		["Bankai Guild"] = Vouched({ total = 1000, online = 110, zones = {}, t = now, leader = "Shobek Shobekler", leaderOnline = true, realm = "Realm",
 			officers = { { name = "Pyralis Ashandar", online = true, days = 0, class = "PR", level = 20 } } }, "W1-Realm", "W2-Realm"),
 		["Bankai Guild II"] = Vouched({ total = 300, online = 30, zones = {}, t = now, leader = "Other Mod", leaderOnline = false, leaderDays = 3,
 			leaderClass = "WA", leaderLevel = 25, realm = "Realm",
@@ -15913,7 +15913,7 @@ test("0.9.9: the decree timer alone follows a switch of style: off the world map
 end)
 
 ---------------------------------------------------------------------------
--- 0.9.9: the King streams. On his screen (and in the author's Asmon's view) the High Council's
+-- 0.9.9: the King streams. On his screen (and in the author's Shobek's view) the High Council's
 -- names are cut to four characters and "****", no council mark goes with a whole name, and an
 -- eye under the council's header shows them until clicked again or the next session.
 ---------------------------------------------------------------------------
@@ -16159,7 +16159,7 @@ test("0.9.9 the King's stream: a new session starts with the names hidden, and n
 	end)
 end)
 
-test("0.9.9 the King's stream: councillors and the author see the whole names as before; Asmon's view hides them", function()
+test("0.9.9 the King's stream: councillors and the author see the whole names as before; Shobek's view hides them", function()
 	WithKingsCouncil(function(W, L)
 		local function Rows()
 			local lines = ns.Views.RealmLines()
@@ -16176,7 +16176,7 @@ test("0.9.9 the King's stream: councillors and the author see the whole names as
 		local lord
 		for _, l in ipairs(lines) do if l.key == "Other Mod" and l.indent == 1 then lord = l end end
 		assert(lord.text:find(" " .. ns.HIGH_COUNCIL_MARK, 1, true), lord.text)
-		-- The author's client (it holds the signed lists), Asmon's view off: the same.
+		-- The author's client (it holds the signed lists), Shobek's view off: the same.
 		ns.me = "Tester-Realm"
 		ns.COUNCIL_SIGNED = COUNCIL_TEST_NAMES4
 		rows, lines = Rows()
@@ -16184,14 +16184,14 @@ test("0.9.9 the King's stream: councillors and the author see the whole names as
 		eq(Find(lines, L.COUNCIL_NAMES_SHOW), nil, "no eye")
 		-- (1.1.5: the chats' lines carry the council's colour alone, no mark: the colour says it here.)
 		assert(ns.Channels.FormatLine("A", "Test Councillor-Realm", "Bankai Guild II", nil, "hi"):find(ns.HIGH_COUNCIL_COLOR, 1, true))
-		-- Asmon's view (the author's preview of the King's screen): hidden, with the eye.
+		-- Shobek's view (the author's preview of the King's screen): hidden, with the eye.
 		ns.devThrone = true
 		eq(ns.King.Preview(), true)
 		eq(ns.CouncilMasked(), true)
 		rows, lines = Rows()
 		assert(rows[1].text:find(L.COUNCIL_NAMES_SHOW, 1, true), rows[1].text)
 		assert(rows[2].text:find("Test****", 1, true), rows[2].text)
-		NoMarkedName(lines, "Asmon's view")
+		NoMarkedName(lines, "Shobek's view")
 		assert(not ns.Channels.FormatLine("A", "Test Councillor-Realm", "Bankai Guild II", nil, "hi"):find(ns.HIGH_COUNCIL_COLOR, 1, true))
 		ns.devThrone, ns.COUNCIL_SIGNED = nil, nil
 		-- A soldier: still no section before launch, and the chats' mark as in 0.9.8.
@@ -16239,13 +16239,13 @@ test("0.9.9 the King's stream: /bk council (list) in chat cuts the names short t
 			_, rows = CouncilSection(ns.Views.RealmLines())
 			rows[1].onClick()
 			eq(Said("council list"), hidden, "hidden again")
-			-- A councillor and the author's client: the whole names, as before. Asmon's view: hidden.
+			-- A councillor and the author's client: the whole names, as before. Shobek's view: hidden.
 			ns.me = "Third Mod-Realm"
 			eq(Said("council list"), whole, "a councillor")
 			ns.me, ns.COUNCIL_SIGNED = "Tester-Realm", COUNCIL_TEST_NAMES4
 			eq(Said("council list"), whole, "the author")
 			ns.devThrone = true
-			eq(Said("council list"), hidden, "Asmon's view")
+			eq(Said("council list"), hidden, "Shobek's view")
 		end)
 		ns.Print = savedPrint
 		if not ok then error(err, 0) end
@@ -21190,7 +21190,7 @@ do
 			-- The copy for Discord: every guild, whatever is typed.
 			V.SetFilter("census", "lordy")
 			eq(ns.Data.DiscordText(), copy)
-			assert(copy:find("Bankai Guild Ébano", 1, true) and copy:find("Asmongold", 1, true), copy)
+			assert(copy:find("Bankai Guild Ébano", 1, true) and copy:find("Shobek", 1, true), copy)
 			eq(#calls, 0, "nothing sent, no /who")
 		end)
 		ns.rdb.guilds, ns.rdb.seen = saved.guilds, saved.seen
@@ -22265,7 +22265,7 @@ local function MailWorld()
 	return world
 end
 
-local KING_KEY, TREASURER_KEY = "asmongold asmongler-realm", "pyralis ashandar-realm"
+local KING_KEY, TREASURER_KEY = "shobek shobekler-realm", "pyralis ashandar-realm"
 
 test("1.0 the treasury's keepers: the King names them (his word alone, dated, kept), nobody else, and no book repeats it", function()
 	WithThrone(function(w, K)
@@ -22279,7 +22279,7 @@ test("1.0 the treasury's keepers: the King names them (his word alone, dated, ke
 			local lines = T.Build()
 			local page = Texts(lines)
 			assert(page:find(ns.L.TREASURY_KEEPER_TREASURER:format("Pyralis Ashandar"), 1, true), page)
-			assert(page:find(ns.L.TREASURY_KEEPER_KING:format("Asmon"), 1, true), page)
+			assert(page:find(ns.L.TREASURY_KEEPER_KING:format("Shobek"), 1, true), page)
 			local add
 			for _, l in ipairs(lines) do if tostring(l.text):find(ns.L.TREASURY_KEEPER_ADD, 1, true) then add = l end end
 			assert(add and add.onClick, "his button to add one")
@@ -22311,17 +22311,17 @@ test("1.0 the treasury's keepers: the King names them (his word alone, dated, ke
 			AsKing(); K.AddHand("Helper"); K.SendHands(true); local hands = LastSent(w)
 			AsSoldier()
 			ns.rdb.treasuryKeepers = nil
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", hands)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", hands)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~K~9~Bankai Guild II~" .. (at + 5) .. "~Faker Guy-Realm")
 			eq(T.KeeperByName("Faker Guy"), false, "not a Hand's word: the keepers are the King's alone")
 			K.HandleCommand("CHANNEL", "Faker Guy-Realm", "T1~K~9~Bankai Guild~" .. (at + 5) .. "~Faker Guy-Realm")
 			eq(T.KeeperByName("Faker Guy"), false, "nor anyone's speaking for his guild")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", latest)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", latest)
 			eq(#T.Keepers(), 4); eq(T.KeeperByName("Test Keeper"), true); eq(T.KeeperByName("test keeper-Realm"), true)
 			eq(T.KeeperByName("Extra d"), false)
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			eq(#T.Keepers(), 4, "an older word of his (repeated late) does not undo a newer one")
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~K~10~Bankai Guild~" .. (w.clock + 3600) .. "~Faker Guy-Realm")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~K~10~Bankai Guild~" .. (w.clock + 3600) .. "~Faker Guy-Realm")
 			eq(#T.Keepers(), 4, "a time far ahead of the server's is not taken")
 			-- Kept however long the King is away (a keeper's book must not leave the treasury then).
 			w.clock = w.clock + 30 * 86400
@@ -22338,7 +22338,7 @@ test("1.0 the treasury's keepers: the King names them (his word alone, dated, ke
 			T.HandleReport("CHANNEL", "Pyralis Ashandar-Realm", "TB~1.0~Bankai Guild~0~0~0~0~0~0~~-~" .. full .. "~~~~0:0")
 			assert(ns.rdb.treasuryReports["Pyralis Ashandar-Realm"], "his book is taken")
 			eq(#T.Keepers(), 0, "not from the Treasurer"); eq(T.KeeperByName("Extra c"), false)
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", latest)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", latest)
 			eq(#T.Keepers(), 4, "from the King"); eq(T.KeeperByName("Extra c"), true)
 			T.HandleReport("CHANNEL", "Test Keeper-Realm", "TB~1.0~Bankai Guild~0~0~0~0~0~0~~-~" .. (at + 10) .. "@Test Keeper-Realm,Faker Guy-Realm~~~~0:0")
 			assert(ns.rdb.treasuryReports["Test Keeper-Realm"], "his book is taken")
@@ -22351,7 +22351,7 @@ test("1.0 the treasury's keepers: the King names them (his word alone, dated, ke
 			eq(#w.sent, sent + 1, "once in FLAGS_EVERY")
 			AsSoldier(); T.SendKeepers(true)
 			eq(#w.sent, sent + 1, "nobody else sends it")
-			-- The author's Asmon's view: its own list, on his screen alone, nothing sent.
+			-- The author's Shobek's view: its own list, on his screen alone, nothing sent.
 			local savedPreview = K.Preview
 			K.Preview = function() return true end
 			T.AddKeeper("Preview Guy")
@@ -22412,9 +22412,9 @@ test("1.0 a keeper named: his own book opens at his gold, his own yes (the King'
 			ns.rdb.treasuryKeepers = nil
 			mail.gold = 250000
 			eq(T.IsKeeper(), false)
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			eq(T.IsKeeper(), true)
-			assert(Printed(w, ns.L.TREASURY_KEEPER_NAMED:format("Asmon")), "told")
+			assert(Printed(w, ns.L.TREASURY_KEEPER_NAMED:format("Shobek")), "told")
 			eq(T.Opening(), 250000, "his book opens at his gold now")
 			eq(w.popups[#w.popups].name, "BANKAIGUILD_TREASURER_SHARE", "asked once whether his book is shared")
 			eq(T.Visible(), true, "the tab is his")
@@ -22455,7 +22455,7 @@ test("1.0 a keeper named: his own book opens at his gold, his own yes (the King'
 			T.HandleReport("CHANNEL", "Test Keeper-Realm", book)
 			eq(#T.Report().keepers, 1); eq(T.Report().balance, 260000)
 			AsSoldier("Test Keeper"); ns.db.keeperShares = { ["test keeper-realm"] = true }
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~K~11~Bankai Guild~" .. (w.clock + 1) .. "~")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~K~11~Bankai Guild~" .. (w.clock + 1) .. "~")
 			eq(T.IsKeeper(), false); assert(Printed(w, ns.L.TREASURY_KEEPER_UNNAMED), "told")
 			sent = #w.sent
 			T.Share(true); eq(#w.sent, sent, "his book no longer goes out")
@@ -22513,10 +22513,10 @@ test("1.0 one treasury: every keeper's book together (the balance summed, one ra
 			T.Show("book")
 			local lines = T.Build()
 			local page = Texts(lines)
-			assert(page:find(ns.L.TREASURY_FROM_TO:format("Other", "Asmon"), 1, true), page)
+			assert(page:find(ns.L.TREASURY_FROM_TO:format("Other", "Shobek"), 1, true), page)
 			assert(page:find(ns.L.TREASURY_FROM_TO:format("Pyralis Ashandar", "Crafter"), 1, true), page)
 			assert(not page:find(ns.L.TREASURY_FROM_TO:format("Generous Donor", "Pyralis Ashandar"), 1, true), "a dues line: " .. page)
-			assert(page:find(ns.L.TREASURY_FROM_TO:format("Generous Donor", "Asmon"), 1, true), page)
+			assert(page:find(ns.L.TREASURY_FROM_TO:format("Generous Donor", "Shobek"), 1, true), page)
 			-- His own lines are his to count; the Treasurer's are the Treasurer's.
 			local clickable = 0
 			for _, l in ipairs(lines) do if l.onClick and l.indent then clickable = clickable + 1 end end
@@ -22525,26 +22525,26 @@ test("1.0 one treasury: every keeper's book together (the balance summed, one ra
 			T.Show("summary")
 			page = Texts((T.Build()))
 			assert(page:find(ns.L.TREASURY_KEPT_BY:format("Pyralis Ashandar", "0s ago"), 1, true), page)
-			assert(page:find(ns.L.TREASURY_KEPT_BY:format("Asmon", ns.L.TREASURY_KEPT_NOW), 1, true), page)
+			assert(page:find(ns.L.TREASURY_KEPT_BY:format("Shobek", ns.L.TREASURY_KEPT_NOW), 1, true), page)
 			assert(page:find(ns.L.TREASURY_WEEK:format(4), 1, true), page) -- (1.1: counted by each keeper, #36)
 			-- A soldier (the King shows the balance and the ranking): the same treasury.
 			T.SetFlag("balance", true); T.SetFlag("ranking", true)
 			AsSoldier()
-			T.HandleReport("CHANNEL", "Asmongold Asmongler-Realm", kings)
+			T.HandleReport("CHANNEL", "Shobek Shobekler-Realm", kings)
 			r = T.Report()
 			eq(r.balance, 15165000); eq(r.rank[1].money, 120000, "(the Treasurer's copy: Konig's review of 1.1)"); eq(r.donors, 4, "(1.1: counted by each keeper, #36)")
 			assert(T.RealmText():find(T.GoldText(15165000), 1, true), T.RealmText())
 			page = Texts((T.Build()))
-			assert(page:find("1. Generous Donor", 1, true) and page:find(ns.L.TREASURY_KEPT_BY:format("Asmon", "0s ago"), 1, true), page)
+			assert(page:find("1. Generous Donor", 1, true) and page:find(ns.L.TREASURY_KEPT_BY:format("Shobek", "0s ago"), 1, true), page)
 			-- A keeper not heard from for weeks is still counted: the total would drop otherwise
 			-- (his book says when it came).
 			w.clock = w.clock + 20 * 86400
 			eq(T.Report().balance, 15165000)
 			page = Texts((T.Build()))
-			assert(page:find(ns.L.TREASURY_KEPT_BY:format("Asmon", ns.Ago(w.clock - 20 * 86400)), 1, true), page)
+			assert(page:find(ns.L.TREASURY_KEPT_BY:format("Shobek", ns.Ago(w.clock - 20 * 86400)), 1, true), page)
 			-- 0.9's treasury for 0.9 clients, from the Treasurer's client: the sum, in 0.9's shape.
 			AsTreasurer()
-			T.HandleReport("CHANNEL", "Asmongold Asmongler-Realm", kings)
+			T.HandleReport("CHANNEL", "Shobek Shobekler-Realm", kings)
 			local legacy = T.LegacyMessage()
 			local balance, rest = legacy:match("^T8~Bankai Guild~(%-?%d+)~(.*)$")
 			eq(tonumber(balance), 15165000)
@@ -22568,19 +22568,19 @@ test("1.0 gold and items between keepers are a transfer: in each book's balance,
 			-- banker items: transfers out.
 			AsTreasurer()
 			mail.gold = 2000000
-			trade.Trade("Asmongold Asmongler", 0, 100000)
-			mail.Send("asmongold asmongler", 50000)
+			trade.Trade("Shobek Shobekler", 0, 100000)
+			mail.Send("shobek shobekler", 50000)
 			mail.Send("Test Keeper", 0, { { id = 2589, name = "Linen Cloth", n = 20 } })
 			local book = T.Lines()
 			eq(#book, 3)
 			for _, e in ipairs(book) do eq(e.kind, "transfer"); eq(e.out, true); eq(e.excluded, nil) end
 			eq(book[3].item, 2589); eq(book[3].count, 20)
-			assert(Printed(w, ns.L.TREASURY_TRANSFER_OUT:format("Asmongold Asmongler", T.Coins(100000))), "told as a transfer")
+			assert(Printed(w, ns.L.TREASURY_TRANSFER_OUT:format("Shobek Shobekler", T.Coins(100000))), "told as a transfer")
 			local t = T.Totals()
 			eq(t.allOut, 0, "not a payment"); eq(t.transOut, 150000)
 			eq(T.Balance(), 2000000 - 150000, "the gold left his book")
 			local his = T.Message()
-			assert(his:find("s:100000:Asmongold Asmongler:t:", 1, true) and his:find("~0~0~0~0~", 1, true), his)
+			assert(his:find("s:100000:Shobek Shobekler:t:", 1, true) and his:find("~0~0~0~0~", 1, true), his)
 			-- The King's side: received, transfers in.
 			AsKing()
 			mail.gold = 3000000
@@ -22602,7 +22602,7 @@ test("1.0 gold and items between keepers are a transfer: in each book's balance,
 			assert(page:find(ns.L.TREASURY_KIND_TRANSFER, 1, true), page)
 			-- A transfer by mail that comes back: no longer counted in his book.
 			AsTreasurer()
-			mail.inbox = { { sender = "Asmongold Asmongler", subject = "Returned: gold", money = 50000, returned = true } }
+			mail.inbox = { { sender = "Shobek Shobekler", subject = "Returned: gold", money = 50000, returned = true } }
 			mail.gold = 1850000
 			T.MailTaking(1); mail.Arrive(50000)
 			eq(book[2].returned, true); eq(book[2].excluded, true)
@@ -22822,12 +22822,12 @@ test("1.0 only keepers' books count: a non-keeper's treasury or bank is refused,
 			local book = "TB~1.0~%s~0~500~500~0~500~1~Giver~-~-~Giver:500~i:500:Giver:t:" .. w.clock .. "~~0:0"
 			T.HandleReport("CHANNEL", "Faker Guy-Realm", book:format("Bankai Guild"))
 			T.HandleReport("CHANNEL", "Pyralis Ashandar-Realm", book:format("Bankai Guild II"))
-			T.HandleReport("CHANNEL", "Asmongold Asmongler-Realm", book:format("Bankai Guild II"))
+			T.HandleReport("CHANNEL", "Shobek Shobekler-Realm", book:format("Bankai Guild II"))
 			T.HandleReport("CHANNEL", "Test Keeper-Realm", book:format("LXIX"))
 			T.HandleReport("WHISPER", "Test Keeper-Realm", book:format("Bankai Guild"))
 			eq(T.Report(), nil, "nobody's book: a stranger, the pins in another guild, a keeper outside Bankai Guild, a whisper")
 			T.HandleReport("CHANNEL", "Test Keeper-Realm", book:format("Bankai Guild II"))
-			T.HandleReport("CHANNEL", "Asmongold Asmongler-Realm", book:format("Bankai Guild"))
+			T.HandleReport("CHANNEL", "Shobek Shobekler-Realm", book:format("Bankai Guild"))
 			T.HandleReport("CHANNEL", "Pyralis Ashandar-Realm", book:format("Bankai Guild"))
 			eq(#T.Report().keepers, 3); eq(T.Report().balance, 1500)
 			-- A forged name in a keeper's book: what can't be a name is dropped, nothing else.
@@ -22846,14 +22846,14 @@ test("1.0 only keepers' books count: a non-keeper's treasury or bank is refused,
 			local bank = "T9~Bankai Guild~%d~%d~Main;2589x200"
 			B.HandleReport("CHANNEL", "Faker Guy-Realm", bank:format(w.clock, 1))
 			eq(B.Report(), nil, "not a keeper")
-			B.HandleReport("CHANNEL", "Asmongold Asmongler-Realm", bank:format(w.clock, 1234))
-			eq(B.Report().money, 1234); eq(B.Report().by, "Asmongold Asmongler-Realm")
+			B.HandleReport("CHANNEL", "Shobek Shobekler-Realm", bank:format(w.clock, 1234))
+			eq(B.Report().money, 1234); eq(B.Report().by, "Shobek Shobekler-Realm")
 			B.HandleReport("CHANNEL", "Test Keeper-Realm", bank:format(w.clock - 100, 999))
 			eq(B.Report().money, 1234, "an older snapshot of another keeper's doesn't replace a newer one")
 			B.HandleReport("CHANNEL", "Test Keeper-Realm", bank:format(w.clock + 5, 1500))
 			eq(B.Report().money, 1500); eq(B.Report().by, "Test Keeper-Realm")
 			-- Taken off the treasury: his book and his bank no longer show.
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~K~12~Bankai Guild~" .. (w.clock + 1) .. "~")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~K~12~Bankai Guild~" .. (w.clock + 1) .. "~")
 			eq(#T.Report().keepers, 2); eq(B.Report(), nil)
 			ns.rdb.bankReport = nil
 		end)
@@ -23083,7 +23083,7 @@ test("1.0 the Treasurer's mail character: a keeper in any guild or none, pinned 
 			-- neither add it to his list nor take it off.
 			AsKing()
 			T.AddKeeper("Pyralis Andarai"); eq(#T.Keepers(), 0, "pinned: never on the King's list")
-			T.TakeKeepers(w.clock + 1, "Pyralis Andarai-Realm,Test Keeper-Realm", "Asmongold Asmongler-Realm")
+			T.TakeKeepers(w.clock + 1, "Pyralis Andarai-Realm,Test Keeper-Realm", "Shobek Shobekler-Realm")
 			eq(#T.Keepers(), 1); eq(T.Keepers()[1], "Test Keeper-Realm", "a pinned name is dropped from the King's word")
 			T.Show("keepers")
 			local lines = T.Build()
@@ -23168,7 +23168,7 @@ test("1.0 the Treasurer's mail taken on his mail character: in its own book once
 			AsSoldier("Pyralis Hunter")
 			eq(T.IsKeeper(), false); eq(T.IsTreasurerAccount(), true)
 			mail.gold = 10
-			mail.inbox = { { sender = "Fan", money = 7000 }, { sender = "Pyralis Andarai", money = 30000 }, { sender = "Asmongold Asmongler", money = 20000 },
+			mail.inbox = { { sender = "Fan", money = 7000 }, { sender = "Pyralis Andarai", money = 30000 }, { sender = "Shobek Shobekler", money = 20000 },
 				{ sender = "Pyralis Ashandar", money = 1000 }, { sender = "Pyralis Crafter", money = 500, items = { { id = 118, name = "Minor Healing Potion", n = 2 } } } }
 			T.MailTaking(1); mail.Arrive(7000)
 			eq(#his.lines, 3); eq(his.lines[3].name, "Fan"); eq(T.Totals(his).allIn, 7000)
@@ -23366,7 +23366,7 @@ test("1.0 the early supporters: everyone who gave before 1.0, names only, alphab
 			T.HandleEarly("CHANNEL", "Faker Guy-Realm", te[1])
 			T.HandleEarly("CHANNEL", "Pyralis Ashandar-Realm", (te[1]:gsub("^TE~Bankai Guild~", "TE~LXIX~")))
 			T.HandleEarly("CHANNEL", "Pyralis Andarai-Other", te[1])
-			T.HandleEarly("CHANNEL", "Asmongold Asmongler-Realm", te[1])
+			T.HandleEarly("CHANNEL", "Shobek Shobekler-Realm", te[1])
 			T.HandleEarly("WHISPER", "Pyralis Ashandar-Realm", te[1])
 			eq(Early(), nil, "a stranger, the Treasurer outside Bankai Guild, a namesake, the King, a whisper")
 			T.HandleEarly("CHANNEL", "Pyralis Ashandar-Realm", te[1])
@@ -23629,7 +23629,7 @@ test("1.0.0 Konig's review: the treasury's keepers are set by the King and his S
 			-- A soldier who heard the King: a Treasurer's book naming others, dated later, changes nothing.
 			AsSoldier()
 			ns.rdb.treasuryKeepers = nil
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			eq(T.KeeperByName("Test Keeper"), true)
 			T.HandleReport("CHANNEL", "Pyralis Ashandar-Realm", WithField(his, 12, (at + 10) .. "@Faker Guy-Realm"))
 			assert(ns.rdb.treasuryReports["Pyralis Ashandar-Realm"], "his book itself is taken")
@@ -23643,7 +23643,7 @@ test("1.0.0 Konig's review: the treasury's keepers are set by the King and his S
 			eq(ns.rdb.treasuryKeepers, nil, "no list from the Treasurer")
 			eq(T.KeeperByName("Faker Guy"), false)
 			-- The King's own word still sets it, and his client repeats it for late logins.
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", list)
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			eq(T.KeeperByName("Test Keeper"), true, "from the King")
 			AsKing()
 			w.sent = {}
@@ -23686,7 +23686,7 @@ test("1.0.0 Konig's review: a keeper's book is checked when it comes (shape, siz
 			T.Record("Giver One", 30000, "trade", nil, { quiet = true })
 			T.Record("Giver Two", 20000, "mail", nil, { quiet = true })
 			T.Record("Paid Crafter", 5000, "mail", true, { quiet = true })
-			T.Record("Asmongold Asmongler", 7000, "trade", nil, { quiet = true })
+			T.Record("Shobek Shobekler", 7000, "trade", nil, { quiet = true })
 			T.Record("Giver One", 0, "mail", nil, { quiet = true, item = 2589, count = 20 })
 			local msg = T.Message()
 			local f = Fields(msg)
@@ -24945,7 +24945,7 @@ local function BorderUnit(name, guild, rank, rankIndex, extra)
 	return u
 end
 local BORDER_ME = BorderUnit("Tester", "Bankai Guild II", "Hero", 2)
-local BORDER_KING = BorderUnit("Asmongold Asmongler", "Bankai Guild", "Guild Master", 0)
+local BORDER_KING = BorderUnit("Shobek Shobekler", "Bankai Guild", "Guild Master", 0)
 
 local function WithBorders(fn, setup)
 	local saved, savedNs = {}, { faction = ns.faction, guilds = ns.rdb.guilds, council = ns.rdb.council, borders = ns.db.borders,
@@ -25249,8 +25249,8 @@ test("1.1.5 borders: three tiers: the King gold wings, the High Council silver w
 		eq(Tier(BORDER_KING), "gold-elite", "the King")
 		eq(w.B.TierOf("target"), "gold-elite")
 		-- His name in another guild, or on another realm group, is not him.
-		eq(Tier(BorderUnit("Asmongold Asmongler", "Bankai Guild II", "Member", 3)), nil, "his name in another guild")
-		eq(Tier(BorderUnit("Asmongold Asmongler", "Bankai Guild", "Guild Master", 0, { realm = "Elsewhere" })), nil, "a namesake on another realm group")
+		eq(Tier(BorderUnit("Shobek Shobekler", "Bankai Guild II", "Member", 3)), nil, "his name in another guild")
+		eq(Tier(BorderUnit("Shobek Shobekler", "Bankai Guild", "Guild Master", 0, { realm = "Elsewhere" })), nil, "a namesake on another realm group")
 		-- The High Council (the signed list), in any guild: silver wings. The flag that gave it the
 		-- King's gold is gone: set, it changes nothing.
 		local sage = BorderUnit("Sage Owl", "Wanderers", "Member", 3)
@@ -25288,9 +25288,9 @@ test("1.1.5 borders: three tiers: the King gold wings, the High Council silver w
 		eq(Tier(BorderUnit("Loner", nil, nil, nil)), nil, "no guild")
 		eq(Tier(BorderUnit("Hogger", nil, nil, nil, { npc = true })), nil, "a creature")
 		-- Whoever matches several tiers gets the highest. The King above everything else he is.
-		ns.rdb.council.names["asmongold asmongler"] = true
+		ns.rdb.council.names["shobek shobekler"] = true
 		eq(Tier(BORDER_KING), "gold-elite")
-		ns.rdb.council.names["asmongold asmongler"] = nil
+		ns.rdb.council.names["shobek shobekler"] = nil
 		-- A High Councillor who is a guild master: silver wings.
 		ns.rdb.council.names["zeusy"] = true
 		eq(Tier(BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0)), "silver-elite", "a High Councillor who is a guild master")
@@ -25310,7 +25310,7 @@ end)
 
 test("1.0.1 borders: the King's own screen (his stream) shows no High Council border, as the chats show no mark there", function()
 	WithBorders(function(w)
-		ns.me = "Asmongold Asmongler-Realm"
+		ns.me = "Shobek Shobekler-Realm"
 		w.internal("LOGIN")
 		eq(ns.CouncilMasked(), true, "the King's screen")
 		w.target(BorderUnit("Sage Owl", "Wanderers", "Member", 3))
@@ -25968,8 +25968,8 @@ test("1.0.1 borders: nothing outside an Bankai Guild guild, on clients without F
 	WithBorders(function(w)
 		ns.splitNames = true
 		w.internal("LOGIN")
-		w.target(BorderUnit("Asmongold Asmongler", "Bankai Guild", "Guild Master", 0, { split1 = "Asmongold", split2 = "Asmongler" }))
-		eq(w.shown("target"), "gold-elite", "\"Asmongold\", \"Asmongler\" is the King")
+		w.target(BorderUnit("Shobek Shobekler", "Bankai Guild", "Guild Master", 0, { split1 = "Shobek", split2 = "Shobekler" }))
+		eq(w.shown("target"), "gold-elite", "\"Shobek\", \"Shobekler\" is the King")
 		w.target(BorderUnit("Sage Owl", "Wanderers", "Member", 3, { split1 = "Sage", split2 = "Owl" }))
 		eq(w.shown("target"), "silver-elite")
 	end)
@@ -26003,7 +26003,7 @@ test("1.0.1 borders: a census report never gives its own sender a Lord's or a Ca
 		eq(Report("Bankai Guild Tongs", "Crowntaker", "", "Crowntaker-Realm"), true)
 		eq(Tier(BorderUnit("Crowntaker", "Bankai Guild Tongs", "Peasant", 6)), nil, "his own word: no guild master's border")
 		-- The King's guild: a report that names the King its leader passes, and adds its sender.
-		eq(Report("BankaiGuild", "Asmongold Asmongler", "Peonx:1:0", "Peonx-Realm"), true)
+		eq(Report("BankaiGuild", "Shobek Shobekler", "Peonx:1:0", "Peonx-Realm"), true)
 		eq(Tier(BorderUnit("Peonx", "Bankai Guild", "Peasant", 7)), nil, "a peasant of the King's guild")
 		eq(Tier(BORDER_KING), "gold-elite", "the King as ever")
 		-- A real guild master is silver once another sender (his runner-up) names him too: the census
@@ -26368,7 +26368,7 @@ do
 				eq(#lines, 0, "no Workshop lines")
 			end, function(w) w.units.player = who[2]; ns.me = who[1] end)
 		end
-		-- The author's test build (Dev.lua, never published): as Asmon's and the Treasurer's views.
+		-- The author's test build (Dev.lua, never published): as Shobek's and the Treasurer's views.
 		local savedDev = ns.devWorkshop
 		local ok, err = pcall(WithBorders, function(w)
 			ns.Borders = w.B
@@ -27194,7 +27194,7 @@ do
 			ns.Roster.byName, ns.Roster.guild, ns.Roster.lastStats = byName, OURS, { leader = "Boss Hammer" }
 			w.as = function(me, rank) ns.me = me; GetGuildInfo = function() return OURS, rank == 0 and "Zeus" or "Member", rank end end
 			-- (1.1.5) The King, on his own guild; anyone in a guild of the test's choosing (a High Councillor, a member of the King's guild).
-			w.asKing = function() ns.me = "Asmongold Asmongler-Realm"; GetGuildInfo = function() return "Bankai Guild", "King", 0 end end
+			w.asKing = function() ns.me = "Shobek Shobekler-Realm"; GetGuildInfo = function() return "Bankai Guild", "King", 0 end end
 			w.asIn = function(me, guild, rank) ns.me = me; GetGuildInfo = function() return guild, rank == 0 and "Zeus" or "Member", rank end end
 			w.flush = function() local due = w.timers; w.timers = {}; for _, f in ipairs(due) do f() end end
 			w.parts = function()
@@ -27315,7 +27315,7 @@ do
 
 	-- (1.1.5, the author's ask: the 1.2 dropdown now.) View as: one preview at a time, from Bankai Guild's
 	-- own menu; the author's alone.
-	test("1.1.5 View as: the author's menu switches Asmon's, the Treasurer's and the guild master's views, one at a time; My view turns them off; nobody else has it", function()
+	test("1.1.5 View as: the author's menu switches Shobek's, the Treasurer's and the guild master's views, one at a time; My view turns them off; nobody else has it", function()
 		WithNominees(function(w)
 			local V = ns.ViewAs
 			local saved = { vis = ns.Workshop.Visible, author = ns.Workshop.IsAuthor, gm = ns.db.devGMView }
@@ -27798,9 +27798,9 @@ do
 			ns.rdb.council.names[ns.AUTHOR:lower()] = true
 			eq(Tier(BorderUnit(ns.AUTHOR, OURS, "Member", 3, { realm = AUTHOR_REALM })), "silver-elite")
 			ns.rdb.council.names[ns.AUTHOR:lower()] = nil
-			ns.rdb.council.names["asmongold asmongler"] = true
+			ns.rdb.council.names["shobek shobekler"] = true
 			eq(Tier(BORDER_KING), "gold-elite", "the King above all")
-			ns.rdb.council.names["asmongold asmongler"] = nil
+			ns.rdb.council.names["shobek shobekler"] = nil
 			-- His name on another realm group: nobody's silver.
 			border, mark = Tier(BorderUnit(ns.AUTHOR, OURS, "Member", 3, { realm = "Elsewhere" }))
 			eq(border, nil); eq(mark, "member")
@@ -27957,12 +27957,12 @@ do
 				w.asKing(); K.AddHand("Helper"); K.SendHands(true)
 				local hands = w.sent[#w.sent].msg
 				w.asIn("Helper-Realm", OURS, 3)
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", hands)
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", hands)
 				eq(K.IsHand(), true); eq(K.ThroneShown(), true)
 				local part = Msg("BankaiGuild", w.clock, "c=Ada")
-				N.Handle("CHANNEL", "Asmongold Asmongler-Realm", part)
+				N.Handle("CHANNEL", "Shobek Shobekler-Realm", part)
 				lines, _, detail = K.Build()
-				eq(lines[1].text, L.THRONE_ROOM_HAND:format("Asmon")); eq(detail, L.THRONE_YOU_ARE_HAND:format("Asmon"))
+				eq(lines[1].text, L.THRONE_ROOM_HAND:format("Shobek")); eq(detail, L.THRONE_YOU_ARE_HAND:format("Shobek"))
 				assert(Has(lines, MAIN), "the King's centurions")
 				eq(#N.KingsCenturions(), 1, "the accepted manual list has one Legate, not automatic councillors")
 				eq(Has(lines, "vera"), nil, "the manual list does not expose the Council as Legates")
@@ -28071,7 +28071,7 @@ do
 				end
 				-- The King: the Throne again, its crown and its buttons.
 				GetGuildInfo = function() return "Bankai Guild", "King", 0 end
-				ns.me = "Asmongold Asmongler-Realm" -- (the addon's own namespace: UI.lua's reads through to it)
+				ns.me = "Shobek Shobekler-Realm" -- (the addon's own namespace: UI.lua's reads through to it)
 				UI.Refresh()
 				eq(ns.King.IsKing(), true, "the King")
 				do
@@ -28547,7 +28547,7 @@ test("1.1.5 nameplates: a mark left of the name of each friendly player of an Ba
 			{ BorderUnit("Vet", "Bankai Guild II", "Veterano", 3), "member", "a Veteran of our own guild: the star" },
 			{ BorderUnit("Pleb", "Bankai Guild Zeus", "Peasant", 6), "member", "any other member of an Bankai Guild guild" },
 			{ BorderUnit("Unlisted", "Bankai Guild Zeus", "Titan", 1), "member", "an officer rank the census doesn't name: a member" },
-			{ BorderUnit("Asmongold Asmongler", "Bankai Guild II", "Member", 3), "member", "the King's name in another guild" },
+			{ BorderUnit("Shobek Shobekler", "Bankai Guild II", "Member", 3), "member", "the King's name in another guild" },
 			{ BorderUnit("Trader", "Stormwind Traders", "Veteran", 3), nil, "another guild's Veteran" },
 			{ BorderUnit("Boss", "Stormwind Traders", "Guild Master", 0), nil, "another guild's master" },
 			{ BorderUnit("Loner", nil, nil, nil), nil, "no guild" },
@@ -28594,7 +28594,7 @@ test("1.1.5 nameplates: a mark left of the name of each friendly player of an Ba
 	-- The King's own screen (his stream): no High Council mark, as no council border; a councillor
 	-- in an Bankai Guild guild is a member there like any other.
 	WithNameplates(function(w)
-		ns.me = "Asmongold Asmongler-Realm"
+		ns.me = "Shobek Shobekler-Realm"
 		w.internal("LOGIN")
 		w.add("nameplate1", BorderUnit("Sage Owl", "Wanderers", "Member", 3))
 		eq(w.mark("nameplate1"), nil, "a councillor outside Bankai Guild: nothing on his screen")
@@ -29290,7 +29290,7 @@ test("1.0.0 nameplates: leaving an Bankai Guild guild hides every mark at once a
 	end, function(w) w.units.player = BorderUnit("Tester", nil, nil, nil) end)
 end)
 
-test("1.0.0 nameplates: the King showing or hiding the council's names (the eye, Asmon's view) takes the council's marks and borders off his screen at once, on the plates already up", function()
+test("1.0.0 nameplates: the King showing or hiding the council's names (the eye, Shobek's view) takes the council's marks and borders off his screen at once, on the plates already up", function()
 	-- The King's own screen: the eye in the Realm (ns.SetCouncilNamesShown).
 	WithNameplates(function(w)
 		local savedFire, fired = ns.Fire, 0
@@ -29331,8 +29331,8 @@ test("1.0.0 nameplates: the King showing or hiding the council's names (the eye,
 		end)
 		ns.Fire = savedFire
 		if not ok then error(err, 0) end
-	end, function(w) w.units.player = BORDER_KING; ns.me = "Asmongold Asmongler-Realm" end)
-	-- The author's Asmon's view (King.SetDevView fires DATA_CHANGED): his screen is the King's.
+	end, function(w) w.units.player = BORDER_KING; ns.me = "Shobek Shobekler-Realm" end)
+	-- The author's Shobek's view (King.SetDevView fires DATA_CHANGED): his screen is the King's.
 	WithNameplates(function(w)
 		local savedFire = ns.Fire
 		ns.Fire = function(name) if name == "DATA_CHANGED" then w.internal(name) end end
@@ -29343,7 +29343,7 @@ test("1.0.0 nameplates: the King showing or hiding the council's names (the eye,
 			w.target(sage)
 			eq(w.mark("nameplate1"), "silver"); eq(w.shown("target"), "silver-elite")
 			ns.King.SetDevView(true)
-			eq(ns.CouncilMasked(), true, "Asmon's view: the King's screen")
+			eq(ns.CouncilMasked(), true, "Shobek's view: the King's screen")
 			eq(w.mark("nameplate1"), nil, "hidden with the view"); eq(w.shown("target"), nil)
 			ns.King.SetDevView(false)
 			eq(w.mark("nameplate1"), "silver", "back without it"); eq(w.shown("target"), "silver-elite")
@@ -29477,18 +29477,18 @@ do
 				K.random = function() return 0 end -- in the sample
 				ns.db.royalInspection = nil -- a fresh install: never answered
 				ns.After = function(seconds, _, fn) timers[#timers + 1] = { seconds = seconds, fn = fn } end
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~I~22~Bankai Guild")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~I~22~Bankai Guild")
 				eq(ns.Inspect.IsPatrolling(), false, "never answered: no patrol")
 				eq(#timers, 0); eq(#w.whispered, 0, "and no report")
 				-- His yes (the page, or /bk inspection on): the next inspection, 30 minutes later.
 				ns.db.royalInspection = true
 				w.clock = w.clock + K.INSPECT_GAP
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~I~23~Bankai Guild")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~I~23~Bankai Guild")
 				eq(ns.Inspect.IsPatrolling(), true, "after a yes: a sampled player patrols")
 				eq(#timers, 1); eq(timers[1].seconds, K.INSPECT_TIME)
 				timers[1].fn()
 				eq(ns.Inspect.IsPatrolling(), false, "the patrol ends with the inspection")
-				eq(#w.whispered, 1, "one report"); eq(w.whispered[1].to, "Asmongold Asmongler-Realm", "to whoever called it")
+				eq(#w.whispered, 1, "one report"); eq(w.whispered[1].to, "Shobek Shobekler-Realm", "to whoever called it")
 				assert(w.whispered[1].msg:find("^T3~23~Bankai Guild II~"), w.whispered[1].msg)
 				for _, s in ipairs(w.sent) do assert(not s.msg:find("^T3~"), "never on the channel") end
 			end)
@@ -29985,7 +29985,7 @@ test("1.0.0 OfficerSpy's bridge: on the King's screen, while the councillors' na
 		ns.SetCouncilNamesShown(false)
 		eq(ns.CouncilMasked(), false, "not the King's screen")
 		eq(B.IsHighCouncillor("Test Councillor-Realm"), true)
-		-- Asmon's view (the author's preview of the King's screen): the names hidden there.
+		-- Shobek's view (the author's preview of the King's screen): the names hidden there.
 		K.Preview = function() return true end
 		eq(ns.CouncilMasked(), true)
 		local line = ns.Channels.FormatLine("A", "Test Councillor-Realm", "Bankai Guild II", nil, "hi")
@@ -32205,7 +32205,7 @@ do
 					eq(K.Visible(), true, "the Throne tab"); eq(K.CanCommand(), true)
 					local lines, _, detail = K.Build()
 					eq(lines[1].text, "|T" .. ns.CROWN_ICON .. ":0|t " .. L.STEWARD_ACTING, "acting for the King, on top")
-					eq(detail, L.THRONE_YOU_ARE_STEWARD:format("Asmon"))
+					eq(detail, L.THRONE_YOU_ARE_STEWARD:format("Shobek"))
 					-- (1.1.5, the author's call: no treasury on the Throne any more, its own tab has it all; under
 					-- the Throne Room, the King's centurions (1.2.4: the High Council), his to read.)
 					assert(Texts(lines):find(L.THRONE_ROOM, 1, true) and not Texts(lines):find(L.TREASURY_TITLE, 1, true), Texts(lines))
@@ -34435,7 +34435,7 @@ test("1.1 pinned line: who may pin (the King, his Stewards and Hands for the arm
 		ns.me = "Soldier-Realm"
 		-- Nobody we can place: a name claiming a guild, a Captain, a Lord of a guild nobody vouches for.
 		eq(select(2, Pin("Faker-Realm", "Bankai Guild Zeus", "fake news")), "rank")
-		eq(select(2, Pin("Asmongold Asmongler-Realm", "Bankai Guild Zeus", "not his guild")), "rank", "the King speaks for his guild")
+		eq(select(2, Pin("Shobek Shobekler-Realm", "Bankai Guild Zeus", "not his guild")), "rank", "the King speaks for his guild")
 		ns.rdb.guilds["Bankai Guild Zeus"].officers = { { name = "Cap2" } }
 		Vouched(ns.rdb.guilds["Bankai Guild Zeus"], "W3-Realm", "W4-Realm")
 		eq(select(2, Pin("Cap2-Realm", "Bankai Guild Zeus", "a Captain's")), "rank", "a Captain is no Lord")
@@ -34454,19 +34454,19 @@ test("1.1 pinned line: who may pin (the King, his Stewards and Hands for the arm
 		eq(C.Pin().rank, C.PIN_LORD)
 		-- The King's newer pin wins.
 		w.clock = w.clock + 60
-		eq(Pin("Asmongold Asmongler-Realm", "Bankai Guild", "The King's line", 22), true)
+		eq(Pin("Shobek Shobekler-Realm", "Bankai Guild", "The King's line", 22), true)
 		eq(C.Pin().text, "The King's line"); eq(C.Pin().rank, C.PIN_KING)
 		-- A guild master's pin, newer, never replaces the King's; nor does a Hand's.
 		w.clock = w.clock + 120
 		eq(select(2, GuildPin("Zed-Realm", "Bankai Guild Zeus", "Lord Zed's newer line", 33)), "older")
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~H~5~Bankai Guild~Helper-Realm,Aide-Realm")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm,Aide-Realm")
 		eq(K.IsHandName("Helper-Realm"), true)
 		eq(select(2, Pin("Helper-Realm", "Bankai Guild", "A Hand's line", 44)), "older")
 		eq(C.Pin().text, "The King's line")
 		-- A guild master can't take the King's pin down; the King can.
 		eq(select(2, C.HandlePin("GUILD", "Zed-Realm", "N1~11~Bankai Guild Zeus~0~0~")), "nothing")
 		eq(C.Pin().text, "The King's line")
-		eq(select(2, C.HandlePin("CHANNEL", "Asmongold Asmongler-Realm", "N1~22~Bankai Guild~0~0~")), "down")
+		eq(select(2, C.HandlePin("CHANNEL", "Shobek Shobekler-Realm", "N1~22~Bankai Guild~0~0~")), "down")
 		eq(C.Pin(), nil)
 		-- A Hand's pin outranks the guild master's.
 		w.clock = w.clock + 120
@@ -34514,7 +34514,7 @@ test("1.1 pinned line: its setter's client repeats it for late logins, stops onc
 		w.clock = w.clock + C.PIN_GAP
 		eq(C.SetPin("Muster at Tarren Mill"), true)
 		w.clock = w.clock + 5
-		eq(C.HandlePin("CHANNEL", "Asmongold Asmongler-Realm", "N1~9~Bankai Guild~7200~0~The King's line"), true)
+		eq(C.HandlePin("CHANNEL", "Shobek Shobekler-Realm", "N1~9~Bankai Guild~7200~0~The King's line"), true)
 		local before = #sent
 		w.clock = w.clock + C.PIN_RESEND
 		C.RepeatPin()
@@ -34641,7 +34641,7 @@ test("1.1 pinned line: an officer of <Elfcore> (a Lord on its own members' clien
 			AsSoldier()
 			eq(select(2, C.HandlePin("CHANNEL", "Offi-Realm", msg)), "rank", "another guild's client")
 			-- The King names him a Hand: now he pins, and both clients take it.
-			K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~H~5~Bankai Guild~Offi-Realm")
+			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Offi-Realm")
 			GetGuildInfo = function() return "Bankai Guild", "Officer", 1 end
 			ns.me = "Offi-Realm"
 			eq(K.IsHand(), true)
@@ -34683,7 +34683,7 @@ test("1.1 pinned line: only its setter or a higher rank takes a pin down; a high
 		eq(C.Pin().text, "Lord Zed's line")
 		eq(#w.printed, 0)
 		-- A Hand (a higher rank): the pin it names alone, and it is said who took it down.
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
 		w.clock = w.clock + 50
 		eq(Down("CHANNEL", "Helper-Realm", "Bankai Guild", 99), "nothing", "another pin's id")
 		eq(C.Pin().text, "Lord Zed's line")
@@ -35088,17 +35088,17 @@ test("1.1 alert sounds: a decree, a court call and a Vox question sound by their
 				b.clock = b.clock + 16
 				ns.SoundSlash("court off"); ns.SoundSlash("vox off")
 				AsSoldier()
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~C~61~Bankai Guild~1453~Stormwind City")
-				C.HandleCall("WHISPER", "Asmongold Asmongler-Realm", "T5~61")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~C~61~Bankai Guild~1453~Stormwind City")
+				C.HandleCall("WHISPER", "Shobek Shobekler-Realm", "T5~61")
 				eq(w.popups[#w.popups].name, "BANKAIGUILD_COURT_CALLED", "the call still shows")
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~62~Bankai Guild~60~1~Raid?~Yes~No")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~62~Bankai Guild~60~1~Raid?~Yes~No")
 				assert(ns.Vox.Frame():IsShown(), "the question's window still opens")
 				eq(#b.played, 3, "neither sounded")
 				ns.SoundSlash("vox on")
 				ns.Vox.Reset()
 				b.clock = b.clock + 16
 				w.clock = w.clock + 120
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~63~Bankai Guild~60~1~Again?~Yes~No")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~63~Bankai Guild~60~1~Again?~Yes~No")
 				eq(#b.played, 4, "Vox Populi on again")
 			end)
 		end)
@@ -35263,16 +35263,16 @@ test("1.1 held alerts: on Busy the court's call and a Vox question wait (their c
 				AsSoldier()
 				b.busy = true
 				eq(ns.Quiet(), "busy")
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~C~71~Bankai Guild~1453~Stormwind City")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~C~71~Bankai Guild~1453~Stormwind City")
 				assert(Printed(w, "holds court in Stormwind City"), "the court's chat line")
-				C.HandleCall("WHISPER", "Asmongold Asmongler-Realm", "T5~71")
-				assert(Printed(w, L.COURT_CALLED:format("Asmon", "Stormwind City")), "the call's chat line")
+				C.HandleCall("WHISPER", "Shobek Shobekler-Realm", "T5~71")
+				assert(Printed(w, L.COURT_CALLED:format("Shobek", "Stormwind City")), "the call's chat line")
 				eq(#w.popups, 0, "no popup while Busy"); eq(#b.warnings, 0, "no raid warning"); eq(#b.played, 0, "no sound")
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~72~Bankai Guild~60~1~Raid tonight?~Yes~No")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~72~Bankai Guild~60~1~Raid tonight?~Yes~No")
 				eq(Open(), false, "no window while Busy")
 				assert(Printed(w, "Raid tonight?  1) Yes  2) No"), "the question in chat")
 				local tab = Texts(ns.Views.Build("decrees"))
-				for _, text in ipairs({ L.HELD_TITLE, L.HELD_COURT:format("Stormwind City"), L.HELD_COURT_CALL:format("Asmon"), L.HELD_VOX:format("Raid tonight?") }) do
+				for _, text in ipairs({ L.HELD_TITLE, L.HELD_COURT:format("Stormwind City"), L.HELD_COURT_CALL:format("Shobek"), L.HELD_VOX:format("Raid tonight?") }) do
 					assert(tab:find(text, 1, true), text .. "\n" .. tab)
 				end
 				-- Back, 30 seconds later: one line, one raid warning, one sound (the call's, the loudest);
@@ -35281,7 +35281,7 @@ test("1.1 held alerts: on Busy the court's call and a Vox question wait (their c
 				b.busy = false
 				ns.ReleaseHeld()
 				local line = w.printed[#w.printed]
-				assert(line:find(L.HELD_COURT_CALL:format("Asmon"), 1, true) and line:find(L.HELD_VOX:format("Raid tonight?"), 1, true), line)
+				assert(line:find(L.HELD_COURT_CALL:format("Shobek"), 1, true) and line:find(L.HELD_VOX:format("Raid tonight?"), 1, true), line)
 				eq(w.popups[#w.popups].name, "BANKAIGUILD_COURT_CALLED", "the call, still open, pops")
 				eq(Open(), true, "the question, still open: its window")
 				eq(#b.warnings, 1); eq(#b.played, 1, "one sound for all of them"); eq(b.played[1], SOUNDKIT.RAID_WARNING)
@@ -35289,7 +35289,7 @@ test("1.1 held alerts: on Busy the court's call and a Vox question wait (their c
 				V.Frame():Hide()
 				b.busy = true
 				Wait(60)
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~73~Bankai Guild~30~1~Quick one?~Yes~No")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~73~Bankai Guild~30~1~Quick one?~Yes~No")
 				Wait(40)
 				b.busy = false
 				local popups = #w.popups
@@ -35300,7 +35300,7 @@ test("1.1 held alerts: on Busy the court's call and a Vox question wait (their c
 				-- A click on its line shows one now; it does not pop again later.
 				b.busy = true
 				Wait(60)
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~V~74~Bankai Guild~120~1~Now?~Yes~No")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~74~Bankai Guild~120~1~Now?~Yes~No")
 				local row
 				for _, l in ipairs(ns.Views.Build("decrees")) do if l.onClick and l.text:find(L.HELD_VOX:format("Now?"), 1, true) then row = l end end
 				assert(row, "its line, a click away")
@@ -35325,10 +35325,10 @@ test("1.1 held alerts: the roll call waits and is never answered for the player;
 				RaidNotice_AddMessage = b.notice
 				AsCaptain()
 				b.inside = true
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~S~81~Bankai Guild")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~S~81~Bankai Guild")
 				eq(#w.popups, 0, "the roll call waits")
-				assert(Printed(w, L.THRONE_SUMMONED:format("Asmon")), "its chat line")
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~A~82~Bankai Guild~1800~The Crossroads~Raid on the Crossroads")
+				assert(Printed(w, L.THRONE_SUMMONED:format("Shobek")), "its chat line")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~A~82~Bankai Guild~1800~The Crossroads~Raid on the Crossroads")
 				eq(#w.popups, 0); eq(#b.warnings, 0)
 				assert(Printed(w, "Raid on the Crossroads"), "the Agenda's chat line")
 				-- Out ten minutes later: the roll call (open a minute) is over, the Agenda is 20 minutes away.
@@ -35341,7 +35341,7 @@ test("1.1 held alerts: the roll call waits and is never answered for the player;
 				-- The Agenda and its reminders are one line while they wait.
 				b.inside = true
 				Wait(10 * 60 + 1)
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~A~84~Bankai Guild~1200~The Crossroads~Second raid")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~A~84~Bankai Guild~1200~The Crossroads~Second raid")
 				ns.Alert("agenda", "soft", K.AgendaHeld(K.Agenda()))
 				eq(#ns.Held(), 1, "one line for the Agenda and its reminder")
 				b.inside = false
@@ -35355,7 +35355,7 @@ test("1.1 held alerts: the roll call waits and is never answered for the player;
 				eq(ns.Quiet(), nil)
 				Wait(120)
 				local n = #w.popups
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~S~83~Bankai Guild")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~S~83~Bankai Guild")
 				eq(#w.popups, n + 1, "at once"); eq(w.popups[#w.popups].name, "BANKAIGUILD_KING_SUMMON")
 				SlashCmdList.BANKAIGUILD("alerts quiet")
 				eq(ns.db.alertsAlways, nil); eq(ns.Quiet(), "instance")
@@ -35381,7 +35381,7 @@ test("1.1 held alerts: out comes through Bankai Guild's own dialog with the game
 					ns.Focus = function() focus = focus + 1 end
 					b.inside = true
 					ns.Alert("court", "loud", { text = "called", what = "the call",
-						show = function() ns.ShowDialog("BANKAIGUILD_COURT_CALLED", "Asmon", "Stormwind City") end })
+						show = function() ns.ShowDialog("BANKAIGUILD_COURT_CALLED", "Shobek", "Stormwind City") end })
 					eq(ns.Dialog.Find("BANKAIGUILD_COURT_CALLED"), nil, "waits")
 					b.inside = false
 					ns.ReleaseHeld()
@@ -35479,7 +35479,7 @@ test("1.1 held alerts: a full list keeps the Agenda's popup: HELD_MAX Calls to A
 				RaidNotice_AddMessage = b.notice
 				AsCaptain()
 				b.inside = true
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~A~82~Bankai Guild~10800~The Crossroads~Raid on the Crossroads")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~A~82~Bankai Guild~10800~The Crossroads~Raid on the Crossroads")
 				-- A question over within the minute, repeated (one key): one of those that came and went.
 				local asked = ns.Now()
 				for _ = 1, 2 do
@@ -35501,7 +35501,7 @@ test("1.1 held alerts: a full list keeps the Agenda's popup: HELD_MAX Calls to A
 				-- line, and the oldest Muster goes, not the popup.
 				b.inside = true
 				Wait(60)
-				K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~A~84~Bankai Guild~3600~The Crossroads~Second raid")
+				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~A~84~Bankai Guild~3600~The Crossroads~Second raid")
 				ns.Alert("agenda", "soft", K.AgendaHeld(K.Agenda()))
 				for i = 1, ns.HELD_MAX do Wait(20); Decree("muster", "Muster " .. i, 1800) end
 				local list = ns.Held()
@@ -35535,9 +35535,9 @@ test("1.1 held alerts: two Royal Writs held while Busy both wait and both come o
 				A.ShowWrit = function(wr) shown[#shown + 1] = wr.id end
 				local ok, err = pcall(function()
 					b.busy = true
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~W~21~Bankai Guild~L~First writ")
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~W~21~Bankai Guild~L~First writ")
 					w.clock, b.clock = w.clock + A.WRIT_SHOW_GAP + 1, b.clock + A.WRIT_SHOW_GAP + 1 -- (writs a gap apart)
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~W~22~Bankai Guild~L~Second writ")
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~W~22~Bankai Guild~L~Second writ")
 					eq(#ns.rdb.writs, 2); eq(#shown, 0, "no parchment while Busy")
 					local writs = 0
 					for _, h in ipairs(ns.Held()) do if tostring(h.key):find("^writ") then writs = writs + 1 end end
@@ -36572,7 +36572,7 @@ function Fern.RouteGuilds(now)
 		["Bankai Guild R2"] = { total = 300, online = 9, zones = {}, t = now, leader = "Slord", leaderOnline = false,
 			officers = { { name = "Scap", online = true } } },
 		["Bankai Guild II"] = { total = 500, online = 9, zones = {}, t = now, leader = "Lordy", leaderOnline = true, officers = {}, mine = true },
-		["Bankai Guild"] = { total = 900, online = 9, zones = {}, t = now, leader = "Asmongold Asmongler", leaderOnline = true, officers = {} },
+		["Bankai Guild"] = { total = 900, online = 9, zones = {}, t = now, leader = "Shobek Shobekler", leaderOnline = true, officers = {} },
 		["Bankai Guild Full"] = { total = 1000, online = 9, zones = {}, t = now, leader = "Flord", leaderOnline = true, officers = {} },
 	}
 end
@@ -37199,7 +37199,7 @@ do
 					if ns.Inspect.IsPatrolling() then ns.Inspect.SetPatrol(false) end
 					K.random = function() return 0 end -- in the sample
 					ns.After = function() end
-					K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~I~31~Bankai Guild")
+					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~I~31~Bankai Guild")
 					eq(ns.Inspect.IsPatrolling(), false, "never answered: no patrol")
 					eq(#w.whispered, 0, "and no report")
 					assert(Printed(w, ns.L.THRONE_INSPECT_WARN), "the King's call is still heard")
@@ -37682,7 +37682,7 @@ do
 				local ok, err = pcall(function()
 					ns.Comm.Send = function(dist, msg) sent[#sent + 1] = msg end
 					GetGuildInfo = function() return "Bankai Guild", "King", 0 end
-					ns.me = "Asmongold Asmongler-Realm"
+					ns.me = "Shobek Shobekler-Realm"
 					local page = ns.Consent.Show()
 					-- (Konig's review of 1.1: an officer, the guild master too, is asked about his patrol findings.)
 					eq(Keys(page), "treasurer,inspection,rollcall,chat,patrolshare,chatrooms,tabardselfv2,tabardnearbyv2", "the King: his crown is his zone and layer; a keeper; an officer")
@@ -37752,7 +37752,7 @@ do
 		return table.concat(out, ",")
 	end
 	local function Last() local list = Ch.Entries() return list[#list] end
-	local KING = "Asmongold Asmongler-Realm"
+	local KING = "Shobek Shobekler-Realm"
 
 	test("1.1 acts log (#12): the gates, pardons and the King's visibility switches this client saw, each once, with the server's sender name; a refused sender writes nothing", function()
 		Ch.Clear()
@@ -37926,7 +37926,7 @@ end
 ---------------------------------------------------------------------------
 do
 	local F = ns.Filter
-	local KING = "Asmongold Asmongler-Realm"
+	local KING = "Shobek Shobekler-Realm"
 	local COUNCILLOR = "Test Councillor-Realm"
 	local function Texts(lines)
 		local out = {}
@@ -39193,7 +39193,7 @@ test("1.1 the King's week: the Agenda's box puts an entry on the week (the King,
 		eq(#W.Entries(), 1, "only the Agenda's current event before the restore")
 		W.Restore()
 		eq(#W.Entries(), 11)
-		-- Asmon's view (the author's): on his screen alone.
+		-- Shobek's view (the author's): on his screen alone.
 		W.Reset(); K.Reset()
 		AsSoldier("Faladoriel")
 		ns.devThrone = true
@@ -39780,7 +39780,7 @@ end)
 	local altsBefore = ns.Alts -- (the same: Alts.lua loads below, with its own tests)
 	assert(loadfile(ADDON_DIR .. "Moderation.lua"))("BankaiGuild", ns)
 	local M = ns.Moderation
-	local KING = "Asmongold Asmongler-Realm"
+	local KING = "Shobek Shobekler-Realm"
 	local HC = "Test Councillor-Realm" -- a made-up councillor of the test council (WithNetoff)
 
 	-- A net-off word as an issuer's client sends it.
@@ -39916,7 +39916,7 @@ end)
 			eq(#M.List(), 0)
 			-- The King himself can't aim at himself either, and the issuer's own client says why.
 			AsKing()
-			eq(M.Set("c", "Asmongold Asmongler", true, "test"), false)
+			eq(M.Set("c", "Shobek Shobekler", true, "test"), false)
 			assert(Printed(w, ns.L.NETOFF_NOT_KING))
 			-- A name linked to him (Alts.lua) that is off never hides him.
 			AsSoldier("Watcher")
@@ -39950,18 +39950,18 @@ end)
 			eq(w.shown("party1"), nil, "taken off: no border")
 			eq(w.shown("party2"), "gold-elite", "the King")
 			-- A word aimed at the King in the saved list: dropped when loaded.
-			ns.rdb.netoff.c["asmongold asmongler-realm"] = { name = KING, off = true, at = t, by = HC, reason = "edited" }
+			ns.rdb.netoff.c["shobek shobekler-realm"] = { name = KING, off = true, at = t, by = HC, reason = "edited" }
 			M.Reset(); M.Load()
-			eq(ns.rdb.netoff.c["asmongold asmongler-realm"], nil, "dropped")
+			eq(ns.rdb.netoff.c["shobek shobekler-realm"], nil, "dropped")
 			-- One in the list as it is read, never checked (the index built from it): still never him,
 			-- worked out afresh (his name's update) and on the census's next change.
-			ns.rdb.netoff.c["asmongold asmongler-realm"] = { kind = "c", name = KING, off = true, at = t, by = KING, reason = "edited" }
+			ns.rdb.netoff.c["shobek shobekler-realm"] = { kind = "c", name = KING, off = true, at = t, by = KING, reason = "edited" }
 			M.Reset()
 			w.fire("UNIT_NAME_UPDATE", "party2")
 			eq(w.shown("party2"), "gold-elite", "never the King")
 			w.internal("DATA_CHANGED")
 			eq(w.shown("party2"), "gold-elite")
-			ns.rdb.netoff.c["asmongold asmongler-realm"] = nil
+			ns.rdb.netoff.c["shobek shobekler-realm"] = nil
 			-- The guild master put back on (his word gone): his bronze again on the census's next change.
 			ns.rdb.netoff.c["zeusy-realm"] = nil
 			M.Reset()
@@ -40149,10 +40149,10 @@ end)
 			assert(M.Hidden("Second Spammer-Realm"), "same second, not the King's: the one kept")
 			-- The list keeps its words across a /reload (ns.rdb.netoff), checked again when loaded.
 			ns.rdb.netoff.c["forged-realm"] = { name = "Forged-Realm", off = true, at = t, by = "Nobody", reason = "" }
-			ns.rdb.netoff.c["asmongold asmongler-realm"] = { name = KING, off = true, at = t, by = HC, reason = "edited" }
+			ns.rdb.netoff.c["shobek shobekler-realm"] = { name = KING, off = true, at = t, by = HC, reason = "edited" }
 			M.Reset()
 			M.Load()
-			eq(ns.rdb.netoff.c["asmongold asmongler-realm"], nil, "never the King, even from the saved variables")
+			eq(ns.rdb.netoff.c["shobek shobekler-realm"], nil, "never the King, even from the saved variables")
 			eq(ns.rdb.netoff.c["forged-realm"], nil, "a word without a reason is not kept")
 			assert(M.Hidden("Second Spammer-Realm"), "the rest stays")
 		end)
@@ -41346,7 +41346,7 @@ end)
 		WithNetoff(function(w, K)
 			AsSoldier("Watcher")
 			local t = w.clock
-			for _, spelled in ipairs({ "asmongold asmongler-Realm", "ASMONGOLD ASMONGLER-Realm", "Asmongold Asmongler-realm", "aSmOnGoLd AsMoNgLeR" }) do
+			for _, spelled in ipairs({ "shobek shobekler-Realm", "SHOBEK SHOBEKLER-Realm", "Shobek Shobekler-realm", "sHoBeK ShObEkLeR" }) do
 				M.Handle("CHANNEL", HC, O1("c", true, t, spelled, HC, "the King is off"))
 			end
 			eq(#M.List(), 0, "no word on the King, whatever the case")
@@ -41356,18 +41356,18 @@ end)
 			M.Handle("CHANNEL", HC, O1("c", true, t, "King Alt-Realm", HC, "the King's alt"))
 			eq(M.Hidden("King Alt-Realm"), nil, "his alt")
 			-- A word kept from before (the saved variables can be edited): never read, dropped at load.
-			ns.rdb.netoff.c["asmongold asmongler-realm"] = { kind = "c", name = "asmongold asmongler-Realm", off = true, at = t, by = HC, reason = "edited", heard = t }
+			ns.rdb.netoff.c["shobek shobekler-realm"] = { kind = "c", name = "shobek shobekler-Realm", off = true, at = t, by = HC, reason = "edited", heard = t }
 			M.Reset()
 			eq(M.Character(KING), nil, "never read")
 			eq(M.Hidden("King Alt-Realm"), nil, "nor through his alt")
 			M.Load()
-			eq(ns.rdb.netoff.c["asmongold asmongler-realm"], nil, "dropped at load")
+			eq(ns.rdb.netoff.c["shobek shobekler-realm"], nil, "dropped at load")
 			-- An issuer's own client refuses it, and sends nothing.
 			ns.Alts = altsBefore
 			AsSoldier("Test Councillor")
 			local sent = #w.sent
-			eq(M.Set("c", "ASMONGOLD ASMONGLER", true, "test"), false)
-			eq(M.Set("c", "asmongold asmongler", true, "test"), false)
+			eq(M.Set("c", "SHOBEK SHOBEKLER", true, "test"), false)
+			eq(M.Set("c", "shobek shobekler", true, "test"), false)
 			assert(Printed(w, ns.L.NETOFF_NOT_KING))
 			eq(#w.sent, sent, "nothing sent")
 			-- On the King's own client, his stream on: no word about him or a name he linked prints anything.
@@ -41375,7 +41375,7 @@ end)
 			ns.Alts = KingAlt(KING, "King Alt-Realm")
 			ns.SetCouncilNamesShown(false)
 			w.printed = {}
-			M.Handle("CHANNEL", HC, O1("c", true, t + 1, "asmongold asmongler-Realm", HC, "ANY TEXT ON THE KINGS STREAM"))
+			M.Handle("CHANNEL", HC, O1("c", true, t + 1, "shobek shobekler-Realm", HC, "ANY TEXT ON THE KINGS STREAM"))
 			M.Handle("CHANNEL", HC, O1("c", true, t + 1, "King Alt-Realm", HC, "ANY TEXT ON THE KINGS STREAM"))
 			for _, p in ipairs(w.printed) do assert(not p:find("ANY TEXT", 1, true), "printed on his screen: " .. p) end
 			eq(M.SelfOff(), nil, "his client holds nothing back")
@@ -41396,7 +41396,7 @@ end)
 			assert(e, "taken")
 			eq(e.by, KING); eq(e.via, HC)
 			local text = Tip(M.Lines()[2])
-			assert(text:find(ns.L.NETOFF_VIA:format("Asmongold Asmongler", "Test Councillor"), 1, true), text)
+			assert(text:find(ns.L.NETOFF_VIA:format("Shobek Shobekler", "Test Councillor"), 1, true), text)
 			AsSoldier("Spammer Guy")
 			assert(M.YouText(e):find("Test Councillor", 1, true), "the hidden player is told who passed it on: " .. M.YouText(e))
 			-- The King's screen with the council's names hidden (his stream): not his own word, so its reason stays hidden.
@@ -41808,7 +41808,7 @@ end)()
 ---------------------------------------------------------------------------
 do
 	local D = ns.Dues
-	local TREASURER, KING = "Pyralis Ashandar-Realm", "Asmongold Asmongler-Realm"
+	local TREASURER, KING = "Pyralis Ashandar-Realm", "Shobek Shobekler-Realm"
 
 	-- Runs fn(w, K, T, mail, trade) on the Throne's world (WithThrone) with the dues fresh, the
 	-- Treasurer's roster empty (his guild's members are named by each test), <Bankai Guild II>'s
@@ -44844,7 +44844,7 @@ test("1.1 patrol share (#29): the King's untabarded list and the army's copy nev
 		local saved = { guild = GetGuildInfo, me = ns.me, on = ns.db.kingUntabarded }
 		local ok, err = pcall(function()
 			GetGuildInfo = function(unit) if unit == nil or unit == "player" then return "Bankai Guild", "King", 0 end return nil end
-			ns.me = "Asmongold Asmongler-Realm"
+			ns.me = "Shobek Shobekler-Realm"
 			eq(K.IsKing(), true); eq(I.MayShare(), true, "the King is his guild's officer: he takes his officers' findings")
 			Caught(I, "Mine")
 			I.AddReported("Rep", ZEUS, "OTHER")
@@ -46726,7 +46726,7 @@ test("1.1 Zeal's promise: what the King hides never goes on the channel; the Kin
 				for _, s in ipairs(w.sent) do if s.msg:sub(1, #prefix) == prefix then out[#out + 1] = s.msg end end
 				return out
 			end
-			local KING = "Asmongold Asmongler-Realm"
+			local KING = "Shobek Shobekler-Realm"
 			-- The Treasurer's book (a donor, a payment, an item), his snapshot of the bank, 0.9's early supporters.
 			ns.rdb.treasuryEpoch = nil
 			ns.rdb.treasury = { { name = "Early Friend", money = 100, how = "mail", t = w.clock - 1000 } }
@@ -46876,7 +46876,7 @@ test("1.1 Zeal's promise: what the King hides never goes on the channel; the Kin
 			w.clock = w.clock + T.RESET_GAP
 			T.HandleAsk("CHANNEL", KING, "TA~Bankai Guild~0")
 			eq(#w.whispered, 1, "its first piece")
-			T.NotFound("No player named 'Asmongold Asmongler' is currently playing.")
+			T.NotFound("No player named 'Shobek Shobekler' is currently playing.")
 			if pending then pending() end
 			eq(#w.whispered, 1, "nothing more to him"); eq(#T.Online(), 0, "the King no longer counted online")
 			ns.After = After
@@ -47052,7 +47052,7 @@ test("1.1 sister guilds' banks (Fern): their treasurer's yes, whispered to the K
 			local After, Run = Queued()
 			ns.After = After
 			ns.Comm.SendChunked = function(m) w.sent[#w.sent + 1] = { dist = "CHANNEL", msg = m } end
-			local KING = "Asmongold Asmongler-Realm"
+			local KING = "Shobek Shobekler-Realm"
 			-- The King names a Hand; the Lord of Bankai Guild Zeus (the census confirms him) opens his guild's bank.
 			AsKing(); K.AddHand("Helper"); K.SendHands(true); local hands = LastSent(w)
 			AsLord()
@@ -49067,7 +49067,7 @@ test("1.1 bank requests (Fern): a Lord or Captain asks for an item and a count, 
 			local After, Run = Queued()
 			ns.After = After
 			ns.Comm.SendChunked = function(m) w.sent[#w.sent + 1] = { dist = "CHANNEL", msg = m } end
-			local TREASURER, KING = "Pyralis Ashandar-Realm", "Asmongold Asmongler-Realm"
+			local TREASURER, KING = "Pyralis Ashandar-Realm", "Shobek Shobekler-Realm"
 			local function Whispered(prefix, to)
 				local out = {}
 				for _, x in ipairs(w.whispered) do if x.msg:sub(1, #prefix) == prefix and (not to or x.to == to) then out[#out + 1] = x.msg end end
@@ -49287,8 +49287,8 @@ test("1.1 taking donations (the Treasurer's idea): a keeper's switch, a line on 
 			T.HandleDonations("CHANNEL", TREASURER, "TD~Bankai Guild~0~0~")
 			eq(#T.DonationLines(), 0)
 			-- The King: by the army's name for him.
-			T.HandleDonations("CHANNEL", "Asmongold Asmongler-Realm", ("TD~Bankai Guild~1~%d~"):format(w.clock))
-			assert(Texts(T.DonationLines()):find(ns.L.DONATIONS_LINE:format("Asmon"), 1, true), Texts(T.DonationLines()))
+			T.HandleDonations("CHANNEL", "Shobek Shobekler-Realm", ("TD~Bankai Guild~1~%d~"):format(w.clock))
+			assert(Texts(T.DonationLines()):find(ns.L.DONATIONS_LINE:format("Shobek"), 1, true), Texts(T.DonationLines()))
 			-- He logs out while on: his addon says off as it leaves; next session it starts off.
 			AsTreasurer()
 			T.SetDonations(true)
@@ -49465,7 +49465,7 @@ test("1.1 the clipboard backup (Fern): the Treasurer's book and the toggles out 
 			end
 			assert(flags and flags:find("~010~%d+$") and keepers and keepers:find("Test Keeper%-Realm$"), "his word, given again")
 			-- The same backup on another client of his (not the King's any more): the word left out.
-			AsSoldier("Asmongold Asmongler")
+			AsSoldier("Shobek Shobekler")
 			assert(table.concat(Bk.Summary(Bk.Read(kingText)), "\n"):find(ns.L.BACKUP_WORD_NOT_KING, 1, true))
 		end)
 		mail.Restore()
@@ -49583,7 +49583,7 @@ end)
 -- and the early supporters folded, always the last.
 ---------------------------------------------------------------------------
 do
-	local TREASURER, KING = "Pyralis Ashandar-Realm", "Asmongold Asmongler-Realm"
+	local TREASURER, KING = "Pyralis Ashandar-Realm", "Shobek Shobekler-Realm"
 	local function Plain(s) return (tostring(s or ""):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")) end
 	-- A row read against one of the tab's strings, its %d and %s any number and any text.
 	local function Fits(text, fmt)
@@ -49770,7 +49770,7 @@ do
 			AsSoldier("Layout Hand"); K.HandleCommand("CHANNEL", KING, hands)
 			eq(K.IsHand(), true); eq(T.Role(), "member")
 			eq(Sections(Summary()), "title, balance, in/out, bank, week, kept by, dues button, ranking, items, book link, guilds, early")
-			-- The author's Asmon's view: the King's layout, the public requests only, no guild treasuries.
+			-- The author's Shobek's view: the King's layout, the public requests only, no guild treasuries.
 			ns.Workshop.Visible = function() return true end
 			ns.db.devKingView, ns.db.previewTreasuryFlags = true, { balance = true, ranking = true, book = true, at = w.clock }
 			AsSoldier("Dev Viewer")
@@ -49982,7 +49982,7 @@ do
 			assert(text:find(L.TREASURY_GUILDS_NONE, 1, true) and not text:find(L.TREASURY_GUILDS_APPROVAL:sub(1, 30), 1, true), "the Treasurer's list: " .. text)
 			assert(not text:lower():find("polic", 1, true), text)
 			-- The title: how a book is kept for whoever keeps one (the King does), who sees it for
-			-- every insider; the Steward and the author's Asmon's view keep none.
+			-- every insider; the Steward and the author's Shobek's view keep none.
 			AsKing(); eq(T.IsKeeper(), true)
 			local tip = Tip(Summary()[1])
 			assert(tip:find(T.WhoSees(), 1, true) and tip:find(L.TREASURY_HOW, 1, true) and tip:find(L.TREASURY_BOOK_HOW, 1, true), tip)
@@ -49994,7 +49994,7 @@ do
 			ns.db.devKingView, ns.db.previewTreasuryFlags = true, { balance = true, ranking = true, book = true, at = w.clock }
 			AsSoldier("Dev Viewer"); eq(K.Preview(), true); eq(T.IsKeeper(), false)
 			tip = Tip(Summary()[1])
-			assert(tip:find(T.WhoSees(), 1, true) and not tip:find(L.TREASURY_HOW, 1, true), "Asmon's view: " .. tip)
+			assert(tip:find(T.WhoSees(), 1, true) and not tip:find(L.TREASURY_HOW, 1, true), "Shobek's view: " .. tip)
 			ns.db.devKingView, ns.db.previewTreasuryFlags = nil, nil
 			-- The guild treasuries, the King's list and a guild's page: a snapshot is its sender's
 			-- word (Konig's review, as 1.1.4's "Sister guilds' banks" said).
@@ -50116,7 +50116,7 @@ end)
 -- the log of acts names only whoever did the act, and hides the council on the King's screen (#12).
 ---------------------------------------------------------------------------
 do
-	local KING = "Asmongold Asmongler-Realm"
+	local KING = "Shobek Shobekler-Realm"
 	local TREASURER = "Pyralis Ashandar-Realm"
 	local COUNCILLOR = "Test Councillor-Realm"
 	local STEWARD = "Test Steward-Realm"
@@ -50218,7 +50218,7 @@ test("1.1 review (#11): for the Treasurer whose 0.9.3 yes stands, his line says 
 							and ns.L.CONSENT_TREASURER_EARLY:find("every client on the Bankai Guild channel receives them, the names too", 1, true), "in 1.0's words")
 						-- The names stay home until that Yes. (1.1's treasury part E: on the channel only while the
 						-- King shows the ranking; he does here, so only the Yes is in the way.)
-						ns.rdb.treasuryFlags = { balance = true, ranking = true, book = true, at = w.clock, from = "Asmongold Asmongler-Realm" }
+						ns.rdb.treasuryFlags = { balance = true, ranking = true, book = true, at = w.clock, from = "Shobek Shobekler-Realm" }
 						w.sent = {}
 						eq(T.SendEarly(true), false, "no answer on the page yet: the names stay home")
 						T.Share(true)
@@ -51159,7 +51159,7 @@ local function TreasurySim(opts)
 			local function Measured(fn) return function(...) local accepted = fn(...); maxQ = math.max(maxQ, cns.Comm.QueueSize()); return accepted end end
 			ns.Comm.Send, ns.Comm.Whisper, ns.Comm.SendChunked = Measured(cns.Comm.Send), Measured(cns.Comm.Whisper), Measured(cns.Comm.SendChunked)
 			ns.Comm.QueueSize, ns.Comm.Cancel, ns.Comm.SendBatch = cns.Comm.QueueSize, cns.Comm.Cancel, Measured(cns.Comm.SendBatch)
-			local KING = "Asmongold Asmongler-Realm"
+			local KING = "Shobek Shobekler-Realm"
 			AsTreasurer()
 			ns.db.keeperShares = { [TREASURER_KEY] = true }
 			ns.rdb.treasuryFlags = opts.flags
@@ -51262,7 +51262,7 @@ test("1.1 Zeal's promise and 1.0: a King, Steward or keeper still on 1.0 is name
 		local saved = { split = ns.splitNames }
 		local ok, err = pcall(function()
 			ns.splitNames = true
-			local KING, TREASURER = "Asmongold Asmongler-Realm", "Pyralis Ashandar-Realm"
+			local KING, TREASURER = "Shobek Shobekler-Realm", "Pyralis Ashandar-Realm"
 			AsTreasurer()
 			ns.db.keeperShares = { [TREASURER_KEY] = true }
 			T.Record("Secret Donor", 250000, "trade", nil, { quiet = true })
@@ -51272,7 +51272,7 @@ test("1.1 Zeal's promise and 1.0: a King, Steward or keeper still on 1.0 is name
 				for _, l in ipairs(T.Build()) do out[#out + 1] = (tostring(l.text or ""):gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")) end
 				return table.concat(out, " ")
 			end
-			local want = ns.L.TREASURY_NOT_UPDATED:format("Asmon")
+			local want = ns.L.TREASURY_NOT_UPDATED:format("Shobek")
 			local function Shown() return Page():find(want, 1, true) ~= nil end
 			-- The King's switches heard (his addon, whatever its version): not named at once (a 1.1
 			-- addon asks ASK_AFTER after its login).
@@ -51572,7 +51572,7 @@ end)
 
 test("1.1 pinned line (Konig's review): a takedown sticks: a late repeat, or a setter's client that missed it, never brings the pin back, a /reload later too", function()
 	PinBench(function(w, K, sent, C)
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
 		-- Zed, guild master of <Bankai Guild Zeus>, pins for his guild.
 		AsLord()
 		eq(C.SetPin("Raid at nine in Ashenvale"), true)
@@ -51616,7 +51616,7 @@ end)
 
 test("1.1 pinned line (Konig's review): the client that took a pin down says so again when its setter's client repeats it, so the setter lets it go", function()
 	PinBench(function(w, K, sent, C)
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
 		-- The Hand's client (a member of <Bankai Guild Zeus>) takes Zed's pin down.
 		GetGuildInfo = function() return "Bankai Guild Zeus", "Member", 3 end
 		ns.me = "Helper-Realm"
@@ -51688,23 +51688,23 @@ test("1.1 pinned line (Konig's review): the setter's pin survives his /reload, s
 		-- Saved variables edited, or its time over: not restored.
 		AsKing()
 		C.ResetPin(true)
-		ns.rdb.pinMine["Asmongold Asmongler-Realm"].text = "|~|"
+		ns.rdb.pinMine["Shobek Shobekler-Realm"].text = "|~|"
 		eq(C.RestorePin(), false, "no words left once cleaned")
-		ns.rdb.pinMine = { ["Asmongold Asmongler-Realm"] = { id = 5, guild = "Bankai Guild", text = "Old line", rank = 3, dist = "CHANNEL", setAt = w.clock - 7300, expires = w.clock - 100 } }
+		ns.rdb.pinMine = { ["Shobek Shobekler-Realm"] = { id = 5, guild = "Bankai Guild", text = "Old line", rank = 3, dist = "CHANNEL", setAt = w.clock - 7300, expires = w.clock - 100 } }
 		eq(C.RestorePin(), false, "over")
-		ns.rdb.pinMine = { ["Asmongold Asmongler-Realm"] = { id = 5, guild = "Bankai Guild", text = "Old line", rank = 3, dist = "WHISPER", setAt = w.clock, expires = w.clock + 100 } }
+		ns.rdb.pinMine = { ["Shobek Shobekler-Realm"] = { id = 5, guild = "Bankai Guild", text = "Old line", rank = 3, dist = "WHISPER", setAt = w.clock, expires = w.clock + 100 } }
 		eq(C.RestorePin(), false, "nowhere a pin goes")
-		ns.rdb.pinMine = { ["Asmongold Asmongler-Realm"] = { id = 5, guild = "Bankai Guild", text = "Old line", rank = 3, dist = "CHANNEL", setAt = w.clock, expires = w.clock + 99999 } }
+		ns.rdb.pinMine = { ["Shobek Shobekler-Realm"] = { id = 5, guild = "Bankai Guild", text = "Old line", rank = 3, dist = "CHANNEL", setAt = w.clock, expires = w.clock + 99999 } }
 		eq(C.RestorePin(), false, "longer than a pin lasts")
 		eq(C.Pin(), nil)
 		-- Whoever may no longer pin as he did repeats nothing (a Hand the King took off his list).
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
 		GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
 		ns.me = "Helper-Realm"
 		w.clock = w.clock + C.PIN_GAP
 		eq(C.SetPin("A Hand's line"), true)
 		local n = #sent
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~H~6~Bankai Guild~")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~6~Bankai Guild~")
 		w.clock = w.clock + C.PIN_RESEND
 		eq(C.RepeatPin(), false)
 		eq(#sent, n)
@@ -51748,7 +51748,7 @@ end)
 test("1.1 pinned line (Konig's review): net-off hides a pin and stops its setter: none shown from a name or guild the moderators took off, none sent by one", function()
 	PinBench(function(w, K, sent, C)
 		local M, L = ns.Moderation, ns.L
-		local KING = "Asmongold Asmongler-Realm"
+		local KING = "Shobek Shobekler-Realm"
 		local function Word(kind, off, name)
 			w.clock = w.clock + 10
 			M.Handle("CHANNEL", KING, ("O1~%s~%s~%d~%s~%s~%s"):format(kind, off and "1" or "0", w.clock, name, KING, off and "spam" or ""))
@@ -51844,13 +51844,13 @@ test("1.1 pinned line (Konig's review): a client whose Bankai Guild chats are of
 			AsSoldier()
 			ns.db.addonChat = false
 			w.printed = {}
-			eq(select(2, C.HandlePin("CHANNEL", "Asmongold Asmongler-Realm", "N1~5~Bankai Guild~7200~0~Muster at the gates")), "off")
+			eq(select(2, C.HandlePin("CHANNEL", "Shobek Shobekler-Realm", "N1~5~Bankai Guild~7200~0~Muster at the gates")), "off")
 			eq(C.Pin(), nil)
 			eq(FindLine(ns.Views.Build("realm"), "Muster at the gates"), nil)
 			eq(Printed(w, "Muster at the gates"), false, "no chat line")
 			-- Said yes: shown. Turned off later: gone from the screen; on again: back while it lasts.
 			ns.db.addonChat = true
-			eq(C.HandlePin("CHANNEL", "Asmongold Asmongler-Realm", "N1~5~Bankai Guild~7200~0~Muster at the gates"), true)
+			eq(C.HandlePin("CHANNEL", "Shobek Shobekler-Realm", "N1~5~Bankai Guild~7200~0~Muster at the gates"), true)
 			assert(FindLine(ns.Views.Build("realm"), "Muster at the gates"))
 			ns.db.addonChat = false
 			eq(C.Pin(), nil)
@@ -51860,7 +51860,7 @@ test("1.1 pinned line (Konig's review): a client whose Bankai Guild chats are of
 			-- A takedown while the chats are off: taken (a takedown only removes), without a line in chat.
 			ns.db.addonChat = false
 			w.printed = {}
-			eq(select(2, C.HandlePin("CHANNEL", "Asmongold Asmongler-Realm", "N1~5~Bankai Guild~0~0~")), "down")
+			eq(select(2, C.HandlePin("CHANNEL", "Shobek Shobekler-Realm", "N1~5~Bankai Guild~0~0~")), "down")
 			eq(#w.printed, 0)
 			ns.db.addonChat = true
 			eq(C.Pin(), nil)
@@ -51895,7 +51895,7 @@ test("1.1 pinned line (Konig's review): the player's block terms hide a pin's wo
 	PinBench(function(w, K, sent, C)
 		local L = ns.L
 		ns.db.filterWords, ns.rdb.filterShared = { gold = true }, nil
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
 		AsSoldier()
 		w.printed = {}
 		eq(C.HandlePin("CHANNEL", "Helper-Realm", "N1~5~Bankai Guild~7200~0~Cheap gold, whisper me"), true)
@@ -51936,7 +51936,7 @@ do
 test("1.1 pinned line (Konig's review, 2): a Hand's takedown of a guild master's pin goes over GUILD, and his guildmates on another realm take it", function()
 	PinBench(function(w, K, sent, C)
 		local L = ns.L
-		K.HandleCommand("CHANNEL", "Asmongold Asmongler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
+		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
 		GetGuildInfo = function() return "Bankai Guild Zeus", "Member", 3 end
 		ns.Roster.byName = { ["Zed-Realmtwo"] = 0, ["Helper-Realm"] = 3, ["Mate-Realmtwo"] = 3 }
 		-- The Hand's client (a member of <Bankai Guild Zeus>) takes Zed's pin down: over GUILD, where it came from.
@@ -51981,7 +51981,7 @@ end)
 
 test("1.1 pinned line (Konig's review, 2): over GUILD the channel's rule counts for a takedown alone; the channel's pins are still taken down on the channel", function()
 	PinBench(function(w, K, sent, C)
-		local KING = "Asmongold Asmongler-Realm"
+		local KING = "Shobek Shobekler-Realm"
 		K.HandleCommand("CHANNEL", KING, "T1~H~5~Bankai Guild~Helper-Realm")
 		GetGuildInfo = function() return "Bankai Guild Zeus", "Member", 3 end
 		ns.me = "Mate-Realmtwo"
@@ -52011,7 +52011,7 @@ end)
 test("1.1 pinned line (Konig's review, 2): after a /reload that kept nothing (the Forever beta), /bk pin off still takes the setter's line down everywhere", function()
 	PinBench(function(w, K, sent, C)
 		local L = ns.L
-		local KING = "Asmongold Asmongler-Realm"
+		local KING = "Shobek Shobekler-Realm"
 		-- The King pins.
 		AsKing()
 		eq(C.SetPin("Muster at the gates at nine"), true)
@@ -52082,7 +52082,7 @@ end -- (the pinned line's review)
 ---------------------------------------------------------------------------
 ;(function()
 	local M = ns.Moderation
-	local KING = "Asmongold Asmongler-Realm"
+	local KING = "Shobek Shobekler-Realm"
 	local HC = "Test Councillor-Realm" -- a made-up councillor of the test council
 	local ROGUE = "Rogue Hand-Realm"   -- a made-up Hand
 	-- A net-off word as an issuer's client sends it.
@@ -52556,7 +52556,7 @@ end -- (the pinned line's review)
 				w.internal("DATA_CHANGED")
 				eq(w.mark("nameplate1"), "bronze"); eq(w.shown("target"), "bronze-elite")
 				-- Never the King, whatever a word says.
-				Off("Asmongold Asmongler-Realm")
+				Off("Shobek Shobekler-Realm")
 				w.internal("DATA_CHANGED")
 				w.target(BORDER_KING)
 				eq(w.shown("target"), "gold-elite"); eq(w.mark("nameplate3"), "gold")
@@ -52610,7 +52610,7 @@ end)()
 ---------------------------------------------------------------------------
 ;(function()
 	local M = ns.Moderation
-	local KING = "Asmongold Asmongler-Realm"
+	local KING = "Shobek Shobekler-Realm"
 	local HC = "Test Councillor-Realm" -- a made-up councillor of the test council
 	local ROGUE = "Rogue Hand-Realm"   -- a made-up Hand
 	-- A net-off word as an issuer's client sends it.
@@ -53312,7 +53312,7 @@ end
 -- one source's own snapshots, and no dues in the ranking that leaves the Treasurer's client.
 ---------------------------------------------------------------------------
 do
-	local KING, TREASURER, STEWARD = "Asmongold Asmongler-Realm", "Pyralis Ashandar-Realm", "Test Steward-Realm"
+	local KING, TREASURER, STEWARD = "Shobek Shobekler-Realm", "Pyralis Ashandar-Realm", "Test Steward-Realm"
 	local function AsSteward() GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end; ns.me = STEWARD end
 	-- The Throne's world with a Steward the signed list names (STEWARD), put back after.
 	local function WithStewards(fn)
@@ -53817,7 +53817,7 @@ end
 -- sender too), and a keeper's answers to one requester's requests paced.
 ---------------------------------------------------------------------------
 do
-	local KING, STEWARD = "Asmongold Asmongler-Realm", "Test Steward-Realm"
+	local KING, STEWARD = "Shobek Shobekler-Realm", "Test Steward-Realm"
 	local WEEK = 7 * 86400
 	-- The Throne's world with a Steward the signed list names (STEWARD), the server's clock the
 	-- test's, the dues as new; all put back after.
@@ -54696,7 +54696,7 @@ end
 -- fails on the code before its fix.
 ---------------------------------------------------------------------------
 do
-	local KING = "Asmongold Asmongler-Realm"
+	local KING = "Shobek Shobekler-Realm"
 	-- The pinned line's bench, as its own tests run it (WithThrone): sends recorded with their
 	-- logged flag, the channel ready, no net-off word yet; the pin, what it saved, the net-off
 	-- words, our roster and the memory's bounds put back after.
@@ -54919,7 +54919,7 @@ end
 ---------------------------------------------------------------------------
 ;(function()
 	local M = ns.Moderation
-	local KING = "Asmongold Asmongler-Realm"
+	local KING = "Shobek Shobekler-Realm"
 	local ROGUE = "Rogue Hand-Realm" -- a made-up Hand
 	-- A net-off word as an issuer's client sends it.
 	local function O1(kind, off, at, name, by, reason)
@@ -55956,10 +55956,10 @@ do
 				ns.Roster.byName = { ["Guildie Master-Realm"] = 0, ["Guildie Officer-Realm"] = 1, ["Raider Guy-Realm"] = 2,
 					["Vet Guy-Realm"] = 3, ["Plain Guy-Realm"] = 4 }
 				GuildControlGetRankName = function(i) return ({ "Master", "Officer", "Raider", "Veteran", "Member" })[i] end
-				eq(B.MarkOfName("Asmongold Asmongler-Realm", "Bankai Guild"), "gold", "the King by his pinned name in his guild")
+				eq(B.MarkOfName("Shobek Shobekler-Realm", "Bankai Guild"), "gold", "the King by his pinned name in his guild")
 				-- (Review of 1.1.1: a name our roster lacks is not proven one of ours, so no star; it was
 				-- "member" before, from the guild the line names alone. REVIEW star below.)
-				eq(B.MarkOfName("Asmongold Asmongler-Realm", "Bankai Guild II"), nil, "his name in another guild is not him, nor proven one of ours")
+				eq(B.MarkOfName("Shobek Shobekler-Realm", "Bankai Guild II"), nil, "his name in another guild is not him, nor proven one of ours")
 				local mark, facts = B.MarkOfName("Sage Owl", "Bankai Guild II")
 				eq(mark, "silver", "a High Councillor"); eq(facts.council, true); eq(facts.who, "Sage Owl-Realm", "the name made whole")
 				eq(B.MarkOfName("Guildie Master-Realm", "Bankai Guild II"), "bronze", "our guild master")
@@ -56670,7 +56670,7 @@ do
 				ns.King.IsHandName = function(n) return n == "Hand Some-Realm" end
 				C_Texture = nil
 				ns.rdb.chat = { A = {
-					Line(T0, "Asmongold Asmongler-Realm", "the king speaks", { guild = "Bankai Guild" }),
+					Line(T0, "Shobek Shobekler-Realm", "the king speaks", { guild = "Bankai Guild" }),
 					Line(T0 + 1000, "Sage Owl-Realm", "a councillor speaks"),
 					Line(T0 + 2000, "Zeusy-Realm", "a lord speaks", { guild = "Bankai Guild Zeus" }),
 					Line(T0 + 3000, "Raider Guy-Realm", "a raider speaks"),
@@ -56696,7 +56696,7 @@ do
 					"a member speaks", "the treasurer speaks", "a steward speaks", "a hand speaks" }) do
 					NoMark(Header(text), text)
 				end
-				eq(Header("the king speaks"):sub(1, #"Asmongold Asmongler"), "Asmongold Asmongler", "the King's name first")
+				eq(Header("the king speaks"):sub(1, #"Shobek Shobekler"), "Shobek Shobekler", "the King's name first")
 				local h = Header("a councillor speaks")
 				eq(h:sub(1, #("|c" .. ns.HIGH_COUNCIL_COLOR .. "Sage Owl|r")), "|c" .. ns.HIGH_COUNCIL_COLOR .. "Sage Owl|r", "the council's colour, first: " .. h)
 				RAID_CLASS_COLORS = { PALADIN = { colorStr = "fff58cba" } }
@@ -56747,7 +56747,7 @@ do
 				C_Texture = nil
 				RAID_CLASS_COLORS = { PALADIN = { colorStr = "fff58cba" } }
 				local cases = {
-					{ "Asmongold Asmongler-Realm", "Bankai Guild", "the King" },
+					{ "Shobek Shobekler-Realm", "Bankai Guild", "the King" },
 					{ "Zeusy-Realm", "Bankai Guild Zeus", "a guild master" },
 					{ "Raider Guy-Realm", "Bankai Guild II", "a Raider" },
 					{ "Plain Guy-Realm", "Bankai Guild II", "a member" },
@@ -56860,7 +56860,7 @@ do
 			-- Each tier's mark, before the name the game decorated (class colour and all); then guild and
 			-- officer chat's: the dragons, never the star.
 			local cases = {
-				{ "Asmongold Asmongler-Realm", GOLD, "the King (his pinned name)", GOLD },
+				{ "Shobek Shobekler-Realm", GOLD, "the King (his pinned name)", GOLD },
 				{ "Sage Owl-Realm", SILVER .. "|T134400:0|t", "a High Councillor, then his icon", SILVER .. "|T134400:0|t" },
 				{ "Zeta Prime-Realm", BRONZE, "another Bankai Guild guild's master, as its census names him", BRONZE },
 				{ "Guild Boss-Realm", BRONZE, "our own guild master, by our roster", BRONZE },
@@ -56897,7 +56897,7 @@ do
 			eq(cb("CHAT_MSG_CHANNEL", "Plain Guy", "hi", "Plain Guy-Realm"), STAR .. "Plain Guy")
 			eq(cb("CHAT_MSG_OFFICER", "Plain Guy", "hi", "Plain Guy-Realm"), nil)
 			eq(cb("CHAT_MSG_OFFICER", "Guild Boss", "hi", "Guild Boss-Realm"), BRONZE .. "Guild Boss", "the guild master in officer chat")
-			eq(cb("CHAT_MSG_SAY", "Asmongold Asmongler", "hi", "Asmongold Asmongler"), GOLD .. "Asmongold Asmongler", "a sender the server writes without his realm")
+			eq(cb("CHAT_MSG_SAY", "Shobek Shobekler", "hi", "Shobek Shobekler"), GOLD .. "Shobek Shobekler", "a sender the server writes without his realm")
 			-- A councillor with no icon of his own: the silver alone; one who is a guild master: the silver.
 			ns.rdb.council.names["other mod"], ns.rdb.council.names["guild boss"] = true, true
 			B.ChatForget()
@@ -60844,7 +60844,7 @@ end
 -- 1.1: the review of the net-off fixes, its last point (the Agenda's event).
 ;(function()
 	local M = ns.Moderation
-	local KING = "Asmongold Asmongler-Realm"
+	local KING = "Shobek Shobekler-Realm"
 	local GALE = "Gale Hand-Realm"
 	local function O1(kind, off, at, name, by, reason)
 		return ("O1~%s~%s~%d~%s~%s~%s"):format(kind, off and "1" or "0", at, name, by, reason or "")

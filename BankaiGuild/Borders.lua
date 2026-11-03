@@ -89,7 +89,7 @@ local L = ns.L
 -- place shows the previewed border. Edit Mode is only read (its own getter, when the preview or the
 -- party is worked out: the command, PartyFrame shown again), never hooked. `/bk borders test off`
 -- ends it. His alone
--- (Workshop.Visible: his character, or his test build, as Asmon's and the Treasurer's views):
+-- (Workshop.Visible: his character, or his test build, as Shobek's and the Treasurer's views):
 -- anyone else's command gets what /bk borders prints, and changes nothing. His screen alone:
 -- nothing is sent, nothing is saved (a /reload forgets it), nobody else's border changes. It goes
 -- through the same Refresh as a real border, so the same rules hold: none while the borders are
@@ -412,7 +412,7 @@ end
 -- the High Council's list, our roster when his rank came from it (our own guild's, the server
 -- giving none; Roster.lua makes a new table at each scan), and for a High Councillor whether the
 -- council's names were hidden (the King's screen while he streams, ns.CouncilMasked: the eye in
--- the Realm, Asmon's view, becoming the King); and (1.1) his name, and whether a net-off word hid him;
+-- the Realm, Shobek's view, becoming the King); and (1.1) his name, and whether a net-off word hid him;
 -- and (1.1.5) the guild masters' lists of nominees as they stood (Nominees.Version).
 local function NomineesVersion()
 	local N = ns.Nominees

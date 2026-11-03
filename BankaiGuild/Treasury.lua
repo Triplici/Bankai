@@ -239,7 +239,7 @@ end
 
 -- The King's view of the treasury: the King, his Steward (1.0.0: the switches and the keepers
 -- are his to set in the King's name, never the King's own book or his yes to share it, which
--- are the King's client's alone), and the author's Asmon's view.
+-- are the King's client's alone), and the author's Shobek's view.
 local function IsKingView() return ns.King.IsKing() or ns.King.IsSteward() or ns.King.Preview() end
 
 -- The King's list of keepers as this client last heard it (never expires: a keeper's book must
@@ -253,7 +253,7 @@ local function Listed(name)
 	for _, n in ipairs(k and k.names or {}) do if SameChar(n, name) then return true end end
 	return false
 end
--- The names on the King's list (the author's Asmon's view: its own, on his screen only).
+-- The names on the King's list (the author's Shobek's view: its own, on his screen only).
 function Treasury.Keepers()
 	local k
 	if ns.King.Preview() then k = ns.db and ns.db.previewTreasuryKeepers else k = KeeperStore() end
@@ -334,7 +334,7 @@ Treasury.RealKeeper = RealKeeper
 function Treasury.IsKeeper() return RealKeeper() or Treasury.DevView() end
 
 -- The King's switches: what the army sees (every client keeps the King's last word). The
--- author's Asmon's view keeps its own, on his screen only: the real King's word stays as it is.
+-- author's Shobek's view keeps its own, on his screen only: the real King's word stays as it is.
 local FLAGS = { "balance", "ranking", "book" }
 function Treasury.Flags()
 	local f
@@ -2046,7 +2046,7 @@ end
 
 ---------------------------------------------------------------------------
 -- 1.1: what the King's switches hide never goes on the channel (a promise made to a community
--- reviewer: "the parts Asmon hides won't be sent at all"). On the Bankai Guild channel, which anyone
+-- reviewer: "the parts Shobek hides won't be sent at all"). On the Bankai Guild channel, which anyone
 -- can read, each keeper's book carries only what the army may see (Treasury.Message: the
 -- balance, the ranking, the book, each with its switch); the guild bank goes there only with the
 -- "book" switch (Bank.lua) and the early supporters only with the "ranking" one. The whole of it
@@ -2114,7 +2114,7 @@ function Treasury.Available(name)
 	for who in pairs(unavailable) do if UnavailableMatches(name, who) then unavailable[who] = nil end end
 end
 
--- The King's switches as he last gave them (never the author's Asmon's view): what goes on the
+-- The King's switches as he last gave them (never the author's Shobek's view): what goes on the
 -- channel. Returns the parts, and whether all of them show (the whole book goes there then).
 function Treasury.PublicParts()
 	local f = ns.rdb and ns.rdb.treasuryFlags
@@ -2750,7 +2750,7 @@ function Treasury.SendFlags(force)
 	ns.Comm.Send("CHANNEL", ("T1~T~%d~%s~%s~%d"):format(ns.King.NewId(), GetGuildInfo("player") or "", FlagDigits(f), math.floor(f.at)), "treasuryflags")
 end
 
--- The King's switch, or his Steward's in his name (the author's Asmon's view: its own switches,
+-- The King's switch, or his Steward's in his name (the author's Shobek's view: its own switches,
 -- on his screen only).
 function Treasury.SetFlag(what, on)
 	if not IsKingView() then return ns.Print(L.THRONE_ONLY_KING) end
@@ -4425,7 +4425,7 @@ end
 
 local function TreasuryTitle(role)
 	-- How a book is kept speaks to a keeper ("your book", "your own lines"): the King's Steward and
-	-- the author's Asmon's view keep none, so they read who sees it alone (as the book's header).
+	-- the author's Shobek's view keep none, so they read who sees it alone (as the book's header).
 	local keeper = Treasury.IsKeeper()
 	return { header = true, text = L.TREASURY_TITLE, tooltip = function(tt)
 		tt:AddLine(L.TREASURY_TITLE, 1, 0.82, 0)

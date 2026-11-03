@@ -2,7 +2,7 @@
 
 **The whole Bankai Guild army in one window, inside World of Warcraft: Forever.**
 
-Bankai Guild is Asmongold's guild for *World of Warcraft: Forever*: Alliance, PvP ruleset, a
+Bankai Guild is Shobek's guild for *World of Warcraft: Forever*: Alliance, PvP ruleset, a
 place to find dungeon groups, organize raids, share class knowledge and build the guild
 together. It grew past **10,000 members during the beta**. A WoW guild caps at 1,000
 members, so Bankai Guild is really a *realm* of many Bankai Guild guilds. In game each player
@@ -49,7 +49,7 @@ screen described below, and its own few addon whispers are the only ones it send
 there (1.1: which guild to ask, the answer, and your request, each to or from the one member
 concerned). Using it requires accepting its terms, the Bankai Guild Accord, which shares your BattleTag with Bankai Guild's staff only.
 
-**Approved guilds (1.1).** A guild of Asmon's Bankai Guild whose name the rule leaves out (it leaves
+**Approved guilds (1.1).** A guild of Shobek's Bankai Guild whose name the rule leaves out (it leaves
 Olympian and Olympia out on purpose) counts as an Bankai Guild guild once the author names it in his
 signed list: the same list, signed with the same key on his own computer, that names the High
 Council and the King's Steward, for one faction and realm group. No census vote counts, and nobody
@@ -144,7 +144,7 @@ versions before 1.1 just get the whisper, as before.
   his Steward and his Hands for every guild's Lord, by the census's word (a guild that stopped
   reporting included, counted from its last report even when that showed him online). Never a
   popup, and nothing is done to anyone.
-- The **Treasurer of Bankai Guild** (Pyralis Ashandar, chosen by Asmongold's chat) right under
+- The **Treasurer of Bankai Guild** (Pyralis Ashandar, chosen by Shobek's chat) right under
   the King, with a gold coin next to his name wherever he shows, his tooltip and his lines in
   the Bankai Guild chats included. Only
   that exact character of the guild Bankai Guild gets it: look-alikes don't.
@@ -202,10 +202,10 @@ versions before 1.1 just get the whisper, as before.
   (the five with the most, then every one on a click, 1.1).
   When the King opens **the gates** of a guild, it tops the list: send new recruits there.
 - **Layers** of your zone, named after the highest ranked Bankai Guild member on each one
-  ("Asmongold's layer"), with how many members are there.
+  ("Shobek's layer"), with how many members are there.
 
 ### Layer hop: join the King's layer without begging in chat
-While Asmongold is online, the top of the Census and the Realm shows **"Ask invite for Asmon
+While Shobek is online, the top of the Census and the Realm shows **"Ask invite for Shobek
 Layer"** with his crown. One click (or `/bk hop`) and the addon does the asking:
 
 - You must already be in his zone (a layer is read per zone): if you are not, the line says
@@ -228,7 +228,7 @@ Layer"** with his crown. One click (or `/bk hop`) and the addon does the asking:
   game moves you to the layer, and the addon takes you out of the group as soon as it sees the
   move (or offers a **Leave group** button if it can't tell).
 
-Players alone on the King's layer are asked once per login: **"Asmon is online and you are on
+Players alone on the King's layer are asked once per login: **"Shobek is online and you are on
 his layer. May the addon invite the players who want to join, and take them out of the group
 once they are there?"** with **For Bankai Guild!**, **Can't right now** and **Invite manually**, and
 a **Don't ask me again** box. With For Bankai Guild! the addon invites on its own (only while you
@@ -403,7 +403,7 @@ alts and the census counts people:
 
 ### The Throne (the King and his Hands)
 A tab with a crown that only the King sees: the guild master of the guild named exactly
-"Bankai Guild" (of his faction), and on the Alliance that very character, Asmongold Asmongler: the
+"Bankai Guild" (of his faction), and on the Alliance that very character, Shobek Shobekler: the
 addon knows him by name, like the Treasurer. It opens on **the Throne Room** (the queue of
 his court while it is open, and the army's key), and holding court takes him there. Since 1.1.5
 the Treasury has its own tab alone, and under the Throne Room are **the King's guild's Legates**:
@@ -957,7 +957,7 @@ also saved in `WTF/Account/<ACCOUNT>/SavedVariables/BankaiGuild.lua`.
 
 ## Credits
 
-- **Asmongold** and his team (Daily Dose of Asmongold, Max, Heuto, Fernmelder and the High
+- **Shobek** and his team (Daily Dose of Shobek, Max, Heuto, Fernmelder and the High
   Council), for making Bankai Guild the army's addon and for the ideas.
 - **Security reviews:** Konig, bjess9 (jess), lordjumper and Fadirstave, who read the code and
   showed what an attacker could do.
@@ -983,7 +983,7 @@ and is used for the community.
 
 *Sources for the Bankai Guild description: the Bankai Guild Discord welcome message,
 [Prism on X](https://x.com/fwprism/status/2101809316382847172) (10K+ members in the beta),
-[Dexerto](https://www.dexerto.com/world-of-warcraft/asmongold-responds-as-wow-forever-players-want-him-banned-over-massive-bankaiguild-guild-3411199/).*
+[Dexerto](https://www.dexerto.com/world-of-warcraft/shobek-responds-as-wow-forever-players-want-him-banned-over-massive-bankaiguild-guild-3411199/).*
 
 
 Source code: https://github.com/dnl-gentile/bankai-addon

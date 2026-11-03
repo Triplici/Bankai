@@ -52,7 +52,7 @@ rest kept) and signs the council at once; "steward --remove" takes him off and s
 newer list ends it on every client. "check" (or --check) reads a written CouncilList.lua back,
 checks both signatures with the key and prints the names, departments and Stewards it holds.
 
-The approved guilds (1.1): guilds of Asmon's Bankai Guild whose names the addon's name rule leaves out
+The approved guilds (1.1): guilds of Shobek's Bankai Guild whose names the addon's name rule leaves out
 (it leaves Olympian and Olympia out on purpose) count as Bankai Guild guilds once an optional
 "guilds" list in the same file names them:
 
@@ -89,7 +89,7 @@ a newer list):
 The titles list carries them after the arbiters, one entry per faction
 ("^apostles^<faction>^<First Surname-Realm>,..."), three "^" again, so clients before 1.1.6 leave it
 out unread. A name as a Steward's (a realm of the list's group). "apostle" adds one and signs the
-council at once; "apostle --remove" takes him off and signs again. Asmongold is the immutable
+council at once; "apostle --remove" takes him off and signs again. Shobek is the immutable
 Head of the Church, using the addon's canonical King identity. It is not an assignable Apostle
 position. Remove legacy "head": true flags before signing a new list; old signed starred lists
 remain readable by the addon but confer no Head authority.
@@ -409,7 +409,7 @@ def read_apostles(v, realm):
             sys.exit("%r is not of the list's realm group (%s)" % (name, realm))
         if name.partition("-")[0].lower() in seen: sys.exit("an apostle twice: %r" % name)
         seen.add(name.partition("-")[0].lower())
-        if head: sys.exit("Asmongold is Head of the Church; remove legacy head flags before signing")
+        if head: sys.exit("Shobek is Head of the Church; remove legacy head flags before signing")
         out.setdefault(faction, []).append(name)
         if len(out[faction]) > MAX_APOSTLES: sys.exit("more than %d apostles for the %s" % (MAX_APOSTLES, faction))
     return out
@@ -663,7 +663,7 @@ def arbiter(args, path=COUNCIL):
 # the council file's "apostles" changed (1.1.6), the council signed from it at once (nothing written
 # if anything is refused). The Head is canonical and cannot be nominated.
 def apostle(args, path=COUNCIL):
-    if args and args[0] == "--head": sys.exit("Asmongold is Head of the Church; this position cannot be nominated")
+    if args and args[0] == "--head": sys.exit("Shobek is Head of the Church; this position cannot be nominated")
     remove = bool(args) and args[0] == "--remove"
     if remove: args = args[1:]
     if len(args) not in (1, 2) or (remove and len(args) != 1): sys.exit(__doc__)

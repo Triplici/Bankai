@@ -312,19 +312,19 @@ end
 ---------------------------------------------------------------------------
 
 -- The King's character, or a signed High Councillor: they name the King's guild's centurions, and
--- their clients send its list. Not under the author's Asmon's view (King.Preview: his preview's own).
+-- their clients send its list. Not under the author's Shobek's view (King.Preview: his preview's own).
 function Nominees.MainEditor()
 	if ns.IsMember() ~= true then return false end
 	local K = ns.King
 	if type(K) ~= "table" or (K.Preview and K.Preview()) then return false end
 	return (K.IsKing and K.IsKing() == true) or ns.IsHighCouncillor(ns.me) == true
 end
--- The author's Asmon's view names them too, on his screen alone (nothing sent).
+-- The author's Shobek's view names them too, on his screen alone (nothing sent).
 function Nominees.MainPreview() return ns.King ~= nil and ns.King.Preview ~= nil and ns.King.Preview() == true end
 function Nominees.MainNames() return Nominees.MainEditor() or Nominees.MainPreview() end
 
 -- The list this client names on: the King's and each councillor's (ns.rdb.mainNominees, the newest
--- heard taken as theirs), the Asmon's view's own (ns.db.previewMainNominees, gone with the view).
+-- heard taken as theirs), the Shobek's view's own (ns.db.previewMainNominees, gone with the view).
 -- { rev, by, list = { { r = "c", n = "Name-Realm" }, ... } }; made when `make`.
 local function MainStore(make)
 	local preview = Nominees.MainPreview()
@@ -574,7 +574,7 @@ function Nominees.Remove(input)
 end
 
 -- The King's guild's list goes out (force: now; else once EVERY, unless another of its namers sent
--- the newest one meanwhile), from the King's or a councillor's client alone: never the Asmon's
+-- the newest one meanwhile), from the King's or a councillor's client alone: never the Shobek's
 -- view's. Nobody named yet, nothing sent; named and then all removed, the empty list (it ends).
 function Nominees.SendMain(force)
 	if not Nominees.MainEditor() then return false end
@@ -600,7 +600,7 @@ local function SendMainSoon()
 	end)
 end
 
--- The King or a High Councillor names a centurion of the King's guild (the Asmon's view on his
+-- The King or a High Councillor names a centurion of the King's guild (the Shobek's view on his
 -- screen alone). Refused, with its reason, past the cap, twice, for himself, or (where our roster
 -- is the King's guild's) outside it.
 function Nominees.NameMain(input)

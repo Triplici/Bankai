@@ -291,12 +291,12 @@ grep -Fq "the Alliance's Church Apostles (* the Head): Test Apostle-ClassicBetaP
 grep -Fq '^apostles^Alliance^Test Apostle-ClassicBetaPvP' "$scratch/council-apostle.lua" || fail 'the titles list has no apostles entry'
 # An Apostle signed with "apostle" is no Head: nobody is Head for being signed first.
 grep -Fq '^apostles^Alliance^*' "$scratch/council-apostle.lua" && fail 'an Apostle signed alone was marked Head'
-# Asmongold is the Head, not a nominate-able signed Apostle. Refusal must not alter the key,
+# Shobek is the Head, not a nominate-able signed Apostle. Refusal must not alter the key,
 # private council file or signed output; older signed starred lists remain a runtime fixture.
 before=$(last_at)
 council_before=$(shasum -a 256 "$BANKAIGUILD_COUNCIL_JSON")
 if BANKAIGUILD_COUNCIL_OUT="$scratch/refused-head.lua" python3 "$signer" apostle --head 'Test Head-ClassicBetaPvP' > refused.txt 2>&1; then fail 'a Head was nominated'; fi
-grep -Fq 'Asmongold is Head of the Church' refused.txt || fail 'head refusal gave no reason'
+grep -Fq 'Shobek is Head of the Church' refused.txt || fail 'head refusal gave no reason'
 [ ! -e "$scratch/refused-head.lua" ] || fail 'refused head wrote a signed list'
 [ "$(last_at)" = "$before" ] || fail 'refused head moved the key time'
 [ "$(shasum -a 256 "$BANKAIGUILD_COUNCIL_JSON")" = "$council_before" ] || fail 'refused head changed the council file'

@@ -858,7 +858,7 @@ local function OfGroup(name, realm)
 	local own = ns.RealmOf(ns.FullName(name)) or ns.realm or ns.CurrentRealm()
 	return ns.GroupOf(own) == ns.GroupOf(realm)
 end
--- The Treasurer of Bankai Guild, chosen by Asmongold's chat on September 23, 2026: exactly this
+-- The Treasurer of Bankai Guild, chosen by Shobek's chat on September 23, 2026: exactly this
 -- character, in the guild named Bankai Guild. Look-alikes in other guilds exist: both must match,
 -- and his realm group (Forever's PvP realms), where only he carries that name.
 ns.TREASURER = "Unset0 Nobody" -- Bankai Guild: no Treasurer (unmatchable pin)
@@ -908,7 +908,7 @@ end
 ns.CROWN_ICON = "Interface\\GroupFrame\\UI-Group-LeaderIcon"
 
 -- The King's guild on each side: the guild master of this exact name is the King, its officers
--- are of the Crown. The Alliance's is <Elfcore>; the Horde's is set here once Asmongold founds
+-- are of the Crown. The Alliance's is <Elfcore>; the Horde's is set here once Shobek founds
 -- it (a guild name is one per realm, so it can't be "Bankai Guild" there).
 ns.KING_GUILD = { Alliance = "elfcore", Horde = "elfcore" } -- (the Horde's: <Mudhutters>, 0.9.4)
 function ns.IsKingGuild(guild)
@@ -1350,8 +1350,8 @@ function ns.KingGuildName()
 	return want:sub(1, 1):upper() .. want:sub(2)
 end
 
--- The King's own screen (0.9.9, the author's, for Asmon's stream): the King's client, or the
--- author's "Asmon's view" (King.Preview) so he can try it. Nobody else's.
+-- The King's own screen (0.9.9, the author's, for Shobek's stream): the King's client, or the
+-- author's "Shobek's view" (King.Preview) so he can try it. Nobody else's.
 function ns.KingsScreen()
 	local K = ns.King
 	if type(K) ~= "table" or type(K.IsKing) ~= "function" then return false end

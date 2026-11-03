@@ -255,7 +255,7 @@ test("1.1.6 Church: the Ranking page: the two rankings and the correspondents, t
 	w:Run(30)
 	lines = Build(w, c.m1, "ranking")
 	assert(Find(lines, "Mira Wells"), Texts(lines))
-	assert(Texts(lines):find(L.CHURCH_DESK:format("Aldric Vane"), 1, true), "who answered: the alphabetically first Apostle desk, never Asmongold")
+	assert(Texts(lines):find(L.CHURCH_DESK:format("Aldric Vane"), 1, true), "who answered: the alphabetically first Apostle desk, never Shobek")
 	-- The ranking's rows open a detail for authorized viewers: Mira may open her own, not Aldric's.
 	eq(Find(lines, "Mira Wells").onClick ~= nil, true)
 	c.m1.View.list = "a"

@@ -2,7 +2,7 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- Our own guild's members page (1.1), in the Realm tab like the Board. Asked for by Fern, of
--- Asmongold's moderators:
+-- Shobek's moderators:
 -- #38: the members offline 7, 14 or 30 days and more, with rank, class, level and last online,
 --   from our own roster (Roster.Scan: the server's word, what the game's Guild window shows every
 --   member). A player whose rank may remove members (CanGuildRemove, and only ranks below theirs,

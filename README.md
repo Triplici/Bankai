@@ -4,7 +4,7 @@
 
 **The whole Bankai Guild army in one window, inside World of Warcraft: Forever.**
 
-Bankai Guild is Asmongold's guild for *World of Warcraft: Forever*: Alliance, PvP ruleset, a
+Bankai Guild is Shobek's guild for *World of Warcraft: Forever*: Alliance, PvP ruleset, a
 place to find dungeon groups, organize raids, share class knowledge and build the guild
 together. It grew past **10,000 members during the beta**. A WoW guild caps at 1,000
 members, so Bankai Guild is really a *realm* of many Bankai Guild guilds. In game each player
@@ -52,7 +52,7 @@ concerned).
 account: until then the addon sends and hears nothing of the army, in an Bankai Guild guild too, and
 its window shows the Accord alone (see [Privacy](#privacy)).
 
-**Approved guilds (1.1).** A guild of Asmon's Bankai Guild whose name the rule leaves out (it leaves
+**Approved guilds (1.1).** A guild of Shobek's Bankai Guild whose name the rule leaves out (it leaves
 Olympian and Olympia out on purpose) counts as an Bankai Guild guild once the author names it in his
 signed list: the same list, signed with the same key on his own computer, that names the High
 Council and the King's Steward, for one faction and realm group. No census vote counts, and nobody
@@ -239,7 +239,7 @@ channels; the same charter and Join controls work for each side.
   his Steward and his Hands for every guild's Lord, by the census's word (a guild that stopped
   reporting included, counted from its last report even when that showed him online). Never a
   popup, and nothing is done to anyone.
-- The **Treasurer of Bankai Guild** (Pyralis Ashandar, chosen by Asmongold's chat) right under
+- The **Treasurer of Bankai Guild** (Pyralis Ashandar, chosen by Shobek's chat) right under
   the King, with a gold coin next to his name wherever he shows, his tooltip and his lines in
   the Bankai Guild chats included. Only
   that exact character of the guild Bankai Guild gets it: look-alikes don't.
@@ -297,10 +297,10 @@ channels; the same charter and Join controls work for each side.
   (the five with the most, then every one on a click, 1.1).
   When the King opens **the gates** of a guild, it tops the list: send new recruits there.
 - **Layers** of your zone, named after the highest ranked Bankai Guild member on each one
-  ("Asmongold's layer"), with how many members are there.
+  ("Shobek's layer"), with how many members are there.
 
 ### Layer hop: join the King's layer without begging in chat
-While Asmongold is online, the top of the Census and the Realm shows **"Ask invite for Asmon
+While Shobek is online, the top of the Census and the Realm shows **"Ask invite for Shobek
 Layer"** with his crown. One click (or `/bk hop`) and the addon does the asking:
 
 - You must already be in his zone (a layer is read per zone): if you are not, the line says
@@ -323,7 +323,7 @@ Layer"** with his crown. One click (or `/bk hop`) and the addon does the asking:
   game moves you to the layer, and the addon takes you out of the group as soon as it sees the
   move (or offers a **Leave group** button if it can't tell).
 
-Players alone on the King's layer are asked once per login: **"Asmon is online and you are on
+Players alone on the King's layer are asked once per login: **"Shobek is online and you are on
 his layer. May the addon invite the players who want to join, and take them out of the group
 once they are there?"** with **For Bankai Guild!**, **Can't right now** and **Invite manually**, and
 a **Don't ask me again** box. With For Bankai Guild! the addon invites on its own (only while you
@@ -1243,7 +1243,7 @@ alts and the census counts people:
 
 ### The Throne (the King and his Hands)
 A tab with a crown that only the King sees: the guild master of the guild named exactly
-"Bankai Guild" (of his faction), and on the Alliance that very character, Asmongold Asmongler: the
+"Bankai Guild" (of his faction), and on the Alliance that very character, Shobek Shobekler: the
 addon knows him by name, like the Treasurer. It opens on **the Throne Room**, with his Agenda,
 week and key rotation. Since 1.1.5 the Treasury has its own tab alone, and under the Throne Room
 are **the King's guild's Legates**: up to 25 explicitly appointed members, named by the King or
@@ -1333,7 +1333,7 @@ it belongs:
   the addon sees a crown where he is, on the world map and the minimap. Off by default (his
   position is on stream); the same button hides it, its tooltip says whether it is on now, and
   the top of the Throne page reminds him while it is. His layer goes out with it, at once and
-  then every minute, so the army can ask to join him (**Ask invite for Asmon Layer**); hidden,
+  then every minute, so the army can ask to join him (**Ask invite for Shobek Layer**); hidden,
   it is withdrawn with the crown. While he is beyond the minimap's range, an arrow on its edge
   points to him (1.1.6): bright on his map when both layer reports agree, faded on his map when
   his layer is another or unknown, faded too from another zone of his continent (layers cannot
@@ -1925,7 +1925,7 @@ that history unknown. A predecessor's proof, a person's former appointment and a
 guild aggregate cannot score the new management. Ordinary presence with an unchanged appointment
 does not reset its own proven streak. No new honour, gold rule or public/general-channel feed is added.
 
-The Church brings new players into Bankai Guild. **Asmongold is its Head**, using the addon's canonical
+The Church brings new players into Bankai Guild. **Shobek is its Head**, using the addon's canonical
 King identity. This position cannot be nominated; a legacy signed Head marker grants no Head powers.
 The author's signed list sets the Twelve Apostles. The King, the author and the signed High Council may name
 other Apostles in game. Under the Apostles are their **missionaries**: an Apostle names missionaries, and each missionary may name more under himself, so
@@ -2614,7 +2614,7 @@ client may send anyway, his own killing blows or a reviewer's relays.
 **The Bankai Guild Accord (1.2.5.1).** Before anything else the addon asks every game account once to
 accept its terms of use, the Bankai Guild Accord: a letter on parchment in Bankai Guild's own window (no X,
 never on the escape list, never the game's popup, the gamepad UI included), its version and date at
-the bottom. It says what Bankai Guild is (the free addon of Asmongold's Bankai Guild guilds, not
+the bottom. It says what Bankai Guild is (the free addon of Shobek's Bankai Guild guilds, not
 Blizzard's), that Blizzard's rules come first,
 what is not allowed (the rules the addon already keeps: abuse, slurs, harassment, spam or scams,
 any language but English in Bankai Guild's chats, bets or gold stakes, another player's BattleTag or
@@ -3083,7 +3083,7 @@ Other limits:
 | `/bk patrolshare on\|off` | officers: pass what your inspections find to your guild's officers and take theirs (off until you say yes, here or on the first-open page), or not |
 | `/bk loot` | your guild's loot notes and points on the Realm tab (its officers write them; not a bid window) |
 | `/bk craft [item or name]` · `/bk crafter on\|off` | who can make it (the top-level Crafters tab: shift-click an item after `/bk craft`); list your professions read so far, or take them off |
-| `/bk approved` · `/bk approved paste` | the guilds of Asmon's Bankai Guild the author's signed list makes Bankai Guild guilds (their names don't say Bankai Guild), and whether yours is one; paste that signed list (the first member of such a guild: his addon then passes it to the guild) |
+| `/bk approved` · `/bk approved paste` | the guilds of Shobek's Bankai Guild the author's signed list makes Bankai Guild guilds (their names don't say Bankai Guild), and whether yours is one; paste that signed list (the first member of such a guild: his addon then passes it to the guild) |
 | `/bk church` · `/bk church status` · `/bk church name <Name>` · `/bk church register <Name>` | the Missionary Church of Bankai Guild's tab; its status in a window you can copy from; name a missionary of your network; register a recruit you brought |
 | `/bk arms [text]` · `/bk muster [text]` | send a decree (`test` = local preview) |
 | `/bg <text>` · `/bgc <text>` · `/bgl <text>` | write in [Bankai Guild], [Captains] or [Lords]; alone (`/bg`, `/bgc`, `/bgl`): open the Chat tab on that channel (1.1.1) |
@@ -3457,7 +3457,7 @@ without him (every client takes the newer list and he is no longer the Steward, 
 python3 scripts/council-sign.py steward --remove "<Name-Realm>"
 ```
 
-To approve a guild of Asmon's Bankai Guild whose name the name rule leaves out (1.1; add `Horde` after
+To approve a guild of Shobek's Bankai Guild whose name the name rule leaves out (1.1; add `Horde` after
 the name for a Horde guild):
 
 ```bash
@@ -3483,7 +3483,7 @@ For 1.1.6's Missionary Church of Bankai Guild, the author signs the Twelve Apost
 `apostle "<Name-Realm>"` (`Horde` after the name for the Horde's), `apostle --remove "<Name-Realm>"`
 to end it. The titles list carries them in an entry of its own after the arbiters
 (`^apostles^<faction>^<First Surname-Realm>,...`, at most 12 a faction), which clients before 1.1.6
-leave out unread; `check` prints them. Asmongold is Head of the Church; `apostle --head` is refused
+leave out unread; `check` prints them. Shobek is Head of the Church; `apostle --head` is refused
 before any file or key is changed. Remove legacy `head: true` flags before signing a new list.
 Old signed marked names remain Apostles, not Heads. The King, the author or a signed High Councillor may name other Apostles in game; a newer signed list
 is the whole list again as of its time.
@@ -3500,7 +3500,7 @@ Gundlach and contributors (speedata, 3-clause BSD) for Bankai Guild Link's QR co
 
 ## Credits
 
-- **Asmongold** and his team (Daily Dose of Asmongold, Max, Heuto, Fernmelder and the High
+- **Shobek** and his team (Daily Dose of Shobek, Max, Heuto, Fernmelder and the High
   Council), for making Bankai Guild the army's addon and for the ideas.
 - **Security reviews:** Konig, bjess9 (jess), lordjumper and Fadirstave, who read the code and
   showed what an attacker could do.
@@ -3527,4 +3527,4 @@ and is used for the community.
 
 *Sources for the Bankai Guild description: the Bankai Guild Discord welcome message,
 [Prism on X](https://x.com/fwprism/status/2101809316382847172) (10K+ members in the beta),
-[Dexerto](https://www.dexerto.com/world-of-warcraft/asmongold-responds-as-wow-forever-players-want-him-banned-over-massive-bankaiguild-guild-3411199/).*
+[Dexerto](https://www.dexerto.com/world-of-warcraft/shobek-responds-as-wow-forever-players-want-him-banned-over-massive-bankaiguild-guild-3411199/).*

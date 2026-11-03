@@ -1,7 +1,7 @@
 local ADDON, ns = ...
 local L = ns.L
 
--- 1.1: a clipboard backup (asked by Fern, a moderator on Asmon's team: "the beta has been wiping
+-- 1.1: a clipboard backup (asked by Fern, a moderator on Shobek's team: "the beta has been wiping
 -- saved variables"). A wiped SavedVariables file loses the treasury's book with no server to
 -- restore it: one text, copied out (/bk backup) and pasted back (/bk restore), brings back this
 -- character's book of the treasury and the player's setup. Clipboard only: nothing is uploaded or
@@ -299,7 +299,7 @@ function Backup.Data()
 		books[#books + 1] = { name = b.name, opening = b.opening, openedAt = b.openedAt, opened = b.opened, lines = Copy(b.lines), sums = Copy(b.sums) }
 	end
 	if #books > 0 then d.books = books end
-	-- The King's word, from his client or a Steward's (never the author's Asmon's view).
+	-- The King's word, from his client or a Steward's (never the author's Shobek's view).
 	if ns.King and ns.King.SetsLists and ns.King.SetsLists() and ns.rdb then
 		local f = ns.rdb.treasuryFlags
 		local k = ns.rdb.treasuryKeepers

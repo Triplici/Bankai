@@ -1068,7 +1068,7 @@ end
 local function CensusStatsShown() return CensusStatsReady() and ns.CensusStats.Shown() == true end
 
 -- The help button in the title bar, just left of the close button, where Blizzard puts a
--- window's minimize button (0.9.9, asked for by Max of Asmongold's moderators). A plain button:
+-- window's minimize button (0.9.9, asked for by Max of Shobek's moderators). A plain button:
 -- a click opens the copy box (UI.ShowHelp), which already keeps to the gamepad UI's rules.
 local function HelpButton(f) -- gp:lookups
 	local close = f.CloseButton or _G[f:GetName() .. "CloseButton"]

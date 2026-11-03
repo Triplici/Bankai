@@ -110,7 +110,7 @@ test("Church publication authority: actual signed council accepted, tampering an
 	if not ok then error(err, 0) end
 end)
 
-test("1.1.6 Church: Asmongold heads the Church; a historical starred Apostle retains only his Apostle and council duties", function()
+test("1.1.6 Church: Shobek heads the Church; a historical starred Apostle retains only his Apostle and council duties", function()
 	local w, c = Cast()
 	eq(Role(w, c.member, World.AUTHOR), "W"); eq(Role(w, c.member, World.KING), "K")
 	eq(Role(w, c.member, World.HEAD), "A", "a historical marker grants only the signed Apostle place")
@@ -130,7 +130,7 @@ test("1.1.6 Church: Asmongold heads the Church; a historical starred Apostle ret
 	-- Apostles signed, none marked: no Head (nobody is Head for being signed first); the King and the
 	-- author still act.
 	local w2, c2 = Cast({ head = false })
-	eq(w2:As(c2.member, c2.member.Church.HeadName), World.KING, "no marker cannot remove Asmongold")
+	eq(w2:As(c2.member, c2.member.Church.HeadName), World.KING, "no marker cannot remove Shobek")
 	eq(Role(w2, c2.member, APOSTLES[1]), "A", "the first signed is an Apostle, no more")
 	local w3, c3 = World.New({ head = false }), {}
 	c3.member, c3.king, c3.author, c3.head = w3:Client("Plain Member"), w3:Client(World.KING), w3:Client(World.AUTHOR), w3:Client(World.HEAD)
@@ -160,7 +160,7 @@ test("1.1.6 Church: the Twelve Apostles come from the author's signed titles lis
 		eq(#list, 3)
 		eq(list[1].n, "Aldric Vane-Realm"); eq(list[3].n, "Cato Reed-Realm")
 		eq(w:As(cl, cl.Church.Role, "Bera Stone-Realm"), "A")
-		eq(w:As(cl, cl.Church.HeadName), ns.KingCharacter(), "the Apostle list does not nominate Asmongold")
+		eq(w:As(cl, cl.Church.HeadName), ns.KingCharacter(), "the Apostle list does not nominate Shobek")
 		eq(w:As(cl, cl.Church.Role, "Forger Name-Realm"), nil)
 		-- The newer lists: twelve; then one without Bera; then one with no Church department at all (no
 		-- matter: the Head is the Apostle a list marks, and these mark none).
@@ -168,10 +168,10 @@ test("1.1.6 Church: the Twelve Apostles come from the author's signed titles lis
 		eq(#w:As(cl, cl.Church.SignedApostles), 12)
 		eq(w:As(cl, cl.Church.State).apostles, 12)
 		ns.Sign.WithKey(K.N, K.MU, K.K, function() assert(ns.Workshop.TakeTitles(K.titles3)) end)
-		eq(w:As(cl, cl.Church.HeadName), ns.KingCharacter(), "department order cannot replace Asmongold")
+		eq(w:As(cl, cl.Church.HeadName), ns.KingCharacter(), "department order cannot replace Shobek")
 		eq(w:As(cl, cl.Church.Role, "Bera Stone-Realm"), nil, "a newer signed list without him: no longer an Apostle")
 		ns.Sign.WithKey(K.N, K.MU, K.K, function() assert(ns.Workshop.TakeTitles(K.titles4)) end)
-		eq(w:As(cl, cl.Church.HeadName), ns.KingCharacter(), "removing a department does not remove Asmongold")
+		eq(w:As(cl, cl.Church.HeadName), ns.KingCharacter(), "removing a department does not remove Shobek")
 	end)
 	ns.rdb.council, ns.rdb.councilTitles, ns.me, ns.Fire = saved.council, saved.titles, saved.me, saved.fire
 	if not ok then error(err, 0) end
@@ -232,7 +232,7 @@ test("1.1.6 Church: missionaries: an Apostle names under himself, a missionary u
 	eq(w:Act(c.a1, c.a1.Church.NameMissionary, "Mira Wells"), true)
 	eq(w:Act(m1, m1.Church.NameMissionary, "Nils Ford"), true, "a missionary names one more: the network grows")
 	eq(w:Act(c.head, c.head.Church.NameMissionary, "Olga Rhys", APOSTLES[2]), false, "a legacy starred Apostle cannot name in another network")
-	eq(w:Act(c.king, c.king.Church.NameMissionary, "Olga Rhys", APOSTLES[2]), true, "Asmongold under an Apostle he picks")
+	eq(w:Act(c.king, c.king.Church.NameMissionary, "Olga Rhys", APOSTLES[2]), true, "Shobek under an Apostle he picks")
 	eq(w:Act(c.king, c.king.Church.NameMissionary, "Pell Grant", "Mira Wells"), true, "the King under a missionary")
 	eq(w:Act(c.author, c.author.Church.NameMissionary, "Quin Hart"), false, "a root must say under whom")
 	Everyone(w, function(cl)
@@ -883,7 +883,7 @@ end)
 test("1.1.6 Church: presence: the desk is the Head, then the Apostles by name, then the author, never the King; a claim grants nothing", function()
 	local w, c = Cast()
 	w:Presence()
-	eq(w:As(c.member, c.member.Church.Desk), APOSTLES[1], "Asmongold remains excluded from keeper work; Apostles are ordered by name")
+	eq(w:As(c.member, c.member.Church.Desk), APOSTLES[1], "Shobek remains excluded from keeper work; Apostles are ordered by name")
 	c.head.online = false
 	w:Run(c.head.Church.KEEPER_EVERY * 2.3)
 	w:Presence({ c.a1, c.a2, c.a3, c.author, c.king })

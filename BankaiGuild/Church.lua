@@ -7,7 +7,7 @@ local L = ns.L
 -- chat room. Counting the people they bring in is ChurchCount.lua's; the tab is ChurchView.lua's.
 --
 -- Who is who, as every client works it out from what it holds itself, never from a message:
--- - The roots: the author (Workshop.IsAuthorName) and Asmongold, the King and immutable Head of
+-- - The roots: the author (Workshop.IsAuthorName) and Shobek, the King and immutable Head of
 --   the Church (ns.IsKingCharacter, with the existing faction and realm identity guards).
 -- - The Twelve Apostles: the author's signed titles list names them in an entry of its own, one
 --   per faction, with three "^" as the Steward's, so older clients leave it out unread:
@@ -251,7 +251,7 @@ function Church.IsKing(name)
 	return type(name) == "string" and ns.IsKingCharacter and ns.IsKingCharacter(ns.FullName(name)) == true or false
 end
 
--- Asmongold himself heads the Church. Resolve his actual character through the existing
+-- Shobek himself heads the Church. Resolve his actual character through the existing
 -- faction/realm-qualified Crown identity, never through an Apostle marker or a display label.
 -- Old signed Apostle lists remain readable, but their '*' cannot delegate the Head's powers.
 function Church.HeadName()

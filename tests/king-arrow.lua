@@ -158,7 +158,7 @@ local function WithWorld(fn, options)
 	for _, key in ipairs(globals) do saved[key] = rawget(_G, key) end
 	local w = { clock = 1000, current = nil, logged = true, edge = true, atlas = options.atlas ~= false,
 		mapCalls = 0, hbdCalls = 0, savedEnum = saved.Enum,
-		location = { from = KING, name = "Asmon", id = 77, mapID = 1453, x = 0.62, y = 0.44, t = 1000 } }
+		location = { from = KING, name = "Shobek", id = 77, mapID = 1453, x = 0.62, y = 0.44, t = 1000 } }
 	local ok, err = pcall(function()
 		UIParent = Frame()
 		Minimap = Frame(UIParent)
@@ -467,7 +467,7 @@ end)
 test("king arrow: in another zone of his continent a world pin at his world position, tinted as unsure", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.mine = { mapID = 1453, zoneUID = 8, t = w.clock }
 		c.there = { mapID = 1429, zoneUID = 8, t = w.clock }
 		local at, why, certainty, world = w.use(c, c.KingArrow.Target)
@@ -501,7 +501,7 @@ end)
 test("king arrow: from another zone inside the minimap's range a faded crown marks his spot", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		local TINTS, State = c.KingArrow.TINTS, c.KingArrow.State
 		eq(w.use(c, c.KingArrow.Refresh), true)
 		eq(State().reason, "zone"); eq(State().mark, true, "his crown is not drawn from Stormwind City")
@@ -549,7 +549,7 @@ test("king arrow: from another zone inside the minimap's range a faded crown mar
 		eq(State().reason, "offline"); eq(State().mark, nil)
 		eq(mark.alpha, 0); eq(frame.shown, false)
 		-- Disabled by the controls while he is in range from another zone: nothing either.
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		eq(w.use(c, c.KingArrow.Refresh), true)
 		eq(mark.alpha, TINTS.maybe.a)
 		local moderator = "Moderator-Realm"
@@ -562,7 +562,7 @@ end)
 test("king arrow: another continent, an instance or a map without world coordinates draws nothing and says why", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.mapID = 1411
 		eq(w.use(c, c.KingArrow.Refresh), false)
 		eq(c.KingArrow.State().reason, "continent")
@@ -571,7 +571,7 @@ test("king arrow: another continent, an instance or a map without world coordina
 		eq(w.use(c, c.KingArrow.Refresh), false)
 		eq(c.KingArrow.State().reason, "world", "no world coordinates for our map")
 		c.mapID = 1453
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 2999, x = 0.5, y = 0.5, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 2999, x = 0.5, y = 0.5, t = w.clock }
 		eq(w.use(c, c.KingArrow.Refresh), false)
 		eq(c.KingArrow.State().reason, "world", "no world coordinates for his map")
 		-- Both on that map: the library has no pin for it either (before: "pin-api").
@@ -580,7 +580,7 @@ test("king arrow: another continent, an instance or a map without world coordina
 		eq(c.KingArrow.State().reason, "world", "no world coordinates for the map we share")
 		eq(c.KingArrow.State().drawn, nil)
 		c.mapID = 1453
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.instance = true
 		eq(w.use(c, c.KingArrow.Refresh), false)
 		eq(c.KingArrow.State().reason, "instance", "a dungeon, a raid or a battleground")
@@ -607,7 +607,7 @@ end)
 test("king arrow: walking between his map, other zones and other continents swaps the pin and its tint", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.mapID = 1429
 		c.mine = { mapID = 1429, zoneUID = 8, t = w.clock }
 		c.there = { mapID = 1429, zoneUID = 8, t = w.clock }
@@ -643,7 +643,7 @@ end)
 test("king arrow: his world position is converted once per position his lease reports; moving and expiring follow it", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		local stats = c.KingArrow.State().stats
 		eq(w.use(c, c.KingArrow.Refresh), true)
 		eq(stats.world, 1)
@@ -654,17 +654,17 @@ test("king arrow: his world position is converted once per position his lease re
 		eq(stats.world, 1, "five refreshes of the same position: no conversion again")
 		eq(#c.pins.worldAdds, 1)
 		-- His next report (a new table each time, King.lua OnLocation) at the same spot: the same.
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		eq(w.use(c, c.KingArrow.Refresh), true)
 		eq(stats.world, 1); eq(#c.pins.worldAdds, 1)
 		-- He walks on: converted again, the pin follows him.
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.6, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.6, y = 0.425, t = w.clock }
 		eq(w.use(c, c.KingArrow.Refresh), true)
 		eq(stats.world, 2)
 		eq(#c.pins.worldAdds, 2); eq(#c.pins.removes, 1)
 		Near(c.pins.worldAdds[2].x, 8000 - 3000 * 0.6)
 		-- He walks into our city: his map now, a map pin.
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1453, x = 0.62, y = 0.44, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1453, x = 0.62, y = 0.44, t = w.clock }
 		eq(w.use(c, c.KingArrow.Refresh), true)
 		eq(c.KingArrow.State().mode, "map"); eq(#c.pins.adds, 1)
 		-- His lease expires (no report for longer than the crown keeps him): gone.
@@ -682,7 +682,7 @@ end)
 test("king arrow: the frame's OnUpdate reads no map, converts nothing and repaints nothing", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		eq(w.use(c, c.KingArrow.Refresh), true)
 		local frame = c.KingArrow.State().frame
 		local maps, conversions, paints = w.mapCalls, w.hbdCalls, frame.icon.paints
@@ -703,7 +703,7 @@ test("king arrow, the real map libraries: in another zone of his continent the a
 	WithWorld(function(w)
 		local c = w.client("Viewer")
 		-- He stands in Elwynn Forest, due east of us in Stormwind City (the same world instance).
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		c.mapID, c.x, c.y = 1453, 0.2, 0.5
 		w.zone(c)
 		-- The cause, in the library itself: a pin given by his map is shown only on his map.
@@ -753,7 +753,7 @@ test("king arrow, the real map libraries: in another zone of his continent the a
 		eq(c.KingArrow.State().reason, "continent")
 		eq(w.lib.minimapPins[f], nil, "no pin of ours left in the library")
 		-- Both in a map the library has no world coordinates for: it refuses his map's pin.
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 2999, x = 0.5, y = 0.5, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 2999, x = 0.5, y = 0.5, t = w.clock }
 		c.mapID, c.x, c.y = 2999, 0.4, 0.4
 		w.zone(c)
 		eq(w.use(c, c.KingArrow.Refresh), false)
@@ -770,7 +770,7 @@ test("king arrow, the real map libraries: across a zone border inside the minima
 		local TINTS = c.KingArrow.TINTS
 		-- He stands just outside the gate, in Elwynn Forest; we stand just inside Stormwind City,
 		-- 45 yards west of him (the minimap shows 0.9 of its 100 yards' radius).
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.005, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.005, y = 0.425, t = w.clock }
 		c.mapID, c.x, c.y = 1453, 0.97, 0.5
 		w.zone(c)
 		-- His crown, added as King.lua RefreshCrown adds it.
@@ -794,7 +794,7 @@ test("king arrow, the real map libraries: across a zone border inside the minima
 		local mx, my = Minimap:GetCenter()
 		Near(fx - mx, 45 / 100 * 70, "east of us"); Near(fy - my, 0)
 		-- He walks away east, beyond the range: the arrow on the edge, the crown gone.
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		eq(w.use(c, c.KingArrow.Refresh), true)
 		w.tick(c)
 		eq(w.lib:IsMinimapIconOnEdge(f), true)
@@ -803,7 +803,7 @@ test("king arrow, the real map libraries: across a zone border inside the minima
 		w.lib:RemoveMinimapIcon("Crown", crown)
 		-- He goes down the Glimmerdeep Mine, a micro map inside Elwynn, and we stand in Elwynn at its
 		-- mouth: the library draws his crown from his parent zone, so ours stays transparent.
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 2998, x = 0.5, y = 0.5, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 2998, x = 0.5, y = 0.5, t = w.clock }
 		c.mapID, c.x, c.y = 1429, 0.38, 0.3
 		w.zone(c)
 		w.lib:AddMinimapIconMap("Crown", crown, 2998, 0.5, 0.5, true, true)
@@ -817,7 +817,7 @@ test("king arrow, the real map libraries: across a zone border inside the minima
 		w.lib:RemoveMinimapIcon("Crown", crown)
 		-- The other way round: we are in the mine, he is in Elwynn at its mouth. The library climbs
 		-- only from his map upward, so his crown is not drawn in the mine: ours marks him.
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.38, y = 0.3, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.38, y = 0.3, t = w.clock }
 		c.mapID, c.x, c.y = 2998, 0.5, 0.5
 		w.zone(c)
 		w.lib:AddMinimapIconMap("Crown", crown, 1429, 0.38, 0.3, true, true)
@@ -963,7 +963,7 @@ end)
 test("king arrow: disabling from another zone removes its world pin too", function()
 	WithWorld(function(w)
 		local c = w.client("Viewer")
-		w.location = { from = KING, name = "Asmon", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
+		w.location = { from = KING, name = "Shobek", id = 77, mapID = 1429, x = 0.5, y = 0.425, t = w.clock }
 		eq(w.use(c, c.KingArrow.Refresh), true)
 		eq(#c.pins.worldAdds, 1)
 		local moderator = "Moderator-Realm"

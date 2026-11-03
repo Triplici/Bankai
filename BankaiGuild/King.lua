@@ -102,7 +102,7 @@ function King.IsKing()
 end
 
 -- The author's test build (Dev.lua, never published) shows the tab without the powers:
--- nothing it does reaches anyone. The author turns this "Asmon's view" on and off from the
+-- nothing it does reaches anyone. The author turns this "Shobek's view" on and off from the
 -- Workshop (ns.db.devKingView).
 function King.Preview()
 	if King.IsKing() then return false end
@@ -124,7 +124,7 @@ function King.Visible() return King.IsKing() or King.IsSteward() or King.IsHand(
 function King.ThroneShown()
 	local N = ns.Nominees
 	if N and N.DevView and N.DevView() then return false end
-	-- (1.2: the author's High Council preview, ViewAs.lua, is the council's Throne Room, as Asmon's
+	-- (1.2: the author's High Council preview, ViewAs.lua, is the council's Throne Room, as Shobek's
 	-- view is the King's through King.Preview.)
 	local V = ns.ViewAs
 	if type(V) == "table" and type(V.Is) == "function" and V.Is("councillor") then return true end
@@ -293,7 +293,7 @@ function King.HandsFresh() return King.IsKing() or ns.Now() - handsAt <= King.HA
 function King.IsHandName(name) return type(name) == "string" and Hand(name) end
 
 -- This client's own list, the one its Hands page changes: the King's; a Steward's own (1.0.0);
--- the author's Asmon's view's, as the King's (sent nowhere).
+-- the author's Shobek's view's, as the King's (sent nowhere).
 local function Own()
 	if not King.IsKing() and King.IsSteward() then return myStewardHands end
 	return myHands
@@ -1474,7 +1474,7 @@ King.Para = Para
 ---------------------------------------------------------------------------
 -- Where the King's calls show: the roll call in the Realm tab (next to the Lords it calls),
 -- the Royal Inspection in The Watch's Tabards. Plain rows (not the parchment), for the King and
--- his Hands (and the author's Asmon's view).
+-- his Hands (and the author's Shobek's view).
 ---------------------------------------------------------------------------
 
 local function Grey(s) return "|cff9d9d9d" .. s .. "|r" end
@@ -1788,7 +1788,7 @@ function King.StewardStatusLine()
 	return ("%s  |  Hands: %s"):format(who, #held > 0 and table.concat(held, ", ") or "none")
 end
 
--- The author's Workshop: Asmon's view on or off (the Throne, Vox Populi, the King's calls in
+-- The author's Workshop: Shobek's view on or off (the Throne, Vox Populi, the King's calls in
 -- the Realm and the Tabards), to see and try them. Nothing the view does reaches anyone.
 function King.SetDevView(on)
 	ns.db.devKingView = on and true or false

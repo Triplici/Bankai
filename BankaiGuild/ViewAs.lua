@@ -4,7 +4,7 @@ local L = ns.L
 -- View as (1.1.5, the author's ask; 1.2 widens it to every role): author-only, session-local
 -- presentation previews. They change which pages are drawn, never the rank/authority checks used
 -- by network handlers or actions, and never unlock private data. Each role drives the preview the
--- addon has for it: "king" Asmon's view (King.Preview), "treasurer" the Treasurer's view
+-- addon has for it: "king" Shobek's view (King.Preview), "treasurer" the Treasurer's view
 -- (Treasury.DevView), "gm" the guild master's view (Nominees.DevView: his Guild tab and its
 -- centurions and correspondents, nothing of it sent).
 -- 1.2: the author (and his test builds) sees every tab in his own view ("my": he works as part of

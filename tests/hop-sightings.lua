@@ -53,7 +53,7 @@ local function WithWorld(fn)
 			c.UnitFullName = function(unit) local u = c.units[unit]; return u and u.name or nil end
 			c.IsFederation = function(guild) return type(guild) == "string" and guild:lower():find("bankaiguild", 1, true) ~= nil end
 			c.IsKingCharacter = function(n) return type(n) == "string" and n:lower() == KING:lower() end
-			c.KingName = function() return "Asmon" end
+			c.KingName = function() return "Shobek" end
 			c.Alts = { Linked = function(sender)
 				local linked = c.alts[type(sender) == "string" and sender:lower() or ""]
 				local out = {}
@@ -220,7 +220,7 @@ end
 
 local function Start(w, asker)
 	eq(w.use(asker, asker.HopSightings.Request,
-		{ character = KING, mapID = 1453, label = "Asmon" }, "Asmon's layer"), true)
+		{ character = KING, mapID = 1453, label = "Shobek" }, "Shobek's layer"), true)
 	local ok, _, query = w.use(asker, asker.flush)
 	eq(ok, true)
 	assert(query.msg:match("^LY~Q~1~%d+~77~1453$"), query.msg)
@@ -393,7 +393,7 @@ test("hop sighting: consent or net-off cancels at the queue boundary and withdra
 		eq(#observer.sent, 0)
 		local blocked = w.client("BlockedAsker")
 		eq(w.use(blocked, blocked.HopSightings.Request,
-			{ character = KING, mapID = 1453, label = "Asmon" }, "Asmon's layer"), true)
+			{ character = KING, mapID = 1453, label = "Shobek" }, "Shobek's layer"), true)
 		blocked.selfOff = true
 		sent, why = w.use(blocked, blocked.flush)
 		eq(sent, false); eq(why, "member", "the channel query rechecks net-off too")
@@ -599,7 +599,7 @@ test("hop sighting: failed discovery shares the ordinary escalating hop backoff"
 		w.use(asker, asker.HopSightings.Tick)
 		eq(asker.discoveryFails, 2); eq(asker.Hop.WaitLeft(w.clock), 60)
 		eq(w.use(asker, asker.HopSightings.Request,
-			{ character = KING, mapID = 1453, label = "Asmon" }, "Asmon's layer"), nil,
+			{ character = KING, mapID = 1453, label = "Shobek" }, "Shobek's layer"), nil,
 			"a third public question is held by the shared backoff")
 	end)
 end)
@@ -720,7 +720,7 @@ test("hop sighting integration: Hop never installs one sighting as King authorit
 		h.RealmOf = function(n) return n and n:match("%-(.+)$") end
 		h.KingCharacter = function() return KING:match("^(.-)%-") end
 		h.IsKingCharacter = function(n) return n == KING end
-		h.KingName = function() return "Asmon" end
+		h.KingName = function() return "Shobek" end
 		h.Data = { FRESH = 300, KnownRank = function() return 0 end }
 		h.Layers = { Of = function() return nil end, Mine = function() return nil end, CurrentMap = function() return 1453 end,
 			Sharing = function() return true end }
@@ -745,7 +745,7 @@ test("hop sighting integration: Hop never installs one sighting as King authorit
 		h.HopSightings.LocalKingLayer = function(mapID, zoneUID) return mapID == 1453 and zoneUID == 8 end
 		w.use(h, h.Hop.AskKing)
 		eq(requested, nil, "a local exact sighting broadcasts no needless discovery query")
-		assert(h.Hop.KingLines()[1].text:find(h.L.HOP_KING_HERE:format("Asmon"), 1, true),
+		assert(h.Hop.KingLines()[1].text:find(h.L.HOP_KING_HERE:format("Shobek"), 1, true),
 			"the local UI says the player is already on the King's layer")
 	end)
 end)
