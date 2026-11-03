@@ -188,4 +188,5 @@ ArenaSpectate.lua
 ArenaTest.lua
 ArenaHome.lua
 Bow.lua
+Honor.lua
 Settings.lua

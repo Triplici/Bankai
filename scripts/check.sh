@@ -98,6 +98,7 @@ fi
 printf 'Checking the Settings tab...\n'
 luajit tests/settings.lua
 luajit tests/way.lua
+luajit tests/honor.lua
 printf 'Running offline tests...\n'
 luajit tests/run.lua
 

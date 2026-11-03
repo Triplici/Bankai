@@ -779,6 +779,11 @@ function View.WayLines()
 		lines[#lines + 1] = { indent = 1, text = (you and Green(r[1]) or Gold(r[1])) .. "  " .. r[2],
 			right = you and Green(L.WAY_RANKS_YOU) or nil }
 	end
+	-- The week's kudos and bows (Honor.lua).
+	if ns.Honor and ns.Honor.Lines then
+		lines[#lines].gapAfter = true
+		ns.Honor.Lines(lines, Gold, Grey)
+	end
 	return lines, L.CHURCH_TITLE, L.WAY_DETAIL
 end
 
@@ -917,7 +922,7 @@ if View.NETWORK and ns.PlayerMenu and ns.PlayerMenu.Add then
 	ns.PlayerMenu.Add("church", function(target, menu) View.MenuLines(target, menu) end, 40, { bankaiguild = true })
 end
 
-for _, event in ipairs({ "CHURCH_CHANGED", "CHURCH_COUNT_CHANGED", "CHURCH_PUBLIC_CHANGED", "CHURCH_FULLNESS_CHANGED" }) do
+for _, event in ipairs({ "CHURCH_CHANGED", "CHURCH_COUNT_CHANGED", "CHURCH_PUBLIC_CHANGED", "CHURCH_FULLNESS_CHANGED", "HONOR_CHANGED" }) do
 	ns.On(event, function()
 		if ns.UI and ns.UI.IsShown and ns.UI.IsShown() then Redraw() end
 	end)

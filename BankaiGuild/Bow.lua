@@ -22,18 +22,20 @@ function Bow.SetEnabled(on)
 end
 
 -- attacker and target: PARTY_KILL's GUIDs. True when the line was shown.
+Bow.killAt = -math.huge -- our last killing blow on a player (Honor.lua counts the /bow that follows)
 function Bow.OnPartyKill(attacker, target)
-	if not Bow.Enabled() or Secret(attacker) or Secret(target) then return false end
+	if Secret(attacker) or Secret(target) then return false end
 	if type(attacker) ~= "string" or type(target) ~= "string" or not target:find("^Player%-") then return false end
 	local me = UnitGUID and UnitGUID("player")
 	if Secret(me) or attacker ~= me then return false end
 	local now = GetTime()
-	if now - last < Bow.GAP then return false end
+	Bow.killAt = now
+	if not Bow.Enabled() or now - last < Bow.GAP then return false end
 	last = now
 	ns.Print(L.BOW_NUDGE)
 	return true
 end
-function Bow.Reset() last = -math.huge end -- (tests)
+function Bow.Reset() last, Bow.killAt = -math.huge, -math.huge end -- (tests)
 
 -- (pcall: a client without PARTY_KILL must not stop the login, as in Wanted.lua.)
 pcall(ns.RegisterEvent, "PARTY_KILL", function(attacker, target) ns.SafeCall("bow", Bow.OnPartyKill, attacker, target) end)

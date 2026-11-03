@@ -397,6 +397,7 @@ end
 --   1.2, The Watch's judgments: Judgment MJ (a case to the Shogun, the High Council's votes, his final
 --   word; logged whispers between an officer's or a councillor's client and the Shogun's).
 --   1.1.6, the Missionary Church: Church NB NK | ChurchCount NV NS NL NR (whole messages, version 1).
+--   11-02, the honor boards on The Way page: Honor HB (a kudo, a bow after a kill).
 --   1.1.6, chat moderation: WatchChat MD (lines deleted, recent lines deleted, timeouts and their
 --   lifts, a guild master's Watchers, the Bankai Guild moderators, a target's own word, appeals and their
 --   answers, a case's decision told to its player; logged, over GUILD or the channel).

@@ -2366,6 +2366,9 @@ local function Slash(input)
 			local how = rest:lower()
 			local hide = (how == "hide" or how == "off") and true or ((how == "show" or how == "on") and false or not ns.UI.IssueReporterHidden())
 			ns.UI.SetIssueReporterHidden(hide)
+		elseif cmd == "thanks" or cmd == "kudos" or cmd == "thank" then
+			-- 11-02: the honor boards' kudos (Honor.lua).
+			ns.Honor.Thank(rest)
 		elseif cmd == "bow" then
 			-- 11-02: the charter's /bow nudge after our killing blow on a player (Bow.lua): on|off, alone switched.
 			local w = rest:lower()
