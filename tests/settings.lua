@@ -73,6 +73,7 @@ assert(ns.db.hideMinimap == false and ns.db.warnDays == 3 and ns.db.sound == tru
 assert(ns.db.borders == nil and ns.db.chatMarks == nil and ns.db.nameplates == nil and ns.db.soundOff == nil
 	and ns.db.alertsAlways == nil and ns.db.showMates == false and ns.db.sharePosition == false)
 assert(ns.db.addonChat == true and ns.db.shareLocation == true, "privacy answers and the chats are kept")
+assert(ns.db.setupDue == true, "the setup page is due at the next load")
 assert(not Row("reset").text:find("SETTINGS_RESET_CONFIRM", 1, true), "back to its label")
 
 print("settings: ok")

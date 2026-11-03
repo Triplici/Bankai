@@ -35,13 +35,15 @@ end
 Settings.NextWarnDays = NextWarnDays -- (tests)
 
 -- The keys the reset puts back: ns.DEFAULTS' value where Core.lua has one, else nil (unset is
--- each option's default). Privacy answers and the chats (Consent.lua's questions) are not here.
+-- each option's default). Privacy answers and the chats (Consent.lua's questions) are not here:
+-- the setup page shows them again after the next /reload, to change any of them.
 Settings.RESET_KEYS = { "hideMinimap", "showMates", "sharePosition", "showCamps", "borders", "nameplates",
 	"chatMarks", "warnDays", "sound", "soundOff", "alertsAlways" }
 
 function Settings.Reset()
 	local defaults = ns.DEFAULTS or {}
 	for _, k in ipairs(Settings.RESET_KEYS) do ns.db[k] = defaults[k] end
+	ns.db.setupDue = true -- the setup page (Consent.lua) opens again after a /reload
 	local function Run(name, fn, ...) if type(fn) == "function" then ns.SafeCall("settings reset " .. name, fn, ...) end end
 	Run("minimap", ns.UI and ns.UI.UpdateMinimapButton)
 	Run("mates", ns.Positions and ns.Positions.Refresh)

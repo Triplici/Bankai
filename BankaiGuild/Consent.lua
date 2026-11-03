@@ -286,13 +286,16 @@ end
 -- zone and layer's, a keeper's) and when a player types in a chat still unanswered: only in an
 -- Bankai Guild guild, never in combat or an instance, and only for lines the page never showed (1.2.1:
 -- not just this session) or a notice he was never shown. True when it showed.
+local dueThisLoad = false
 function Consent.Ask(reason)
 	if not ns.IsMember() or Busy() then return false end
 	-- An automatic first-open question always concerns the ordinary sharing choices, even if the
 	-- player last closed the focused Profile section.
 	activeSection = nil
-	if not (Fresh() or Consent.NoticeDue()) or (frame and frame:IsShown()) then return false end
+	-- (dueThisLoad: the Settings tab's reset, Settings.lua, asked for the page at the next load.)
+	if not (Fresh() or Consent.NoticeDue() or dueThisLoad) or (frame and frame:IsShown()) then return false end
 	ns.Log("privacy page shown (%s)", tostring(reason or "?"))
+	dueThisLoad, ns.db.setupDue = false, nil
 	Consent.Show()
 	return true
 end
@@ -756,6 +759,7 @@ Consent.Register({
 -- The first question after login: the page, once the login settled, then on the minute until it
 -- could be asked (combat, an instance), once for each question (Consent.Ask).
 function Consent.OnLogin()
+	dueThisLoad = ns.db.setupDue == true -- (a reset in this session waits for the next /reload)
 	ns.After(Consent.LOGIN_WAIT, "privacy page", function()
 		settled = true -- (the lines left from 1.2.1 are taken at this check: Fresh)
 		Consent.Ask("login")
