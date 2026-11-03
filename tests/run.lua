@@ -14050,12 +14050,12 @@ do
 			local function Fire(...) for _, f in ipairs(EVENT_SCRIPTS) do f(nil, ...) end end
 			-- Mouse and keyboard: kept, nothing said in chat.
 			GamepadStyle(false)
-			Fire("ADDON_ACTION_BLOCKED", "Bankai Guild", "FocusUnit()")
+			Fire("ADDON_ACTION_BLOCKED", "BankaiGuild", "FocusUnit()")
 			eq(#printed, 0, "mouse and keyboard: no chat line")
 			-- The gamepad UI: kept once per call and counted; one line in chat, once a session.
 			GamepadStyle(true)
-			Fire("ADDON_ACTION_FORBIDDEN", "Bankai Guild", "SetPreferredGamepadInteractTarget()")
-			Fire("ADDON_ACTION_FORBIDDEN", "Bankai Guild", "SetPreferredGamepadInteractTarget()")
+			Fire("ADDON_ACTION_FORBIDDEN", "BankaiGuild", "SetPreferredGamepadInteractTarget()")
+			Fire("ADDON_ACTION_FORBIDDEN", "BankaiGuild", "SetPreferredGamepadInteractTarget()")
 			Fire("ADDON_ACTION_FORBIDDEN", "OtherAddon", "SetPreferredGamepadInteractTarget()")
 			eq(#printed, 1, "one line")
 			assert(printed[1]:find(ns.L.BLOCKED_GAMEPAD, 1, true), printed[1])
@@ -14076,8 +14076,8 @@ do
 			-- The next session: the same call counted on, its evidence taken again, and it is the newest.
 			ns.db.sessions = (ns.db.sessions or 0) + 1
 			debugstack = function() return "Blizzard_ChatFrameBase/Shared/ChatFrameEditBox.lua:267: in function 'ParseText'" end
-			Fire("ADDON_ACTION_BLOCKED", "Bankai Guild", "FocusUnit()")
-			Fire("ADDON_ACTION_BLOCKED", "Bankai Guild", "FocusUnit()")
+			Fire("ADDON_ACTION_BLOCKED", "BankaiGuild", "FocusUnit()")
+			Fire("ADDON_ACTION_BLOCKED", "BankaiGuild", "FocusUnit()")
 			eq(#list, 2); eq(list[2].func, "FocusUnit()"); eq(list[2].count, 3)
 			eq(list[2].gamepad, true, "seen with the gamepad UI this time")
 			assert(list[2].stack:find("ParseText", 1, true), "this session's stack")
@@ -14108,7 +14108,7 @@ do
 					.. "\n" .. table.concat(callers, "\n")
 			end
 			GamepadStyle(true)
-			for _, f in ipairs(EVENT_SCRIPTS) do f(nil, "ADDON_ACTION_FORBIDDEN", "Bankai Guild", "SetPreferredGamepadInteractTarget()") end
+			for _, f in ipairs(EVENT_SCRIPTS) do f(nil, "ADDON_ACTION_FORBIDDEN", "BankaiGuild", "SetPreferredGamepadInteractTarget()") end
 			local b = ns.db.actionsBlocked[1]
 			eq(b.stack, table.concat(callers, "\n"), "the handler's own frames dropped")
 			local report = ns.BuildBugReport()
@@ -42524,7 +42524,7 @@ do
 					send.onClick(); eq(g.tradeMoney, nil); assert(Printed(w, ns.L.DUES_SEND_NOT_ENOUGH:format(T.Coins(25000))))
 					g.gold = 1000000
 					-- The game refuses the addon the trade's gold: told once; from then on the amount is only said.
-					for _, f in ipairs(EVENT_SCRIPTS) do f(nil, "ADDON_ACTION_BLOCKED", "Bankai Guild", "C_TradeInfo.SetTradeMoney()") end
+					for _, f in ipairs(EVENT_SCRIPTS) do f(nil, "ADDON_ACTION_BLOCKED", "BankaiGuild", "C_TradeInfo.SetTradeMoney()") end
 					eq(ns.db.duesTradeBlocked, true); assert(Printed(w, ns.L.DUES_SEND_TRADE_BLOCKED))
 					send.onClick()
 					eq(g.tradeMoney, nil); assert(Printed(w, ns.L.DUES_SEND_TRADE_TYPE:format(T.Coins(25000), "Pyralis Ashandar")))

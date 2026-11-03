@@ -154,12 +154,18 @@ end
 -- Called directly from Bankai Guild's code (the model's own calls don't count): FromBankaiGuild(1) in a
 -- function of the model asks about that function's caller.
 -- (Through pcall and the like: C functions, and tests/run.lua's stand-ins for them, are skipped.)
+-- The model's hooksecurefunc wrappers (11-02): the game's secure hook is no frame of its own, so a
+-- call through a hooked function is still its caller's (the Arena's /sit through DoEmote, which the
+-- honor board hooks).
+local HOOK_WRAPPERS = setmetatable({}, { __mode = "k" })
 local function FromBankaiGuild(level)
 	level = (level or 1) + 2
 	while true do
-		local info = debug.getinfo(level, "S")
+		local info = debug.getinfo(level, "Sf")
 		if not info then return false end
-		if info.what ~= "C" and not (info.source or ""):find("tests[/\\]run%.lua$") then
+		if HOOK_WRAPPERS[info.func] then
+			-- (skipped: the hook's wrapper)
+		elseif info.what ~= "C" and not (info.source or ""):find("tests[/\\]run%.lua$") then
 			return BankaiGuildFile(info.source) ~= nil
 		end
 		level = level + 1
@@ -923,7 +929,7 @@ local function World(C, opts)
 				if not C.clicking then
 					r.kind = "blocked"
 					C.blocked[#C.blocked + 1] = name
-					C.After(0, function() C.Fire("ADDON_ACTION_BLOCKED", "Bankai Guild", name .. "()") end)
+					C.After(0, function() C.Fire("ADDON_ACTION_BLOCKED", "BankaiGuild", name .. "()") end)
 					return nil
 				end
 			end
@@ -1372,11 +1378,13 @@ local function World(C, opts)
 		assert(type(original) == "function", "hooksecurefunc on something that is no function: " .. tostring(key))
 		hooks[#hooks + 1] = { t = t, key = key, post = post }
 		C.callbacks[#C.callbacks + 1] = { kind = "hooksecurefunc", key = key, fn = post, frame = t ~= E and t or nil }
-		rawset(t, key, function(...)
+		local wrapper = function(...)
 			local r = { original(...) }
 			post(...)
 			return unpack(r)
-		end)
+		end
+		HOOK_WRAPPERS[wrapper] = true
+		rawset(t, key, wrapper)
 	end)
 	E.Menu = Namespace("Menu", {
 		ModifyMenu = Fn("Menu.ModifyMenu", function(tag, fn)
@@ -1662,8 +1670,9 @@ local function Boot(opts)
 		local chunk = assert(loadstring(NoTailCalls(src), "@" .. ADDON_DIR .. file))
 		setfenv(chunk, C.env)
 		-- (A file that fails as it loads: the client reports it and loads the next one.)
-		local ok, err = pcall(chunk, "Bankai Guild", ns)
+		local ok, err = pcall(chunk, "BankaiGuild", ns)
 		if not ok then C.loadErrors[#C.loadErrors + 1] = file .. ": " .. tostring(err); pcall(C.handler, err) end
+		if file == "Core.lua" then assert(loadfile(ROOT .. "tests/world.lua"))(ns) end -- (11-02: the tests' world)
 	end
 	-- (opts.realmFrom(ns): a realm named by the addon itself, the Treasurer's group's for the dues.)
 	if opts.realmFrom then C.realmName = opts.realmFrom(ns) end
@@ -2353,7 +2362,8 @@ test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the g
 	GuildWindowsFlow(C)
 	MapFlow(C)
 	local lines, postCalls = TooltipFlow(C)
-	assert(postCalls > 0 and lines > 0, "the tooltip's post-call and its line: " .. lines)
+	-- (11-02: no tabard line any more, so an ordinary player's tooltip may get none of Bankai Guild's.)
+	assert(postCalls > 0, "the tooltip's post-call: " .. lines)
 	local made, ran = MenuFlow(C)
 	-- (Changed on purpose, 1.2.1: the game's guild roster menus are never hooked, PlayerMenu.NEVER,
 	-- so 8 player menus where there were 10.)
@@ -2511,7 +2521,7 @@ test("gamepad pass 3: the gamepad UI and mouse and keyboard, back and forth thre
 	for key, n in pairs(count) do eq(n, 1, "registered once: " .. key) end
 	eq(#C.menus.MENU_UNIT_PLAYER, 1, "the player menu's callback, once")
 	local slash = 0
-	for k in pairs(E.SlashCmdList) do if k:find("^Bankai Guild") then slash = slash + 1 end end
+	for k in pairs(E.SlashCmdList) do if k:find("^BANKAIGUILD") then slash = slash + 1 end end
 	eq(slash, 7, "/bk and /bg, /bgc, /bgl, /bka (1.2: a line in the fight room), /ogarmy and /olysite (1.3.3), once")
 	GP.Covers("player-menu"); GP.Covers("slash"); GP.Covers("minimap")
 	assert(rawget(E, "BankaiGuildMinimapButton"):IsVisible(), "the minimap button in both modes")
@@ -2521,7 +2531,7 @@ test("gamepad pass 4: blocked calls with the gamepad UI: counted, told once in a
 	local C, ns = Session(true)
 	local mark = C.Mark()
 	local printed = #C.printed
-	for i = 1, 500 do C.Fire("ADDON_ACTION_FORBIDDEN", "Bankai Guild", "SetPreferredGamepadInteractTarget()") end
+	for i = 1, 500 do C.Fire("ADDON_ACTION_FORBIDDEN", "BankaiGuild", "SetPreferredGamepadInteractTarget()") end
 	C.Fire("ADDON_ACTION_BLOCKED", "SomeOtherAddon", "SetPreferredGamepadInteractTarget()")
 	eq(#C.Since(mark), 0, "the handler reaches nothing of the game's")
 	C.Advance(5)
