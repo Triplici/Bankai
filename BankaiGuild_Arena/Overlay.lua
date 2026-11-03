@@ -11,7 +11,7 @@ local Kit = ArenaUI.Kit
 local Data = ArenaUI.Data
 local Home = ns.ArenaHome
 
--- "Show on screen" (the way the Vox Populi chart is): BankaiGuildArenaOverlay, 900 x 460 at scale 1
+-- "Show on screen" (the way the Poll chart is): BankaiGuildArenaOverlay, 900 x 460 at scale 1
 -- (0.6 to 1.6, kept), HIGH strata, movable, top centre by default. The Shogun opens it (his own
 -- view, or the author's view of it), and a councillor or a public arbiter too, without the delay
 -- line. It stays open in combat (an insecure frame, allowed there). Its mode follows the event

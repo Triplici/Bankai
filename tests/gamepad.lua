@@ -1844,7 +1844,7 @@ local function DialogsFlow(C)
 end
 
 -- The author's Shogun's view (Shogun.SetDevView, a test character's: ns.devWorkshop): the window with
--- the Shogun's tabs too (Throne, Vox) and the Workshop, each clicked.
+-- the Shogun's tabs too (Throne, Poll) and the Workshop, each clicked.
 local function ShogunViewFlow(C)
 	local ns = C.ns
 	ns.devWorkshop = true
@@ -2872,7 +2872,7 @@ test("gamepad duel view (1.2.6): Watch duel's line only through the player menu'
 	NoErrors(C, "a duel watch")
 end)
 
--- 1.2.1: [Bankai Guild], [Captains] and [Council] before a line in the game's chat, links where the player
+-- 1.2.1: [Bankai Guild], [Council] and [Elders] before a line in the game's chat, links where the player
 -- may write there. A click on one the game's way: the chat window's OnHyperlinkClick calls SetItemRef
 -- (the hooks on it after).
 local function ClickTag(C, tier, button)

@@ -40,7 +40,7 @@ local function OwnRole(kind, subject, guild)
 	local rank = ns.Roster.RankOf(ns.me)
 	local native = select(3, GetGuildInfo("player"))
 	return type(rank) == "number" and type(native) == "number"
-		and (kind == "W" and rank == 0 and native == 0 or kind == "L" and rank <= ns.CAPTAIN_RANK and native <= ns.CAPTAIN_RANK)
+		and (kind == "W" and rank == 0 and native == 0 or kind == "L" and rank <= ns.COUNCIL_MEMBER_RANK and native <= ns.COUNCIL_MEMBER_RANK)
 end
 local function Store()
 	if type(ns.db) ~= "table" or not Name(ns.me) then return nil end
@@ -205,7 +205,7 @@ local function IssuerRole(r)
 	if r.guild == GetGuildInfo("player") then
 		if not Fresh() or source ~= "roster" then return false end
 	elseif source ~= "signed" and source ~= "pinned" then return false end
-	return type(rank) == "number" and (r.kind == "W" and rank == 0 or r.kind == "L" and rank <= ns.CAPTAIN_RANK)
+	return type(rank) == "number" and (r.kind == "W" and rank == 0 or r.kind == "L" and rank <= ns.COUNCIL_MEMBER_RANK)
 end
 local function Capsule(c)
 	if type(c) ~= "table" or type(c.pk) ~= "string" or #c.pk ~= 43 or type(c.sig) ~= "string" or #c.sig ~= 86 then return nil end

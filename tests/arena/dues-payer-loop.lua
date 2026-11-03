@@ -168,7 +168,7 @@ test("Dues payer loop: local reminders are once per reset, dismissible and opt-o
 	w.clock = w.clock + p.ns.Dues.WEEK
 	eq(w:As(p, p.ns.Dues.PayerReminder, "mail"), false, "opt-out survives later resets")
 	eq(#p.win.calls, calls); eq(#w.sent, sent)
-	eq(t.ns.Dues.Outbox()[1], nil, "no private player/Captain escalation was invented")
+	eq(t.ns.Dues.Outbox()[1], nil, "no private player/Council member escalation was invented")
 end)
 
 test("Dues payer loop: instance and combat suppress the actual local reminder without consuming its reset or changing manual payment", function()

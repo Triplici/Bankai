@@ -468,7 +468,7 @@ end
 --   TS~<guild>~<time>~<copper>~;<id>x<count>,.<gap>,...~;...   in pieces (Treasury.Private): the
 --   tabs' names left out (a name another guild typed never reaches the Shogun's screen, his stream:
 --   "Tab 1", "Tab 2"); TS~<guild>~0~0~ withdraws it (his no)
--- Taken only from a Council member or Captain of that guild as our roster or its census confirms (the
+-- Taken only from an Elder or Council member of that guild as our roster or its census confirms (the
 -- census can be gamed: a snapshot is its sender's word, shown with his name), kept in memory
 -- alone, SISTERS_MAX guilds at most. A no is taken from them too, and from whoever sent the
 -- snapshot held. Konig's review of 1.1: his no reaches every viewer holding his bank, at once
@@ -494,11 +494,11 @@ function Bank.SeesSisters() return ns.Shogun.IsShogun() or ns.Shogun.IsSteward()
 -- A Hand's client asks for them too (TA): the Shogun's and a Steward's ask anyway.
 function Bank.AsksSisters() return ns.Shogun.IsHand() end
 
--- A Council member or Captain of `guild`, as our roster (our own guild) or that guild's census says.
-function Bank.CouncilOrCaptain(sender, guild)
+-- An Elder or Council member of `guild`, as our roster (our own guild) or that guild's census says.
+function Bank.ElderOrCouncilMember(sender, guild)
 	if type(sender) ~= "string" or type(guild) ~= "string" or guild == "" then return false end
 	local rank = ns.Data.KnownRank(ns.FullName(sender), guild)
-	return rank ~= nil and rank <= ns.CAPTAIN_RANK
+	return rank ~= nil and rank <= ns.COUNCIL_MEMBER_RANK
 end
 
 -- This character is its guild's treasurer for this: the guild master or an officer (the server's
@@ -507,7 +507,7 @@ function Bank.SisterTreasurer()
 	if not ns.IsMember() or not ns.me then return false end
 	local guild, _, rank = GetGuildInfo("player")
 	rank = tonumber(rank)
-	return type(guild) == "string" and not ns.IsShogunGuild(guild) and rank ~= nil and rank <= ns.CAPTAIN_RANK
+	return type(guild) == "string" and not ns.IsShogunGuild(guild) and rank ~= nil and rank <= ns.COUNCIL_MEMBER_RANK
 end
 local function SisterKey() return tostring(ns.FullName(ns.me) or ""):lower() end
 -- His yes (true), his no (false), or nil until he answers: per character.
@@ -639,8 +639,8 @@ function Bank.AskSister()
 	return true
 end
 
--- A sister guild's snapshot (TS), on the Shogun's, a Steward's or a Hand's client: from a Council member or
--- Captain of that guild (our roster or its census), the newest kept, in memory alone.
+-- A sister guild's snapshot (TS), on the Shogun's, a Steward's or a Hand's client: from an Elder or
+-- Council member of that guild (our roster or its census), the newest kept, in memory alone.
 function Bank.HandleSister(dist, sender, text)
 	if dist ~= "WHISPER" or type(text) ~= "string" or not Bank.SeesSisters() then return end
 	local guild, when, money, rest = text:match("^TS~([^~]*)~(%d+)~(%d+)~?(.*)$")
@@ -650,7 +650,7 @@ function Bank.HandleSister(dist, sender, text)
 	when = tonumber(when)
 	-- (A no from whoever sent the snapshot held counts, whatever the census says of him now.)
 	local own = when == 0 and sisters[key] and ns.Treasury.SameChar(sisters[key].by, ns.FullName(sender))
-	if not own and not Bank.CouncilOrCaptain(sender, guild) then return end
+	if not own and not Bank.ElderOrCouncilMember(sender, guild) then return end
 	if when == 0 then
 		if sisters[key] then sisters[key], sisterCount = nil, sisterCount - 1 end
 		ns.Fire("TREASURY_CHANGED")
@@ -687,13 +687,13 @@ function Bank.Sisters()
 end
 
 ---------------------------------------------------------------------------
--- 1.1: bank requests (Fern's): a Council member or a Captain asks the treasury for an item and a count
+-- 1.1: bank requests (Fern's): an Elder or a Council member asks the treasury for an item and a count
 -- ("need 10 Ironwood"), shown next to the bank snapshot. The bank view shows what the treasury
 -- holds, not what the raid is short: a request line stops five officers from buying the same
 -- stack. Handing it over stays a normal trade or mail, the player's own click: the addon moves
 -- nothing, and a request closes by itself when the keeper's book records that item given to that
 -- player (Treasury.Record).
---   TN~<id>~<item>~<count>~<guild>   by whisper, from a Council member or a Captain to each keeper, the Shogun
+--   TN~<id>~<item>~<count>~<guild>   by whisper, from an Elder or a Council member to each keeper, the Shogun
 --                                     and his Stewards heard online (count 0: he cancels it); sent
 --                                     again every REQUEST_AGAIN while it is open, and answered each time
 --   TO~<id>~<o|d|x|c>[~<Name-Realm>]  by whisper, a keeper's (the Shogun's, a Steward's) answer: open
@@ -703,7 +703,7 @@ end
 --                                     requests, only while the Shogun shows the army the book (the bank
 --                                     goes with it), for everyone who sees the bank; none: not sent
 -- No text travels, only an item's number and a count; REQUEST_OPEN open per character at most, each
--- for REQUEST_DAYS. Whom it comes from is checked as a sister guild's bank is (Bank.CouncilOrCaptain).
+-- for REQUEST_DAYS. Whom it comes from is checked as a sister guild's bank is (Bank.ElderOrCouncilMember).
 -- Paced (Konig's review of 1.1: a request taken back and made again, or a modified client's new
 -- ids, had every keeper print a line, answer and put his list on the channel each time): REQUEST_NEW
 -- new requests a REQUEST_WINDOW per character (his own client says so; a keeper's takes no more from
@@ -741,13 +741,13 @@ local function Field(s, n) return ns.Cut((tostring(s or ""):gsub("[~;:,|%c]", " 
 local function Open(state) return state == "sent" or state == "seen" or state == "open" end
 local function Expired(e) return ns.Now() - (tonumber(e.t) or 0) > Bank.REQUEST_DAYS * 86400 end
 
--- A Council member or a Captain of an Bankai Guild guild (the server's rank of this character); not the Shogun, a
+-- An Elder or a Council member of an Bankai Guild guild (the server's rank of this character); not the Shogun, a
 -- Steward or a keeper: the treasury is theirs already. (The treasury is the Alliance's <Elfcore>'s.)
 function Bank.MayRequest()
 	if ns.faction == "Horde" or not ns.IsMember() or ns.Treasury.IsInsider() then return false end
 	local _, _, rank = GetGuildInfo("player")
 	rank = tonumber(rank)
-	return rank ~= nil and rank <= ns.CAPTAIN_RANK
+	return rank ~= nil and rank <= ns.COUNCIL_MEMBER_RANK
 end
 
 -- This character's own requests (kept per character), and the requests a keeper's, the Shogun's or
@@ -830,7 +830,7 @@ function Bank.SendRequests(force)
 	return n
 end
 
--- A Council member or a Captain asks the treasury for `count` of `item` (an item's number).
+-- An Elder or a Council member asks the treasury for `count` of `item` (an item's number).
 function Bank.Request(item, count)
 	if not Bank.MayRequest() then return ns.Print(L.BANK_REQUEST_ONLY) end
 	item, count = tonumber(item), math.floor(tonumber(count) or 0)
@@ -884,7 +884,7 @@ function Bank.Cancel(id)
 	end
 end
 
--- On a keeper's, the Shogun's or a Steward's client: a request (TN) from a Council member or Captain of that
+-- On a keeper's, the Shogun's or a Steward's client: a request (TN) from an Elder or Council member of that
 -- guild (our roster or its census), REQUEST_OPEN open each at most, REQUESTS_KEPT in all; answered
 -- with where it stands (TO), each time he asks.
 function Bank.HandleRequest(dist, sender, text)
@@ -894,7 +894,7 @@ function Bank.HandleRequest(dist, sender, text)
 	guild = guild and ns.Shogun.CleanGuild(guild)
 	if not (id and item and item > 0 and item < 2147483647 and count and count <= Bank.REQUEST_MAX_COUNT and guild) then return end
 	sender = ns.FullName(sender)
-	if not Bank.CouncilOrCaptain(sender, guild) then return ns.Log("bank request from %s (%s) ignored: not its Council or a Captain", sender, guild) end
+	if not Bank.ElderOrCouncilMember(sender, guild) then return ns.Log("bank request from %s (%s) ignored: not its Elder or a Council member", sender, guild) end
 	local held, key, now = Held(), sender .. "#" .. id, ns.Now()
 	local e = held[key]
 	if count == 0 then

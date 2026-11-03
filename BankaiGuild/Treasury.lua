@@ -276,7 +276,7 @@ Treasury.TreasurerPin = TreasurerPin
 -- trade or mail (the dues' ledger counts every one, Dues.lua). Its name and its time never leave
 -- his client in a book: not on the channel (TB, TR, T8), nor in the whole book whispered to the
 -- Shogun, his Steward and the keepers (1.1): with one fixed amount a week, they would be a list of
--- who paid it, and Fern's #36 gives it to the Shogun and that guild's Captains alone (the dues' lists).
+-- who paid it, and Fern's #36 gives it to the Shogun and that guild's Council alone (the dues' lists).
 -- Here, not in Dues.lua, so that it holds even while that file is missing (a restart owed).
 local function DuesLine(keeper, e)
 	if type(e) ~= "table" or e.out or e.item or e.kind == "transfer" or (tonumber(e.money) or 0) <= 0 then return false end
@@ -361,7 +361,7 @@ function Treasury.Visible()
 	if campaign and not campaign.closed and ns.IsMember() then return true end
 	if Treasury.IsKeeper() or ns.Shogun.Preview() then return true end
 	-- (1.1: the Shogun, his Steward or a Hand holding a sister guild's bank, 1.2: any of the Guild
-	-- treasuries' audience, and a Council member or Captain with a request to the treasury: Bank.lua.)
+	-- treasuries' audience, and an Elder or Council member with a request to the treasury: Bank.lua.)
 	if ns.Bank and ns.Bank.SeesSisters and ns.Bank.SeesSisters() and #ns.Bank.Sisters() > 0 then return true end
 	if ns.Bank and ns.Bank.MyRequests and ns.IsMember() and #ns.Bank.MyRequests() > 0 then return true end
 	if ns.Shogun.SetsLists() then return (ns.splitNames and ns.faction ~= "Horde") or Treasury.Report() ~= nil end
@@ -2543,7 +2543,7 @@ function Treasury.HandleRankRelay(dist, sender, text)
 	if row.t > ns.Now() + 30 then return false, "time" end
 	local B = ns.Bank
 	local source = row.home and Treasury.KeeperByName(row.by)
-		or type(B.CouncilOrCaptain) == "function" and B.CouncilOrCaptain(row.by, row.guild)
+		or type(B.ElderOrCouncilMember) == "function" and B.ElderOrCouncilMember(row.by, row.guild)
 	if not source then return false, "source" end
 	local s = RankRelayRoot(true)
 	if not s then return false, "store" end -- (no realm group or faction yet: nothing to keep it under)
@@ -3900,7 +3900,7 @@ end
 
 -- 1.1: requests to the treasury (Bank.lua), next to the bank. A keeper, the Shogun or a Steward: every
 -- request his client holds, a click to mark it done or declined, what the bank holds of it. The army
--- (with the Shogun's book): the open ones the keepers put on the channel. A Council member or a Captain: his own,
+-- (with the Shogun's book): the open ones the keepers put on the channel. An Elder or a Council member: his own,
 -- where each stands (a click takes it back), and a line to ask for any item.
 local function RequestLines(lines, role)
 	local B = ns.Bank
@@ -4110,7 +4110,7 @@ local function DirWho(b)
 	local name = ns.DisplayName(b.by) or "?"
 	if b.home and ns.IsShogunCharacter(b.by) and ns.faction ~= "Horde" then name = ns.SHOGUN_NAME end
 	local rank = ns.Data and ns.Data.AuthorizedRank and type(b.by) == "string" and ns.Data.AuthorizedRank(ns.FullName(b.by), b.guild)
-	local what = rank == 0 and L.TREASURY_DIR_GM or (rank and rank <= ns.CAPTAIN_RANK) and L.TREASURY_DIR_OFFICER
+	local what = rank == 0 and L.TREASURY_DIR_GM or (rank and rank <= ns.COUNCIL_MEMBER_RANK) and L.TREASURY_DIR_OFFICER
 		or b.home and L.TREASURY_DIR_KEEPER or nil
 	return what and L.TREASURY_DIR_WHO:format(name, what) or name
 end

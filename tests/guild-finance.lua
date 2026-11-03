@@ -79,13 +79,13 @@ end
 local function Setup(legacy)
 	local w = World.New({ clock = 1800000000, council = false, arenaFiles = {}, compliance = "shipped" })
 	local shogun, keeper = Client(w, "shogun"), Client(w, "treasurer")
-	local council, other, member = Client(w, "fighterA", { rank = 0 }), Client(w, "fighterB", { guild = "Bankai Guild Willow", rank = 0 }), Client(w, "bettor1")
+	local elder, other, member = Client(w, "fighterA", { rank = 0 }), Client(w, "fighterB", { guild = "Bankai Guild Willow", rank = 0 }), Client(w, "bettor1")
 	Scan(w); Reports(w)
 	if not legacy then for _, c in ipairs(w.clients) do w:As(c, function()
 		assert(c.ns.Authority.TakePart(AUTH.INITIAL, nil, "LOCAL"), "the actual signed HA1 fixture must be accepted")
 	end) end end
 	w:As(keeper, function() keeper.db.keeperShares = { [keeper.name:lower()] = true } end)
-	return w, shogun, keeper, council, other, member
+	return w, shogun, keeper, elder, other, member
 end
 local function Event(w, keeper, guild, text)
 	return w:As(keeper, function() return assert(keeper.ns.GuildFinance.CreateEvent(guild .. " | " .. (text or "Raid supplies"))) end)
@@ -101,32 +101,32 @@ local function Allocate(w, keeper, e, event)
 end
 
 test("Guild finance: native completed trade expense is attributed once; offered/closed trade, manual book and item gold guesses are not proof", function()
-	local w, _, t, council = Setup()
-	local id = Event(w, t, council.guild)
-	w:Trade(t, council, { aGives = 20000, complete = false })
+	local w, _, t, elder = Setup()
+	local id = Event(w, t, elder.guild)
+	w:Trade(t, elder, { aGives = 20000, complete = false })
 	w:As(t, function() eq(#t.ns.Treasury.Lines(), 0, "closing an offered trade is not a completed expense") end)
 	w:Run(3)
-	local e = Receipt(w, t, council, 20000, true)
+	local e = Receipt(w, t, elder, 20000, true)
 	eq(Allocate(w, t, e, id), true); eq(Allocate(w, t, e, id), false)
 	w:As(t, function()
 		local F, T = t.ns.GuildFinance, t.ns.Treasury
 		local rows = F.LocalRows(); eq(rows[1].out, 20000); eq(rows[1].sent, 0)
-		local manual = T.Record(council.name, 30000, "trade", true, { quiet = true })
+		local manual = T.Record(elder.name, 30000, "trade", true, { quiet = true })
 		eq(manual.financeReceipt, nil); eq(F.Allocate(99999, id), false)
-		local item = T.Record(council.name, 0, "trade", true, { item = 1710, count = 20, observed = true, quiet = true })
+		local item = T.Record(elder.name, 0, "trade", true, { item = 1710, count = 20, observed = true, quiet = true })
 		eq(item.financeReceipt, nil, "materials are not guessed copper")
 		eq(F.Allocate(e.financeReceipt, -1), false)
 	end)
 end)
 
 test("Guild finance: native successful mail expense is sent not recipient received; pending/failed/success replay cannot allocate again", function()
-	local w, _, t, council = Setup(); local id = Event(w, t, council.guild)
+	local w, _, t, elder = Setup(); local id = Event(w, t, elder.guild)
 	t.mailOut = { copper = 12000, cod = 0, subject = "Raid supply payment" }
-	w:As(t, function() SendMail(council.name, "Raid supply payment", "") end)
+	w:As(t, function() SendMail(elder.name, "Raid supply payment", "") end)
 	w:As(t, function() eq(#t.ns.Treasury.Lines(), 0) end)
 	w:Fire(t, "MAIL_FAILED"); w:Fire(t, "MAIL_SEND_SUCCESS")
 	w:As(t, function() eq(#t.ns.Treasury.Lines(), 0, "failed send cannot later become a finance receipt") end)
-	w:Mail(t, council, 12000, "Raid supply payment")
+	w:Mail(t, elder, 12000, "Raid supply payment")
 	local e = Last(t); assert(e.financeReceipt, "MAIL_SEND_SUCCESS proves the captured native outgoing money")
 	eq(Allocate(w, t, e, id), true)
 	w:Fire(t, "MAIL_SEND_SUCCESS")
@@ -138,9 +138,9 @@ test("Guild finance: native successful mail expense is sent not recipient receiv
 end)
 
 test("Guild finance: recognized income guild cannot cross guild; unknown native income is visible but unattributed; excluded/custody/transfer receipts never inflate totals", function()
-	local w, _, t, council, other = Setup()
-	local own, wrong = Event(w, t, council.guild), Event(w, t, other.guild)
-	local e = Receipt(w, t, council, 17000)
+	local w, _, t, elder, other = Setup()
+	local own, wrong = Event(w, t, elder.guild), Event(w, t, other.guild)
+	local e = Receipt(w, t, elder, 17000)
 	eq(Allocate(w, t, e, wrong), false); eq(Allocate(w, t, e, own), true)
 	w:As(t, function()
 		local F, T = t.ns.GuildFinance, t.ns.Treasury
@@ -150,7 +150,7 @@ test("Guild finance: recognized income guild cannot cross guild; unknown native 
 		for _, line in ipairs(lines) do if tostring(line.text):find("unknown guild", 1, true) then found = true end end
 		assert(found, "unknown-source native income has an explicit unattributed bucket")
 		for _, kind in ipairs({ "transfer", "craft", "arena", "fee", "own", "sale" }) do
-			local r = T.Record("Excluded Giver", 10000, "trade", nil, { kind = kind, guild = council.guild, observed = true, quiet = true })
+			local r = T.Record("Excluded Giver", 10000, "trade", nil, { kind = kind, guild = elder.guild, observed = true, quiet = true })
 			eq(r.financeReceipt, nil, kind)
 		end
 		local row = F.LocalRows()[1]; eq(row.inn, 17000)
@@ -158,10 +158,10 @@ test("Guild finance: recognized income guild cannot cross guild; unknown native 
 end)
 
 test("Guild finance: correction and ambiguous returned mail zero attribution, stay auditable, and cannot revive after source eviction or reload", function()
-	local w, _, t, council = Setup(); local id = Event(w, t, council.guild)
-	w:Mail(t, council, 12000, "Same payment"); local e = Last(t); assert(e.financeReceipt); eq(Allocate(w, t, e, id), true)
-	w:Mail(t, council, 12000, "Same payment"); local newer = Last(t); assert(newer.financeReceipt); eq(Allocate(w, t, newer, id), true)
-	w:Return(council, 1); w:Take(t, #t.inbox)
+	local w, _, t, elder = Setup(); local id = Event(w, t, elder.guild)
+	w:Mail(t, elder, 12000, "Same payment"); local e = Last(t); assert(e.financeReceipt); eq(Allocate(w, t, e, id), true)
+	w:Mail(t, elder, 12000, "Same payment"); local newer = Last(t); assert(newer.financeReceipt); eq(Allocate(w, t, newer, id), true)
+	w:Return(elder, 1); w:Take(t, #t.inbox)
 	w:As(t, function()
 		local F = t.ns.GuildFinance
 		F.Reconcile()
@@ -177,30 +177,30 @@ test("Guild finance: correction and ambiguous returned mail zero attribution, st
 	end)
 end)
 
-test("Guild finance: current Council sees only own guild aggregates by real private transport; outsider, wrong guild, preview and revoked role receive nothing", function()
-	local w, shogun, t, council, other, member = Setup()
-	local id, otherid = Event(w, t, council.guild), Event(w, t, other.guild)
-	eq(Allocate(w, t, Receipt(w, t, council, 15000), id), true)
+test("Guild finance: current Elder sees only own guild aggregates by real private transport; outsider, wrong guild, preview and revoked role receive nothing", function()
+	local w, shogun, t, elder, other, member = Setup()
+	local id, otherid = Event(w, t, elder.guild), Event(w, t, other.guild)
+	eq(Allocate(w, t, Receipt(w, t, elder, 15000), id), true)
 	eq(Allocate(w, t, Receipt(w, t, other, 35000), otherid), true)
-	w:As(t, function() eq(t.ns.GuildFinance.MayView(council.guild, council.name), true, "keeper verifies the current remote Council from the actual signed manifest") end)
-	w:As(council, function() eq(council.ns.GuildFinance.Visible(), true); eq(council.ns.GuildFinance.MayView("*"), false); eq(council.ns.GuildFinance.Ask(other.guild), false); assert(council.ns.GuildFinance.Ask(council.guild)) end)
+	w:As(t, function() eq(t.ns.GuildFinance.MayView(elder.guild, elder.name), true, "keeper verifies the current remote Elder from the actual signed manifest") end)
+	w:As(elder, function() eq(elder.ns.GuildFinance.Visible(), true); eq(elder.ns.GuildFinance.MayView("*"), false); eq(elder.ns.GuildFinance.Ask(other.guild), false); assert(elder.ns.GuildFinance.Ask(elder.guild)) end)
 	w:Run(15)
-	w:As(council, function()
-		local held = council.ns.GuildFinance.Held(council.guild); eq(#held, 1, table.concat(t.errors, "; ") .. " / " .. table.concat(council.errors, "; "))
-		for _, r in pairs(held[1].rows) do eq(r.guild, council.guild); eq(r.inn, 15000) end
+	w:As(elder, function()
+		local held = elder.ns.GuildFinance.Held(elder.guild); eq(#held, 1, table.concat(t.errors, "; ") .. " / " .. table.concat(elder.errors, "; "))
+		for _, r in pairs(held[1].rows) do eq(r.guild, elder.guild); eq(r.inn, 15000) end
 	end)
-	for _, c in ipairs({ member, other }) do w:As(c, function() eq(c.ns.GuildFinance.Ask(council.guild), false); eq(#c.ns.GuildFinance.Held(council.guild), 0) end) end
+	for _, c in ipairs({ member, other }) do w:As(c, function() eq(c.ns.GuildFinance.Ask(elder.guild), false); eq(#c.ns.GuildFinance.Held(elder.guild), 0) end) end
 	w:As(shogun, function() assert(shogun.ns.GuildFinance.Ask("*")) end); w:Run(15)
 	w:As(shogun, function() eq(#shogun.ns.GuildFinance.Held("*"), 1) end)
-	council.rank = 1; Scan(w)
-	w:As(council, function() eq(council.ns.GuildFinance.Visible(), false); eq(#council.ns.GuildFinance.Held(council.guild), 0) end)
-	w:As(t, function() t.ns.ViewAs.Previewing = function() return true end; eq(t.ns.GuildFinance.CreateEvent(council.guild .. " | Pretend"), false); eq(t.ns.GuildFinance.Visible(), false) end)
+	elder.rank = 1; Scan(w)
+	w:As(elder, function() eq(elder.ns.GuildFinance.Visible(), false); eq(#elder.ns.GuildFinance.Held(elder.guild), 0) end)
+	w:As(t, function() t.ns.ViewAs.Previewing = function() return true end; eq(t.ns.GuildFinance.CreateEvent(elder.guild .. " | Pretend"), false); eq(t.ns.GuildFinance.Visible(), false) end)
 	local channel = w:ChannelText(); assert(not channel:find("GF~", 1, true)); assert(not channel:find("Raid supplies", 1, true), "finance event categories/details never reach the army by default")
 end)
-test("Guild finance: two census claims cannot grant a private financial audience, while a real signed current Council can", function()
-	local w, shogun, t, council, _, member = Setup(true)
-	local event = Event(w, t, council.guild)
-	eq(Allocate(w, t, Receipt(w, t, council, 19000), event), true)
+test("Guild finance: two census claims cannot grant a private financial audience, while a real signed current Elder can", function()
+	local w, shogun, t, elder, _, member = Setup(true)
+	local event = Event(w, t, elder.guild)
+	eq(Allocate(w, t, Receipt(w, t, elder, 19000), event), true)
 	w:As(t, function()
 		local invented = "Bankai Guild Phony"
 		for _, witness in ipairs({ "False Witness-Emberfall", "Other Witness-Emberfall" }) do
@@ -210,28 +210,28 @@ test("Guild finance: two census claims cannot grant a private financial audience
 		eq(fakeRank, 0); eq(fakeSource, "census"); assert(votes >= 2)
 		eq(t.ns.GuildFinance.MayView(invented, member.name), false, "two reports cannot turn a real ordinary member into a private-book reader")
 		eq(t.ns.GuildFinance.Handle("WHISPER", member.name, ("GF~1~Q~%.0f~%s~%s"):format(w.clock * 1000, invented, invented)), false)
-		local rank, source, support = t.ns.Data.AuthorizedRank(council.name, council.guild)
+		local rank, source, support = t.ns.Data.AuthorizedRank(elder.name, elder.guild)
 		eq(rank, 0); eq(source, "census"); assert(support >= 2)
-		eq(t.ns.GuildFinance.MayView(council.guild, council.name), false, "corroborated directory reports are not current office proof")
-		eq(t.ns.GuildFinance.Handle("WHISPER", council.name, ("GF~1~Q~%.0f~%s~%s"):format(w.clock * 1000, council.guild, council.guild)), false)
+		eq(t.ns.GuildFinance.MayView(elder.guild, elder.name), false, "corroborated directory reports are not current office proof")
+		eq(t.ns.GuildFinance.Handle("WHISPER", elder.name, ("GF~1~Q~%.0f~%s~%s"):format(w.clock * 1000, elder.guild, elder.guild)), false)
 		local forged = AUTH.INITIAL:gsub("Torvin Hale", "Lida Fenn")
 		eq(t.ns.Authority.TakePart(forged, nil, "LOCAL"), false, "a changed manifest fails the real RSA signature")
-		eq(t.ns.GuildFinance.MayView(council.guild, council.name), false)
+		eq(t.ns.GuildFinance.MayView(elder.guild, elder.name), false)
 		assert(t.ns.Authority.TakePart(AUTH.INITIAL, nil, "LOCAL"))
-		eq(select(2, t.ns.Data.AuthorizedRank(council.name, council.guild)), "signed")
-		eq(t.ns.GuildFinance.MayView(council.guild, council.name), true)
+		eq(select(2, t.ns.Data.AuthorizedRank(elder.name, elder.guild)), "signed")
+		eq(t.ns.GuildFinance.MayView(elder.guild, elder.name), true)
 	end)
-	w:As(council, function() assert(council.ns.GuildFinance.Ask(council.guild)) end); w:Run(15)
-	w:As(council, function() eq(#council.ns.GuildFinance.Held(council.guild), 1) end)
+	w:As(elder, function() assert(elder.ns.GuildFinance.Ask(elder.guild)) end); w:Run(15)
+	w:As(elder, function() eq(#elder.ns.GuildFinance.Held(elder.guild), 1) end)
 	w:As(t, function()
 		assert(t.ns.Authority.TakePart(AUTH.REVOKED, nil, "LOCAL"))
-		eq(t.ns.GuildFinance.MayView(council.guild, council.name), false, "a newer signed revocation supersedes the still-present census reports")
+		eq(t.ns.GuildFinance.MayView(elder.guild, elder.name), false, "a newer signed revocation supersedes the still-present census reports")
 	end)
 end)
 
 test("Guild finance: fresh requested snapshots survive offline/reload as stale partial facts, reject replay/conflicts and native source revocation", function()
-	local w, shogun, t, council = Setup(); local id = Event(w, t, council.guild)
-	eq(Allocate(w, t, Receipt(w, t, council, 19000), id), true)
+	local w, shogun, t, elder = Setup(); local id = Event(w, t, elder.guild)
+	eq(Allocate(w, t, Receipt(w, t, elder, 19000), id), true)
 	local query
 	w:As(shogun, function()
 		local private = shogun.ns.Treasury.Private; shogun.ns.Treasury.Private = function(_, _, text) query = text; return true end
@@ -241,7 +241,7 @@ test("Guild finance: fresh requested snapshots survive offline/reload as stale p
 	local msg = w:As(t, function() return assert(t.ns.GuildFinance.Message(q, t.name, "*")) end)
 	w:As(shogun, function()
 		local F = shogun.ns.GuildFinance
-		eq(F.Handle("CHANNEL", t.name, msg), false); eq(F.Handle("WHISPER", council.name, msg), false)
+		eq(F.Handle("CHANNEL", t.name, msg), false); eq(F.Handle("WHISPER", elder.name, msg), false)
 		eq(F.Handle("WHISPER", t.name, msg), true); eq(F.Handle("WHISPER", t.name, msg), true)
 		local saved = World.Copy(shogun.ns.rdb); shogun.ns.rdb = saved
 		assert(loadfile(FINANCE))("BankaiGuild", shogun.ns)
@@ -262,8 +262,8 @@ test("Guild finance: fresh requested snapshots survive offline/reload as stale p
 end)
 
 test("Guild finance: source and assignment bounds are explicit, and a revoked keeper's queued response guard cannot leak an earlier snapshot", function()
-	local w, shogun, t, council = Setup(); local id = Event(w, t, council.guild)
-	eq(Allocate(w, t, Receipt(w, t, council, 23000), id), true)
+	local w, shogun, t, elder = Setup(); local id = Event(w, t, elder.guild)
+	eq(Allocate(w, t, Receipt(w, t, elder, 23000), id), true)
 	local guards, q = {}, math.floor(w.clock) * 1000
 	w:As(t, function()
 		local private = t.ns.Treasury.Private
@@ -281,16 +281,16 @@ test("Guild finance: source and assignment bounds are explicit, and a revoked ke
 	w:As(t, function()
 		t.ns.ViewAs.Previewing = function() return false end
 		local F = t.ns.GuildFinance; F.RECEIPTS = 1
-		local e = t.ns.Treasury.Record("New Giver", 10000, "trade", nil, { guild = council.guild, observed = true, quiet = true })
+		local e = t.ns.Treasury.Record("New Giver", 10000, "trade", nil, { guild = elder.guild, observed = true, quiet = true })
 		eq(e.financeReceipt, nil)
 		eq(t.ns.rdb.guildFinance.actors[t.name].cut, true)
-		F.EVENTS = 1; eq(F.CreateEvent(council.guild .. " | Beyond cap"), false)
+		F.EVENTS = 1; eq(F.CreateEvent(elder.guild .. " | Beyond cap"), false)
 	end)
 end)
 
 test("Guild finance: same-revision conflict becomes unknown, lower replay cannot replace it, and only a newer requested actual source recovers", function()
-	local w, shogun, t, council = Setup(); local id = Event(w, t, council.guild)
-	eq(Allocate(w, t, Receipt(w, t, council, 19000), id), true)
+	local w, shogun, t, elder = Setup(); local id = Event(w, t, elder.guild)
+	eq(Allocate(w, t, Receipt(w, t, elder, 19000), id), true)
 	local query
 	w:As(shogun, function()
 		local private = shogun.ns.Treasury.Private; shogun.ns.Treasury.Private = function(_, _, text) query = text; return true end
@@ -308,23 +308,23 @@ test("Guild finance: same-revision conflict becomes unknown, lower replay cannot
 		local old = msg:gsub("(~%d+)(~%d+~0~)", function(rev, tail) return "~" .. (tonumber(rev:sub(2)) - 1) .. tail end, 1)
 		eq(F.Handle("WHISPER", t.name, old), false)
 	end)
-	eq(Allocate(w, t, Receipt(w, t, council, 5000), id), true)
+	eq(Allocate(w, t, Receipt(w, t, elder, 5000), id), true)
 	local newer = w:As(t, function() return assert(t.ns.GuildFinance.Message(q, t.name, "*")) end)
 	w:As(shogun, function() eq(shogun.ns.GuildFinance.Handle("WHISPER", t.name, newer), true); eq(#shogun.ns.GuildFinance.Held("*"), 1) end)
 end)
 
 test("Guild finance: pinned primary privately relays its own-account mail actor only with both current consents; held provenance remains the real original sender", function()
-	local w, shogun, t, council = Setup()
+	local w, shogun, t, elder = Setup()
 	local mail = Client(w, "treasurerMail", { guild = "Mail House" })
 	Scan(w)
-	local e = Receipt(w, mail, council, 25000)
+	local e = Receipt(w, mail, elder, 25000)
 	w:As(t, function()
 		-- The same account's character-specific SavedVariables, not a received peer ledger.
 		t.ns.GuildFinance.Build()
 		t.ns.rdb.guildFinance.actors[mail.name] = World.Copy(mail.ns.rdb.guildFinance.actors[mail.name])
 		t.ns.rdb.treasuryBooks[mail.name:lower()] = World.Copy(mail.ns.Treasury.Book())
 		t.db.keeperShares[mail.name:lower()] = true
-		local id = assert(t.ns.GuildFinance.CreateEvent(council.guild .. " | Mail supplies", mail.name))
+		local id = assert(t.ns.GuildFinance.CreateEvent(elder.guild .. " | Mail supplies", mail.name))
 		eq(t.ns.GuildFinance.Allocate(e.financeReceipt, id, mail.name), true)
 	end)
 	w:As(shogun, function() assert(shogun.ns.GuildFinance.Ask("*")) end); w:Run(15)
@@ -343,17 +343,17 @@ test("Guild finance: pinned primary privately relays its own-account mail actor 
 end)
 
 test("Guild finance: native amount/guild edits, stale recognition and keeper loss reject allocation; a counted actual native purchase can be attributed without inventing item value", function()
-	local w, _, t, council, other = Setup(); local id = Event(w, t, council.guild)
-	local e = Receipt(w, t, council, 23000)
+	local w, _, t, elder, other = Setup(); local id = Event(w, t, elder.guild)
+	local e = Receipt(w, t, elder, 23000)
 	w:As(t, function()
 		local F = t.ns.GuildFinance
 		e.money = 46000; eq(F.Allocate(e.financeReceipt, id), false, "manual amount edits are not a larger native receipt")
 		e.money = 23000; e.guild = other.guild; eq(F.Allocate(e.financeReceipt, id), false, "changing the book guild cannot change original capture provenance")
-		e.guild = council.guild
+		e.guild = elder.guild
 		local original = e.name; e.name = other.name
 		eq(F.Allocate(e.financeReceipt, id), false, "editing the receipt recipient cannot rewrite the observed native partner")
 		e.name = original
-		t.ns.rdb.guilds[council.guild].t = w.clock - t.ns.Data.FRESH - 1
+		t.ns.rdb.guilds[elder.guild].t = w.clock - t.ns.Data.FRESH - 1
 		eq(F.Allocate(e.financeReceipt, id), false, "stale guild recognition cannot authorize a new attribution")
 	end)
 	Reports(w)
@@ -361,7 +361,7 @@ test("Guild finance: native amount/guild edits, stale recognition and keeper los
 		t.ns.faction = "Horde"; eq(t.ns.GuildFinance.Allocate(e.financeReceipt, id), false)
 		t.ns.faction = "Alliance"
 	end)
-	w:Trade(t, council, { aGives = 11000, bItems = { { name = "Potion", link = "item:1710", count = 2 } } })
+	w:Trade(t, elder, { aGives = 11000, bItems = { { name = "Potion", link = "item:1710", count = 2 } } })
 	local lines = t.ns.Treasury.Lines(); local purchase
 	for _, r in ipairs(lines) do if r.kind == "purchase" and not r.item then purchase = r end end
 	assert(purchase and purchase.financeReceipt, "native money paid for items retains its actual expense source")
@@ -390,14 +390,14 @@ test("Guild finance: private transport completion callback is not receiver ACK a
 end)
 
 test("Guild finance: authenticated existing withdrawal immediately hides private aggregates and in-flight replay; a later consent needs its newer source revision", function()
-	local w, shogun, t, council = Setup(); local id = Event(w, t, council.guild)
-	eq(Allocate(w, t, Receipt(w, t, council, 19000), id), true)
+	local w, shogun, t, elder = Setup(); local id = Event(w, t, elder.guild)
+	eq(Allocate(w, t, Receipt(w, t, elder, 19000), id), true)
 	w:As(shogun, function() assert(shogun.ns.GuildFinance.Ask("*")) end); w:Run(15)
 	local q, old
 	w:As(shogun, function() local held = shogun.ns.GuildFinance.Held("*"); eq(#held, 1); q = held[1].q end)
 	old = w:As(t, function() return assert(t.ns.GuildFinance.Message(q, t.name, "*")) end)
 	w:As(shogun, function()
-		shogun.ns.Treasury.HandleWithdraw("CHANNEL", council.name, "TX~" .. t.guild)
+		shogun.ns.Treasury.HandleWithdraw("CHANNEL", elder.name, "TX~" .. t.guild)
 		eq(#shogun.ns.GuildFinance.Held("*"), 1, "an ordinary member cannot withdraw the actual keeper's source")
 	end)
 	w:As(t, function() t.ns.Treasury.SetConsent(false) end); w:Run(2)
@@ -411,8 +411,8 @@ test("Guild finance: authenticated existing withdrawal immediately hides private
 end)
 
 test("Guild finance: private withdrawal admission obeys the same retained cap and request clock as data", function()
-	local w, shogun, t, council = Setup(); local id = Event(w, t, council.guild)
-	eq(Allocate(w, t, Receipt(w, t, council, 19000), id), true)
+	local w, shogun, t, elder = Setup(); local id = Event(w, t, elder.guild)
+	eq(Allocate(w, t, Receipt(w, t, elder, 19000), id), true)
 	local query
 	w:As(shogun, function()
 		local private = shogun.ns.Treasury.Private; shogun.ns.Treasury.Private = function(_, _, text) query = text; return true end
@@ -436,8 +436,8 @@ test("Guild finance: private withdrawal admission obeys the same retained cap an
 end)
 
 test("Guild finance: newly detected snapshot conflict refreshes the visible private page once and cannot be hidden by replay", function()
-	local w, shogun, t, council = Setup(); local id = Event(w, t, council.guild)
-	eq(Allocate(w, t, Receipt(w, t, council, 19000), id), true)
+	local w, shogun, t, elder = Setup(); local id = Event(w, t, elder.guild)
+	eq(Allocate(w, t, Receipt(w, t, elder, 19000), id), true)
 	w:As(shogun, function() assert(shogun.ns.GuildFinance.Ask("*")) end); w:Run(15)
 	local q = w:As(shogun, function() return shogun.ns.GuildFinance.Held("*")[1].q end)
 	local msg = w:As(t, function() return assert(t.ns.GuildFinance.Message(q, t.name, "*")) end)

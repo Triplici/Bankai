@@ -16,7 +16,7 @@ local L = ns.L
 -- - The census counts people: the army's total leaves out every linked character past the first
 --   of its player's in a guild the total counts (Data.Summary). The treasury's ranking and its
 --   week's donors put a player's characters on one line, under the main's name (Treasury.Report).
---   Vox Populi takes one vote per player. The alt gains nothing of its main's (a Hand's alt is no
+--   Poll takes one vote per player. The alt gains nothing of its main's (a Hand's alt is no
 --   Hand: every power goes by the character's own name).
 -- - While any linked name is off (net-off, Moderation.lua) the links freeze: the player's own
 --   client adds and removes none, and every client keeps the links it knew (a claim may add a

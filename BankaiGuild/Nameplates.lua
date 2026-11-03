@@ -12,7 +12,7 @@ local L = ns.L
 --   guild                            here (no copy of the game's art is shipped)
 --   any other member of an Bankai Guild   a plain four-point star, Bankai Guild's own art
 --   guild of our faction             (media/borders/star.tga, drawn by scripts/make-borders.py)
--- (1.1.5, the author's call: the borders' three tiers. Until then Council and Captains had the
+-- (1.1.5, the author's call: the borders' three tiers. Until then Elders and Council had the
 -- silver, Raiders and Veterans the bronze.)
 -- Nobody else: hostile players, creatures, the other faction, anyone outside an Bankai Guild guild,
 -- and (1.1, Konig's review) a character or a guild the moderators took off (net-off, Borders.MarkOf).

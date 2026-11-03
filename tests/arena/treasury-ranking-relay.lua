@@ -9,7 +9,7 @@ local function Client(w, name)
 		c.ns.Bank = {
 			DirectoryViewer = function(who) return allowed[c.ns.Fold(c.ns.FullName(who))] == true end,
 			SeesSisters = function() return true end,
-			CouncilOrCaptain = function(who, guild)
+			ElderOrCouncilMember = function(who, guild)
 				return c.ns.Fold(c.ns.FullName(who)) == c.ns.Fold("Aster Officer-Emberfall") and guild == "Bankai Guild Ash"
 			end,
 			Current = function() return nil end,
@@ -70,7 +70,7 @@ test("treasury ranking relay: malformed totals and a sender without source autho
 		local forged = wire:gsub("~120~60~", "~999~60~", 1)
 		local ok, why = late.ns.Treasury.HandleRankRelay("WHISPER", first, forged)
 		eq(ok, false); eq(why, "shape")
-		late.ns.Bank.CouncilOrCaptain = function() return false end
+		late.ns.Bank.ElderOrCouncilMember = function() return false end
 		ok, why = late.ns.Treasury.HandleRankRelay("WHISPER", first, wire)
 		eq(ok, false); eq(why, "source")
 	end)

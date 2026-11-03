@@ -634,7 +634,7 @@ function Hop.SendAsk()
 end
 
 -- A player the addon can vouch for, and so may act for without a click: a guildmate (our roster),
--- the Shogun's pinned character, his Steward and Hands, or a Council member or Captain of the Shogun's guild in
+-- the Shogun's pinned character, his Steward and Hands, or an Elder or Council member of the Shogun's guild in
 -- the author's signed manifest (once signed enforcement is on). Their invite is accepted for the
 -- player, and "Always invite" or "For Bankai Guild!" invites them; anyone else's invite is left to the
 -- game's invite window (one click), and anyone else's request to ours, so nobody pulls a player
@@ -642,7 +642,7 @@ end
 -- cooperating characters can forge an "officer" in one guild's reports, and the census rule still
 -- holds while enforcement is off. A census officer of another guild still hops, by a click.
 -- (1.2.3, Daniel: a guild master has nothing at the level of the whole army) nor another guild's
--- signed Council or Captain: under enforcement any guild's would have been trusted by every Bankai Guild
+-- signed Elder or Council member: under enforcement any guild's would have been trusted by every Bankai Guild
 -- client; he still helps with a hop, by the player's click. (A layer announcement is the sender's
 -- own word: it proves nothing here.)
 function Hop.Trusted(name)
@@ -651,7 +651,7 @@ function Hop.Trusted(name)
 	if ns.IsShogunCharacter(name) or (ns.Shogun and (ns.Shogun.IsStewardName(name) or ns.Shogun.IsHandName(name))) then return true end
 	if not (ns.Authority and ns.Authority.Enforced and ns.Authority.Enforced()) then return false end
 	local guild, rank = ns.Authority.Role(name)
-	return (guild and ns.IsShogunGuild(guild) and rank <= ns.CAPTAIN_RANK and not (ns.Data.NetOff and ns.Data.NetOff(guild))) and true or false
+	return (guild and ns.IsShogunGuild(guild) and rank <= ns.COUNCIL_MEMBER_RANK and not (ns.Data.NetOff and ns.Data.NetOff(guild))) and true or false
 end
 
 function Hop.HandleOffer(dist, sender, text)

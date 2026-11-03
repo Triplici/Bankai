@@ -6,7 +6,7 @@ local D, T, L = ns.Dues, ns.Treasury, ns.L
 -- books". It never gates a feature, grants rank, removes a player, or moves money.
 local G = { WEEKS = 5, MEMBERS = 1000, BOUNDARY = 90, ROOM = 900, GAP = 2, RETRY = 180, NOTICE_FOR = 86400 }
 ns.DuesGrace = G
-G.captainPolicy = "gm" -- second covered, unconfirmed notice: payer first, current native GM next
+G.councilMemberPolicy = "gm" -- second covered, unconfirmed notice: payer first, current native GM next
 local observed, queue, nextSend, shown = nil, {}, 0, 25
 local function Clock() return math.floor((GetServerTime and GetServerTime()) or ns.Now()) end
 local function Whole(n, max) return type(n) == "number" and n == n and n % 1 == 0 and n >= 0 and n <= max end
@@ -254,7 +254,7 @@ function G.Pump()
 			local p = G.Progress(q.payer, batch)
 			if not p.latest or p.latest.week ~= q.week or p.latest.state ~= "unconfirmed" or p.misses < 2 then queue[key] = nil
 			else
-				local to = q.phase == 0 and q.payer or G.captainPolicy == "gm" and GM(guild)
+				local to = q.phase == 0 and q.payer or G.councilMemberPolicy == "gm" and GM(guild)
 				if to then -- an unavailable current GM never guesses or stalls another payer
 					local text = NoticeText(q.week, q.payer, q.phase == 1, p.latest.amount, p.latest.copper, p.known, guild)
 					q.to, q.text = to, text
@@ -301,7 +301,7 @@ T.OnPrivate("DG", {
 				local p = G.Progress(q.payer, nil, guild)
 				return p.latest and p.latest.week == q.week and p.latest.state == "unconfirmed" and p.misses >= 2
 					and text == NoticeText(q.week, q.payer, q.phase == 1, p.latest.amount, p.latest.copper, p.known, guild)
-					and (q.phase == 0 and Same(to, q.payer) or q.phase == 1 and G.captainPolicy == "gm" and Same(to, GM(guild))) or false
+					and (q.phase == 0 and Same(to, q.payer) or q.phase == 1 and G.councilMemberPolicy == "gm" and Same(to, GM(guild))) or false
 			end
 		end
 		return false

@@ -52,7 +52,7 @@ Automated checks and live multiplayer checks are separate gates; use
 - Any member can report a chat line from the Chat tab: right-click another player's line in the
   Bankai Guild channel, or the name on it, and choose **Report to Bankai Guild**. Any line from the last day
   can be reported, not only the 20 newest. The report goes to the online officers of the
-  reporter's own guild (the guild master, Captains, appointed Watchers and signed moderators) and
+  reporter's own guild (the guild master, Council, appointed Watchers and signed moderators) and
   shows in their Watch under **Reports** and **Cases**. With no officer online it waits on the
   reporter's client for a day.
 - A member's report also reaches the Shogun and the High Council, in their Watch under **Reports**

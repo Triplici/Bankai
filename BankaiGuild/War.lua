@@ -189,7 +189,7 @@ end
 local function Officer(name)
 	local rank = Rank(name)
 	if rank == nil then return false end
-	if rank <= ns.CAPTAIN_RANK then return true end
+	if rank <= ns.COUNCIL_MEMBER_RANK then return true end
 	if War.IsWarCouncillor(name) then return true end
 	local N = ns.Nominees
 	return N and not N.missing and N.IsCorrespondent and N.IsCorrespondent(name, Guild(), "Department of War") == true or false
@@ -748,7 +748,7 @@ local function ReplyOfficer()
 	if not War.IsOfficer() then return false end
 	local online = {}
 	for _, m in ipairs(ns.Roster.members or {}) do
-		if m.online and tonumber(m.rankIndex) and m.rankIndex <= ns.CAPTAIN_RANK then online[#online + 1] = m.full or ns.FullName(m.name) end
+		if m.online and tonumber(m.rankIndex) and m.rankIndex <= ns.COUNCIL_MEMBER_RANK then online[#online + 1] = m.full or ns.FullName(m.name) end
 	end
 	-- Do not let every officer answer while the roster is unavailable. Recovery will be requested
 	-- again after the roster settles; a missing roster is never evidence that this client won election.

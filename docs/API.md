@@ -710,7 +710,7 @@ addon only (a reserved feature); it needs the same permission, Bankai Guild guil
 	layer = "Leader's layer", -- the name the Realm tab gives the leader's layer
 	layers = { -- only while the player is in that zone, as the Realm tab lists it
 		{ name = "Leader's layer", bankaiguild = 12, yours = false, leader = true },
-		{ name = "Captain's layer", bankaiguild = 4, yours = true, leader = false },
+		{ name = "Council member's layer", bankaiguild = 4, yours = true, leader = false },
 	},
 }
 ```

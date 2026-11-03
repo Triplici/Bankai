@@ -25,7 +25,7 @@ local function Client(saved, savedDB)
 		PaymentText = function() return c.L.BRIEF_PAYMENT_UNKNOWN end }, { __index = ns.Dues })
 	c.Week = { Entries = function() return w.entries end, DayLabel = function() return "Today" end, TimeLabel = function() return "20:00" end,
 		Section = function() end }
-	c.Vox = setmetatable({ State = function() return nil, w.history, w.shown end }, { __index = ns.Vox })
+	c.Poll = setmetatable({ State = function() return nil, w.history, w.shown end }, { __index = ns.Poll })
 	c.Consent = { Waiting = function() return w.waiting == true end, NoticeDue = function() return w.notice == true end,
 		Frame = function() return { IsShown = function() return w.privacy == true end } end }
 	c.Letters = { Frame = function() return nil end }
@@ -140,7 +140,7 @@ test("Weekly personal brief: five read-only lines use held sources, sharing stay
 	local rows = w:As(c.WeeklyBrief.PersonalLines)
 	eq(#rows, 5)
 	assert(rows[1]:find("Raid night", 1, true)); assert(rows[1]:find(c.L.BRIEF_SIGNED:match("^(.-)%%s"), 1, true))
-	assert(rows[2]:find("Court", 1, true) and rows[2]:find("Vox Populi", 1, true))
+	assert(rows[2]:find("Court", 1, true) and rows[2]:find("Poll", 1, true))
 	eq(rows[3], c.L.BRIEF_ONLINE:format("3"))
 	eq(rows[4], c.L.BRIEF_COMPANION:format(c.L.BRIEF_LOCATION_PRIVATE))
 	eq(rows[5], c.L.BRIEF_PAYMENT:format(c.L.BRIEF_PAYMENT_UNKNOWN))
@@ -361,23 +361,23 @@ test("Weekly public brief: Board opens the existing Realm page, which is read-on
 	eq(w.sent, 0)
 end)
 
-test("Weekly public brief: only public Vox results persist, restricted questions and filtered words never leak", function()
+test("Weekly public brief: only public Poll results persist, restricted questions and filtered words never leak", function()
 	local w, c = Client()
 	w.history = { { q = "Private guild vote", to = "G", answers = { "Yes", "No" }, counts = { 1, 0 }, voters = 1, t = w.clock } }
 	w.shown = { q = "Private Hand vote", to = "H", answers = { "Yes", "No" }, counts = { 1, 0 }, voters = 1, at = w.clock }
 	local lines = w:As(c.WeeklyBrief.Lines)
-	eq(Value(lines, c.L.BRIEF_VOX), c.L.BRIEF_UNKNOWN); eq(c.rdb.weeklyBrief.vox, nil)
+	eq(Value(lines, c.L.BRIEF_POLL), c.L.BRIEF_UNKNOWN); eq(c.rdb.weeklyBrief.poll, nil)
 	w.shown = { q = "Public raid vote", to = "E", answers = { "Yes", "No" }, counts = { 1, 0 }, voters = 1, resultsAt = w.clock }
-	assert(Value(w:As(c.WeeklyBrief.Lines), c.L.BRIEF_VOX):find("Public raid vote", 1, true))
+	assert(Value(w:As(c.WeeklyBrief.Lines), c.L.BRIEF_POLL):find("Public raid vote", 1, true))
 	w.shown = nil; w.history = {}
-	assert(Value(w:As(c.WeeklyBrief.Lines), c.L.BRIEF_VOX):find("Public raid vote", 1, true), "last public result survives the next question")
+	assert(Value(w:As(c.WeeklyBrief.Lines), c.L.BRIEF_POLL):find("Public raid vote", 1, true), "last public result survives the next question")
 	for _, audience in ipairs({ "H", "M", "G" }) do
 		w.shown = { q = "Private replacement", to = audience, answers = { "Yes", "No" }, counts = { 1, 0 }, voters = 1, resultsAt = w.clock + 1 }
-		assert(not Value(w:As(c.WeeklyBrief.Lines), c.L.BRIEF_VOX):find("Private replacement", 1, true))
-		eq(c.rdb.weeklyBrief.vox.q, "Public raid vote", "audience downgrade cannot replace the cache with private words")
+		assert(not Value(w:As(c.WeeklyBrief.Lines), c.L.BRIEF_POLL):find("Private replacement", 1, true))
+		eq(c.rdb.weeklyBrief.poll.q, "Public raid vote", "audience downgrade cannot replace the cache with private words")
 	end
 	c.Filter = { Hides = function() return true end }
-	eq(Value(w:As(c.WeeklyBrief.Lines), c.L.BRIEF_VOX), c.L.FILTER_WORDS_HIDDEN_SHORT)
+	eq(Value(w:As(c.WeeklyBrief.Lines), c.L.BRIEF_POLL), c.L.FILTER_WORDS_HIDDEN_SHORT)
 	assert(not Text(w:As(c.WeeklyBrief.Lines)):find("Private", 1, true))
 end)
 
@@ -387,12 +387,12 @@ test("Weekly public brief: malformed saved snapshots and result records stay unk
 		[100] = { total = 22, known = -1, coverage = "same", at = w.clock },
 		[99] = { total = math.huge, known = 2, coverage = "same", at = w.clock },
 		["hostile"] = true,
-	}, vox = true }
+	}, poll = true }
 	local lines = w:As(c.WeeklyBrief.Lines)
 	eq(Value(lines, c.L.BRIEF_ARMY), c.L.BRIEF_UNKNOWN)
 	eq(Value(lines, c.L.BRIEF_PREVIOUS), c.L.BRIEF_UNKNOWN)
-	eq(Value(lines, c.L.BRIEF_VOX), c.L.BRIEF_UNKNOWN)
-	eq(next(c.rdb.weeklyBrief.weeks), nil); eq(c.rdb.weeklyBrief.vox, nil)
+	eq(Value(lines, c.L.BRIEF_POLL), c.L.BRIEF_UNKNOWN)
+	eq(next(c.rdb.weeklyBrief.weeks), nil); eq(c.rdb.weeklyBrief.poll, nil)
 	c.rdb.weeklyBrief.weeks[100] = { known = 1, coverage = "same", at = w.clock }
 	eq(Value(w:As(c.WeeklyBrief.Lines), c.L.BRIEF_ARMY), c.L.BRIEF_UNKNOWN, "missing counts are not usable snapshots")
 	c.rdb.weeklyBrief.weeks[100] = { total = 22.5, known = 1, coverage = "same", at = w.clock }

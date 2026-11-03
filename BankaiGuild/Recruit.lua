@@ -9,8 +9,8 @@ local L = ns.L
 -- Routing (1.1, Fern's #20): recruits whispered whoever /who returned, so the guild the Shogun
 -- opened stayed empty while full ones got spammed. Now the Join screen asks one member's addon
 -- (J1, an addon whisper, one per search) where recruits should go: that member's census answers
--- (J2) with the Shogun's gates, the guilds with the most free slots and a couple of their Council
--- and Captains online. The screen lists the gates' guild first, then the most room, and asks
+-- (J2) with the Shogun's gates, the guilds with the most free slots and a couple of their Elders
+-- and Council online. The screen lists the gates' guild first, then the most room, and asks
 -- those officers. A member may flag himself do-not-contact (/bk nocontact on): his addon says so
 -- when asked (J2), and the screen never offers him. The request itself stays one whisper per
 -- click, the player's own words (no dues line), and goes with a J3 to the same member, whose
@@ -20,7 +20,7 @@ local L = ns.L
 --
 -- Whom a recruit whispers stays the server's word, as before 1.1: a J2 only orders. A member's
 -- census names a guild only when the census does not mark it (Data.Dispute: two senders or more
--- agree on it, or it is ours), and a Council member or Captain only when two senders name them
+-- agree on it, or it is ours), and an Elder or Council member only when two senders name them
 -- (Data.KnownRank). The screen asks an officer the answer names only once its own /who found him
 -- in that guild, lists a guild only once /who found one of its members, and shows the gates only
 -- when two members' answers agree on them. One forged report, or one modified member's J2,
@@ -424,7 +424,7 @@ function Recruit.OpenGuilds()
 	return out
 end
 
--- Up to ROUTE_CONTACTS Council and Captains online of a guild with room, to name to a recruit:
+-- Up to ROUTE_CONTACTS Elders and Council online of a guild with room, to name to a recruit:
 -- our own guild's from our roster. Another keeps the old two-report census rule until signed
 -- enforcement is explicitly activated, then comes only from that manifest. Never the Shogun
 -- (the most asked of all), and never ourselves while
@@ -440,7 +440,7 @@ local function Contacts(o, own)
 	end
 	if own and o.name == own then
 		for _, m in ipairs(ns.Roster.online or {}) do
-			if (m.rankIndex or 9) <= ns.CAPTAIN_RANK then Add(m.name) end
+			if (m.rankIndex or 9) <= ns.COUNCIL_MEMBER_RANK then Add(m.name) end
 		end
 	else
 		local function Named(name, rank)
@@ -645,7 +645,7 @@ end
 -- Someone who can't invite: an officer of ours online to point to (never ourselves).
 function Recruit.Officer()
 	for _, m in ipairs(ns.Roster.online or {}) do
-		if (m.rankIndex or 9) <= ns.CAPTAIN_RANK and ns.FullName(m.name) ~= ns.me then return m.name end
+		if (m.rankIndex or 9) <= ns.COUNCIL_MEMBER_RANK and ns.FullName(m.name) ~= ns.me then return m.name end
 	end
 	return nil
 end

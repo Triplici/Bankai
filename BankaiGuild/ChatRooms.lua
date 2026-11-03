@@ -2,7 +2,7 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- Logical rooms on the Chat page. They are deliberately not extra Channels tiers:
--- [Bankai Guild], [Captains] and [Council] keep their public wire, consent, chat-window routing and
+-- [Bankai Guild], [Council] and [Elders] keep their public wire, consent, chat-window routing and
 -- Chattynator integration unchanged. These rooms use a versioned whole message of their own:
 --
 --   M2~1~<room>~<id>~<class>~<guild>~<text>
@@ -302,7 +302,7 @@ end
 -- Native officers retain their existing guild-room oversight, not an automatic Legate title.
 local function Centurion(name, guild)
 	local rank = Rank(name, guild)
-	return rank ~= nil and rank > 0 and rank <= ns.CAPTAIN_RANK
+	return rank ~= nil and rank > 0 and rank <= ns.COUNCIL_MEMBER_RANK
 		or Nomination(name, guild) == "centurion"
 end
 
@@ -929,13 +929,13 @@ function Candidates.Council(add)
 	end
 end
 
--- Our roster's guild master and officers (rank CAPTAIN_RANK at most; every member when the roster
+-- Our roster's guild master and officers (rank COUNCIL_MEMBER_RANK at most; every member when the roster
 -- gives no rank).
 local function RosterLeaders(add)
 	local R = ns.Roster
 	for _, member in ipairs(R and R.members or {}) do
 		local rank = type(R.RankOf) == "function" and type(member.name) == "string" and R.RankOf(ns.FullName(member.name)) or nil
-		if rank == nil or rank <= ns.CAPTAIN_RANK then add(member.name, rank == 0 and 4 or nil) end
+		if rank == nil or rank <= ns.COUNCIL_MEMBER_RANK then add(member.name, rank == 0 and 4 or nil) end
 	end
 end
 

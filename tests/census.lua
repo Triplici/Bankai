@@ -197,7 +197,7 @@ end
 local function Echo(changes)
 	local r = { guild = "Bankai Guild Echo", total = 40, online = 6, leader = "Echoboss", leaderOnline = true, users = 3,
 		zones = { m1453 = 2, m1429 = 1 }, classes = { WA = 2, PR = 1 }, levels = { 0, 0, 0, 0, 0, 1, 2 },
-		ranks = { { name = "Boss", count = 1 }, { name = "Captain", count = 2 }, { name = "Member", count = 37 } },
+		ranks = { { name = "Boss", count = 1 }, { name = "Council member", count = 2 }, { name = "Member", count = 37 } },
 		officers = { { name = "Echocapt", online = true, days = 0, class = "WA", level = 60, zone = "m1453" } },
 		leaderDays = 0, inactive7 = 3, inactive30 = 9, avgLevel = 41.5,
 		top = { { name = "Echoboss", level = 60, class = "WA" }, { name = "Echocapt", level = 60, class = "WA" } },

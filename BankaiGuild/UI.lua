@@ -77,8 +77,8 @@ local TABS = {
 			local faction = ns.faction or (UnitFactionGroup and UnitFactionGroup("player"))
 			return UI.FirstTexture(faction == "Horde" and UI.GUILD_ICONS_HORDE or UI.GUILD_ICONS)
 		end },
-	-- The Shogun's and his Hands' questions to the army (Vox.lua), the same way.
-	{ key = "vox", label = "TAB_VOX", icon = function() return UI.FirstTexture(UI.HORNS) end },
+	-- The Shogun's and his Hands' questions to the army (Poll.lua), the same way.
+	{ key = "poll", label = "TAB_POLL", icon = function() return UI.FirstTexture(UI.HORNS) end },
 	-- The addon author's alone (Workshop.lua), the same way.
 	{ key = "workshop", label = "TAB_WORKSHOP", icon = "Interface\\Icons\\Trade_Engineering" },
 }
@@ -248,10 +248,10 @@ local BUTTONS = {
 				tt:AddLine(L.COURT_BTN_TIP, 1, 1, 1, true)
 			end },
 	},
-	vox = {
-		{ "VOX_NEW", function() ns.Vox.Prompt() end },
-		{ "VOX_END", function() ns.Vox.CloseNow() end },
-		{ "VOX_SHOW", function() ns.Vox.ShowLive() end },
+	poll = {
+		{ "POLL_NEW", function() ns.Poll.Prompt() end },
+		{ "POLL_END", function() ns.Poll.CloseNow() end },
+		{ "POLL_SHOW", function() ns.Poll.ShowLive() end },
 	},
 	-- The Treasury: the book (whoever may see it), a keeper's own opening balance, a copy.
 	treasury = {
@@ -365,7 +365,7 @@ local DETAIL_BUTTONS = {
 	},
 	-- The Shogun's switches: what the army sees of the treasury (each its own).
 	treasury = { TreasuryFlag("balance"), TreasuryFlag("ranking"), TreasuryFlag("book") },
-	-- The Shogun's letters to his Council (Acts.lua): his button alone.
+	-- The Shogun's letters to his Elders (Acts.lua): his button alone.
 	decrees = {
 		{ "WRIT_BTN", function() ns.Acts.WritPrompt() end, shown = ShogunOnly },
 	},
@@ -2343,7 +2343,7 @@ local function TabRules(locked, views)
 	local only = {
 		chat = ChatTabVisible(),
 		throne = ns.Shogun and ns.Shogun.TabVisible and ns.Shogun.TabVisible() or false,
-		vox = ns.Vox and ns.Vox.Visible and ns.Vox.Visible() or false,
+		poll = ns.Poll and ns.Poll.Visible and ns.Poll.Visible() or false,
 		treasury = ns.Treasury and ns.Treasury.TabVisible and ns.Treasury.TabVisible() or false,
 		workshop = ns.Workshop and ns.Workshop.Visible and ns.Workshop.Visible() or false,
 	}
@@ -3198,7 +3198,7 @@ end)
 -- 1.1.5: the Shogun's week (Week.lua, whose changes fire the Board's event) tops the Decrees tab too:
 -- an entry heard or taken off, a sheet's counts, our own signup. The Board redraws itself (Board.lua).
 ns.On("BOARD_CHANGED", function() if main and main.tab == "decrees" then UI.RefreshSoon() end end)
-ns.On("VOX_CHANGED", function() if main and main.tab == "vox" then UI.RefreshSoon() end end)
+ns.On("POLL_CHANGED", function() if main and main.tab == "poll" then UI.RefreshSoon() end end)
 -- The Treasurer's book and report: his tab, the Shogun's Throne, the Realm's line under him.
 ns.On("TREASURY_CHANGED", function()
 	if main and (main.tab == "treasury" or main.tab == "throne" or main.tab == "realm") then UI.RefreshSoon() end
@@ -3280,8 +3280,8 @@ function UI.HelpText()
 		"",
 		L.HELP_CHATS,
 		L.HELP_CHAN_ALL,
-		L.HELP_CHAN_CAPTAINS,
 		L.HELP_CHAN_COUNCIL,
+		L.HELP_CHAN_ELDERS,
 		L.HELP_CHATWIN,
 		"",
 		L.HELP_LINKS,

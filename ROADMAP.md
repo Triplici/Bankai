@@ -3,7 +3,7 @@
 ## Done
 - v0.1 Army census: members, online, leaders, zones, world map markers, Discord export, bug capture
 - v0.2 Tabard Inspection: patrol auto-inspect, manual marks (player and guild), Discord export
-- v0.3 The Realm: Shogun -> Council -> Captains -> ranks tree, leader/officer offline days, inactive 7/30d,
+- v0.3 The Realm: Shogun -> Elders -> Council -> ranks tree, leader/officer offline days, inactive 7/30d,
   level race, recruiting (free slots); layers named after the highest ranked member; guildmates on map
   and minimap; royal decrees (Call to Arms / Muster) with raid warning and map marker; button in
   Blizzard's Guild window that docks the Bankai Guild window next to it; realm-themed texts
@@ -12,7 +12,7 @@
   a crafters' board and loot notes, a sound switch per alert, census search and marked rows, the
   first-open privacy page, the inactive list and mentors, net-off, block terms, alt links, the key
   rotation, a pinned line, the treasury's extras and the weekly dues; Spanish, French and German
-- v1.1.1 The Chat tab: the [Bankai Guild], [Captains] and [Council] chats in the Bankai Guild window, with search,
+- v1.1.1 The Chat tab: the [Bankai Guild], [Council] and [Elders] chats in the Bankai Guild window, with search,
   a box to write in and the settings behind the gear (mute, chat window, an Bankai Guild tab in the game chat)
 - v1.1.2 Right-click a player for their Bankai Guild version (Ask to update, Tell them about Bankai Guild); the
   answer bank; a ? on every page; bug reports on request; Chattynator tabs; marks on Bankai Guild lines in
@@ -30,7 +30,7 @@
   button in the guild windows, nothing on the world map; a switch steps back and says what a
   `/reload` completes); the nameplate marks no longer hook a plate's own layout (Lua errors)
 - v1.2.0 The Watch (each guild's moderation desk, the Tabards in it); crafting requests on the Crafters
-  tab; the Shogun's arrow on the minimap; Vox Populi's history and a guild master's own questions; the
+  tab; the Shogun's arrow on the minimap; Poll's history and a guild master's own questions; the
   Guild treasuries in one list with one search; Bones between players for points, at a tavern or at a
   camp; no arbiters without bets (duels and Bones between their two players); duel points that
   consider levels; Find a player by level, distance and game
@@ -64,12 +64,12 @@
 - ~~Guild leader offline for X days~~ (v0.3)
 - ~~**Guild leader offline for X days (alerts)** - `GetGuildRosterLastOnline(i)` gives years/months/days/hours for
   our own guild; add `leaderLastSeen` to the report so every guild's leader age shows up. Alert above N days.~~
-  (1.1: one line when a Council member crosses `/bk warndays`.)
+  (1.1: one line when an Elder crosses `/bk warndays`.)
 - ~~**Inactive players** - same API: count members offline > 7/14/30 days per guild; list for officers to kick.~~
   (1.1: your own guild's list by name, one removal per click.)
 - ~~**Officers and org chart** - `GuildControlGetNumRanks` / `GuildControlGetRankName` + rankIndex per member:
   rank tree per guild (Leader -> Officers -> ranks -> counts), who is online per rank, officers in the report.~~
-  (v0.3: the Realm's Shogun, Council and Captains and each guild's ranks with their counts; later each guild's
+  (v0.3: the Realm's Shogun, Elders and Council and each guild's ranks with their counts; later each guild's
   members online.)
 - ~~**Dues** (was tax collection) - Classic has no guild bank: track gold received through mail and trade from
   guild members (MAIL_INBOX_UPDATE / TRADE_* events), ledger per member, "who has not paid this week".~~

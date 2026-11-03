@@ -665,7 +665,7 @@ function Data.KnownRank(sender, guild, soft)
 	local _, _, tops = Majority(votes, now)
 	-- The rank the leading picture gives (every leading picture, if they tie: then only what
 	-- they all agree on counts), named by someone else too: a report never proves its own
-	-- sender's rank. The Council (every guild master, the officers of <Elfcore>: ns.IsCouncilRank)
+	-- sender's rank. The Elders (every guild master, the officers of <Elfcore>: ns.IsElderRank)
 	-- need two senders naming them (theirs may be one).
 	-- A sender is itself by its name alone: "Shobek-OtherRealm" can't vouch for "Shobek-Realm".
 	local self = ns.ShortName(who)
@@ -696,7 +696,7 @@ function Data.KnownRank(sender, guild, soft)
 			if sig:sub(-2) == ",+" then return nil end
 		end
 	end
-	if ns.IsCouncilRank(guild, rank) then
+	if ns.IsElderRank(guild, rank) then
 		if named < 2 and not soft then return nil end
 		if now - (ns.Comm and ns.Comm.loginAt or 0) < Data.CROWN_AFTER then return nil end
 	end

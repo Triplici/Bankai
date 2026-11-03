@@ -41,7 +41,7 @@ local function WithWar(fn)
 	for _, m in ipairs(members) do ns.Roster.byName[m.full] = m.rankIndex end
 	ns.Roster.members = members
 	ns.Roster.RankOf = function(name) return ns.Roster.byName[ns.FullName(name)] end
-	ns.Roster.IsOfficer = function() return rank <= ns.CAPTAIN_RANK end
+	ns.Roster.IsOfficer = function() return rank <= ns.COUNCIL_MEMBER_RANK end
 	local function Capture(kind, ...)
 		local a = { ... }
 		sent[#sent + 1] = { kind = kind, args = a, msg = kind == "send" and a[2] or a[1], options = kind == "send" and a[7] or a[5] }

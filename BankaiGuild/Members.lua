@@ -9,11 +9,11 @@ local L = ns.L
 --   as the game's own Guild window allows) removes one person per click: a question through
 --   ns.ShowDialog, then the game's own call (C_GuildInfo.Uninvite) inside that click, with a short
 --   gap between two removals. Nothing picks several at once: there is no kick-all.
--- #19: the Council attaches one of his Captains to a recruit as their mentor; each gets one whisper
+-- #19: the Elder attaches one of his Council to a recruit as their mentor; each gets one whisper
 --   from him, naming the other, both sent by that one click of his (see Mentors, below).
 -- (1.1.5: the guild master's centurions and correspondents were a section here before 1.1.5 shipped;
 --   they are his Guild tab's now, the tab in the Throne's place: Nominees.lua.)
--- Nothing goes on the channel, and nothing but the Council's own mentor pairs is kept.
+-- Nothing goes on the channel, and nothing but the Elder's own mentor pairs is kept.
 
 local Members = {}
 ns.Members = Members
@@ -101,8 +101,8 @@ end
 
 ---------------------------------------------------------------------------
 -- Mentors (Fern's #19). Recruits: our guild's lowest rank, and whoever joined since our first
--- roster read this session (Classic keeps no join date). The Council (rank 0 on his own roster)
--- clicks a recruit who is online, then one of his Captains who is online, and says yes: one
+-- roster read this session (Classic keeps no join date). The Elder (rank 0 on his own roster)
+-- clicks a recruit who is online, then one of his Council who is online, and says yes: one
 -- whisper to each (a whisper can't reach someone offline), both from that click, never the
 -- addon's by itself. The pair is his client's alone (ns.rdb.mentors, kept where the client keeps
 -- saves): the whispers are what the two of them keep.
@@ -113,7 +113,7 @@ local lastMentor = -math.huge
 local firstRoster -- { guild, names = { [raw] = true } }: the members at this session's first read
 local joined = {} -- [raw] = true: in our guild since then
 
-function Members.IsCouncil() return IsInGuild() and ns.Roster.MyRank() == 0 end
+function Members.IsElder() return IsInGuild() and ns.Roster.MyRank() == 0 end
 
 local function Mentors(guild)
 	ns.rdb.mentors = ns.rdb.mentors or {}
@@ -121,13 +121,13 @@ local function Mentors(guild)
 	ns.rdb.mentors[g] = ns.rdb.mentors[g] or {}
 	return ns.rdb.mentors[g]
 end
--- A recruit's mentor (the Captain's name as the roster gives it), or nil.
+-- A recruit's mentor (the Council member's name as the roster gives it), or nil.
 function Members.MentorOf(raw)
 	local e = raw and Mentors()[raw]
 	return type(e) == "table" and e.mentor or nil
 end
 
--- Each roster read (Roster.TryScan): who joined since the first one, then our Council away (#39).
+-- Each roster read (Roster.TryScan): who joined since the first one, then our Elder away (#39).
 function Members.OnScan(r)
 	local all = ns.Roster.members or {}
 	local guild = type(r) == "table" and r.guild or GetGuildInfo("player")
@@ -140,7 +140,7 @@ function Members.OnScan(r)
 			if m.raw and not firstRoster.names[m.raw] then joined[m.raw] = true end
 		end
 	end
-	return Members.CheckOwnCouncil(r)
+	return Members.CheckOwnElder(r)
 end
 function Members.Joined(raw) return joined[raw] == true end
 
@@ -151,7 +151,7 @@ function Members.Recruits()
 	end
 	local out = {}
 	for _, m in ipairs(all) do
-		if (m.rankIndex or 0) > ns.CAPTAIN_RANK and (m.rankIndex == lowest or joined[m.raw]) then out[#out + 1] = m end
+		if (m.rankIndex or 0) > ns.COUNCIL_MEMBER_RANK and (m.rankIndex == lowest or joined[m.raw]) then out[#out + 1] = m end
 	end
 	table.sort(out, function(a, b)
 		local ja, jb = joined[a.raw] or false, joined[b.raw] or false
@@ -164,11 +164,11 @@ function Members.Recruits()
 	return out
 end
 
--- Our guild's Captains (the rank under the Council, ns.CAPTAIN_RANK), online first.
-function Members.Captains()
+-- Our guild's Council (the rank under the Elder, ns.COUNCIL_MEMBER_RANK), online first.
+function Members.Council()
 	local out = {}
 	for _, m in ipairs(ns.Roster.members or {}) do
-		if (m.rankIndex or 0) >= 1 and m.rankIndex <= ns.CAPTAIN_RANK then out[#out + 1] = m end
+		if (m.rankIndex or 0) >= 1 and m.rankIndex <= ns.COUNCIL_MEMBER_RANK then out[#out + 1] = m end
 	end
 	table.sort(out, function(a, b)
 		if a.online ~= b.online then return a.online end
@@ -177,9 +177,9 @@ function Members.Captains()
 	return out
 end
 
--- A recruit clicked: the Captains to pick from.
+-- A recruit clicked: the Council to pick from.
 function Members.PickMentor(m)
-	if not (page and Members.IsCouncil()) or type(m) ~= "table" then return false end
+	if not (page and Members.IsElder()) or type(m) ~= "table" then return false end
 	if not m.online then
 		ns.Print(L.MENTOR_OFFLINE:format(Plain(m.name)))
 		return false
@@ -189,21 +189,21 @@ function Members.PickMentor(m)
 	return true
 end
 
--- A Captain clicked: the question, naming both.
-function Members.AskMentor(recruit, captain)
-	if not Members.IsCouncil() or type(recruit) ~= "table" or type(captain) ~= "table" then return nil end
-	if not captain.online then
-		ns.Print(L.MENTOR_OFFLINE:format(Plain(captain.name)))
+-- A Council member clicked: the question, naming both.
+function Members.AskMentor(recruit, councilMember)
+	if not Members.IsElder() or type(recruit) ~= "table" or type(councilMember) ~= "table" then return nil end
+	if not councilMember.online then
+		ns.Print(L.MENTOR_OFFLINE:format(Plain(councilMember.name)))
 		return nil
 	end
-	return ns.ShowDialog("BANKAIGUILD_MENTOR", Plain(captain.name), Plain(recruit.name), { recruit = recruit, captain = captain })
+	return ns.ShowDialog("BANKAIGUILD_MENTOR", Plain(councilMember.name), Plain(recruit.name), { recruit = recruit, councilMember = councilMember })
 end
 
--- The question answered: one whisper to each, from the Council's click, and the pair kept.
-function Members.AssignMentor(recruit, captain)
-	if not Members.IsCouncil() or type(recruit) ~= "table" or type(captain) ~= "table" or not recruit.raw or not captain.raw then return false end
-	if not (recruit.online and captain.online) then
-		ns.Print(L.MENTOR_OFFLINE:format(Plain(recruit.online and captain.name or recruit.name)))
+-- The question answered: one whisper to each, from the Elder's click, and the pair kept.
+function Members.AssignMentor(recruit, councilMember)
+	if not Members.IsElder() or type(recruit) ~= "table" or type(councilMember) ~= "table" or not recruit.raw or not councilMember.raw then return false end
+	if not (recruit.online and councilMember.online) then
+		ns.Print(L.MENTOR_OFFLINE:format(Plain(recruit.online and councilMember.name or recruit.name)))
 		return false
 	end
 	local now = GetTime()
@@ -213,18 +213,18 @@ function Members.AssignMentor(recruit, captain)
 	end
 	lastMentor = now
 	local guild = GetGuildInfo("player") or "?"
-	SendChatMessage(L.MENTOR_TO_CAPTAIN:format(Plain(recruit.name), guild), "WHISPER", nil, ns.TellName(captain.raw)) -- gp:roster-actions
-	SendChatMessage(L.MENTOR_TO_RECRUIT:format(guild, Plain(captain.name)), "WHISPER", nil, ns.TellName(recruit.raw)) -- gp:roster-actions
-	Mentors(guild)[recruit.raw] = { mentor = captain.raw, t = ns.Now() }
-	ns.Log("members: %s mentors %s", tostring(captain.raw), tostring(recruit.raw))
-	ns.Print(L.MENTOR_DONE:format(Plain(captain.name), Plain(recruit.name)))
+	SendChatMessage(L.MENTOR_TO_COUNCIL_MEMBER:format(Plain(recruit.name), guild), "WHISPER", nil, ns.TellName(councilMember.raw)) -- gp:roster-actions
+	SendChatMessage(L.MENTOR_TO_RECRUIT:format(guild, Plain(councilMember.name)), "WHISPER", nil, ns.TellName(recruit.raw)) -- gp:roster-actions
+	Mentors(guild)[recruit.raw] = { mentor = councilMember.raw, t = ns.Now() }
+	ns.Log("members: %s mentors %s", tostring(councilMember.raw), tostring(recruit.raw))
+	ns.Print(L.MENTOR_DONE:format(Plain(councilMember.name), Plain(recruit.name)))
 	if page then page.mentorFor = nil end
 	ns.Fire("DATA_CHANGED")
 	if ns.UI and ns.UI.Refresh then ns.UI.Refresh() end
 	return true
 end
 
--- The recruits and mentors page (the Council's), or the Captains to pick from.
+-- The recruits and mentors page (the Elder's), or the Council to pick from.
 local function MentorLines(lines, q)
 	local V = ns.Views
 	local r = page.mentorFor
@@ -235,7 +235,7 @@ local function MentorLines(lines, q)
 		for _, e in pairs(Mentors()) do
 			if type(e) == "table" and e.mentor then mentees[e.mentor] = (mentees[e.mentor] or 0) + 1 end
 		end
-		local caps = Members.Captains()
+		local caps = Members.Council()
 		for _, c in ipairs(caps) do
 			local _, file = ClassName(c)
 			lines[#lines + 1] = {
@@ -245,11 +245,11 @@ local function MentorLines(lines, q)
 				onClick = c.online and function() Members.AskMentor(r, c) end or nil,
 				tooltip = function(tt)
 					tt:AddLine(Plain(c.name), 1, 0.82, 0)
-					tt:AddLine(c.online and L.MENTOR_CAPTAIN_TIP:format(Plain(r.name)) or L.MENTOR_OFFLINE:format(Plain(c.name)), 1, 1, 1, true)
+					tt:AddLine(c.online and L.MENTOR_COUNCIL_MEMBER_TIP:format(Plain(r.name)) or L.MENTOR_OFFLINE:format(Plain(c.name)), 1, 1, 1, true)
 				end,
 			}
 		end
-		if #caps == 0 then lines[#lines + 1] = { text = V.Grey(L.MENTOR_NO_CAPTAINS) } end
+		if #caps == 0 then lines[#lines + 1] = { text = V.Grey(L.MENTOR_NO_COUNCIL) } end
 		return lines
 	end
 	lines[#lines + 1] = { text = V.Grey(L.MENTOR_HINT), gapAfter = true }
@@ -352,8 +352,8 @@ function Members.Lines(q)
 			onClick = not on and function() Members.Show(f) end or nil,
 		}
 	end
-	-- The Council's: his recruits and their mentors (#19).
-	if Members.IsCouncil() then
+	-- The Elder's: his recruits and their mentors (#19).
+	if Members.IsElder() then
 		local on = page.filter == "recruits"
 		lines[#lines + 1] = {
 			text = on and V.Gold("> " .. L.MENTOR_FILTER) or ("   " .. L.MENTOR_FILTER),
@@ -397,29 +397,29 @@ function Members.Lines(q)
 end
 
 ---------------------------------------------------------------------------
--- A Council member away (1.1, Fern's #39): one chat line when a guild's Council crosses warnDays offline
+-- An Elder away (1.1, Fern's #39): one chat line when a guild's Elder crosses warnDays offline
 -- (/bk warndays, 3 by default), instead of a red name in a list of twenty guilds. To our own
--- guild's officers about our Council, from our roster (the server's word, GetGuildRosterLastOnline);
--- to the Shogun, his Steward and his Hands (Shogun.CanCommand) about every guild's Council, from the
+-- guild's officers about our Elder, from our roster (the server's word, GetGuildRosterLastOnline);
+-- to the Shogun, his Steward and his Hands (Shogun.CanCommand) about every guild's Elder, from the
 -- census (a report's leaderDays, aged by how old the report is: a guild that stopped reporting
--- is exactly the one to hear about, its Council online in its last report included; the census's
+-- is exactly the one to hear about, its Elder online in its last report included; the census's
 -- word, which the line says). Once per crossing:
--- again only after that Council came back. A line, never a popup or a sound, and nothing is done to
+-- again only after that Elder came back. A line, never a popup or a sound, and nothing is done to
 -- anyone: no kick, no transfer. Nothing is sent.
 ---------------------------------------------------------------------------
 
-Members.COUNCIL_LIST = 5 -- Council named in one line to the Crown, the rest counted
+Members.ELDER_LIST = 5 -- Elders named in one line to the Crown, the rest counted
 
 function Members.WarnDays() return tonumber(ns.db and ns.db.warnDays) or 3 end
 
--- [guild] = the Council we told about, while he stays away (saved where the client keeps saves).
+-- [guild] = the Elder we told about, while he stays away (saved where the client keeps saves).
 local function Warned()
-	ns.rdb.councilWarned = ns.rdb.councilWarned or {}
-	return ns.rdb.councilWarned
+	ns.rdb.elderWarned = ns.rdb.elderWarned or {}
+	return ns.rdb.elderWarned
 end
 
--- Our Council, from the roster just read (Roster.Scan's report `r`): officers only, not the Council.
-function Members.CheckOwnCouncil(r)
+-- Our Elder, from the roster just read (Roster.Scan's report `r`): officers only, not the Elder.
+function Members.CheckOwnElder(r)
 	if type(r) ~= "table" or not r.leader or not ns.IsFederation(r.guild) then return false end
 	local warned, key = Warned(), "own:" .. r.guild
 	local days = r.leaderOnline and 0 or (r.leaderDays or 0)
@@ -428,15 +428,15 @@ function Members.CheckOwnCouncil(r)
 		return false
 	end
 	local rank = ns.Roster.MyRank()
-	if rank < 1 or rank > ns.CAPTAIN_RANK or warned[key] == r.leader then return false end
+	if rank < 1 or rank > ns.COUNCIL_MEMBER_RANK or warned[key] == r.leader then return false end
 	warned[key] = r.leader
-	ns.Print(L.COUNCIL_AWAY_OWN:format(Plain(r.leader), math.floor(days), Members.WarnDays()))
-	ns.Log("council away: our Council %s, %.1f days", tostring(r.leader), days)
+	ns.Print(L.ELDER_AWAY_OWN:format(Plain(r.leader), math.floor(days), Members.WarnDays()))
+	ns.Log("elder away: our Elder %s, %.1f days", tostring(r.leader), days)
 	return true
 end
 
--- Every other guild's Council, from the census, for the Crown. Returns how many were named.
-function Members.CheckCouncil(now)
+-- Every other guild's Elder, from the census, for the Crown. Returns how many were named.
+function Members.CheckElders(now)
 	now = now or ns.Now()
 	if not (ns.Shogun and ns.Shogun.CanCommand and ns.Shogun.CanCommand()) then return 0 end
 	local loginAt = ns.Comm and ns.Comm.loginAt
@@ -445,7 +445,7 @@ function Members.CheckCouncil(now)
 	for name, g in pairs(ns.rdb.guilds or {}) do
 		local age = now - (type(g) == "table" and g.t or 0)
 		if type(g) == "table" and not g.mine and name ~= own and g.leader and age <= ns.Data.KEEP and ns.IsFederation(name) then
-			-- Away since the report said so, and for as long as the report is old. A Council member the report
+			-- Away since the report said so, and for as long as the report is old. An Elder the report
 			-- showed online counts from then once his guild stops reporting (older than FRESH): in a
 			-- guild where only he runs the addon, every report says he is online.
 			local stale = age > ns.Data.FRESH
@@ -457,7 +457,7 @@ function Members.CheckCouncil(now)
 				warned[name] = nil
 			elseif warned[name] ~= g.leader then
 				warned[name] = g.leader
-				crossed[#crossed + 1] = { guild = name, council = g.leader, days = days }
+				crossed[#crossed + 1] = { guild = name, elder = g.leader, days = days }
 			end
 		end
 	end
@@ -468,21 +468,21 @@ function Members.CheckCouncil(now)
 	end)
 	if #crossed == 1 then
 		local c = crossed[1]
-		ns.Print(L.COUNCIL_AWAY_CROWN:format(Plain(c.council), Plain(c.guild), math.floor(c.days)))
+		ns.Print(L.ELDER_AWAY_CROWN:format(Plain(c.elder), Plain(c.guild), math.floor(c.days)))
 	else
 		local parts = {}
-		for i = 1, math.min(#crossed, Members.COUNCIL_LIST) do
+		for i = 1, math.min(#crossed, Members.ELDER_LIST) do
 			local c = crossed[i]
-			parts[#parts + 1] = L.COUNCIL_AWAY_ENTRY:format(Plain(c.council), Plain(c.guild), math.floor(c.days))
+			parts[#parts + 1] = L.ELDER_AWAY_ENTRY:format(Plain(c.elder), Plain(c.guild), math.floor(c.days))
 		end
-		local more = #crossed > Members.COUNCIL_LIST and (" " .. L.COUNCIL_AWAY_MORE:format(#crossed - Members.COUNCIL_LIST)) or ""
-		ns.Print(L.COUNCIL_AWAY_CROWN_MANY:format(#crossed, Members.WarnDays(), table.concat(parts, ", ")) .. more)
+		local more = #crossed > Members.ELDER_LIST and (" " .. L.ELDER_AWAY_MORE:format(#crossed - Members.ELDER_LIST)) or ""
+		ns.Print(L.ELDER_AWAY_CROWN_MANY:format(#crossed, Members.WarnDays(), table.concat(parts, ", ")) .. more)
 	end
-	ns.Log("council away: %d Council past %d days", #crossed, Members.WarnDays())
+	ns.Log("elder away: %d Elders past %d days", #crossed, Members.WarnDays())
 	return #crossed
 end
 
--- /bk warndays <n>: when a Council member or Captain counts as away (their name turns red, and the line).
+-- /bk warndays <n>: when an Elder or Council member counts as away (their name turns red, and the line).
 function Members.SetWarnDays(text)
 	local n = tonumber(text)
 	if not n or n < 1 or n > 60 or n ~= math.floor(n) then
@@ -496,7 +496,7 @@ function Members.SetWarnDays(text)
 end
 
 ns.On("LOGIN", function()
-	ns.Every(60, "council away", function() Members.CheckCouncil() end)
+	ns.Every(60, "elders away", function() Members.CheckElders() end)
 end)
 
 StaticPopupDialogs["BANKAIGUILD_MENTOR"] = {
@@ -505,7 +505,7 @@ StaticPopupDialogs["BANKAIGUILD_MENTOR"] = {
 	button2 = CANCEL or "Cancel",
 	OnAccept = function(self, data)
 		data = data or (self and self.data)
-		if type(data) == "table" then ns.SafeCall("mentor", Members.AssignMentor, data.recruit, data.captain) end
+		if type(data) == "table" then ns.SafeCall("mentor", Members.AssignMentor, data.recruit, data.councilMember) end
 	end,
 	timeout = 0,
 	whileDead = true,

@@ -104,7 +104,7 @@ test("1.2 profile polish: an arena portrait is the player's own portrait again (
 		eq(framed.key, "bronze-elite", "anyone else's: his own")
 		-- ...but never as others see him (his preview is his screen's alone): "Preview as others see
 		-- me" shows his own frame (none: he holds no rank).
-		local council = B.MarkOfName
+		local elder = B.MarkOfName
 		B.MarkOfName = function(name, guild) return nil, { who = name, guild = guild } end
 		framed = Kit.SetPortraitFrame(rig, "Lida Fenn", "Bankai Guild Ember", nil, true)
 		eq(framed.key, nil, "as others see him: no preview"); eq(rig.shown, nil)
@@ -114,7 +114,7 @@ test("1.2 profile polish: an arena portrait is the player's own portrait again (
 		assert(seen.container and not seen.plain, "My profile's portrait is Borders'")
 		a.ns.ProfileEdit.DressPortrait(seen, { frame = "rank" })
 		eq(seen.shown, nil, "My profile's 'As others see you': no preview either")
-		B.MarkOfName = council
+		B.MarkOfName = elder
 		B.SetPreview("off")
 		W.Visible = visible
 		-- His own portrait: the live one ("player"), square as his unit frame asks for it, on the
@@ -169,7 +169,7 @@ test("1.2 profile polish: 'Preview as others see me' (1.2.4: My profile's detail
 	local saved = { verified = Data.Verified, mark = B.MarkOfName, pe = rawget(a.ns, "ProfileEdit"), visible = W.Visible }
 	local ok, err = pcall(w.As, w, a, function()
 		Data.Verified = function() return { frame = "rank" } end
-		-- (he holds no rank; Parric Stowe is a Council member: the gold tier)
+		-- (he holds no rank; Parric Stowe is an Elder: the gold tier)
 		B.MarkOfName = function(name, guild)
 			if name == "Parric Stowe" then return "silver", { who = name, guild = guild, bankaiguild = true, leader = true } end
 			return nil, { who = name, guild = guild }

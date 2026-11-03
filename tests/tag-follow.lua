@@ -36,7 +36,7 @@ end
 
 local GLOBALS = { "GetGuildInfo", "IsInGuild", "UnitIsPlayer", "C_ChatInfo", "GetTime", "GetChannelName", "DEFAULT_CHAT_FRAME", "IsCombatLog",
 	"issecretvalue", "UnitClass", "C_FriendList", "BNGetInfo", "BNConnected", "BNFeaturesEnabledAndConnected", "InCombatLockdown", "IsInInstance",
-	"SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDCOUNCIL1" }
+	"SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCOUNCIL1", "SLASH_BANKAIGUILDELDERS1" }
 
 local function Full(name)
 	name = tostring(name or ""):gsub("^%s+", ""):gsub("%s+$", "")
@@ -152,7 +152,7 @@ local function World(fn)
 			cl.ns = c
 			c.L = ns.L
 			c.me, c.realm, c.group, c.faction = name, "Realm", "RealmGroup", "Alliance"
-			c.CAPTAIN_RANK = 1
+			c.COUNCIL_MEMBER_RANK = 1
 			c.db = { addonChat = true, chatRooms = true, chatWarned = { A = true, C = true, L = true }, blocked = {}, log = {},
 				shogunAccount = opts.shogunAccount or nil,
 				accord = { v = ns.ACCORD_VERSION, yes = true, at = opts.aat or AAT, told = {}, key = opts.key or KeyFor(opts.tag) } }

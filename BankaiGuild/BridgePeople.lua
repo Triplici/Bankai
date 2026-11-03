@@ -38,17 +38,17 @@ end
 
 ---------------------------------------------------------------------------
 -- realm: the Realm tab's guilds (Data.Summary, the shared order), as their rows and tooltips show
--- them: members, online while fresh, average level, Captains, inactive members, the Council and
+-- them: members, online while fresh, average level, Council, inactive members, the Elder and
 -- whether he is online now (Views.PresenceNow, as the row), and the Shogun's name (the Realm's line).
 -- The census's faction and realm group once, for every guild.
--- The Council's presence as the row says it: online (councilOnline 1, councilDays 0), offline for councilDays
--- whole days (councilOnline 0), or not known now (councilOnline and councilDays empty): an old report had
--- him online and nobody sees him now, the row's "online <age> ago", councilSeenAt that report's time.
+-- The Elder's presence as the row says it: online (elderOnline 1, elderDays 0), offline for elderDays
+-- whole days (elderOnline 0), or not known now (elderOnline and elderDays empty): an old report had
+-- him online and nobody sees him now, the row's "online <age> ago", elderSeenAt that report's time.
 ---------------------------------------------------------------------------
 
--- The Council's three fields from Views.PresenceNow's online, days and at: nil, nil and the old
+-- The Elder's three fields from Views.PresenceNow's online, days and at: nil, nil and the old
 -- report's time while he is not known now.
-local function CouncilPresence(on, days, at)
+local function ElderPresence(on, days, at)
 	if on == true then return true, 0, nil end
 	if on == nil and type(at) == "number" then return nil, nil, Whole(at) end
 	return false, Whole(days), nil
@@ -61,7 +61,7 @@ BankaiGuildBridge.RegisterSection("realm", 1, function()
 	if type(s) ~= "table" or type(s.guilds) ~= "table" then return nil end
 	local V = ns.Views
 	local out = { at = Now(), faction = Text(ns.faction, 16), realmGroup = Text(ns.group or ns.realm, 96),
-		fields = "members~online~avgLevel~captains~inactive7~inactive30~councilOnline~councilDays~councilSeenAt~fresh~name~council", guilds = {} }
+		fields = "members~online~avgLevel~council~inactive7~inactive30~elderOnline~elderDays~elderSeenAt~fresh~name~elder", guilds = {} }
 	for _, e in ipairs(s.guilds) do
 		if #out.guilds >= REALM_GUILDS then break end
 		local g = type(e) == "table" and e.g
@@ -72,11 +72,11 @@ BankaiGuildBridge.RegisterSection("realm", 1, function()
 				local okP, pOn, pDays, _, pAt = pcall(V.PresenceNow, e, g.leader, g.leaderOnline, g.leaderDays)
 				if okP then on, days, at = pOn, pDays, pAt end
 			end
-			local councilOnline, councilDays, councilSeenAt = CouncilPresence(on, days, at)
+			local elderOnline, elderDays, elderSeenAt = ElderPresence(on, days, at)
 			local tenths = Safe(D.AvgTenths, g)
 			local fresh = e.fresh == true
 			out.guilds[#out.guilds + 1] = Row(Whole(g.total), fresh and Whole(g.online) or 0, tenths and ("%.1f"):format(tenths / 10) or "",
-				type(g.officers) == "table" and #g.officers or 0, Whole(g.inactive7), Whole(g.inactive30), councilOnline, councilDays, councilSeenAt,
+				type(g.officers) == "table" and #g.officers or 0, Whole(g.inactive7), Whole(g.inactive30), elderOnline, elderDays, elderSeenAt,
 				fresh, e.name, g.leader)
 		end
 	end

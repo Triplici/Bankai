@@ -6,7 +6,7 @@ local L = ns.L
 -- target and focus frames, and around your own portrait for your own rank, like Elite Player
 -- Frame (Enhanced) but for other players too. `/bk borders on|off`, on by default.
 -- 1.1.5 (the author's call): three tiers, all winged: the Shogun gold, the High Council silver and a
--- guild master of an Bankai Guild guild Max's bronze. The rank tiers of 1.0.1 (Council gold, Captains
+-- guild master of an Bankai Guild guild Max's bronze. The rank tiers of 1.0.1 (Elders gold, Council
 -- silver, Raiders bronze wings, Veterans bronze) are gone: new borders are to come, and one that
 -- nearly everybody has is worth nothing. Any other member: the nameplate star alone, no border.
 -- Administrative offices use a separate shield badge (the later High Council decision): one for
@@ -143,7 +143,7 @@ local PLAIN_SILVER = "ui-hud-unitframe-target-portraiton-boss-rare-silver"
 local MEDIA = "Interface\\AddOns\\BankaiGuild\\media\\borders\\"
 -- The plain silver is the game's, by the name Forever's client knows it (its Mainline
 -- TargetFrameUtils.lua gives it to a rare elite): the plain gold's size and shape, so at its
--- offsets (1.0.0's Captains had it). Max's plain bronze (media/borders/bronze-plain), drawn over the
+-- offsets (1.0.0's Council had it). Max's plain bronze (media/borders/bronze-plain), drawn over the
 -- plain gold, at its size and offsets (1.0.0's Veterans had it).
 -- (metal, 1.2: the plain metal under the tier's art, UNDERLAY below.)
 Borders.TIERS = {

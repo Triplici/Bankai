@@ -125,7 +125,7 @@ local function CountKeys(t)
 	return n
 end
 
--- Members by level, then name; Captains online first, then by days away; who is online by rank,
+-- Members by level, then name; Council online first, then by days away; who is online by rank,
 -- level, then name (made once, not at each scan).
 local function MemberBefore(a, b)
 	if a.level ~= b.level then return a.level > b.level end
@@ -226,7 +226,7 @@ function Roster.Scan()
 	local started = debugprofilestop and debugprofilestop() or 0
 	local numTotal, numOnline = GetNumGuildMembers()
 	numTotal = numTotal or 0
-	local officerRank = ns.CAPTAIN_RANK
+	local officerRank = ns.COUNCIL_MEMBER_RANK
 	local r = {
 		guild = guild, total = numTotal, online = 0,
 		zones = {}, classes = {}, levels = { 0, 0, 0, 0, 0, 0, 0 },
@@ -453,7 +453,7 @@ function Roster.MyRank()
 end
 
 function Roster.IsOfficer()
-	return IsInGuild() and Roster.MyRank() <= ns.CAPTAIN_RANK
+	return IsInGuild() and Roster.MyRank() <= ns.COUNCIL_MEMBER_RANK
 end
 
 -- A roster row may authorize another character only while it is a complete, recent snapshot of
@@ -478,7 +478,7 @@ function Roster.TryScan()
 	lastScan = ns.Now()
 	local r = Roster.Scan()
 	if not r or not ns.IsFederation(r.guild) then return end
-	-- (1.1, Members.lua: who joined since login, for the Council's recruits; our Council away past
+	-- (1.1, Members.lua: who joined since login, for the Elder's recruits; our Elder away past
 	-- warnDays, one line to our officers.)
 	ns.SafeCall("members scan", ns.Members.OnScan, r)
 	-- Our guild lives on another realm: that realm shares our guilds, so it shares our census

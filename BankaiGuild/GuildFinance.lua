@@ -32,7 +32,7 @@ local function Crown(name)
 	if Same(name, ns.me) then return ns.Shogun.IsShogun() or ns.Shogun.IsSteward() or ns.Shogun.IsHand() end
 	return type(name) == "string" and (ns.IsShogunCharacter(name) or ns.Shogun.IsStewardName(name) or ns.Shogun.IsHandName(name))
 end
-local function Council(name, guild)
+local function Elder(name, guild)
 	if type(guild) ~= "string" or not ns.IsFederation(guild) or Off(name, guild) then return false end
 	local rank, source = ns.Data.AuthorizedRank(ns.FullName(name), guild)
 	if rank ~= 0 then return false end
@@ -43,14 +43,14 @@ local function Council(name, guild)
 	end
 	if source == "signed" or source == "pinned" then return true end
 	-- A new private financial audience never inherits the old census capability fallback.
-	-- Two reports may corroborate a directory entry, but cannot prove this Council's office.
+	-- Two reports may corroborate a directory entry, but cannot prove this Elder's office.
 	return false
 end
 function F.MayView(guild, name)
 	name = name or ns.me
 	if Same(name, ns.me) and (Preview() or not ns.IsMember()) then return false end
 	if type(guild) ~= "string" or (guild ~= "*" and not ns.IsFederation(guild)) or Off(name, guild) then return false end
-	return Crown(name) or (guild ~= "*" and Council(name, guild)) or false
+	return Crown(name) or (guild ~= "*" and Elder(name, guild)) or false
 end
 function F.MayAllocate()
 	return T.RealKeeper() and not Preview() and not Off(ns.me, GetGuildInfo("player"))
@@ -386,8 +386,8 @@ local function Peer(sender)
 		end
 	end
 	if not F.MayAllocate() then return false end
-	if Crown(sender) or Council(sender, GetGuildInfo("player")) then return true end
-	for guild in pairs(ns.rdb and ns.rdb.guilds or {}) do if Council(sender, guild) then return true end end
+	if Crown(sender) or Elder(sender, GetGuildInfo("player")) then return true end
+	for guild in pairs(ns.rdb and ns.rdb.guilds or {}) do if Elder(sender, guild) then return true end end
 	return false
 end
 T.OnPrivate("GF", {

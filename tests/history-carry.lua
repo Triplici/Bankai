@@ -65,7 +65,7 @@ local function Client(name, guild)
 	return w
 end
 local function Setup()
-	local m, g = Client("Migrant-Realm", "Bankai Guild II"), Client("Council-Realm", "Bankai Guild III")
+	local m, g = Client("Migrant-Realm", "Bankai Guild II"), Client("Elder-Realm", "Bankai Guild III")
 	m.member(m.name, 3); g.member(g.name, 0); g.member(m.name, 3)
 	m.roles[base.Fold(g.name)] = { guild = g.guild, rank = 0, source = "signed" }
 	local book = m.ns.Loot.Book()
@@ -142,7 +142,7 @@ end)
 
 test("carry: sender forgery, wrong recipient, missing consent, public packets and realm/faction mismatch are refused", function()
 	local m, g = Setup(); local d, key, offer = Offered(m, g)
-	local other = Client("OtherCouncil-Realm", g.guild); other.member(other.name, 1); other.member(m.name, 3)
+	local other = Client("OtherElder-Realm", g.guild); other.member(other.name, 1); other.member(m.name, 3)
 	other.receive(m.name, offer); eq(other.ns.Carry.Accept(key), false)
 	m.receive("Pretender-Realm", "XC~1~A~" .. d.id .. "~" .. d.digest); m.pump(); eq(#m.sent, 1)
 	g.receive("Unknown-Realm", offer); eq(g.ns.Carry.Accept(base.Fold("Unknown-Realm") .. ":" .. d.id), false)

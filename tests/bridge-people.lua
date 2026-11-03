@@ -189,16 +189,16 @@ local function Modules(o)
 end
 
 -- The census: n guilds (the Shogun's <Elfcore> first), each from its own roster's report; every
--- 50th an old report (3 hours), its Council online in it when staleCouncilOnline.
-local function Census(n, now, staleCouncilOnline)
+-- 50th an old report (3 hours), its Elder online in it when staleElderOnline.
+local function Census(n, now, staleElderOnline)
 	local guilds = {}
 	guilds.BankaiGuild = { guild = "Bankai Guild", total = 1000, online = 400, t = now - 5, mine = true, avgLevel = 52.34, leader = "Shogunly",
-		leaderOnline = true, officers = Rows(30, function(i) return { name = Name("Captain", i), online = i % 2 == 0, days = 1 } end),
+		leaderOnline = true, officers = Rows(30, function(i) return { name = Name("Council member", i), online = i % 2 == 0, days = 1 } end),
 		inactive7 = 40, inactive30 = 12, battleTag = "Secret#1234" }
 	for i = 2, n do
 		local name = ("Bankai Guild Vanguard %s"):format(Name("", i))
 		guilds[name] = { guild = name, total = 1000 - i, online = 200, t = i % 50 == 0 and now - 3 * 3600 or now - 5, mine = true,
-			avgLevel = 40 + (i % 20), leader = Name("Council", i), leaderOnline = i % 3 == 0 or (staleCouncilOnline == true and i % 50 == 0), leaderDays = 2.5,
+			avgLevel = 40 + (i % 20), leader = Name("Elder", i), leaderOnline = i % 3 == 0 or (staleElderOnline == true and i % 50 == 0), leaderDays = 2.5,
 			officers = Rows(30, function(k) return { name = Name("Cap", i * 31 + k), online = false, days = 3 } end),
 			inactive7 = i % 7, inactive30 = i % 30, battleTag = "Secret#1234" }
 	end
@@ -216,7 +216,7 @@ local function With(o, fn)
 	if o.modules then for key in pairs(o.modules) do saved.modules[key] = rawget(ns, key) end end
 	for key, value in pairs(m) do rawset(ns, key, value) end
 	for key, value in pairs(o.modules or {}) do rawset(ns, key, value or nil) end
-	ns.rdb = { guilds = Census(o.guilds or 8, NOW, o.staleCouncilOnline), seen = {}, treasuryFlags = {} }
+	ns.rdb = { guilds = Census(o.guilds or 8, NOW, o.staleElderOnline), seen = {}, treasuryFlags = {} }
 	ns.Now = function() return NOW end
 	ns.realm, ns.group, ns.faction, ns.me = "Realm", "Realm", "Alliance", ME
 	UnitLevel = function() return 60 end
@@ -263,13 +263,13 @@ end)
 test("bridge people: realm lists the Realm's guilds as rows of their fields in the census's order, at most 256, online only while fresh, the Shogun's name, nothing private", function()
 	With({ guilds = 300 }, function()
 		local d = Data("realm")
-		eq(d.fields, "members~online~avgLevel~captains~inactive7~inactive30~councilOnline~councilDays~councilSeenAt~fresh~name~council")
+		eq(d.fields, "members~online~avgLevel~council~inactive7~inactive30~elderOnline~elderDays~elderSeenAt~fresh~name~elder")
 		eq(d.faction, "Alliance"); eq(d.realmGroup, "Realm"); eq(d.shogun, "Shogunly"); eq(d.at, NOW)
 		eq(#d.guilds, 256, "cut to 256, the census checkpoint's own cap")
 		local first = Fields(d.guilds[1])
-		eq(#first, Count(d.fields), "an empty councilSeenAt is a field all the same")
+		eq(#first, Count(d.fields), "an empty elderSeenAt is a field all the same")
 		eq(first[1], "1000"); eq(first[2], "400"); eq(first[3], "52.3"); eq(first[4], "30"); eq(first[5], "40"); eq(first[6], "12")
-		eq(first[7], "1"); eq(first[8], "0"); eq(first[9], "", "no old report's time for a Council member online now")
+		eq(first[7], "1"); eq(first[8], "0"); eq(first[9], "", "no old report's time for an Elder online now")
 		eq(first[10], "1"); eq(first[11], "Bankai Guild"); eq(first[12], "Shogunly")
 		-- The census's own order (Data.Summary's, the Realm's by default), cut from its end.
 		local s = ns.Data.Summary()
@@ -279,22 +279,22 @@ test("bridge people: realm lists the Realm's guilds as rows of their fields in t
 			assert(#row <= B.SECTION_LIMITS.string, row)
 		end
 		Never(d, "Secret#1234", "a BattleTag")
-		Never(d, "Captain", "a Captain's name (their count only)")
+		Never(d, "Council member", "a Council member's name (their count only)")
 	end)
 	With({ guilds = 60 }, function()
 		local stale = 0
 		for _, row in ipairs(Data("realm").guilds) do
 			local f = Fields(row)
 			if f[10] == "0" then stale = stale + 1; eq(f[2], "0", "an old report counts nobody online") end
-			if f[7] == "0" then eq(f[8], "2", "a Council member offline: his days away, whole"); eq(f[9], "") end
+			if f[7] == "0" then eq(f[8], "2", "an Elder offline: his days away, whole"); eq(f[9], "") end
 		end
 		eq(stale, 1, "an old report is listed, grey")
 	end)
 end)
 
-test("bridge people: realm: a Council member an old report had online, nobody seeing him now, is not known to be online or offline: empty councilOnline and councilDays, and that report's time, as the row's \"online <age> ago\"", function()
+test("bridge people: realm: an Elder an old report had online, nobody seeing him now, is not known to be online or offline: empty elderOnline and elderDays, and that report's time, as the row's \"online <age> ago\"", function()
 	-- (The review of 2026-10-20: the row said "online 3h ago", the section "offline today".)
-	With({ guilds = 60, staleCouncilOnline = true }, function()
+	With({ guilds = 60, staleElderOnline = true }, function()
 		local s, rows = ns.Data.Summary(), {}
 		for _, row in ipairs(Data("realm").guilds) do local f = Fields(row) rows[f[11]] = f end
 		local old
@@ -303,9 +303,9 @@ test("bridge people: realm: a Council member an old report had online, nobody se
 		local on, days, dim, at = ns.Views.PresenceNow(old, old.g.leader, old.g.leaderOnline, old.g.leaderDays)
 		eq(on, nil, "the page: not known now"); eq(days, nil); eq(dim, true); eq(at, NOW - 3 * 3600, "the page: online <age> ago")
 		local f = assert(rows[old.name], "its row")
-		eq(f[7], "", "councilOnline: unknown"); eq(f[8], "", "councilDays: unknown"); eq(f[9], tostring(NOW - 3 * 3600), "councilSeenAt: the report's time")
+		eq(f[7], "", "elderOnline: unknown"); eq(f[8], "", "elderDays: unknown"); eq(f[9], tostring(NOW - 3 * 3600), "elderSeenAt: the report's time")
 		eq(f[10], "0", "an old report")
-		-- The others as before: online now, or offline for whole days, and no councilSeenAt.
+		-- The others as before: online now, or offline for whole days, and no elderSeenAt.
 		local online, offline = 0, 0
 		for name, r in pairs(rows) do
 			if name ~= old.name then

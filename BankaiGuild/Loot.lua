@@ -143,7 +143,7 @@ function Loot.IsOfficer() return ns.IsMember() == true and ns.Roster.IsOfficer()
 -- A sender our roster ranks an officer of our guild.
 local function SenderOfficer(sender)
 	local rank = ns.Roster.RankOf(sender)
-	return rank ~= nil and rank <= ns.CAPTAIN_RANK
+	return rank ~= nil and rank <= ns.COUNCIL_MEMBER_RANK
 end
 
 -- At most NOTES_MAX notes (the newest changes), a removed one's mark REMOVED_KEEP, POINTS_MAX points.

@@ -271,10 +271,10 @@ Answers.PAGES = {
 	chat = { "feat-chat-tab", "feat-chat-settings", "feat-channels", "feat-bankaiguild-tab", "feat-chat-off", "feat-block-terms" },
 	decrees = { "feat-decrees", "feat-alert-sounds", "feat-writs", "feat-net-off", "feat-acts-log" },
 	["watch/tabards"] = { "feat-patrol", "feat-gear-seen", "feat-patrolshare", "feat-untabarded" }, -- (1.2: The Watch's Tabards)
-	throne = { "feat-throne", "feat-agenda", "feat-summon-council", "feat-hold-court", "feat-royal-inspection", "feat-steward-hands", "feat-nominees" },
+	throne = { "feat-throne", "feat-agenda", "feat-summon-elders", "feat-hold-court", "feat-royal-inspection", "feat-steward-hands", "feat-nominees" },
 	["throne/hands"] = { "feat-steward-hands" },
 	["throne/guild"] = { "feat-nominees" }, -- (1.1.5: a guild master's Guild tab, the tab in the Throne's place)
-	vox = { "feat-vox" },
+	poll = { "feat-poll" },
 	treasury = { "feat-treasury", "feat-guild-bank", "feat-treasury-requests", "feat-sister-banks", "feat-donations", "feat-backup",
 		counts = { "count-treasury-donors" } },
 	["treasury/dues"] = { "feat-dues", "feat-treasury", counts = { "count-treasury-donors" } },

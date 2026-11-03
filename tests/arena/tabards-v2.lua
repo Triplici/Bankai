@@ -309,7 +309,7 @@ test("1.2.0 tabards v2: two ordinary members of the Shogun's guild cannot put an
 			assert(Nearby("MemberA-Realm")); assert(Nearby("MemberB-Realm"))
 			local status, actionable = T.Conclusion("Victim-Realm")
 			eq(status, "U"); eq(actionable, false, "members are not officers")
-			assert(Nearby("Captain-Realm")); assert(Nearby("Officer-Realm"))
+			assert(Nearby("Council member-Realm")); assert(Nearby("Officer-Realm"))
 			status, actionable = T.Conclusion("Victim-Realm")
 			eq(status, "N"); eq(actionable, true)
 		end)

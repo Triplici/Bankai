@@ -8,7 +8,7 @@ local function WithRoles(fn)
 	local own, foreign = "Bankai Guild II", "Bankai Guild III"
 	local w = { time = 1000, ranks = {}, lists = {}, council = {}, titles = {}, jobs = {}, role = nil, fresh = true, census = {} }
 	local c = setmetatable({ L = H.ns.L, me = "Sage Owl-Realm", db = { chatRooms = true },
-		rdb = { guilds = {}, council = { names = {} } }, CAPTAIN_RANK = 1 }, { __index = H.ns })
+		rdb = { guilds = {}, council = { names = {} } }, COUNCIL_MEMBER_RANK = 1 }, { __index = H.ns })
 	GetGuildInfo = function() return own end
 	GetTime = function() return w.time end
 	c.FullName = function(name) return type(name) == "string" and (name:find("-", 1, true) and name or name .. "-Realm") or "" end

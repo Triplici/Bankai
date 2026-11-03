@@ -67,7 +67,7 @@ ns.GAMEPAD = {
 		why = "An opt-in Bones row and local dialogue inside a capability-checked unprotected NPC panel; mouse only. A switch restores geometry and hides the addon choices, but native font registration and ScrollBox calls retain taint until reload. Missing native capabilities retain the Bankai Guild dialogue." },
 	-- P0: confirmed in Forever's source to reach the refused call in a session played with the gamepad alone.
 	{ id = "slash", kind = "slash", files = { "Core.lua", "Channels.lua" },
-		globals = { "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARMY1", "SLASH_BANKAIGUILDSITEAGGREGATE1", "SLASH_BANKAIGUILDARENA1", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDCOUNCIL1" },
+		globals = { "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARMY1", "SLASH_BANKAIGUILDSITEAGGREGATE1", "SLASH_BANKAIGUILDARENA1", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCOUNCIL1", "SLASH_BANKAIGUILDELDERS1" },
 		guard = "gate", toPad = "reload", toMouse = "install", safe = "off",
 		why = "The chat box calls a slash command's function directly, then closes itself (ClearChat, its focus lost, ClearGamepadFocus) in that function's taint: nothing the function does can prevent it, so none is registered at a gamepad login.",
 		pins = { "Blizzard_ChatFrameBase/Shared/ChatFrameEditBox.lua:267 hash_SlashCmdList[command](strtrim(msg), self);",
@@ -102,7 +102,7 @@ ns.GAMEPAD = {
 		why = "The game's chat box opened from Bankai Guild (a whisper, a link; 1.2.1: /bg, /bgc or /bgl from a click on that channel's name in chat) keeps Bankai Guild's taint in its last active box, which the gamepad chat reads: with the gamepad UI Bankai Guild's whisper window; used this session, the player is told a /reload clears it." },
 	{ id = "chat-links", kind = "link-hook", files = { "Channels.lua" },
 		guard = "gate", toPad = "inert", toMouse = "install", safe = "off",
-		why = "1.2.1: [Bankai Guild], [Captains] and [Council] before a line in the game's chat are links of type addon (the game's AddOn handler takes them and does nothing), and a post-hook on SetItemRef (hooksecurefunc keeps it the game's own) opens the chat box on a left click; not registered at a gamepad login, the hook does nothing from its first line with the gamepad UI, and no line gets the link there.",
+		why = "1.2.1: [Bankai Guild], [Council] and [Elders] before a line in the game's chat are links of type addon (the game's AddOn handler takes them and does nothing), and a post-hook on SetItemRef (hooksecurefunc keeps it the game's own) opens the chat box on a left click; not registered at a gamepad login, the hook does nothing from its first line with the gamepad UI, and no line gets the link there.",
 		pins = { "Blizzard_UIPanels_Game/Shared/ItemRefHandlersShared.lua:279 LinkUtil.RegisterLinkHandler(LinkTypes.AddOn, function(link, text, linkData, contextData)",
 			"Blizzard_UIPanels_Game/Mainline/ItemRef.lua:6 function SetItemRef(link, text, button, frame)",
 			"Blizzard_ChatFrameBase/Shared/ChatFrame.lua:19 function ChatFrameMixin:OnHyperlinkClick(link, text, button)" } },

@@ -786,7 +786,7 @@ end
 function Inspect.HandleShare(dist, sender, text)
 	if dist ~= "GUILD" or type(text) ~= "string" or #text > 255 or not MayShare() then return end
 	local rank = ns.Roster.RankOf(sender)
-	if not rank or rank > ns.CAPTAIN_RANK then return end
+	if not rank or rank > ns.COUNCIL_MEMBER_RANK then return end
 	local body = text:match("^U1~(.+)$")
 	if not body then return end
 	local now, n, changed = ns.Now(), 0, false
@@ -847,7 +847,7 @@ end
 function Inspect.HandleAsk(dist, sender)
 	if dist ~= "GUILD" or not MayShare() or answering then return end
 	local rank = ns.Roster.RankOf(sender)
-	if not rank or rank > ns.CAPTAIN_RANK then return end
+	if not rank or rank > ns.COUNCIL_MEMBER_RANK then return end
 	if ns.Now() - lastAnswer < Inspect.SHARE_ANSWER_GAP then return end
 	if #OwnFindings(ns.Now()) == 0 then return end
 	answering = true
@@ -969,7 +969,7 @@ function Inspect.Shame()
 	return s
 end
 
--- Walls from versions before 0.9.2 (any Council could publish one, with a raid warning): ignored.
+-- Walls from versions before 0.9.2 (any Elder could publish one, with a raid warning): ignored.
 function Inspect.HandleShame(dist, sender, text)
 	ns.Log("ignored a wall of shame from %s (0.9.2: only the Shogun's list, quietly)", tostring(sender))
 end

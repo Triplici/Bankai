@@ -47,7 +47,7 @@ Backup.BLOCKED_NAME = 48   -- bytes of a blocked name ("name-realm")
 -- The player's toggles (ns.db): what each may hold. Other batches of 1.1 add theirs here.
 Backup.SETTINGS = {
 	sound = "boolean", showMap = "boolean", hideMinimap = "boolean", minimapAngle = "number", showDecrees = "boolean",
-	warnDays = "number", showMates = "boolean", voxOff = "boolean", borders = "boolean", nameplates = "boolean",
+	warnDays = "number", showMates = "boolean", pollOff = "boolean", borders = "boolean", nameplates = "boolean",
 	hideIssueReporter = "boolean",
 	-- (the other parts of 1.1: alerts held or not, camps on the map, the shared block terms, do not contact)
 	alertsAlways = "boolean", showCamps = "boolean", filterSharedOff = "boolean", recruitsOff = "boolean",

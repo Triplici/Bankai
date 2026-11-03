@@ -95,6 +95,8 @@ if [ -f scripts/gamepad-audit.lua ]; then
 	luajit scripts/gamepad-audit.lua
 fi
 
+printf 'Checking the Settings tab...\n'
+luajit tests/settings.lua
 printf 'Running offline tests...\n'
 luajit tests/run.lua
 

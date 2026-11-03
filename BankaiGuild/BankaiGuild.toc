@@ -76,7 +76,7 @@ Filter.lua
 Inspect.lua
 Shogun.lua
 HopSightings.lua
-Vox.lua
+Poll.lua
 Court.lua
 Board.lua
 Week.lua
@@ -187,3 +187,4 @@ ArenaChat.lua
 ArenaSpectate.lua
 ArenaTest.lua
 ArenaHome.lua
+Settings.lua

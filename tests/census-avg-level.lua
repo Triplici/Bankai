@@ -1,5 +1,5 @@
 -- 1.2.4 (the author's ask): a guild's average level in the Census, a column of its own sorted by
--- its title; in the Realm, in parentheses after its Council's online or offline, the Realm's guilds
+-- its title; in the Realm, in parentheses after its Elder's online or offline, the Realm's guilds
 -- following the Census's title clicked; after the free slots of Recruiting and in the copy for
 -- Discord; and one of the first tie-breaks of every order of guilds. Loaded by tests/run.lua with
 -- the harness's WithUI and LoadUI.
@@ -122,12 +122,12 @@ test("1.2.4 average level: to the tenth as the census carries it, our own guild'
 	end)
 end)
 
-test("1.2.4 the Census: a column for the average level between Online and the Council, its title short in English and Portuguese, a value to the tenth, '-' for none", function()
+test("1.2.4 the Census: a column for the average level between Online and the Elder, its title short in English and Portuguese, a value to the tenth, '-' for none", function()
 	local cols = V.COLUMNS.census
 	eq(#cols, 5)
 	local keys = {}
 	for i, c in ipairs(cols) do keys[i] = c.key .. ":" .. tostring(c.sort) end
-	eq(table.concat(keys, ","), "COL_GUILD:name,COL_MEMBERS:members,COL_ONLINE:online,COL_AVG_LEVEL:level,COL_COUNCIL:council")
+	eq(table.concat(keys, ","), "COL_GUILD:name,COL_MEMBERS:members,COL_ONLINE:online,COL_AVG_LEVEL:level,COL_ELDER:elder")
 	eq(cols[4].justify, "RIGHT", "a number, as Members and Online")
 	-- Side by side, the whole width, no column on another.
 	local x = 0
@@ -140,15 +140,15 @@ test("1.2.4 the Census: a column for the average level between Online and the Co
 	eq(L.COL_AVG_LEVEL, "Avg lvl"); eq(L.AVG_LEVEL_TAG, "(avg lvl %s)"); eq(L.DECIMAL_MARK, ".")
 	local pt = Portuguese()
 	eq(pt.COL_AVG_LEVEL, "Nv. méd."); eq(pt.AVG_LEVEL_TAG:format("47,9"), "(nv. méd. 47,9)"); eq(pt.DECIMAL_MARK, ",")
-	-- The rows: our own guild's unrounded one as every client has it, none as "-", the Council after it.
+	-- The rows: our own guild's unrounded one as every client has it, none as "-", the Elder after it.
 	WithGuilds({
-		["Bankai Guild Own"] = Report(300, 47.96, { leader = "Owncouncil" }),
-		["Bankai Guild Old"] = Report(200, 0, { leader = "Oldcouncil" }), -- (a version that sent none)
-		["Bankai Guild Forged"] = Report(100, 1000, { leader = "Fakecouncil" }), -- (the field reads up to 1000.0)
+		["Bankai Guild Own"] = Report(300, 47.96, { leader = "Ownelder" }),
+		["Bankai Guild Old"] = Report(200, 0, { leader = "Oldelder" }), -- (a version that sent none)
+		["Bankai Guild Forged"] = Report(100, 1000, { leader = "Fakeelder" }), -- (the field reads up to 1000.0)
 	}, function()
 		local rows = CensusRows()
 		eq(#rows, 3)
-		eq(Bare(rows[1].cols[1]), "Bankai Guild Own"); eq(rows[1].cols[4], "47.9"); eq(Bare(rows[1].cols[5]), "Owncouncil")
+		eq(Bare(rows[1].cols[1]), "Bankai Guild Own"); eq(rows[1].cols[4], "47.9"); eq(Bare(rows[1].cols[5]), "Ownelder")
 		eq(rows[2].cols[4], Grey("-")); eq(rows[3].cols[4], Grey("-"), "what no guild can have is none")
 		-- The hover says the same number (it said 48.0 for our own 47.96: "%.1f" of the unrounded one).
 		local tip = {}
@@ -160,8 +160,8 @@ test("1.2.4 the Census: a column for the average level between Online and the Co
 		-- The copy for Discord: the same column.
 		local copy = D.DiscordText()
 		assert(copy:find("Members  *Online  *Avg lvl  *Leader"), copy)
-		assert(copy:find("Bankai Guild Own%s+300%s+10%s+47%.9%s+Owncouncil"), copy)
-		assert(copy:find("Bankai Guild Old%s+200%s+10%s+%-%s+Oldcouncil"), copy)
+		assert(copy:find("Bankai Guild Own%s+300%s+10%s+47%.9%s+Ownelder"), copy)
+		assert(copy:find("Bankai Guild Old%s+200%s+10%s+%-%s+Oldelder"), copy)
 	end)
 end)
 
@@ -216,13 +216,13 @@ test("1.2.4 tie-breaks: the higher average level first in every column's tie, wh
 		eq(CensusNames(), "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None,Bankai Guild Few")
 		V.sort = { key = "online", desc = false }
 		eq(CensusNames(), "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None")
-		-- The Council: the same name (any case), the higher average level first.
-		V.sort = { key = "council", desc = false }
+		-- The Elder: the same name (any case), the higher average level first.
+		V.sort = { key = "elder", desc = false }
 		eq(CensusNames(), "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild None,Bankai Guild Few")
 	end)
 end)
 
-test("1.2.4 the Realm: its guilds' average level in parentheses after their Council's online or offline, kept whole; its guilds in its own order, chosen on its line, the average level's among them", function()
+test("1.2.4 the Realm: its guilds' average level in parentheses after their Elder's online or offline, kept whole; its guilds in its own order, chosen on its line, the average level's among them", function()
 	WithGuilds({
 		["Bankai Guild Big"] = Report(900, 31.25, { leader = "Bigboss", leaderOnline = true }),
 		["Bankai Guild Mid"] = Report(500, 52, { leader = "Midboss", leaderOnline = false, leaderDays = 0 }),
@@ -232,7 +232,7 @@ test("1.2.4 the Realm: its guilds' average level in parentheses after their Coun
 		local order, header = RealmHeaders()
 		eq(order, "Bankai Guild Big,Bankai Guild Mid,Bankai Guild Small,Bankai Guild Grey", "by default the shared order, as before")
 		eq(header["Bankai Guild Big"].right, Green(L.ONLINE_NOW) .. "  " .. Grey("(avg lvl ") .. "31.2" .. Grey(")"),
-			"its Council online, then the average level: the number white, its words grey")
+			"its Elder online, then the average level: the number white, its words grey")
 		eq(Bare(header["Bankai Guild Mid"].right), L.OFFLINE_TODAY .. "  (avg lvl 52.0)")
 		eq(Bare(header["Bankai Guild Small"].right), L.OFFLINE_DAYS:format(5) .. " !", "none: nothing after it")
 		eq(header["Bankai Guild Grey"].right, Grey(L.OFFLINE_TODAY) .. "  " .. Grey("(avg lvl 44.0)"), "an old report: all grey")
@@ -262,7 +262,7 @@ test("1.2.4 the Realm: its guilds' average level in parentheses after their Coun
 		eq(f.label, L.REALM_ORDER); eq(f.value, L.COL_MEMBERS); eq(f.understated, true)
 		local choices = {}
 		for i, o in ipairs(f.options) do choices[i] = o.text .. (o.selected and "*" or "") .. (o.onClick and "" or "-") end
-		eq(table.concat(choices, ","), table.concat({ L.COL_MEMBERS .. "*-", L.COL_ONLINE, L.AVG_LEVEL, L.COL_GUILD, L.COL_COUNCIL }, ","),
+		eq(table.concat(choices, ","), table.concat({ L.COL_MEMBERS .. "*-", L.COL_ONLINE, L.AVG_LEVEL, L.COL_GUILD, L.COL_ELDER }, ","),
 			"the order in use chosen, nothing to do on it")
 		-- The average level chosen: the highest first, none last, an old report after every current one;
 		-- the Census's own order as it was.
@@ -278,8 +278,8 @@ test("1.2.4 the Realm: its guilds' average level in parentheses after their Coun
 		V.SetFilter("realm", "bankaiguild")
 		eq((RealmHeaders()), "Bankai Guild Mid,Bankai Guild Big,Bankai Guild Small,Bankai Guild Grey"); eq(OrderLine(), nil, "no line over a search")
 		V.SetFilter("realm", "")
-		-- By the Council, A to Z; then back to the shared order.
-		Choose(L.COL_COUNCIL)
+		-- By the Elder, A to Z; then back to the shared order.
+		Choose(L.COL_ELDER)
 		eq((RealmHeaders()), "Bankai Guild Big,Bankai Guild Mid,Bankai Guild Small,Bankai Guild Grey")
 		Choose(L.COL_MEMBERS)
 		eq(V.realmSort, "members"); eq((RealmHeaders()), "Bankai Guild Big,Bankai Guild Mid,Bankai Guild Small,Bankai Guild Grey")
@@ -288,10 +288,10 @@ test("1.2.4 the Realm: its guilds' average level in parentheses after their Coun
 	WithGuilds({ ["Bankai Guild Alone"] = Report(100, 30) }, function() eq(OrderLine(), nil) end)
 end)
 
-test("1.2.4 the Realm's guild header: a long guild and Council give way to its online and average level, kept whole up to half the row (a third for other rows)", function()
+test("1.2.4 the Realm's guild header: a long guild and Elder give way to its online and average level, kept whole up to half the row (a third for other rows)", function()
 	WithUI(function()
 		WithGuilds({
-			["Bankai Guild Brotherhood Of Ages"] = Report(900, 47.9, { leader = "Longestcouncilname", leaderOnline = false, leaderDays = 0 }),
+			["Bankai Guild Brotherhood Of Ages"] = Report(900, 47.9, { leader = "Longesteldername", leaderOnline = false, leaderDays = 0 }),
 		}, function()
 			local _, header = RealmHeaders()
 			local line = header["Bankai Guild Brotherhood Of Ages"]
@@ -494,9 +494,9 @@ test("CR-04 the exact <ELFCORE> first on a tie of every order of guilds, whichev
 			-- (The average level's own column: 10.0 twice, the standard-bearer before the name.)
 			{ "level", true, "Bankai Guild Few,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild,Alpha Bankai Guild,Bankai Guild Stale" },
 			{ "level", false, "Bankai Guild,Alpha Bankai Guild,Bankai Guild Lo,Bankai Guild Hi,Bankai Guild Few,Bankai Guild Stale" },
-			-- (The same Council in any case.)
-			{ "council", false, "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Few,Bankai Guild Stale" },
-			{ "council", true, "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Stale" },
+			-- (The same Elder in any case.)
+			{ "elder", false, "Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Few,Bankai Guild Stale" },
+			{ "elder", true, "Bankai Guild Few,Bankai Guild,Bankai Guild Hi,Bankai Guild Lo,Alpha Bankai Guild,Bankai Guild Stale" },
 			-- (A name A to Z: no tie, so its title's order alone.)
 			{ "name", false, "Alpha Bankai Guild,Bankai Guild,Bankai Guild Few,Bankai Guild Hi,Bankai Guild Lo,Bankai Guild Stale" },
 		}
@@ -690,7 +690,7 @@ test("1.2.4's review: every Census title inside its own header in all five langu
 		end
 	end
 	-- The English and Portuguese titles whole on the HD window (the client's own font there).
-	for _, key in ipairs({ "COL_GUILD", "COL_MEMBERS", "COL_ONLINE", "COL_AVG_LEVEL", "COL_COUNCIL" }) do
+	for _, key in ipairs({ "COL_GUILD", "COL_MEMBERS", "COL_ONLINE", "COL_AVG_LEVEL", "COL_ELDER" }) do
 		eq(seen["enUS HD " .. key], L[key])
 	end
 	eq(seen["ptBR HD COL_AVG_LEVEL"], "Nv. méd."); eq(seen["ptBR HD COL_MEMBERS"], "Membros")

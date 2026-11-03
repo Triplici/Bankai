@@ -2,7 +2,7 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- The Bankai Guild chats in the Bankai Guild window (1.1.1): its Chat tab, right after the Realm (UI.lua's
--- TABS). The three chats ([Bankai Guild], [Captains], [Council]) like the chat pane of the Guild &
+-- TABS). The three chats ([Bankai Guild], [Council], [Elders]) like the chat pane of the Guild &
 -- Communities window: the tabs' search box where the other tabs show the army's counts, and on
 -- that row, right of it, a small switch of the channels (only for a rank that reads more than
 -- one: most players read [Bankai Guild] alone, and a row of its own for one lone channel took the
@@ -10,7 +10,7 @@ local L = ns.L
 -- read it) from under that row over the list's and the detail box's room, the 100 lines Channels
 -- keeps per channel to scroll back through, a box to write in across the bottom where they have
 -- their buttons (no Send button: Enter sends), and Bankai Guild's marks by each name (the Shogun's crown,
--- the High Council's mark, the Council's and Captains' elite marks, Raiders and Veterans bronze, the
+-- the High Council's mark, the Elders' and Council's elite marks, Raiders and Veterans bronze, the
 -- members' star, the Treasurer's coin, Stewards and Hands).
 --
 -- The first 1.1.1 build had it in a window of its own; the author wanted it inside the Bankai Guild
@@ -1913,7 +1913,7 @@ end
 -- The box to write in, across the bottom row; 1.1.2: the Answers button (the author, the High
 -- Council and the Stewards) at that row's end while it shows, the box ending before it. Never on
 -- the top row (1.1.2's review: next to the switch, the search box there shrank to nothing for a
--- Council of the High Council in the default window), and by the box it fills.
+-- Elder of the High Council in the default window), and by the box it fills.
 local function PlaceInput(p)
 	local input = p.places and p.places.input
 	if not input then return end

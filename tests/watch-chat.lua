@@ -10,7 +10,7 @@ local ns, test, eq = ...
 local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]watch%-chat%.lua$")) or "./"
 
 local GLOBALS = { "GetGuildInfo", "IsInGuild", "UnitIsPlayer", "C_ChatInfo", "GetTime", "GetChannelName", "DEFAULT_CHAT_FRAME", "IsCombatLog",
-	"issecretvalue", "UnitClass", "C_FriendList", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDCOUNCIL1" }
+	"issecretvalue", "UnitClass", "C_FriendList", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCOUNCIL1", "SLASH_BANKAIGUILDELDERS1" }
 
 local function Fold(s) return ns.Fold(tostring(s or "")) end
 
@@ -113,7 +113,7 @@ local function World(fn)
 			cl.ns = c
 			c.L = ns.L
 			c.me, c.realm, c.group, c.faction = name, "Realm", "RealmGroup", "Alliance"
-			c.CAPTAIN_RANK = 1
+			c.COUNCIL_MEMBER_RANK = 1
 			c.db = { addonChat = true, chatRooms = true, chatWarned = { A = true, C = true, L = true }, blocked = {} }
 			c.rdb = { guilds = {} }
 			c.Now = function() return w.epoch end

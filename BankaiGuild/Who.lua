@@ -464,7 +464,7 @@ function Who.SeenGuild(name)
 end
 
 -- (CR-05) The race an answer of ours showed for each Bankai Guild player, for this session. A census
--- report carries no race, so another guild's Council, Captains and top five had one in the Realm's
+-- report carries no race, so another guild's Elder, Council and top five had one in the Realm's
 -- Races (Views) only while a round listed them: the next round, without them, put them back under
 -- Unknown. A character's race does not change. In memory only, like the roster's GUID races
 -- (Roster.lua): never saved, never sent, gone at a /reload and with /bk reset (Who.Reset), and

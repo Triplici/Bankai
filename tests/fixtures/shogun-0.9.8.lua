@@ -15,14 +15,14 @@ local L = ns.L
 -- which the server sets: never a census vote, which anyone on the channel can cast), or one
 -- of his Hands for the tools he lends them (HAND_MAY). Answers go back to whoever asked,
 -- alone (T2, T3 as whispered addon messages).
---   T1~S~<id>~<guild>                      Summon the Council (roll call)
+--   T1~S~<id>~<guild>                      Summon the Elders (roll call)
 --   T1~I~<id>~<guild>                      Royal Inspection: every addon patrols 2 minutes
 --   T1~A~<id>~<guild>~<minutes>~<zone>~<title>   The Shogun's Agenda (resent every 5 min)
 --   T1~X~<id>~<guild>                      Agenda cancelled
 --   T1~H~<id>~<guild>~<Name-Realm,...>     the Hands of the Shogun (his alone; resent every 5 min)
---   T2~<id>~<P|B>~<guild>                  a Council member's answer to the roll call
+--   T2~<id>~<P|B>~<guild>                  an Elder's answer to the roll call
 --   T3~<id>~<guild>~<ok>~<none>~<other>~<name:guild,...>   an inspection report
--- Other modules add their own kinds (Shogun.Register): Vox Populi (V, E), writs (W), the court
+-- Other modules add their own kinds (Shogun.Register): Poll (V, E), writs (W), the court
 -- (C, Z), the gates (G), pardons (F).
 
 local Shogun = {}
@@ -73,12 +73,12 @@ local function CleanGuild(s)
 	return s
 end
 
--- Someone we can place: our own guild (the server's roster) or a Council member or Captain the census
+-- Someone we can place: our own guild (the server's roster) or an Elder or Council member the census
 -- confirms (Data.KnownRank). Only they may put names on the Shogun's page.
 local function Verified(sender, guild)
 	if ns.Roster.RankOf(sender) then return true end
 	local rank = guild and ns.Data.KnownRank(sender, guild)
-	return rank ~= nil and rank <= ns.CAPTAIN_RANK
+	return rank ~= nil and rank <= ns.COUNCIL_MEMBER_RANK
 end
 
 ---------------------------------------------------------------------------
@@ -144,7 +144,7 @@ local function NewId() return math.random(1, 99999) end
 
 ---------------------------------------------------------------------------
 -- The Hands of the Shogun: the players he names use the Throne's tools in his name (HAND_MAY:
--- the roll call, the inspection, the agenda, Vox Populi, the gates), never what is his alone
+-- the roll call, the inspection, the agenda, Poll, the gates), never what is his alone
 -- (the Hands, writs, the court, pardons, his position). Each client keeps the list of the
 -- Shogun it trusts, as he last sent it; a list he stopped repeating ends (HANDS_FRESH).
 ---------------------------------------------------------------------------
@@ -314,7 +314,7 @@ StaticPopupDialogs["BANKAIGUILD_SHOGUN_UNHAND"] = {
 	preferredIndex = 3,
 }
 
--- Other modules' kinds of T1 (Vox Populi, writs, the court, the gates, pardons):
+-- Other modules' kinds of T1 (Poll, writs, the court, the gates, pardons):
 -- fn(sender, id, rest, guild), called once Shogun.Authorized agreed.
 local kinds = {}
 function Shogun.Register(kind, fn) kinds[kind] = fn end
@@ -334,7 +334,7 @@ local function OwnTabard()
 end
 
 ---------------------------------------------------------------------------
--- Summon the Council
+-- Summon the Elders
 ---------------------------------------------------------------------------
 
 function Shogun.Summon()
@@ -359,7 +359,7 @@ end
 local function OnSummon(shogun, id, guild)
 	local now = ns.Now()
 	if now - lastSummonSeen < Shogun.SUMMON_GAP then return end
-	if not ns.IsMember() or ns.Roster.MyRank() > ns.CAPTAIN_RANK then return end
+	if not ns.IsMember() or ns.Roster.MyRank() > ns.COUNCIL_MEMBER_RANK then return end
 	lastSummonSeen = now
 	ns.PlayAlert("soft")
 	-- The Shogun by the army's name for him; a Hand by theirs.
@@ -386,8 +386,8 @@ StaticPopupDialogs["BANKAIGUILD_SHOGUN_SUMMON"] = {
 	preferredIndex = 3,
 }
 
--- The Council and Captains the census knows online, answered or not: { name, guild, rank }.
-local function CouncilOnline()
+-- The Elders and Council the census knows online, answered or not: { name, guild, rank }.
+local function EldersOnline()
 	local out = {}
 	for _, e in ipairs(ns.Data.Summary().guilds) do
 		local g = e.g
@@ -409,7 +409,7 @@ function Shogun.HandleAnswer(dist, sender, text)
 	sender = ns.FullName(sender)
 	if summon.answers[sender] then return end -- one answer each
 	guild = CleanGuild(guild)
-	-- Only confirmed Council and Captains are listed by name; anyone else is just counted.
+	-- Only confirmed Elders and Council are listed by name; anyone else is just counted.
 	if not guild or not Verified(sender, guild) then
 		summon.others = summon.others or {}
 		if not summon.others[sender] then
@@ -533,7 +533,7 @@ function Shogun.ReceiveReport(sender, text)
 	if n >= Shogun.MAX_REPORTS then return end
 	guild = CleanGuild(guild)
 	if not guild then return end
-	-- Only from someone we can place in that guild (our own, a confirmed Council or Captain):
+	-- Only from someone we can place in that guild (our own, a confirmed Elder or Council member):
 	-- nobody else writes names or numbers on the Shogun's page.
 	if sender ~= ns.me and not Verified(sender, guild) then return end
 	local list = {}
@@ -976,7 +976,7 @@ function Shogun.LetterLines()
 end
 
 ---------------------------------------------------------------------------
--- Where the Shogun's calls show: the roll call in the Realm tab (next to the Council it calls),
+-- Where the Shogun's calls show: the roll call in the Realm tab (next to the Elders it calls),
 -- the Royal Inspection in the Tabards tab. Plain rows (not the parchment), for the Shogun and
 -- his Hands (and the author's Shobek's view).
 ---------------------------------------------------------------------------
@@ -987,12 +987,12 @@ local function Green(s) return "|cff40ff40" .. s .. "|r" end
 local READY = "|TInterface\\RaidFrame\\ReadyCheck-Ready:13:13|t "
 local NOT_READY = "|TInterface\\RaidFrame\\ReadyCheck-NotReady:13:13|t "
 local WAITING = "|TInterface\\RaidFrame\\ReadyCheck-Waiting:13:13|t "
-Shogun.ROLL_SHOWN = 15 * 60    -- the marks next to the Council stay this long after a roll call
+Shogun.ROLL_SHOWN = 15 * 60    -- the marks next to the Elders stay this long after a roll call
 
 function Shogun.CanCall() return Shogun.CanCommand() or Shogun.Preview() end
 
--- Who answered the roll call: present and busy (confirmed Council and Captains), the others
--- the census can't confirm (counted), and the Council online who stayed silent.
+-- Who answered the roll call: present and busy (confirmed Elders and Council), the others
+-- the census can't confirm (counted), and the Elders online who stayed silent.
 local function RollCall()
 	if not summon then return nil end
 	local present, busy, silent, others = {}, {}, {}, 0
@@ -1001,15 +1001,15 @@ local function RollCall()
 		if a.word == "P" then present[#present + 1] = row else busy[#busy + 1] = row end
 	end
 	for _ in pairs(summon.others or {}) do others = others + 1 end
-	for _, council in ipairs(CouncilOnline()) do
-		local answered = summon.answers[council.name] or (summon.others and summon.others[council.name])
-		if not answered and council.name ~= ns.me then silent[#silent + 1] = ("%s <%s>"):format(ns.DisplayName(council.name), council.guild) end
+	for _, elder in ipairs(EldersOnline()) do
+		local answered = summon.answers[elder.name] or (summon.others and summon.others[elder.name])
+		if not answered and elder.name ~= ns.me then silent[#silent + 1] = ("%s <%s>"):format(ns.DisplayName(elder.name), elder.guild) end
 	end
 	table.sort(present); table.sort(busy); table.sort(silent)
 	return present, busy, silent, others
 end
 
--- The mark next to a Council member or Captain in the Realm tree while a roll call is fresh: answered
+-- The mark next to an Elder or Council member in the Realm tree while a roll call is fresh: answered
 -- present, busy, or (online) not answered yet.
 function Shogun.RollCallMark(name, online)
 	if not summon or not Shogun.CanCall() or ns.Now() - summon.t > Shogun.ROLL_SHOWN then return "" end
@@ -1140,7 +1140,7 @@ local function Go(mode) return function() Shogun.Show(mode) end end
 
 -- The Throne Room: what is the Shogun's alone. Each tool lives where it belongs (the agenda and
 -- the court on the buttons below, the roll call in the Realm, the inspection in the Tabards,
--- Vox Populi and the treasury on their own tabs): here, the court's queue while it is open and
+-- Poll and the treasury on their own tabs): here, the court's queue while it is open and
 -- the treasury. A Hand's: where their tools are.
 local function HomeLines()
 	local mine = Shogun.IsShogun() or Shogun.Preview()
@@ -1197,7 +1197,7 @@ end
 
 function Shogun.State() return { summon = summon, inspect = inspect, agenda = agenda, inspecting = inspecting } end
 
--- The author's Workshop: Shobek's view on or off (the Throne, Vox Populi, the Shogun's calls in
+-- The author's Workshop: Shobek's view on or off (the Throne, Poll, the Shogun's calls in
 -- the Realm and the Tabards), to see and try them. Nothing the view does reaches anyone.
 function Shogun.SetDevView(on)
 	ns.db.devShogunView = on and true or false

@@ -3,8 +3,8 @@ local L = ns.L
 
 -- Chat channels of the federation, carried as M1 messages on the hidden Bankai Guild channel:
 --   [Bankai Guild]  /bg   every member of every Bankai Guild guild
---   [Captains] /bgc  rank 0-1 of any Bankai Guild guild
---   [Council]    /bgl  the Crown: guild masters and the officers of <Elfcore>
+--   [Council] /bgc  rank 0-1 of any Bankai Guild guild
+--   [Elders]    /bgl  the Crown: guild masters and the officers of <Elfcore>
 -- Higher ranks also use the channels below theirs. Every addon client receives every line
 -- (nothing is encrypted): each client shows a line only when its own rank is high enough
 -- and the sender's rank is verified, never taken from the message. No WoW channel number.
@@ -27,8 +27,8 @@ local NOTICE_WAIT = 10           -- ...a few seconds after the first line held, 
 -- Gold, teal and royal purple: none of them is a colour Blizzard's chat already uses.
 local TIERS = {
 	A = { level = 1, label = "CHAN_ALL",      slash = "/bg",  word = "bankaiguild",  deny = "MEMBERS_ONLY",       color = { 0.90, 0.77, 0.36 } },
-	C = { level = 2, label = "CHAN_CAPTAINS", slash = "/bgc", word = "captains", deny = "CHAN_ONLY_CAPTAINS", color = { 0.35, 0.85, 0.85 } },
-	L = { level = 3, label = "CHAN_COUNCIL",    slash = "/bgl", word = "council",    deny = "CHAN_ONLY_COUNCIL",    color = { 0.75, 0.50, 1.00 } },
+	C = { level = 2, label = "CHAN_COUNCIL", slash = "/bgc", word = "council", deny = "CHAN_ONLY_COUNCIL", color = { 0.35, 0.85, 0.85 } },
+	L = { level = 3, label = "CHAN_ELDERS",    slash = "/bgl", word = "elders",    deny = "CHAN_ONLY_ELDERS",    color = { 0.75, 0.50, 1.00 } },
 }
 Channels.TIERS, Channels.ORDER = TIERS, { "A", "C", "L" }
 Channels.HISTORY = HISTORY
@@ -55,8 +55,8 @@ end
 
 -- 1.1 (Fern's #11): the Bankai Guild chats are the player's choice, on the first-open page
 -- (Consent.lua) or /bk chat on|off. Off until they answer (ns.db.addonChat is nil until then,
--- account-wide), and off after a No: this client neither sends nor shows [Bankai Guild], [Captains]
--- or [Council]. A line that arrives is dropped before anything keeps it (no history, nothing to
+-- account-wide), and off after a No: this client neither sends nor shows [Bankai Guild], [Council]
+-- or [Elders]. A line that arrives is dropped before anything keeps it (no history, nothing to
 -- the Chat tab or a companion through the bridge); the client still sits in the channel, for
 -- the census.
 function Channels.ChatOn() return ns.db ~= nil and ns.db.addonChat == true end
@@ -100,14 +100,14 @@ local function NextId()
 end
 
 ---------------------------------------------------------------------------
--- Who may read and write what. Levels: 0 outside Bankai Guild, 1 member, 2 Captain, 3 Council.
+-- Who may read and write what. Levels: 0 outside Bankai Guild, 1 member, 2 Council member, 3 Elder.
 ---------------------------------------------------------------------------
 
 function Channels.LevelOf(guild, rankIndex)
 	if not ns.IsFederation(guild) then return 0 end
-	-- To keep [Council] for guild masters only, use rankIndex == 0 here instead of the Council.
-	if rankIndex and ns.IsCouncilRank(guild, rankIndex) then return 3 end
-	if rankIndex and rankIndex <= ns.CAPTAIN_RANK then return 2 end
+	-- To keep [Elders] for guild masters only, use rankIndex == 0 here instead of the Elders.
+	if rankIndex and ns.IsElderRank(guild, rankIndex) then return 3 end
+	if rankIndex and rankIndex <= ns.COUNCIL_MEMBER_RANK then return 2 end
 	return 1
 end
 
@@ -199,10 +199,10 @@ function Channels.RoleBadge(sender)
 	return (ns.COIN:gsub(" $", ""))
 end
 
--- "[Captains] [Name] <Guild>: text". The name is a player link, like in any chat line, so a
+-- "[Council] [Name] <Guild>: text". The name is a player link, like in any chat line, so a
 -- click opens the usual whisper and menu (to the name the server finds, ns.TellName). The
 -- text is sanitized again here: history comes from the SavedVariables too. bare (1.1.1, the
--- Bankai Guild tab): without "[Captains] ", the rest byte for byte the same. 1.2.1: "[Captains]" is
+-- Bankai Guild tab): without "[Council] ", the rest byte for byte the same. 1.2.1: "[Council]" is
 -- Channels.Tag's, a link where this client may write there (the end of this file).
 function Channels.ShowGuildNames()
 	return not (ns.db and ns.db.chatHideGuildNames == true)
@@ -509,7 +509,7 @@ local function Mixed(i)
 	return i ~= nil and (Registers(GetChatWindowMessages, i) or Registers(GetChatWindowChannels, i))
 end
 
--- "[Bankai Guild], [Captains], [Council]", each in its channel's colour: the tab's legend.
+-- "[Bankai Guild], [Council], [Elders]", each in its channel's colour: the tab's legend.
 local function Legend()
 	local parts = {}
 	for _, tier in ipairs(Channels.ORDER) do
@@ -695,7 +695,7 @@ function Channels.OpenWindows()
 	return out
 end
 
--- "[Bankai Guild] main window, [Captains] "Bankai Guild"" for /bk chatwindow and /bk status.
+-- "[Bankai Guild] main window, [Council] "Bankai Guild"" for /bk chatwindow and /bk status.
 function Channels.WindowStatus()
 	local chosen = Chosen() or {}
 	local parts = {}
@@ -797,7 +797,7 @@ local MAIN_WORDS = { main = true, default = true, principal = true }
 local ALL_WORDS = { all = true, todos = true }
 local TAB_WORDS = { tab = true, aba = true }
 
--- /bk chatwindow <number | name | main | tab> [bankaiguild | captains | council]
+-- /bk chatwindow <number | name | main | tab> [bankaiguild | council | elders]
 function Channels.ChooseWindow(input)
 	input = tostring(input or ""):match("^%s*(.-)%s*$")
 	if input == "" then
@@ -808,7 +808,7 @@ function Channels.ChooseWindow(input)
 	if not ns.me then return false end
 	-- tab (or aba): the Bankai Guild tab, made already or not (1.1.1). Before any window's name, as main.
 	if TAB_WORDS[input:lower()] then return Channels.SetupTab() end
-	-- The whole text first (a window may be called "Bankai Guild Council"), then a channel at its end.
+	-- The whole text first (a window may be called "Bankai Guild Elders"), then a channel at its end.
 	local target, tiers = input, Channels.ORDER
 	if not MAIN_WORDS[input:lower()] and not PickWindow(input) then
 		local head, last = input:match("^(.-)%s+(%S+)$")
@@ -1153,7 +1153,7 @@ local function Ignored(sender)
 	return ok and res == true
 end
 
--- Flood guard per channel, so [Bankai Guild] traffic never silences [Captains] or [Council]. Once a
+-- Flood guard per channel, so [Bankai Guild] traffic never silences [Council] or [Elders]. Once a
 -- channel is half full, a sender who already had FAIR_SHARE lines in it waits: one or two
 -- spammers can't take the whole minute from everyone else.
 local function Flooded(tier, sender, now)
@@ -1173,7 +1173,7 @@ local function Flooded(tier, sender, now)
 end
 
 -- What the flood guard kept off the chat is said, never silent: at most one line a minute,
--- "[Bankai Guild] 12, [Captains] 3", where most of those lines would have shown, telling where they
+-- "[Bankai Guild] 12, [Council] 3", where most of those lines would have shown, telling where they
 -- are and how many lines the history keeps. Called on each line held, by a timer once the
 -- notice is due, and by the housekeeping. Returns true when it printed.
 function Channels.FloodNotice(now)
@@ -1416,7 +1416,7 @@ end)
 -- anyone one of them. A guild master pins for his own guild only, over GUILD: his guildmates'
 -- clients read his rank in their own roster (the server's word), never in the census, which
 -- anyone on the channel writes to (two characters reporting a made-up guild that names one of
--- them its leader would otherwise pin for the whole army). The officers of <Elfcore>, Council on
+-- them its leader would otherwise pin for the whole army). The officers of <Elfcore>, Elders on
 -- its own members' clients alone (ns.IsCrownRank), pin for the army only as his Hands.
 -- One line on each client. A newer pin takes the place of one of its own rank or lower: the
 -- Shogun's newer pin always wins, a Steward's or a Hand's never replaces the Shogun's, a guild
@@ -1460,7 +1460,7 @@ Channels.PIN_RESEND = 300      -- the setter's client repeats it this often
 Channels.PIN_GAP = 60          -- a sender's new pin at most this often (taken a little sooner: queues)
 Channels.PIN_DOWN_KEEP = 200   -- pins taken down a client remembers at most (the lowest rank's go first, then the oldest)
 Channels.PIN_DOWN_EACH = 10    -- of them, a sender's takedowns of his own pins at most (his oldest go first)
-Channels.PIN_SHOGUN, Channels.PIN_CROWN, Channels.PIN_COUNCIL = 3, 2, 1
+Channels.PIN_SHOGUN, Channels.PIN_CROWN, Channels.PIN_ELDER = 3, 2, 1
 
 local pin            -- the pinned line: { id, sender, guild, text, rank, dist, setAt, expires, mine, sentAt }
 local lastPinSet = -math.huge
@@ -1477,9 +1477,9 @@ end
 
 -- The rank `sender` pins with for `guild`, heard over `dist` (the channel when not given): on the
 -- channel PIN_SHOGUN (the Shogun by his pinned name) or PIN_CROWN (a Steward or a Hand), for the
--- Shogun's guild; over GUILD PIN_COUNCIL, our own guild's master as our roster has him; nil for anyone
+-- Shogun's guild; over GUILD PIN_ELDER, our own guild's master as our roster has him; nil for anyone
 -- else. Never the rank a message claims, and never the census's word (Data.KnownRank): anyone on
--- the channel reports to it. An officer of <Elfcore> is no Council here even on its own members'
+-- the channel reports to it. An officer of <Elfcore> is no Elder here even on its own members'
 -- clients: he pins for the army as a Hand.
 function Channels.PinRank(sender, guild, dist)
 	if type(sender) ~= "string" or type(guild) ~= "string" or not ns.IsFederation(guild) then return nil end
@@ -1488,7 +1488,7 @@ function Channels.PinRank(sender, guild, dist)
 	if WC and WC.Barred and WC.Barred("powers", sender) then return nil end
 	if dist == "GUILD" then
 		if guild ~= GetGuildInfo("player") then return nil end
-		return ns.Roster.RankOf(sender) == 0 and Channels.PIN_COUNCIL or nil
+		return ns.Roster.RankOf(sender) == 0 and Channels.PIN_ELDER or nil
 	end
 	if (dist or "CHANNEL") ~= "CHANNEL" or not ns.IsShogunGuild(guild) then return nil end
 	if ns.IsShogunCharacter(sender) then return Channels.PIN_SHOGUN end
@@ -1500,14 +1500,14 @@ end
 -- Our own rank, as the others' clients will see it (Channels.PinRank), the guild our pin names and
 -- where it goes: the Shogun, a Steward or a Hand for the army (the Shogun's guild, on the channel); a
 -- guild master, by our own rank (the server's), for his own guild alone (GUILD). Never the
--- officers of <Elfcore> (Council on its own members' clients alone).
+-- officers of <Elfcore> (Elders on its own members' clients alone).
 local function MyPin()
 	local K = ns.Shogun
 	local WC = ns.WatchChat
 	if WC and WC.Barred and WC.Barred("powers") then return nil end -- (1.1.6: sanctioned)
 	if K and K.IsShogun and K.IsShogun() and ns.IsShogunCharacter(ns.me) then return Channels.PIN_SHOGUN, GetGuildInfo("player"), "CHANNEL" end
 	if K and ((K.IsSteward and K.IsSteward()) or (K.IsHand and K.IsHand())) then return Channels.PIN_CROWN, ns.ShogunGuildName(), "CHANNEL" end
-	if ns.IsMember() and ns.Roster.MyRank() == 0 and Channels.MyLevel() >= TIERS.L.level then return Channels.PIN_COUNCIL, GetGuildInfo("player"), "GUILD" end
+	if ns.IsMember() and ns.Roster.MyRank() == 0 and Channels.MyLevel() >= TIERS.L.level then return Channels.PIN_ELDER, GetGuildInfo("player"), "GUILD" end
 	return nil
 end
 function Channels.CanPin() return MyPin() ~= nil end
@@ -1541,7 +1541,7 @@ end
 local function DownKey(sender, id) return tostring(sender):lower() .. "#" .. tostring(id) end
 local function DownRank(e)
 	local r = type(e) == "table" and e.r
-	return (type(r) == "number" and r >= Channels.PIN_COUNCIL and r <= Channels.PIN_SHOGUN) and r or 0
+	return (type(r) == "number" and r >= Channels.PIN_ELDER and r <= Channels.PIN_SHOGUN) and r or 0
 end
 -- The oldest first (the key breaks a tie).
 local function Oldest(a, b)
@@ -1936,7 +1936,7 @@ ns.Comm.Handle("N1", function(dist, sender, text) Channels.HandlePin(dist, sende
 function Channels.PinStatus(now)
 	local p = Current(now)
 	if not p then return "none" end
-	local ranks = { [3] = "the Shogun", [2] = "Steward or Hand", [1] = "Council" }
+	local ranks = { [3] = "the Shogun", [2] = "Steward or Hand", [1] = "Elder" }
 	return ("by %s <%s> (%s)%s%s, ends in %dm"):format(ns.DisplayName(p.sender) or "?", Codec.Plain(p.guild), ranks[p.rank] or "?",
 		p.mine and ", ours" or "", Channels.Pin(now) ~= p and ", not shown here (chats off or net-off)" or "",
 		math.ceil((p.expires - (now or ns.Now())) / 60))
@@ -1960,7 +1960,7 @@ function Channels.RestorePin(now)
 	local text = Channels.CleanPin(s.text)
 	if not (id and rank and setAt and expires) or (s.dist ~= "CHANNEL" and s.dist ~= "GUILD") or type(s.guild) ~= "string"
 		or s.guild == "" or Codec.LongGuild(s.guild) or #text < 3 or expires <= now or expires - setAt > Channels.PIN_TIME
-		or not (rank == Channels.PIN_SHOGUN or rank == Channels.PIN_CROWN or rank == Channels.PIN_COUNCIL) then
+		or not (rank == Channels.PIN_SHOGUN or rank == Channels.PIN_CROWN or rank == Channels.PIN_ELDER) then
 		return false
 	end
 	Hold({ id = math.floor(id), sender = ns.me, guild = s.guild, text = text, rank = rank, dist = s.dist, setAt = setAt,
@@ -2040,8 +2040,8 @@ end
 
 local WORDS = {
 	all = "A", a = "A", bankaiguild = "A", todos = "A",
-	captains = "C", captain = "C", c = "C", capitaes = "C", ["capitães"] = "C",
-	council = "L", council = "L", l = "L", conselho = "L",
+	council = "C", councilMember = "C", c = "C", capitaes = "C", ["conselho"] = "C",
+	elders = "L", elder = "L", l = "L", anciaos = "L",
 }
 function Channels.TierForWord(w)
 	return WORDS[(tostring(w or ""):lower():gsub("^%s+", ""):gsub("%s+$", ""))]
@@ -2155,15 +2155,15 @@ local slashDone = false
 ns.Gate.Hooks("slash", { key = "channels", leftover = function() return slashDone end, install = function() -- gp:slash
 	if slashDone then return end
 	slashDone = true
-	SLASH_BANKAIGUILDALL1, SLASH_BANKAIGUILDCAPTAINS1, SLASH_BANKAIGUILDCOUNCIL1 = "/bg", "/bgc", "/bgl"
+	SLASH_BANKAIGUILDALL1, SLASH_BANKAIGUILDCOUNCIL1, SLASH_BANKAIGUILDELDERS1 = "/bg", "/bgc", "/bgl"
 	SlashCmdList.BANKAIGUILDALL = Slash("A", "slash /bg")
-	SlashCmdList.BANKAIGUILDCAPTAINS = Slash("C", "slash /bgc")
-	SlashCmdList.BANKAIGUILDCOUNCIL = Slash("L", "slash /bgl")
+	SlashCmdList.BANKAIGUILDCOUNCIL = Slash("C", "slash /bgc")
+	SlashCmdList.BANKAIGUILDELDERS = Slash("L", "slash /bgl")
 end })
 
 ---------------------------------------------------------------------------
 -- 1.2.1 (the author's ask): the channel's name before a line in the game's chat, [Bankai Guild],
--- [Captains] or [Council], is a link, as the game's own [Party], [Guild] or [1. General] are: a
+-- [Council] or [Elders], is a link, as the game's own [Party], [Guild] or [1. General] are: a
 -- left click opens the game's chat box with /bg, /bgc or /bgl in it, the cursor after it, ready
 -- for the line. Only where this client may write in that channel now (Channels.CanWrite: a
 -- member of its rank, the chats on, not taken off them nor timed out): elsewhere the plain name,
@@ -2246,7 +2246,7 @@ function Channels.TagLinked(tier)
 		and Channels.CanWrite(tier) or false
 end
 
--- "[Bankai Guild]", "[Captains]" or "[Council]" before a line: the link where Channels.TagLinked says so.
+-- "[Bankai Guild]", "[Council]" or "[Elders]" before a line: the link where Channels.TagLinked says so.
 -- No colour of its own: the line's, as [Party] is.
 function Channels.Tag(tier)
 	local name = "[" .. Label(tier) .. "]"

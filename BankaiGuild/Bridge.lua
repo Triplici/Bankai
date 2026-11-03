@@ -400,7 +400,7 @@ end)
 -- several players' Companions agreeing confirm what was said, and to moderate). fn(tier, sender,
 -- text, isSelf) for every Bankai Guild chat line this client shows, the player's own included (isSelf):
 --   tier   the chat, as a moderator's deletion names it (WatchChat.lua): "A", "C" or "L" for
---          [Bankai Guild], [Captains] and [Council]; a room's id for the rooms this character is in
+--          [Bankai Guild], [Council] and [Elders]; a room's id for the rooms this character is in
 --          ("guild", a role room's, a squad's, a crafting deal's); a fight or Bones room's id.
 --          (A pinned line is no chat's line: never here, as README's chat record row says.)
 --   text   as Bankai Guild keeps it, after its checks and Codec.SanitizeChat: a muted channel's lines,

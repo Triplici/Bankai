@@ -141,8 +141,8 @@
         "The Realm tab says Online now (12) but my guild has 19 online",
         "Why is Bankai Guild's online list shorter than my guild roster?"
       ],
-      "answer": "The Council and Captains are listed above that line, so they're not in its number. Add the ones who are online and it matches your roster.",
-      "in_game": "The Council and Captains are listed above that line, so they're not in its number. Add the online ones and it matches your roster.",
+      "answer": "The Elder and Council are listed above that line, so they're not in its number. Add the ones who are online and it matches your roster.",
+      "in_game": "The Elder and Council are listed above that line, so they're not in its number. Add the online ones and it matches your roster.",
       "sources": [
         "Views.lua:1078-1087 MembersOf skips leader and officers",
         "Roster.lua:110-111 (Roster.online holds online members only)"
@@ -173,9 +173,9 @@
         "The Realm shows 50 online for another guild but the Census says 212",
         "Why does 'Seen online' stop at 50?"
       ],
-      "answer": "For other guilds, the Realm tab lists who /who found. /who gives 50 per search, and the Council and Captains are listed above that line. More clicks dig further, level by level. The Census number is that guild's own report, so go by that one.",
-      "in_game": "Seen online is what /who found (50 per search, more clicks dig further), minus the Council and Captains. The Census number is the guild's own report: go by that one.",
-      "notes": "L.MEMBERS_SEEN_TIP says reports only name the Council and Captains; they also carry each guild's top five.",
+      "answer": "For other guilds, the Realm tab lists who /who found. /who gives 50 per search, and the Elder and Council are listed above that line. More clicks dig further, level by level. The Census number is that guild's own report, so go by that one.",
+      "in_game": "Seen online is what /who found (50 per search, more clicks dig further), minus the Elder and Council. The Census number is the guild's own report: go by that one.",
+      "notes": "L.MEMBERS_SEEN_TIP says reports only name the Elder and Council; they also carry each guild's top five.",
       "sources": [
         "Views.lua:1079-1081,1088-1100",
         "Who.lua:32-35 Who.BRACKETS",
@@ -304,12 +304,12 @@
         "Only ~5 with Bankai Guild on my layer?",
         "The layer count is way too low"
       ],
-      "answer": "That's a sample, not a headcount: only players who share their location announce their layer, and of those just Council, Captains and about 1 in 8 others. There are a lot more of us on it.",
-      "in_game": "That's a sample: only players who share their location announce their layer, and of those just Council, Captains and about 1 in 8 others.",
+      "answer": "That's a sample, not a headcount: only players who share their location announce their layer, and of those just Elders, Council and about 1 in 8 others. There are a lot more of us on it.",
+      "in_game": "That's a sample: only players who share their location announce their layer, and of those just Elders, Council and about 1 in 8 others.",
       "notes": "No tooltip explains this today (Views.lua:1758 only says Experimental).",
       "sources": [
         "Layers.lua:58,72,92-96,208-212",
-        "Core.lua:764 CAPTAIN_RANK",
+        "Core.lua:764 COUNCIL_MEMBER_RANK",
         "README.md:1739-1740"
       ]
     },
@@ -351,7 +351,7 @@
         "Why does the roll call say someone is silent when they logged off?",
         "What does +N unconfirmed mean on the Throne?"
       ],
-      "answer": "Silent means a Council member or Captain the latest report showed online didn't answer, and that report can be a few minutes old, so someone who just logged off counts. Unconfirmed answers came from players the census can't place yet.",
+      "answer": "Silent means an Elder or Council member the latest report showed online didn't answer, and that report can be a few minutes old, so someone who just logged off counts. Unconfirmed answers came from players the census can't place yet.",
       "in_game": "Silent = shown online by the latest report (a few min old) but no answer, so someone who just logged off counts. Unconfirmed: the census can't place them yet.",
       "sources": [
         "Shogun.lua:1255-1329 (the roll call's groups)"
@@ -425,8 +425,8 @@
         "What does the Census tab show?",
         "What's in a guild's tooltip?"
       ],
-      "answer": "Every Bankai Guild guild with its members, online, average level and Council; click a column to sort, a tie goes to the higher average level. Hover a guild for free slots, inactive members, classes online and top zones.",
-      "in_game": "Every Bankai Guild guild: members, online, average level, Council. Click a column to sort (a tie: the higher average level); hover a guild for free slots, classes and zones.",
+      "answer": "Every Bankai Guild guild with its members, online, average level and Elder; click a column to sort, a tie goes to the higher average level. Hover a guild for free slots, inactive members, classes online and top zones.",
+      "in_game": "Every Bankai Guild guild: members, online, average level, Elder. Click a column to sort (a tie: the higher average level); hover a guild for free slots, classes and zones.",
       "sources": [
         "README.md:90-97",
         "Views.lua:595-632"
@@ -502,7 +502,7 @@
         "What's the warning mark next to a guild?",
         "Why does a guild have a question mark?"
       ],
-      "answer": "A warning mark means players' reports for that guild disagree on its Council, Captains or size; a question mark means only one player reports it. Hover it for details. It's a heads-up before a muster or the gates, and changes no count.",
+      "answer": "A warning mark means players' reports for that guild disagree on its Elder, Council or size; a question mark means only one player reports it. Hover it for details. It's a heads-up before a muster or the gates, and changes no count.",
       "in_game": "Warning mark: reports for that guild disagree. Question mark: only one player reports it. Hover for details; it changes no count.",
       "sources": [
         "README.md:106-111",
@@ -517,8 +517,8 @@
         "How do I find a guild or a player?",
         "Which guilds are recruiting?"
       ],
-      "answer": "Use the box on top of the Census: a guild, a Council member, a Captain, a player from a guild's top five or seen online, or a zone. Type recruiting (or free 50) for every guild with room, most free slots first and the Shogun's gates on top.",
-      "in_game": "Search the Census box for a guild, Council, Captain, zone or a player seen online. Type recruiting for every guild with room.",
+      "answer": "Use the box on top of the Census: a guild, an Elder, a Council member, a player from a guild's top five or seen online, or a zone. Type recruiting (or free 50) for every guild with room, most free slots first and the Shogun's gates on top.",
+      "in_game": "Search the Census box for a guild, Elder, Council member, zone or a player seen online. Type recruiting for every guild with room.",
       "sources": [
         "README.md:119-122"
       ]
@@ -576,10 +576,10 @@
       "status": "current (1.2.4)",
       "questions": [
         "What's the Realm tab?",
-        "Why is a Council member's name red?"
+        "Why is an Elder's name red?"
       ],
-      "answer": "The hierarchy: the Shogun, the Treasurer, then every guild's Council and Captains, online or days away, its average level after its Council; its Order line sorts the guilds (members, online, average level, guild, Council). A name turns red after a long absence (3 days by default; /bk warndays changes it).",
-      "in_game": "The Realm tab is the hierarchy: Shogun, Treasurer, Council (their guild's average level after them), Captains; its Order line sorts guilds. Red names: away 3+ days (/bk warndays).",
+      "answer": "The hierarchy: the Shogun, the Treasurer, then every guild's Elder and Council, online or days away, its average level after its Elder; its Order line sorts the guilds (members, online, average level, guild, Elder). A name turns red after a long absence (3 days by default; /bk warndays changes it).",
+      "in_game": "The Realm tab is the hierarchy: Shogun, Treasurer, Elders (their guild's average level after them), Council; its Order line sorts the guilds. Red names have been away 3+ days (/bk warndays to change).",
       "sources": [
         "README.md:131-143"
       ]
@@ -635,10 +635,10 @@
       "status": "current (1.1.1)",
       "questions": [
         "What's Recruits and their mentors?",
-        "How do I pair a recruit with a Captain?"
+        "How do I pair a recruit with a Council member?"
       ],
-      "answer": "For Council: /bk recruits lists your new members. Click an online recruit, then a Captain, and say yes. Each gets one whisper: the Captain learns who to look after, the recruit who to ask.",
-      "in_game": "Council: /bk recruits, click a recruit, then a Captain. Each gets one whisper so they know each other.",
+      "answer": "For Elders: /bk recruits lists your new members. Click an online recruit, then a Council member, and say yes. Each gets one whisper: the Council member learns who to look after, the recruit who to ask.",
+      "in_game": "Elders: /bk recruits, click a recruit, then a Council member. Each gets one whisper so they know each other.",
       "sources": [
         "README.md:154-158"
       ]
@@ -696,11 +696,11 @@
       "topic": "features",
       "status": "current (1.1.1)",
       "questions": [
-        "How do I whisper a Council member from another guild?",
+        "How do I whisper an Elder from another guild?",
         "What happens when I click a name?"
       ],
-      "answer": "Click any Council, Captain or racer in the Realm tab: a card opens with Whisper, Invite and Who. Any soldier can reach another guild's Council in two clicks.",
-      "in_game": "Click a Council member or Captain in the Realm tab for Whisper, Invite and Who.",
+      "answer": "Click any Elder, Council member or racer in the Realm tab: a card opens with Whisper, Invite and Who. Any soldier can reach another guild's Elder in two clicks.",
+      "in_game": "Click an Elder or Council member in the Realm tab for Whisper, Invite and Who.",
       "sources": [
         "README.md:209-212"
       ]
@@ -876,10 +876,10 @@
       "status": "current (1.1.1)",
       "questions": [
         "How do I talk in Bankai Guild chat?",
-        "Who can read [Captains]?",
+        "Who can read [Council]?",
         "Is Bankai Guild chat private?"
       ],
-      "answer": "/bg for [Bankai Guild] (everyone), /bgc for [Captains] (Captains and up), /bgl for [Council]. The chats stay off until you say yes (/bk chat on). They aren't private: anyone on the channel can read all three, so never share passwords.",
+      "answer": "/bg for [Bankai Guild] (everyone), /bgc for [Council] (Council and up), /bgl for [Elders]. The chats stay off until you say yes (/bk chat on). They aren't private: anyone on the channel can read all three, so never share passwords.",
       "in_game": "Talk with /bg, /bgc and /bgl. /bk chat on turns chats on. Not private: never share passwords there.",
       "sources": [
         "README.md:254-262,371-380"
@@ -907,7 +907,7 @@
         "How do I hide certain words?",
         "What does /bk filter do?"
       ],
-      "answer": "/bk filter add <word> hides addon lines with that word on your screen only: chats, writs, decrees and Vox. The sender isn't blocked. Moderators also keep a shared list; /bk filter shared off ignores it.",
+      "answer": "/bk filter add <word> hides addon lines with that word on your screen only: chats, writs, decrees and Poll. The sender isn't blocked. Moderators also keep a shared list; /bk filter shared off ignores it.",
       "in_game": "Type /bk filter add <word> to hide lines with it, on your screen only. /bk filter shared off ignores the moderators' list.",
       "sources": [
         "README.md:306-336"
@@ -922,7 +922,7 @@
         "Who can see The Watch?",
         "Does its ban list reject players automatically?"
       ],
-      "answer": "The Watch is private to a guild's Council, Captains and live signed moderators. Warnings escalate, reset with Clear and decay after 30 days. Actions and bounded recovery use logged officer whispers, never broadcasts. Nothing kicks, demotes, ignores or auto-rejects; every manual change is audited.",
+      "answer": "The Watch is private to a guild's Elder, Council and live signed moderators. Warnings escalate, reset with Clear and decay after 30 days. Actions and bounded recovery use logged officer whispers, never broadcasts. Nothing kicks, demotes, ignores or auto-rejects; every manual change is audited.",
       "in_game": "The Watch is a private guild moderation desk: deliberate warnings, timeouts, Watch or Ban marks, private recovery and an audit trail. It never kicks, demotes, ignores or auto-rejects anyone.",
       "sources": [
         "README.md:695-719"
@@ -1051,7 +1051,7 @@
         "How do I turn off the alert sounds?",
         "Why didn't I get the raid warning in my dungeon?"
       ],
-      "answer": "/bk sound off silences them all, or /bk sound vox off (or another kind) for one. In an instance or while Busy, alerts wait until you're out; /bk alerts always shows them at once.",
+      "answer": "/bk sound off silences them all, or /bk sound poll off (or another kind) for one. In an instance or while Busy, alerts wait until you're out; /bk alerts always shows them at once.",
       "in_game": "Type /bk sound off for all, or /bk sound <kind> off. In instances alerts wait; /bk alerts always shows them at once.",
       "sources": [
         "README.md:234-252"
@@ -1065,8 +1065,8 @@
         "What's a Royal Writ?",
         "How do I answer a writ?"
       ],
-      "answer": "A letter from the Shogun in the Decrees tab, to the Council, to Council and Captains, or to the whole army. Council and Captains can answer As you command, and the Shogun sees how many did.",
-      "in_game": "A letter from the Shogun in the Decrees tab. Council and Captains can answer As you command.",
+      "answer": "A letter from the Shogun in the Decrees tab, to the Elders, to Elders and Council, or to the whole army. Elders and Council can answer As you command, and the Shogun sees how many did.",
+      "in_game": "A letter from the Shogun in the Decrees tab. Elders and Council can answer As you command.",
       "sources": [
         "README.md:663-666"
       ]
@@ -1166,8 +1166,8 @@
         "What can the Shogun do in the addon?",
         "What's the Throne tab?"
       ],
-      "answer": "The Shogun's own tab holds his Agenda, week, key rotation and Hold Court button. His other tools sit where they belong: the private court queue in The Watch, Summon the Council and the gates on Realm, the Royal Inspection in The Watch's Tabards, and writs in Decrees.",
-      "in_game": "The Shogun's tab has his Agenda, week, key rotation and Hold Court. Its private queue is in The Watch; Summon the Council and gates are on Realm, inspection in The Watch's Tabards.",
+      "answer": "The Shogun's own tab holds his Agenda, week, key rotation and Hold Court button. His other tools sit where they belong: the private court queue in The Watch, Summon the Elders and the gates on Realm, the Royal Inspection in The Watch's Tabards, and writs in Decrees.",
+      "in_game": "The Shogun's tab has his Agenda, week, key rotation and Hold Court. Its private queue is in The Watch; Summon the Elders and gates are on Realm, inspection in The Watch's Tabards.",
       "sources": [
         "README.md:739-831"
       ]
@@ -1187,15 +1187,15 @@
       ]
     },
     {
-      "id": "feat-summon-council",
+      "id": "feat-summon-elders",
       "topic": "features",
       "status": "current (1.1.1)",
       "questions": [
-        "I got 'The Shogun summons his Council's",
-        "What's Summon the Council?"
+        "I got 'The Shogun summons his Elders'",
+        "What's Summon the Elders?"
       ],
-      "answer": "A roll call for Council and Captains online: answer Present or Busy. The Shogun sees who answered and who didn't, and the Realm tab marks each of them for a while.",
-      "in_game": "A roll call for Council and Captains: answer Present or Busy. The Shogun sees who answered.",
+      "answer": "A roll call for Elders and Council online: answer Present or Busy. The Shogun sees who answered and who didn't, and the Realm tab marks each of them for a while.",
+      "in_game": "A roll call for Elders and Council: answer Present or Busy. The Shogun sees who answered.",
       "sources": [
         "README.md:647-649"
       ]
@@ -1238,25 +1238,25 @@
         "What's the Shogun's Steward?",
         "Who are the Hands of the Shogun?"
       ],
-      "answer": "The Steward acts for the Shogun: he names Hands, manages the treasury's keepers and uses most of the Shogun's tools (not court, writs, pardons or his crown). Hands are players the Shogun or Steward names to run the roll call, Agenda, Vox, inspection and gates in his name.",
-      "in_game": "The Steward acts for the Shogun. Hands are players named to run his Agenda, Vox, roll call and gates.",
+      "answer": "The Steward acts for the Shogun: he names Hands, manages the treasury's keepers and uses most of the Shogun's tools (not court, writs, pardons or his crown). Hands are players the Shogun or Steward names to run the roll call, Agenda, Poll, inspection and gates in his name.",
+      "in_game": "The Steward acts for the Shogun. Hands are players named to run his Agenda, Poll, roll call and gates.",
       "sources": [
         "README.md:700-706,722-777,740-742"
       ]
     },
     {
-      "id": "feat-vox",
+      "id": "feat-poll",
       "topic": "features",
       "status": "current (1.1.6)",
       "questions": [
-        "What's Vox Populi?",
+        "What's Poll?",
         "How do I vote?"
       ],
-      "answer": "Polls from the Shogun, his Steward or a Hand (to the army, the High Council or the guild masters), or from a guild master to his guild. A window shows 2 to 6 answers and a countdown; your vote goes to whoever asked, and those asked see the result. /bk vox off keeps them in chat.",
-      "in_game": "Polls from the Shogun, his Steward or a Hand, or from your guild master: tick your answer before the timer ends. /bk vox off keeps them in chat.",
+      "answer": "Polls from the Shogun, his Steward or a Hand (to the army, the High Council or the guild masters), or from a guild master to his guild. A window shows 2 to 6 answers and a countdown; your vote goes to whoever asked, and those asked see the result. /bk poll off keeps them in chat.",
+      "in_game": "Polls from the Shogun, his Steward or a Hand, or from your guild master: tick your answer before the timer ends. /bk poll off keeps them in chat.",
       "sources": [
         "README.md:794-799",
-        "BankaiGuild/Vox.lua:1-20"
+        "BankaiGuild/Poll.lua:1-20"
       ]
     },
     {
@@ -1295,8 +1295,8 @@
         "How do I ask the treasury for items?",
         "What's /bk need?"
       ],
-      "answer": "Council and Captains: /bk need 10 and shift-click the item. The keepers see it on their Treasury tab and mark it done or declined, and you're told. The handover is still a normal trade or mail.",
-      "in_game": "Council and Captains: /bk need 10 then shift-click the item. Keepers see it and you're told when it's done.",
+      "answer": "Elders and Council: /bk need 10 and shift-click the item. The keepers see it on their Treasury tab and mark it done or declined, and you're told. The handover is still a normal trade or mail.",
+      "in_game": "Elders and Council: /bk need 10 then shift-click the item. Keepers see it and you're told when it's done.",
       "sources": [
         "README.md:858-877"
       ]
@@ -1447,10 +1447,10 @@
         "Can I search the lists?",
         "How do I find a name on a tab?"
       ],
-      "answer": "The Census, Realm, Treasury, Decrees and Chat tabs and The Watch's Tabards have a search box: guilds, Council, players or zones on the Census, members on the Realm, players on the Tabards, donors and bank items on the Treasury, the log on Decrees, lines on Chat. It only filters.",
+      "answer": "The Census, Realm, Treasury, Decrees and Chat tabs and The Watch's Tabards have a search box: guilds, Elders, players or zones on the Census, members on the Realm, players on the Tabards, donors and bank items on the Treasury, the log on Decrees, lines on Chat. It only filters.",
       "in_game": "Most tabs have a search box on top. It only filters what you see.",
       "sources": [
-        "README.md:1258-1264 (not Throne, Vox or Workshop)"
+        "README.md:1258-1264 (not Throne, Poll or Workshop)"
       ]
     },
     {

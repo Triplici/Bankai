@@ -8,20 +8,20 @@ local L = ns.L
 -- makes a new key (never typed,
 -- never shown: not on his stream either). He then picks which guilds get it: those his own /who
 -- saw are checked (the server's word that a guild of that name exists: a census row alone is
--- anyone's report, and two characters on the leaked channel can make up a guild and its Council),
+-- anyone's report, and two characters on the leaked channel can make up a guild and its Elders),
 -- the others wait for his click; nothing is sent before he hands it out. It goes where only its
 -- receivers read it, never on the Bankai Guild channel (public, or sealed with the key that leaked):
 --   K3~<epoch>~<key>[~<h1.h2.h3>]
---                      by whisper from the Shogun (or his Steward) to every Council and Captain of the
+--                      by whisper from the Shogun (or his Steward) to every Elder and Council member of the
 --                      guilds he picked
 --                      current authority confirms online (the census before explicit signed
 --                      enforcement, the manifest afterwards) whom his own /who saw in that guild
 --                      (Who.SeenGuild, the server's word; before enforcement two characters on the
---                      leaked channel can name themselves a real guild's Council and Captain),
+--                      leaked channel can name themselves a real guild's Elder and Council member),
 --                      and over GUILD from each of
 --                      them (their officers) to their own guild; K1~<key> with it there, for
 --                      guildmates before 1.1. The hashes: the keys it replaces (at most 3).
---   K4~<epoch>~<guild> a Council member's or Captain's addon tells the Shogun it has it (a whisper); his
+--   K4~<epoch>~<guild> an Elder's or Council member's addon tells the Shogun it has it (a whisper); his
 --                      Throne counts it only from a name his client whispered the key to, and
 --                      under the guild it whispered him for (its own record), never the one named.
 --   K5~<epoch held>    over GUILD, after login: a guildmate asks whether a newer key exists;
@@ -43,10 +43,10 @@ local L = ns.L
 -- The Shogun's client hands the key out a few whispers at a time, never more than the send queue
 -- has room for (its other messages keep their place), and counts a whisper as sent once it left.
 -- /who goes from a click alone: his click on a guild, or on the Throne's /who line, searches the
--- next one picked whose Council and Captains it has not seen there yet, then each of them by name
+-- next one picked whose Elders and Council it has not seen there yet, then each of them by name
 -- (Keys.Confirm); with the gamepad UI his click on the /who line searches a guild picked plainly,
 -- never a name. What it saw is kept with the rotation (rot.saw), through a /reload too.
--- It keeps handing it to Council and Captains who come online for GRACE, on the old channel (a
+-- It keeps handing it to Elders and Council who come online for GRACE, on the old channel (a
 -- little longer while some picked still wait for their whisper), then moves (with his guild);
 -- "Move now" sooner. Guilds with no officer online in that time stay on the old channel until one
 -- of theirs types the key by hand; the Throne says how many acknowledged. Older clients ignore
@@ -56,19 +56,19 @@ local Keys = {}
 ns.Keys = Keys
 
 Keys.GRACE = 600          -- the Shogun's client hands the new key out this long before it moves
-Keys.GRACE_MORE = 600     -- ...and up to this much longer while Council and Captains picked wait for their whisper
-Keys.RESEND = 300         -- the same Council or Captain is whispered again after this long without an answer
+Keys.GRACE_MORE = 600     -- ...and up to this much longer while Elders and Council picked wait for their whisper
+Keys.RESEND = 300         -- the same Elder or Council member is whispered again after this long without an answer
 Keys.MAX_WHISPERS = 60    -- whispers a round at most (the queue sends one each 1.2 s)
 Keys.QUEUE_SPARE = 20     -- ...and never more than leaves this much of the send queue free
 Keys.QUEUE_WAIT = 120     -- a whisper waiting this long in the queue (lost there) is handed again
 Keys.DATE_AHEAD = 60      -- an epoch further ahead of the server's clock is not taken
 Keys.ANSWER_GAP = 60      -- an officer answers a guildmate's ask (K5) once a minute at most
 Keys.ASK_AFTER = 25       -- the ask goes this long after login
-Keys.ONLINE_FRESH = 240   -- a Council member or Captain counts as online from a report this recent (a whisper to
+Keys.ONLINE_FRESH = 240   -- an Elder or Council member counts as online from a report this recent (a whisper to
                           -- someone who logged off since shows the Shogun the game's "no player named" line)
 Keys.RETIRED_MAX = 16     -- keys replaced by a newer epoch this client remembers (their hashes)
 Keys.RETIRES_SENT = 3     -- ...and a K3 names at most this many
-Keys.WHO_FRESH = 30 * 60  -- a Council member or Captain is whispered while his /who saw him in that guild this recently
+Keys.WHO_FRESH = 30 * 60  -- an Elder or Council member is whispered while his /who saw him in that guild this recently
 
 local stats = { rotated = 0, taken = 0, refused = 0, whispered = 0, acks = 0, relayed = 0, answered = 0, legacy = 0 }
 local lastAnswer = -math.huge
@@ -225,7 +225,7 @@ function Keys.HandleKey(dist, sender, text)
 	elseif dist == "GUILD" then
 		-- Our own officers, by our roster (the server's word): as K1 always was.
 		local rank = ns.Roster.RankOf(sender)
-		if not rank or rank > ns.CAPTAIN_RANK then
+		if not rank or rank > ns.COUNCIL_MEMBER_RANK then
 			stats.refused = stats.refused + 1
 			return
 		end
@@ -252,20 +252,20 @@ function Keys.HandleAck(dist, sender, text)
 	if tonumber(at) ~= rot.at then return end
 	sender = ns.FullName(sender)
 	-- Only from a name his client whispered the key to (counted once it left): anyone else's K4
-	-- would pass on his Throne for a Council member or Captain who has it (Konig's review).
+	-- would pass on his Throne for an Elder or Council member who has it (Konig's review).
 	if not (type(rot.sent) == "table" and rot.sent[sender]) then
 		return ns.Log("realm key: %s's acknowledgement ignored: not whispered the key", sender)
 	end
 	local sentFor = type(rot.sentFor) == "table" and rot.sentFor[sender]
 	if ns.Authority and ns.Authority.Enforced and ns.Authority.Enforced() then
 		local rank = type(sentFor) == "string" and ns.Data.AuthorizedRank(sender, sentFor)
-		if rank == nil or rank > ns.CAPTAIN_RANK then
+		if rank == nil or rank > ns.COUNCIL_MEMBER_RANK then
 			return ns.Log("realm key: %s's acknowledgement ignored: signed authority ended", sender)
 		end
 	end
 	rot.acked = type(rot.acked) == "table" and rot.acked or {}
 	if rot.acked[sender] then return end
-	-- Under the guild his client whispered him for, never the one the K4 names: a Council member whispered
+	-- Under the guild his client whispered him for, never the one the K4 names: an Elder whispered
 	-- could name any guild, and the Throne would count it as having the key (1.1 review).
 	rot.acked[sender] = sentFor
 	stats.acks = stats.acks + 1
@@ -318,7 +318,7 @@ function Keys.HandleClear(dist, sender, text)
 	if not at then return false end
 	sender = ns.FullName(sender)
 	local rank = ns.Roster.RankOf(sender)
-	if not rank or rank > ns.CAPTAIN_RANK then
+	if not rank or rank > ns.COUNCIL_MEMBER_RANK then
 		stats.refused = stats.refused + 1
 		return false
 	end
@@ -424,7 +424,7 @@ local function Seen(guild)
 end
 Keys.Seen = Seen
 
--- What his /who saw of the Council and Captains the census names is kept in the rotation (rot.saw:
+-- What his /who saw of the Elders and Council the census names is kept in the rotation (rot.saw:
 -- [Name-Realm] = { guild, at = server time }), like the rest of it: Who.lua's own list starts
 -- empty after a /reload or relog, and is forgotten whole past Who.SEEN_MAX names (a pass over
 -- the army's guilds lists more), while the hand-out depends on it (Konig's review).
@@ -432,8 +432,8 @@ local function Keep(rot, name, guild, at)
 	rot.saw = type(rot.saw) == "table" and rot.saw or {}
 	rot.saw[name] = { guild = guild, at = at }
 end
--- Every player an answer of ours lists (Who.OnSaw): kept when current authority names him a Council member
--- or Captain of the guild it shows, or was kept already (seen elsewhere now: that counts too).
+-- Every player an answer of ours lists (Who.OnSaw): kept when current authority names him an Elder
+-- or Council member of the guild it shows, or was kept already (seen elsewhere now: that counts too).
 -- Current authority is the legacy census until explicit signed enforcement.
 function Keys.Saw(name, guild)
 	local rot = Rotation()
@@ -441,7 +441,7 @@ function Keys.Saw(name, guild)
 	name = ns.FullName(name)
 	guild = type(guild) == "string" and guild or ""
 	local kept = type(rot.saw) == "table" and rot.saw[name]
-	if kept or (guild ~= "" and (ns.Data.AuthorizedRank(name, guild) or math.huge) <= ns.CAPTAIN_RANK) then
+	if kept or (guild ~= "" and (ns.Data.AuthorizedRank(name, guild) or math.huge) <= ns.COUNCIL_MEMBER_RANK) then
 		Keep(rot, name, guild, Clock())
 	end
 end
@@ -449,7 +449,7 @@ if ns.Who and ns.Who.OnSaw then ns.Who.OnSaw(function(name, guild) Keys.Saw(name
 
 -- His own /who listed this player in exactly this guild within WHO_FRESH (Who.SeenGuild, or the
 -- rotation's own record: the newer): the server's word. The census alone can't say it: two
--- characters on the leaked channel can report themselves a real guild's Council and Captain
+-- characters on the leaked channel can report themselves a real guild's Elder and Council member
 -- (Data.KnownRank asks two senders, they are two). A sighting from before the rotation that holds
 -- is kept in it from then on.
 local function WhoSaw(name, guild)
@@ -469,7 +469,7 @@ end
 Keys.WhoSaw = WhoSaw
 
 -- Every guild but ours (ours gets it over GUILD when he moves: an officer's word there; a Steward
--- who is no officer of his guild has it handed like any other) with Council and Captains current
+-- who is no officer of his guild has it handed like any other) with Elders and Council current
 -- authority confirms online: { guild, names = { Name-Realm } his /who saw
 -- in it (whispered), waiting = { Name-Realm } it did not (not whispered), seen }.
 function Keys.Candidates()
@@ -484,7 +484,7 @@ function Keys.Candidates()
 				if type(name) ~= "string" or not online then return end
 				local full = ns.FullName(name, home)
 				local rank = ns.Data.AuthorizedRank(full, e.name)
-				if rank and rank <= ns.CAPTAIN_RANK then
+				if rank and rank <= ns.COUNCIL_MEMBER_RANK then
 					if WhoSaw(full, e.name) then names[#names + 1] = full else waiting[#waiting + 1] = full end
 				end
 			end
@@ -505,7 +505,7 @@ local function Picked(rot, c)
 	return v == true
 end
 
--- The Council and Captains online of the guilds the Shogun picked, whom his /who saw in them:
+-- The Elders and Council online of the guilds the Shogun picked, whom his /who saw in them:
 -- { name, guild }. Those the census alone names wait for his /who (Keys.Confirm).
 function Keys.Targets()
 	local rot, out = Rotation(), {}
@@ -530,7 +530,7 @@ function Keys.Toggle(guild)
 end
 
 -- The Shogun's click (the game takes /who from a click alone): his /who asks the server about the
--- Council and Captains picked it has not seen in their guild yet, one search a click at Who.lua's
+-- Elders and Council picked it has not seen in their guild yet, one search a click at Who.lua's
 -- pace (quiet): first the players of every guild picked not searched yet (up to 50 each), then
 -- by name each one those answers did not list (full, or he logged in since), the one asked
 -- longest ago first and each at most once in WHO_FRESH: made-up names in one guild's census
@@ -539,7 +539,7 @@ end
 -- With the gamepad UI no quiet search goes, and none by name (1.1 review): his click on the
 -- /who line searches one guild picked plainly, as the census's Refresh does there (the answer in
 -- the game's Who list, nothing silenced; Who.OnSaw reads it), the one searched longest ago
--- first, each again a minute after its last (Who.GUILD_AGAIN: a Council member who logged in since). A
+-- first, each again a minute after its last (Who.GUILD_AGAIN: an Elder who logged in since). A
 -- click on a guild's row only checks it there (the game's list opening would take the gamepad's
 -- focus). What the census's Refresh lists counts too.
 local asked, askedFor = {}, nil -- [Name-Realm] = GetTime() of our search for him by name; the rotation's epoch
@@ -591,7 +591,7 @@ function Keys.Confirm(only)
 	return false
 end
 
--- Picked Council and Captains online whose whisper never left yet (nor did they answer).
+-- Picked Elders and Council online whose whisper never left yet (nor did they answer).
 function Keys.Waiting()
 	local rot = Rotation()
 	if not rot then return 0 end
@@ -602,7 +602,7 @@ function Keys.Waiting()
 	return n
 end
 
--- Whispers the new key to the Council and Captains picked who have not answered (again after
+-- Whispers the new key to the Elders and Council picked who have not answered (again after
 -- RESEND): as many as the send queue has room for, each counted once it left.
 function Keys.Hand()
 	local rot = Rotation()
@@ -627,7 +627,7 @@ function Keys.Hand()
 				if not (ns.Authority and ns.Authority.Enforced and ns.Authority.Enforced()) then return true end
 				if Rotation() ~= rot or rot.moved or not Keys.CanRotate() or rot.acked[name] then return false end
 				local rank = ns.Data.AuthorizedRank(name, guild)
-				if rank == nil or rank > ns.CAPTAIN_RANK or not WhoSaw(name, guild) then return false end
+				if rank == nil or rank > ns.COUNCIL_MEMBER_RANK or not WhoSaw(name, guild) then return false end
 				return Picked(rot, { guild = guild, seen = Seen(guild) })
 			end
 			local guard = { owner = rot, guard = StillAuthorized }
@@ -708,7 +708,7 @@ function Keys.Tick()
 	local rot = Rotation()
 	if not rot or rot.moved or rot.picking or not Keys.CanRotate() then return end
 	local now, till = ns.Now(), tonumber(rot.till) or 0
-	-- The grace is over: he moves, a little later while Council and Captains picked still wait for
+	-- The grace is over: he moves, a little later while Elders and Council picked still wait for
 	-- their whisper (a long queue), GRACE_MORE at most.
 	if now >= till and (now >= till + Keys.GRACE_MORE or Keys.Waiting() == 0) then return Keys.Move() end
 	Keys.Hand()

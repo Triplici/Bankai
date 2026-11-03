@@ -25,11 +25,11 @@ V.OPTIONS = { "my", "shogun", "councillor", "treasurer", "arbiter", "gm", "offic
 -- cases and audit records still require the real character's guild-local officer authority.
 -- Correspondents and members have no tab of their own (yet): what they see is every member's.
 V.GRANTS = {
-	shogun = { throne = true, vox = true, treasury = true, watch = true, heraldry = true, ["games-staff"] = true, judgments = true, arbiter = true },
-	councillor = { throne = true, vox = true, treasury = true, watch = true, heraldry = true, ["games-staff"] = true, judgments = true, arbiter = true },
+	shogun = { throne = true, poll = true, treasury = true, watch = true, heraldry = true, ["games-staff"] = true, judgments = true, arbiter = true },
+	councillor = { throne = true, poll = true, treasury = true, watch = true, heraldry = true, ["games-staff"] = true, judgments = true, arbiter = true },
 	treasurer = { treasury = true, heraldry = true },
 	arbiter = { heraldry = true, arbiter = true },
-	gm = { throne = true, vox = true, treasury = true, watch = true, heraldry = true }, -- ("throne": his Guild tab in its place)
+	gm = { throne = true, poll = true, treasury = true, watch = true, heraldry = true }, -- ("throne": his Guild tab in its place)
 	officer = { treasury = true, watch = true, heraldry = true },
 	correspondent = { heraldry = true },
 	member = { heraldry = true },
@@ -37,7 +37,7 @@ V.GRANTS = {
 }
 -- The tabs only a role opens: under a preview, for the roles given them alone, whatever the
 -- author's own character may open.
-V.RESTRICTED = { throne = true, vox = true, workshop = true }
+V.RESTRICTED = { throne = true, poll = true, workshop = true }
 
 local role = "my"
 local menu

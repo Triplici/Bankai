@@ -23,7 +23,7 @@ local function Store()
 			or row.total > row.known * ns.Codec.GUILD_CAP or not Number(row.at)
 			or type(row.coverage) ~= "string" or row.coverage == "" or #row.coverage > 16000 then s.weeks[key] = nil end
 	end
-	if type(s.vox) ~= "table" or type(s.vox.q) ~= "string" or type(s.vox.verdict) ~= "string" or not Number(s.vox.at) then s.vox = nil end
+	if type(s.poll) ~= "table" or type(s.poll.q) ~= "string" or type(s.poll.verdict) ~= "string" or not Number(s.poll.at) then s.poll = nil end
 	return s
 end
 local function Week()
@@ -49,7 +49,7 @@ local function Census()
 end
 
 local function PublicResult(s)
-	local V = ns.Vox
+	local V = ns.Poll
 	if not V or not V.State or (ns.Shogun and ns.Shogun.Preview and ns.Shogun.Preview()) then return end
 	local poll, history, shown = V.State()
 	local candidates = {}
@@ -61,8 +61,8 @@ local function PublicResult(s)
 		if h.to == "E" and not h.hidden and type(h.q) == "string" and type(h.answers) == "table"
 			and type(h.counts) == "table" and Number(h.voters) then
 			local at = Number(h.resultsAt or h.t or h.at)
-			if at and (not s.vox or at > (tonumber(s.vox.at) or 0)) then
-				s.vox = { q = Plain(h.q), verdict = Plain(V.Verdict(h.answers, h.counts, h.voters, h.multi)), at = at }
+			if at and (not s.poll or at > (tonumber(s.poll.at) or 0)) then
+				s.poll = { q = Plain(h.q), verdict = Plain(V.Verdict(h.answers, h.counts, h.voters, h.multi)), at = at }
 			end
 		end
 	end
@@ -112,10 +112,10 @@ function Brief.Lines(q)
 	end
 	if #entries == 0 then lines[#lines + 1] = { text = L.BRIEF_NO_WEEK } end
 	local s, F = Store(), ns.Filter
-	local v = s and type(s.vox) == "table" and s.vox or nil
+	local v = s and type(s.poll) == "table" and s.poll or nil
 	local result = v and Plain(v.q) .. " - " .. Plain(v.verdict) or L.BRIEF_UNKNOWN
 	if v and F and F.Hides and (F.Hides(v.q) or F.Hides(v.verdict)) then result = L.FILTER_WORDS_HIDDEN_SHORT end
-	Row(L.BRIEF_VOX, result)
+	Row(L.BRIEF_POLL, result)
 	local T = ns.Treasury
 	if T and T.PublicShows and T.PublicShows("balance") then
 		local copper, books
@@ -155,10 +155,10 @@ local function PersonalValues()
 	local open = {}
 	local C = ns.Court
 	if C and ((C.Current and C.Current()) or (C.Holding and C.Holding())) then open[#open + 1] = L.BRIEF_COURT_OPEN end
-	if ns.Vox and ns.Vox.State then
-		local poll, _, shown = ns.Vox.State()
+	if ns.Poll and ns.Poll.State then
+		local poll, _, shown = ns.Poll.State()
 		if (poll and not poll.closed and not poll.preview and poll.at >= now)
-			or (shown and not shown.counts and shown.at >= now) then open[#open + 1] = L.BRIEF_VOX_OPEN end
+			or (shown and not shown.counts and shown.at >= now) then open[#open + 1] = L.BRIEF_POLL_OPEN end
 	end
 	local R = ns.Roster and ns.Roster.Fresh and ns.Roster.Fresh()
 	local online = R and type(R.online) == "table" and tostring(#R.online) or L.BRIEF_UNKNOWN

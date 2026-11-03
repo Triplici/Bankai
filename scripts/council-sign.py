@@ -98,8 +98,8 @@ Cross-guild leadership migration (1.2): absent by default, so the documented cen
 unchanged. It is activated only by the deliberately explicit "leadership" object below:
 
   "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"],
-    "guilds": [{"guild": "Bankai Guild II", "leader": "Council Name-ClassicBetaPvP",
-                "officers": ["Captain One-ClassicBetaPvP2"], "faction": "Alliance"}]}
+    "guilds": [{"guild": "Bankai Guild II", "leader": "Elder Name-ClassicBetaPvP",
+                "officers": ["Council member One-ClassicBetaPvP2"], "faction": "Alliance"}]}
 
 Every character must carry an exact realm from the signed realm group. Each enforced faction gets
 an entry even when its guilds list is empty (the signed empty tombstone). Once a client accepts an

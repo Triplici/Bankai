@@ -280,7 +280,7 @@ function Layers.Receive(sender, l)
 	where[sender] = { l.mapID, l.zoneUID }
 	seen[l.mapID] = seen[l.mapID] or {}
 	seen[l.mapID][l.zoneUID] = seen[l.mapID][l.zoneUID] or {}
-	-- The rank written in the message is not trusted: only verified Council and Captains
+	-- The rank written in the message is not trusted: only verified Elders and Council
 	-- (or ranks from our own roster) can give a layer its name.
 	local rank = ns.Data.KnownRank(sender, l.guild) or 9
 	seen[l.mapID][l.zoneUID][sender] = { rank = rank, guild = l.guild, t = ns.Now() }

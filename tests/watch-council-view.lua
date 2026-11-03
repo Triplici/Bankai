@@ -7,7 +7,7 @@ local function Client(fn)
 	for key, value in pairs(StaticPopupDialogs) do dialogs[key] = value end
 	local w = { role = "council", rank = 3, member = true, epoch = 1800000000, sent = 0 }
 	local c = setmetatable({ L = ns.L, me = "Councillor-Realm", group = "RealmGroup", faction = "Alliance",
-		db = {}, rdb = {}, CAPTAIN_RANK = 1, UI = {}, PlayerMenu = { Add = function() end },
+		db = {}, rdb = {}, COUNCIL_MEMBER_RANK = 1, UI = {}, PlayerMenu = { Add = function() end },
 		On = function() end, Fire = function() end, RegisterEvent = function() end,
 		After = function() end, Every = function() end, Print = function() end,
 		Workshop = { IsAuthor = function() return w.author == true end, Preview = function() return false end,

@@ -234,7 +234,7 @@ local function Pump()
 		return
 	end
 	-- The channel may have been left (the Chat Channels panel) and its number given to another
-	-- one: check before sending, or [Council] text would go to that other channel.
+	-- one: check before sending, or [Elders] text would go to that other channel.
 	if channelIndex > 0 and joinedName and GetChannelName then
 		local id = GetChannelName(joinedName) or 0
 		if id ~= channelIndex then
@@ -1011,7 +1011,7 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 	-- Realm key, only over GUILD (server-verified guildmates) and only from our officers.
 	if dist == "GUILD" and text:sub(1, 3) == "K1~" then
 		local rank = ns.Roster.RankOf(sender)
-		if rank and rank <= ns.CAPTAIN_RANK then
+		if rank and rank <= ns.COUNCIL_MEMBER_RANK then
 			local key = text:sub(4)
 			if key ~= "" and key ~= ns.rdb.realmKey then
 				ns.rdb.realmKey = key

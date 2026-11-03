@@ -504,8 +504,8 @@ end
 ---------------------------------------------------------------------------
 
 -- What loading Core.lua and Channels.lua writes to the game's tables: put back after each client.
-local SAVED_GLOBALS = { "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARENA1", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1",
-	"SLASH_BANKAIGUILDCOUNCIL1", "BankaiGuildDB" }
+local SAVED_GLOBALS = { "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARENA1", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCOUNCIL1",
+	"SLASH_BANKAIGUILDELDERS1", "BankaiGuildDB" }
 local function Short(name) return (name:gsub("%-.*$", "")) end
 
 local function Globals(w, c)

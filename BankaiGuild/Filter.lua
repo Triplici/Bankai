@@ -8,14 +8,14 @@ local L = ns.L
 -- (/bk filter shared off; used by default).
 -- Whole words only, any case and accent the search folds (ns.Fold), read as the line shows
 -- (Codec.SanitizeChat, then ns.Searchable: a link's text counts, its data doesn't). Only on addon
--- text: the [Bankai Guild], [Captains] and [Council] lines and the pinned line's words (Channels.lua), the
+-- text: the [Bankai Guild], [Council] and [Elders] lines and the pinned line's words (Channels.lua), the
 -- Shogun's writs (Acts.lua: the player's own list alone, never the shared one, 1.1 review), a
--- decree's words (Decree.lua) and Vox Populi's question and answers (Vox.lua). Never a name, a
+-- decree's words (Decree.lua) and Poll's question and answers (Poll.lua). Never a name, a
 -- guild, a census row, the treasury, or the game's own chat (Say, Trade, General: never read).
 -- A hit hides the line on this screen, nothing more: no kick, no net-off, no ignore, nothing sent
 -- about it, and the same player's next line shows. A hidden line stays one click away (the Realm
 -- tab's chats: "N lines hidden by your filter"; the Decrees tab for a writ, a decree's words or a
--- Vox question), and a companion addon reading the chats (the bridge) still gets it.
+-- Poll question), and a companion addon reading the chats (the bridge) still gets it.
 --
 -- The shared list travels on the Bankai Guild channel, from an editor's client only (the server
 -- stamps the sender: the Shogun by his pinned name, a Steward by the signed titles list, a Hand by

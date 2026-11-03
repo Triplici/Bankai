@@ -49,7 +49,7 @@ Watch.REPORT_NOTE_MAX = 80
 Watch.REPORT_LINES = 3            -- the reported player's newest BankaiGuild-chat lines this client kept, at most
 Watch.REPORT_LINE_MAX = 140       -- bytes of each
 Watch.REPORT_LINE_WINDOW = 86400  -- lines this recent
--- Of the public Bankai Guild channel alone: the Captains' and Council's channels' lines would reach
+-- Of the public Bankai Guild channel alone: the Council's and Elders' channels' lines would reach
 -- officers (or a signed moderator) who can't read those channels.
 Watch.REPORT_TIERS = { "A" }
 Watch.REPORT_DEDUPE = 86400       -- a reporter's client: one report a day on the same name...
@@ -149,7 +149,7 @@ end
 Watch.RosterRank = RosterRank -- (1.1.6: WatchChat.lua)
 
 -- This is intentionally local-guild authority.  The live server roster is the trust anchor for
--- Council/Captains; an existing signed moderator counts only while that same character is also in
+-- Elders/Council; an existing signed moderator counts only while that same character is also in
 -- this roster.  A census claim cannot grant access.
 local function SignedModerator(name, guild, rank)
 	if rank == nil or not guild then return false end
@@ -177,7 +177,7 @@ function Watch.IsAuthorized(name)
 	local who = name
 	if Same(name, ns.me) then who = nil end -- (this character: its own word and guild too, Moderation.SelfOff)
 	if WC and WC.Barred and WC.Barred("powers", who) then return false end
-	return rank <= ns.CAPTAIN_RANK or SignedModerator(name, guild, rank) or (WC ~= nil and WC.IsNamedWatcher ~= nil and WC.IsNamedWatcher(name) == true)
+	return rank <= ns.COUNCIL_MEMBER_RANK or SignedModerator(name, guild, rank) or (WC ~= nil and WC.IsNamedWatcher ~= nil and WC.IsNamedWatcher(name) == true)
 end
 
 function Watch.CanRead()
@@ -566,11 +566,11 @@ local function TargetAllowed(actor, target)
 	if not FreshRoster() then return false, "roster" end
 	local actorRank, targetRank = RosterRank(actor), RosterRank(target)
 	if actorRank == nil then return false, "roster" end
-	-- Guild rank order governs Council/Captains.  A signed moderator may act on ordinary members at
-	-- the same Blizzard rank, but never on a Council member/Captain or another Watch-authorized peer.
-	if targetRank ~= nil and targetRank <= ns.CAPTAIN_RANK
+	-- Guild rank order governs Elders/Council.  A signed moderator may act on ordinary members at
+	-- the same Blizzard rank, but never on an Elder/Council member or another Watch-authorized peer.
+	if targetRank ~= nil and targetRank <= ns.COUNCIL_MEMBER_RANK
 		and (actorRank == nil or targetRank <= actorRank) then return false, "rank" end
-	if actorRank ~= nil and actorRank > ns.CAPTAIN_RANK and Watch.IsAuthorized(target) then return false, "rank" end
+	if actorRank ~= nil and actorRank > ns.COUNCIL_MEMBER_RANK and Watch.IsAuthorized(target) then return false, "rank" end
 	local M = ns.Moderation
 	local authority = M and M.TargetRank and M.TargetRank(target) or 0
 	local mine = M and M.Rank and M.Rank(actor) or 0
@@ -1428,7 +1428,7 @@ end
 
 -- 1.2.1: the line a right-click in the Chat tab picked (ChatWindow.lua), as Watch.AskReport takes
 -- it: another player's line of the public Bankai Guild channel that may still be reported, else nil (a
--- Captains', Council's or room line, one's own, the Shogun's, a deleted one, one older than a day).
+-- Council's, Elders' or room line, one's own, the Shogun's, a deleted one, one older than a day).
 function Watch.LineMessage(entry, chat)
 	if chat ~= "A" or type(entry) ~= "table" then return nil end
 	for _, m in ipairs(Watch.ReportableMessages()) do
@@ -2053,7 +2053,7 @@ end
 local function TakeReportLine(sender, text)
 	local seq, i, at, tier, line = text:match("^MR~1~E~(%d+)~(%d)~(%d+)~(%u)~(.*)$")
 	seq, i, at = tonumber(seq), tonumber(i), tonumber(at)
-	-- The public channel's alone, as Evidence sends them: a Captains' or Council's line would show to
+	-- The public channel's alone, as Evidence sends them: a Council's or Elders' line would show to
 	-- officers who can't read those channels (and no honest client sends one).
 	if tier and not TierAllowed(tier) then return false, "tier" end
 	local wait = reportLines[Key(sender)]

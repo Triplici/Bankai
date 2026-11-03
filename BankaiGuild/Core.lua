@@ -23,6 +23,7 @@ local DEFAULTS = {
 	sound = true,          -- alert sounds (throttled)
 	showCamps = true,      -- camps on the world map (1.1, Board.lua)
 }
+ns.DEFAULTS = DEFAULTS -- (the Settings tab's reset, Settings.lua)
 
 -- 1.1.5: the gamepad gate (Gamepad.lua, the list of integrations in GamepadRegistry.lua): whether
 -- Bankai Guild may touch the game's UI now, ns.Gate.Allowed(id). This stand-in holds what is registered
@@ -551,13 +552,13 @@ end
 -- ns.db.sound stays the switch for every kind, as in 0.9 and 1.0 (their saves keep working);
 -- ns.db.soundOff[kind] = true silences one kind. Local only: nothing is sent.
 --   arms, muster, royal   the decrees (royal: the Royal decree and the Tabard inspection)
---   court, vox, agenda    the Shogun's court, Vox Populi, the Shogun's Agenda
+--   court, poll, agenda    the Shogun's court, Poll, the Shogun's Agenda
 --   throne                the Shogun's other calls: the roll call, the Royal Inspection, writs, a Hand or Steward named
 --   help                  a High Councillor's help requests, the author's bug reports
 --   hop, treasury, patrol a layer hop, a donation, a patrol's player without the tabard
 --   update                the author's update notice
 --   arena, watch, craft   1.2's Blood Arena, private guild moderation notices, crafting requests
-ns.SOUND_KINDS = { "arms", "muster", "royal", "court", "vox", "agenda", "throne", "help", "hop", "treasury", "patrol", "update", "arena", "watch", "craft" }
+ns.SOUND_KINDS = { "arms", "muster", "royal", "court", "poll", "agenda", "throne", "help", "hop", "treasury", "patrol", "update", "arena", "watch", "craft" }
 local SOUND_KIND = {}
 for _, k in ipairs(ns.SOUND_KINDS) do SOUND_KIND[k] = true end
 
@@ -654,7 +655,7 @@ end
 -- and then miss a real muster. Each alert still leaves its chat line and its line in the
 -- Bankai Guild window (the Decrees tab: what waits, on top), and waits. Out of the instance and not
 -- Busy: one line (and one raid warning and one sound) says what waited and is still current,
--- and only what is still open pops (a Vox question, the court's call, the Agenda to come);
+-- and only what is still open pops (a Poll question, the court's call, the Agenda to come);
 -- what is over by then only stays in its list. /bk alerts always: never held. Local only.
 ---------------------------------------------------------------------------
 
@@ -841,9 +842,9 @@ function ns.AlertsSlash(rest)
 	ns.Fire("DECREES_CHANGED")
 end
 
--- Captains (officers) are rank index 1, right below the guild master, in every guild. It is
+-- Council (officers) are rank index 1, right below the guild master, in every guild. It is
 -- fixed so that senders and receivers always agree on who may send decrees.
-ns.CAPTAIN_RANK = 1
+ns.COUNCIL_MEMBER_RANK = 1
 
 -- What the army calls the Shogun on the lines and the crown made for him (Hop.lua, Shogun.lua),
 -- whatever his character's name in the census.
@@ -1429,36 +1430,36 @@ function ns.Holds(query, ...)
 	return false
 end
 
--- The Council: guild masters of any Bankai Guild guild, and the officers of the Shogun's guild. Those
+-- The Elders: guild masters of any Bankai Guild guild, and the officers of the Shogun's guild. Those
 -- officers only on the clients of the Shogun's guild's own members (1.0.0), where their rank is
 -- the server's word (our roster: Data.KnownRank and Channels.VerifiedLevel read our own guild
 -- from it, never from the census). Anywhere else the census alone could name them, and three
--- outsiders' reports were enough to add one of their own: there they are Captains like any
+-- outsiders' reports were enough to add one of their own: there they are Council like any
 -- guild's officers, and the Crown of the Shogun's guild is the Shogun himself (his pinned name) and
 -- the Hands his list or a Steward's own names (Shogun.IsHandName: their word, never a vote), who
 -- speak for his guild with his Crown there (Decree.lua, Channels.VerifiedLevel) besides his
 -- tools (Shogun.Authorized).
--- (1.2.3) Their seats, not powers: [Council] (Channels.LevelOf), the Shogun's writs to his Council
+-- (1.2.3) Their seats, not powers: [Elders] (Channels.LevelOf), the Shogun's writs to his Elders
 -- (Acts.lua) and the census's two reports for them (Data.KnownRank). This was ns.IsCrownRank, and
 -- counted every guild master as the Crown; a feature that gives the Crown a power at the level of
 -- the whole army asks ns.IsCrownRank (below), the Shogun's guild's alone.
-function ns.IsCouncilRank(guild, rankIndex)
+function ns.IsElderRank(guild, rankIndex)
 	if not guild or not rankIndex then return false end
 	if rankIndex == 0 then return true end
-	return ns.IsShogunGuild(guild) and rankIndex <= ns.CAPTAIN_RANK and ns.IsShogunGuild(GetGuildInfo("player"))
+	return ns.IsShogunGuild(guild) and rankIndex <= ns.COUNCIL_MEMBER_RANK and ns.IsShogunGuild(GetGuildInfo("player"))
 end
 
-function ns.IsCouncil()
+function ns.IsElder()
 	local guild, _, rankIndex = GetGuildInfo("player")
-	return ns.IsFederation(guild) and ns.IsCouncilRank(guild, rankIndex)
+	return ns.IsFederation(guild) and ns.IsElderRank(guild, rankIndex)
 end
 
 -- The Crown's own rank (1.2.3, Daniel: a guild master has nothing at the level of the whole army):
--- the Council of the Shogun's guild alone (its master, and its officers on its own members' clients).
--- Another guild's master is a Council member, never the Crown. The Royal decree and the Tabard inspection
+-- the Elders of the Shogun's guild alone (its master, and its officers on its own members' clients).
+-- Another guild's master is an Elder, never the Crown. The Royal decree and the Tabard inspection
 -- for the whole army ask this (Decree.lua); so may any later feature.
 function ns.IsCrownRank(guild, rankIndex)
-	return ns.IsShogunGuild(guild) and ns.IsCouncilRank(guild, rankIndex)
+	return ns.IsShogunGuild(guild) and ns.IsElderRank(guild, rankIndex)
 end
 
 function ns.IsCrown()
@@ -1856,7 +1857,7 @@ StandIn("Channels", { "Send", "ToggleMute" })
 StandIn("Shogun", { "Summon", "Inspect", "AgendaPrompt" })
 StandIn("Hop", { "Ask", "AskShogun", "SetHelp", "SetAuto" })
 StandIn("Workshop", { "RollCall", "Approved" })
-StandIn("Vox", { "Prompt", "CloseNow", "SetOff" })
+StandIn("Poll", { "Prompt", "CloseNow", "SetOff" })
 StandIn("Court", { "Toggle" })
 StandIn("Treasury", {})
 StandIn("Dues", {}) -- (1.1)
@@ -2109,7 +2110,7 @@ ns.RegisterEvent("PLAYER_LOGIN", function()
 	local missing = {}
 	-- (1.2: the file of a key named otherwise: the Blood Arena's core is ArenaNet.lua.)
 	local FILES = { Arena = "ArenaNet.lua" }
-	for _, key in ipairs({ "Who", "Channels", "Shogun", "Hop", "Workshop", "Vox", "Court", "Treasury", "Dues", "Acts", "Dialog", "Bank", "Link", "Borders", "Nameplates", "Backup", "Loot", "War", "Crafters", "Board", "Week", "Accord", "Consent", "ViewAs", "TabardsV2", "Chronicle", "Filter", "Watch", "Judgment", "WatchChat", "Wanted", "Members", "Moderation", "Alts", "Keys", "ChatWindow", "Arena", "PlayerMenu", "Versions", "Answers", "Letters", "Nominees", "ChatStrikes", "Record", "TagFollow" }) do
+	for _, key in ipairs({ "Who", "Channels", "Shogun", "Hop", "Workshop", "Poll", "Court", "Treasury", "Dues", "Acts", "Dialog", "Bank", "Link", "Borders", "Nameplates", "Backup", "Loot", "War", "Crafters", "Board", "Week", "Accord", "Consent", "ViewAs", "TabardsV2", "Chronicle", "Filter", "Watch", "Judgment", "WatchChat", "Wanted", "Members", "Moderation", "Alts", "Keys", "ChatWindow", "Arena", "PlayerMenu", "Versions", "Answers", "Letters", "Nominees", "ChatStrikes", "Record", "TagFollow" }) do
 		if ns[key].missing then missing[#missing + 1] = FILES[key] or (key .. ".lua") end
 	end
 	if ns.Gate.missing then missing[#missing + 1] = "Gamepad.lua" end -- (1.1.5, the gamepad gate)
@@ -2221,13 +2222,13 @@ local function Help()
 	print(L.HELP_CMD_DECREES)
 	print(L.HELP_CMD_ARMS)
 	print(L.HELP_CHAN_ALL)
-	print(L.HELP_CHAN_CAPTAINS)
 	print(L.HELP_CHAN_COUNCIL)
+	print(L.HELP_CHAN_ELDERS)
 	print(L.HELP_CHAN_MUTE)
 	print(L.HELP_PIN)
 	print(L.HELP_CHATWIN)
 	print(L.HELP_TALK)
-	print(L.HELP_VOX)
+	print(L.HELP_POLL)
 	print(L.HELP_BOARD)
 	print(L.HELP_CAMP)
 	print(L.HELP_WEEK)
@@ -2322,14 +2323,14 @@ local function Slash(input)
 			else
 				ns.Print(ns.L.THRONE_ONLY_SHOGUN)
 			end
-		elseif cmd == "vox" then
+		elseif cmd == "poll" then
 			local word = rest:lower()
 			if word == "on" or word == "off" then
-				ns.Vox.SetOff(word == "off")
-			elseif ns.Vox.Visible and ns.Vox.Visible() then
-				ns.UI.SelectTab("vox")
+				ns.Poll.SetOff(word == "off")
+			elseif ns.Poll.Visible and ns.Poll.Visible() then
+				ns.UI.SelectTab("poll")
 			else
-				ns.Print(L.HELP_VOX)
+				ns.Print(L.HELP_POLL)
 			end
 		elseif cmd == "realm" or cmd == "tree" or cmd == "layers" then
 			if ns.Views.CloseChat then ns.Views.CloseChat() end
@@ -2351,11 +2352,11 @@ local function Slash(input)
 			-- A local, bounded inbox for clear party-invite whispers while the Shogun is online.
 			ns.PartyGuard.Slash(rest)
 		elseif cmd == "inactive" or cmd == "members" or cmd == "recruits" or cmd == "mentors" then
-			-- (1.1: our guild's members offline 7, 14 or 30 days and more; the Council's recruits and
+			-- (1.1: our guild's members offline 7, 14 or 30 days and more; the Elder's recruits and
 			-- their mentors. Members.lua.)
 			local days = tonumber(rest)
-			local councilPage = (cmd == "recruits" or cmd == "mentors") and ns.Members.IsCouncil and ns.Members.IsCouncil()
-			ns.Members.Show(councilPage and "recruits" or (days == 14 or days == 30) and days or 7)
+			local elderPage = (cmd == "recruits" or cmd == "mentors") and ns.Members.IsElder and ns.Members.IsElder()
+			ns.Members.Show(elderPage and "recruits" or (days == 14 or days == 30) and days or 7)
 			ns.UI.SelectTab("realm")
 		elseif cmd == "decrees" then
 			ns.UI.SelectTab("decrees")
@@ -2570,10 +2571,10 @@ local function Slash(input)
 			ns.Print(L.CACHE_CLEARED)
 		elseif cmd == "error" then
 			error("test error from /bk error")   -- to check that bug capture works
-		elseif cmd == "all" or cmd == "captains" then -- (the Council's chat is /bgl: /bk council is the High Council's list)
+		elseif cmd == "all" or cmd == "elders" then -- (the Council's chat is /bgc: /bk council is the High Council's list)
 			ns.Channels.Send(ns.Channels.TierForWord(cmd), rest)
 		elseif cmd == "pin" then
-			-- One line pinned for everyone (1.1, Channels.lua): the Shogun, his Stewards and Hands, the Council.
+			-- One line pinned for everyone (1.1, Channels.lua): the Shogun, his Stewards and Hands, the Elders.
 			ns.Channels.PinCommand(rest)
 		elseif cmd == "mute" then
 			ns.Channels.ToggleMute(rest)
@@ -2611,7 +2612,7 @@ local function Slash(input)
 			local verb, on = rest:lower():match("^(%S*)%s*(%S*)")
 			if verb == "share" and (on == "on" or on == "off") then ns.Bank.SetSisterConsent(on == "on") else ns.Print(L.HELP_BANK) end
 		elseif cmd == "need" then
-			-- 1.1: a Council member or a Captain asks the treasury for an item and a count (Bank.lua).
+			-- 1.1: an Elder or a Council member asks the treasury for an item and a count (Bank.lua).
 			ns.Bank.Slash(rest)
 		elseif cmd == "backup" or cmd == "restore" then
 			-- 1.1: the clipboard backup of this character's book, the channel key and its setup (Backup.lua).

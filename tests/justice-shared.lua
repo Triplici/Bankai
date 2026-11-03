@@ -5,7 +5,7 @@ local ROOT = debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]justice%-
 local function Client(name)
 	local w = { name = name, guild = "Bankai Guild II", now = 1800000000, sent = {}, events = {}, listeners = {}, ranks = {},
 		justice = "Justice-Realm", council = { ["Council-Realm"] = true }, native = {}, dialogs = {} }
-	local n = setmetatable({ me = name, realm = "Realm", group = "Realm", faction = "Alliance", CAPTAIN_RANK = 1,
+	local n = setmetatable({ me = name, realm = "Realm", group = "Realm", faction = "Alliance", COUNCIL_MEMBER_RANK = 1,
 		db = { blocked = {} }, rdb = { guilds = {} }, ViewAs = {}, WatchChat = {}, Nominees = {}, Shogun = {}, Workshop = {}, UI = {},
 		Moderation = { Blocks = function() return false end }, TabardsV2 = { SurfaceVisible = function() return false end },
 		Judgment = { Visible = function() return false end }, RealmPages = {} }, { __index = base })

@@ -406,7 +406,7 @@ test("hop security (1.2.1): the asker takes no offer from a claimed guild; a ver
 	end)
 end)
 
--- Review of 1.2.1: Hop.Trusted counted a Council member or Captain the census names, and while signed
+-- Review of 1.2.1: Hop.Trusted counted an Elder or Council member the census names, and while signed
 -- enforcement is off (as 1.2.1 ships) two cooperating characters can forge one in their guild's
 -- reports. That trust accepted his invite for the player (AcceptGroup) and let "Always invite" or
 -- "For Bankai Guild!" invite him without a click. Now only our roster, signed or pinned people; a

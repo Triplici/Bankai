@@ -4,7 +4,7 @@ local L = ns.L
 -- Royal decrees sent to every Bankai Guild guild over BankaiGuildNet:
 --   ARMS   "Call to Arms!"  (Horde attacking here) - raid warning + sound, marker for 5 min
 --   MUSTER "Muster here"    (gather point)          - softer alert, marker for 30 min
--- Only Captains (rank <= ns.CAPTAIN_RANK) can send, and the Shogun's Steward (1.0.0). Receivers
+-- Only Council (rank <= ns.COUNCIL_MEMBER_RANK) can send, and the Shogun's Steward (1.0.0). Receivers
 -- rate-limit per sender and, for senders only the census vouches for, the whole army (the
 -- flood guard). A decree's words are its sender's own text: sent with the logged API (1.0.0),
 -- like a chat line.
@@ -173,13 +173,13 @@ end
 -- Where this player's decree of `kind` goes (1.2.3): "army" (the channel: every Bankai Guild
 -- member), "guild" (GUILD: his own guild alone) or nil (a local preview only), and why:
 --   steward  the Shogun's Steward: every kind, for the Shogun's guild
---   captain  a Call to Arms or a Muster from an officer of the Shogun's guild (rank <=
---            ns.CAPTAIN_RANK: its master, its officers), as before
+--   council member  a Call to Arms or a Muster from an officer of the Shogun's guild (rank <=
+--            ns.COUNCIL_MEMBER_RANK: its master, its officers), as before
 --   officer  the same from the master or an officer of any other Bankai Guild guild: his guild's alone
 --   council  a Royal decree or a Tabard inspection from the High Council (the signed list)
 --   crown    the same from the Shogun's guild's own Crown (ns.IsCrown in his guild: the Shogun, its
 --            master, its officers on their own client), as before
---   council     the same from the master of any other Bankai Guild guild: his guild's alone
+--   elder     the same from the master of any other Bankai Guild guild: his guild's alone
 --   heraldry every kind from the verified correspondent of our own guild: that guild alone
 -- (A Hand sends from his own client as one of the Shogun's guild's officers, as before; the
 -- receivers know him by the Shogun's list or a Steward's, Shogun.IsHandName. A councillor's Call to
@@ -194,13 +194,13 @@ function Decree.Scope(kind)
 		if ns.IsMember() and K ~= nil and type(K.IsHandName) == "function" and K.IsHandName(ns.me) == true then return "army", "hand" end
 		if ns.IsMember() and GuildHeraldry(ns.me, GetGuildInfo("player")) then return "guild", "heraldry" end
 		if not ns.Roster.IsOfficer() then return nil end
-		if ns.IsShogunGuild(GetGuildInfo("player")) then return "army", "captain" end
+		if ns.IsShogunGuild(GetGuildInfo("player")) then return "army", "councilMember" end
 		return "guild", "officer"
 	end
 	if not ns.IsMember() then return nil end
 	if ns.IsHighCouncillor(ns.me) == true then return "army", "council" end
 	if ns.IsShogunGuild(GetGuildInfo("player")) and ns.IsCrown() then return "army", "crown" end
-	if ns.Roster.MyRank() == 0 then return "guild", "leader" end
+	if ns.Roster.MyRank() == 0 then return "guild", "elder" end
 	if GuildHeraldry(ns.me, GetGuildInfo("player")) then return "guild", "heraldry" end
 	return nil
 end
@@ -288,7 +288,7 @@ function Decree.YouCan()
 	if royal ~= "army" and armsWhy == "hand" then return L.YOU_ARE_HAND_DECREES end
 	if royal == "army" then return L.YOU_ARE_CROWN end
 	if why == "heraldry" then return L.YOU_ARE_GUILD_HERALDRY:format(GetGuildInfo("player") or "?") end
-	if royal == "guild" then return L.YOU_ARE_GUILD_COUNCIL:format(GetGuildInfo("player") or "?") end
+	if royal == "guild" then return L.YOU_ARE_GUILD_ELDER:format(GetGuildInfo("player") or "?") end
 	if arms == "guild" then return L.YOU_ARE_GUILD_OFFICER:format(GetGuildInfo("player") or "?") end
 	if arms then return L.YOU_ARE_OFFICER end
 	return L.YOU_ARE_SOLDIER
@@ -329,7 +329,7 @@ end
 
 -- A guild decree heard over GUILD (1.2.3) that names our own guild: a Royal decree or a Tabard
 -- inspection from its master (rank 0), a Call to Arms or a Muster from one of its officers (rank
--- <= ns.CAPTAIN_RANK), as our roster has them (the server's word, never the rank the message
+-- <= ns.COUNCIL_MEMBER_RANK), as our roster has them (the server's word, never the rank the message
 -- writes or the census's); the server carries GUILD between its members alone. Returns the rank
 -- and its source, or nil.
 local function GuildDecree(sender, d)
@@ -338,7 +338,7 @@ local function GuildDecree(sender, d)
 	local heraldry = GuildHeraldry(sender, d.guild)
 	if d.guild ~= GetGuildInfo("player") then why = "it names <" .. d.guild .. ">, not our guild"
 	elseif CROWN_ONLY[d.kind] and rank ~= 0 and not heraldry then why = "not our guild master in our roster or a verified Heraldry correspondent"
-	elseif not CROWN_ONLY[d.kind] and (rank == nil or rank > ns.CAPTAIN_RANK) and not heraldry then why = "not one of our guild's officers in our roster or a verified Heraldry correspondent" end
+	elseif not CROWN_ONLY[d.kind] and (rank == nil or rank > ns.COUNCIL_MEMBER_RANK) and not heraldry then why = "not one of our guild's officers in our roster or a verified Heraldry correspondent" end
 	if why then
 		ns.Log("guild decree %s from %s ignored: %s", d.kind, sender, why)
 		return nil
@@ -397,7 +397,7 @@ ns.Comm.Handle("D1", function(dist, sender, text)
 		elseif council or named then
 			-- (1.2.3, the author's yes) The High Council's and the Shogun's Hands' Call to Arms and
 			-- Muster reach the whole army, as the Crown's do.
-		elseif rank > ns.CAPTAIN_RANK then
+		elseif rank > ns.COUNCIL_MEMBER_RANK then
 			return
 		elseif not shoguns then
 			-- (1.2.3) A Call to Arms or a Muster for the whole army: the Shogun's guild's alone (the

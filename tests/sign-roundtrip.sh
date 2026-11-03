@@ -75,8 +75,8 @@ cat > "$BANKAIGUILD_COUNCIL_JSON" <<'JSON'
   {"name": "Department of Coin", "icon": 133784, "members": [{"name": "Third Mod", "title": "Keeper of Coin"}]}],
  "members": [{"name": " Test Councillor ", "title": " Council Speaker "}],
  "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"],
-  "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Test Council-ClassicBetaPvP",
-               "officers": ["Test Captain-ClassicBetaPvP2"]}]}}
+  "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Test Elder-ClassicBetaPvP",
+               "officers": ["Test Council member-ClassicBetaPvP2"]}]}}
 JSON
 BANKAIGUILD_COUNCIL_OUT="$scratch/council1.lua" python3 "$signer" council > /dev/null
 grep -Fq 'ns.COUNCIL_AUTHORITY = {' "$scratch/council1.lua" || fail 'leadership was not written as a separate signed authority set'
@@ -138,10 +138,10 @@ refused_council '{"leadership": {"mode": "legacy", "epoch": 1, "factions": ["All
 refused_council '{"leadership": {"mode": "enforce", "epoch": 0, "factions": ["Alliance"], "guilds": []}}' 'leadership epoch zero'
 refused_council '{"leadership": {"mode": "enforce", "epoch": 1, "factions": [], "guilds": []}}' 'leadership without an enforced faction'
 refused_council '{"leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance", "Alliance"], "guilds": []}}' 'a leadership faction twice'
-refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Council Name"}]}}' 'a leader without an exact realm'
-refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Council Name-Other"}]}}' 'a leader on another realm'
-refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Council Name-Realm", "officers": ["Council Name-Realm"]}]}}' 'a signed leader twice'
-refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Council Name-Realm", "side": "Horde"}]}}' 'a leadership guild with an unknown field'
+refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Elder Name"}]}}' 'a leader without an exact realm'
+refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Elder Name-Other"}]}}' 'a leader on another realm'
+refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Elder Name-Realm", "officers": ["Elder Name-Realm"]}]}}' 'a signed leader twice'
+refused_council '{"realm": "Realm", "leadership": {"mode": "enforce", "epoch": 1, "factions": ["Alliance"], "guilds": [{"guild": "Bankai Guild Zeus", "leader": "Elder Name-Realm", "side": "Horde"}]}}' 'a leadership guild with an unknown field'
 refused_council 'not json' 'a file that is not JSON'
 if BANKAIGUILD_COUNCIL_JSON="$scratch/missing.json" BANKAIGUILD_COUNCIL_OUT="$scratch/refused.lua" python3 "$signer" council > refused.txt 2>&1; then fail 'signed: no council file'; fi
 if grep -Fq 'Traceback' refused.txt; then fail 'a crash, not a refusal: no council file'; fi

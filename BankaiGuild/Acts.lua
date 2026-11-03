@@ -2,8 +2,8 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- The Shogun's acts that show outside the Throne, where they belong:
---   Royal Writs (Decrees tab): a letter to the Council (the Crown), or to the Council and
---     Captains, on parchment. Each one can acknowledge it; the Shogun sees how many did.
+--   Royal Writs (Decrees tab): a letter to the Elders (the Crown), or to the Elders and
+--     Council, on parchment. Each one can acknowledge it; the Shogun sees how many did.
 --   Open the Gates (Realm tab, Recruiting): the guild the army should send new recruits to,
 --     for two hours. The Shogun or a Hand opens them.
 --   Royal Pardon (The Watch's Tabards, Wall of Shame): a name off the wall, for everyone, for a week.
@@ -54,16 +54,16 @@ local lastWritSent, lastWritShown = -math.huge, -math.huge
 local lastWritAnswer, writAnswering = -math.huge, false
 local writFrame
 
--- Who reads a writ: "L" the Council (guild masters, and the officers of <Elfcore>), "C" every
--- Council and Captain, "E" the whole army (every member; it is not acknowledged: thousands of
+-- Who reads a writ: "L" the Elders (guild masters, and the officers of <Elfcore>), "C" every
+-- Elder and Council member, "E" the whole army (every member; it is not acknowledged: thousands of
 -- whispers to the Shogun).
-Acts.AUDIENCES = { L = "WRIT_TO_COUNCIL", C = "WRIT_TO_ALL", E = "WRIT_TO_EVERYONE" }
-function Acts.Audience(to) return L[Acts.AUDIENCES[to] or "WRIT_TO_COUNCIL"] end
+Acts.AUDIENCES = { L = "WRIT_TO_ELDERS", C = "WRIT_TO_ALL", E = "WRIT_TO_EVERYONE" }
+function Acts.Audience(to) return L[Acts.AUDIENCES[to] or "WRIT_TO_ELDERS"] end
 function Acts.WritFor(to)
 	if not ns.IsMember() then return false end
 	if to == "E" then return true end
-	if to == "L" then return ns.IsCouncil() end
-	return ns.Roster.MyRank() <= ns.CAPTAIN_RANK
+	if to == "L" then return ns.IsElder() end
+	return ns.Roster.MyRank() <= ns.COUNCIL_MEMBER_RANK
 end
 
 -- (1.1.5) The Bankai Guild window's metal without its portrait (ns.Window, Dialog.lua), "Bankai Guild" in its
@@ -199,18 +199,18 @@ function Acts.HandleAck(dist, sender, text)
 	guild = ns.Shogun.CleanGuild(guild)
 	if not id or not guild then return end
 	sender = ns.FullName(sender)
-	-- Only someone the writ was for: a Council member or Captain. Before signed enforcement this keeps the
+	-- Only someone the writ was for: an Elder or Council member. Before signed enforcement this keeps the
 	-- old roster/census decision exactly; afterwards a local roster role is valid only for its
 	-- actual guild and every cross-guild role comes from the manifest.
 	local enforcing = ns.Authority and ns.Authority.Enforced and ns.Authority.Enforced()
 	local rank
 	if not enforcing then rank = ns.Roster.RankOf(sender) end
 	if rank == nil then rank = ns.Data.AuthorizedRank(sender, guild) end
-	if rank == nil or rank > ns.CAPTAIN_RANK then return end
+	if rank == nil or rank > ns.COUNCIL_MEMBER_RANK then return end
 	for _, w in ipairs(Read("writsSent")) do
 		if w.id == id and ns.Now() - w.t < 86400 then
 			if w.to == "E" then return end -- (not acknowledged)
-			if w.to == "L" and not ns.IsCouncilRank(guild, rank) then return end
+			if w.to == "L" and not ns.IsElderRank(guild, rank) then return end
 			w.ackBy = w.ackBy or {}
 			if w.ackBy[sender] or (w.acks or 0) >= Acts.MAX_ACKS then return end
 			w.ackBy[sender] = true
@@ -354,7 +354,7 @@ StaticPopupDialogs["BANKAIGUILD_WRIT"] = {
 }
 StaticPopupDialogs["BANKAIGUILD_WRIT_TO"] = {
 	text = L.WRIT_TO_PROMPT,
-	button1 = L.WRIT_BTN_COUNCIL,
+	button1 = L.WRIT_BTN_ELDERS,
 	button2 = L.WRIT_BTN_ALL,
 	button3 = L.WRIT_BTN_EVERYONE,
 	OnAccept = function(self, text) ns.SafeCall("writ", Acts.SendWrit, "L", text or (self and self.data)) end,

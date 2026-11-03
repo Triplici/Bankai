@@ -94,8 +94,8 @@ local function Moved()
 end
 
 -- A request (T4), or one made on the Shogun's own client (the preview, tests). What the
--- requester says of their guild shows only when we can place them (our roster, a Council member or
--- Captain the census confirms): anyone else is a name alone on the Shogun's screen.
+-- requester says of their guild shows only when we can place them (our roster, an Elder or
+-- Council member the census confirms): anyone else is a name alone on the Shogun's screen.
 function Court.Request(sender, id, guild)
 	if not holding or holding.id ~= id then return end
 	sender = ns.FullName(sender)

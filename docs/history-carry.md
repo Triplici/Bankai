@@ -138,7 +138,7 @@ Still needed in the real Forever client, with two players and retained source re
    A stale source roster, a demoted destination master or an unknown alt must not send.
 3. Offer and cancel the master's question: no records should arrive. Offer again and
    explicitly accept; only the exact current destination master should see unverified
-   quotes. Other members, Council of another guild and replacement masters see none.
+   quotes. Other members, Elders of another guild and replacement masters see none.
 4. Compare original Court/receipt declarations and their timestamps against source records;
    an unknown original key stays unverified until directly confirmed. For private Loot, the
    member initiates consent but receives no notes; source and destination masters separately

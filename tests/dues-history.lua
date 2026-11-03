@@ -312,7 +312,7 @@ test("Dues history: local and wire guild bounds disclose truncation and keep fiv
 		for i = 1, 151 do
 			for j = 1, 2 do
 				local r = assert(c.Codec.DecodeReport(c.Codec.EncodeReport({ guild = ("Bankai Guild Census %03d"):format(i),
-					total = 2, online = 1, leader = ("Council %03d"):format(i), faction = "Alliance" })))
+					total = 2, online = 1, leader = ("Elder %03d"):format(i), faction = "Alliance" })))
 				assert(c.Data.Receive(r, ("Scout %03d %d-Emberfall"):format(i, j)))
 			end
 		end

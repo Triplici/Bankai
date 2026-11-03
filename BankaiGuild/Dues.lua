@@ -18,7 +18,7 @@ local L = ns.L
 --   that week's amount falls under it afterwards (Fern's "one fixed amount").
 -- - Who sees what: the Shogun, his Steward and the Treasurer see every guild (its members in the
 --   census, how many paid this week, the gold in, the percentage) and, a click away, a guild's
---   players; each guild's Captains (and its Council) see their own guild alone: each member's name,
+--   players; each guild's Council (and its Elder) see their own guild alone: each member's name,
 --   last payment, gold this week, above or below the amount. The army's Treasury tab keeps the
 --   Shogun's three switches (the balance, the ranking, the book) and nothing of this.
 -- - None of it goes on the Bankai Guild channel (Fern's #36: every client on it receives the bytes,
@@ -26,8 +26,8 @@ local L = ns.L
 --   week's donors, and not the book's lines of gold given to the Treasurer's characters
 --   (Treasury.DuesLine). The Treasurer's addon works the lists out from his account's books and
 --   whispers each to whoever asks and may see it: the Shogun or his Steward (every guild), a
---   guild's Captain (his own guild, his rank by the Treasurer's roster or the census). A player
---   who paid with no guild on it is never in a list: a guild's Captain asks about his own
+--   guild's Council member (his own guild, his rank by the Treasurer's roster or the census). A player
+--   who paid with no guild on it is never in a list: a guild's Council member asks about his own
 --   roster's members missing from it, by five letters of each name's hash, and hears back about
 --   those alone. Only the amount, which is the same for everyone, is public.
 -- - A payment made from a confirmed alt counts for its main (1.1.5, the one gap Fern's #21 had):
@@ -42,7 +42,7 @@ local L = ns.L
 --   (each character's weeks stay its own: Dues.WeekAdd), so a link taken apart stops counting at
 --   once.
 -- - Nothing here ever turns anyone off (Fern's rule, #33): no census report, chat line, decree,
---   channel or feature of the addon waits on paying, for a guild or a player; a guild's Captains
+--   channel or feature of the addon waits on paying, for a guild or a player; a guild's Council
 --   may only remove members one click at a time, as the game's Guild window does (#34). No
 --   access switch of the moderators' (1.1) may take anything from here.
 --   T1~Y~<id>~<guild>~<copper>~<time>~<before>   the Shogun's amount (his, or his Steward's; Shogun.lua),
@@ -55,12 +55,12 @@ local L = ns.L
 --                                                his answer, one guild's players (whispers)
 --   FU~<id>~<week>~<Guild, or *>~<u>~<mail>      the list held is his still (one whisper)
 --   FB~<week>~<Guild, or *>                      his addon is too busy to answer now (one whisper)
---   FC~<week>~<Guild>~<ask>~<i>~<n>~<code,...>   a Captain's roster members not on the list (whispers)
+--   FC~<week>~<Guild>~<ask>~<i>~<n>~<code,...>   a Council member's roster members not on the list (whispers)
 --   FD~<week>~<Guild>~<ask>~<i>~<n>~<code:copper:hours,...>   those of them who paid with no guild on it
 --   (copper, since, mail and hours in base 36; hours since each one's last payment, <mail> hours
 --   since the Treasurer's mail character last played, "-" unknown. An id is the list's digest: the
 --   same list, the same id. <u>: a digest, with a secret of the Treasurer's session, of this week's
---   payers with no guild on it ("0": none): when it changes, a Captain asks about his roster again.
+--   payers with no guild on it ("0": none): when it changes, a Council member asks about his roster again.
 --   A code: five letters of a name's hash.)
 --   (FS's and FA's <copper>: the amount his list was counted by. Never the week's amount on the
 --   page, which is the Shogun's word as the asker's client holds it; a list whose <copper> differs
@@ -91,8 +91,8 @@ Dues.PACE = 1.5              -- seconds between two whispers of an answer (the c
 Dues.QUEUE_ROOM = 2          -- ...and only while the channel's queue holds fewer of his other messages than this
 Dues.ROOM = 250              -- bytes in one whisper
 Dues.MAX_PIECES = 60         -- whispers of one guild's named players at most
-Dues.MAX_CODE_PIECES = 40    -- whispers of a Captain's ask about his roster at most
-Dues.CODE_GAP = 60           -- a Captain's roster asked about (and answered) this often at most
+Dues.MAX_CODE_PIECES = 40    -- whispers of a Council member's ask about his roster at most
+Dues.CODE_GAP = 60           -- a Council member's roster asked about (and answered) this often at most
 Dues.CODE_ASKS = 20          -- asks about rosters coming in at once on the Treasurer's client, at most
 Dues.MAX_OUTBOX = 300        -- whispers waiting on the Treasurer's client at most
 Dues.REMOVE_FRESH = 600      -- a removal needs the Treasurer's list of the last 10 minutes
@@ -109,7 +109,7 @@ local busy = {}              -- [what] = when the Treasurer's addon said it was 
 local answered = {}          -- the Treasurer's client: [asker|what] = when it last answered
 local answerJobs, replyOwner = {}, {}
 local outbox = {}            -- the Treasurer's client: whispers waiting their turn { to, msg, key, tag }
-local codeAsks = {}          -- the Treasurer's client: [asker|guild] = a Captain's ask about his roster, coming (FC)
+local codeAsks = {}          -- the Treasurer's client: [asker|guild] = a Council member's ask about his roster, coming (FC)
 local answers = {}           -- [guild lower] = one guild's list as it came (FA)
 local summary                -- every guild, as it came (FS)
 local salt                   -- the Treasurer's client: this session's secret, in the digest of the payers with no guild
@@ -229,7 +229,7 @@ local function ShogunView() return ns.Shogun.IsShogun() or ns.Shogun.IsSteward()
 Dues.ShogunView = ShogunView
 -- The Treasurer himself (or the author's Treasurer's view): his books are the dues' ledger.
 function Dues.IsTreasurer() return ns.Treasury.IsTreasurer() == true end
--- Who sees the dues: the Shogun and his Steward, the Treasurer, and each guild's Captains and Council.
+-- Who sees the dues: the Shogun and his Steward, the Treasurer, and each guild's Council and Elder.
 function Dues.Sees()
 	if not Dues.Available() then return false end
 	return ShogunView() or Dues.IsTreasurer() or ns.Roster.IsOfficer() or false
@@ -239,16 +239,16 @@ local function SeesAll() return ShogunView() or Dues.IsTreasurer() end
 
 -- A sender the Shogun's word comes from (by name: the server sets it), or his Steward.
 local function ShogunOrSteward(name) return ns.IsShogunCharacter(name) or ns.Shogun.IsStewardName(name) end
--- A Captain (or the Council) of `guild`: by our own roster when it is our guild. Another guild
+-- A Council member (or the Elder) of `guild`: by our own roster when it is our guild. Another guild
 -- keeps the legacy census until explicit enforcement, then uses the signed manifest.
-local function CaptainOf(name, guild)
+local function CouncilMemberOf(name, guild)
 	local own = ns.IsMember() and GetGuildInfo("player")
 	if own and own:lower() == guild:lower() then
 		local rank = ns.Roster.RankOf(name)
-		return rank ~= nil and rank <= ns.CAPTAIN_RANK
+		return rank ~= nil and rank <= ns.COUNCIL_MEMBER_RANK
 	end
 	local rank = ns.Data.AuthorizedRank(name, guild)
-	return rank ~= nil and rank <= ns.CAPTAIN_RANK
+	return rank ~= nil and rank <= ns.COUNCIL_MEMBER_RANK
 end
 
 ---------------------------------------------------------------------------
@@ -763,7 +763,7 @@ function Dues.SummaryMessages(led)
 end
 
 -- This week's payers with no guild on it, as a digest with this session's secret ("0": none).
--- It tells a Captain when to ask about his roster again (FC), and nothing about who they are.
+-- It tells a Council member when to ask about his roster again (FC), and nothing about who they are.
 local function Unplaced(led)
 	local u = {}
 	for key, x in pairs(led.players) do
@@ -776,7 +776,7 @@ end
 
 -- One guild's players: each one who paid in the weeks kept with that guild on it (his gold this
 -- week, the hours since his last payment). Never anyone else's: a player who paid with no guild
--- on it is told only to a Captain who asks about him by his own roster (FC). A list cut to
+-- on it is told only to a Council member who asks about him by his own roster (FC). A list cut to
 -- MAX_PIECES says so when it left out anyone who paid this week. Returns the whispers, the list's
 -- id, the digest of this week's payers with no guild and the mail's age (FU's, when unchanged).
 function Dues.GuildMessages(led, guild)
@@ -812,9 +812,9 @@ function Dues.GuildMessages(led, guild)
 end
 
 -- Who may ask for `what`: the Shogun or his Steward, any guild or every guild (all);
--- a guild's Captain or Council, his own guild alone. Rechecked at the actual send as well.
+-- a guild's Council member or Elder, his own guild alone. Rechecked at the actual send as well.
 local function May(sender, what, all)
-	return ShogunOrSteward(sender) or (not all and CaptainOf(sender, what)) or false
+	return ShogunOrSteward(sender) or (not all and CouncilMemberOf(sender, what)) or false
 end
 local function AnswerGuard(to, what, all)
 	local me, guild = ns.me, GetGuildInfo("player")
@@ -878,7 +878,7 @@ local function Tell(to, msg, key, what, all)
 end
 
 -- An ask (a whisper): every guild from the Shogun or his Steward; a guild's list from them, or
--- from that guild's Captain or Council. This week's or last week's. Each asker's list once every
+-- from that guild's Council member or Elder. This week's or last week's. Each asker's list once every
 -- ANSWER_GAP; the list he holds whole (its id) is not sent again, one whisper says so.
 function Dues.HandleAsk(dist, sender, text)
 	if dist ~= "WHISPER" or type(text) ~= "string" or not Dues.Answers() then return end
@@ -890,7 +890,7 @@ function Dues.HandleAsk(dist, sender, text)
 	if not all then what = ns.Shogun.CleanGuild(what) end
 	if not what then return end
 	if not May(sender, what, all) then
-		return ns.Log("dues ask from %s for %s refused: not the Shogun, his Steward nor its Captain", tostring(sender), tostring(what))
+		return ns.Log("dues ask from %s for %s refused: not the Shogun, his Steward nor its Council member", tostring(sender), tostring(what))
 	end
 	local key = ns.FullName(sender) .. "|" .. what:lower() .. "|" .. week
 	if ns.Now() - (answered[key] or -math.huge) < Dues.ANSWER_GAP then return end
@@ -910,10 +910,10 @@ function Dues.HandleAsk(dist, sender, text)
 end
 ns.Comm.Handle("FQ", function(...) Dues.HandleAsk(...) end)
 
--- A Captain's ask about the members of his roster missing from his list (FC, in pieces), once
+-- A Council member's ask about the members of his roster missing from his list (FC, in pieces), once
 -- whole: answered with those of them who paid this week with no guild on it (FD), and nobody
 -- else. At most as many names as his guild has members (the census's, else the game's cap), once
--- every CODE_GAP per asker. (Nothing proves his roster is his: a Captain can ask about players
+-- every CODE_GAP per asker. (Nothing proves his roster is his: a Council member can ask about players
 -- of his choosing that way, as many as his guild counts; the README says so.)
 function Dues.HandleCodeAsk(dist, sender, text)
 	if dist ~= "WHISPER" or type(text) ~= "string" or not Dues.Answers() then return end
@@ -922,7 +922,7 @@ function Dues.HandleCodeAsk(dist, sender, text)
 	what = what and ns.Shogun.CleanGuild(what)
 	if not (week and ask and i and n and what) or week ~= Dues.Week() or i < 1 or i > n or n > Dues.MAX_CODE_PIECES then return end
 	if not May(sender, what, false) then
-		return ns.Log("dues roster ask from %s for %s refused: not the Shogun, his Steward nor its Captain", tostring(sender), tostring(what))
+		return ns.Log("dues roster ask from %s for %s refused: not the Shogun, his Steward nor its Council member", tostring(sender), tostring(what))
 	end
 	local key, now = ns.FullName(sender) .. "|" .. what:lower(), ns.Now()
 	local q = codeAsks[key]
@@ -991,7 +991,7 @@ function Dues.Ask(what, force)
 	return true
 end
 
--- A Captain's roster against his list (whole, while some paid this week with no guild on it):
+-- A Council member's roster against his list (whole, while some paid this week with no guild on it):
 -- the codes of his members missing from it, asked about (FC) when those payers changed (the
 -- list's digest) or his roster did, once every CODE_GAP at most; again after ASK_EVERY while
 -- unanswered. Until the answer comes, those members show as not known, never below.

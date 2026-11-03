@@ -647,7 +647,7 @@ end
 local function Witness(which)
 	local A = which == "A"
 	local db = InWorld({ clock = A and (T14 - 60) or (T14 + 5 * 60), me = A and "Witness Example-ClassicBetaPvP" or "Witness Second-ClassicBetaPvP",
-		guid = A and "Player-0000-0000000A" or "Player-0000-0000000B", rank = A and 4 or 2, rankName = A and "Soldier" or "Captain",
+		guid = A and "Player-0000-0000000A" or "Player-0000-0000000B", rank = A and 4 or 2, rankName = A and "Soldier" or "Council member",
 		battleTag = A and "SampleWitness#0000" or nil }, function(w)
 		local savedRecord, savedGuilds = rawget(ns, "Record"), ns.rdb.guilds
 		local ok, err = pcall(function()

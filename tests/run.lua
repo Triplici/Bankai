@@ -163,7 +163,7 @@ end
 -- Load addon files like WoW does: each gets (addonName, sharedTable)
 ---------------------------------------------------------------------------
 local ns = {}
-for _, file in ipairs({ "Bootstrap", "Locales", "Locales/deDE", "Locales/esES", "Locales/frFR", "Locales/DuesGraceText", "Locales/DuesRosterText", "Locales/JusticeResponseText", "Locales/CarryText", "Locales/CarryMergerText", "Locales/CampaignText", "Locales/GuildFinanceText", "Locales/RankingRulesText", "Locales/AccordText", "Core", "RankingRules", "GamepadRegistry", "Gamepad", "Diagnostics", "Dialog", "PlayerMenu", "Codec", "Sign", "Authority", "Zones", "Who", "Data", "Roster", "Comm", "Map", "Layers", "Hop", "Positions", "Decree", "Channels", "Filter", "Inspect", "Shogun", "HopSightings", "Vox", "Court", "Board", "Week", "Treasury", "Dues", "Bank", "Acts", "Loot", "War", "Crafters", "Chronicle", "Workshop", "Versions", "Ed25519", "libs/QREncode/qrencode", "Link", "ArmyExport", "Recruit", "PartyGuard", "AnswerBank", "Answers", "Views", "Accord", "Consent", "ChatRooms", "CraftRequests", "ViewAs", "TabardsV2", "Members", "Nominees", "CensusClean", "Bridge", "BridgeSections", "BridgePeople", "BridgeAffairs" }) do
+for _, file in ipairs({ "Bootstrap", "Locales", "Locales/deDE", "Locales/esES", "Locales/frFR", "Locales/DuesGraceText", "Locales/DuesRosterText", "Locales/JusticeResponseText", "Locales/CarryText", "Locales/CarryMergerText", "Locales/CampaignText", "Locales/GuildFinanceText", "Locales/RankingRulesText", "Locales/AccordText", "Core", "RankingRules", "GamepadRegistry", "Gamepad", "Diagnostics", "Dialog", "PlayerMenu", "Codec", "Sign", "Authority", "Zones", "Who", "Data", "Roster", "Comm", "Map", "Layers", "Hop", "Positions", "Decree", "Channels", "Filter", "Inspect", "Shogun", "HopSightings", "Poll", "Court", "Board", "Week", "Treasury", "Dues", "Bank", "Acts", "Loot", "War", "Crafters", "Chronicle", "Workshop", "Versions", "Ed25519", "libs/QREncode/qrencode", "Link", "ArmyExport", "Recruit", "PartyGuard", "AnswerBank", "Answers", "Views", "Accord", "Consent", "ChatRooms", "CraftRequests", "ViewAs", "TabardsV2", "Members", "Nominees", "CensusClean", "Bridge", "BridgeSections", "BridgePeople", "BridgeAffairs" }) do
 	local chunk = assert(loadfile(ADDON_DIR .. file .. ".lua"))
 	chunk("BankaiGuild", ns)
 end
@@ -822,7 +822,7 @@ test("errors are captured with dedupe", function()
 	assert(ns.BuildBugReport():find("boom"))
 end)
 
-test("Throne: only the Shogun sees it and his commands are checked; Council answer him alone", function()
+test("Throne: only the Shogun sees it and his commands are checked; Elders answer him alone", function()
 	local K = ns.Shogun
 	local savedGuild, savedPopup, savedSend, savedWhisper, savedDev = GetGuildInfo, StaticPopup_Show, ns.Comm.Send, ns.Comm.Whisper, ns.devThrone
 	local savedMe = ns.me
@@ -886,8 +886,8 @@ test("Throne: only the Shogun sees it and his commands are checked; Council answ
 		K.HandleAnswer("WHISPER", "Nobody-Realm", ("T2~%d~B~Bankai Guild Zeus"):format(id))
 		K.HandleAnswer("WHISPER", "Late-Realm", "T2~1~P~Bankai Guild Zeus")
 		local st = K.State()
-		eq(st.summon.answers["Zed-Realm"].verified, true, "a Council member from the census")
-		eq(st.summon.answers["Nobody-Realm"], nil, "not a confirmed Council: not listed by name...")
+		eq(st.summon.answers["Zed-Realm"].verified, true, "an Elder from the census")
+		eq(st.summon.answers["Nobody-Realm"], nil, "not a confirmed Elder: not listed by name...")
 		eq(st.summon.others["Nobody-Realm"], "B", "...only counted (the answer kept for the mark in the tree)")
 		K.HandleAnswer("WHISPER", "Troll-Realm", ("T2~%d~P~Shobek|cffff0000 smells"):format(id))
 		eq(st.summon.answers["Troll-Realm"], nil, "no free text on the Shogun's screen")
@@ -915,7 +915,7 @@ test("Throne: only the Shogun sees it and his commands are checked; Council answ
 		ns.After = savedAfter
 		assert(sent[#sent]:find("^CHANNEL T1~I~"), sent[#sent])
 		local iid = tonumber(sent[#sent]:match("T1~I~(%d+)"))
-		-- A confirmed Council's report lists names; a stranger's counts for nothing (not even numbers).
+		-- A confirmed Elder's report lists names; a stranger's counts for nothing (not even numbers).
 		K.HandleReport("WHISPER", "Zed-Realm", ("T3~%d~Bankai Guild Zeus~8~1~1~Naked:BankaiGuild Zeus:N,Pirate:BankaiGuild Zeus:O"):format(iid))
 		K.HandleReport("WHISPER", "Scout2-Realm", ("T3~%d~Bankai Guild IV~5~0~0~Innocent:BankaiGuild IV:N"):format(iid))
 		K.HandleReport("WHISPER", "Troll2-Realm", ("T3~%d~Not a guild~200~0~0~"):format(iid))
@@ -1062,11 +1062,11 @@ test("layer named after the highest rank present", function()
 	C_Map.GetBestMapForUnit = function() return 1453 end
 	ns.Data.Summary = ns.Data.Summary
 	ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 1, zones = {}, t = os.time(), leader = "Shoguny" }, "W1-Realm", "W2-Realm"),
-		["Bankai Guild II"] = Vouched({ total = 500, online = 1, zones = {}, t = os.time(), leader = "Councily" }, "W1-Realm", "W2-Realm") }
+		["Bankai Guild II"] = Vouched({ total = 500, online = 1, zones = {}, t = os.time(), leader = "Eldery" }, "W1-Realm", "W2-Realm") }
 	ns.Layers.Receive("Grunt-Realm", { mapID = 1453, zoneUID = 7, rank = 4, guild = "Bankai Guild" })
-	-- Claims rank 0 but is nobody's Council: counted, but cannot name the layer.
+	-- Claims rank 0 but is nobody's Elder: counted, but cannot name the layer.
 	ns.Layers.Receive("Aaron-Realm", { mapID = 1453, zoneUID = 7, rank = 0, guild = "Bankai Guild" })
-	ns.Layers.Receive("Councily-Realm", { mapID = 1453, zoneUID = 7, rank = 0, guild = "Bankai Guild II" })
+	ns.Layers.Receive("Eldery-Realm", { mapID = 1453, zoneUID = 7, rank = 0, guild = "Bankai Guild II" })
 	ns.Layers.Receive("Shoguny-Realm", { mapID = 1453, zoneUID = 7, rank = 0, guild = "Bankai Guild" })
 	ns.Layers.Receive("Solo-Realm", { mapID = 1453, zoneUID = 8, rank = 3, guild = "Bankai Guild" })
 	local layers = ns.Layers.ForMap(1453)
@@ -1088,7 +1088,7 @@ test("names carry the realm, so namesakes on other realms stay apart", function(
 		officers = { { name = "Capt", online = true, days = 0 } } }, "W1-Realm", "W2-Realm") }
 	eq(ns.Data.KnownRank("Zed", "Bankai Guild Zeus"), 0, "short name from our realm")
 	eq(ns.Data.KnownRank("Zed-Realm", "Bankai Guild Zeus"), 0)
-	eq(ns.Data.KnownRank("Zed-Other", "Bankai Guild Zeus"), nil, "namesake on another realm is not the Council")
+	eq(ns.Data.KnownRank("Zed-Other", "Bankai Guild Zeus"), nil, "namesake on another realm is not the Elder")
 	eq(ns.Data.KnownRank("Capt-Other", "Bankai Guild Zeus"), nil, "namesake officer rejected")
 	eq(ns.Data.KnownRank("Capt-Realm", "Bankai Guild Zeus"), 1)
 	-- A guild reported from another realm: its short names belong to that realm.
@@ -1108,33 +1108,33 @@ test("reporter election compares full names", function()
 end)
 
 test("crown permissions", function()
-	-- The Council ([Council], the writs to the Council, the census's two reports): every guild master.
-	eq(ns.IsCouncilRank("Bankai Guild II", 0), true, "any guild master")
-	eq(ns.IsCouncilRank("Bankai Guild II", 1), false, "officers of other guilds")
-	eq(ns.IsCouncilRank("BankaiGuild", 3), false)
+	-- The Elders ([Elders], the writs to the Elders, the census's two reports): every guild master.
+	eq(ns.IsElderRank("Bankai Guild II", 0), true, "any guild master")
+	eq(ns.IsElderRank("Bankai Guild II", 1), false, "officers of other guilds")
+	eq(ns.IsElderRank("BankaiGuild", 3), false)
 	-- (1.2.3, Daniel: a guild master has nothing at the level of the whole army) the Crown is the
-	-- Shogun's guild's alone: another guild's master is a Council member, never the Crown.
+	-- Shogun's guild's alone: another guild's master is an Elder, never the Crown.
 	eq(ns.IsCrownRank("Bankai Guild II", 0), false, "another guild's master: no Crown")
 	eq(ns.IsCrownRank("Bankai Guild II", 1), false)
 	eq(ns.IsCrownRank("BankaiGuild", 3), false)
 	eq(ns.IsCrownRank(nil, 0), false)
 	-- The officers of the main guild (1.0.0): of the Crown on its own members' clients, where
 	-- their rank is the server's (the roster); anywhere else only the census could name them,
-	-- and there they are Captains like any guild's officers.
+	-- and there they are Council like any guild's officers.
 	eq(ns.IsCrownRank("BankaiGuild", 1), false, "officers of the main guild, on another guild's client")
-	eq(ns.IsCouncilRank("BankaiGuild", 1), false)
+	eq(ns.IsElderRank("BankaiGuild", 1), false)
 	local savedGuild = GetGuildInfo
 	GetGuildInfo = function() return "Bankai Guild", "Knight", 3 end
-	local theirs, council = ns.IsCrownRank("BankaiGuild", 1), ns.IsCouncilRank("BankaiGuild", 1)
-	GetGuildInfo = function() return "Bankai Guild II", "Council", 0 end
-	local council, crown = ns.IsCouncil(), ns.IsCrown()
+	local theirs, elders = ns.IsCrownRank("BankaiGuild", 1), ns.IsElderRank("BankaiGuild", 1)
+	GetGuildInfo = function() return "Bankai Guild II", "Elder", 0 end
+	local elder, crown = ns.IsElder(), ns.IsCrown()
 	GetGuildInfo = function() return "Bankai Guild", "Knight", 1 end
-	local shogunsCouncil, shogunsCrown = ns.IsCouncil(), ns.IsCrown()
+	local shogunsElder, shogunsCrown = ns.IsElder(), ns.IsCrown()
 	GetGuildInfo = savedGuild
-	eq(theirs, true, "officers of the main guild, on its members' clients"); eq(council, true)
-	eq(ns.IsCrownRank("BankaiGuild", 0), true, "its guild master everywhere"); eq(ns.IsCouncilRank("BankaiGuild", 0), true)
-	eq(council, true, "another guild's master on his own client: a Council member"); eq(crown, false, "never the Crown")
-	eq(shogunsCouncil, true); eq(shogunsCrown, true, "an officer of the main guild on his own client: both")
+	eq(theirs, true, "officers of the main guild, on its members' clients"); eq(elders, true)
+	eq(ns.IsCrownRank("BankaiGuild", 0), true, "its guild master everywhere"); eq(ns.IsElderRank("BankaiGuild", 0), true)
+	eq(elder, true, "another guild's master on his own client: an Elder"); eq(crown, false, "never the Crown")
+	eq(shogunsElder, true); eq(shogunsCrown, true, "an officer of the main guild on his own client: both")
 end)
 
 test("wall of shame round trip", function()
@@ -1249,7 +1249,7 @@ local function SampleGuilds()
 			leaderOnline = true, leaderLevel = 24, leaderClass = "WA", ranks = { { name = "Shogun", count = 1 }, { name = "Knight", count = 989 } },
 			officers = { { name = "Capt", online = true, days = 0, class = "PA", level = 22 } },
 			top = { { name = "Racer", level = 25, class = "MA" } }, inactive7 = 10, inactive30 = 2, avgLevel = 14 }, "W1-Realm", "W2-Realm"),
-		["Bankai Guild II"] = { total = 500, online = 80, zones = { m1453 = 30 }, t = now, leader = "Councily", leaderOnline = false, leaderDays = 4,
+		["Bankai Guild II"] = { total = 500, online = 80, zones = { m1453 = 30 }, t = now, leader = "Eldery", leaderOnline = false, leaderDays = 4,
 			officers = {}, top = { { name = "Other", level = 20, class = "RO" } } },
 	}
 end
@@ -1271,7 +1271,7 @@ test("the Realm lists every member online: our roster for our guild, /who for th
 	GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
 	ns.rdb.guilds = SampleGuilds()
 	ns.Roster.online = {
-		{ name = "Councily", level = 30, class = "WA", rank = "Council", rankIndex = 0 },
+		{ name = "Eldery", level = 30, class = "WA", rank = "Elder", rankIndex = 0 },
 		{ name = "Mate", level = 22, class = "MA", rank = "Knight", rankIndex = 3 },
 		{ name = "Pal", level = 12, class = "PR", rank = "Squire", rankIndex = 4 },
 	}
@@ -1282,11 +1282,11 @@ test("the Realm lists every member online: our roster for our guild, /who for th
 	} }
 	local ok, err = pcall(function()
 		local own = ns.Views.MembersOf("Bankai Guild II", ns.rdb.guilds["Bankai Guild II"])
-		eq(#own, 2, "our roster, without the Council")
+		eq(#own, 2, "our roster, without the Elder")
 		eq(own[1].name, "Mate"); eq(own[1].rank, "Knight")
 		local other, fromWho = ns.Views.MembersOf("BankaiGuild", ns.rdb.guilds["Bankai Guild"])
 		eq(fromWho, true)
-		eq(#other, 1, "seen with /who, without its Captain")
+		eq(#other, 1, "seen with /who, without its Council member")
 		eq(other[1].name, "Scout"); eq(other[1].class, "RO")
 		ns.Views.ExpandAll(true)
 		local text = {}
@@ -1321,27 +1321,27 @@ test("the Realm lists every member online: our roster for our guild, /who for th
 end)
 
 -- 1.2.1 (an officer: his guild master "has been online for hours" while the addon showed him away):
--- another guild's Council and Captains came from its report whatever its age, and /who's sighting of
+-- another guild's Elder and Council came from its report whatever its age, and /who's sighting of
 -- them was dropped (MembersOf leaves them out of the members seen), so an old "offline 3d !" stayed
--- red under a Council member /who had just seen online.
-test("1.2.1 another guild's Council seen online by /who is online whatever an old report said; an old report's word is grey", function()
+-- red under an Elder /who had just seen online.
+test("1.2.1 another guild's Elder seen online by /who is online whatever an old report said; an old report's word is grey", function()
 	local savedGuild, savedSweep, savedOnline, savedMembers = GetGuildInfo, ns.Who.sweep, ns.Roster.online, ns.Roster.members
 	local now, L = os.time(), ns.L
 	GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
 	ns.Roster.online, ns.Roster.members = {}, {}
 	ns.rdb.guilds = {
-		-- Its last report two days old: the Council offline 3 days then, a Captain 1 day.
-		["Bankai Guild Far"] = { total = 50, online = 0, zones = {}, t = now - 2 * 86400, leader = "Farcouncil", leaderOnline = false,
+		-- Its last report two days old: the Elder offline 3 days then, a Council member 1 day.
+		["Bankai Guild Far"] = { total = 50, online = 0, zones = {}, t = now - 2 * 86400, leader = "Farelder", leaderOnline = false,
 			leaderDays = 3, officers = { { name = "Farcapt", online = false, days = 1 } } },
-		-- Three days old, its Council online when it was made, and not seen since.
-		["Bankai Guild Gone"] = { total = 40, online = 3, zones = {}, t = now - 3 * 86400, leader = "Gonecouncil", leaderOnline = true,
+		-- Three days old, its Elder online when it was made, and not seen since.
+		["Bankai Guild Gone"] = { total = 40, online = 3, zones = {}, t = now - 3 * 86400, leader = "Goneelder", leaderOnline = true,
 			leaderDays = 0, officers = {} },
 		-- A fresh report: its word stands.
-		["Bankai Guild Near"] = { total = 30, online = 2, zones = {}, t = now - 60, leader = "Nearcouncil", leaderOnline = false,
+		["Bankai Guild Near"] = { total = 30, online = 2, zones = {}, t = now - 60, leader = "Nearelder", leaderOnline = false,
 			leaderDays = 5, officers = {} },
 	}
-	-- This quarter-hour's /who round sees Farcouncil in his guild.
-	ns.Who.sweep = { started = GetTime(), list = { { name = "Farcouncil", guild = "Bankai Guild Far", level = 20, class = "WARRIOR" } } }
+	-- This quarter-hour's /who round sees Farelder in his guild.
+	ns.Who.sweep = { started = GetTime(), list = { { name = "Farelder", guild = "Bankai Guild Far", level = 20, class = "WARRIOR" } } }
 	local ok, err = pcall(function()
 		ns.Views.ExpandAll(true)
 		local lines = ns.Views.RealmLines()
@@ -1353,32 +1353,32 @@ test("1.2.1 another guild's Council seen online by /who is online whatever an ol
 			error("no row for " .. key)
 		end
 		local red = "|cffff4040"
-		local council = Row("Farcouncil")
-		assert(council.right:find(L.ONLINE_NOW, 1, true), "seen online: " .. council.right)
-		eq(council.offline, false)
+		local elder = Row("Farelder")
+		assert(elder.right:find(L.ONLINE_NOW, 1, true), "seen online: " .. elder.right)
+		eq(elder.offline, false)
 		assert(Row("Bankai Guild Far", true).right:find(L.ONLINE_NOW, 1, true), "the guild's line too")
 		local grey = "|cff9d9d9d"
 		local capt = Row("Farcapt").right
 		assert(capt:find(L.OFFLINE_DAYS:format(1), 1, true) and capt:find(grey, 1, true) and not capt:find(red, 1, true), "what it said, grey: " .. capt)
-		-- (1.2.1 review: what a 3-day-old report said is no "online now" (Members.CheckCouncil counts him
+		-- (1.2.1 review: what a 3-day-old report said is no "online now" (Members.CheckElders counts him
 		-- away from then): when it said so, grey, and his card and page say nothing of now.)
-		local gone = Row("Gonecouncil")
+		local gone = Row("Goneelder")
 		eq(gone.right, grey .. L.ONLINE_DAYS_AGO:format(3) .. "|r", "online when it was made, 3 days ago, grey")
 		eq(gone.offline, true)
-		eq(ns.Views.Person("Gonecouncil").online, nil)
-		local farCouncil = ns.rdb.guilds["Bankai Guild Far"]
-		farCouncil.leaderDays = 5
+		eq(ns.Views.Person("Goneelder").online, nil)
+		local farElder = ns.rdb.guilds["Bankai Guild Far"]
+		farElder.leaderDays = 5
 		ns.Who.sweep = { started = GetTime(), list = {} }
 		lines = ns.Views.RealmLines()
-		local unseen = Row("Farcouncil").right
+		local unseen = Row("Farelder").right
 		assert(unseen:find(L.OFFLINE_DAYS:format(5), 1, true) and unseen:find(grey, 1, true) and not unseen:find(red, 1, true),
 			"not seen, an old report: grey, no warning: " .. unseen)
-		ns.Who.sweep = { started = GetTime(), list = { { name = "Farcouncil", guild = "Bankai Guild Far", level = 20, class = "WARRIOR" } } }
+		ns.Who.sweep = { started = GetTime(), list = { { name = "Farelder", guild = "Bankai Guild Far", level = 20, class = "WARRIOR" } } }
 		lines = ns.Views.RealmLines()
-		local near = Row("Nearcouncil").right
+		local near = Row("Nearelder").right
 		assert(near:find(L.OFFLINE_DAYS:format(5), 1, true) and near:find(red, 1, true), "a fresh report's word: " .. near)
 		-- The player page and the Realm's people lists read the same.
-		eq(ns.Views.Person("Farcouncil").online, true)
+		eq(ns.Views.Person("Farelder").online, true)
 		ns.Views.ExpandAll(false)
 	end)
 	GetGuildInfo, ns.Who.sweep, ns.Roster.online, ns.Roster.members = savedGuild, savedSweep, savedOnline, savedMembers
@@ -1388,7 +1388,7 @@ end)
 
 -- 1.2.1 review: the player page and the class/race lists took /who's word over our roster and over
 -- a fresh report, from a /who round however old: a guildmate offline for 2 days read online, and a
--- Council the tree showed red "offline 5d !" read online on his page.
+-- Elder the tree showed red "offline 5d !" read online on his page.
 test("1.2.1 the Realm's people: our roster is the word for our guild, an old /who round is no online, and the page says what the tree says", function()
 	local savedGuild, savedSweep, savedOnline, savedMembers = GetGuildInfo, ns.Who.sweep, ns.Roster.online, ns.Roster.members
 	local now, L = os.time(), ns.L
@@ -1396,27 +1396,27 @@ test("1.2.1 the Realm's people: our roster is the word for our guild, an old /wh
 	ns.Roster.online = {}
 	ns.Roster.members = { { name = "Ownmate", full = ns.FullName("Ownmate"), online = false, days = 2, level = 20 } }
 	ns.rdb.guilds = {
-		["Bankai Guild Near"] = { total = 30, online = 2, zones = {}, t = now - 60, leader = "Nearcouncil", leaderOnline = false,
+		["Bankai Guild Near"] = { total = 30, online = 2, zones = {}, t = now - 60, leader = "Nearelder", leaderOnline = false,
 			leaderDays = 5, officers = {} },
 	}
 	-- A /who round of an hour ago saw them both (nobody pressed Refresh since).
 	ns.Who.sweep = { started = GetTime() - 3600, done = true, list = {
 		{ name = "Ownmate", guild = "Bankai Guild II", level = 20, class = "MAGE" },
-		{ name = "Nearcouncil", guild = "Bankai Guild Near", level = 20, class = "WARRIOR" },
+		{ name = "Nearelder", guild = "Bankai Guild Near", level = 20, class = "WARRIOR" },
 		{ name = "Whoonly", guild = "Bankai Guild Near", level = 12, class = "ROGUE" } } }
 	local ok, err = pcall(function()
 		ns.Views.ExpandAll(true)
-		local council
-		for _, l in ipairs(ns.Views.RealmLines()) do if l.key == "Nearcouncil" then council = l end end
-		assert(council and council.right:find("|cffff4040", 1, true) and council.offline == true, "the tree: the fresh report's word")
+		local elder
+		for _, l in ipairs(ns.Views.RealmLines()) do if l.key == "Nearelder" then elder = l end end
+		assert(elder and elder.right:find("|cffff4040", 1, true) and elder.offline == true, "the tree: the fresh report's word")
 		local own = ns.Views.Person("Ownmate")
 		eq(own.online, false, "our roster"); eq(own.days, 2)
-		local near = ns.Views.Person("Nearcouncil")
+		local near = ns.Views.Person("Nearelder")
 		eq(near.online, false, "as the tree says"); eq(near.days, 5)
 		eq(ns.Views.Person("Whoonly").online, nil, "an hour-old round: not known online now")
 		-- This quarter-hour's round: seen now is online, in another guild; our roster still says ours.
 		ns.Who.sweep.started = GetTime()
-		eq(ns.Views.Person("Nearcouncil").online, true)
+		eq(ns.Views.Person("Nearelder").online, true)
 		eq(ns.Views.Person("Whoonly").online, true)
 		eq(ns.Views.Person("Ownmate").online, false, "our roster over /who")
 		ns.Views.ExpandAll(false)
@@ -1438,7 +1438,7 @@ test("layer sample is stable and about 1 in 8", function()
 	assert(hits > 50 and hits < 150, "sample size " .. hits)
 end)
 
-test("realm view lists shogun, council, captains and level race", function()
+test("realm view lists shogun, elders, council and level race", function()
 	ns.rdb.guilds = SampleGuilds()
 	local lines = ns.Views.RealmLines()
 	assert(lines[1].text:find("Shobek Layer", 1, true), "the Shogun is online: his layer line comes first")
@@ -1449,7 +1449,7 @@ test("realm view lists shogun, council, captains and level race", function()
 	ns.rdb.guilds = {}
 end)
 
-test("captains in the report are rank 1 whatever /bk officer says", function()
+test("council in the report are rank 1 whatever /bk officer says", function()
 	local saved = ns.db.officerRank
 	ns.db.officerRank = 9
 	local r = ns.Roster.Scan()
@@ -2475,7 +2475,7 @@ test("tabs of the old window: four or five of Classic's wide tabs shrink to fit 
 			end
 			local n, span = Span()
 			-- 1.2: Tabards stays absent until the Shogun's fresh publication; Crafters is standalone.
-			eq(n, 7, "Chat, Crafters, Throne and Vox Populi; unpublished Tabards hidden")
+			eq(n, 7, "Chat, Crafters, Throne and Poll; unpublished Tabards hidden")
 			assert(span <= main:GetWidth() - 10, ("seven tabs inside the window: %d of %d"):format(span, main:GetWidth()))
 			for _, tab in ipairs(main.tabs) do assert(tab:GetWidth() >= 44, "still a tab") end
 			-- Room enough: Blizzard's own size.
@@ -2896,7 +2896,7 @@ test("rows: the HD window's like the Communities roster's, the old window's unch
 		local lines = {
 			{ header = true, text = "Header" },
 			{ text = "Plain" },
-			{ text = "Council", key = "Councily", onClick = function() clicked = "Councily" end },
+			{ text = "Elder", key = "Eldery", onClick = function() clicked = "Eldery" end },
 			{ cols = { "a", "b", "c", "d" } },
 			{ text = "Racer", key = "Racer", onClick = function() clicked = "Racer" end },
 		}
@@ -2914,7 +2914,7 @@ test("rows: the HD window's like the Communities roster's, the old window's unch
 		eq(rows[3].stripe:IsShown(), true); eq(rows[4].stripe:IsShown(), true, "a table row")
 		eq(rows[5].locked, true, "the person open stays lit"); eq(rows[3].locked, false)
 		rows[3]:Click()
-		eq(clicked, "Councily"); eq(hd.selectedKey, "Councily")
+		eq(clicked, "Eldery"); eq(hd.selectedKey, "Eldery")
 		eq(rows[3].locked, true); eq(rows[5].locked, false)
 		Views.ClearSelection(hd)
 		eq(rows[3].locked, false); eq(hd.selectedKey, nil)
@@ -2927,7 +2927,7 @@ test("rows: the HD window's like the Communities roster's, the old window's unch
 		eq(rows[1].stripe, nil); eq(rows[1].highlightTexture, nil)
 		eq(rows[1].textures[1].texture, "Interface\\QuestFrame\\UI-QuestTitleHighlight")
 		rows[3]:Click()
-		eq(clicked, "Councily"); eq(old.selectedKey, "Racer")
+		eq(clicked, "Eldery"); eq(old.selectedKey, "Racer")
 		for i = 1, #lines do eq(rows[i].locked, nil, "never lit: row " .. i) end
 	end)
 end)
@@ -3120,12 +3120,12 @@ test("HD person panel: the roster's member card, hanging off the HD window", fun
 		local main = BankaiGuildFrameHD
 		ns.Views.ExpandAll(true)
 		UI.SelectTab("realm")
-		-- The Council of Bankai Guild: his line opens his card and stays lit while it is open.
+		-- The Elder of Bankai Guild: his line opens his card and stays lit while it is open.
 		local row
 		for _, r in ipairs(main.views.realm.rows) do
 			if r:IsShown() and r.line and r.line.key == "Shobek" and r.line.indent == 1 then row = r break end
 		end
-		assert(row, "the Council's line")
+		assert(row, "the Elder's line")
 		row:Click()
 		local person = BankaiGuildPersonFrameHD
 		eq(person:IsShown(), true); eq(person.parent, main)
@@ -3203,7 +3203,7 @@ test("HD Join screen: no tabs or column titles, next to a Communities window wit
 		UI.Refresh()
 		eq(Anchor(main), "TOPLEFT CommunitiesFrame TOPRIGHT 64 0")
 		-- No unpublished Tabards, Shogun's pages, Treasury or the author's Workshop yet.
-		for _, tab in ipairs(main.tabs) do eq(tab:IsShown(), tab.key ~= "heraldry" and tab.key ~= "throne" and tab.key ~= "vox" and tab.key ~= "treasury" and tab.key ~= "workshop", tab.key) end
+		for _, tab in ipairs(main.tabs) do eq(tab:IsShown(), tab.key ~= "heraldry" and tab.key ~= "throne" and tab.key ~= "poll" and tab.key ~= "treasury" and tab.key ~= "workshop", tab.key) end
 		eq(main.colHeader:IsShown(), true)
 		eq(main.listBox:Anchor("TOPLEFT")[5], -81); eq(main.scroll:Anchor("TOPLEFT")[5], -84)
 	end)
@@ -3229,7 +3229,7 @@ test("top-level order reserves The Watch between Treasury and Throne", function(
 end)
 
 test("HD window: side tabs preserve canonical order from the right column into the left", function()
-	local K, V, T, W = ns.Shogun, ns.Vox, ns.Treasury, ns.Workshop
+	local K, V, T, W = ns.Shogun, ns.Poll, ns.Treasury, ns.Workshop
 	local saved = { K.Visible, V.Visible, T.Visible, W.Visible }
 	local function Yes() return true end
 	local ok, err = pcall(WithUI, function()
@@ -3249,7 +3249,7 @@ test("HD window: side tabs preserve canonical order from the right column into t
 			return out
 		end
 		local function Keys(list) local out = {} for _, tab in ipairs(list) do out[#out + 1] = tab.key end return table.concat(out, " ") end
-		local ws, tr, throne, vox, chat = Tab("workshop"), Tab("treasury"), Tab("throne"), Tab("vox"), Tab("chat")
+		local ws, tr, throne, poll, chat = Tab("workshop"), Tab("treasury"), Tab("throne"), Tab("poll"), Tab("chat")
 		eq(UI.SideTabsFit(7, 32, 426), true); eq(UI.SideTabsFit(8, 32, 426), false)
 		-- Every member: the five public tabs, including Crafters; nothing on the left. (1.2: no
 		-- Tabards tab, its lists are The Watch's.)
@@ -3264,27 +3264,27 @@ test("HD window: side tabs preserve canonical order from the right column into t
 		eq(ws:IsShown(), true); eq(ws.points[1][2], Tab("crafters")); eq(Anchor(ws), "TOPLEFT nil BOTTOMLEFT 0 -20")
 		eq(ws.onLeft or false, false); eq(main.clampInsets[1], 0)
 		W.Visible = saved[4]
-		-- Shobek's view has eight. The first seven stay right; Vox continues bottom-up on the left,
+		-- Shobek's view has eight. The first seven stay right; Poll continues bottom-up on the left,
 		-- exactly where it occurs in the canonical list.
 		K.Visible, V.Visible, T.Visible = Yes, Yes, Yes
 		UI.Refresh()
 		eq(ws:IsShown(), false, "(not the author)")
-		eq(vox:IsShown(), true); eq(throne.onLeft or false, false); eq(vox.onLeft, true); eq(tr.onLeft or false, false)
-		eq(Anchor(vox), "BOTTOMRIGHT BankaiGuildFrameHD BOTTOMLEFT 0 46"); eq(vox:GetNumPoints(), 1)
-		eq(Anchor(vox.Art), "TOPRIGHT nil TOPRIGHT 3 11"); eq(vox.Art.texCoord, "1 0 0 1", "its art turned round")
+		eq(poll:IsShown(), true); eq(throne.onLeft or false, false); eq(poll.onLeft, true); eq(tr.onLeft or false, false)
+		eq(Anchor(poll), "BOTTOMRIGHT BankaiGuildFrameHD BOTTOMLEFT 0 46"); eq(poll:GetNumPoints(), 1)
+		eq(Anchor(poll.Art), "TOPRIGHT nil TOPRIGHT 3 11"); eq(poll.Art.texCoord, "1 0 0 1", "its art turned round")
 		eq(main.clampInsets[1], -40, "on the screen too"); eq(main.clampInsets[2], 40)
 		local right = Right()
 		eq(Keys(right), "census realm chat decrees crafters treasury throne", "Treasury is immediately before the Throne")
-		eq(Keys(Left()), "vox", "the canonical tail, read bottom-to-top")
+		eq(Keys(Left()), "poll", "the canonical tail, read bottom-to-top")
 		eq(Anchor(right[1]), "TOPLEFT BankaiGuildFrameHD TOPRIGHT 0 -36"); eq(right[7].points[1][2], right[6])
-		-- The author's full preview adds Workshop after Vox, so it sits above it.
+		-- The author's full preview adds Workshop after Poll, so it sits above it.
 		W.Visible = Yes
 		UI.Refresh()
-		eq(throne.onLeft or false, false); eq(vox.onLeft, true); eq(tr.onLeft or false, false); eq(ws.onLeft, true)
-		eq(Anchor(vox), "BOTTOMRIGHT BankaiGuildFrameHD BOTTOMLEFT 0 46")
-		eq(ws.points[1][2], vox); eq(Anchor(ws), "BOTTOMRIGHT nil TOPRIGHT 0 20")
+		eq(throne.onLeft or false, false); eq(poll.onLeft, true); eq(tr.onLeft or false, false); eq(ws.onLeft, true)
+		eq(Anchor(poll), "BOTTOMRIGHT BankaiGuildFrameHD BOTTOMLEFT 0 46")
+		eq(ws.points[1][2], poll); eq(Anchor(ws), "BOTTOMRIGHT nil TOPRIGHT 0 20")
 		eq(Keys(Right()), "census realm chat decrees crafters treasury throne")
-		eq(Keys(Left()), "vox workshop")
+		eq(Keys(Left()), "poll workshop")
 		eq(Anchor(ws.Art), "TOPRIGHT nil TOPRIGHT 3 11"); eq(main.clampInsets[1], -40)
 		-- Their tooltips to the left, clear of the window; the others' to the right.
 		ws:Fire("OnEnter"); eq(GameTooltip.owner, ws); eq(GameTooltip.ownerAnchor, "ANCHOR_LEFT")
@@ -3296,7 +3296,7 @@ test("HD window: side tabs preserve canonical order from the right column into t
 		main:SetHeight(700)
 		UI.Refresh()
 		eq(ws.onLeft, false); eq(tr.onLeft or false, false); eq(main.clampInsets[1], 0)
-		eq(Keys(Right()), "census realm chat decrees crafters treasury throne vox workshop")
+		eq(Keys(Right()), "census realm chat decrees crafters treasury throne poll workshop")
 		main:SetHeight(426)
 		-- Shobek's view off: back under the others, their art as it was.
 		K.Visible, V.Visible, T.Visible = saved[1], saved[2], saved[3]
@@ -3304,7 +3304,7 @@ test("HD window: side tabs preserve canonical order from the right column into t
 		eq(ws.onLeft, false); eq(Anchor(ws), "TOPLEFT nil BOTTOMLEFT 0 -20"); eq(ws.points[1][2], Tab("crafters"))
 		eq(Anchor(ws.Art), "TOPLEFT nil TOPLEFT -3 11"); eq(ws.Art.texCoord, "0 1 0 1")
 		eq(tr.onLeft or false, false, "Treasury stayed on the right throughout")
-		eq(vox.onLeft, false); eq(Anchor(vox.Art), "TOPLEFT nil TOPLEFT -3 11"); eq(vox.Art.texCoord, "0 1 0 1")
+		eq(poll.onLeft, false); eq(Anchor(poll.Art), "TOPLEFT nil TOPLEFT -3 11"); eq(poll.Art.texCoord, "0 1 0 1")
 		eq(main.clampInsets[1], 0)
 	end)
 	K.Visible, V.Visible, T.Visible, W.Visible = saved[1], saved[2], saved[3], saved[4]
@@ -3343,7 +3343,7 @@ test("HD window on a client without Blizzard's new parts: built from what is the
 		for _, r in ipairs(main.views.realm.rows) do
 			if r:IsShown() and r.line and r.line.key == "Shobek" and r.line.indent == 1 then row = r break end
 		end
-		assert(row, "the Council's line")
+		assert(row, "the Elder's line")
 		row:Click()
 		-- (1.1.5: the old panel is the plain silver frame there too, under its own name: the metal one
 		-- the client could not make keeps the panel's, ns.Window.)
@@ -3557,7 +3557,7 @@ test("person panel: whisper and invite reach the whole name (a report's names ar
 		local ok, err = pcall(function()
 			ns.splitNames = nil
 			UI.Toggle()
-			-- A Captain from a guild report sent from another realm: "Capt" there is Capt-Other.
+			-- A Council member from a guild report sent from another realm: "Capt" there is Capt-Other.
 			UI.ShowPerson({ name = "Capt", realm = "Other", guild = "Bankai Guild II" })
 			BankaiGuildPersonFrame.whisper:Click(); BankaiGuildPersonFrame.invite:Click()
 			eq(told, "Capt-Other"); eq(invited, "Capt-Other")
@@ -3642,7 +3642,7 @@ end)
 
 test("Page header: Realm and Watch keep their search above destination tabs and Tabards content", function()
 	WithUI(function()
-		GetGuildInfo = function() return "Bankai Guild II", "Captain", 1 end
+		GetGuildInfo = function() return "Bankai Guild II", "Council member", 1 end
 		local UI, uns = LoadUI()
 		local W, restore = Harness.LoadWatch(uns)
 		local ok, err = pcall(function()
@@ -3722,7 +3722,7 @@ test("Page search extraction leaves form fields and action choices in the body",
 end)
 
 test("1.2 UI.AddTab: a tab joins at its canonical position with its list and buttons; overflow preserves that position", function()
-	local K, V, T, W = ns.Shogun, ns.Vox, ns.Treasury, ns.Workshop
+	local K, V, T, W = ns.Shogun, ns.Poll, ns.Treasury, ns.Workshop
 	local saved = { K.Visible, V.Visible, T.Visible, W.Visible }
 	local Views = ns.Views
 	local function Yes() return true end
@@ -3777,21 +3777,21 @@ test("1.2 UI.AddTab: a tab joins at its canonical position with its list and but
 		-- bottom-to-top, rather than promoting role-only or dynamically added tabs.
 		K.Visible, V.Visible, T.Visible, W.Visible = Yes, Yes, Yes, Yes
 		UI.Refresh()
-		local ws, tr, ar, craft, throne, vox = Tab("workshop"), Tab("treasury"), Tab("core-tab"), Tab("crafters"), Tab("throne"), Tab("vox")
+		local ws, tr, ar, craft, throne, poll = Tab("workshop"), Tab("treasury"), Tab("core-tab"), Tab("crafters"), Tab("throne"), Tab("poll")
 		-- (1.2: no Tabards tab: The Watch has them.)
 		eq(ar.onLeft or false, false); eq(Tab("core-extra").onLeft or false, false); eq(Tab("heraldry"), nil)
-		eq(craft.onLeft or false, false); eq(throne.onLeft, true); eq(vox.onLeft, true); eq(tr.onLeft, true); eq(ws.onLeft, true)
+		eq(craft.onLeft or false, false); eq(throne.onLeft, true); eq(poll.onLeft, true); eq(tr.onLeft, true); eq(ws.onLeft, true)
 		eq(Keys(false), "census realm chat core-tab core-extra decrees crafters")
-		eq(Keys(true), "treasury throne vox workshop")
+		eq(Keys(true), "treasury throne poll workshop")
 		eq(Anchor(tr), "BOTTOMRIGHT BankaiGuildFrameHD BOTTOMLEFT 0 46")
-		eq(throne.points[1][2], tr); eq(vox.points[1][2], throne); eq(ws.points[1][2], vox)
+		eq(throne.points[1][2], tr); eq(poll.points[1][2], throne); eq(ws.points[1][2], poll)
 		eq(main.clampInsets[1], -40)
 		-- Hiding an early tab shifts the boundary, but does not reorder either column.
 		extra = false
 		UI.Refresh()
 		eq(Keys(false), "census realm chat core-tab decrees crafters treasury")
-		eq(Keys(true), "throne vox workshop")
-		-- One fewer (no Vox Populi): Throne and Workshop remain the canonical tail.
+		eq(Keys(true), "throne poll workshop")
+		-- One fewer (no Poll): Throne and Workshop remain the canonical tail.
 		V.Visible = function() return false end
 		UI.Refresh()
 		eq(Keys(false), "census realm chat core-tab decrees crafters treasury")
@@ -3959,7 +3959,7 @@ test("1.2.4 API surface: native parchment never leaks into its canvas", function
 end)
 
 test("1.2.4 API surface: dense HD overflow balances both rails and clears the portrait", function()
-	local K, V, T, W = ns.Shogun, ns.Vox, ns.Treasury, ns.Workshop
+	local K, V, T, W = ns.Shogun, ns.Poll, ns.Treasury, ns.Workshop
 	local saved = { K.Visible, V.Visible, T.Visible, W.Visible }
 	local function Yes() return true end
 	local ok, err = pcall(WithUI, function()
@@ -4566,9 +4566,9 @@ test("1.2 normal player profile: a peer on an older version: his version line sh
 			local version = ShownRowWith(main, ns.L.VERSION_LINE_OUTDATED:format("1.0.0"))
 			assert(version, "the older peer's version line")
 			eq(version.line.right, ns.L.PROFILE_FIELD_META:format(ns.L.PROFILE_SOURCE_ADDON, ns.L.PROFILE_FRESH_UNKNOWN))
-			-- The other guild's Council, from a report that names neither his class nor his level.
-			eq(uns.PlayerProfile.OpenName("Councily"), true)
-			eq(UI.PageId(), "player-profile:Councily-Realm")
+			-- The other guild's Elder, from a report that names neither his class nor his level.
+			eq(uns.PlayerProfile.OpenName("Eldery"), true)
+			eq(UI.PageId(), "player-profile:Eldery-Realm")
 			assert(ShownRowWith(main, ns.L.OFFLINE_DAYS:format(4)), "what the report says")
 			local class, level
 			for _, field in ipairs(UI.PersonDetails(UI.CurrentPlayerProfile()).fields) do
@@ -5086,7 +5086,7 @@ test("Realm races keep the race exposed by modern /who without putting it on the
 	end)
 end)
 
--- CR-05 (races shown as Unknown): another guild's Council is known from its census report,
+-- CR-05 (races shown as Unknown): another guild's Elder is known from its census report,
 -- which carries no race. /who showed his race while he was online; the next round, with him
 -- logged off, used to put him back under Unknown. The client's WhoInfo gives raceStr only
 -- (no race file token), so these rows give no sixth field.
@@ -5098,7 +5098,7 @@ test("CR-05: a race /who showed stays in the Realm's Races after its round is ov
 			ns.UI = { Refresh = function() end, StatusLine = function() return "status" end, ShowPerson = function() end,
 				FilterChanged = function() end }
 			ns.rdb.guilds["Bankai Guild VII"] = { total = 30, online = 4, zones = {}, t = ns.Now(), realm = "Realm",
-				leader = "Councilelf", leaderClass = "MA", leaderLevel = 60, officers = {}, top = {} }
+				leader = "Elderelf", leaderClass = "MA", leaderLevel = 60, officers = {}, top = {} }
 			local function Groups()
 				ns.Views.ClearFilters()
 				ns.Views.SetRealmMode("races", true)
@@ -5124,7 +5124,7 @@ test("CR-05: a race /who showed stays in the Realm's Races after its round is ov
 			assert(before.unknown and not before["race:night elf"], "the report alone gives no race")
 
 			eq(ns.Who.Search(), true)
-			server.Answer({ { "Councilelf", "Bankai Guild VII", 60, "MAGE", "Night Elf" } })
+			server.Answer({ { "Elderelf", "Bankai Guild VII", 60, "MAGE", "Night Elf" } })
 			server.Run(ns.Who.SETTLE)
 			local seen = Groups()
 			assert(seen["race:night elf"] and not seen.unknown, "seen online: his race")
@@ -5140,18 +5140,18 @@ test("CR-05: a race /who showed stays in the Realm's Races after its round is ov
 			eq(server.sent[#server.sent], ns.Who.QUERY, "the next round's broad search")
 			server.Answer({ { "Otherdwarf", "Bankai Guild VII", 50, "WARRIOR", "Dwarf" } })
 			server.Run(ns.Who.SETTLE)
-			eq(ns.Who.sweep.byName.Councilelf, nil, "the new round no longer lists him")
+			eq(ns.Who.sweep.byName.Elderelf, nil, "the new round no longer lists him")
 			local after = Groups()
 			assert(after["race:night elf"], "the race /who showed earlier this session stays")
 			assert(after["race:dwarf"], "the new round's player has his own")
 			eq(after.unknown, nil, "nobody back under Unknown")
 			eq(after["race:night elf"].text:find("(1)", 1, true) ~= nil, true, "him, once")
-			eq(select(1, ns.Who.RaceOf("Councilelf-Realm")), "Night Elf")
+			eq(select(1, ns.Who.RaceOf("Elderelf-Realm")), "Night Elf")
 			eq(Holds(SAVED, "Night Elf"), false, "kept in memory only: nothing saved holds it")
 
 			-- /bk reset forgets the rounds and these races with them.
 			ns.Who.Reset()
-			eq(ns.Who.RaceOf("Councilelf"), nil)
+			eq(ns.Who.RaceOf("Elderelf"), nil)
 			local unknown = Groups().unknown
 			assert(unknown, "after a reset he is Unknown again until /who sees him")
 			-- The Unknown group says why.
@@ -5520,7 +5520,7 @@ test("census: guilds only seen with /who are grey rows after the reported ones",
 		eq(lines[3].cols[3], Grey("30")); eq(lines[3].dim, nil)
 		eq(lines[4].cols[1], Grey("Bankai Guild VII")); eq(lines[4].cols[2], Grey("?"))
 		eq(lines[4].cols[3], Grey("12+"), "capped: at least")
-		-- (Changed on purpose, 1.2.4: the average level's column before the Council's, unknown too.)
+		-- (Changed on purpose, 1.2.4: the average level's column before the Elder's, unknown too.)
 		eq(lines[4].cols[4], Grey("?"), "no average level known"); eq(lines[4].cols[5], Grey(L.NO_ADDON))
 		eq(lines[5].text, Grey(L.SEEN_HINT)); eq(#lines, 5)
 		local tip = {}
@@ -5572,7 +5572,7 @@ test("census Refresh: the roster, and one /who per click for the grey guilds", f
 end)
 
 ---------------------------------------------------------------------------
--- Channels (Channels.lua): [Bankai Guild] / [Captains] / [Council] over the hidden channel
+-- Channels (Channels.lua): [Bankai Guild] / [Council] / [Elders] over the hidden channel
 ---------------------------------------------------------------------------
 
 CHAT_LINES = {}
@@ -5706,7 +5706,7 @@ end)
 
 test("channel levels follow the realm hierarchy", function()
 	eq(Chan.LevelOf("BankaiGuild", 0), 3); eq(Chan.LevelOf("BankaiGuild", 2), 1)
-	-- An officer of <Elfcore>: a Council member on its members' clients, a Captain on any other (1.0.0).
+	-- An officer of <Elfcore>: an Elder on its members' clients, a Council member on any other (1.0.0).
 	eq(Chan.LevelOf("BankaiGuild", 1), 2)
 	AsRank(3, function() eq(Chan.LevelOf("BankaiGuild", 1), 3) end, "Bankai Guild")
 	eq(Chan.LevelOf("Bankai Guild II", 0), 3); eq(Chan.LevelOf("Bankai Guild II", 1), 2); eq(Chan.LevelOf("Bankai Guild II", 3), 1)
@@ -5735,9 +5735,9 @@ test("sending is gated with a clear answer", function()
 		end)
 		AsRank(1, function(printed)
 			eq(select(2, Chan.Send("L", "hi", 100)), "rank")
-			eq(printed[1], ns.L.CHAN_ONLY_COUNCIL:format("Council"))
+			eq(printed[1], ns.L.CHAN_ONLY_ELDERS:format("Elders"))
 			eq(select(2, Chan.Send("C", " \n ", 100)), "empty")
-			eq(printed[2], ns.L.CHAN_USAGE:format("/bgc", "Captains"))
+			eq(printed[2], ns.L.CHAN_USAGE:format("/bgc", "Council"))
 			C_ChatInfo = { InChatMessagingLockdown = function() return true end }
 			eq(select(2, Chan.Send("C", "hi", 100)), "lockdown")
 			C_ChatInfo = nil
@@ -5762,7 +5762,7 @@ test("sending is gated with a clear answer", function()
 		eq(sent[1]:sub(1, 16), "M1~C~Bankai Guild II~")
 		assert(sent[1]:find("~PA~reunir em " .. ITEM, 1, true), sent[1])
 		eq(#CHAT_LINES, 1, "local echo")
-		assert(CHAT_LINES[1]:find("[Captains]", 1, true) and CHAT_LINES[1]:find(ITEM, 1, true), CHAT_LINES[1])
+		assert(CHAT_LINES[1]:find("[Council]", 1, true) and CHAT_LINES[1]:find(ITEM, 1, true), CHAT_LINES[1])
 	end)
 end)
 
@@ -5780,17 +5780,17 @@ test("sender ranks are verified on receipt, never taken from the message", funct
 			n = n + 1
 			return select(2, Chan.Receive(dist or "CHANNEL", sender, Msg(tier, guild, n), 1000 + n))
 		end
-		eq(R("Member2", "C", MY_GUILD), "ok", "our officer on [Captains]")
-		eq(R("Member2", "L", MY_GUILD), "rank", "our officer is not a Council member")
+		eq(R("Member2", "C", MY_GUILD), "ok", "our officer on [Council]")
+		eq(R("Member2", "L", MY_GUILD), "rank", "our officer is not an Elder")
 		eq(R("Member1", "L", MY_GUILD), "ok", "our guild master")
 		eq(R("Member500", "A", MY_GUILD), "ok", "our member on [Bankai Guild]")
-		eq(R("Member500", "C", MY_GUILD), "rank", "our member on [Captains]")
+		eq(R("Member500", "C", MY_GUILD), "rank", "our member on [Council]")
 		eq(R("Stranger-Realm", "A", MY_GUILD), "forged", "not in our roster")
 		eq(R("Member3", "A", "Bankai Guild"), "forged", "a guildmate speaking for another guild")
 		eq(R("Shobek", "L", "Bankai Guild"), "ok", "the Shogun, from the report")
-		-- (1.0.0: an officer of <Elfcore> the report names is a Captain here, not a Council member.)
-		eq(R("Capt", "L", "Bankai Guild"), "rank", "officer of <Elfcore>, from the report: no [Council] outside <Elfcore>")
-		eq(R("Capt", "C", "Bankai Guild"), "ok", "officer of <Elfcore>, from the report: [Captains]")
+		-- (1.0.0: an officer of <Elfcore> the report names is a Council member here, not an Elder.)
+		eq(R("Capt", "L", "Bankai Guild"), "rank", "officer of <Elfcore>, from the report: no [Elders] outside <Elfcore>")
+		eq(R("Capt", "C", "Bankai Guild"), "ok", "officer of <Elfcore>, from the report: [Council]")
 		eq(R("Random", "A", "Bankai Guild"), "ok", "unverified members can use [Bankai Guild]")
 		eq(R("Random", "C", "Bankai Guild"), "unverified")
 		eq(R("X", "C", "Bankai Guild Bad"), "unverified", "conflicting report")
@@ -5799,14 +5799,14 @@ test("sender ranks are verified on receipt, never taken from the message", funct
 		eq(R("Member2", "A", MY_GUILD, "GUILD"), "dist")
 	end)
 	eq(#CHAT_LINES, 6)
-	assert(CHAT_LINES[4]:find("[Council]", 1, true) and CHAT_LINES[4]:find("<Elfcore>", 1, true), CHAT_LINES[4])
+	assert(CHAT_LINES[4]:find("[Elders]", 1, true) and CHAT_LINES[4]:find("<Elfcore>", 1, true), CHAT_LINES[4])
 	ns.rdb.guilds = {}
 end)
 
 test("players below a tier never see it", function()
 	ns.rdb.chat = nil
 	CHAT_LINES = {}
-	local m = Msg("L", MY_GUILD, 777, "only for council")
+	local m = Msg("L", MY_GUILD, 777, "only for elders")
 	AsRank(3, function()
 		local shown, why = Chan.Receive("CHANNEL", "Member1", m, 2000)
 		eq(shown, false); eq(why, "tier")
@@ -5819,12 +5819,12 @@ test("players below a tier never see it", function()
 		eq(#Chan.History("L"), 1)
 	end)
 	eq(#CHAT_LINES, 1)
-	-- A member doesn't read [Captains], and a Captain outside <Elfcore> doesn't read [Council].
+	-- A member doesn't read [Council], and a Council member outside <Elfcore> doesn't read [Elders].
 	AsRank(3, function()
-		eq(select(2, Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, 778, "only for captains"), 2002)), "tier")
+		eq(select(2, Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, 778, "only for council"), 2002)), "tier")
 	end)
 	AsRank(1, function()
-		eq(select(2, Chan.Receive("CHANNEL", "Member1", Msg("L", MY_GUILD, 779, "council again"), 2003)), "tier")
+		eq(select(2, Chan.Receive("CHANNEL", "Member1", Msg("L", MY_GUILD, 779, "elders again"), 2003)), "tier")
 	end)
 	eq(ns.rdb.chat.C, nil, "nothing stored")
 	eq(#ns.rdb.chat.L, 1)
@@ -5879,15 +5879,15 @@ end)
 test("muted tiers stay out of chat but keep history", function()
 	ns.db.chatMute, ns.rdb.chat = nil, nil
 	AsRank(1, function(printed)
-		Chan.ToggleMute("captains")
+		Chan.ToggleMute("council")
 		eq(ns.db.chatMute.C, true)
-		eq(printed[1], ns.L.CHAN_MUTED:format("Captains", "captains"))
+		eq(printed[1], ns.L.CHAN_MUTED:format("Council", "council"))
 		CHAT_LINES = {}
 		local shown, why = Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, 5150), 7000)
 		eq(shown, false); eq(why, "muted")
 		eq(#CHAT_LINES, 0, "no line"); eq(#Chan.History("C"), 1, "kept in history")
 		eq(Chan.Stats().muted[1], "C")
-		Chan.ToggleMute("capitães")
+		Chan.ToggleMute("conselho")
 		eq(ns.db.chatMute.C, nil)
 		Chan.ToggleMute("nonsense")
 		eq(printed[#printed], ns.L.CHAN_MUTE_USAGE)
@@ -5896,7 +5896,7 @@ test("muted tiers stay out of chat but keep history", function()
 		eq(printed[#printed], ns.L.CHAN_MUTED:format("BankaiGuild", "bankaiguild"))
 		Chan.ToggleMute("all")
 		eq(ns.db.chatMute.A, nil, "'all' still works")
-		Chan.ToggleMute("captains")
+		Chan.ToggleMute("council")
 		WithLane(function() eq((Chan.Send("C", "back", 7001)), true) end)
 		eq(ns.db.chatMute.C, nil, "sending unmutes")
 		eq(#CHAT_LINES, 1, "own line shown")
@@ -5912,7 +5912,7 @@ test("chat history is per tier and capped", function()
 		local h = Chan.History("A")
 		eq(#h, 100); eq(h[1].text, "line 51", "oldest gone"); eq(h[100].text, "line 150")
 		eq(h[100].sender, "Member450-Realm"); eq(h[100].guild, MY_GUILD); eq(h[100].class, "PA")
-		eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, 1, "captains only"), 8200)), true)
+		eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, 1, "council only"), 8200)), true)
 		eq(#Chan.History("C"), 1); eq(#Chan.History("A"), 100, "separate lists")
 		eq(ns.rdb.chat.A, h, "stored per realm")
 	end)
@@ -5938,16 +5938,16 @@ test("a report never vouches for its own sender", function()
 	CHAT_LINES = {}
 	AsRank(0, function()
 		-- A made-up guild naming its sender as leader: one /run, no guild needed.
-		eq(Report("Bankai Guild Council", "Evil", "", "Evil-Realm"), true)
-		eq(D.KnownRank("Evil-Realm", "Bankai Guild Council"), nil, "its own report")
-		eq(Line("Evil", "L", "Bankai Guild Council"), "unverified")
+		eq(Report("Bankai Guild Elders", "Evil", "", "Evil-Realm"), true)
+		eq(D.KnownRank("Evil-Realm", "Bankai Guild Elders"), nil, "its own report")
+		eq(Line("Evil", "L", "Bankai Guild Elders"), "unverified")
 		-- A member sends his guild's report again, same leader and size, and adds himself.
 		eq(Report("Bankai Guild Zeus", "Zeus", "Capt2:1:0", "Scribe-Realm"), true)
 		eq(D.KnownRank("Capt2-Realm", "Bankai Guild Zeus"), 1, "named by someone else")
 		eq(Report("Bankai Guild Zeus", "Zeus", "Capt2:1:0,Grunt:1:0", "Grunt-Realm"), true)
 		eq(ns.rdb.guilds["Bankai Guild Zeus"].conflict, true, "an added officer is a conflict")
 		eq(Line("Grunt", "C", "Bankai Guild Zeus"), "unverified")
-		-- The same on <Elfcore>, whose officers are Council.
+		-- The same on <Elfcore>, whose officers are Elders.
 		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0", "Herald-Realm"), true)
 		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0,Peon:1:0", "Peon-Realm"), true)
 		eq(Line("Peon", "L", "Bankai Guild"), "unverified")
@@ -6013,11 +6013,11 @@ test("ranks come from the picture most senders agree on; forgers can't move it",
 		eq(D.KnownRank("Shobek Shobekler-Realm", "Bankai Guild"), 0)
 		eq(Report("BankaiGuild", "Shobek Shobekler", "Duke:1:0,Earl:1:0", "Crier-Realm"), true)
 		eq(D.KnownRank("Earl-Realm", "Bankai Guild"), 1, "both reporters name him")
-		-- Another guild: an outsider swapping the leader for an accomplice gets no Council.
+		-- Another guild: an outsider swapping the leader for an accomplice gets no Elder.
 		eq(Report("Bankai Guild Zeus", "Zeus", "", "Zclerk-Realm"), true)
 		eq(Report("Bankai Guild Zeus", "Zeus", "", "Zcrier-Realm"), true)
 		eq(Report("Bankai Guild Zeus", "Bbb2", "", "Aaa2-Realm"), false, "leader swap: one vote against two, not the row")
-		eq(ns.rdb.guilds["Bankai Guild Zeus"].leader, "Zeus", "the row keeps the real Council")
+		eq(ns.rdb.guilds["Bankai Guild Zeus"].leader, "Zeus", "the row keeps the real Elder")
 		eq(D.KnownRank("Bbb2-Realm", "Bankai Guild Zeus"), nil, "leader swap: one vote against two")
 		eq(D.KnownRank("Zeus-Realm", "Bankai Guild Zeus"), 0)
 	end)
@@ -6071,7 +6071,7 @@ test("reporter and runner-up on two realms of the group picture the guild the sa
 	eq(D.Receive(Codec.DecodeReport("R2~Bankai Guild Span2~50~5~Boss~1~1~~" .. LEVELS .. "Capt:1:0"), "Here"), true)
 	eq(D.Receive(Codec.DecodeReport("R2~Bankai Guild Span2~50~5~Boss-Realm~1~1~~" .. LEVELS .. "Capt-Realm:1:0"), "There-Other"), true)
 	eq(ns.rdb.guilds["Bankai Guild Span2"].conflict, nil, "the same people, not a conflict")
-	eq(D.KnownRank("Boss-Realm", "Bankai Guild Span2"), 0, "a Council member on two senders' word")
+	eq(D.KnownRank("Boss-Realm", "Bankai Guild Span2"), 0, "an Elder on two senders' word")
 	eq(D.KnownRank("Capt", "Bankai Guild Span2"), 1)
 	ns.rdb.guilds = {}
 end)
@@ -6158,8 +6158,8 @@ test("two spammers can't silence the other channels, nor everyone else", functio
 			Chan.Receive("CHANNEL", "Member600", Msg("A", MY_GUILD, i, "spam " .. i), t)
 			Chan.Receive("CHANNEL", "Member601", Msg("A", MY_GUILD, i, "spam " .. i), t + 0.1)
 		end
-		eq((Chan.Receive("CHANNEL", "Member1", Msg("L", MY_GUILD, 1, "council"), t + 0.2)), true, "[Council]")
-		eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, 1, "captains"), t + 0.3)), true, "[Captains]")
+		eq((Chan.Receive("CHANNEL", "Member1", Msg("L", MY_GUILD, 1, "elders"), t + 0.2)), true, "[Elders]")
+		eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, 1, "council"), t + 0.3)), true, "[Council]")
 		eq((Chan.Receive("CHANNEL", "Member602", Msg("A", MY_GUILD, 1, "hello"), t + 0.4)), true, "a third member in [Bankai Guild]")
 		eq(select(2, Chan.Receive("CHANNEL", "Member600", Msg("A", MY_GUILD, 51, "spam 51"), t + 0.5)), "flood", "the spammer waits")
 		-- A muted channel takes no room from the flood guard.
@@ -6212,7 +6212,7 @@ end)
 
 test("chat line shows tier, clickable name, guild and neutralised escapes", function()
 	local line = Chan.FormatLine("C", "Bob-Other", "Bankai Guild II", "PA", "hi |Tx|t")
-	assert(line:find("[Captains]", 1, true), line)
+	assert(line:find("[Council]", 1, true), line)
 	assert(line:find("|Hplayer:Bob-Other|h[", 1, true), line)
 	assert(line:find("<Bankai Guild II>", 1, true), line)
 	assert(line:find("||Tx||t", 1, true), line)
@@ -6255,7 +6255,7 @@ test("whispers, invites and /who go to the name the server finds (Forever: never
 end)
 
 test("slash commands reach the right channel", function()
-	eq(SLASH_BANKAIGUILDALL1, "/bg"); eq(SLASH_BANKAIGUILDCAPTAINS1, "/bgc"); eq(SLASH_BANKAIGUILDCOUNCIL1, "/bgl")
+	eq(SLASH_BANKAIGUILDALL1, "/bg"); eq(SLASH_BANKAIGUILDCOUNCIL1, "/bgc"); eq(SLASH_BANKAIGUILDELDERS1, "/bgl")
 	local savedTime, clock = GetTime, 50000
 	GetTime = function() return clock end
 	local ok, err = pcall(function()
@@ -6269,18 +6269,18 @@ test("slash commands reach the right channel", function()
 					eq(sent[#sent]:sub(1, #prefix), prefix, arg)
 				end
 				Run(SlashCmdList.BANKAIGUILDALL, "hi", "M1~A~")
-				Run(SlashCmdList.BANKAIGUILDCAPTAINS, "hi", "M1~C~")
-				Run(SlashCmdList.BANKAIGUILDCOUNCIL, "hi", "M1~L~")
+				Run(SlashCmdList.BANKAIGUILDCOUNCIL, "hi", "M1~C~")
+				Run(SlashCmdList.BANKAIGUILDELDERS, "hi", "M1~L~")
 				Run(SlashCmdList.BANKAIGUILD, "all hi", "M1~A~")
-				Run(SlashCmdList.BANKAIGUILD, "captains hi", "M1~C~")
-				Run(SlashCmdList.BANKAIGUILD, "council hi", "M1~L~")
+				Run(SlashCmdList.BANKAIGUILD, "council hi", "M1~C~")
+				Run(SlashCmdList.BANKAIGUILD, "elders hi", "M1~L~")
 			end)
 		end)
 		ns.db.chatMute = nil
 		AsRank(0, function()
-			SlashCmdList.BANKAIGUILD("mute council")
+			SlashCmdList.BANKAIGUILD("mute elders")
 			eq(ns.db.chatMute.L, true)
-			SlashCmdList.BANKAIGUILD("mute council")
+			SlashCmdList.BANKAIGUILD("mute elders")
 			eq(ns.db.chatMute.L, nil)
 			SlashCmdList.BANKAIGUILD("mute bankaiguild")
 			eq(ns.db.chatMute.A, true)
@@ -6300,7 +6300,7 @@ test("chat lines arrive through CHAT_MSG_ADDON_LOGGED, without our echo or block
 	cns.RegisterEvent = function(event, fn) events[event] = events[event] or {}; table.insert(events[event], fn) end
 	cns.On = function(name, fn) if name == "LOGIN" then table.insert(login, fn) end end
 	cns.After, cns.Every = function() end, function() end
-	local slash = { SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCAPTAINS, SlashCmdList.BANKAIGUILDCOUNCIL, StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY,
+	local slash = { SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCOUNCIL, SlashCmdList.BANKAIGUILDELDERS, StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY,
 		StaticPopupDialogs.BANKAIGUILD_PIN, StaticPopupDialogs.BANKAIGUILD_PIN_DOWN }
 	C_ChatInfo = { RegisterAddonMessagePrefix = function() end }
 	ns.db.chatMute = nil
@@ -6327,7 +6327,7 @@ test("chat lines arrive through CHAT_MSG_ADDON_LOGGED, without our echo or block
 			eq(#CHAT_LINES, 1, "blocked player")
 		end)
 	end)
-	SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCAPTAINS, SlashCmdList.BANKAIGUILDCOUNCIL = slash[1], slash[2], slash[3]
+	SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCOUNCIL, SlashCmdList.BANKAIGUILDELDERS = slash[1], slash[2], slash[3]
 	StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY = slash[4] -- (0.9.1: Channels.lua's warning, bound to the real module)
 	StaticPopupDialogs.BANKAIGUILD_PIN, StaticPopupDialogs.BANKAIGUILD_PIN_DOWN = slash[5], slash[6] -- (1.1: its pinned line's too)
 	C_ChatInfo = nil
@@ -6345,7 +6345,7 @@ test("chat lines put together from pieces are never taken as logged, whichever p
 	cns.RegisterEvent = function(event, fn) events[event] = events[event] or {}; table.insert(events[event], fn) end
 	cns.On = function(name, fn) if name == "LOGIN" then table.insert(login, fn) end end
 	cns.After, cns.Every = function() end, function() end
-	local slash = { SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCAPTAINS, SlashCmdList.BANKAIGUILDCOUNCIL, StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY,
+	local slash = { SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCOUNCIL, SlashCmdList.BANKAIGUILDELDERS, StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY,
 		StaticPopupDialogs.BANKAIGUILD_PIN, StaticPopupDialogs.BANKAIGUILD_PIN_DOWN }
 	C_ChatInfo = { RegisterAddonMessagePrefix = function() end, SendAddonMessageLogged = function() end }
 	ns.db.chatMute = nil
@@ -6369,7 +6369,7 @@ test("chat lines put together from pieces are never taken as logged, whichever p
 			eq(#CHAT_LINES, 1, "pieces, which no version sends: dropped")
 		end)
 	end)
-	SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCAPTAINS, SlashCmdList.BANKAIGUILDCOUNCIL = slash[1], slash[2], slash[3]
+	SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCOUNCIL, SlashCmdList.BANKAIGUILDELDERS = slash[1], slash[2], slash[3]
 	StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY = slash[4]
 	StaticPopupDialogs.BANKAIGUILD_PIN, StaticPopupDialogs.BANKAIGUILD_PIN_DOWN = slash[5], slash[6]
 	C_ChatInfo = nil
@@ -7843,14 +7843,14 @@ local RealTrusted = ns.Hop.Trusted
 test("layer hop: only a helper the addon can vouch for gets their invite accepted for us", function()
 	WithHop(function(w, H)
 		local real = RealTrusted
-		-- Who counts: a guildmate; not a Council member or Captain only the census names, nor a player seen on
-		-- that layer. (Changed on purpose, 1.2.1: the census Captain counted; two cooperating
+		-- Who counts: a guildmate; not an Elder or Council member only the census names, nor a player seen on
+		-- that layer. (Changed on purpose, 1.2.1: the census Council member counted; two cooperating
 		-- characters can forge one, so his invite is the player's click now: tests/hop-regressions.lua.)
 		local savedRank, savedGuilds = ns.Roster.RankOf, ns.rdb.guilds
 		ns.Roster.RankOf = function(name) if ns.ShortName(name) == "Mate" then return 5 end end
 		ns.rdb.guilds = SampleGuilds()
 		eq(real("Mate-Realm", 1453, 8), true, "a guildmate")
-		eq(real("Capt-Realm", 1453, 8), false, "a Captain only the census names")
+		eq(real("Capt-Realm", 1453, 8), false, "a Council member only the census names")
 		eq(real("Stranger-Realm", 1453, 8), false, "anyone else")
 		ns.Layers.Receive("Seen-Realm", { mapID = 1453, zoneUID = 8, rank = 9, guild = "Bankai Guild IV" })
 		eq(real("Seen-Realm", 1453, 8), false, "a layer announcement is only its sender's word")
@@ -8642,7 +8642,7 @@ test("Treasurer: exactly Pyralis Ashandar of Bankai Guild, under the Shogun and 
 		for _, l in ipairs(ns.Views.RealmLines()) do
 			if l.key == "Pyralis Ashandar" and l.text:find(ns.L.TREASURER, 1, true) and l.indent == 2 then tagged = true end
 		end
-		eq(tagged, true, "tagged among the Captains")
+		eq(tagged, true, "tagged among the Council")
 		ns.Views.ExpandAll(false)
 	end)
 	ns.rdb.guilds = saved
@@ -8653,7 +8653,7 @@ test("Treasurer: exactly Pyralis Ashandar of Bankai Guild, under the Shogun and 
 end)
 
 ---------------------------------------------------------------------------
--- The Throne of 0.8.3: the Hands of the Shogun, Vox Populi, the court, the treasury, royal
+-- The Throne of 0.8.3: the Hands of the Shogun, Poll, the court, the treasury, royal
 -- writs, the gates, pardons, and the chats in the Realm.
 ---------------------------------------------------------------------------
 
@@ -8661,12 +8661,12 @@ local function WithThrone(fn)
 	local K = ns.Shogun
 	local saved = { me = ns.me, Now = ns.Now, Send = ns.Comm.Send, Whisper = ns.Comm.Whisper, Show = StaticPopup_Show,
 		Batch = ns.Comm.SendBatch, Cancel = ns.Comm.Cancel,
-		Guild = GetGuildInfo, Print = ns.Print, guilds = ns.rdb.guilds, after = ns.Vox.after, voxOff = ns.db.voxOff,
+		Guild = GetGuildInfo, Print = ns.Print, guilds = ns.rdb.guilds, after = ns.Poll.after, pollOff = ns.db.pollOff,
 		Notice = RaidNotice_AddMessage, Zone = GetRealZoneText, Map = C_Map.GetBestMapForUnit, Info = C_Map.GetMapInfo,
 		dev = ns.devThrone, chat = ns.rdb.chat, shame = ns.Inspect.shame }
 	local w = { sent = {}, whispered = {}, popups = {}, printed = {}, clock = os.time(), timers = {} }
 	local function Clean()
-		K.Reset(); ns.Vox.Reset(); ns.Court.Reset(); ns.Acts.Reset(); ns.Treasury.Reset(); ns.Bank.Reset()
+		K.Reset(); ns.Poll.Reset(); ns.Court.Reset(); ns.Acts.Reset(); ns.Treasury.Reset(); ns.Bank.Reset()
 		ns.rdb.writs, ns.rdb.writsSent, ns.rdb.pardons, ns.rdb.treasury, ns.rdb.treasurySeen = nil, nil, nil, nil, nil
 		ns.rdb.shogunHands, ns.rdb.gates, ns.rdb.pardonsGiven = nil, nil, nil
 		ns.rdb.stewardHands, ns.rdb.handsHeard, ns.rdb.stewardHandsHeard = nil, nil, nil
@@ -8709,9 +8709,9 @@ local function WithThrone(fn)
 		end
 		StaticPopup_Show = function(name, a, b, data) w.popups[#w.popups + 1] = { name = name, a = a, b = b, data = data } end
 		ns.Print = function(m) w.printed[#w.printed + 1] = tostring(m) end
-		ns.Vox.after = function(seconds, _, f) w.timers[#w.timers + 1] = { at = w.clock + seconds, fn = f } end
+		ns.Poll.after = function(seconds, _, f) w.timers[#w.timers + 1] = { at = w.clock + seconds, fn = f } end
 		RaidNotice_AddMessage = nil
-		ns.db.voxOff = nil
+		ns.db.pollOff = nil
 		ns.rdb.guilds = { ["Bankai Guild"] = Vouched({ total = 1000, online = 90, zones = {}, t = w.clock, leader = "Shobek Shobekler", realm = "Realm",
 				officers = { { name = "Pyralis Ashandar", online = true, days = 0 } } }, "W1-Realm", "W2-Realm"),
 			["Bankai Guild Zeus"] = Vouched({ total = 100, online = 9, zones = {}, t = w.clock, leader = "Zed", realm = "Realm" }, "W3-Realm", "W4-Realm"),
@@ -8720,7 +8720,7 @@ local function WithThrone(fn)
 	end)
 	ns.me, ns.Now, ns.Comm.Send, ns.Comm.Whisper, StaticPopup_Show = saved.me, saved.Now, saved.Send, saved.Whisper, saved.Show
 	ns.Comm.SendBatch, ns.Comm.Cancel = saved.Batch, saved.Cancel
-	GetGuildInfo, ns.Print, ns.rdb.guilds, ns.Vox.after, ns.db.voxOff = saved.Guild, saved.Print, saved.guilds, saved.after, saved.voxOff
+	GetGuildInfo, ns.Print, ns.rdb.guilds, ns.Poll.after, ns.db.pollOff = saved.Guild, saved.Print, saved.guilds, saved.after, saved.pollOff
 	RaidNotice_AddMessage, GetRealZoneText, C_Map.GetBestMapForUnit, C_Map.GetMapInfo = saved.Notice, saved.Zone, saved.Map, saved.Info
 	ns.devThrone, ns.rdb.chat, ns.Inspect.shame = saved.dev, saved.chat, saved.shame
 	Clean()
@@ -8732,8 +8732,8 @@ local function RunTimers(w)
 	for _, t in ipairs(due) do if t.at <= w.clock then t.fn() else w.timers[#w.timers + 1] = t end end
 end
 local function AsShogun() GetGuildInfo = function() return "Bankai Guild", "Shogun", 0 end; ns.me = "Shobek Shobekler-Realm" end
-local function AsCouncil() GetGuildInfo = function() return "Bankai Guild Zeus", "Council", 0 end; ns.me = "Zed-Realm" end
-local function AsCaptain() GetGuildInfo = function() return "Bankai Guild II", "Officer", 1 end; ns.me = "Cap-Realm" end
+local function AsElder() GetGuildInfo = function() return "Bankai Guild Zeus", "Elder", 0 end; ns.me = "Zed-Realm" end
+local function AsCouncilMember() GetGuildInfo = function() return "Bankai Guild II", "Officer", 1 end; ns.me = "Cap-Realm" end
 local function AsSoldier(name) GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end; ns.me = (name or "Soldier") .. "-Realm" end
 local function AsTreasurer() GetGuildInfo = function() return "Bankai Guild", "Treasurer", 1 end; ns.me = "Pyralis Ashandar-Realm" end
 local function Printed(w, text)
@@ -8797,10 +8797,10 @@ test("Hands of the Shogun: he names them, they use the tools he lends them, noth
 	end)
 end)
 
-test("Vox Populi: pick one or several, a chart of the results, the winner worked out", function()
+test("Poll: pick one or several, a chart of the results, the winner worked out", function()
 	WithUI(function()
 		WithThrone(function(w, K)
-			local V = ns.Vox
+			local V = ns.Poll
 			local s, q, a = V.Parse("60 Raid tonight? Yes / No / Later")
 			eq(s, 60); eq(q, "Raid tonight?"); eq(table.concat(a, ","), "Yes,No,Later")
 			s, q, a = V.Parse("Ready?")
@@ -8810,9 +8810,9 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			eq(rows[2].pct, 60); eq(rows[2].lead, true); eq(#winners, 1)
 			rows = V.Tally({ "A", "B", "C" }, { 80, 50, 10 }, 100, true)
 			eq(rows[1].pct, 80); eq(rows[2].pct, 50, "several each: out of the 100 voters")
-			eq(V.Verdict({ "A", "B" }, { 5, 5 }, 10, false), ns.L.VOX_TIE:format("A / B"))
-			eq(V.Verdict({ "A", "B" }, { 0, 0 }, 0, false), ns.L.VOX_NO_VOTES)
-			eq(V.Verdict({ "A", "B" }, { 7, 3 }, 10, false), ns.L.VOX_WINNER:format("A", 70))
+			eq(V.Verdict({ "A", "B" }, { 5, 5 }, 10, false), ns.L.POLL_TIE:format("A / B"))
+			eq(V.Verdict({ "A", "B" }, { 0, 0 }, 0, false), ns.L.POLL_NO_VOTES)
+			eq(V.Verdict({ "A", "B" }, { 7, 3 }, 10, false), ns.L.POLL_WINNER:format("A", 70))
 			-- Not the Shogun nor a Hand: nothing.
 			AsSoldier()
 			V.Ask("Raid tonight?")
@@ -8822,7 +8822,7 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			V.Prompt()
 			local c = V.Composer()
 			assert(c and c:IsShown(), "the composer")
-			eq(c.a[1]:GetText(), ns.L.VOX_YES); eq(c.a[2]:GetText(), ns.L.VOX_NO)
+			eq(c.a[1]:GetText(), ns.L.POLL_YES); eq(c.a[2]:GetText(), ns.L.POLL_NO)
 			c.q:SetText("Which raids this week?")
 			c.a[1]:SetText("Onyxia"); c.a[2]:SetText("Molten Core"); c.a[3]:SetText(""); c.a[4]:SetText("Zul'Gurub")
 			c.kinds[2]:Click() -- pick several
@@ -8834,7 +8834,7 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			eq(c:IsShown(), false, "the composer closes")
 			local id = tonumber(msg:match("T1~V~(%d+)"))
 			V.Ask("Another?")
-			assert(Printed(w, ns.L.VOX_BUSY), "one question at a time")
+			assert(Printed(w, ns.L.POLL_BUSY), "one question at a time")
 			-- A soldier: the window with check boxes, several picks, one vote.
 			AsSoldier("Voter")
 			K.HandleCommand("CHANNEL", "Faker-Realm", "T1~V~9~Bankai Guild~60~M~Fake?~A~B")
@@ -8842,14 +8842,14 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 			local f = V.Frame()
 			assert(f and f:IsShown(), "the window")
-			eq(f.title:GetText(), ns.L.VOX_ASKS:format("Shobek"))
+			eq(f.title:GetText(), ns.L.POLL_ASKS:format("Shobek"))
 			-- (1.1.5: the Bankai Guild window's metal without its portrait, where it was the game's dialog
 			-- box: who asks in its title bar, the question under it.)
-			Harness.Win.Metal(f, ns.L.VOX_ASKS:format("Shobek"), "the vote window")
+			Harness.Win.Metal(f, ns.L.POLL_ASKS:format("Shobek"), "the vote window")
 			eq(f.title, f.TitleContainer.TitleText, "who asks: the title bar's text")
 			Harness.Win.UnderBar(f, { question = f.question, kind = f.kind, answer = f.rows[1] }, "the vote window")
 			eq(f.close, f.CloseButton)
-			eq(f.kind:GetText(), ns.L.VOX_PICK_MANY)
+			eq(f.kind:GetText(), ns.L.POLL_PICK_MANY)
 			eq(f.rows[3]:IsShown(), true); eq(f.rows[4]:IsShown(), false)
 			eq(f.vote:IsShown(), true)
 			f.rows[1].check:Click(); f.rows[3].check:Click()
@@ -8872,17 +8872,17 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			eq(poll.voters, 2); eq(poll.counts[1], 1); eq(poll.counts[2], 1); eq(poll.counts[3], 1)
 			eq(poll.others, 1, "a vote nobody can place")
 			local page = Texts((V.Build()))
-			assert(page:find("Which raids this week?", 1, true) and page:find(ns.L.VOX_TOTAL:format(2), 1, true), page)
+			assert(page:find("Which raids this week?", 1, true) and page:find(ns.L.POLL_TOTAL:format(2), 1, true), page)
 			assert(page:find("50%", 1, true), "each answer: half of the 2 voters")
 			-- The chart on his screen, live.
 			V.ShowLive()
 			eq(f.live, true); eq(f.rows[1].bar:IsShown(), true); eq(f.rows[1].check:IsShown(), false)
-			assert(f.status:GetText():find(ns.L.VOX_LIVE, 1, true), f.status:GetText())
+			assert(f.status:GetText():find(ns.L.POLL_LIVE, 1, true), f.status:GetText())
 			-- Time is up (and the grace for votes on their way): the results go to everyone.
 			w.clock = w.clock + 60 + V.GRACE
 			RunTimers(w)
 			assert(LastSent(w):find(("^T1~E~%d~Bankai Guild~2~1~1~1$"):format(id)), LastSent(w))
-			assert(f.status:GetText():find(ns.L.VOX_FINAL, 1, true), "the final chart")
+			assert(f.status:GetText():find(ns.L.POLL_FINAL, 1, true), "the final chart")
 			local _, history = V.State()
 			eq(#history, 1); eq(history[1].voters, 2)
 			assert(V.DiscordText():find("**Which raids this week?**", 1, true), V.DiscordText())
@@ -8900,15 +8900,15 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 			AsSoldier("Voter")
 			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~88~Bankai Guild II~30~1~Pizza?~Yes~No")
-			eq(f.title:GetText(), ns.L.VOX_ASKS_HAND:format("Helper"))
+			eq(f.title:GetText(), ns.L.POLL_ASKS_HAND:format("Helper"))
 			f.rows[1].check:Click(); f.rows[2].check:Click()
 			eq(f.rows[1].check:GetChecked(), false); eq(f.rows[2].check:GetChecked(), true)
 			-- Chat only, for whoever turned the window off.
-			V.Reset(); ns.db.voxOff = true
+			V.Reset(); ns.db.pollOff = true
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~89~Bankai Guild II~30~1~Tacos?~Yes~No")
 			eq(f:IsShown(), false); assert(Printed(w, "Tacos?"), "in chat")
 			-- (1.1.5) Its X, the metal's, in a fight too.
-			V.Reset(); ns.db.voxOff = nil
+			V.Reset(); ns.db.pollOff = nil
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~90~Bankai Guild II~30~1~Pie?~Yes~No")
 			eq(f:IsShown(), true)
 			Harness.Win.XInCombat(f, "the vote window")
@@ -8917,7 +8917,7 @@ test("Vox Populi: pick one or several, a chart of the results, the winner worked
 end)
 
 ---------------------------------------------------------------------------
--- 1.1.6 Vox Populi: the asker's history kept across sessions, and who a question is for,
+-- 1.1.6 Poll: the asker's history kept across sessions, and who a question is for,
 -- checked on both ends: the whole army, the High Council, the guild masters, a guild.
 ---------------------------------------------------------------------------
 
@@ -8930,11 +8930,11 @@ do
 		for k, v in pairs(t) do out[k] = SavedCopy(v) end
 		return out
 	end
-	local function ReloadVox(edit)
-		local kept = SavedCopy(ns.db.voxHistory)
+	local function ReloadPoll(edit)
+		local kept = SavedCopy(ns.db.pollHistory)
 		if edit then edit(kept) end
-		ns.Vox.Reset()
-		ns.db.voxHistory = kept
+		ns.Poll.Reset()
+		ns.db.pollHistory = kept
 	end
 	-- Anywhere in a saved table, keys and values alike.
 	local function Holds(t, text)
@@ -8945,45 +8945,45 @@ do
 	end
 	-- A member of <Bankai Guild Zeus>, whose guild master is Zed (rank 0).
 	local function AsZeus(name, rank)
-		GetGuildInfo = function() return "Bankai Guild Zeus", rank == 0 and "Council" or "Member", rank end
+		GetGuildInfo = function() return "Bankai Guild Zeus", rank == 0 and "Elder" or "Member", rank end
 		ns.me = name .. "-Realm"
 	end
 	-- The council's signed list, the roster and the login's time as each test sets them.
-	local function WithVoxWorld(fn)
+	local function WithPollWorld(fn)
 		local saved = { council = ns.rdb.council, byName = ns.Roster.byName, loginAt = ns.Comm.loginAt }
 		local ok, err = pcall(fn)
 		ns.rdb.council, ns.Roster.byName, ns.Comm.loginAt = saved.council, saved.byName, saved.loginAt
 		if not ok then error(err, 0) end
 	end
 
-	test("1.1.6 Vox Populi: its new and changed lines in English and pt-BR, with the same format arguments; each audience has its name", function()
+	test("1.1.6 Poll: its new and changed lines in English and pt-BR, with the same format arguments; each audience has its name", function()
 		local savedLocale, pt = GetLocale, {}
 		GetLocale = function() return "ptBR" end
 		local ok, err = pcall(function() assert(loadfile(ADDON_DIR .. "Locales.lua"))("BankaiGuild", pt) end)
 		GetLocale = savedLocale
 		if not ok then error(err, 0) end
-		local keys = { "VOX_NEW_TIP", "VOX_END_TIP", "VOX_HISTORY", "VOX_HINT", "VOX_ASK_TITLE", "VOX_ASK_KIND", "VOX_ASK_TO",
-			"VOX_ASK_SEND_H", "VOX_ASK_SEND_M", "VOX_ASK_SEND_G", "VOX_ASKS_H", "VOX_ASKS_HAND_H", "VOX_ASKS_M", "VOX_ASKS_HAND_M",
-			"VOX_ASKS_G", "VOX_ONLY_GM", "VOX_OUTSIDE", "VOX_OUTSIDE_TIP", "VOX_ASK_OPEN" }
-		for _, to in ipairs(ns.Vox.AUDIENCES) do keys[#keys + 1] = "VOX_TO_" .. to end
+		local keys = { "POLL_NEW_TIP", "POLL_END_TIP", "POLL_HISTORY", "POLL_HINT", "POLL_ASK_TITLE", "POLL_ASK_KIND", "POLL_ASK_TO",
+			"POLL_ASK_SEND_H", "POLL_ASK_SEND_M", "POLL_ASK_SEND_G", "POLL_ASKS_H", "POLL_ASKS_HAND_H", "POLL_ASKS_M", "POLL_ASKS_HAND_M",
+			"POLL_ASKS_G", "POLL_ONLY_GM", "POLL_OUTSIDE", "POLL_OUTSIDE_TIP", "POLL_ASK_OPEN" }
+		for _, to in ipairs(ns.Poll.AUDIENCES) do keys[#keys + 1] = "POLL_TO_" .. to end
 		for _, key in ipairs(keys) do
 			assert(type(rawget(ns.L, key)) == "string", "English " .. key)
 			assert(type(rawget(pt.L, key)) == "string" and pt.L[key] ~= ns.L[key], "Portuguese " .. key)
 			eq(select(2, pt.L[key]:gsub("%%[ds]", "")), select(2, ns.L[key]:gsub("%%[ds]", "")), key)
 		end
-		eq(pt.L.VOX_HISTORY:format(3), "Histórico (3)")
+		eq(pt.L.POLL_HISTORY:format(3), "Histórico (3)")
 		-- (1.1.6 review) An audience is who sees the window and whose vote counts, not who can read
 		-- the question: the tab's tip, its hint and the composer say so, in both languages.
-		for _, key in ipairs({ "VOX_NEW_TIP", "VOX_HINT", "VOX_ASK_OPEN" }) do
+		for _, key in ipairs({ "POLL_NEW_TIP", "POLL_HINT", "POLL_ASK_OPEN" }) do
 			assert(ns.L[key]:find("every addon on the Bankai Guild channel", 1, true), "English " .. key)
 			assert(pt.L[key]:find("todo addon no canal Bankai Guild", 1, true), "Portuguese " .. key)
 		end
 	end)
 
-	test("1.1.6 Vox Populi: the help answer to 'What's Vox Populi?' names who asks (the Throne, a guild master his guild) and says a vote goes to whoever asked", function()
+	test("1.1.6 Poll: the help answer to 'What's Poll?' names who asks (the Throne, a guild master his guild) and says a vote goes to whoever asked", function()
 		local found
-		for _, a in ipairs(ns.ANSWER_BANK.answers) do if a.id == "feat-vox" then found = a end end
-		assert(found, "the Vox answer")
+		for _, a in ipairs(ns.ANSWER_BANK.answers) do if a.id == "feat-poll" then found = a end end
+		assert(found, "the Poll answer")
 		for _, text in ipairs({ found.text, found.long }) do
 			assert(not text:find("to the Shogun", 1, true), text)
 			assert(text:find("guild master", 1, true), text)
@@ -8991,14 +8991,14 @@ do
 		assert(found.long:find("whoever asked", 1, true), found.long)
 	end)
 
-	-- (1.1.6 review) The help page's line on who sees which tab (UI.ShowHelp) said Vox Populi was the
-	-- Throne's alone: a guild master who is nobody's Hand has the tab too (Vox.Visible).
-	test("1.1.6 Vox Populi: the help page's tab line shows the Vox tab to every guild master too, as Vox.Visible does (English and pt-BR)", function()
+	-- (1.1.6 review) The help page's line on who sees which tab (UI.ShowHelp) said Poll was the
+	-- Throne's alone: a guild master who is nobody's Hand has the tab too (Poll.Visible).
+	test("1.1.6 Poll: the help page's tab line shows the Poll tab to every guild master too, as Poll.Visible does (English and pt-BR)", function()
 		WithThrone(function()
-			WithVoxWorld(function()
+			WithPollWorld(function()
 				ns.Roster.byName = { ["Zed-Realm"] = 0 }
 				AsZeus("Zed", 0)
-				eq(ns.Shogun.Visible(), false, "no Throne"); eq(ns.Vox.Visible(), true, "his Vox tab")
+				eq(ns.Shogun.Visible(), false, "no Throne"); eq(ns.Poll.Visible(), true, "his Poll tab")
 			end)
 		end)
 		local savedLocale, pt = GetLocale, {}
@@ -9010,17 +9010,17 @@ do
 		local ui = file:read("*a")
 		file:close()
 		assert(ui:find('"  " .. L.HELP_TAB_OTHERS,', 1, true), "on the help page")
-		assert(ns.L.HELP_TAB_OTHERS:find("Vox Populi for them and for every guild master", 1, true), ns.L.HELP_TAB_OTHERS)
-		assert(pt.L.HELP_TAB_OTHERS:find("Vox Populi para eles e para todo líder de guilda", 1, true), pt.L.HELP_TAB_OTHERS)
+		assert(ns.L.HELP_TAB_OTHERS:find("Poll for them and for every guild master", 1, true), ns.L.HELP_TAB_OTHERS)
+		assert(pt.L.HELP_TAB_OTHERS:find("Poll para eles e para todo líder de guilda", 1, true), pt.L.HELP_TAB_OTHERS)
 		-- The Throne's line is unchanged: the Shogun, his Steward and his Hands.
 		assert(ns.L.HELP_TAB_OTHERS:find("Throne shows for the Shogun, his Steward and his Hands", 1, true), ns.L.HELP_TAB_OTHERS)
 	end)
 
-	test("1.1.6 Vox Populi history: the asker's last 30 questions and their results stay on the tab (History) across a /reload, never who voted; an edited list is checked; the preview's are never saved", function()
+	test("1.1.6 Poll history: the asker's last 30 questions and their results stay on the tab (History) across a /reload, never who voted; an edited list is checked; the preview's are never saved", function()
 		WithUI(function()
 			WithThrone(function(w, K)
-				local V, L = ns.Vox, ns.L
-				eq(L.VOX_HISTORY:format(1), "History (1)", "the list's label")
+				local V, L = ns.Poll, ns.L
+				eq(L.POLL_HISTORY:format(1), "History (1)", "the list's label")
 				AsShogun()
 				local t0 = w.clock
 				assert(V.Ask("60 Raid tonight? Yes / No / Later"))
@@ -9033,26 +9033,26 @@ do
 				-- Saved for the next session: the question, its answers, the counts, who it was for, when;
 				-- with the account's settings, under the asker's name, never in the realm group's store
 				-- (a realm link merges stores: see the next test).
-				eq(ns.rdb.voxHistory, nil, "not in the realm group's store")
-				local saved = ns.db.voxHistory and ns.db.voxHistory[ns.me]
+				eq(ns.rdb.pollHistory, nil, "not in the realm group's store")
+				local saved = ns.db.pollHistory and ns.db.pollHistory[ns.me]
 				assert(type(saved) == "table" and #saved == 1, "saved under the asker's name")
 				eq(saved[1].q, "Raid tonight?"); eq(table.concat(saved[1].answers, ","), "Yes,No,Later")
 				eq(table.concat(saved[1].counts, ","), "1,0,1"); eq(saved[1].voters, 2); eq(saved[1].others, 1)
 				eq(saved[1].to, "E"); eq(saved[1].t, t0)
-				assert(not Holds(ns.db.voxHistory, "Voter") and not Holds(ns.db.voxHistory, "Stranger"), "never who voted")
+				assert(not Holds(ns.db.pollHistory, "Voter") and not Holds(ns.db.pollHistory, "Stranger"), "never who voted")
 				-- A /reload: the tab, the chart on his screen and the Discord copy read it back.
-				ReloadVox()
+				ReloadPoll()
 				local poll, history = V.State()
 				eq(poll, nil, "no question open after a /reload")
 				eq(#history, 1)
 				local page = Texts((V.Build()))
-				assert(page:find(L.VOX_HISTORY:format(1), 1, true), page)
+				assert(page:find(L.POLL_HISTORY:format(1), 1, true), page)
 				assert(page:find("Raid tonight?", 1, true) and page:find("50%  (1)", 1, true), page)
 				assert(V.DiscordText():find("**Raid tonight?**", 1, true), V.DiscordText())
 				V.ShowLive()
 				local f = V.Frame()
 				eq(f:IsShown(), true); eq(f.question:GetText(), "Raid tonight?")
-				assert(f.status:GetText():find(L.VOX_FINAL, 1, true), f.status:GetText())
+				assert(f.status:GetText():find(L.POLL_FINAL, 1, true), f.status:GetText())
 				f:Hide(); f.live = nil
 				-- At most 30: the oldest goes. A day later the row shows the date.
 				for i = 1, V.MAX_HISTORY do
@@ -9061,17 +9061,17 @@ do
 					w.clock = w.clock + V.DEFAULT + V.GRACE
 					RunTimers(w)
 				end
-				eq(#ns.db.voxHistory[ns.me], V.MAX_HISTORY)
-				ReloadVox()
+				eq(#ns.db.pollHistory[ns.me], V.MAX_HISTORY)
+				ReloadPoll()
 				history = select(2, V.State())
 				eq(#history, V.MAX_HISTORY); eq(history[1].q, "Question 1?"); eq(history[#history].q, "Question 30?")
 				w.clock = w.clock + 2 * 86400
 				page = Texts((V.Build()))
-				assert(page:find(L.VOX_HISTORY:format(30), 1, true) and not page:find("Raid tonight?", 1, true), page)
+				assert(page:find(L.POLL_HISTORY:format(30), 1, true) and not page:find("Raid tonight?", 1, true), page)
 				assert(page:find(date("%Y-%m-%d", history[1].t), 1, true), "its date, days later")
 				-- Edited SavedVariables: what is not a question is dropped, the rest checked again
 				-- (no pipe or "~", counts as numbers, a known audience), and never more than 30.
-				ReloadVox(function(kept)
+				ReloadPoll(function(kept)
 					local list = kept[ns.me]
 					list[26] = "junk"
 					list[27].answers = { "Only one" }
@@ -9082,7 +9082,7 @@ do
 				end)
 				history = select(2, V.State())
 				eq(#history, V.MAX_HISTORY, "33 good ones read back, the 3 oldest dropped")
-				eq(#ns.db.voxHistory[ns.me], V.MAX_HISTORY, "and so saved")
+				eq(#ns.db.pollHistory[ns.me], V.MAX_HISTORY, "and so saved")
 				eq(history[1].q, "Question 4?")
 				local cleaned = 0
 				for _, h in ipairs(history) do
@@ -9105,7 +9105,7 @@ do
 				assert(V.Ask("Preview question?"))
 				V.CloseNow()
 				eq(#select(2, V.State()), 1, "on the preview's tab")
-				eq(ns.db.voxHistory, nil, "nothing saved")
+				eq(ns.db.pollHistory, nil, "nothing saved")
 				ns.devThrone = nil
 				eq(#select(2, V.State()), 0, "not the author's own list")
 			end)
@@ -9114,11 +9114,11 @@ do
 
 	-- (1.1.6 review) A realm link merges two realms' stores into the group's (Core.lua's OpenStore),
 	-- keeping one side's value of a key it does not know: neither asker's list may be that key.
-	test("1.1.6 Vox Populi history: a realm link that merges two realms' stores keeps both askers' lists (the Shogun's here, a guild master's on the other realm)", function()
+	test("1.1.6 Poll history: a realm link that merges two realms' stores keeps both askers' lists (the Shogun's here, a guild master's on the other realm)", function()
 		WithUI(function()
 			WithThrone(function(w, K)
-				WithVoxWorld(function()
-					local V = ns.Vox
+				WithPollWorld(function()
+					local V = ns.Poll
 					local keep = { realms = ns.db.realms, links = ns.db.links, rdb = ns.rdb, realm = ns.realm, group = ns.group, Fire = ns.Fire,
 						Join = ns.Comm.JoinChannel, Name = ns.Comm.ChannelName, Ask = ns.Comm.RequestKey }
 					local ok, err = pcall(function()
@@ -9163,15 +9163,15 @@ do
 	-- (1.1.6 review) An edited SavedVariables file can hold any number of entries: reading it back
 	-- opens the newest ones alone, until 30 good ones (each entry here counts when it is opened:
 	-- a test's device, a saved table has no metatable).
-	test("1.1.6 Vox Populi history: a saved list edited to thousands of questions is read back from its newest end, 30 at most, the rest never opened", function()
+	test("1.1.6 Poll history: a saved list edited to thousands of questions is read back from its newest end, 30 at most, the rest never opened", function()
 		WithUI(function()
 			WithThrone(function(w, K)
-				local V = ns.Vox
+				local V = ns.Poll
 				AsShogun()
 				assert(V.Ask("60 Raid tonight? Yes / No"))
 				V.CloseNow()
 				local opened, N = {}, 5000
-				ReloadVox(function(kept)
+				ReloadPoll(function(kept)
 					local list = kept[ns.me]
 					local base = list[1]
 					for i = 1, N do
@@ -9195,11 +9195,11 @@ do
 		end)
 	end)
 
-	test("1.1.6 Vox Populi audiences: the Shogun, his Steward or a Hand asks the High Council or the guild masters; a client outside the audience opens nothing, and the asker counts only the votes he can place in it (spoofed letters and voters)", function()
+	test("1.1.6 Poll audiences: the Shogun, his Steward or a Hand asks the High Council or the guild masters; a client outside the audience opens nothing, and the asker counts only the votes he can place in it (spoofed letters and voters)", function()
 		WithUI(function()
 			WithThrone(function(w, K)
-				WithVoxWorld(function()
-					local V, L = ns.Vox, ns.L
+				WithPollWorld(function()
+					local V, L = ns.Poll, ns.L
 					ns.rdb.council = { at = 1, names = { sage = "Sage" } }
 					ns.Roster.byName = {}
 					ns.Comm.loginAt = w.clock - ns.Data.CROWN_AFTER - 1
@@ -9210,13 +9210,13 @@ do
 					local c = V.Composer()
 					eq(c.to, "E", "the whole army first")
 					for _, box in ipairs(c.audiences) do eq(box:IsShown(), true, box.to) end
-					eq(c.ask:GetText(), L.VOX_ASK_SEND)
+					eq(c.ask:GetText(), L.POLL_ASK_SEND)
 					eq(c.open:IsShown(), false, "the whole army: everyone on the channel is asked anyway")
 					c.audiences[2]:Click()
 					eq(c.to, "H"); eq(c.audiences[2]:GetChecked(), true); eq(c.audiences[1]:GetChecked(), false)
-					eq(c.ask:GetText(), L.VOX_ASK_SEND_H)
+					eq(c.ask:GetText(), L.POLL_ASK_SEND_H)
 					-- (1.1.6 review) Not private: the composer says so for a narrower audience on the channel.
-					eq(c.open:IsShown(), true); eq(c.open:GetText(), L.VOX_ASK_OPEN)
+					eq(c.open:IsShown(), true); eq(c.open:GetText(), L.POLL_ASK_OPEN)
 					c.audiences[3]:Click()
 					eq(c.open:IsShown(), true, "the guild masters too")
 					c.audiences[2]:Click()
@@ -9237,7 +9237,7 @@ do
 					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 					local f = V.Frame()
 					assert(f and f:IsShown(), "the councillor's window")
-					eq(f.title:GetText(), L.VOX_ASKS_H:format("Shobek"))
+					eq(f.title:GetText(), L.POLL_ASKS_H:format("Shobek"))
 					f.rows[1].check:Click(); f.vote:Click()
 					eq(w.whispered[#w.whispered].msg, ("Y1~%d~1~Bankai Guild II"):format(id))
 					-- The Shogun's end: the councillor's vote counts; one from off the list (a modified
@@ -9248,14 +9248,14 @@ do
 					local poll = V.State()
 					eq(poll.to, "H"); eq(poll.voters, 1); eq(poll.counts[1], 1); eq(poll.counts[2], 0); eq(poll.others, 1)
 					local page = Texts((V.Build()))
-					assert(page:find(L.VOX_TO_H, 1, true) and page:find(L.VOX_OUTSIDE:format(1), 1, true), page)
+					assert(page:find(L.POLL_TO_H, 1, true) and page:find(L.POLL_OUTSIDE:format(1), 1, true), page)
 					w.clock = w.clock + 60 + V.GRACE
 					RunTimers(w)
 					assert(LastSent(w):find(("^T1~E~%d~Bankai Guild~1~1~0$"):format(id)), LastSent(w))
 					local history = select(2, V.State())
 					eq(history[#history].to, "H")
-					assert(Texts((V.Build())):find("Ban the gold sellers?|cff9d9d9d  (" .. L.VOX_TO_H .. ")|r", 1, true), "the row names it")
-					assert(V.DiscordText():find(L.VOX_TO_H, 1, true), V.DiscordText())
+					assert(Texts((V.Build())):find("Ban the gold sellers?|cff9d9d9d  (" .. L.POLL_TO_H .. ")|r", 1, true), "the row names it")
+					assert(V.DiscordText():find(L.POLL_TO_H, 1, true), V.DiscordText())
 					-- The councillor's window: the results.
 					AsSoldier("Sage"); f.live = nil
 					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~E~%d~Bankai Guild~1~1~0"):format(id))
@@ -9264,7 +9264,7 @@ do
 					-- they would name; the guild masters' opens for a guild master.
 					V.Reset()
 					w.clock = w.clock + V.GAP
-					AsCouncil()
+					AsElder()
 					for i, to in ipairs({ "G", "X", "E" }) do
 						K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~V~%d~Bankai Guild~%s~60~1~Sneaky?~Yes~No"):format(70 + i, to))
 						eq(select(3, V.State()), nil, to)
@@ -9272,8 +9272,8 @@ do
 					K.HandleCommand("CHANNEL", "Faker-Realm", "T1~V~74~Bankai Guild~M~60~1~Fake?~Yes~No")
 					eq(select(3, V.State()), nil, "not the Throne")
 					K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~75~Bankai Guild~M~60~1~Muster at dawn?~Yes~No")
-					eq(f:IsShown(), true); eq(f.title:GetText(), L.VOX_ASKS_M:format("Shobek"))
-					-- A Hand asks the guild masters: a Captain gets nothing, a guild master the window.
+					eq(f:IsShown(), true); eq(f.title:GetText(), L.POLL_ASKS_M:format("Shobek"))
+					-- A Hand asks the guild masters: a Council member gets nothing, a guild master the window.
 					V.Reset(); f:Hide()
 					AsShogun(); K.AddHand("Helper"); K.SendHands(true)
 					local list = LastSent(w)
@@ -9282,20 +9282,20 @@ do
 					eq(K.IsHand(), true)
 					eq(table.concat(V.Audiences(), " "), "E H M", "not a guild master: no guild of his own to ask")
 					V.Ask("Muster at dawn?", nil, "G")
-					assert(Printed(w, L.VOX_ONLY_GM), "a Hand who is no guild master")
+					assert(Printed(w, L.POLL_ONLY_GM), "a Hand who is no guild master")
 					ns.Roster.byName = { ["Ceo-Realm"] = 0, ["Helper-Realm"] = 3 } -- (the Hand's guild, <Bankai Guild II>)
 					assert(V.Ask("Muster at dawn?", nil, "M"))
 					msg = LastSent(w)
 					assert(msg:find("^T1~V~%d+~Bankai Guild II~M~90~1~Muster at dawn%?~Yes~No$"), msg)
 					id = tonumber(msg:match("^T1~V~(%d+)"))
-					AsCaptain()
+					AsCouncilMember()
 					K.HandleCommand("CHANNEL", "Helper-Realm", msg)
-					eq(select(3, V.State()), nil, "a Captain is not a guild master")
-					AsCouncil()
+					eq(select(3, V.State()), nil, "a Council member is not a guild master")
+					AsElder()
 					K.HandleCommand("CHANNEL", "Helper-Realm", msg)
-					eq(f:IsShown(), true); eq(f.title:GetText(), L.VOX_ASKS_HAND_M:format("Helper"))
+					eq(f:IsShown(), true); eq(f.title:GetText(), L.POLL_ASKS_HAND_M:format("Helper"))
 					-- The Hand's end: the guild masters the census (Zed) or his own roster (Ceo)
-					-- confirm; a Captain, or a name that only says it leads a guild, apart.
+					-- confirm; a Council member, or a name that only says it leads a guild, apart.
 					AsSoldier("Helper")
 					V.HandleVote("WHISPER", "Zed-Realm", ("Y1~%d~1~Bankai Guild Zeus"):format(id))
 					V.HandleVote("WHISPER", "Ceo-Realm", ("Y1~%d~2~Bankai Guild II"):format(id))
@@ -9305,7 +9305,7 @@ do
 					eq(poll.to, "M"); eq(poll.voters, 2); eq(poll.counts[1], 1); eq(poll.counts[2], 1); eq(poll.others, 2)
 					-- A guild master who is not of the Throne asks none of these.
 					V.Reset()
-					AsCouncil()
+					AsElder()
 					eq(table.concat(V.Audiences(), " "), "G")
 					local sent = #w.sent
 					for _, to in ipairs({ "E", "H", "M" }) do V.Ask("Raid tonight?", nil, to) end
@@ -9315,23 +9315,23 @@ do
 		end)
 	end)
 
-	test("1.1.6 Vox Populi for a guild: its guild master asks it over GUILD alone (the Vox tab is his); a guildmate who is not the guild master, or another route, opens nothing; only his roster's votes count; the results come back over GUILD alone", function()
+	test("1.1.6 Poll for a guild: its guild master asks it over GUILD alone (the Poll tab is his); a guildmate who is not the guild master, or another route, opens nothing; only his roster's votes count; the results come back over GUILD alone", function()
 		WithUI(function()
 			WithThrone(function(w, K)
-				WithVoxWorld(function()
-					local V, L = ns.Vox, ns.L
+				WithPollWorld(function()
+					local V, L = ns.Poll, ns.L
 					ns.Roster.byName = { ["Zed-Realm"] = 0, ["Mate-Realm"] = 3, ["Sarge-Realm"] = 1 }
 					-- A plain member: no tab, no question to the guild.
 					AsZeus("Mate", 3)
 					eq(V.Visible(), false); eq(#V.Audiences(), 0)
 					V.Ask("Raid tonight?", nil, "G")
-					assert(Printed(w, L.VOX_ONLY_GM)); eq(#w.sent, 0)
+					assert(Printed(w, L.POLL_ONLY_GM)); eq(#w.sent, 0)
 					-- The guild master: the tab, his guild the one audience he may pick.
 					AsZeus("Zed", 0)
 					eq(V.Visible(), true); eq(table.concat(V.Audiences(), " "), "G")
 					V.Prompt()
 					local c = V.Composer()
-					eq(c.to, "G"); eq(c.ask:GetText(), L.VOX_ASK_SEND_G)
+					eq(c.to, "G"); eq(c.ask:GetText(), L.POLL_ASK_SEND_G)
 					for _, box in ipairs(c.audiences) do eq(box:IsShown(), box.to == "G", box.to) end
 					eq(c.open:IsShown(), false, "his guild's question goes over GUILD, to his guild alone")
 					c.q:SetText("Raid tonight?"); c.times[1]:Click(); c.ask:Click()
@@ -9352,7 +9352,7 @@ do
 					V.HandleGuild("GUILD", "Zed-Realm", msg)
 					local f = V.Frame()
 					assert(f and f:IsShown(), "the guildmate's window")
-					eq(f.title:GetText(), L.VOX_ASKS_G:format("Zed", "Bankai Guild Zeus"))
+					eq(f.title:GetText(), L.POLL_ASKS_G:format("Zed", "Bankai Guild Zeus"))
 					f.rows[1].check:Click(); f.vote:Click()
 					eq(w.whispered[#w.whispered].to, "Zed-Realm"); eq(w.whispered[#w.whispered].msg, ("Y1~%d~1~Bankai Guild Zeus"):format(id))
 					-- The guild master counts his roster's votes alone.
@@ -9363,7 +9363,7 @@ do
 					V.HandleVote("WHISPER", "Ceo-Realm", ("Y1~%d~2~Bankai Guild II"):format(id)) -- (another guild's)
 					local poll = V.State()
 					eq(poll.voters, 2); eq(poll.counts[1], 1); eq(poll.counts[2], 1); eq(poll.others, 2)
-					assert(Texts((V.Build())):find(L.VOX_OUTSIDE:format(2), 1, true), "apart")
+					assert(Texts((V.Build())):find(L.POLL_OUTSIDE:format(2), 1, true), "apart")
 					-- Time is up: the results over GUILD.
 					local sent = #w.sent
 					w.clock = w.clock + 30 + V.GRACE
@@ -9421,26 +9421,26 @@ end
 -- 1.1.5 (the author's asks): the "new question" window was the plain silver frame while the Bankai Guild
 -- window is bronze metal; then (8025e04) it took the Bankai Guild window's portrait frame, logo and all,
 -- and the author did not want the round portrait with the logo on it nor on any window but the
--- Bankai Guild window. Vox.lua loaded fresh (its own composer), its handlers kept away from the real ones.
-function Harness.Win.FreshVox() -- (Harness.Win: the main chunk is at its 200 locals)
+-- Bankai Guild window. Poll.lua loaded fresh (its own composer), its handlers kept away from the real ones.
+function Harness.Win.FreshPoll() -- (Harness.Win: the main chunk is at its 200 locals)
 	local vns = setmetatable({
 		Comm = setmetatable({ Handle = function() end }, { __index = ns.Comm }),
 		Shogun = setmetatable({ Register = function() end, CanCommand = function() return true end }, { __index = ns.Shogun }),
 	}, { __index = ns })
-	assert(loadfile(ADDON_DIR .. "Vox.lua"))("BankaiGuild", vns)
-	return vns.Vox, vns
+	assert(loadfile(ADDON_DIR .. "Poll.lua"))("BankaiGuild", vns)
+	return vns.Poll, vns
 end
 -- (The assertions of 8025e04/f9d5168 asked for the portrait frame, its logo, a header by the
 -- portrait and the boxes pushed below it: the author's later word takes the portrait off, so they
 -- ask for the metal without it now, the boxes back where they were under the title bar.)
-test("1.1.5 Vox Populi: the new question window in the Bankai Guild window's bronze metal without its portrait or logo, the boxes under the title bar in its inset box as before, and its X closes it in combat too", function()
+test("1.1.5 Poll: the new question window in the Bankai Guild window's bronze metal without its portrait or logo, the boxes under the title bar in its inset box as before, and its X closes it in combat too", function()
 	WithUI(function()
-		local V, vns = Harness.Win.FreshVox()
+		local V, vns = Harness.Win.FreshPoll()
 		V.Prompt()
 		local c = V.Composer()
 		assert(c and c:IsShown(), "the composer")
-		Harness.Win.Metal(c, ns.L.VOX_ASK_TITLE, "the composer")
-		eq(c.titleText, ns.L.VOX_ASK_TITLE)
+		Harness.Win.Metal(c, ns.L.POLL_ASK_TITLE, "the composer")
+		eq(c.titleText, ns.L.POLL_ASK_TITLE)
 		eq(c.head, nil, "no header: the boxes start under the title bar")
 		local _, _, _, _, y = c.q:GetPoint(1)
 		eq(y, -48, "the question's box where it always was")
@@ -9450,8 +9450,8 @@ test("1.1.5 Vox Populi: the new question window in the Bankai Guild window's bro
 		eq(box and box.template, "InsetFrameTemplate"); eq(box:GetParent(), c)
 		eq(table.concat({ box:Anchor("TOPLEFT")[4], box:Anchor("TOPLEFT")[5], box:Anchor("BOTTOMRIGHT")[4], box:Anchor("BOTTOMRIGHT")[5] }, " "),
 			table.concat(ns.Dialog.INNER.metal, " "), "over the inside, inside the metal")
-		-- Still the composer, filled as before (its Ask: "Vox Populi: pick one or several", above).
-		eq(c.a[1]:GetText(), ns.L.VOX_YES); eq(c.a[2]:GetText(), ns.L.VOX_NO); eq(c.ask:GetText(), ns.L.VOX_ASK_SEND)
+		-- Still the composer, filled as before (its Ask: "Poll: pick one or several", above).
+		eq(c.a[1]:GetText(), ns.L.POLL_YES); eq(c.a[2]:GetText(), ns.L.POLL_NO); eq(c.ask:GetText(), ns.L.POLL_ASK_SEND)
 		eq(c.w .. "x" .. c.h, "420x410", "its size (1.2: taller, for who the question is for)")
 		Harness.Win.XInCombat(c, "the composer")
 		-- A client without the metal frame: the plain one, as before 1.1.5.
@@ -9459,11 +9459,11 @@ test("1.1.5 Vox Populi: the new question window in the Bankai Guild window's bro
 		TEMPLATES.DefaultPanelTemplate = nil
 		local ok, err = pcall(function()
 			local bns = setmetatable({ Comm = vns.Comm, Shogun = vns.Shogun }, { __index = ns })
-			assert(loadfile(ADDON_DIR .. "Vox.lua"))("BankaiGuild", bns)
-			bns.Vox.Prompt()
-			local b = bns.Vox.Composer()
+			assert(loadfile(ADDON_DIR .. "Poll.lua"))("BankaiGuild", bns)
+			bns.Poll.Prompt()
+			local b = bns.Poll.Composer()
 			eq(b.template, "BasicFrameTemplateWithInset", "the plain frame where the metal one is missing")
-			eq(b.TitleText:GetText(), ns.L.VOX_ASK_TITLE)
+			eq(b.TitleText:GetText(), ns.L.POLL_ASK_TITLE)
 			local _, _, _, _, by = b.q:GetPoint(1)
 			eq(by, -48, "the boxes where they were")
 			eq(b.Inset, nil, "no second inset: the plain frame has its own")
@@ -9518,7 +9518,7 @@ test("watch: Hold Court opens from the Throne and the Shogun calls its private q
 		C.HandleRequest("WHISPER", "Troll-Realm", ("T4~%d~Shobek smells"):format(id))
 		C.HandleRequest("WHISPER", "Old-Realm", "T4~1~Bankai Guild II")
 		eq(#C.Holding().queue, 1)
-		-- A Council member the census confirms shows with his guild; anyone else is a name alone (what
+		-- An Elder the census confirms shows with his guild; anyone else is a name alone (what
 		-- they say of their guild is not shown on stream).
 		C.HandleRequest("WHISPER", "Zed-Realm", ("T4~%d~Bankai Guild Zeus"):format(id))
 		C.HandleRequest("WHISPER", "Liar-Realm", ("T4~%d~Bankai Guild kys lol"):format(id))
@@ -10017,7 +10017,7 @@ test("gamepad UI: Bankai Guild's own dialogs, never the game's popups; mouse and
 			eq(entered, "d:typed"); eq(e:IsShown(), false)
 			-- Without EditBoxOnEnterPressed, Enter does nothing (as the game's: no writ sent by it).
 			local accepted
-			StaticPopupDialogs.BANKAIGUILD_TEST_B = { text = "Writ", button1 = "Council", button2 = "Cancel", button3 = "All", hasEditBox = true,
+			StaticPopupDialogs.BANKAIGUILD_TEST_B = { text = "Writ", button1 = "Elders", button2 = "Cancel", button3 = "All", hasEditBox = true,
 				OnAccept = function() accepted = true end, timeout = 0 }
 			e = ns.ShowDialog("BANKAIGUILD_TEST_B")
 			e.editBox:Fire("OnEnterPressed")
@@ -10105,16 +10105,16 @@ end)
 -- mouse and keyboard and then again after a switch to the gamepad UI, it stayed there, where the
 -- gamepad menus close it while the Shogun types. The Bankai Guild window and the letter check each time
 -- they show.)
-test("1.1.5 Vox Populi: the new question window leaves the escape list after a switch to the gamepad UI, checked each time it shows (the Bankai Guild window's way); its X closes it there", function()
+test("1.1.5 Poll: the new question window leaves the escape list after a switch to the gamepad UI, checked each time it shows (the Bankai Guild window's way); its X closes it there", function()
 	WithUI(function()
-		local V = Harness.Win.FreshVox()
+		local V = Harness.Win.FreshPoll()
 		local function Listed()
-			for _, n in ipairs(UISpecialFrames) do if n == "BankaiGuildVoxAskFrame" then return true end end
+			for _, n in ipairs(UISpecialFrames) do if n == "BankaiGuildPollAskFrame" then return true end end
 			return false
 		end
 		WithGamepadUI(false, function()
 			V.Prompt()
-			eq(UISpecialFrames[#UISpecialFrames], "BankaiGuildVoxAskFrame", "mouse and keyboard: Escape closes it")
+			eq(UISpecialFrames[#UISpecialFrames], "BankaiGuildPollAskFrame", "mouse and keyboard: Escape closes it")
 			V.Composer().cancel:Click()
 			eq(V.Composer():IsShown(), false, "Cancel")
 		end)
@@ -10145,7 +10145,7 @@ test("gamepad UI: the Shogun's summons in our dialog; a layer invite is the play
 			WithThrone(function(w, K)
 				AsShogun(); K.Summon()
 				local id = tonumber(LastSent(w):match("T1~S~(%d+)"))
-				AsCouncil()
+				AsElder()
 				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", ("T1~S~%d~Bankai Guild"):format(id))
 				eq(#w.popups, 0, "not the game's popup"); eq(#game.shown, 0)
 				local f = ns.Dialog.Find("BANKAIGUILD_SHOGUN_SUMMON")
@@ -10303,8 +10303,8 @@ test("the Shogun's guild in one place: <Elfcore> on the Alliance, the Horde's on
 	local ok, err = pcall(function()
 		ns.faction = "Alliance"
 		eq(ns.IsShogunGuild("Bankai Guild"), true); eq(ns.IsShogunGuild("Bankai Guild"), true); eq(ns.IsShogunGuild("Bankai Guild II"), false); eq(ns.IsShogunGuild(nil), false)
-		eq(ns.IsCrownRank("Bankai Guild II", 1), false); eq(ns.IsCouncilRank("Bankai Guild II", 0), true)
-		eq(ns.IsCrownRank("Bankai Guild II", 0), false, "(1.2.3) another guild's master is a Council member, never the Crown")
+		eq(ns.IsCrownRank("Bankai Guild II", 1), false); eq(ns.IsElderRank("Bankai Guild II", 0), true)
+		eq(ns.IsCrownRank("Bankai Guild II", 0), false, "(1.2.3) another guild's master is an Elder, never the Crown")
 		-- (Its officers are of the Crown on its members' clients, 1.0.0.)
 		GetGuildInfo = function() return "Bankai Guild", "Knight", 3 end
 		eq(ns.IsCrownRank("BankaiGuild", 1), true)
@@ -10354,13 +10354,13 @@ test("Royal Writs to the whole army: every member gets the parchment, nobody ack
 			StaticPopupDialogs.BANKAIGUILD_WRIT_TO.OnCancel(nil, "Hold the bridge", "timeout")
 			eq(#w.sent, before, "a timeout sends nothing")
 			StaticPopupDialogs.BANKAIGUILD_WRIT_TO.OnCancel(nil, "Hold the bridge", "clicked")
-			assert(LastSent(w):find("~C~Hold the bridge$"), "the middle button: Council and Captains")
+			assert(LastSent(w):find("~C~Hold the bridge$"), "the middle button: Elders and Council")
 			w.clock = w.clock + 600
 			StaticPopupDialogs.BANKAIGUILD_WRIT_TO.OnAlt(nil, "Hold the bridge")
 			assert(LastSent(w):find("~E~Hold the bridge$"), "the third: the whole army")
 			w.clock = w.clock + 600
 			StaticPopupDialogs.BANKAIGUILD_WRIT_TO.OnAccept(nil, "Hold the bridge")
-			assert(LastSent(w):find("~L~Hold the bridge$"), "the first: the Council")
+			assert(LastSent(w):find("~L~Hold the bridge$"), "the first: the Elders")
 			eq(StaticPopupDialogs.BANKAIGUILD_WRIT_TO.noCancelOnEscape, true, "Escape sends nothing")
 			StaticPopupDialogs.BANKAIGUILD_WRIT.OnAccept({ editBox = { GetText = function() return "x" end } })
 			eq(w.popups[#w.popups].name, "BANKAIGUILD_WRIT_TO", "too short: no second step"); eq(w.popups[#w.popups].data, "Hold the bridge")
@@ -10638,20 +10638,20 @@ test("UP-12 round buttons: the logo and its dark disc sit on the gold ring's cen
 	end)
 end)
 
-test("Royal Writs: the Shogun writes to his Council, each can acknowledge, nobody else reads it", function()
+test("Royal Writs: the Shogun writes to his Elders, each can acknowledge, nobody else reads it", function()
 	WithUI(function()
 		LoadUI()
 		WithThrone(function(w, K)
 			local A = ns.Acts
-			AsCaptain(); A.SendWrit("L", "Hello there")
+			AsCouncilMember(); A.SendWrit("L", "Hello there")
 			eq(#w.sent, 0, "the Shogun's alone")
 			AsShogun()
 			A.SendWrit("L", "Muster at dawn|cffff0000 in Goldshire")
 			local msg = LastSent(w)
 			assert(msg:find("^T1~W~%d+~Bankai Guild~L~Muster at dawn cffff0000 in Goldshire$"), msg)
 			local id = tonumber(msg:match("T1~W~(%d+)"))
-			-- A Council member: on parchment, one click acknowledges.
-			AsCouncil()
+			-- An Elder: on parchment, one click acknowledges.
+			AsElder()
 			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
 			eq(#ns.rdb.writs, 1)
 			local f = BankaiGuildWritFrame
@@ -10672,13 +10672,13 @@ test("Royal Writs: the Shogun writes to his Council, each can acknowledge, nobod
 			eq(w.whispered[1].to, "Shobek Shobekler-Realm"); eq(w.whispered[1].msg, ("T6~%d~Bankai Guild Zeus"):format(id))
 			local decrees = Texts(ns.Views.Build("decrees"))
 			assert(decrees:find(ns.L.WRITS, 1, true) and decrees:find("Muster at dawn", 1, true), decrees)
-			-- A Captain reads the writs to Council and Captains only; a soldier none.
+			-- A Council member reads the writs to Elders and Council only; a soldier none.
 			ns.rdb.writs = nil; A.Reset()
-			AsCaptain()
+			AsCouncilMember()
 			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", msg)
-			eq(ns.rdb.writs, nil, "for the Council")
+			eq(ns.rdb.writs, nil, "for the Elders")
 			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~W~12~Bankai Guild~C~Hold the bridge")
-			eq(#ns.rdb.writs, 1, "for Council and Captains")
+			eq(#ns.rdb.writs, 1, "for Elders and Council")
 			A.Reset(); ns.rdb.writs = nil
 			AsSoldier()
 			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~W~13~Bankai Guild~C~Hold the bridge")
@@ -10686,7 +10686,7 @@ test("Royal Writs: the Shogun writes to his Council, each can acknowledge, nobod
 			assert(not Texts(ns.Views.Build("decrees")):find(ns.L.WRITS, 1, true), "no section for a soldier")
 			-- A Hand's writ is no writ.
 			AsShogun(); K.AddHand("Helper"); K.SendHands(true); local list = LastSent(w)
-			AsCouncil(); A.Reset()
+			AsElder(); A.Reset()
 			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~W~14~Bankai Guild II~L~Obey me")
 			eq(ns.rdb.writs, nil, "a Hand writes no writ")
@@ -10753,7 +10753,7 @@ end)
 test("Throne review fixes: the Shogun sees his Hands' acts, one question at a time", function()
 	WithUI(function()
 		WithThrone(function(w, K)
-			local A, V, C = ns.Acts, ns.Vox, ns.Court
+			local A, V, C = ns.Acts, ns.Poll, ns.Court
 			-- The Shogun's own client trusts his list: a Hand's gates show for him, he closes them.
 			AsShogun(); K.AddHand("Helper"); K.SendHands(true)
 			local list = LastSent(w)
@@ -10773,7 +10773,7 @@ test("Throne review fixes: the Shogun sees his Hands' acts, one question at a ti
 			local sent = #w.sent
 			A.CloseGates()
 			eq(#w.sent, sent); assert(Printed(w, ns.L.GATES_ONLY_OPENER), "told")
-			-- Vox: a Hand's question does not replace the Shogun's; the Shogun's replaces a Hand's.
+			-- Poll: a Hand's question does not replace the Shogun's; the Shogun's replaces a Hand's.
 			V.Reset(); AsSoldier("Voter")
 			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", list)
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~41~Bankai Guild II~60~1~Pizza?~Yes~No")
@@ -10783,7 +10783,7 @@ test("Throne review fixes: the Shogun sees his Hands' acts, one question at a ti
 			K.HandleCommand("CHANNEL", "Helper-Realm", "T1~V~43~Bankai Guild II~60~1~Tacos?~Yes~No")
 			eq(select(3, V.State()).id, 42, "a Hand's waits for the Shogun's")
 			-- The window comes back when questions are turned on again.
-			V.Reset(); ns.db.voxOff = true
+			V.Reset(); ns.db.pollOff = true
 			K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~44~Bankai Guild~60~1~Raid again?~Yes~No")
 			eq(V.Frame() and V.Frame():IsShown() or false, false)
 			V.SetOff(false)
@@ -10822,7 +10822,7 @@ end)
 test("Round 2 fixes: shares add up to 100, the Shogun is never shut out, a trade is counted", function()
 	WithUI(function()
 		WithThrone(function(w, K)
-			local V, T = ns.Vox, ns.Treasury
+			local V, T = ns.Poll, ns.Treasury
 			-- One pick each: whole percents that add up to exactly 100.
 			local rows = V.Tally({ "A", "B", "C" }, { 1, 1, 1 }, 3, false)
 			eq(rows[1].pct + rows[2].pct + rows[3].pct, 100); eq(rows[1].pct, 34)
@@ -10868,19 +10868,19 @@ test("The Realm has no BankaiGuild-chat shortcut or lines; Chat remains a first-
 		ns.rdb.chat = {
 			A = { { t = w.clock - 120, sender = "Aa-Realm", guild = "Bankai Guild II", text = "first of the chats" },
 				{ t = w.clock - 60, sender = "Bb-Realm", guild = "Bankai Guild Zeus", text = "second of the chats" } },
-			C = { { t = w.clock - 30, sender = "Cc-Realm", guild = "Bankai Guild II", text = "captains only chat" } },
+			C = { { t = w.clock - 30, sender = "Cc-Realm", guild = "Bankai Guild II", text = "council only chat" } },
 		}
 		AsSoldier()
 		local after = Texts(ns.Views.RealmLines())
 		assert(not after:find(ns.L.CHATS_LINK, 1, true), "no duplicate chat shortcut")
 		assert(not after:find(ns.L.CHATS_OFF_LINK, 1, true), "no duplicate chat status")
-		for _, said in ipairs({ "first of the chats", "second of the chats", "captains only chat" }) do
+		for _, said in ipairs({ "first of the chats", "second of the chats", "council only chat" }) do
 			assert(not after:find(said, 1, true), "no chat line on the Realm tab: " .. said)
 		end
 		eq(ns.Views.ShowChat, nil, "no page of the chats"); eq(ns.Views.ChatShown, nil); eq(ns.Views.ChatTier, nil)
 		assert(type(ns.ChatWindow) == "table" and type(ns.ChatWindow.Open) == "function", "the Chat surface remains")
-		-- A Captain gets no duplicate shortcut either.
-		AsCaptain()
+		-- A Council member gets no duplicate shortcut either.
+		AsCouncilMember()
 		after = Texts(ns.Views.RealmLines())
 		assert(not after:find(ns.L.CHATS_LINK, 1, true) and not after:find(ns.L.CHATS_OFF_LINK, 1, true), after)
 	end)
@@ -10910,7 +10910,7 @@ test("Comm: urgent messages (a layer ask, a vote) go ahead of the census, never 
 end)
 
 test("A player's report: no false Shogun, our layer holds against stray creatures, our channel after the game's", function()
-	-- 1. Only another guild reports (a Horde guild of its own): its Council is not crowned.
+	-- 1. Only another guild reports (a Horde guild of its own): its Elder is not crowned.
 	local savedGuilds = ns.rdb.guilds
 	ns.rdb.guilds = { ["Bankai Guild DUSTMONKEYS"] = { total = 802, online = 88, zones = {}, t = os.time(), leader = "Paladeath Graveborn", leaderOnline = true, realm = "Realm" } }
 	local ok, err = pcall(function()
@@ -11088,7 +11088,7 @@ test("#18: an officer of <Elfcore> the census names is never the Shogun, and (1.
 			-- Three outsiders keep the Shogun at its head and add one of their own as an officer.
 			for _, s in ipairs({ "Atk-Realm", "Accomplice-Realm", "Third-Realm" }) do Report("Atk:1:0", s) end
 			eq(D.KnownRank("Shobek Shobekler-Realm", "Bankai Guild"), 0, "every picture names the Shogun")
-			-- (1.0.0) Outside <Elfcore> an officer of it is a Captain like any guild's: no [Council], no
+			-- (1.0.0) Outside <Elfcore> an officer of it is a Council member like any guild's: no [Elders], no
 			-- Crown decree; before, three outsiders' reports made one of theirs of the Crown here.
 			eq(ns.Channels.LevelOf("BankaiGuild", 1), ns.Channels.LevelOf("Bankai Guild Zeus", 1))
 			eq(ns.IsCrownRank("BankaiGuild", D.KnownRank("Atk-Realm", "Bankai Guild")), false)
@@ -11525,9 +11525,9 @@ test("0.9.2 untabarded: the Shogun's list, the army sees it only while he lets i
 			ns.PlayAlert = function() alerts = alerts + 1 end
 			RaidNotice_AddMessage = function() alerts = alerts + 1 end
 			AsSoldier("Other")
-			-- A wall from a 0.9.1 Council (S1): ignored, whoever sends it.
-			I.HandleShame("CHANNEL", "Council1-Realm", ns.Codec.EncodeShame("Bankai Guild II", 0, { { name = "Naked", guild = "Bankai Guild II" } }))
-			eq(I.Shame(), nil, "no more walls from Council")
+			-- A wall from a 0.9.1 Elder (S1): ignored, whoever sends it.
+			I.HandleShame("CHANNEL", "Elder1-Realm", ns.Codec.EncodeShame("Bankai Guild II", 0, { { name = "Naked", guild = "Bankai Guild II" } }))
+			eq(I.Shame(), nil, "no more walls from Elders")
 			-- Hostile: someone else sends the Shogun's kind, with a guild name that says Bankai Guild.
 			K.HandleCommand("CHANNEL", "Faker Guy-Realm", "T1~U~5~Bankai Guild~1~Victim:BankaiGuild II")
 			eq(I.Shame(), nil, "not the Shogun: nothing shown")
@@ -12635,7 +12635,7 @@ test("0.9.1 privacy: the first line in each channel waits for the player's OK (#
 					-- /bgc: the line is held, the warning shown, nothing sent.
 					local okSend, why = Chan.Send("C", "the raid is at eight")
 					eq(okSend, false); eq(why, "confirm"); eq(#sent, 0)
-					eq(#game.shown, 1); eq(game.shown[1].which, "BANKAIGUILD_CHAT_PRIVACY"); eq(game.shown[1].a, "Captains")
+					eq(#game.shown, 1); eq(game.shown[1].which, "BANKAIGUILD_CHAT_PRIVACY"); eq(game.shown[1].a, "Council")
 					eq(game.shown[1].b, ns.L.CHANNEL_PUBLIC, "who can join the channel")
 					eq(game.shown[1].data.text, "the raid is at eight")
 					-- Cancel: not sent, still to be asked; an answered window answers once.
@@ -12643,7 +12643,7 @@ test("0.9.1 privacy: the first line in each channel waits for the player's OK (#
 					eq(#sent, 0); eq(printed[#printed], ns.L.CHAN_WARN_NOT_SENT); eq(ns.db.chatWarned.C, nil)
 					d.OnAccept(nil, game.shown[1].data)
 					eq(#sent, 0)
-					-- Asked again; Send: the held line goes out, and [Captains] is warned for good.
+					-- Asked again; Send: the held line goes out, and [Council] is warned for good.
 					clock = clock + 10
 					Chan.Send("C", "the raid is at eight")
 					eq(#game.shown, 2)
@@ -12653,9 +12653,9 @@ test("0.9.1 privacy: the first line in each channel waits for the player's OK (#
 					clock = clock + 10
 					eq((Chan.Send("C", "bring potions")), true, "not asked again")
 					eq(#sent, 2); eq(#game.shown, 2)
-					-- Each channel once: [Council] and [Bankai Guild] ask too.
+					-- Each channel once: [Elders] and [Bankai Guild] ask too.
 					clock = clock + 10
-					eq(select(2, Chan.Send("L", "council only")), "confirm"); eq(game.shown[3].a, "Council")
+					eq(select(2, Chan.Send("L", "elders only")), "confirm"); eq(game.shown[3].a, "Elders")
 					clock = clock + 10
 					eq(select(2, Chan.Send("A", "hello army")), "confirm"); eq(game.shown[4].a, "Bankai Guild")
 					eq(#sent, 2)
@@ -12692,7 +12692,7 @@ end)
 do
 	-- The game's chat windows as GetChatWindowInfo tells them: 1 the main one, 2 the combat log
 	-- (docked), 3 unused, 4 "Bankai Guild" docked behind another tab (hidden, so "not shown"), 5
-	-- "Officers" floating, 6-10 unused. fn(w, printed) runs with them, as a Council member of Bankai Guild II.
+	-- "Officers" floating, 6-10 unused. fn(w, printed) runs with them, as an Elder of Bankai Guild II.
 	-- (1.1.1: window 4 is the Bankai Guild tab, whose first line for a character says what it holds,
 	-- ns.db.chatTabIntro: none said yet, and put back as it was.)
 	local function WithWindows(fn)
@@ -12739,30 +12739,30 @@ do
 			eq(Chan.ChooseWindow("bankaiguild"), true, "any case")
 			eq(ns.db.chatWindows["Tester-Realm"].A, "Bankai Guild", "stored as the game names it")
 			eq(ns.db.chatWindows["Tester-Realm"].C, "Bankai Guild"); eq(ns.db.chatWindows["Tester-Realm"].L, "Bankai Guild")
-			eq(printed[#printed], ns.L.CHATWIN_SET:format("[Bankai Guild], [Captains], [Council]", '"Bankai Guild"'))
+			eq(printed[#printed], ns.L.CHATWIN_SET:format("[Bankai Guild], [Council], [Elders]", '"Bankai Guild"'))
 			-- (1.1.1: a window named Bankai Guild is the Bankai Guild tab: it says what it holds, the legend of
 			-- the channels' colours, where another window gets CHATWIN_SET.)
 			eq(Count(w[4].lines, (ns.L.CHATTAB_HERE:gsub("%%s.*$", ""))), 1, "the choice is said in that window too")
-			eq(Count(w[4].lines, "[Council]"), 1, "its legend names the channels")
-			eq(Chan.ChooseWindow("5 captains"), true, "by number, one channel")
+			eq(Count(w[4].lines, "[Elders]"), 1, "its legend names the channels")
+			eq(Chan.ChooseWindow("5 council"), true, "by number, one channel")
 			eq(ns.db.chatWindows["Tester-Realm"].C, "Officers"); eq(ns.db.chatWindows["Tester-Realm"].A, "Bankai Guild")
 			w[1].lines, w[4].lines, w[5].lines = {}, {}, {}
 			id = id + 1
 			eq((Chan.Receive("CHANNEL", "Member500", Msg("A", MY_GUILD, id, "to the bankaiguild tab"), 3000000)), true)
 			eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, id, "to the officers window"), 3000001)), true)
-			eq((Chan.Receive("CHANNEL", "Member1", Msg("L", MY_GUILD, id, "council to the bankaiguild tab"), 3000002)), true)
+			eq((Chan.Receive("CHANNEL", "Member1", Msg("L", MY_GUILD, id, "elders to the bankaiguild tab"), 3000002)), true)
 			eq(Count(w[4].lines, "to the bankaiguild tab"), 2); eq(Count(w[5].lines, "to the officers window"), 1)
 			eq(#w[1].lines, 0, "nothing in the main window")
 			-- (1.1.1: in the Bankai Guild tab without the channel's name; in "Officers" with it.)
 			for _, l in ipairs(w[4].lines) do assert(l:find("^|Hplayer:"), l) end
-			assert(w[5].lines[1]:find("^%[Captains%] |Hplayer:"), w[5].lines[1])
+			assert(w[5].lines[1]:find("^%[Council%] |Hplayer:"), w[5].lines[1])
 			-- Our own line, shown when sent, lands with the others.
 			WithLane(function() ns.db.chatWarned = { A = true, C = true, L = true }; local ok, why = Chan.Send("A", "my own line", 1e12); eq(ok, true, tostring(why)) end)
 			eq(Count(w[4].lines, "my own line"), 1); eq(#w[1].lines, 0)
 			-- Through the slash command, and in /bk status.
-			SlashCmdList.BANKAIGUILD("chatwindow Officers council")
+			SlashCmdList.BANKAIGUILD("chatwindow Officers elders")
 			eq(ns.db.chatWindows["Tester-Realm"].L, "Officers")
-			eq(Chan.WindowStatus(), '[Bankai Guild] "Bankai Guild", [Captains] "Officers", [Council] "Officers"')
+			eq(Chan.WindowStatus(), '[Bankai Guild] "Bankai Guild", [Council] "Officers", [Elders] "Officers"')
 			assert(ns.StatusText():find('chat windows: [Bankai Guild] "Bankai Guild"', 1, true), "in /bk status")
 			-- Per character, like the game's chat windows: another character's lines stay in the main window.
 			ns.me = "Other-Realm"
@@ -12818,22 +12818,22 @@ do
 			eq(Chan.ChooseWindow("combat log"), false); eq(printed[#printed], ns.L.CHATWIN_COMBATLOG)
 			eq(Chan.ChooseWindow("1"), true, "the main window itself"); eq(ns.db.chatWindows, nil, "nothing to remember")
 			eq(Chan.ChooseWindow(""), false)
-			eq(printed[#printed - 1], ns.L.CHATWIN_NOW:format("[Bankai Guild] " .. ns.L.CHATWIN_MAIN_NAME .. ", [Captains] "
-				.. ns.L.CHATWIN_MAIN_NAME .. ", [Council] " .. ns.L.CHATWIN_MAIN_NAME))
+			eq(printed[#printed - 1], ns.L.CHATWIN_NOW:format("[Bankai Guild] " .. ns.L.CHATWIN_MAIN_NAME .. ", [Council] "
+				.. ns.L.CHATWIN_MAIN_NAME .. ", [Elders] " .. ns.L.CHATWIN_MAIN_NAME))
 			eq(printed[#printed], ns.L.CHATWIN_USAGE)
 			-- The whole name first: a window may end with a channel's name.
-			w[5].name = "Bankai Guild Council"
-			eq(Chan.ChooseWindow("bankaiguild council"), true)
-			eq(ns.db.chatWindows["Tester-Realm"].A, "Bankai Guild Council"); eq(ns.db.chatWindows["Tester-Realm"].L, "Bankai Guild Council")
+			w[5].name = "Bankai Guild Elders"
+			eq(Chan.ChooseWindow("bankaiguild elders"), true)
+			eq(ns.db.chatWindows["Tester-Realm"].A, "Bankai Guild Elders"); eq(ns.db.chatWindows["Tester-Realm"].L, "Bankai Guild Elders")
 			eq(Chan.ChooseWindow("Bankai Guild all"), true); eq(ns.db.chatWindows["Tester-Realm"].C, "Bankai Guild")
-			eq(Chan.ChooseWindow("main captains"), true)
-			eq(printed[#printed], ns.L.CHATWIN_MAIN:format("[Captains]"))
+			eq(Chan.ChooseWindow("main council"), true)
+			eq(printed[#printed], ns.L.CHATWIN_MAIN:format("[Council]"))
 			eq(ns.db.chatWindows["Tester-Realm"].C, nil); eq(ns.db.chatWindows["Tester-Realm"].A, "Bankai Guild")
 			eq(Chan.ChooseWindow("main"), true)
 			eq(ns.db.chatWindows, nil, "nothing left")
 			-- The game without the chat window API, or with a broken one: the frame's own name and
 			-- dock (what FCF_SetWindowName and the dock set), else the main window, never an error.
-			eq(Chan.ChooseWindow("Bankai Guild Council"), true)
+			eq(Chan.ChooseWindow("Bankai Guild Elders"), true)
 			GetChatWindowInfo = nil
 			eq(select(3, Chan.FindWindow("Bankai Guild")), "Bankai Guild", "the frame's own name")
 			GetChatWindowInfo = function() error("broken") end
@@ -12849,12 +12849,12 @@ do
 	-- indices followed by the AddMessage arguments. It does not expose Blizzard frames.
 	-- (1.1.2: the stand-in is WithChattynatorAPI's, which also records the caller's file.)
 	local function WithChattynator(fn)
-		WithChattynatorAPI({ { "General", "Bankai Guild" }, { "Captains", "Council" } }, function(c)
+		WithChattynatorAPI({ { "General", "Bankai Guild" }, { "Council", "Elders" } }, function(c)
 			WithWindows(function(w, printed) fn(c.windows, c.calls, w, printed) end)
 		end)
 	end
 	local function Our(text) return "|c" .. ns.COLOR .. "Bankai Guild:|r " .. text end
-	local LEGEND = "|cffe6c45c[Bankai Guild]|r, |cff59d9d9[Captains]|r, |cffbf80ff[Council]|r"
+	local LEGEND = "|cffe6c45c[Bankai Guild]|r, |cff59d9d9[Council]|r, |cffbf80ff[Elders]|r"
 
 	-- (1.1.2, PR #47's test on 1.1.1: a tab named Bankai Guild is the Bankai Guild tab, whose first line says
 	-- what it holds, CHATTAB_HERE, where another tab gets CHATWIN_SET, and whose lines come without
@@ -12870,11 +12870,11 @@ do
 			eq(calls[1][3], Our(ns.L.CHATTAB_HERE:format(LEGEND)), "the Bankai Guild tab says what it holds")
 			eq(printed[#printed - 1], ns.L.CHATWIN_SET:format("[Bankai Guild]", '"Bankai Guild"'))
 			eq(printed[#printed], ns.L.CHATTY_FILTER:format('"Bankai Guild"'), "and how to let Bankai Guild in, in the main window")
-			eq(Chan.ChooseWindow("Captains captains"), true, "no native window with this name")
-			eq(calls[2][3], Our(ns.L.CHATWIN_SET:format("[Captains]", '"Captains"')))
-			eq(printed[#printed], ns.L.CHATTY_FILTER:format('"Captains"'))
-			eq(Chan.ChooseWindow("Council council"), true)
-			eq(Chan.WindowStatus(), '[Bankai Guild] "Bankai Guild", [Captains] "Captains", [Council] "Council"')
+			eq(Chan.ChooseWindow("Council council"), true, "no native window with this name")
+			eq(calls[2][3], Our(ns.L.CHATWIN_SET:format("[Council]", '"Council"')))
+			eq(printed[#printed], ns.L.CHATTY_FILTER:format('"Council"'))
+			eq(Chan.ChooseWindow("Elders elders"), true)
+			eq(Chan.WindowStatus(), '[Bankai Guild] "Bankai Guild", [Council] "Council", [Elders] "Elders"')
 			wipe(calls)
 			for index, tier in ipairs({ "A", "C", "L" }) do
 				id = id + 1
@@ -12888,8 +12888,8 @@ do
 				for c = 1, 3 do eq(calls[index][3 + c], color[c], "channel color") end
 			end
 			assert(calls[1][3]:find("^|Hplayer:Member1|h%["), "the Bankai Guild tab: no channel name: " .. calls[1][3])
-			assert(calls[2][3]:find("^%[Captains%] |Hplayer:"), calls[2][3])
-			assert(calls[3][3]:find("^%[Council%] |Hplayer:"), calls[3][3])
+			assert(calls[2][3]:find("^%[Council%] |Hplayer:"), calls[2][3])
+			assert(calls[3][3]:find("^%[Elders%] |Hplayer:"), calls[3][3])
 			WithLane(function()
 				ns.db.chatWarned = { A = true, C = true, L = true }
 				local ok, why = Chan.Send("A", "own Chattynator echo", 1e12 + 200)
@@ -12904,8 +12904,8 @@ do
 
 	test("chat window: Chattynator names follow moved tabs and fall back once when removed", function()
 		WithChattynator(function(tabs, calls, w, printed)
-			eq(Chan.ChooseWindow("Captains captains"), true)
-			tabs[1], tabs[2] = { "Captains", "General", "Bankai Guild" }, { "Council" }
+			eq(Chan.ChooseWindow("Council council"), true)
+			tabs[1], tabs[2] = { "Council", "General", "Bankai Guild" }, { "Elders" }
 			wipe(calls)
 			id = id + 1
 			eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, id, "moved tab"), 3200100)), true)
@@ -12917,12 +12917,12 @@ do
 				eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, id, "fallback " .. k), 3200110 + k * 10)), true)
 			end
 			eq(#calls, 1); eq(Count(w[1].lines, "fallback"), 2)
-			eq(#printed, n + 1); eq(printed[#printed], ns.L.CHATWIN_GONE:format('"Captains"'))
-			tabs[2][2] = "Captains"
+			eq(#printed, n + 1); eq(printed[#printed], ns.L.CHATWIN_GONE:format('"Council"'))
+			tabs[2][2] = "Council"
 			id = id + 1
 			eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, id, "restored tab"), 3200150)), true)
 			eq(#calls, 2); eq(calls[2][1], 2); eq(calls[2][2], 2)
-			eq(Chan.ChooseWindow("main captains"), true)
+			eq(Chan.ChooseWindow("main council"), true)
 			eq(ns.db.chatWindows, nil)
 		end)
 	end)
@@ -12933,7 +12933,7 @@ do
 			local ok, err = pcall(function()
 				for _, state in ipairs({ "unanswered", "off" }) do
 					if state == "unanswered" then ns.db.addonChat = nil else ns.db.addonChat = false end
-					eq(Chan.ChooseWindow("Captains captains"), true)
+					eq(Chan.ChooseWindow("Council council"), true)
 					if state == "unanswered" then eq(ns.db.addonChat, nil) else eq(ns.db.addonChat, false) end
 					wipe(calls)
 					id = id + 1
@@ -12960,21 +12960,21 @@ do
 	test("chat window: unavailable Chattynator API preserves native lookup and lists available tabs", function()
 		WithChattynator(function(tabs, calls, w, printed)
 			eq(Chan.ChooseWindow("Missing"), false)
-			eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"Missing"', '"General", "Bankai Guild", "Captains", "Council"'))
+			eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"Missing"', '"General", "Bankai Guild", "Council", "Elders"'))
 			local api = Chattynator.API
 			for _, unavailable in ipairs({ {}, { GetWindowsAndTabs = api.GetWindowsAndTabs },
 				{ GetWindowsAndTabs = function() error("not initialized") end, AddMessageToWindowAndTab = api.AddMessageToWindowAndTab } }) do
 				Chattynator.API = unavailable
 				eq(Chan.FindWindow("Bankai Guild"), w[4], "native fallback")
-				eq(Chan.ChooseWindow("Captains captains"), false)
+				eq(Chan.ChooseWindow("Council council"), false)
 			end
 			Chattynator.API = api
 			eq(Chan.ChooseWindow("2"), false, "a tab's name while Chattynator answers: the game's window 2 is hidden")
-			eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"2"', '"General", "Bankai Guild", "Captains", "Council"'))
+			eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"2"', '"General", "Bankai Guild", "Council", "Elders"'))
 			tabs[1][3] = "COMBAT_LOG"
 			eq(Chan.ChooseWindow("combat_log"), false); eq(printed[#printed], ns.L.CHATWIN_COMBATLOG, "Chattynator's combat log")
 			eq(Chan.ChooseWindow("Missing"), false)
-			eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"Missing"', '"General", "Bankai Guild", "Captains", "Council"'), "not listed")
+			eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"Missing"', '"General", "Bankai Guild", "Council", "Elders"'), "not listed")
 			Chattynator.API = {}
 			eq(Chan.ChooseWindow("2"), false, "native combat log remains refused"); eq(printed[#printed], ns.L.CHATWIN_COMBATLOG)
 		end)
@@ -12984,11 +12984,11 @@ do
 	-- at every line, /bk status included.)
 	test("chat window (1.1.2): a Chattynator that fails, or answers a window that is not a list, costs no line and raises no error", function()
 		WithChattynator(function(tabs, calls, w, printed)
-			eq(Chan.ChooseWindow("Captains captains"), true)
+			eq(Chan.ChooseWindow("Council council"), true)
 			wipe(calls)
 			-- A window that is not a list of names: left out, the others still read; names not strings too.
 			tabs[1] = "not a window"
-			eq(Chan.WindowStatus(), '[Bankai Guild] main window, [Captains] "Captains", [Council] main window')
+			eq(Chan.WindowStatus(), '[Bankai Guild] main window, [Council] "Council", [Elders] main window')
 			id = id + 1
 			eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, id, "still routed"), 3200300)), true)
 			eq(#calls, 1); eq(calls[1][1], 2); eq(calls[1][2], 1)
@@ -13003,9 +13003,9 @@ do
 			local shown, why = Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, id, "delivery failed"), 3200310)
 			eq(shown, true, tostring(why))
 			eq(Count(w[1].lines, "delivery failed"), 1, "in the main window")
-			assert(w[1].lines[#w[1].lines]:find("^%[Captains%] "), w[1].lines[#w[1].lines])
-			eq(Chan.ChooseWindow("Council council"), true, "no error either")
-			eq(Count(w[1].lines, ns.L.CHATWIN_SET:format("[Council]", '"Council"')), 1, "the tab's line, in the main window")
+			assert(w[1].lines[#w[1].lines]:find("^%[Council%] "), w[1].lines[#w[1].lines])
+			eq(Chan.ChooseWindow("Elders elders"), true, "no error either")
+			eq(Count(w[1].lines, ns.L.CHATWIN_SET:format("[Elders]", '"Elders"')), 1, "the tab's line, in the main window")
 			WithLane(function()
 				ns.db.chatWarned = { A = true, C = true, L = true }
 				local ok, why2 = Chan.Send("L", "own line, delivery failed", 1e12 + 300)
@@ -13029,7 +13029,7 @@ do
 	-- line is "/loadstring": this fails on either.)
 	test("chat window (1.1.2): every line reaches Chattynator from BankaiGuild/Channels.lua, the addon its tab's filter lets in", function()
 		WithChattynator(function(tabs, calls, w)
-			eq(Chan.ChooseWindow("Captains captains"), true)
+			eq(Chan.ChooseWindow("Council council"), true)
 			eq(Chan.ChooseWindow("bankaiguild"), true)
 			id = id + 1
 			eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, id, "a line"), 3200400)), true)
@@ -13049,9 +13049,9 @@ do
 				eq(Chan.ChooseWindow("Bankai Guild"), true)
 				eq(ns.db.chatWindows["Tester-Realm"].A, " bankaiguild ", "as Chattynator has it")
 				eq(calls[#calls][1], 1); eq(calls[#calls][2], 2); eq(calls[#calls][3], Our(ns.L.CHATTAB_HERE:format(LEGEND)))
-				eq(Chan.ChooseWindow("general captains"), true)
+				eq(Chan.ChooseWindow("general council"), true)
 				eq(ns.db.chatWindows["Tester-Realm"].C, "General", "the name it shows")
-				eq(Chan.ChooseWindow("GENERAL council"), true); eq(ns.db.chatWindows["Tester-Realm"].L, "General")
+				eq(Chan.ChooseWindow("GENERAL elders"), true); eq(ns.db.chatWindows["Tester-Realm"].L, "General")
 				wipe(calls)
 				id = id + 1
 				eq((Chan.Receive("CHANNEL", "Member2", Msg("A", MY_GUILD, id, "spaced tab"), 3200500)), true)
@@ -13059,10 +13059,10 @@ do
 				eq((Chan.Receive("CHANNEL", "Member2", Msg("C", MY_GUILD, id, "general tab"), 3200510)), true)
 				eq(#calls, 2)
 				eq(calls[1][2], 2); assert(calls[1][3]:find("^|Hplayer:"), "the Bankai Guild tab, bare: " .. calls[1][3])
-				eq(calls[2][2], 1); assert(calls[2][3]:find("^%[Captains%] "), calls[2][3])
+				eq(calls[2][2], 1); assert(calls[2][3]:find("^%[Council%] "), calls[2][3])
 				-- A game window no tab of Chattynator's is named after: not found, by name or number.
 				eq(Chan.ChooseWindow("Officers"), false)
-				eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"Officers"', '"General", " bankaiguild ", "Captains", "Council"'))
+				eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"Officers"', '"General", " bankaiguild ", "Council", "Elders"'))
 				eq(Chan.ChooseWindow("5"), false)
 				-- Chosen before Chattynator: hidden now, so gone: the main window, one notice.
 				ns.db.chatWindows["Tester-Realm"].L = "Officers"
@@ -13073,7 +13073,7 @@ do
 				end
 				eq(Count(w[1].lines, "officers "), 2); eq(#w[5].lines, 0, "nothing in the hidden window")
 				eq(#printed, n + 1); eq(printed[#printed], ns.L.CHATWIN_GONE:format('"Officers"'))
-				assert(Chan.WindowStatus():find('[Council] "Officers" ' .. ns.L.CHATWIN_GONE_TAG, 1, true), Chan.WindowStatus())
+				assert(Chan.WindowStatus():find('[Elders] "Officers" ' .. ns.L.CHATWIN_GONE_TAG, 1, true), Chan.WindowStatus())
 			end)
 			GENERAL = saved
 			if not ok then error(err, 0) end
@@ -13085,18 +13085,18 @@ do
 			tabs[2][3] = "main"
 			eq(Chan.ChooseTab("main", "C"), true)
 			eq(ns.db.chatWindows["Tester-Realm"].C, "main"); eq(ns.db.chatWindows["Tester-Realm"].A, nil, "that channel alone")
-			eq(printed[#printed - 1], ns.L.CHATWIN_SET:format("[Captains]", '"main"'))
+			eq(printed[#printed - 1], ns.L.CHATWIN_SET:format("[Council]", '"main"'))
 			eq(printed[#printed], ns.L.CHATTY_FILTER:format('"main"'))
-			eq(calls[#calls][1], 2); eq(calls[#calls][2], 3); eq(calls[#calls][3], Our(ns.L.CHATWIN_SET:format("[Captains]", '"main"')))
+			eq(calls[#calls][1], 2); eq(calls[#calls][2], 3); eq(calls[#calls][3], Our(ns.L.CHATWIN_SET:format("[Council]", '"main"')))
 			eq(Chan.ChooseTab(" Bankai Guild ", "A"), true); eq(ns.db.chatWindows["Tester-Realm"].A, "Bankai Guild")
 			eq(calls[#calls][3], Our(ns.L.CHATTAB_HERE:format(LEGEND)), "the Bankai Guild tab says what it holds")
 			local n = #calls
 			eq(Chan.ChooseTab("Nowhere", "C"), false); eq(ns.db.chatWindows["Tester-Realm"].C, "main", "unchanged")
-			eq(Chan.ChooseTab("Council", "X"), false, "no such channel"); eq(Chan.ChooseTab(nil, "L"), false)
+			eq(Chan.ChooseTab("Elders", "X"), false, "no such channel"); eq(Chan.ChooseTab(nil, "L"), false)
 			tabs[1][3] = "COMBAT_LOG"
 			eq(Chan.ChooseTab("COMBAT_LOG", "L"), false, "its combat log")
 			Chattynator.API = {}
-			eq(Chan.ChooseTab("Council", "L"), false, "no Chattynator"); eq(ns.db.chatWindows["Tester-Realm"].L, nil)
+			eq(Chan.ChooseTab("Elders", "L"), false, "no Chattynator"); eq(ns.db.chatWindows["Tester-Realm"].L, nil)
 			eq(#calls, n)
 		end)
 	end)
@@ -13110,12 +13110,12 @@ do
 			local SEARCH = "|TInterface/AddOns/Chattynator/Assets/Search.png:12:12:0:0:64:64:0:64:0:64|t"
 			tabs[2][3] = SEARCH
 			eq(Chan.ChooseWindow("Missing"), false)
-			eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"Missing"', '"General", "Bankai Guild", "Captains", "Council"'), "not listed")
+			eq(printed[#printed], ns.L.CHATTY_NOT_FOUND:format('"Missing"', '"General", "Bankai Guild", "Council", "Elders"'), "not listed")
 			eq(Chan.ChooseWindow(SEARCH), false); eq(Chan.ChooseTab(SEARCH, "C"), false)
 			eq(Chan.FindWindow(SEARCH), nil)
 			local offered = {}
 			for _, o in ipairs(Chan.OpenWindows()) do offered[#offered + 1] = o.name end
-			eq(table.concat(offered, ","), "General,Bankai Guild,Captains,Council", "not offered")
+			eq(table.concat(offered, ","), "General,Bankai Guild,Council,Elders", "not offered")
 			eq(ns.db.chatWindows, nil); eq(#calls, 0)
 			-- Chattynator's combat log tab, chosen in the saved variables: the main window, one notice.
 			tabs[1][3] = "COMBAT_LOG"
@@ -13306,7 +13306,7 @@ end)
 test("0.9.3 hostile: the Shogun's layer comes from his own announcement alone, not from the members on it", function()
 	WithUI(function() WithHop(function(w, H)
 		-- Bankai Guild officers and members share their layer; the Shogun shares nothing.
-		ns.Layers.Receive("Captain One-Realm", { mapID = 1453, zoneUID = 9, rank = 1, guild = "Bankai Guild" })
+		ns.Layers.Receive("Council member One-Realm", { mapID = 1453, zoneUID = 9, rank = 1, guild = "Bankai Guild" })
 		ns.Layers.Receive("Member Two-Realm", { mapID = 1453, zoneUID = 9, rank = 5, guild = "Bankai Guild" })
 		local k = H.Shogun()
 		assert(k, "the Shogun is online (the census says so)")
@@ -14967,7 +14967,7 @@ test("0.9.9 the council mark: the mark, then the councillor's own icon; on the B
 end)
 
 -- The Realm's census for these tests: <Elfcore> with the Shogun and the Treasurer, and <Bankai Guild
--- II> whose Council is Other Mod (offline 3 days) and a Captain Test Councillor (online).
+-- II> whose Elder is Other Mod (offline 3 days) and a Council member Test Councillor (online).
 local function CouncilCensus()
 	local now = os.time()
 	ns.rdb.guilds = {
@@ -15024,17 +15024,17 @@ test("0.9.9 the Realm: the High Council under the Shogun and the Treasurer, only
 		assert(coinDept.text:find("|T133784:0|t", 1, true), coinDept.text)
 		assert(other.text:find("Operations Director", 1, true), other.text)
 		assert(not third.text:find(" - ", 1, true), "no title: " .. third.text)
-		-- Where the census knows them: a Council member's days away, a Captain online, someone seen in our
+		-- Where the census knows them: an Elder's days away, a Council member online, someone seen in our
 		-- roster; nothing for someone it never saw.
 		assert(other.right and other.right:find(L.OFFLINE_DAYS:format(3), 1, true), tostring(other.right))
 		eq(speaker.right, "|cff40ff40" .. L.ONLINE_NOW .. "|r")
 		eq(fourth.right, "|cff40ff40" .. L.ONLINE_NOW .. "|r")
 		eq(third.right, nil)
-		-- A click opens what the census knows (the Council of <Bankai Guild II>), or the name alone.
+		-- A click opens what the census knows (the Elder of <Bankai Guild II>), or the name alone.
 		local opened
 		ns.UI = { ShowPerson = function(p) opened = p end, Refresh = function() end }
 		other.onClick()
-		eq(opened.name, "Other Mod"); eq(opened.guild, "Bankai Guild II"); eq(opened.rank, L.COUNCIL); eq(opened.days, 3)
+		eq(opened.name, "Other Mod"); eq(opened.guild, "Bankai Guild II"); eq(opened.rank, L.ELDER); eq(opened.days, 3)
 		third.onClick()
 		eq(opened.name, "Third Mod"); eq(opened.guild, nil)
 		-- Closed: the header alone.
@@ -15044,19 +15044,19 @@ test("0.9.9 the Realm: the High Council under the Shogun and the Treasurer, only
 		assert(header.text:find("[+] ", 1, true), header.text)
 		eq(Find(lines, "Council Speaker"), nil)
 		header.onClick()
-		-- The marks in the guild rows: after the Council's and the Captain's names.
+		-- The marks in the guild rows: after the Elder's and the Council member's names.
 		lines = ns.Views.RealmLines()
-		local council, captain
+		local elder, councilMember
 		for _, l in ipairs(lines) do
-			if l.key == "Other Mod" and l.indent == 1 and l.text:find(L.COUNCIL, 1, true) then council = l end
-			if l.key == "Test Councillor" and l.indent == 2 and l.text:find("UI-Group-AssistantIcon", 1, true) then captain = l end
+			if l.key == "Other Mod" and l.indent == 1 and l.text:find(L.ELDER, 1, true) then elder = l end
+			if l.key == "Test Councillor" and l.indent == 2 and l.text:find("UI-Group-AssistantIcon", 1, true) then councilMember = l end
 		end
 		local function After(l, name)
 			local a, b = l and l.text:find(name, 1, true), l and l.text:find(" " .. ns.HIGH_COUNCIL_MARK, 1, true)
 			return a and b and b > a
 		end
-		assert(After(council, "Other Mod"), council and council.text)
-		assert(After(captain, "Test Councillor"), captain and captain.text)
+		assert(After(elder, "Other Mod"), elder and elder.text)
+		assert(After(councilMember, "Test Councillor"), councilMember and councilMember.text)
 		-- And after a member's name: one in our own guild's roster (Fourth Mod, <Bankai Guild II> here),
 		-- one /who saw in another guild (Third Mod, in <Elfcore>). A soldier sees neither mark.
 		ns.Who.sweep = { list = { { name = "Third Mod", guild = "Bankai Guild", level = 20 } } }
@@ -15094,8 +15094,8 @@ test("0.9.9 the Realm's council rows: seen online now beats a days-old report, a
 		local W, L = ns.Workshop, ns.L
 		W.TakeCouncil(COUNCIL_TEST_NAMES4)
 		W.TakeTitles(COUNCIL_TEST_TITLES)
-		-- <Bankai Guild III>'s last report is three days old (still listed, greyed): Other Mod its Council,
-		-- online then; Fourth Mod a Captain, offline four days then. /who sees Fourth Mod in it now.
+		-- <Bankai Guild III>'s last report is three days old (still listed, greyed): Other Mod its Elder,
+		-- online then; Fourth Mod a Council member, offline four days then. /who sees Fourth Mod in it now.
 		ns.rdb.guilds = {
 			["Bankai Guild III"] = Vouched({ total = 200, online = 20, zones = {}, t = os.time() - 3 * 86400, leader = "Other Mod", leaderOnline = true,
 				realm = "Realm", officers = { { name = "Fourth Mod", online = false, days = 4, class = "PR", level = 22 } } }, "W5-Realm", "W6-Realm"),
@@ -15119,7 +15119,7 @@ test("0.9.9 the Realm's council rows: seen online now beats a days-old report, a
 		fourth = Find(ns.Views.RealmLines(), "Keeper of Coin")
 		eq(fourth.right, "|cff9d9d9d" .. L.OFFLINE_DAYS:format(4) .. " !|r")
 		fourth.onClick()
-		eq(opened.guild, "Bankai Guild III"); eq(opened.rank, L.CAPTAIN); eq(opened.days, 4)
+		eq(opened.guild, "Bankai Guild III"); eq(opened.rank, L.COUNCIL_MEMBER); eq(opened.days, 4)
 	end)
 end)
 
@@ -15136,7 +15136,7 @@ test("0.9.9 the person card: a councillor's mark after the name and their title,
 				for _, fs in ipairs(f.lines) do if (fs:GetText() or "") ~= "" then rows[#rows + 1] = fs:GetText() end end
 				return f.name:GetText(), table.concat(rows, "\n")
 			end
-			local other = { name = "Other Mod", realm = "Realm", guild = "Bankai Guild II", rank = L.COUNCIL, online = false, days = 3 }
+			local other = { name = "Other Mod", realm = "Realm", guild = "Bankai Guild II", rank = L.ELDER, online = false, days = 3 }
 			-- A soldier, before launch: nothing.
 			local name, rows = Card(other)
 			assert(not name:find(ns.HIGH_COUNCIL_MARK, 1, true) and not rows:find(L.COUNCIL_PERSON, 1, true), name .. "\n" .. rows)
@@ -16010,16 +16010,16 @@ test("0.9.9 the Shogun's stream: his Realm shows the High Council before launch,
 		for i = 2, #rows do
 			eq(rows[i].onClick, nil, "no click: " .. rows[i].text); eq(rows[i].key, nil, "no card to keep lit")
 		end
-		-- No whole name with the mark anywhere: the Council and the Captain of <Bankai Guild II>, a member in
+		-- No whole name with the mark anywhere: the Elder and the Council member of <Bankai Guild II>, a member in
 		-- our roster, the council's rows.
 		NoMarkedName(lines, "the Shogun's Realm")
-		local council, captain
+		local elder, councilMember
 		for _, l in ipairs(lines) do
-			if l.key == "Other Mod" and l.indent == 1 then council = l end
-			if l.key == "Test Councillor" and l.indent == 2 then captain = l end
+			if l.key == "Other Mod" and l.indent == 1 then elder = l end
+			if l.key == "Test Councillor" and l.indent == 2 then councilMember = l end
 		end
-		assert(council and council.text:find("Other Mod", 1, true) and not council.text:find(ns.HIGH_COUNCIL_MARK, 1, true), council and council.text)
-		assert(captain and not captain.text:find(ns.HIGH_COUNCIL_MARK, 1, true), captain and captain.text)
+		assert(elder and elder.text:find("Other Mod", 1, true) and not elder.text:find(ns.HIGH_COUNCIL_MARK, 1, true), elder and elder.text)
+		assert(councilMember and not councilMember.text:find(ns.HIGH_COUNCIL_MARK, 1, true), councilMember and councilMember.text)
 		-- The Bankai Guild chats: the councillor's line as anyone's, no mark, no council colour.
 		local line = ns.Channels.FormatLine("A", "Test Councillor-Realm", "Bankai Guild II", "MA", "hello")
 		assert(line:find("Test Councillor", 1, true), line)
@@ -16048,10 +16048,10 @@ test("0.9.9 the Shogun's stream: the eye shows every name and mark until clicked
 		eq(rows[6].key, "Other Mod")
 		-- The marks in the census rows and the council's colour in the chats come back with them (1.1.5:
 		-- the colour alone there, the chats' lines carrying no mark since; the mark and icon until then).
-		local council
-		for _, l in ipairs(lines) do if l.key == "Other Mod" and l.indent == 1 then council = l end end
-		local nameAt, markAt = council.text:find("Other Mod", 1, true), council.text:find(" " .. ns.HIGH_COUNCIL_MARK, 1, true)
-		assert(nameAt and markAt and markAt > nameAt, council.text)
+		local elder
+		for _, l in ipairs(lines) do if l.key == "Other Mod" and l.indent == 1 then elder = l end end
+		local nameAt, markAt = elder.text:find("Other Mod", 1, true), elder.text:find(" " .. ns.HIGH_COUNCIL_MARK, 1, true)
+		assert(nameAt and markAt and markAt > nameAt, elder.text)
 		local line = ns.Channels.FormatLine("A", "Test Councillor-Realm", "Bankai Guild II", nil, "hello")
 		assert(line:find("[|c" .. ns.HIGH_COUNCIL_COLOR .. "Test Councillor|r]", 1, true), line)
 		-- Clicked again: hidden again, and a councillor's card left open is closed.
@@ -16082,7 +16082,7 @@ test("0.9.9 the Shogun's stream: the person card shows no mark or title while th
 				for _, fs in ipairs(f.lines) do if (fs:GetText() or "") ~= "" then rows[#rows + 1] = fs:GetText() end end
 				return f.name:GetText(), table.concat(rows, "\n")
 			end
-			local other = { name = "Other Mod", realm = "Realm", guild = "Bankai Guild II", rank = L.COUNCIL, online = false, days = 3 }
+			local other = { name = "Other Mod", realm = "Realm", guild = "Bankai Guild II", rank = L.ELDER, online = false, days = 3 }
 			AsShogun()
 			local name, rows = Card(other)
 			assert(name:find("Other Mod", 1, true), name)
@@ -16115,7 +16115,7 @@ test("1.2 normal player profile: the Shogun hides the councillors again: a counc
 			section[1].onClick()
 			UI.Toggle()
 			UI.ShowPerson({ name = "Random Guy", realm = "Realm" })
-			UI.ShowPerson({ name = "Other Mod", realm = "Realm", guild = "Bankai Guild II", rank = L.COUNCIL, online = false, days = 3 })
+			UI.ShowPerson({ name = "Other Mod", realm = "Realm", guild = "Bankai Guild II", rank = L.ELDER, online = false, days = 3 })
 			UI.ShowPerson({ name = "Some Body", realm = "Realm" })
 			_, section = CouncilSection(ns.Views.RealmLines())
 			section[1].onClick()
@@ -16173,9 +16173,9 @@ test("0.9.9 the Shogun's stream: councillors and the author see the whole names 
 		assert(rows[1].text:find(ns.HIGH_COUNCIL_MARK .. " |c" .. ns.HIGH_COUNCIL_COLOR .. "Test Councillor|r", 1, true), rows[1].text)
 		assert(rows[1].onClick, "a click opens the card")
 		eq(Find(lines, L.COUNCIL_NAMES_SHOW), nil, "no eye"); eq(Find(lines, "****"), nil, "nothing hidden")
-		local council
-		for _, l in ipairs(lines) do if l.key == "Other Mod" and l.indent == 1 then council = l end end
-		assert(council.text:find(" " .. ns.HIGH_COUNCIL_MARK, 1, true), council.text)
+		local elder
+		for _, l in ipairs(lines) do if l.key == "Other Mod" and l.indent == 1 then elder = l end end
+		assert(elder.text:find(" " .. ns.HIGH_COUNCIL_MARK, 1, true), elder.text)
 		-- The author's client (it holds the signed lists), Shobek's view off: the same.
 		ns.me = "Tester-Realm"
 		ns.COUNCIL_SIGNED = COUNCIL_TEST_NAMES4
@@ -20508,14 +20508,14 @@ end
 local function Top(r) return -select(5, r:GetPoint(1)) end
 local function Index(r) for i, x in ipairs(r:GetParent().rows) do if x == r then return i end end end
 local SHOW_BELOW = 3 -- (UI.SHOW_BELOW: the rows under an opened row brought into sight)
--- Thirty guilds, each with its Council, three Captains and two ranks: a long Realm tree.
+-- Thirty guilds, each with its Elder, three Council and two ranks: a long Realm tree.
 local function ManyGuilds()
 	local now, out = os.time(), {}
 	for i = 1, 30 do
 		local officers = {}
 		for k = 1, 3 do officers[k] = { name = ("Capt%02d%s"):format(i, string.char(96 + k)), online = k == 1, days = 0 } end
-		out[("Bankai Guild %02d"):format(i)] = { total = 100 + i, online = 10, zones = {}, t = now, leader = ("Council%02d"):format(i),
-			leaderOnline = true, officers = officers, ranks = { { name = "Council", count = 1 }, { name = "Knight", count = 99 + i } } }
+		out[("Bankai Guild %02d"):format(i)] = { total = 100 + i, online = 10, zones = {}, t = now, leader = ("Elder%02d"):format(i),
+			leaderOnline = true, officers = officers, ranks = { { name = "Elder", count = 1 }, { name = "Knight", count = 99 + i } } }
 	end
 	return out
 end
@@ -20546,7 +20546,7 @@ test("1.0.0 the list keeps its place: a guild opened in the Realm stays where it
 		eq(scroll:GetVerticalScroll(), 200, "the list where it was")
 		assert(row.line.text:find("^%[%-%] ") and row.line.text:find("<" .. name .. ">", 1, true), "the same row, opened: " .. row.line.text)
 		eq(Top(row) - scroll:GetVerticalScroll(), onScreen, "where it was on screen")
-		eq(rows[Index(row) + 1].line.indent, 1, "its Council right under it")
+		eq(rows[Index(row) + 1].line.indent, 1, "its Elder right under it")
 		-- A closed guild at the bottom edge: the list moves just enough for its first rows.
 		local low
 		for i, r in ipairs(rows) do
@@ -20635,7 +20635,7 @@ end)
 ---------------------------------------------------------------------------
 -- 1.0.0, after review. A guild clicked in the Census opens in the Realm, but the Realm started
 -- at the top, and a guild low in its tree was out of sight: the player had to scroll to find
--- the guild he had just opened. And a click that redrew nothing (a Council member's card, a heading) was
+-- the guild he had just opened. And a click that redrew nothing (an Elder's card, a heading) was
 -- kept for the next redraw, a report's, which put the list back where it was at that click and
 -- undid the player's own scrolling since.
 ---------------------------------------------------------------------------
@@ -20722,7 +20722,7 @@ test("1.0.0 a click that redraws nothing is not kept: the player's own scrolling
 		UI.SelectTab("realm")
 		local scroll, rows = main.scroll, main.views.realm.rows
 		scroll:Settle()
-		-- A guild on screen opened: its Council (a click opens his card) and its Captains' heading
+		-- A guild on screen opened: its Elder (a click opens his card) and its Council's heading
 		-- (nothing on a click) under it.
 		scroll:SetVerticalScroll(200)
 		local guild
@@ -20733,22 +20733,22 @@ test("1.0.0 a click that redraws nothing is not kept: the player's own scrolling
 		guild:Click()
 		DrawJumping(scroll)
 		scroll.scripts.OnScrollRangeChanged = nil
-		local council, heading = rows[Index(guild) + 1], rows[Index(guild) + 2]
-		assert(council.line.text:find(ns.L.COUNCIL, 1, true) and council.line.onClick, "the Council: " .. council.line.text)
-		assert(heading.line.text:find(ns.L.CAPTAINS:match("^[^%%(]+"), 1, true) and not heading.line.onClick, "the heading: " .. heading.line.text)
+		local elder, heading = rows[Index(guild) + 1], rows[Index(guild) + 2]
+		assert(elder.line.text:find(ns.L.ELDER, 1, true) and elder.line.onClick, "the Elder: " .. elder.line.text)
+		assert(heading.line.text:find(ns.L.COUNCIL:match("^[^%%(]+"), 1, true) and not heading.line.onClick, "the heading: " .. heading.line.text)
 		local function Report() UI.Refresh(); DrawJumping(scroll) end -- (DATA_CHANGED: UI.RefreshSoon)
-		-- The Council clicked: his card, no redraw. The scroll bar dragged down, and a report comes in.
+		-- The Elder clicked: his card, no redraw. The scroll bar dragged down, and a report comes in.
 		local at, redraws = scroll:GetVerticalScroll(), UI.lastRedraw
-		council:Click()
-		eq(UI.lastRedraw, redraws, "the Council's card redraws nothing")
+		elder:Click()
+		eq(UI.lastRedraw, redraws, "the Elder's card redraws nothing")
 		scroll:SetVerticalScroll(at + 150)
 		local mine = scroll:GetVerticalScroll()
 		assert(mine > at, "scrolled down")
 		Report()
 		eq(scroll:GetVerticalScroll(), mine, "the scroll bar's place stays")
-		-- The Council clicked again, then the wheel (Blizzard's handler: a step a notch) to the top.
+		-- The Elder clicked again, then the wheel (Blizzard's handler: a step a notch) to the top.
 		scroll.scripts.OnMouseWheel = function(self, delta) self:SetVerticalScroll(self:GetVerticalScroll() - 30 * delta) end
-		council:Click()
+		elder:Click()
 		while scroll:GetVerticalScroll() > 0 do scroll:Fire("OnMouseWheel", 1) end
 		Report()
 		eq(scroll:GetVerticalScroll(), 0, "the wheel's place stays, the top too")
@@ -21143,7 +21143,7 @@ do
 		eq(ns.Workshop.Fold, ns.Fold, "the Workshop's search folds the same way")
 	end)
 
-	test("1.0.0 search: the Census by guild or Council, any case, as plain text; nothing else while typed; the copy keeps every guild", function()
+	test("1.0.0 search: the Census by guild or Elder, any case, as plain text; nothing else while typed; the copy keeps every guild", function()
 		local saved = { guilds = ns.rdb.guilds, seen = ns.rdb.seen }
 		local ok, err = pcall(Quiet, function(calls)
 			ns.rdb.guilds = SampleGuilds()
@@ -21161,11 +21161,11 @@ do
 			local tip = {}
 			box.tooltip({ AddLine = function(_, s) tip[#tip + 1] = s end })
 			eq(tip[1], L.SEARCH); eq(tip[2], L.SEARCH_TIP_CENSUS)
-			-- A Council member, any case: his guild alone, and nothing else.
-			box.input.onChange("COUNCILY")
-			eq(V.Filter("census"), "COUNCILY")
+			-- An Elder, any case: his guild alone, and nothing else.
+			box.input.onChange("ELDERY")
+			eq(V.Filter("census"), "ELDERY")
 			lines = V.Build("census")
-			eq(Box(lines).input.text, "COUNCILY", "what was typed stays in the box")
+			eq(Box(lines).input.text, "ELDERY", "what was typed stays in the box")
 			eq(Guilds(lines), "Bankai Guild II"); eq(#lines, 2, "the box and the guild: no layer line, no hint, no /who status")
 			-- A guild's name: reported ones as ordered, then the ones only seen.
 			V.SetFilter("census", "bankaiguild v")
@@ -21174,7 +21174,7 @@ do
 			eq(Guilds(V.Build("census")), "Bankai Guild,Bankai Guild II,Bankai Guild Ébano,Bankai Guild VII", "the order as ever")
 			-- Accented capitals find their small letters, and the other way round.
 			V.SetFilter("census", "ÉBANO"); eq(Guilds(V.Build("census")), "Bankai Guild Ébano")
-			V.SetFilter("census", "ágata"); eq(Guilds(V.Build("census")), "Bankai Guild Ébano", "by its Council")
+			V.SetFilter("census", "ágata"); eq(Guilds(V.Build("census")), "Bankai Guild Ébano", "by its Elder")
 			V.SetFilter("census", "ÁGATA"); eq(Guilds(V.Build("census")), "Bankai Guild Ébano")
 			-- Plain text: what a Lua pattern would read as magic finds only itself: no match.
 			for _, text in ipairs({ ".", "%a", "[o]", "olymp.s", "(" }) do
@@ -21183,12 +21183,12 @@ do
 				eq(#lines, 2, text); eq(lines[2].text, NO_MATCH, text)
 			end
 			-- Spaces around are nothing; spaces alone, the whole list as ever.
-			V.SetFilter("census", "  councily "); eq(Guilds(V.Build("census")), "Bankai Guild II")
+			V.SetFilter("census", "  eldery "); eq(Guilds(V.Build("census")), "Bankai Guild II")
 			V.SetFilter("census", "   ")
 			lines = V.Build("census")
 			eq(Guilds(lines), "Bankai Guild,Bankai Guild II,Bankai Guild Ébano,Bankai Guild VII"); assert(At(lines, L.SEEN_HINT))
 			-- The copy for Discord: every guild, whatever is typed.
-			V.SetFilter("census", "councily")
+			V.SetFilter("census", "eldery")
 			eq(ns.Data.DiscordText(), copy)
 			assert(copy:find("Bankai Guild Ébano", 1, true) and copy:find("Shobek", 1, true), copy)
 			eq(#calls, 0, "nothing sent, no /who")
@@ -21197,7 +21197,7 @@ do
 		if not ok then error(err, 0) end
 	end)
 
-	test("1.0.0 search: the Realm: a guild by its name as ever, a Council member, Captain or member under their guild opened for them, a page at a time", function()
+	test("1.0.0 search: the Realm: a guild by its name as ever, an Elder, Council member or member under their guild opened for them, a page at a time", function()
 		local saved = { guilds = ns.rdb.guilds, guild = GetGuildInfo, online = ns.Roster.online, sweep = ns.Who.sweep }
 		local ok, err = pcall(Quiet, function(calls)
 			GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
@@ -21213,12 +21213,12 @@ do
 			assert(Box(lines), "the box on top")
 			eq(Texts(Body(lines)), Texts(V.RealmLines()), "nothing typed: the Realm as ever under it")
 			assert(At(lines, L.SHOGUN .. ": ") and At(lines, L.LEVEL_RACE) and At(lines, L.RECRUITING))
-			-- A Captain: his guild's header opened for him, the Captains' header, and him alone.
+			-- A Council member: his guild's header opened for him, the Council's header, and him alone.
 			V.SetFilter("realm", "CAPT")
 			lines = V.Build("realm")
 			local header, at = At(lines, "<Elfcore>")
 			assert(header and header.text:find("[-] ", 1, true), "opened for the search: " .. Texts(lines))
-			eq(lines[at + 1].text, "|cffffd200" .. L.CAPTAINS:format(1) .. "|r"); eq(lines[at + 1].indent, 1)
+			eq(lines[at + 1].text, "|cffffd200" .. L.COUNCIL:format(1) .. "|r"); eq(lines[at + 1].indent, 1)
 			eq(lines[at + 2].key, "Capt"); eq(lines[at + 2].indent, 2); eq(#lines, at + 2, "nothing more")
 			eq(Keys(lines), "Capt")
 			for _, gone in ipairs({ L.SHOGUN .. ": ", L.LEVEL_RACE, L.RECRUITING, L.RANKS, "<Bankai Guild II>", L.LAYERS_IN:format("") }) do
@@ -21234,11 +21234,11 @@ do
 			eq(Keys(V.Build("realm")), "Capt")
 			V.SetFilter("realm", "")
 			assert(At(V.Build("realm"), "[+] |cff40ff40<Elfcore>"), "closed as it was, once the box is empty")
-			-- A Council member: his row under his guild's header.
-			V.SetFilter("realm", "councily")
+			-- An Elder: his row under his guild's header.
+			V.SetFilter("realm", "eldery")
 			lines = V.Build("realm")
 			header, at = At(lines, "<Bankai Guild II>")
-			assert(header.text:find("[-] ", 1, true)); eq(lines[at + 1].key, "Councily"); eq(Keys(lines), "Councily")
+			assert(header.text:find("[-] ", 1, true)); eq(lines[at + 1].key, "Eldery"); eq(Keys(lines), "Eldery")
 			-- A member online in our roster, any case and accented, under the guild's members' header.
 			V.SetFilter("realm", "ÉLO")
 			lines = V.Build("realm")
@@ -21297,17 +21297,17 @@ do
 			V.ExpandAll(false)
 			local opened
 			ns.UI.SelectTab = function(tab) opened = tab end
-			-- Typed in the Realm earlier: a Captain of <Elfcore>, nothing of <Bankai Guild II>.
+			-- Typed in the Realm earlier: a Council member of <Elfcore>, nothing of <Bankai Guild II>.
 			V.SetFilter("realm", "capt")
 			eq(At(V.Build("realm"), "<Bankai Guild II>"), nil, "the search misses the guild about to be clicked")
-			V.SetFilter("census", "councily")
+			V.SetFilter("census", "eldery")
 			local row
 			for _, l in ipairs(V.Build("census")) do if l.cols and Bare(l.cols[1]) == "Bankai Guild II" then row = l end end
 			assert(row and row.onClick, "the Census's row")
 			row.onClick()
 			eq(opened, "realm")
 			eq(V.Filter("realm"), "", "the Realm's box emptied for the guild clicked")
-			eq(V.Filter("census"), "councily", "the Census's own search kept")
+			eq(V.Filter("census"), "eldery", "the Census's own search kept")
 			local lines = V.Build("realm")
 			eq(Box(lines).input.text, "")
 			assert(At(lines, "[-] " .. ns.Views.DisputeMark(ns.rdb.guilds["Bankai Guild II"]) .. "|cff40ff40<Bankai Guild II>"), "the guild clicked, opened: " .. Texts(lines))
@@ -21322,15 +21322,15 @@ do
 		local saved = { guilds = ns.rdb.guilds, guild = GetGuildInfo, online = ns.Roster.online, sweep = ns.Who.sweep, membersOf = V.MembersOf,
 			fold = ns.Fold }
 		local ok, err = pcall(Quiet, function(calls)
-			-- 60 guilds, 3 Captains each ("Capt..") and 20 players /who saw ("Player.."); our own,
-			-- <Bankai Guild 01>, from our roster ("Mate.."). An "a" is in every Captain and member.
+			-- 60 guilds, 3 Council each ("Capt..") and 20 players /who saw ("Player.."); our own,
+			-- <Bankai Guild 01>, from our roster ("Mate.."). An "a" is in every Council member and member.
 			GetGuildInfo = function() return "Bankai Guild 01", "Member", 3 end
 			local now, list = os.time(), {}
 			ns.rdb.guilds, ns.Roster.online = {}, {}
 			for i = 1, 60 do
 				local name, officers = ("Bankai Guild %02d"):format(i), {}
 				for k = 1, 3 do officers[k] = { name = ("Capt%02d%s"):format(i, string.char(104 + k)), online = true, days = 0 } end
-				ns.rdb.guilds[name] = { total = 100, online = 20, zones = {}, t = now, leader = ("Council%02d"):format(i), leaderOnline = true, officers = officers }
+				ns.rdb.guilds[name] = { total = 100, online = 20, zones = {}, t = now, leader = ("Elder%02d"):format(i), leaderOnline = true, officers = officers }
 				for k = 1, 20 do list[#list + 1] = { name = ("Player%02d%02d"):format(i, k), guild = name, level = 10, class = "WARRIOR" } end
 			end
 			for k = 1, 20 do ns.Roster.online[k] = { name = ("Mate%02d"):format(k), level = 10, class = "WA", rank = "Knight", rankIndex = 3 } end
@@ -21649,7 +21649,7 @@ do
 
 	test("1.0.0 search: the box in the window never takes the keyboard (gamepad UI too), its x empties it, each tab keeps its text, a search starts from the top", function()
 		WithUI(function()
-			GetGuildInfo = function() return "Bankai Guild II", "Captain", 1 end
+			GetGuildInfo = function() return "Bankai Guild II", "Council member", 1 end
 			local focused, cleared = {}, 0
 			local done -- (lets The Watch go: Harness.LoadWatch)
 			Widget.SetFocus = function(self) focused[#focused + 1] = self end
@@ -21684,12 +21684,12 @@ do
 				eb:SetText("l"); eb:Fire("OnTextChanged", true)
 				eq(#scrolls, 1); eq(scrolls[1], 0)
 				eb:SetText("lo"); eb:Fire("OnTextChanged", true)
-				eb:SetText("councily"); eb:Fire("OnTextChanged", true)
+				eb:SetText("eldery"); eb:Fire("OnTextChanged", true)
 				eq(#scrolls, 1, "not at each letter")
 				UI.Refresh()
-				eq(Shown(), "Bankai Guild II"); eq(eb:GetText(), "councily"); eq(eb.clear:IsShown(), true, "the x")
+				eq(Shown(), "Bankai Guild II"); eq(eb:GetText(), "eldery"); eq(eb.clear:IsShown(), true, "the x")
 				UI.Refresh()
-				eq(eb:GetText(), "councily", "redraws keep the text")
+				eq(eb:GetText(), "eldery", "redraws keep the text")
 				-- Enter and Escape let go of the keyboard.
 				eb:Fire("OnEnterPressed"); eb:Fire("OnEscapePressed")
 				eq(cleared, 2)
@@ -21698,7 +21698,7 @@ do
 				local reb = main.pageSearchHolders.realm.input
 				assert(reb and reb ~= eb, "the Realm's own box"); eq(reb:GetText() or "", "")
 				UI.SelectTab("census")
-				eq(eb:GetText(), "councily"); eq(Shown(), "Bankai Guild II")
+				eq(eb:GetText(), "eldery"); eq(Shown(), "Bankai Guild II")
 				-- Another tab's search moves nothing here.
 				local n = #scrolls
 				V.SetFilter("heraldry", "nobody"); V.SetFilter("heraldry", "")
@@ -21730,7 +21730,7 @@ do
 					for _, r in ipairs(main.views.realm.rows) do
 						if r:IsShown() and r.line and (r.line.text or ""):find("<Elfcore>", 1, true) then header = r end
 					end
-					assert(header, "the Captain's guild")
+					assert(header, "the Council member's guild")
 					header:Click()
 					UI.Refresh()
 					reb.clear:Click()
@@ -21904,7 +21904,7 @@ do
 
 	test("1.2 The Watch's Tabards: an officer opens them with the old tab's buttons, columns and search", function()
 		WithUI(function()
-			GetGuildInfo = function() return "Bankai Guild II", "Captain", 1 end
+			GetGuildInfo = function() return "Bankai Guild II", "Council member", 1 end
 			local saved = { inspect = ns.rdb.inspect, slash = rawget(ns, "Watch") }
 			local letGo
 			local ok, err = pcall(function()
@@ -21967,7 +21967,7 @@ do
 
 	test("1.2 The Watch's Tabards: an officer switches between the desk (its own buttons) and the Tabards (theirs)", function()
 		WithUI(function()
-			GetGuildInfo = function() return "Bankai Guild II", "Captain", 1 end
+			GetGuildInfo = function() return "Bankai Guild II", "Council member", 1 end
 			local letGo
 			local ok, err = pcall(function()
 				V.ClearFilters()
@@ -21977,7 +21977,7 @@ do
 				UI.Toggle()
 				local main = BankaiGuildFrame
 				UI.SelectTab("watch")
-				eq(W.CanRead(), true, "a Captain")
+				eq(W.CanRead(), true, "a Council member")
 				eq(UI.ViewOf("watch"), "watch"); eq(UI.PageId(), "watch/desk")
 				eq(Texts(main.buttons), table.concat({ L.WATCH_WARN_BTN, L.WATCH_WATCH_BTN, L.WATCH_BAN_BTN }, ","), "the desk's buttons")
 				local nav = main.pageNavRows[1].line.nav
@@ -21998,8 +21998,8 @@ do
 		end)
 	end)
 
-	-- The Watch previously showed for each guild's Council
-	-- and Captains alone, and the author has no rank in his test guild.
+	-- The Watch previously showed for each guild's Elder
+	-- and Council alone, and the author has no rank in his test guild.
 	test("1.2 the author sees every tab, The Watch included, without a rank; View as in the title bar previews each role's tabs, labelled, never its powers", function()
 		WithUI(function()
 			GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
@@ -22057,7 +22057,7 @@ do
 				end
 				-- A member: every member's tabs alone, and the window says it is a preview.
 				Pick("member")
-				for _, key in ipairs({ "throne", "vox", "workshop", "watch" }) do eq(Tab(main, key):IsShown(), false, "member: " .. key) end
+				for _, key in ipairs({ "throne", "poll", "workshop", "watch" }) do eq(Tab(main, key):IsShown(), false, "member: " .. key) end
 				for _, key in ipairs({ "census", "realm", "decrees", "crafters" }) do eq(Tab(main, key):IsShown(), true, "member: " .. key) end
 				eq(main.tab, "census", "the Throne was not hers: the Census")
 				eq(main.sub:GetText(), "|cffff9933" .. L.VIEW_AS_PREVIEWING:format(L.VIEW_AS_MEMBER) .. "|r")
@@ -22066,12 +22066,12 @@ do
 				eq(main.tab, "census"); eq(W.CanRead(), false); eq(W.CanManage(), false)
 				-- The Shogun: his tabs, and none of his powers.
 				Pick("shogun")
-				for _, key in ipairs({ "throne", "vox", "treasury", "watch" }) do eq(Tab(main, key):IsShown(), true, "shogun: " .. key) end
+				for _, key in ipairs({ "throne", "poll", "treasury", "watch" }) do eq(Tab(main, key):IsShown(), true, "shogun: " .. key) end
 				eq(Tab(main, "workshop"):IsShown(), false, "not the Shogun's")
 				eq(ns.Shogun.IsShogun(), false, "the preview crowns nobody")
-				-- The High Council (the Stewards and Hands merged into it): the Throne, Vox, Treasury and The Watch.
+				-- The High Council (the Stewards and Hands merged into it): the Throne, Poll, Treasury and The Watch.
 				Pick("councillor")
-				eq(ShownKeys(main):find("throne vox", 1, true) ~= nil, true, ShownKeys(main)); eq(Tab(main, "watch"):IsShown(), true)
+				eq(ShownKeys(main):find("throne poll", 1, true) ~= nil, true, ShownKeys(main)); eq(Tab(main, "watch"):IsShown(), true)
 				-- (Reviewer, 2026-10-05: it showed the desk, which a councillor who is no officer never
 				-- sees.) The Watch for its Judgments and My Watch, the council's side of them: no Desk, Reports
 				-- or Cases, none of their buttons (a councillor who is an officer: the officer's preview).
@@ -22103,7 +22103,7 @@ do
 				eq(title, L.TAB_THRONE); eq(detail, L.THRONE_YOU_ARE_COUNCILLOR)
 				-- A Centurion or officer: The Watch's desk, and still none of its actions.
 				Pick("officer")
-				eq(Tab(main, "watch"):IsShown(), true); eq(Tab(main, "throne"):IsShown(), false); eq(Tab(main, "vox"):IsShown(), false)
+				eq(Tab(main, "watch"):IsShown(), true); eq(Tab(main, "throne"):IsShown(), false); eq(Tab(main, "poll"):IsShown(), false)
 				Tab(main, "watch"):Click()
 				eq(UI.PageId(), "watch/desk"); eq(W.CanManage(), false)
 				-- Not in Bankai Guild: the Join screen alone, and nothing on it acts for real.
@@ -22158,15 +22158,15 @@ do
 			eq(VA.TabShown("throne", false), true, "his test build sees every tab too")
 			Ws.IsAuthor, Ws.Preview = function() return true end, function() return false end
 			local want = {
-				shogun = { throne = true, vox = true, treasury = true, watch = true, workshop = false, census = true },
-				councillor = { throne = true, vox = true, treasury = true, watch = true, workshop = false },
-				treasurer = { throne = false, vox = false, treasury = true, workshop = false },
-				arbiter = { throne = false, vox = false, workshop = false, census = true },
+				shogun = { throne = true, poll = true, treasury = true, watch = true, workshop = false, census = true },
+				councillor = { throne = true, poll = true, treasury = true, watch = true, workshop = false },
+				treasurer = { throne = false, poll = false, treasury = true, workshop = false },
+				arbiter = { throne = false, poll = false, workshop = false, census = true },
 				-- (1.1.6: the guild master's Guild tab sits in the Throne's place, 1.1.5's Nominees.lua.)
-				gm = { throne = true, vox = true, treasury = true, watch = true },
-				officer = { throne = false, vox = false, treasury = true, watch = true },
-				correspondent = { throne = false, vox = false, workshop = false },
-				member = { throne = false, vox = false, workshop = false, census = true, arena = true },
+				gm = { throne = true, poll = true, treasury = true, watch = true },
+				officer = { throne = false, poll = false, treasury = true, watch = true },
+				correspondent = { throne = false, poll = false, workshop = false },
+				member = { throne = false, poll = false, workshop = false, census = true, arena = true },
 				outsider = { census = false, throne = false, watch = false },
 			}
 			for role, tabs in pairs(want) do
@@ -25090,7 +25090,7 @@ local function WithBorders(fn, setup)
 		ns.db.borders, ns.devThrone, ns.db.devShogunView = nil, nil, nil
 		ns.SetCouncilNamesShown(false)
 		-- Other guilds' ranks as the census trusts them (Data.KnownRank): a fresh row that two other
-		-- senders vouch for, long enough after login for a Council member's.
+		-- senders vouch for, long enough after login for an Elder's.
 		ns.rdb.guilds = {
 			["Bankai Guild Zeus"] = Vouched({ guild = "Bankai Guild Zeus", leader = "Zeusy", officers = { { name = "Capt" }, { name = "Far Away-Other" } },
 				realm = "Realm", t = ns.Now() }, "W1-Realm", "W2-Realm"),
@@ -25235,10 +25235,10 @@ end
 assert(loadfile(ROOT .. "tests/treasurer-dragon.lua"))(ns, test, eq, WithBorders, BorderUnit, BORDER_SHOGUN)
 
 -- 1.0.0, Max's final list: six tiers, highest first, each with its own art. Before it the Shogun was
--- gold, the High Council, Council and Captains all silver, Veterans and Raiders a grey (the plain
+-- gold, the High Council, Elders and Council all silver, Veterans and Raiders a grey (the plain
 -- gold desaturated and darkened). 1.1.5 (the author's call): three tiers, all winged: the Shogun
--- gold, the High Council silver, the guild master of an Bankai Guild guild Max's bronze. Council gold,
--- Captains silver, Raiders bronze wings and Veterans bronze are gone (new borders are to come, and
+-- gold, the High Council silver, the guild master of an Bankai Guild guild Max's bronze. Elders gold,
+-- Council silver, Raiders bronze wings and Veterans bronze are gone (new borders are to come, and
 -- one nearly everybody has is worth nothing), and so is ns.BORDERS_COUNCIL_GOLD (the council in the
 -- Shogun's gold): this test was Max's six tiers' and now expects the three, and no border for an
 -- officer, a Raider or a Veteran.
@@ -25264,7 +25264,7 @@ test("1.1.5 borders: three tiers: the Shogun gold wings, the High Council silver
 		eq(Tier(BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0)), "bronze-elite", "a guild master, from the report")
 		eq(Tier(BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0, { realm = "Other" })), nil, "a namesake of the guild master on another realm")
 		eq(Tier(BorderUnit("Unlisted", "Bankai Guild Zeus", "Zeus", 0)), nil, "not in the report: nothing from the rank the server gives another guild's")
-		-- Its officers: none (a Captain's silver until 1.1.5).
+		-- Its officers: none (a Council member's silver until 1.1.5).
 		eq(Tier(BorderUnit("Capt", "Bankai Guild Zeus", "Titan", 1)), nil, "an officer, from the report")
 		eq(Tier(BorderUnit("Far Away", "Bankai Guild Zeus", "Titan", 1, { realm = "Other" })), nil, "an officer on another realm")
 		-- Our own guild: the rank the server gives (our roster's when it gives none).
@@ -25317,7 +25317,7 @@ test("1.0.1 borders: the Shogun's own screen (his stream) shows no High Council 
 		eq(w.shown("target"), nil, "no council border on his screen")
 		eq(w.shown("player"), "gold-elite", "his own: gold wings")
 		w.target(BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0))
-		eq(w.shown("target"), "bronze-elite", "guild masters still bronze (1.1.5: Council gold until then)")
+		eq(w.shown("target"), "bronze-elite", "guild masters still bronze (1.1.5: Elders gold until then)")
 		-- (1.1.5) A councillor who is a guild master: his guild master's bronze there.
 		ns.rdb.council.names["zeusy"] = true
 		w.target(nil)
@@ -25348,7 +25348,7 @@ test("1.0.1 borders: each faction's own Shogun and census, nothing across factio
 		w.target(BORDER_SHOGUN)
 		eq(w.shown("target"), nil, "the Alliance's Shogun")
 		w.target(BorderUnit("Grunt", "Bankai Guild Horde", "Chief", 0, { faction = "Horde" }))
-		eq(w.shown("target"), "bronze-elite", "a Horde guild master (1.1.5: a Council member's gold until then)")
+		eq(w.shown("target"), "bronze-elite", "a Horde guild master (1.1.5: an Elder's gold until then)")
 		-- (1.1.5: Raiders and Veterans have no border any more.)
 		w.target(BorderUnit("Axe", "Bankai Guild Horde", "Raider", 4, { faction = "Horde" }))
 		eq(w.shown("target"), nil, "a Horde Raider")
@@ -25378,7 +25378,7 @@ test("1.0.1 borders: cleared on a new target, worked out once per target from lo
 		w.target(nil)
 		eq(w.shown("target"), nil, "cleared without a target")
 		-- The census: a report of another guild changes nothing; the target's own does. (1.1.5: its
-		-- guild master, a Captain before.)
+		-- guild master, a Council member before.)
 		w.target(BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0))
 		local n = w.computed()
 		reports["Bankai Guild Other"] = { guild = "Bankai Guild Other", leader = "X", t = 200 }
@@ -25485,7 +25485,7 @@ test("1.0.1 borders: each tier's art (the game's atlases, Max's files) at its si
 			{ "treasurer-dragon", "file " .. MEDIA .. "treasurer-dragon", "100 95", "0 0.78125 0 0.7421875", "0 1", "0.78125 0 0 0.7421875", "-2 1" },
 			{ "silver-elite", "atlas UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver-Winged", nil, nil, "8 -7", "1 0 0 1", "-10 -7" },
 			{ "bronze-elite", "file " .. MEDIA .. "bronze-winged", "110 90", "0 0.859375 0 0.703125", "11 -4", "0.859375 0 0 0.703125", "-13 -4" },
-			-- (1.1.5, without wings: the plain gold's size and offsets, as 1.0.0's Captains and Veterans had them.)
+			-- (1.1.5, without wings: the plain gold's size and offsets, as 1.0.0's Council and Veterans had them.)
 			{ "silver", "atlas ui-hud-unitframe-target-portraiton-boss-rare-silver", nil, nil, "0 1", "1 0 0 1", "-2 1" },
 			{ "bronze", "file " .. MEDIA .. "bronze-plain", "100 100", "0 0.78125 0 0.78125", "0 1", "0.78125 0 0 0.78125", "-2 1" },
 		}
@@ -25651,7 +25651,7 @@ test("1.2 borders: an Bankai Guild portrait (the Arena's) is your own frame's po
 			eq(n, 7, "the underlay and the six tiers (1.1.6), as on your frame")
 			eq(own["gold-elite"].point, "TOPLEFT " .. container.label .. " TOPLEFT -13 -4", "the gold wings 37 left and 15 above the portrait")
 			-- A tier shown: its art alone, over its metal turned round, as round your own portrait (1.1.5:
-			-- a Captain has no border of his rank any more; a High Councillor's silver wings, yours here).
+			-- a Council member has no border of his rank any more; a High Councillor's silver wings, yours here).
 			ns.rdb.council.names["tester"] = true
 			w.fire("PLAYER_GUILD_UPDATE")
 			eq(w.shown("player"), "silver-elite")
@@ -25911,7 +25911,7 @@ test("1.0.1 borders: nothing outside an Bankai Guild guild, on clients without F
 		assert(w.B.StatusLine():find("none (not Forever's unit frames)", 1, true), w.B.StatusLine())
 	end)
 	-- An atlas the client lacks: that border is left out (no texture made), the others are there.
-	-- (1.1.5: the silver wings, where the plain gold of the Council's tier was missing until then.)
+	-- (1.1.5: the silver wings, where the plain gold of the Elders' tier was missing until then.)
 	WithBorders(function(w)
 		w.noAtlas["UI-HUD-UnitFrame-Target-PortraitOn-Boss-Rare-Silver-Winged"] = true
 		w.internal("LOGIN")
@@ -25950,7 +25950,7 @@ test("1.0.1 borders: nothing outside an Bankai Guild guild, on clients without F
 	end
 	-- The bronze wings' file and the gold wings both missing: no guild master's border, no Shogun's,
 	-- and the texture made to try the file stays hidden; the rest as ever. (1.1.5: the plain
-	-- bronze's file and the plain gold, the Veterans' and the Council's tiers, until then.)
+	-- bronze's file and the plain gold, the Veterans' and the Elders' tiers, until then.)
 	WithBorders(function(w)
 		w.noFile[MEDIA .. "bronze-winged"] = true
 		w.noAtlas["UI-HUD-UnitFrame-Target-PortraitOn-Boss-Gold-Winged"] = true
@@ -25982,13 +25982,13 @@ test("1.0.1 borders: nothing outside an Bankai Guild guild, on clients without F
 	end, function(w) w.unknownEvents = { PLAYER_FOCUS_CHANGED = true, INPUT_DEVICE_INTERFACE_TRANSITION = true } end)
 end)
 
--- The review of 1.0.1: silver for another guild's Council and Captains came from its census row as
+-- The review of 1.0.1: silver for another guild's Elders and Council came from its census row as
 -- it stood, so one report naming its own sender an officer (or the guild master) made him silver
 -- for everyone. Now the rank the census's other checks trust (Data.KnownRank, soft as for the
 -- Shogun's line): named by another sender of the picture most senders give, never by his own.
--- (1.0.0, Max's tiers: a Council member's border is gold, a Captain's silver. 1.1.5: a guild master's is the
+-- (1.0.0, Max's tiers: an Elder's border is gold, a Council member's silver. 1.1.5: a guild master's is the
 -- bronze wings, and an officer has none: the forged report below claims the guild instead.)
-test("1.0.1 borders: a census report never gives its own sender a Council member's or a Captain's border (Data.KnownRank), alone, in the Shogun's guild or once the honest row is old", function()
+test("1.0.1 borders: a census report never gives its own sender an Elder's or a Council member's border (Data.KnownRank), alone, in the Shogun's guild or once the honest row is old", function()
 	WithBorders(function(w)
 		local D, LEVELS = ns.Data, "~0,0,0,0,0,0,0~~"
 		local function Report(guild, leader, officers, sender)
@@ -26041,8 +26041,8 @@ end)
 
 -- Konig's review of 1.0.0: the borders read the census softly (Data.KnownRank, soft), so one other
 -- character's report naming a player an officer (or the guild master) of a guild nobody else
--- reports gave him a Captain's silver (or a Council member's gold) on every screen. Now, as the Crown asks
--- it: two senders naming him, for a guild master and for a Captain alike. (1.1.5: a guild master's
+-- reports gave him a Council member's silver (or an Elder's gold) on every screen. Now, as the Crown asks
+-- it: two senders naming him, for a guild master and for a Council member alike. (1.1.5: a guild master's
 -- border is the bronze wings, and an officer has none, two senders or not.)
 test("1.0.0 borders: one other character's report never gives a guild master's border: two senders must name him", function()
 	WithBorders(function(w)
@@ -28531,7 +28531,7 @@ local function OnlyOurTextures(w)
 	end
 end
 
--- (1.1.5, the author's call: the borders' three tiers. Council, Captains and our officers had the
+-- (1.1.5, the author's call: the borders' three tiers. Elders, Council and our officers had the
 -- silver, Raiders and Veterans the bronze, until then: now a guild master the bronze, the others the
 -- star of any member.)
 test("1.1.5 nameplates: a mark left of the name of each friendly player of an Bankai Guild guild, from the borders' tiers: the Shogun gold, the High Council silver, guild masters bronze, any other member the star; nobody else", function()
@@ -28541,7 +28541,7 @@ test("1.1.5 nameplates: a mark left of the name of each friendly player of an Ba
 			{ BORDER_SHOGUN, "gold", "the Shogun" },
 			{ BorderUnit("Sage Owl", "Wanderers", "Member", 3), "silver", "a High Councillor, in any guild" },
 			{ BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0), "bronze", "a guild master, as his guild's census names him" },
-			{ BorderUnit("Capt", "Bankai Guild Zeus", "Titan", 1), "member", "a Captain, from the census: the star" },
+			{ BorderUnit("Capt", "Bankai Guild Zeus", "Titan", 1), "member", "a Council member, from the census: the star" },
 			{ BorderUnit("Mate", "Bankai Guild II", "Zeus", 0), "bronze", "our own guild master" },
 			{ BorderUnit("Axe", "Bankai Guild Zeus", "Raider", 4), "member", "a Raider: the star" },
 			{ BorderUnit("Vet", "Bankai Guild II", "Veterano", 3), "member", "a Veteran of our own guild: the star" },
@@ -28631,7 +28631,7 @@ test("1.0.0 nameplates: the mark sits 2 px left of the name's first letter in ev
 		local capt = BorderUnit("Capt", "Bankai Guild Zeus", "Titan", 1)
 		local f = w.add("nameplate1", capt)
 		local kind, tex = w.mark("nameplate1")
-		eq(kind, "member") -- (1.1.5: a Captain's mark is the star; silver until then)
+		eq(kind, "member") -- (1.1.5: a Council member's mark is the star; silver until then)
 		eq(tex.point, "RIGHT UnitFrame1.name CENTER -14 0", "names only: half of \"Capt\" (24 px) and 2 px left of the centre")
 		-- The game writes the name again (its realm shown, say): the mark follows, set in place again.
 		capt.display = "Capt-Faraway"
@@ -28854,7 +28854,7 @@ test("1.0.0 nameplates: census, High Council and roster changes work out again o
 		local reports = ns.rdb.guilds
 		ns.Roster.byName = {}
 		w.internal("LOGIN")
-		-- (1.1.5: the guild master's bronze and our roster's guild master, where a Captain's and an
+		-- (1.1.5: the guild master's bronze and our roster's guild master, where a Council member's and an
 		-- officer's silver were.)
 		local capt = BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0)
 		local mate = BorderUnit("Mate", "Bankai Guild II", nil, nil) -- (our own guild, no rank from the server)
@@ -28911,7 +28911,7 @@ test("1.0.0 nameplates: /bk nameplates on|off (on by default) for the marks alon
 		ns.Borders, ns.Nameplates = w.B, w.N -- (the slash command's: the stand-ins otherwise)
 		w.internal("LOGIN")
 		eq(w.N.Enabled(), true, "on by default")
-		local capt = BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0) -- (1.1.5: a guild master, where a Captain was)
+		local capt = BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0) -- (1.1.5: a guild master, where a Council member was)
 		w.add("nameplate1", capt)
 		w.target(capt)
 		eq(w.mark("nameplate1"), "bronze"); eq(w.shown("target"), "bronze-elite")
@@ -29017,7 +29017,7 @@ test("1.0.0 nameplates: in combat a nameplate's mark is made, placed and shown (
 		w.combat = true
 		-- Unprotected, as Forever's nameplates are: made and placed in combat.
 		local f = w.add("nameplate1", BorderUnit("Capt", "Bankai Guild Zeus", "Titan", 1))
-		eq(w.mark("nameplate1"), "member", "made in combat") -- (1.1.5: a Captain's star, his silver until then)
+		eq(w.mark("nameplate1"), "member", "made in combat") -- (1.1.5: a Council member's star, his silver until then)
 		local tex = w.texOf(f)
 		eq(tex.point, MarkPoint(f, 4))
 		w.remove("nameplate1")
@@ -29749,7 +29749,7 @@ test("1.0.0 OfficerSpy's bridge: a companion hears others' chat lines after the 
 			-- Dropped by the checks before a companion hears anything: a repeat, a channel above
 			-- our rank, a player on the game's ignore list.
 			Chan.Receive("CHANNEL", "Member2", Msg("A", MY_GUILD, 8101, raw), 9001)
-			Chan.Receive("CHANNEL", "Member3", Msg("L", MY_GUILD, 8102, "council only"), 9002)
+			Chan.Receive("CHANNEL", "Member3", Msg("L", MY_GUILD, 8102, "elders only"), 9002)
 			C_FriendList = { IsIgnored = function(name) return tostring(name):find("Member4", 1, true) ~= nil end }
 			Chan.Receive("CHANNEL", "Member4", Msg("A", MY_GUILD, 8103, "ignored"), 9003)
 			C_FriendList = savedFriends
@@ -29860,7 +29860,7 @@ test("1.2.6 the Companion's chat record: each Bankai Guild channel line shown, o
 			eq(rec[1].text, Codec.SanitizeChat(raw))
 			-- Refused by Bankai Guild's checks: nothing recorded.
 			eq((Chan.Receive("CHANNEL", "Member41", Msg("A", MY_GUILD, 8401, raw), T + 1)), false, "a repeat")
-			eq((Chan.Receive("CHANNEL", "Member42", Msg("L", MY_GUILD, 8402, "council only"), T + 2)), false, "above our rank")
+			eq((Chan.Receive("CHANNEL", "Member42", Msg("L", MY_GUILD, 8402, "elders only"), T + 2)), false, "above our rank")
 			C_FriendList = { IsIgnored = function(name) return tostring(name):find("Member43", 1, true) ~= nil end }
 			eq((Chan.Receive("CHANNEL", "Member43", Msg("A", MY_GUILD, 8403, "ignored"), T + 3)), false, "ignored")
 			C_FriendList = saved.friends
@@ -30527,7 +30527,7 @@ test("companion identity export: the tab list uses this character's native acces
 		local shown = {}
 		for _, key in ipairs(UI.CompanionTabs()) do shown[key] = true end
 		for _, key in ipairs({ "census", "realm", "decrees", "crafters" }) do eq(shown[key], true, key) end
-		for _, key in ipairs({ "treasury", "throne", "vox", "workshop" }) do eq(shown[key], nil, key) end
+		for _, key in ipairs({ "treasury", "throne", "poll", "workshop" }) do eq(shown[key], nil, key) end
 		GetGuildInfo = function() return "Other Guild", "Member", 4 end
 		eq(#UI.CompanionTabs(), 0, "an outsider gets no Bankai Guild tab capability")
 	end)
@@ -30940,8 +30940,8 @@ do
 	-- lost runs ClearGamepadFocus): none registered with the gamepad UI. Core.lua and the gate as the
 	-- game loads them, in a namespace of their own, its login and switches through its own events.
 	test("1.1.5 the gamepad gate, typed commands: a gamepad login registers no /bankai, /bk, /ogarmy, /olysite, /bg, /bgc or /bgl; mouse and keyboard does, once a session however many switches; after a switch to gamepad they do nothing, and the player is told a /reload completes it", function()
-		local NAMES = { "Bankai Guild", "BANKAIGUILDARMY", "BANKAIGUILDSITEAGGREGATE", "BANKAIGUILDALL", "BANKAIGUILDCAPTAINS", "BANKAIGUILDCOUNCIL" }
-		local GLOBALS = { "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARMY1", "SLASH_BANKAIGUILDSITEAGGREGATE1", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCAPTAINS1", "SLASH_BANKAIGUILDCOUNCIL1" }
+		local NAMES = { "Bankai Guild", "BANKAIGUILDARMY", "BANKAIGUILDSITEAGGREGATE", "BANKAIGUILDALL", "BANKAIGUILDCOUNCIL", "BANKAIGUILDELDERS" }
+		local GLOBALS = { "SLASH_BANKAIGUILD1", "SLASH_BANKAIGUILD2", "SLASH_BANKAIGUILDARMY1", "SLASH_BANKAIGUILDSITEAGGREGATE1", "SLASH_BANKAIGUILDALL1", "SLASH_BANKAIGUILDCOUNCIL1", "SLASH_BANKAIGUILDELDERS1" }
 		local savedSiteCommand = BankaiGuildSiteAggregateCommand
 		local saved = { list = {}, globals = {}, events = #EVENT_SCRIPTS, after = C_Timer.After, print = print, debug = ns.db.debug,
 			dialogs = { StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY, StaticPopupDialogs.BANKAIGUILD_PIN, StaticPopupDialogs.BANKAIGUILD_PIN_DOWN },
@@ -31051,10 +31051,10 @@ do
 			cns.Channels.Send = function(tier, msg) sent[#sent + 1] = tier .. " " .. tostring(msg) end
 			style.now = 1
 			eq(cns.Gate.Install("slash"), false)
-			eq(SlashCmdList.BANKAIGUILDALL, nil, "no /bg with the gamepad UI"); eq(SLASH_BANKAIGUILDALL1, nil); eq(SlashCmdList.BANKAIGUILDCOUNCIL, nil)
+			eq(SlashCmdList.BANKAIGUILDALL, nil, "no /bg with the gamepad UI"); eq(SLASH_BANKAIGUILDALL1, nil); eq(SlashCmdList.BANKAIGUILDELDERS, nil)
 			style.now = 0
 			eq(cns.Gate.Install("slash"), true)
-			eq(SLASH_BANKAIGUILDALL1, "/bg"); eq(SLASH_BANKAIGUILDCAPTAINS1, "/bgc"); eq(SLASH_BANKAIGUILDCOUNCIL1, "/bgl")
+			eq(SLASH_BANKAIGUILDALL1, "/bg"); eq(SLASH_BANKAIGUILDCOUNCIL1, "/bgc"); eq(SLASH_BANKAIGUILDELDERS1, "/bgl")
 			local all = SlashCmdList.BANKAIGUILDALL
 			all("hi")
 			eq(table.concat(sent, ","), "A hi")
@@ -31590,7 +31590,7 @@ end
 
 ---------------------------------------------------------------------------
 -- 1.0.0: decrees against colluding characters. A decree's sender needed only a census rank, and
--- census ranks are anyone's votes: a few characters could make one of theirs a Captain or a Council member
+-- census ranks are anyone's votes: a few characters could make one of theirs a Council member or an Elder
 -- of a made-up Bankai Guild guild, fill the army's flood guard (6 decrees a minute) with raid
 -- warnings, and so drop every other decree, the Shogun's own and our own officers'. The Shogun now
 -- counts by his pinned name alone, the Shogun and our own guild's officers (our roster: the
@@ -31598,7 +31598,7 @@ end
 -- reports and chat lines speak for (Data.ClaimGuild). A decree's words come through the logged
 -- API, as a chat line's do. Names are made up; the Shogun's is read from ns.ShogunCharacter().
 -- (1.2.3: the whole army's Calls to Arms and Musters are the Shogun's guild's alone, and another
--- guild's officers call their own guild over GUILD. The census Captains of <Elfcore>, whom one
+-- guild's officers call their own guild over GUILD. The census Council of <Elfcore>, whom one
 -- report names on another guild's client, still reached the whole army and filled its flood
 -- guard; no census rank calls it now: these tests send those floods and see none of it shown,
 -- and our own guild's officers call us over GUILD.)
@@ -31658,9 +31658,9 @@ do
 		return shown and "shown" or why
 	end
 
-	-- Eight census Captains of <Elfcore> (one report on another guild's client names them, the
+	-- Eight census Council of <Elfcore> (one report on another guild's client names them, the
 	-- Shogun at its head); six of them send six Calls to Arms in six seconds. They were six raid
-	-- warnings that filled the army's flood guard for a minute (six census Captains of a made-up
+	-- warnings that filled the army's flood guard for a minute (six census Council of a made-up
 	-- guild before 1.2.3, then <Elfcore>'s); a census rank calls the whole army no more (1.2.3):
 	-- none of the six shows, and the guard stays empty. keep: the picture of <Elfcore> this client
 	-- already has (its officers, size and online), kept in the flood's report, which four heralds
@@ -31680,10 +31680,10 @@ do
 			s.clock = s.clock + 1
 			Decree(prefix .. string.char(96 + i) .. "-Realm", "ARMS", "Bankai Guild")
 		end
-		eq(#s.warnings, warned, "no census Captain's Call to Arms raises a raid warning (1.2.3)")
+		eq(#s.warnings, warned, "no census Council member's Call to Arms raises a raid warning (1.2.3)")
 	end
 
-	test("1.0.0 decrees: our own guild's officers get through however many census Captains call (1.2.3: none of theirs shows, nor fills the flood guard)", function()
+	test("1.0.0 decrees: our own guild's officers get through however many census Council call (1.2.3: none of theirs shows, nor fills the flood guard)", function()
 		Scene(3, function(s)
 			local cns, Decree, _, Deliver = DecreeClient(s)
 			-- (1.2.3) Our own guild's officers call us over GUILD.
@@ -31691,7 +31691,7 @@ do
 				Deliver("GUILD", sender, Codec.EncodeDecree(kind, 1453, 0.5, 0.5, "Bankai Guild II", 1, text or "x"))
 			end
 			Flood(s, Decree, "Blare")
-			eq(#cns.Decree.Active(), 0, "no raid warning from six census Captains (they were six)")
+			eq(#cns.Decree.Active(), 0, "no raid warning from six census Council (they were six)")
 			s.clock = s.clock + 1
 			Decree("Blareg-Realm", "ARMS", "Bankai Guild")
 			eq(#cns.Decree.Active(), 0, "nor a seventh")
@@ -31708,12 +31708,12 @@ do
 		end)
 	end)
 
-	test("1.0.0 decrees: the Shogun's own needs no census and gets through whatever six census Captains send", function()
+	test("1.0.0 decrees: the Shogun's own needs no census and gets through whatever six census Council send", function()
 		Scene(3, function(s)
 			local SHOGUN = ns.ShogunCharacter()
 			local cns, Decree = DecreeClient(s)
 			Flood(s, Decree, "Clang")
-			eq(#cns.Decree.Active(), 0, "the census Captains' Calls to Arms: none (1.2.3)")
+			eq(#cns.Decree.Active(), 0, "the census Council's Calls to Arms: none (1.2.3)")
 			-- One report of <Elfcore> on this client (the flood's), which vouches for no master of it
 			-- (the Crown's rank needs two): his pinned name is enough.
 			eq(D.KnownRank(SHOGUN .. "-Realm", "Bankai Guild"), nil)
@@ -31736,7 +31736,7 @@ do
 	-- no member of it reported to, and Quill's Call to Arms as <Elfcore> sounded the whole army (the
 	-- flood guard let six a minute through). A census rank calls nobody now; the chats' one-guild
 	-- rule (Data.ClaimGuild) still holds for the lines.
-	test("1.0.0 decrees: a sender speaks for the one guild it speaks for (Data.ClaimGuild), as in the chats; a census Captain of <Elfcore> calls nobody (1.2.3)", function()
+	test("1.0.0 decrees: a sender speaks for the one guild it speaks for (Data.ClaimGuild), as in the chats; a census Council member of <Elfcore> calls nobody (1.2.3)", function()
 		Scene(3, function(s)
 			-- Xander reports Bankai Guild Xanadu; Yorick's report names Xander, Pansy and Quill officers of
 			-- <Elfcore>, the Shogun's guild.
@@ -31747,14 +31747,14 @@ do
 			local cns, Decree = DecreeClient(s)
 			Decree("Xander-Realm", "MUSTER", "Bankai Guild")
 			eq(#cns.Decree.Active(), 0, "he reports Bankai Guild Xanadu: no decree as <Elfcore>")
-			-- A census Captain who reports nothing: one report is anyone's word, no Call to Arms.
+			-- A census Council member who reports nothing: one report is anyone's word, no Call to Arms.
 			Decree("Quill-Realm", "ARMS", "Bankai Guild")
 			eq(#cns.Decree.Active(), 0, "Quill's Call to Arms as <Elfcore> is refused")
 			eq(#s.warnings, 0, "no raid warning")
 			s.clock = s.clock + 61
 			Decree("Quill-Realm", "MUSTER", "Bankai Guild")
 			eq(#cns.Decree.Active(), 0, "nor his Muster")
-			-- Pansy, a census Captain of Bankai Guild Gust too: her chat lines as that guild show...
+			-- Pansy, a census Council member of Bankai Guild Gust too: her chat lines as that guild show...
 			eq(D.Receive(R("Bankai Guild Gust", "Nobody", "Pansy:1:0"), "Vance-Realm"), true)
 			GetGuildInfo = function() return "Bankai Guild II", "rank", 1 end
 			eq(Line("Pansy-Realm", "C", "Bankai Guild Gust"), "shown")
@@ -31853,7 +31853,7 @@ do
 			ns.Print, ns.PlayAlert, RaidNotice_AddMessage = function() end, function() end, nil
 			-- An officer of <Elfcore>: the channel; of another guild (1.2.3): his guild, over GUILD.
 			for _, case in ipairs({ { "Bankai Guild", "CHANNEL" }, { "Bankai Guild II", "GUILD" } }) do
-				GetGuildInfo = function() return case[1], "Captain", 1 end
+				GetGuildInfo = function() return case[1], "Council member", 1 end
 				local want = Codec.EncodeDecree("MUSTER", 1453, 0.42, 0.51, case[1], 1, "at the bridge")
 				for _, logged in ipairs({ true, false }) do
 					local cns = FreshComm()
@@ -31896,7 +31896,7 @@ do
 
 	-- 1.0.0: the officers of <Elfcore> counted as the Crown on every client, and outside <Elfcore>
 	-- only the census names them: three outsiders' reports that kept the Shogun at its head and added
-	-- one of their own made him of the Crown there ([Council], Royal decrees, Tabard inspections).
+	-- one of their own made him of the Crown there ([Elders], Royal decrees, Tabard inspections).
 	-- Now they are of the Crown on <Elfcore> members' clients alone (their roster); elsewhere the
 	-- Crown of the Shogun's guild is the Shogun himself, by his pinned name, and the Hands he names.
 
@@ -31912,17 +31912,17 @@ do
 	end
 
 	test("1.0.0 the Crown: three outsiders who add one of their own to <Elfcore>'s officers crown nobody on another guild's client", function()
-		Scene(0, function(s) -- (a guild master of Bankai Guild II: he reads [Council])
+		Scene(0, function(s) -- (a guild master of Bankai Guild II: he reads [Elders])
 			Forged(ns.ShogunCharacter())
 			eq(ns.IsCrownRank("BankaiGuild", D.KnownRank("Sapper-Realm", "Bankai Guild")), false, "not of the Crown here")
-			eq(Line("Sapper-Realm", "L", "Bankai Guild"), "rank", "no [Council]")
-			eq(Line("Sapper-Realm", "C", "Bankai Guild"), "shown", "[Captains], as any guild's census officer")
+			eq(Line("Sapper-Realm", "L", "Bankai Guild"), "rank", "no [Elders]")
+			eq(Line("Sapper-Realm", "C", "Bankai Guild"), "shown", "[Council], as any guild's census officer")
 			local cns, Decree = DecreeClient(s)
 			Decree("Sapper-Realm", "HERALDRY", "Bankai Guild")
 			s.clock = s.clock + 61
 			Decree("Sapper-Realm", "ROYAL", "Bankai Guild", "made-up royal decree")
 			eq(#cns.Decree.Active(), 0, "no Crown decree")
-			-- The real officer the census names loses the same here (a Captain, no Crown).
+			-- The real officer the census names loses the same here (a Council member, no Crown).
 			eq(Line("Baron-Realm", "L", "Bankai Guild"), "rank")
 			Decree("Baron-Realm", "ROYAL", "Bankai Guild")
 			eq(#cns.Decree.Active(), 0)
@@ -31939,7 +31939,7 @@ do
 				eq(D.Receive(R("BankaiGuild", ns.ShogunCharacter(), "Baron:1:0,Sapper:1:0", 1000, 300), atk), false)
 			end
 			eq(D.KnownRank("Sapper-Realm", "Bankai Guild"), nil, "Sapper is nobody in our roster")
-			eq(Line("Member2-Realm", "L", "Bankai Guild"), "shown", "[Council]")
+			eq(Line("Member2-Realm", "L", "Bankai Guild"), "shown", "[Elders]")
 			eq(Line("Sapper-Realm", "L", "Bankai Guild"), "forged", "not one of us")
 			local cns, Decree = DecreeClient(s)
 			Decree("Member2-Realm", "ROYAL", "Bankai Guild", "the officer's royal decree")
@@ -31958,7 +31958,7 @@ do
 			local ok, err = pcall(function()
 				K.Reset()
 				eq(ns.rdb.guilds.BankaiGuild, nil, "no census of <Elfcore> on this client")
-				eq(Line(SHOGUN, "L", "Bankai Guild"), "shown", "the Shogun's [Council] line")
+				eq(Line(SHOGUN, "L", "Bankai Guild"), "shown", "the Shogun's [Elders] line")
 				local cns, Decree = DecreeClient(s)
 				Decree(SHOGUN, "ROYAL", "Bankai Guild", "the Shogun's decree")
 				eq(cns.Decree.Active()[1] and cns.Decree.Active()[1].kind, "ROYAL", "his Royal decree")
@@ -31980,11 +31980,11 @@ do
 
 	-- 1.0.0: outside <Elfcore> its Crown is the Shogun and the Hands he names, and no code gave the
 	-- Hands the Crown: a real officer of <Elfcore> the Shogun named his Hand lost his Royal decrees,
-	-- Tabard inspections and [Council] lines on every other guild's client with the previous commit.
+	-- Tabard inspections and [Elders] lines on every other guild's client with the previous commit.
 	-- Now a Hand speaking for the Shogun's guild is of its Crown there, on the Shogun's word alone (the
 	-- list he last sent, Shogun.lua), never on a census vote; on <Elfcore>'s own clients its roster
 	-- still says who speaks for it.
-	test("1.0.0 the Crown: a Hand the Shogun names has [Council] and the Crown's decrees for <Elfcore> on every other guild's client, while the Shogun's list names him", function()
+	test("1.0.0 the Crown: a Hand the Shogun names has [Elders] and the Crown's decrees for <Elfcore> on every other guild's client, while the Shogun's list names him", function()
 		Scene(0, function(s)
 			local K, SHOGUN = ns.Shogun, ns.ShogunCharacter() .. "-Realm"
 			local savedShow = StaticPopup_Show
@@ -31993,10 +31993,10 @@ do
 				K.Reset()
 				Forged(ns.ShogunCharacter()) -- (Baron: a real officer of <Elfcore>; Sapper: the outsiders' man)
 				local cns, Decree, Logged = DecreeClient(s)
-				-- Before the Shogun names him, Baron is a Captain here like any census officer.
+				-- Before the Shogun names him, Baron is a Council member here like any census officer.
 				Logged("Baron-Realm", "ROYAL", "Bankai Guild", "too soon")
 				eq(#cns.Decree.Active(), 0, "a census officer of <Elfcore>: no Royal decree")
-				eq(Line("Baron-Realm", "L", "Bankai Guild"), "rank", "nor [Council]")
+				eq(Line("Baron-Realm", "L", "Bankai Guild"), "rank", "nor [Elders]")
 				-- (1.2.3) Nor the whole army's Call to Arms: a census rank is anyone's word (three
 				-- outsiders made Sapper one), and neither of them calls it.
 				s.clock = s.clock + 61
@@ -32014,7 +32014,7 @@ do
 				s.clock = s.clock + 61
 				Logged("Baron-Realm", "HERALDRY", "Bankai Guild", "")
 				eq(cns.Decree.Active()[1].kind, "HERALDRY", "his Tabard inspection")
-				eq(Line("Baron-Realm", "L", "Bankai Guild"), "shown", "his [Council] line")
+				eq(Line("Baron-Realm", "L", "Bankai Guild"), "shown", "his [Elders] line")
 				-- For the Shogun's guild alone: speaking for another guild, the census rules as for anyone.
 				s.clock = s.clock + 61
 				Logged("Baron-Realm", "ROYAL", "Bankai Guild Zeus")
@@ -32026,13 +32026,13 @@ do
 				eq(#cns.Decree.Active(), 2, "no Crown for Sapper")
 				eq(Line("Sapper-Realm", "L", "Bankai Guild"), "rank")
 				-- Like the Shogun's, a Hand's Call to Arms reaches the whole army on his name, whatever
-				-- census Captains of <Elfcore> send (1.2.3: none of theirs shows; Forged's picture kept).
+				-- census Council of <Elfcore> send (1.2.3: none of theirs shows; Forged's picture kept).
 				Flood(s, Decree, "Din", { officers = "Baron:1:0,Sapper:1:0", total = 1000, online = 300 })
 				eq(#cns.Decree.Active(), 2)
 				Logged("Baron-Realm", "ARMS", "Bankai Guild", "the Hand's call")
 				eq(#cns.Decree.Active(), 3, "the Hand's Call to Arms")
 				eq(cns.Decree.Active()[1].sender, "Baron"); eq(cns.Decree.Active()[1].kind, "ARMS")
-				-- The Shogun takes him off his list: a Captain here again, who calls nobody.
+				-- The Shogun takes him off his list: a Council member here again, who calls nobody.
 				K.HandleCommand("CHANNEL", SHOGUN, "T1~H~10~Bankai Guild~")
 				s.clock = s.clock + 61
 				Logged("Baron-Realm", "ROYAL", "Bankai Guild")
@@ -32932,7 +32932,7 @@ do
 		end)
 	end)
 
-	test("1.0.0 the Hands: a Hand a Steward names has the Crown for <Elfcore> on every other guild's client, as the Shogun's Hands do: his Royal decrees past the flood guard and [Council], while that Steward's list names him", function()
+	test("1.0.0 the Hands: a Hand a Steward names has the Crown for <Elfcore> on every other guild's client, as the Shogun's Hands do: his Royal decrees past the flood guard and [Elders], while that Steward's list names him", function()
 		WithStewardList(STEWARD_A, function()
 			Scene(0, function(s)
 				local K = ns.Shogun
@@ -32944,25 +32944,25 @@ do
 					local cns, Decree, Logged = DecreeClient(s)
 					Logged("Baron-Realm", "ROYAL", "Bankai Guild", "too soon")
 					eq(#cns.Decree.Active(), 0, "a census officer of <Elfcore>: no Royal decree")
-					eq(Line("Baron-Realm", "L", "Bankai Guild"), "rank", "nor [Council]")
+					eq(Line("Baron-Realm", "L", "Bankai Guild"), "rank", "nor [Elders]")
 					-- The Steward names him.
 					K.HandleCommand("CHANNEL", STEWARD, "T1~N~8~Bankai Guild II~Baron-Realm")
 					eq(K.IsHandName("Baron-Realm"), true)
 					s.clock = s.clock + 61
 					Logged("Baron-Realm", "ROYAL", "Bankai Guild", "the Steward's Hand's royal decree")
 					eq(cns.Decree.Active()[1] and cns.Decree.Active()[1].text, "the Steward's Hand's royal decree")
-					eq(Line("Baron-Realm", "L", "Bankai Guild"), "shown", "his [Council] line")
-					-- His Call to Arms on his name, whatever census Captains of <Elfcore> send (1.2.3:
+					eq(Line("Baron-Realm", "L", "Bankai Guild"), "shown", "his [Elders] line")
+					-- His Call to Arms on his name, whatever census Council of <Elfcore> send (1.2.3:
 					-- none of theirs shows; Forged's picture kept).
 					s.clock = s.clock + 61
 					local before = #cns.Decree.Active()
 					Flood(s, Decree, "Dun", { officers = "Baron:1:0,Sapper:1:0", total = 1000, online = 300 })
-					eq(#cns.Decree.Active(), before, "no census Captain's Call to Arms")
+					eq(#cns.Decree.Active(), before, "no census Council member's Call to Arms")
 					Decree("Dung-Realm", "ARMS", "Bankai Guild")
 					eq(#cns.Decree.Active(), before, "nor a seventh")
 					Logged("Baron-Realm", "ARMS", "Bankai Guild", "the Hand's call")
 					eq(#cns.Decree.Active(), before + 1, "the Hand's Call to Arms")
-					-- His Steward takes him off his list: a Captain here again, who calls nobody (1.2.3).
+					-- His Steward takes him off his list: a Council member here again, who calls nobody (1.2.3).
 					K.HandleCommand("CHANNEL", STEWARD, "T1~N~9~Bankai Guild II~")
 					eq(K.IsHandName("Baron-Realm"), false)
 					eq(Line("Baron-Realm", "L", "Bankai Guild"), "rank")
@@ -32982,13 +32982,13 @@ do
 			Scene(0, function(s)
 				local cns, Decree, Logged = DecreeClient(s)
 				Flood(s, Decree, "Stew")
-				eq(#cns.Decree.Active(), 0, "no census Captain's Call to Arms (1.2.3)")
+				eq(#cns.Decree.Active(), 0, "no census Council member's Call to Arms (1.2.3)")
 				s.clock = s.clock + 1
 				Logged(STEWARD, "ROYAL", "Bankai Guild", "the Steward's royal decree")
 				eq(#cns.Decree.Active(), 1, "no census of him needed")
 				eq(cns.Decree.Active()[1].sender, "Test Steward"); eq(cns.Decree.Active()[1].kind, "ROYAL")
 				eq(cns.Decree.Active()[1].text, "the Steward's royal decree")
-				eq(Line(STEWARD, "L", "Bankai Guild"), "shown", "his [Council] line for <Elfcore>")
+				eq(Line(STEWARD, "L", "Bankai Guild"), "shown", "his [Elders] line for <Elfcore>")
 				-- Only for the Shogun's guild: for another, the census rules as for anyone.
 				s.clock = s.clock + 61
 				Logged(STEWARD, "ROYAL", "Bankai Guild Zeus")
@@ -33538,13 +33538,13 @@ do
 						GetGuildInfo = function() return home[1], "rank", home[2] end
 						ns.Roster.Scan()
 						local cns, Decree, Logged = DecreeClient(s)
-						-- (1.2.3: the census Captains of <Elfcore> filled the guard on another guild's
+						-- (1.2.3: the census Council of <Elfcore> filled the guard on another guild's
 						-- client and fill it no more, none of theirs shown; on its own members', its
 						-- roster vouches for every sender the army's decrees take, and none waits
 						-- behind the guard.)
 						if home[1] ~= "Bankai Guild" then
 							Flood(s, Decree, "Floodm")
-							eq(#cns.Decree.Active(), 0, "no census Captain's Call to Arms")
+							eq(#cns.Decree.Active(), 0, "no census Council member's Call to Arms")
 						end
 						local before = #cns.Decree.Active()
 						s.clock = s.clock + 1
@@ -33658,7 +33658,7 @@ do
 					b:Click()
 					eq(#dialogs, 1); eq(dialogs[1].which, "BANKAIGUILD_DECREE"); eq(dialogs[1].data, "ROYAL")
 					eq(dialogs[1].a, L.GUILD_DECREE_ASK:format(L.GUILD_DECREE, "Bankai Guild II"), "the send box says it reaches his guild alone")
-					eq(Detail(), L.YOU_ARE_GUILD_COUNCIL:format("Bankai Guild II"))
+					eq(Detail(), L.YOU_ARE_GUILD_ELDER:format("Bankai Guild II"))
 					-- The Watch's Tabards: his Tabard inspection, his guild's alone too.
 					W.Show("tabards")
 					for _, tab in ipairs(main.tabs) do if tab.key == "watch" then tab:Click() end end
@@ -33672,7 +33672,7 @@ do
 					eq(#dialogs, 2); eq(dialogs[2].data, "HERALDRY")
 					eq(dialogs[2].a, L.GUILD_DECREE_ASK:format(L.GUILD_HERALDRY_CALL, "Bankai Guild II"))
 					SlashCmdList.BANKAIGUILD("decrees")
-					eq(main.tab, "decrees"); eq(printed[#printed], L.YOU_ARE_GUILD_COUNCIL:format("Bankai Guild II"), "/bk decrees says it")
+					eq(main.tab, "decrees"); eq(printed[#printed], L.YOU_ARE_GUILD_ELDER:format("Bankai Guild II"), "/bk decrees says it")
 					-- His officer: the Royal decree's button, its tip says who sends it and that this is a preview.
 					b = As("Bankai Guild II", 1)
 					eq(b:GetText(), L.ROYAL_BTN)
@@ -33725,7 +33725,7 @@ do
 					local help = {}
 					for _, l in ipairs(ns.Views.Build("decrees")) do help[#help + 1] = tostring(l.text) end
 					assert(table.concat(help, "\n"):find(L.WHO_CROWN, 1, true), "the help names who")
-					assert(table.concat(help, "\n"):find(L.WHO_CAPTAINS, 1, true), "and who calls to arms")
+					assert(table.concat(help, "\n"):find(L.WHO_COUNCIL, 1, true), "and who calls to arms")
 				end)
 			end)
 			-- The same in pt-BR; and no line of the old rule's (guild masters as the Crown) is left.
@@ -33736,12 +33736,12 @@ do
 			GetLocale = savedLocale
 			if not okPt then error(errPt, 0) end
 			for _, key in ipairs({ "GUILD_DECREE", "GUILD_DECREE_BTN", "GUILD_HERALDRY_CALL", "GUILD_HERALDRY_BTN", "GUILD_DECREE_ASK",
-				"GUILD_DECREE_BTN_TIP", "GUILD_HERALDRY_BTN_TIP", "YOU_ARE_GUILD_COUNCIL", "YOU_ARE_COUNCIL_DECREES", "HELP_GUILD_DECREE_NAME",
+				"GUILD_DECREE_BTN_TIP", "GUILD_HERALDRY_BTN_TIP", "YOU_ARE_GUILD_ELDER", "YOU_ARE_COUNCIL_DECREES", "HELP_GUILD_DECREE_NAME",
 				"HELP_GUILD_HERALDRY_NAME", "CROWN_ONLY", "CROWN_PREVIEW_NOTE", "WHO_CROWN",
 				-- (1.2.3) another guild's Calls to Arms and Musters, his guild's alone
 				"GUILD_ARMS", "GUILD_ARMS_BTN", "GUILD_MUSTER", "GUILD_MUSTER_BTN", "GUILD_ARMS_BTN_TIP", "GUILD_MUSTER_BTN_TIP",
 				"HELP_GUILD_ARMS_NAME", "HELP_GUILD_MUSTER_NAME", "YOU_ARE_GUILD_OFFICER", "ARMS_BTN_TIP", "MUSTER_BTN_TIP",
-				"WHO_CAPTAINS", "YOU_ARE_SOLDIER", "HELP_CMD_ARMS" }) do
+				"WHO_COUNCIL", "YOU_ARE_SOLDIER", "HELP_CMD_ARMS" }) do
 				local v = rawget(pt.L, key)
 				assert(type(v) == "string" and v ~= L[key], key .. " in pt-BR")
 			end
@@ -33749,7 +33749,7 @@ do
 			assert(not L.CROWN_ONLY:find("guild masters and", 1, true) and not rawget(pt.L, "CROWN_ONLY"):find("líderes das guildas", 1, true), "the Crown is no longer every guild master")
 			-- (1.2.3) Nor is a Call to Arms every guild's officers' to the whole army.
 			for _, key in ipairs({ "ARMS_BTN_TIP", "MUSTER_BTN_TIP" }) do
-				assert(not L[key]:find("Captains only", 1, true) and not rawget(pt.L, key):find("Só Capitães", 1, true), key)
+				assert(not L[key]:find("Council only", 1, true) and not rawget(pt.L, key):find("Só Conselho", 1, true), key)
 			end
 			-- (1.2.3, the author's yes) The whole army's Calls to Arms and Musters are the Shogun's, his
 			-- Steward's, his Hands', the High Council's, and <Elfcore>'s officers' for its members.
@@ -33765,7 +33765,7 @@ do
 				local v = rawget(pt.L, key)
 				assert(not v:find("as Mãos dele", 1, true) and v:find("o Senescal e os o", 1, true) and v:find("as outras guildas ouvem os que forem nomeados Mãos", 1, true), key .. " in pt-BR")
 			end
-			assert(not L.YOU_ARE_GUILD_COUNCIL:find("for the army", 1, true) and not rawget(pt.L, "YOU_ARE_GUILD_COUNCIL"):find("convoca o exército", 1, true),
+			assert(not L.YOU_ARE_GUILD_ELDER:find("for the army", 1, true) and not rawget(pt.L, "YOU_ARE_GUILD_ELDER"):find("convoca o exército", 1, true),
 				"a guild master's calls are no longer the army's")
 		end)
 		ns.rdb.council, ns.me, ns.ShowDialog, ns.Decree.Preview, ns.Print = saved.council, saved.me, saved.dialog, saved.preview, saved.print
@@ -34356,7 +34356,7 @@ end
 
 -- (Changed on purpose, 1.1.1: the control to pin is in the Chat tab's settings, where the Realm
 -- tab's chats page, gone, had it; the pin on top of the Chat tab is its strip, the Chat tab's test.)
-test("1.1 pinned line: a Council member pins one short line for his guild with the logged API; it tops the Bankai Guild chats and the Realm for its members, with no popup and no sound", function()
+test("1.1 pinned line: an Elder pins one short line for his guild with the logged API; it tops the Bankai Guild chats and the Realm for its members, with no popup and no sound", function()
 	WithPin(function(w, K, sent, C)
 		local L = ns.L
 		local popups, sounds = 0, 0
@@ -34370,12 +34370,12 @@ test("1.1 pinned line: a Council member pins one short line for his guild with t
 		eq(#sent, 0)
 		eq(Find(ChatSettings(), L.PIN_ADD), nil, "no control for a soldier in the Chat tab's settings")
 		eq(Find(ChatSettings(), L.PIN_ADD_GUILD), nil)
-		-- A Council member: plain text, 100 bytes at most, no escape code or separator; for his guild alone
+		-- An Elder: plain text, 100 bytes at most, no escape code or separator; for his guild alone
 		-- (Konig's review of 1.1: never for the army).
-		AsCouncil()
+		AsElder()
 		eq(C.CanPin(), true)
 		eq(C.PinScope(), "guild")
-		assert(Find(ChatSettings(), L.PIN_ADD_GUILD), "the Council's control, in the Chat tab's settings")
+		assert(Find(ChatSettings(), L.PIN_ADD_GUILD), "the Elder's control, in the Chat tab's settings")
 		eq(Find(ChatSettings(), L.PIN_ADD), nil, "none for the army")
 		local ok = C.SetPin("  Raid moves to |cffff0000Stranglethorn|r ~ at 9  " .. ("x"):rep(200))
 		eq(ok, true)
@@ -34408,7 +34408,7 @@ test("1.1 pinned line: a Council member pins one short line for his guild with t
 		eq(line.onClick, nil, "a soldier can't take it down")
 		-- (On top of the Chat tab: its strip shows Channels.Pin, the Chat tab's pinned line test.)
 		eq(C.Pin().text, body)
-		assert(ns.StatusText():find("pinned line: by Zed <Bankai Guild Zeus> (Council)", 1, true), "in /bk status")
+		assert(ns.StatusText():find("pinned line: by Zed <Bankai Guild Zeus> (Elder)", 1, true), "in /bk status")
 		-- Said again (late logins): the same pin, its end never later.
 		local ends = C.Pin().expires
 		w.clock = w.clock + 300
@@ -34430,19 +34430,19 @@ test("1.1 pinned line: who may pin (the Shogun, his Stewards and Hands for the a
 		local function GuildPin(sender, guild, text, id, age)
 			return C.HandlePin("GUILD", sender, ("N1~%d~%s~7200~%d~%s"):format(id or 1, guild, age or 0, text))
 		end
-		-- A soldier of a guild of neither Council (our own guild's ranks come from our roster).
+		-- A soldier of a guild of neither Elder (our own guild's ranks come from our roster).
 		GetGuildInfo = function() return "Bankai Guild Other", "Member", 3 end
 		ns.me = "Soldier-Realm"
-		-- Nobody we can place: a name claiming a guild, a Captain, a Council member of a guild nobody vouches for.
+		-- Nobody we can place: a name claiming a guild, a Council member, an Elder of a guild nobody vouches for.
 		eq(select(2, Pin("Faker-Realm", "Bankai Guild Zeus", "fake news")), "rank")
 		eq(select(2, Pin("Shobek Shobekler-Realm", "Bankai Guild Zeus", "not his guild")), "rank", "the Shogun speaks for his guild")
 		ns.rdb.guilds["Bankai Guild Zeus"].officers = { { name = "Cap2" } }
 		Vouched(ns.rdb.guilds["Bankai Guild Zeus"], "W3-Realm", "W4-Realm")
-		eq(select(2, Pin("Cap2-Realm", "Bankai Guild Zeus", "a Captain's")), "rank", "a Captain is no Council")
+		eq(select(2, Pin("Cap2-Realm", "Bankai Guild Zeus", "a Council member's")), "rank", "a Council member is no Elder")
 		-- A guild master the census vouches for pins for his guild alone (Konig's review of 1.1): on
 		-- the channel his pin is dropped, and over GUILD only his guild's own clients take it.
-		eq(select(2, Pin("Zed-Realm", "Bankai Guild Zeus", "Council Zed's line", 11)), "rank", "never on the channel")
-		eq(select(2, GuildPin("Zed-Realm", "Bankai Guild Zeus", "Council Zed's line", 11)), "rank", "not our guild")
+		eq(select(2, Pin("Zed-Realm", "Bankai Guild Zeus", "Elder Zed's line", 11)), "rank", "never on the channel")
+		eq(select(2, GuildPin("Zed-Realm", "Bankai Guild Zeus", "Elder Zed's line", 11)), "rank", "not our guild")
 		eq(C.Pin(), nil)
 		-- His guildmate's client: his rank from its own roster, not an officer's, and only in our guild's name.
 		GetGuildInfo = function() return "Bankai Guild Zeus", "Member", 3 end
@@ -34450,15 +34450,15 @@ test("1.1 pinned line: who may pin (the Shogun, his Stewards and Hands for the a
 		ns.Roster.byName = { ["Zed-Realm"] = 0, ["Mate-Realm"] = 3, ["Cap3-Realm"] = 1 }
 		eq(select(2, GuildPin("Cap3-Realm", "Bankai Guild Zeus", "an officer's")), "rank", "an officer is no guild master")
 		eq(select(2, GuildPin("Zed-Realm", "Bankai Guild II", "another guild's name")), "rank", "our own guild's name only")
-		eq(GuildPin("Zed-Realm", "Bankai Guild Zeus", "Council Zed's line", 11), true)
-		eq(C.Pin().rank, C.PIN_COUNCIL)
+		eq(GuildPin("Zed-Realm", "Bankai Guild Zeus", "Elder Zed's line", 11), true)
+		eq(C.Pin().rank, C.PIN_ELDER)
 		-- The Shogun's newer pin wins.
 		w.clock = w.clock + 60
 		eq(Pin("Shobek Shobekler-Realm", "Bankai Guild", "The Shogun's line", 22), true)
 		eq(C.Pin().text, "The Shogun's line"); eq(C.Pin().rank, C.PIN_SHOGUN)
 		-- A guild master's pin, newer, never replaces the Shogun's; nor does a Hand's.
 		w.clock = w.clock + 120
-		eq(select(2, GuildPin("Zed-Realm", "Bankai Guild Zeus", "Council Zed's newer line", 33)), "older")
+		eq(select(2, GuildPin("Zed-Realm", "Bankai Guild Zeus", "Elder Zed's newer line", 33)), "older")
 		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm,Aide-Realm")
 		eq(K.IsHandName("Helper-Realm"), true)
 		eq(select(2, Pin("Helper-Realm", "Bankai Guild", "A Hand's line", 44)), "older")
@@ -34473,7 +34473,7 @@ test("1.1 pinned line: who may pin (the Shogun, his Stewards and Hands for the a
 		eq(Pin("Helper-Realm", "Bankai Guild", "A Hand's line", 45), true)
 		eq(C.Pin().rank, C.PIN_CROWN)
 		w.clock = w.clock + 120
-		eq(select(2, GuildPin("Zed-Realm", "Bankai Guild Zeus", "Council Zed again", 12)), "older")
+		eq(select(2, GuildPin("Zed-Realm", "Bankai Guild Zeus", "Elder Zed again", 12)), "older")
 		-- Of one rank, the one set last: a pin set earlier (said again for late logins) never wins.
 		C.ResetPin()
 		eq(Pin("Helper-Realm", "Bankai Guild", "Helper's", 46, 0), true)
@@ -34495,7 +34495,7 @@ end)
 
 test("1.1 pinned line: its setter's client repeats it for late logins, stops once it is replaced, and takes it down", function()
 	WithPin(function(w, K, sent, C)
-		AsCouncil()
+		AsElder()
 		eq(C.SetPin("Muster at Southshore"), true)
 		local id = sent[1].msg:match("^N1~(%d+)~")
 		C.RepeatPin()
@@ -34519,7 +34519,7 @@ test("1.1 pinned line: its setter's client repeats it for late logins, stops onc
 		w.clock = w.clock + C.PIN_RESEND
 		C.RepeatPin()
 		eq(#sent, before, "replaced: not repeated")
-		-- A Council member can't take the Shogun's down: he is told so, nothing is sent.
+		-- An Elder can't take the Shogun's down: he is told so, nothing is sent.
 		eq(C.CanTakeDown(), false)
 		eq(C.TakeDownPin(), false)
 		assert(Printed(w, ns.L.PIN_NOT_YOURS))
@@ -34549,7 +34549,7 @@ test("1.1 pinned line: with the gamepad UI the line is typed in Bankai Guild's o
 		LoadUI()
 		WithGamepadUI(true, function(game)
 			WithPin(function(w, K, sent, C)
-				AsCouncil()
+				AsElder()
 				local add = Find(ChatSettings(), ns.L.PIN_ADD_GUILD)
 				assert(add and add.onClick, "the control, in the Chat tab's settings")
 				add.onClick()
@@ -34604,7 +34604,7 @@ test("1.1 pinned line: a guild master of a guild whose name has accented letters
 		ns.me = "Sol-Realm"
 		ns.Roster.byName = { ["Luz-Realm"] = 0, ["Sol-Realm"] = 4 }
 		C.ResetPin()
-		eq(C.PinRank("Luz-Realm", G, "GUILD"), C.PIN_COUNCIL)
+		eq(C.PinRank("Luz-Realm", G, "GUILD"), C.PIN_ELDER)
 		eq(C.HandlePin("GUILD", "Luz-Realm", sent[1].msg), true)
 		eq(C.Pin().guild, G); eq(C.Pin().text, "Raid at nine in Ashenvale")
 		assert(Printed(w, ns.L.PIN_NEW:format("Luz", G, "Raid at nine in Ashenvale")), "one line in chat")
@@ -34616,17 +34616,17 @@ test("1.1 pinned line: a guild master of a guild whose name has accented letters
 	end)
 end)
 
-test("1.1 pinned line: an officer of <Elfcore> (a Council member on its own members' clients alone) pins only as a Hand, so every client shows the same line", function()
+test("1.1 pinned line: an officer of <Elfcore> (an Elder on its own members' clients alone) pins only as a Hand, so every client shows the same line", function()
 	WithPin(function(w, K, sent, C)
 		local savedRank = ns.Roster.RankOf
 		local ok, err = pcall(function()
 			-- <Elfcore>'s roster: Offi is one of its officers (rank 1), no Hand.
 			ns.Roster.RankOf = function(n) if ns.FullName(n) == "Offi-Realm" then return 1 end return savedRank(n) end
-			-- His own client: [Council] is his, the pin is not; he is told, and nothing is sent.
+			-- His own client: [Elders] is his, the pin is not; he is told, and nothing is sent.
 			GetGuildInfo = function() return "Bankai Guild", "Officer", 1 end
 			ns.me = "Offi-Realm"
 			eq(K.IsHand(), false)
-			eq(C.CanUse("L"), true, "[Council] is his")
+			eq(C.CanUse("L"), true, "[Elders] is his")
 			eq(C.CanPin(), false)
 			eq(select(2, C.SetPin("Raid moves to Tarren Mill")), "rank")
 			assert(Printed(w, ns.L.PIN_ONLY), "told who may")
@@ -34673,44 +34673,44 @@ test("1.1 pinned line: only its setter or a higher rank takes a pin down; a high
 		GetGuildInfo = function() return "Bankai Guild Zeus", "Member", 3 end
 		ns.me = "Mate-Realm"
 		ns.Roster.byName = { ["Zed-Realm"] = 0, ["Mate-Realm"] = 3, ["Cap3-Realm"] = 1, ["Helper-Realm"] = 3 }
-		eq(GuildPin("Zed-Realm", "Council Zed's line", 5), true)
+		eq(GuildPin("Zed-Realm", "Elder Zed's line", 5), true)
 		-- Another guild's master, or one of ours who is not its master: nothing taken down, even naming its id.
 		w.printed = {}
 		for _ = 1, 3 do
 			eq(Down("CHANNEL", "Ceo-Realm", "Bankai Guild II", 5), "rank")
 			eq(Down("GUILD", "Cap3-Realm", "Bankai Guild Zeus", 5), "rank")
 		end
-		eq(C.Pin().text, "Council Zed's line")
+		eq(C.Pin().text, "Elder Zed's line")
 		eq(#w.printed, 0)
 		-- A Hand (a higher rank): the pin it names alone, and it is said who took it down.
 		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
 		w.clock = w.clock + 50
 		eq(Down("CHANNEL", "Helper-Realm", "Bankai Guild", 99), "nothing", "another pin's id")
-		eq(C.Pin().text, "Council Zed's line")
+		eq(C.Pin().text, "Elder Zed's line")
 		eq(Down("CHANNEL", "Helper-Realm", "Bankai Guild", 5), "down")
 		eq(C.Pin(), nil)
 		assert(Printed(w, L.PIN_DOWN_BY:format("Helper", "Bankai Guild", "Zed")), "who took it down, in chat")
 		-- Once a minute at most from each.
 		w.clock = w.clock + 5
-		eq(GuildPin("Zed-Realm", "Council Zed's second", 6), true)
+		eq(GuildPin("Zed-Realm", "Elder Zed's second", 6), true)
 		w.clock = w.clock + 5
 		eq(Down("CHANNEL", "Helper-Realm", "Bankai Guild", 6), "fast")
-		eq(C.Pin().text, "Council Zed's second")
+		eq(C.Pin().text, "Elder Zed's second")
 		w.clock = w.clock + C.PIN_GAP
 		eq(Down("CHANNEL", "Helper-Realm", "Bankai Guild", 6), "down")
 		-- Its setter takes his own down: said too.
 		w.clock = w.clock + C.PIN_GAP
-		eq(GuildPin("Zed-Realm", "Council Zed's third", 7), true)
+		eq(GuildPin("Zed-Realm", "Elder Zed's third", 7), true)
 		w.printed = {}
 		eq(Down("GUILD", "Zed-Realm", "Bankai Guild Zeus", 7), "down")
 		assert(Printed(w, L.PIN_DOWN_OWN:format("Zed", "Bankai Guild Zeus")), "said")
 		-- An officer's own client: no click on Zed's line, and /bk pin off refused.
 		w.clock = w.clock + C.PIN_GAP
-		eq(GuildPin("Zed-Realm", "Council Zed's fourth", 8), true)
+		eq(GuildPin("Zed-Realm", "Elder Zed's fourth", 8), true)
 		GetGuildInfo = function() return "Bankai Guild Zeus", "Officer", 1 end
 		ns.me = "Cap3-Realm"
 		eq(C.CanTakeDown(), false)
-		local line = Find(ns.Views.Build("realm"), "Council Zed's fourth")
+		local line = Find(ns.Views.Build("realm"), "Elder Zed's fourth")
 		assert(line, "shown"); eq(line.onClick, nil, "no click to take it down")
 		eq(select(2, C.TakeDownPin()), "rank")
 		assert(Printed(w, L.PIN_NOT_YOURS), "told")
@@ -34723,11 +34723,11 @@ test("1.1 pinned line: only its setter or a higher rank takes a pin down; a high
 		eq(C.TakeDownPin(), true)
 		eq(sent[1].msg, "N1~8~Bankai Guild~0~0~"); eq(sent[1].dist, "GUILD")
 		w.clock = w.clock + 50
-		eq(GuildPin("Zed-Realm", "Council Zed's fifth", 9), true)
+		eq(GuildPin("Zed-Realm", "Elder Zed's fifth", 9), true)
 		eq(select(2, C.TakeDownPin()), "fast")
 		assert(Printed(w, L.PIN_DOWN_WAIT:format(C.PIN_GAP - 50)), "told to wait")
 		eq(#sent, 1)
-		eq(C.Pin().text, "Council Zed's fifth")
+		eq(C.Pin().text, "Elder Zed's fifth")
 	end)
 end)
 
@@ -34932,12 +34932,12 @@ end
 test("1.1 alert sounds: a softer chime never swallows the Call to Arms, a louder alert silences the softer ones", function()
 	SoundBench(function(b)
 		-- (What plays is counted, not what PlayAlert returns: 1.0's returned nothing.)
-		ns.PlayAlert("soft", "vox")
+		ns.PlayAlert("soft", "poll")
 		eq(#b.played, 1); eq(b.played[1], SOUNDKIT.READY_CHECK)
 		b.clock = b.clock + 5
 		ns.PlayAlert("soft", "court")
 		eq(#b.played, 1, "a second chime within 15 s: once is enough")
-		-- 1.0: one 15 s gap for every sound, and a Vox chime silenced the Call to Arms after it.
+		-- 1.0: one 15 s gap for every sound, and a Poll chime silenced the Call to Arms after it.
 		ns.PlayAlert("loud", "arms")
 		eq(#b.played, 2, "the Call to Arms sounds whatever chimed before it")
 		eq(b.played[2], SOUNDKIT.RAID_WARNING)
@@ -34965,12 +34965,12 @@ test("1.1 alert sounds: /bk sound <kind> on|off, the switch for all as before, 1
 		eq(ns.db.soundOff.muster, true); eq(ns.SoundOn("muster"), false); eq(ns.SoundOn("arms"), true)
 		eq(b.printed[#b.printed], L.SOUNDS_SOME_OFF:format("muster"))
 		eq(ns.PlayAlert("soft", "muster"), false, "the Muster silenced")
-		eq(ns.PlayAlert("soft", "vox"), true, "Vox Populi still chimes")
+		eq(ns.PlayAlert("soft", "poll"), true, "Poll still chimes")
 		b.clock = b.clock + 16
-		Slash("sound vox") -- (alone: switched)
-		eq(ns.SoundOn("vox"), false)
+		Slash("sound poll") -- (alone: switched)
+		eq(ns.SoundOn("poll"), false)
 		Slash("SOUND Court OFF")
-		eq(b.printed[#b.printed], L.SOUNDS_SOME_OFF:format("muster, court, vox"), "in the kinds' order")
+		eq(b.printed[#b.printed], L.SOUNDS_SOME_OFF:format("muster, court, poll"), "in the kinds' order")
 		eq(ns.PlayAlert("soft", "court"), false)
 		eq(ns.PlayAlert("loud", "arms"), true, "the Call to Arms stays")
 		-- The switch for all, alone as before 1.1: every sound off; back on, each kind as it was.
@@ -34984,7 +34984,7 @@ test("1.1 alert sounds: /bk sound <kind> on|off, the switch for all as before, 1
 		Slash("sound off"); eq(ns.db.sound, false)
 		Slash("sound on"); eq(ns.db.sound, true)
 		-- Each kind back on: nothing left in the save.
-		Slash("sound muster on"); Slash("sound vox on"); Slash("sound court on")
+		Slash("sound muster on"); Slash("sound poll on"); Slash("sound court on")
 		eq(ns.db.soundOff, nil); eq(b.printed[#b.printed], L.SOUNDS_ALL_ON)
 		-- A kind there is not: how to use it, nothing changed.
 		Slash("sound banana off")
@@ -34996,8 +34996,8 @@ test("1.1 alert sounds: /bk sound <kind> on|off, the switch for all as before, 1
 		ns.db.sound = true
 		for _, k in ipairs(ns.SOUND_KINDS) do eq(ns.SoundOn(k), true, k) end
 		-- /bk status says which.
-		ns.db.soundOff = { vox = true, hop = true }
-		assert(ns.AlertStatus():find("^sounds on, off: vox,hop"), ns.AlertStatus())
+		ns.db.soundOff = { poll = true, hop = true }
+		assert(ns.AlertStatus():find("^sounds on, off: poll,hop"), ns.AlertStatus())
 	end)
 end)
 
@@ -35042,12 +35042,12 @@ test("1.1 alert sounds: every alert names its kind (ns.PlayAlert, Shogun.Warn), 
 	end
 	p:close()
 	assert(calls >= 25, "the alerts: " .. calls)
-	for _, k in ipairs({ "court", "vox", "agenda", "throne", "help", "hop", "treasury", "patrol", "update", "muster" }) do assert(seen[k], k) end
+	for _, k in ipairs({ "court", "poll", "agenda", "throne", "help", "hop", "treasury", "patrol", "update", "muster" }) do assert(seen[k], k) end
 	-- The decrees: each kind its switch, the Tabard inspection with the Royal decree.
 	eq(ns.Decree.SOUND.ARMS, "arms"); eq(ns.Decree.SOUND.MUSTER, "muster"); eq(ns.Decree.SOUND.ROYAL, "royal"); eq(ns.Decree.SOUND.HERALDRY, "royal")
 end)
 
-test("1.1 alert sounds: a decree, a court call and a Vox question sound by their own switch, and still show", function()
+test("1.1 alert sounds: a decree, a court call and a Poll question sound by their own switch, and still show", function()
 	SoundBench(function(b)
 		WithUI(function()
 			-- A decree (the local preview, the path every decree takes: Decree.lua's Show), on a
@@ -35079,27 +35079,27 @@ test("1.1 alert sounds: a decree, a court call and a Vox question sound by their
 			C_Map.GetBestMapForUnit, C_Map.GetPlayerMapPosition = saved.best, saved.pos
 			C_ChatInfo = nil
 			if not ok then error(err, 0) end
-			-- The court's call and a Vox question: the popup and the window, silent.
+			-- The court's call and a Poll question: the popup and the window, silent.
 			WithThrone(function(w, K)
 				local C = ns.Court
 				C_Map.GetBestMapForUnit = function() return 1453 end
 				C_Map.GetMapInfo = function() return { mapType = 3 } end
 				GetRealZoneText = function() return "Stormwind City" end
 				b.clock = b.clock + 16
-				ns.SoundSlash("court off"); ns.SoundSlash("vox off")
+				ns.SoundSlash("court off"); ns.SoundSlash("poll off")
 				AsSoldier()
 				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~C~61~Bankai Guild~1453~Stormwind City")
 				C.HandleCall("WHISPER", "Shobek Shobekler-Realm", "T5~61")
 				eq(w.popups[#w.popups].name, "BANKAIGUILD_COURT_CALLED", "the call still shows")
 				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~62~Bankai Guild~60~1~Raid?~Yes~No")
-				assert(ns.Vox.Frame():IsShown(), "the question's window still opens")
+				assert(ns.Poll.Frame():IsShown(), "the question's window still opens")
 				eq(#b.played, 3, "neither sounded")
-				ns.SoundSlash("vox on")
-				ns.Vox.Reset()
+				ns.SoundSlash("poll on")
+				ns.Poll.Reset()
 				b.clock = b.clock + 16
 				w.clock = w.clock + 120
 				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~63~Bankai Guild~60~1~Again?~Yes~No")
-				eq(#b.played, 4, "Vox Populi on again")
+				eq(#b.played, 4, "Poll on again")
 			end)
 		end)
 	end)
@@ -35249,11 +35249,11 @@ test("1.1 held alerts: in an instance a Call to Arms and a Muster leave their ch
 	end)
 end)
 
-test("1.1 held alerts: on Busy the court's call and a Vox question wait (their chat line now, a click on the Decrees tab shows one); out, they pop while still open, never after", function()
+test("1.1 held alerts: on Busy the court's call and a Poll question wait (their chat line now, a click on the Decrees tab shows one); out, they pop while still open, never after", function()
 	HoldBench(function(b)
 		WithUI(function()
 			WithThrone(function(w, K)
-				local L, C, V = ns.L, ns.Court, ns.Vox
+				local L, C, V = ns.L, ns.Court, ns.Poll
 				local function Wait(s) w.clock, b.clock = w.clock + s, b.clock + s end
 				local function Open() return V.Frame() ~= nil and V.Frame():IsShown() end
 				RaidNotice_AddMessage = b.notice -- (WithThrone had none)
@@ -35272,7 +35272,7 @@ test("1.1 held alerts: on Busy the court's call and a Vox question wait (their c
 				eq(Open(), false, "no window while Busy")
 				assert(Printed(w, "Raid tonight?  1) Yes  2) No"), "the question in chat")
 				local tab = Texts(ns.Views.Build("decrees"))
-				for _, text in ipairs({ L.HELD_TITLE, L.HELD_COURT:format("Stormwind City"), L.HELD_COURT_CALL:format("Shobek"), L.HELD_VOX:format("Raid tonight?") }) do
+				for _, text in ipairs({ L.HELD_TITLE, L.HELD_COURT:format("Stormwind City"), L.HELD_COURT_CALL:format("Shobek"), L.HELD_POLL:format("Raid tonight?") }) do
 					assert(tab:find(text, 1, true), text .. "\n" .. tab)
 				end
 				-- Back, 30 seconds later: one line, one raid warning, one sound (the call's, the loudest);
@@ -35281,7 +35281,7 @@ test("1.1 held alerts: on Busy the court's call and a Vox question wait (their c
 				b.busy = false
 				ns.ReleaseHeld()
 				local line = w.printed[#w.printed]
-				assert(line:find(L.HELD_COURT_CALL:format("Shobek"), 1, true) and line:find(L.HELD_VOX:format("Raid tonight?"), 1, true), line)
+				assert(line:find(L.HELD_COURT_CALL:format("Shobek"), 1, true) and line:find(L.HELD_POLL:format("Raid tonight?"), 1, true), line)
 				eq(w.popups[#w.popups].name, "BANKAIGUILD_COURT_CALLED", "the call, still open, pops")
 				eq(Open(), true, "the question, still open: its window")
 				eq(#b.warnings, 1); eq(#b.played, 1, "one sound for all of them"); eq(b.played[1], SOUNDKIT.RAID_WARNING)
@@ -35302,7 +35302,7 @@ test("1.1 held alerts: on Busy the court's call and a Vox question wait (their c
 				Wait(60)
 				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~V~74~Bankai Guild~120~1~Now?~Yes~No")
 				local row
-				for _, l in ipairs(ns.Views.Build("decrees")) do if l.onClick and l.text:find(L.HELD_VOX:format("Now?"), 1, true) then row = l end end
+				for _, l in ipairs(ns.Views.Build("decrees")) do if l.onClick and l.text:find(L.HELD_POLL:format("Now?"), 1, true) then row = l end end
 				assert(row, "its line, a click away")
 				row.onClick()
 				eq(Open(), true, "the window, now")
@@ -35323,7 +35323,7 @@ test("1.1 held alerts: the roll call waits and is never answered for the player;
 				local L = ns.L
 				local function Wait(s) w.clock, b.clock = w.clock + s, b.clock + s end
 				RaidNotice_AddMessage = b.notice
-				AsCaptain()
+				AsCouncilMember()
 				b.inside = true
 				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~S~81~Bankai Guild")
 				eq(#w.popups, 0, "the roll call waits")
@@ -35477,13 +35477,13 @@ test("1.1 held alerts: a full list keeps the Agenda's popup: HELD_MAX Calls to A
 					ns.Alert(kind, kind == "muster" and "soft" or "loud", { text = what, what = what, open = function() return ns.Now() <= expires end })
 				end
 				RaidNotice_AddMessage = b.notice
-				AsCaptain()
+				AsCouncilMember()
 				b.inside = true
 				K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~A~82~Bankai Guild~10800~The Crossroads~Raid on the Crossroads")
 				-- A question over within the minute, repeated (one key): one of those that came and went.
 				local asked = ns.Now()
 				for _ = 1, 2 do
-					ns.Alert("vox", "soft", { what = "a quick question", key = "vox9", open = function() return ns.Now() - asked < 60 end })
+					ns.Alert("poll", "soft", { what = "a quick question", key = "poll9", open = function() return ns.Now() - asked < 60 end })
 				end
 				-- A Call to Arms every three minutes for two hours.
 				for i = 1, ns.HELD_MAX do Wait(180); Decree("arms", "Call to Arms " .. i, 300) end
@@ -35530,7 +35530,7 @@ test("1.1 held alerts: two Royal Writs held while Busy both wait and both come o
 			WithThrone(function(w, K)
 				local A = ns.Acts
 				RaidNotice_AddMessage = b.notice
-				AsCouncil(); A.Reset(); ns.rdb.writs = nil
+				AsElder(); A.Reset(); ns.rdb.writs = nil
 				local shown, real = {}, A.ShowWrit
 				A.ShowWrit = function(wr) shown[#shown + 1] = wr.id end
 				local ok, err = pcall(function()
@@ -35617,7 +35617,7 @@ test("1.1 held alerts: their words in both languages, the same %s in each; /bk a
 	if not ok then error(err, 0) end
 	for _, key in ipairs({ "HELP_ALERTS", "ALERTS_QUIET", "ALERTS_ALWAYS", "ALERTS_LINE", "ALERTS_HELD", "ALERTS_SHOWN", "ALERTS_TIP",
 		"HELD_TITLE", "HELD_TIP", "HELD_LATER", "HELD_SUMMARY", "HELD_TIMES", "HELD_MORE", "HELD_AND_GONE", "HELD_GONE", "HELD_SUMMON",
-		"HELD_INSPECTION", "HELD_AGENDA", "HELD_COURT", "HELD_COURT_CALL", "HELD_WRIT", "HELD_HOP", "HELD_VOX", "HELD_UPDATE", "VOX_HELD" }) do
+		"HELD_INSPECTION", "HELD_AGENDA", "HELD_COURT", "HELD_COURT_CALL", "HELD_WRIT", "HELD_HOP", "HELD_POLL", "HELD_UPDATE", "POLL_HELD" }) do
 		assert(rawget(ns.L, key), key); assert(rawget(pt.L, key), "pt-BR " .. key)
 		local a, b = {}, {}
 		for f in ns.L[key]:gmatch("%%%a") do a[#a + 1] = f end
@@ -35743,7 +35743,7 @@ do
 	end
 end
 
-test("1.1 census search (Fern #16): a Captain, a player of the top five, one seen with /who and one of our roster find their guild, the player under its row", function()
+test("1.1 census search (Fern #16): a Council member, a player of the top five, one seen with /who and one of our roster find their guild, the player under its row", function()
 	local V = ns.Views
 	Fern.Census(function(w)
 		ns.Roster.online = { { name = "Mate", level = 22, class = "MA", rank = "Knight", rankIndex = 3 } }
@@ -35752,14 +35752,14 @@ test("1.1 census search (Fern #16): a Captain, a player of the top five, one see
 			V.SetFilter("census", text)
 			return V.Build("census")
 		end
-		-- A Captain: his guild's row, then him under it (a click opens his card, in his guild).
+		-- A Council member: his guild's row, then him under it (a click opens his card, in his guild).
 		local lines = Search("CAPT")
 		eq(Fern.Guilds(lines), "Bankai Guild")
 		local capt = Fern.Find(lines, "Capt")
-		assert(capt and capt.indent == 1 and capt.key == "Capt", "the Captain under the row")
-		assert(Fern.Bare(capt.text):find(ns.L.CAPTAIN, 1, true), "named a Captain")
+		assert(capt and capt.indent == 1 and capt.key == "Capt", "the Council member under the row")
+		assert(Fern.Bare(capt.text):find(ns.L.COUNCIL_MEMBER, 1, true), "named a Council member")
 		capt.onClick()
-		eq(w.persons[1].name, "Capt"); eq(w.persons[1].guild, "Bankai Guild"); eq(w.persons[1].rank, ns.L.CAPTAIN)
+		eq(w.persons[1].name, "Capt"); eq(w.persons[1].guild, "Bankai Guild"); eq(w.persons[1].rank, ns.L.COUNCIL_MEMBER)
 		-- A player of a report's top five.
 		lines = Search("racer")
 		eq(Fern.Guilds(lines), "Bankai Guild"); assert(Fern.Find(lines, "Racer"), "the racer")
@@ -35768,8 +35768,8 @@ test("1.1 census search (Fern #16): a Captain, a player of the top five, one see
 		eq(Fern.Guilds(lines), "Bankai Guild"); assert(Fern.Find(lines, "Scout"), "seen with /who")
 		lines = Search("mate")
 		eq(Fern.Guilds(lines), "Bankai Guild II"); assert(Fern.Find(lines, "Mate"), "our roster")
-		-- The Council still shows the row alone, as in 1.0.0.
-		lines = Search("councily")
+		-- The Elder still shows the row alone, as in 1.0.0.
+		lines = Search("eldery")
 		eq(Fern.Guilds(lines), "Bankai Guild II"); eq(#lines, 2, "the box and the row")
 		-- Past CENSUS_FOUND players, the rest counted.
 		ns.Roster.online = {}
@@ -35941,7 +35941,7 @@ test("1.1 census marks (Fern #30): senders split on the ranks, a sender outvoted
 	local ok, err = pcall(function()
 		ns.rdb.guilds = {}
 		-- One sender: unconfirmed, the fainter mark, the sender named.
-		eq(Fern.Report("Bankai Guild Zed", "Zcouncil", "Zcap:1:0", "Zeda-Realm", 800), true)
+		eq(Fern.Report("Bankai Guild Zed", "Zelder", "Zcap:1:0", "Zeda-Realm", 800), true)
 		local g = ns.rdb.guilds["Bankai Guild Zed"]
 		eq(g.vouch["Zeda-Realm"].n, 800, "each vote keeps its sender's size")
 		local d = D.Dispute(g)
@@ -35950,12 +35950,12 @@ test("1.1 census marks (Fern #30): senders split on the ranks, a sender outvoted
 		eq(V.DisputeLines(d)[1], L.DISPUTE_SINGLE:format("Zeda"))
 		-- A second sender, the same picture and size within max(5, 5%): nothing to mark.
 		clock = clock + 60
-		eq(Fern.Report("Bankai Guild Zed", "Zcouncil", "Zcap:1:0", "Zedb-Realm", 830), true)
+		eq(Fern.Report("Bankai Guild Zed", "Zelder", "Zcap:1:0", "Zedb-Realm", 830), true)
 		eq(D.Dispute(ns.rdb.guilds["Bankai Guild Zed"]), nil, "two senders agree (800 and 830 of 830 is within 5%)")
 		eq(V.DisputeMark(ns.rdb.guilds["Bankai Guild Zed"]), "")
 		-- The same picture, a forged headcount: the sizes are apart.
 		clock = clock + 60
-		eq(Fern.Report("Bankai Guild Zed", "Zcouncil", "Zcap:1:0", "Zedc-Realm", 1), true, "the same leader and officers: the row takes it")
+		eq(Fern.Report("Bankai Guild Zed", "Zelder", "Zcap:1:0", "Zedc-Realm", 1), true, "the same leader and officers: the row takes it")
 		g = ns.rdb.guilds["Bankai Guild Zed"]
 		d = D.Dispute(g)
 		eq(d.disputed, true); eq(d.sizes[1].n, 1); eq(d.sizes[1].sender, "Zedc-Realm"); eq(d.sizes[2].n, 830); eq(d.sizes[2].sender, "Zedb-Realm")
@@ -35999,10 +35999,10 @@ test("1.1 census marks (Fern #30): on the Census's row, the Realm's guild header
 	Fern.Census(function(w)
 		local now = os.time()
 		ns.rdb.guilds = {}
-		ns.rdb.guilds["Bankai Guild Zed"] = { total = 800, online = 10, zones = {}, t = now, leader = "Zcouncil", leaderOnline = true, officers = {},
+		ns.rdb.guilds["Bankai Guild Zed"] = { total = 800, online = 10, zones = {}, t = now, leader = "Zelder", leaderOnline = true, officers = {},
 			reporter = "Aaa", reporterFull = "Aaa-Realm",
 			vouch = { ["Aaa-Realm"] = { t = now, sig = "s", ranks = {}, n = 800 }, ["Ccc-Realm"] = { t = now, sig = "s", ranks = {}, n = 1 } } }
-		ns.rdb.guilds["Bankai Guild Ok"] = { total = 400, online = 10, zones = {}, t = now, leader = "Okcouncil", leaderOnline = true, officers = {},
+		ns.rdb.guilds["Bankai Guild Ok"] = { total = 400, online = 10, zones = {}, t = now, leader = "Okelder", leaderOnline = true, officers = {},
 			vouch = { ["Aaa2-Realm"] = { t = now, sig = "s", ranks = {}, n = 400 }, ["Bbb2-Realm"] = { t = now, sig = "s", ranks = {}, n = 401 } } }
 		local lines = V.Build("census")
 		local zed, ok
@@ -36048,7 +36048,7 @@ test("1.1 census marks (Fern #30): on the Census's row, the Realm's guild header
 end)
 
 test("1.1 census marks (Fern #30): the dead 'twin' flag is read nowhere any more", function()
-	for _, file in ipairs({ "Layers.lua", "Hop.lua", "Vox.lua", "Data.lua", "Views.lua" }) do
+	for _, file in ipairs({ "Layers.lua", "Hop.lua", "Poll.lua", "Data.lua", "Views.lua" }) do
 		local src = assert(io.open(ADDON_DIR .. file)):read("*a")
 		eq(src:find("%.twin"), nil, file)
 	end
@@ -36058,7 +36058,7 @@ end)
 -- Our own small guild, <Bankai Guild II>: who is in it, rank (0 = guild master), online, and days
 -- offline as the game gives them (years, months, days, hours). `myRank`: ours.
 Fern.ROSTER = {
-	{ "Councily-Realm", 0, true, 30, "WARRIOR", { 0, 0, 0, 0 } },
+	{ "Eldery-Realm", 0, true, 30, "WARRIOR", { 0, 0, 0, 0 } },
 	{ "Capty-Realm", 1, false, 28, "PALADIN", { 0, 1, 10, 0 } },   -- 40 days
 	{ "Old-Realm", 3, false, 20, "MAGE", { 0, 1, 15, 0 } },        -- 45 days
 	{ "Mid-Realm", 3, false, 14, "PRIEST", { 0, 0, 15, 0 } },      -- 15 days
@@ -36186,7 +36186,7 @@ test("1.1 inactive list (Fern #38): a rank that may remove removes one member pe
 			local rows = Fern.MemberRows(V.Build("realm"))
 			eq(Fern.Names(rows), "Old,Capty,Mid,Week")
 			assert(Fern.Find(V.Build("realm"), L.MEMBERS_REMOVE_HINT), "the hint")
-			-- A Captain (rank 1): Recruits and Heroes below him, never another Captain.
+			-- A Council member (rank 1): Recruits and Heroes below him, never another Council member.
 			assert(rows[1].right:find(L.MEMBERS_REMOVE, 1, true), "Old: Remove")
 			assert(not rows[2].right:find(L.MEMBERS_REMOVE, 1, true), "Capty: his own rank")
 			rows[2].onClick()
@@ -36215,7 +36215,7 @@ test("1.1 inactive list (Fern #38): a rank that may remove removes one member pe
 			w.clock = w.clock + M.REMOVE_GAP
 			dialog.OnAccept(nil, game.shown[2].data)
 			eq(#w.removed, 2)
-			-- Never a Captain by his peer, even asked directly; the game says no: nobody.
+			-- Never a Council member by his peer, even asked directly; the game says no: nobody.
 			w.clock = w.clock + M.REMOVE_GAP
 			local capty
 			for _, m in ipairs(ns.Roster.members) do if m.name == "Capty" then capty = m end end
@@ -36227,13 +36227,13 @@ test("1.1 inactive list (Fern #38): a rank that may remove removes one member pe
 			eq(#w.removed, 2)
 			eq(#w.sent, 0, "nothing sent")
 		end)
-		-- The guild master removes a Captain.
+		-- The guild master removes a Council member.
 		Fern.Guild(0, function(w)
 			w.canRemove = true
 			M.Show(30)
 			local rows = Fern.MemberRows(V.Build("realm"))
 			eq(Fern.Names(rows), "Old,Capty")
-			assert(rows[2].right:find(L.MEMBERS_REMOVE, 1, true), "the guild master: Captains too")
+			assert(rows[2].right:find(L.MEMBERS_REMOVE, 1, true), "the guild master: Council too")
 		end)
 	end)
 	-- One call to the game's removal in the whole file, inside Members.Remove: no kick-all.
@@ -36264,7 +36264,7 @@ test("1.1 inactive list (Fern #38): with the gamepad UI the question is Bankai G
 end)
 
 
--- Fern.ROSTER with our Council away `days` days (online when nil).
+-- Fern.ROSTER with our Elder away `days` days (online when nil).
 function Fern.AwayRoster(days)
 	local out = {}
 	for i, m in ipairs(Fern.ROSTER) do out[i] = { m[1], m[2], m[3], m[4], m[5], m[6] } end
@@ -36277,16 +36277,16 @@ function Fern.Count(list, text)
 	return n
 end
 
-test("1.1 a Council member away (Fern #39): one line to our officers when our Council crosses warnDays, from our roster; again only after he came back; never to members or to him", function()
+test("1.1 an Elder away (Fern #39): one line to our officers when our Elder crosses warnDays, from our roster; again only after he came back; never to members or to him", function()
 	local L, M = ns.L, ns.Members
-	local savedWarn, savedWarned = ns.db.warnDays, ns.rdb.councilWarned
+	local savedWarn, savedWarned = ns.db.warnDays, ns.rdb.elderWarned
 	local ok, err = pcall(function()
 		ns.db.warnDays = 3
 		local roster = Fern.AwayRoster(4)
-		local line = L.COUNCIL_AWAY_OWN:format("Councily", 4, 3)
+		local line = L.ELDER_AWAY_OWN:format("Eldery", 4, 3)
 		-- An officer (rank 1): the scan's line, once.
 		Fern.Guild(1, function(w)
-			ns.rdb.councilWarned = nil
+			ns.rdb.elderWarned = nil
 			local function Scan()
 				ns.Roster.RequestScan(true)
 				ns.Roster.TryScan()
@@ -36302,32 +36302,32 @@ test("1.1 a Council member away (Fern #39): one line to our officers when our Co
 			Scan()
 			eq(Fern.Count(w.printed, line), 2, "a new crossing")
 			-- Under the officer's own warnDays: nothing.
-			ns.rdb.councilWarned, ns.db.warnDays = nil, 5
+			ns.rdb.elderWarned, ns.db.warnDays = nil, 5
 			Scan()
-			eq(Fern.Count(w.printed, L.COUNCIL_AWAY_OWN:format("Councily", 4, 5)), 0)
+			eq(Fern.Count(w.printed, L.ELDER_AWAY_OWN:format("Eldery", 4, 5)), 0)
 			ns.db.warnDays = 3
-			for _, s in ipairs(w.sent) do assert(not s:find("Councily", 1, true) or not s:find("away", 1, true), "nothing sent about him") end
+			for _, s in ipairs(w.sent) do assert(not s:find("Eldery", 1, true) or not s:find("away", 1, true), "nothing sent about him") end
 		end, roster)
-		-- A member, and the Council himself: nothing.
+		-- A member, and the Elder himself: nothing.
 		for _, rank in ipairs({ 3, 0 }) do
 			Fern.Guild(rank, function(w)
-				ns.rdb.councilWarned = nil
+				ns.rdb.elderWarned = nil
 				ns.Roster.RequestScan(true)
 				ns.Roster.TryScan()
-				eq(Fern.Count(w.printed, "Councily"), 0, "rank " .. rank)
+				eq(Fern.Count(w.printed, "Eldery"), 0, "rank " .. rank)
 			end, roster)
 		end
 	end)
-	ns.db.warnDays, ns.rdb.councilWarned = savedWarn, savedWarned
+	ns.db.warnDays, ns.rdb.elderWarned = savedWarn, savedWarned
 	if not ok then error(err, 0) end
 end)
 
-test("1.1 a Council member away (Fern #39): the Shogun, his Steward and Hands get one line for the Council of other guilds past warnDays, by the census's word, a guild that stopped reporting included; never twice for one absence", function()
+test("1.1 an Elder away (Fern #39): the Shogun, his Steward and Hands get one line for the Elders of other guilds past warnDays, by the census's word, a guild that stopped reporting included; never twice for one absence", function()
 	local L, M = ns.L, ns.Members
-	local savedWarn, savedCan, savedWarned = ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.councilWarned
+	local savedWarn, savedCan, savedWarned = ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.elderWarned
 	local ok, err = pcall(function()
 		Fern.Census(function(w)
-			ns.db.warnDays, ns.rdb.councilWarned = 3, nil
+			ns.db.warnDays, ns.rdb.elderWarned = 3, nil
 			local now = os.time()
 			local crown = true
 			ns.Shogun.CanCommand = function() return crown end
@@ -36339,34 +36339,34 @@ test("1.1 a Council member away (Fern #39): the Shogun, his Steward and Hands ge
 				["Bankai Guild C"] = { total = 100, online = 5, zones = {}, t = now, leader = "Cl", leaderOnline = true, leaderDays = 0, officers = {} },
 				["Bankai Guild D"] = { total = 100, online = 5, zones = {}, t = now, leader = "Dl", leaderOnline = false, leaderDays = 10, officers = {} },
 				-- Our own guild: our roster's line, not the census's.
-				["Bankai Guild II"] = { total = 100, online = 5, zones = {}, t = now, leader = "Councily", leaderOnline = false, leaderDays = 9, officers = {}, mine = true },
+				["Bankai Guild II"] = { total = 100, online = 5, zones = {}, t = now, leader = "Eldery", leaderOnline = false, leaderDays = 9, officers = {}, mine = true },
 			}
-			eq(M.CheckCouncil(now), 2)
-			eq(w.printed[#w.printed], L.COUNCIL_AWAY_CROWN_MANY:format(2, 3, L.COUNCIL_AWAY_ENTRY:format("Dl", "Bankai Guild D", 10) .. ", "
-				.. L.COUNCIL_AWAY_ENTRY:format("Al", "Bankai Guild A", 3)), "longest away first, one line")
+			eq(M.CheckElders(now), 2)
+			eq(w.printed[#w.printed], L.ELDER_AWAY_CROWN_MANY:format(2, 3, L.ELDER_AWAY_ENTRY:format("Dl", "Bankai Guild D", 10) .. ", "
+				.. L.ELDER_AWAY_ENTRY:format("Al", "Bankai Guild A", 3)), "longest away first, one line")
 			local printed = #w.printed
-			eq(M.CheckCouncil(now + 60), 0); eq(#w.printed, printed, "not twice")
-			-- D's Council comes back, then leaves again: one line, for him alone.
+			eq(M.CheckElders(now + 60), 0); eq(#w.printed, printed, "not twice")
+			-- D's Elder comes back, then leaves again: one line, for him alone.
 			ns.rdb.guilds["Bankai Guild D"].leaderOnline = true
-			eq(M.CheckCouncil(now + 120), 0)
+			eq(M.CheckElders(now + 120), 0)
 			ns.rdb.guilds["Bankai Guild D"].leaderOnline, ns.rdb.guilds["Bankai Guild D"].leaderDays = false, 4
-			eq(M.CheckCouncil(now + 180), 1)
-			eq(w.printed[#w.printed], L.COUNCIL_AWAY_CROWN:format("Dl", "Bankai Guild D", 4))
+			eq(M.CheckElders(now + 180), 1)
+			eq(w.printed[#w.printed], L.ELDER_AWAY_CROWN:format("Dl", "Bankai Guild D", 4))
 			-- Seven at once: five named, the rest counted.
 			for k = 1, 7 do
 				ns.rdb.guilds["Bankai Guild M" .. k] = { total = 10, online = 1, zones = {}, t = now, leader = "M" .. k, leaderOnline = false, leaderDays = 5 + k, officers = {} }
 			end
-			eq(M.CheckCouncil(now + 240), 7)
-			assert(w.printed[#w.printed]:find(L.COUNCIL_AWAY_MORE:format(2), 1, true), w.printed[#w.printed])
+			eq(M.CheckElders(now + 240), 7)
+			assert(w.printed[#w.printed]:find(L.ELDER_AWAY_MORE:format(2), 1, true), w.printed[#w.printed])
 			-- Rebuilding after login: nothing yet.
 			ns.rdb.guilds["Bankai Guild E"] = { total = 10, online = 1, zones = {}, t = now, leader = "El", leaderOnline = false, leaderDays = 6, officers = {} }
 			ns.Comm.loginAt = now + 250
-			eq(M.CheckCouncil(now + 260), 0)
-			eq(M.CheckCouncil(now + 250 + ns.Data.CROWN_AFTER), 1)
+			eq(M.CheckElders(now + 260), 0)
+			eq(M.CheckElders(now + 250 + ns.Data.CROWN_AFTER), 1)
 			-- Not the Crown: never.
 			crown = false
-			ns.rdb.councilWarned = nil
-			eq(M.CheckCouncil(now + 999), 0)
+			ns.rdb.elderWarned = nil
+			eq(M.CheckElders(now + 999), 0)
 			eq(#w.sent, 0, "nothing sent")
 		end)
 		-- /bk warndays.
@@ -36381,18 +36381,18 @@ test("1.1 a Council member away (Fern #39): the Shogun, his Steward and Hands ge
 		eq(ns.db.warnDays, 5)
 		ns.Print = saved
 	end)
-	ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.councilWarned = savedWarn, savedCan, savedWarned
+	ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.elderWarned = savedWarn, savedCan, savedWarned
 	if not ok then error(err, 0) end
-	Fern.BothLanguages({ "COUNCIL_AWAY_OWN", "COUNCIL_AWAY_CROWN", "COUNCIL_AWAY_ENTRY", "COUNCIL_AWAY_CROWN_MANY", "COUNCIL_AWAY_MORE", "WARNDAYS_USAGE",
+	Fern.BothLanguages({ "ELDER_AWAY_OWN", "ELDER_AWAY_CROWN", "ELDER_AWAY_ENTRY", "ELDER_AWAY_CROWN_MANY", "ELDER_AWAY_MORE", "WARNDAYS_USAGE",
 		"WARNDAYS_SET", "HELP_WARNDAYS" })
 end)
 
 
--- Our guild for the mentors: Capty a Captain online, Cap2 one offline; Old (offline) and
+-- Our guild for the mentors: Capty a Council member online, Cap2 one offline; Old (offline) and
 -- Newbie (online) in the lowest rank.
 function Fern.MentorRoster()
 	return {
-		{ "Councily-Realm", 0, true, 30, "WARRIOR", { 0, 0, 0, 0 } },
+		{ "Eldery-Realm", 0, true, 30, "WARRIOR", { 0, 0, 0, 0 } },
 		{ "Capty-Realm", 1, true, 28, "PALADIN", { 0, 0, 0, 0 } },
 		{ "Cap2-Realm", 1, false, 26, "WARRIOR", { 0, 0, 2, 0 } },
 		{ "Old-Realm", 3, false, 20, "MAGE", { 0, 1, 15, 0 } },
@@ -36407,7 +36407,7 @@ function Fern.NoDues(text, what)
 	for _, w in ipairs(Fern.DUES_WORDS) do assert(not low:find(w, 1, true), what .. " names " .. w .. ": " .. text) end
 end
 
-test("1.1 mentors (Fern #19): the Council clicks a recruit, then a Captain; one click sends one whisper to each, naming the other; the pair shows on his list", function()
+test("1.1 mentors (Fern #19): the Elder clicks a recruit, then a Council member; one click sends one whisper to each, naming the other; the pair shows on his list", function()
 	local V, L, M = ns.Views, ns.L, ns.Members
 	local savedMentors = ns.rdb.mentors
 	local ok, err = pcall(function()
@@ -36419,7 +36419,7 @@ test("1.1 mentors (Fern #19): the Council clicks a recruit, then a Captain; one 
 				Scan()
 				M.Show(7)
 				local filter = Fern.Find(V.Build("realm"), L.MENTOR_FILTER)
-				assert(filter and filter.onClick, "the Council's page")
+				assert(filter and filter.onClick, "the Elder's page")
 				eq(Fern.Bare(filter.right), "2", "two recruits: the lowest rank")
 				filter.onClick()
 				eq(M.Filter(), "recruits")
@@ -36431,7 +36431,7 @@ test("1.1 mentors (Fern #19): the Council clicks a recruit, then a Captain; one 
 				-- Old is offline: a whisper can't reach him.
 				rows[2].onClick()
 				eq(w.printed[#w.printed], L.MENTOR_OFFLINE:format("Old")); eq(#game.shown, 0)
-				-- Newbie: the Captains, the one online to click.
+				-- Newbie: the Council, the one online to click.
 				rows[1].onClick()
 				lines = V.Build("realm")
 				assert(Fern.Find(lines, L.MENTOR_PICK:format("Newbie")), "who for")
@@ -36445,7 +36445,7 @@ test("1.1 mentors (Fern #19): the Council clicks a recruit, then a Captain; one 
 				-- Yes: two whispers, one to each, from that click.
 				StaticPopupDialogs.BANKAIGUILD_MENTOR.OnAccept(nil, game.shown[1].data)
 				eq(#w.said, 2)
-				eq(w.said[1].kind, "WHISPER"); eq(w.said[1].to, "Capty"); eq(w.said[1].text, L.MENTOR_TO_CAPTAIN:format("Newbie", "Bankai Guild II"))
+				eq(w.said[1].kind, "WHISPER"); eq(w.said[1].to, "Capty"); eq(w.said[1].text, L.MENTOR_TO_COUNCIL_MEMBER:format("Newbie", "Bankai Guild II"))
 				eq(w.said[2].kind, "WHISPER"); eq(w.said[2].to, "Newbie"); eq(w.said[2].text, L.MENTOR_TO_RECRUIT:format("Bankai Guild II", "Capty"))
 				eq(w.printed[#w.printed], L.MENTOR_DONE:format("Capty", "Newbie"))
 				eq(ns.rdb.mentors["Bankai Guild II"]["Newbie-Realm"].mentor, "Capty-Realm")
@@ -36455,11 +36455,11 @@ test("1.1 mentors (Fern #19): the Council clicks a recruit, then a Captain; one 
 				for _, r in ipairs(rows) do if r.key == "Newbie" then newbie = r end end
 				assert(Fern.Bare(newbie.right):find(L.MENTOR_OF:format("Capty"), 1, true), newbie.right)
 				-- Another pair at once: refused until the gap has passed.
-				local recruit, captain
+				local recruit, councilMember
 				for _, m in ipairs(ns.Roster.members) do
-					if m.name == "Newbie" then recruit = m elseif m.name == "Capty" then captain = m end
+					if m.name == "Newbie" then recruit = m elseif m.name == "Capty" then councilMember = m end
 				end
-				eq(M.AssignMentor(recruit, captain), false); eq(#w.said, 2); eq(w.printed[#w.printed], L.MENTOR_WAIT)
+				eq(M.AssignMentor(recruit, councilMember), false); eq(#w.said, 2); eq(w.printed[#w.printed], L.MENTOR_WAIT)
 				-- Someone joins: a recruit too, marked new, on top.
 				roster[#roster + 1] = { "Joiner-Realm", 2, true, 5, "MAGE", { 0, 0, 0, 0 } }
 				Scan()
@@ -36468,17 +36468,17 @@ test("1.1 mentors (Fern #19): the Council clicks a recruit, then a Captain; one 
 				eq(M.Joined("Joiner-Realm"), true); eq(M.Joined("Old-Realm"), false)
 				for _, s in ipairs(w.sent) do assert(not s:find("^WHISPER"), "no addon whisper: " .. s) end
 			end, roster)
-			-- A Captain: no such page, and no pairs from him.
+			-- A Council member: no such page, and no pairs from him.
 			Fern.Guild(1, function(w)
 				M.Show("recruits")
 				local lines = V.Build("realm")
 				eq(Fern.Find(lines, L.MENTOR_FILTER), nil)
 				eq(M.Filter(), 7, "back on the inactive list")
-				local recruit, captain
+				local recruit, councilMember
 				for _, m in ipairs(ns.Roster.members) do
-					if m.name == "Newbie" then recruit = m elseif m.name == "Capty" then captain = m end
+					if m.name == "Newbie" then recruit = m elseif m.name == "Capty" then councilMember = m end
 				end
-				eq(M.AssignMentor(recruit, captain), false); eq(#w.said, 0)
+				eq(M.AssignMentor(recruit, councilMember), false); eq(#w.said, 0)
 			end, Fern.MentorRoster())
 		end)
 	end)
@@ -36486,9 +36486,9 @@ test("1.1 mentors (Fern #19): the Council clicks a recruit, then a Captain; one 
 	if not ok then error(err, 0) end
 	-- No dues line in either whisper, in both languages.
 	local pt = Fern.BothLanguages({ "MENTOR_FILTER", "MENTOR_HINT", "MENTOR_PICK", "MENTOR_PICK_CANCEL", "MENTOR_COUNT", "MENTOR_OF", "MENTOR_NONE",
-		"MENTOR_NEW", "MENTOR_NO_RECRUITS", "MENTOR_NO_CAPTAINS", "MENTOR_OFFLINE", "MENTOR_CONFIRM", "MENTOR_SEND", "MENTOR_TO_CAPTAIN",
-		"MENTOR_TO_RECRUIT", "MENTOR_DONE", "MENTOR_WAIT", "MENTOR_TIP", "MENTOR_CAPTAIN_TIP", "HELP_MENTORS" }, { MENTOR_OF = true })
-	for _, k in ipairs({ "MENTOR_TO_CAPTAIN", "MENTOR_TO_RECRUIT" }) do
+		"MENTOR_NEW", "MENTOR_NO_RECRUITS", "MENTOR_NO_COUNCIL", "MENTOR_OFFLINE", "MENTOR_CONFIRM", "MENTOR_SEND", "MENTOR_TO_COUNCIL_MEMBER",
+		"MENTOR_TO_RECRUIT", "MENTOR_DONE", "MENTOR_WAIT", "MENTOR_TIP", "MENTOR_COUNCIL_MEMBER_TIP", "HELP_MENTORS" }, { MENTOR_OF = true })
+	for _, k in ipairs({ "MENTOR_TO_COUNCIL_MEMBER", "MENTOR_TO_RECRUIT" }) do
 		Fern.NoDues(L[k], k); Fern.NoDues(pt[k], "pt-BR " .. k)
 	end
 end)
@@ -36562,23 +36562,23 @@ test("1.1 join routing (Fern #20): outside an Bankai Guild guild the addon hears
 	if not ok then error(err, 0) end
 end)
 
--- A census for routing: R1 900 free (its Council and two Captains online), R2 700 free (the Shogun's
--- gates; its Council offline, a Captain online), ours 500, the Shogun's guild 100 (the Shogun online),
+-- A census for routing: R1 900 free (its Elder and two Council online), R2 700 free (the Shogun's
+-- gates; its Elder offline, a Council member online), ours 500, the Shogun's guild 100 (the Shogun online),
 -- one full.
 function Fern.RouteGuilds(now)
 	return {
-		["Bankai Guild R1"] = { total = 100, online = 9, zones = {}, t = now, leader = "Rcouncil", leaderOnline = true,
+		["Bankai Guild R1"] = { total = 100, online = 9, zones = {}, t = now, leader = "Relder", leaderOnline = true,
 			officers = { { name = "Rcap", online = true }, { name = "Rcap2", online = false }, { name = "Rcap3", online = true } } },
-		["Bankai Guild R2"] = { total = 300, online = 9, zones = {}, t = now, leader = "Scouncil", leaderOnline = false,
+		["Bankai Guild R2"] = { total = 300, online = 9, zones = {}, t = now, leader = "Selder", leaderOnline = false,
 			officers = { { name = "Scap", online = true } } },
-		["Bankai Guild II"] = { total = 500, online = 9, zones = {}, t = now, leader = "Councily", leaderOnline = true, officers = {}, mine = true },
+		["Bankai Guild II"] = { total = 500, online = 9, zones = {}, t = now, leader = "Eldery", leaderOnline = true, officers = {}, mine = true },
 		["Bankai Guild"] = { total = 900, online = 9, zones = {}, t = now, leader = "Shobek Shobekler", leaderOnline = true, officers = {} },
-		["Bankai Guild Full"] = { total = 1000, online = 9, zones = {}, t = now, leader = "Fcouncil", leaderOnline = true, officers = {} },
+		["Bankai Guild Full"] = { total = 1000, online = 9, zones = {}, t = now, leader = "Felder", leaderOnline = true, officers = {} },
 	}
 end
 
 -- `guilds` as the census holds them once the channel brought each one (but ours) from two
--- senders (Codec, Data.Receive): rows the census confirms, their Council and Captains named by both
+-- senders (Codec, Data.Receive): rows the census confirms, their Elders and Council named by both
 -- (Data.Dispute, Data.KnownRank). `from`: the senders' names (two by default).
 function Fern.Heard(guilds, from)
 	local rows = {}
@@ -36608,11 +36608,11 @@ test("1.1 join routing (Fern #20): a member's census answers a J1 with the gates
 		R.ResetForTests()
 		local now = os.time()
 		-- (1.1 review: rows the census confirms, each heard from two senders, a full reporting
-		-- cycle after login: a Council member is named by two of them only then, Data.KnownRank.)
+		-- cycle after login: an Elder is named by two of them only then, Data.KnownRank.)
 		ns.Comm.loginAt = now - 1000
 		Fern.Heard(Fern.RouteGuilds(now))
 		ns.Acts.Gates = function() return { guild = "Bankai Guild R2", at = now + 3600 } end
-		ns.Roster.online = { { name = "Councily", rankIndex = 0 }, { name = "Knightly", rankIndex = 1 }, { name = "Tester", rankIndex = 1 }, { name = "Mate", rankIndex = 3 } }
+		ns.Roster.online = { { name = "Eldery", rankIndex = 0 }, { name = "Knightly", rankIndex = 1 }, { name = "Tester", rankIndex = 1 }, { name = "Mate", rankIndex = 3 } }
 		ns.db.recruitsOff = nil
 		eq(R.OnRouteAsk("WHISPER", "Recruit1-Realm", "J1~1"), true)
 		local msg = w.sent[1]:match("^WHISPER Recruit1%-Realm (.*)$")
@@ -36622,7 +36622,7 @@ test("1.1 join routing (Fern #20): a member's census answers a J1 with the gates
 		eq(route.dnc, false); eq(route.gates, "Bankai Guild R2")
 		local order = {}
 		for _, e in ipairs(route.list) do order[#order + 1] = e.name .. "=" .. e.free .. "=" .. table.concat(e.contacts, "/") end
-		eq(table.concat(order, ";"), "Bankai Guild R2=700=Scap;Bankai Guild R1=900=Rcouncil/Rcap;Bankai Guild II=500=Councily/Knightly;Bankai Guild=100=",
+		eq(table.concat(order, ";"), "Bankai Guild R2=700=Scap;Bankai Guild R1=900=Relder/Rcap;Bankai Guild II=500=Eldery/Knightly;Bankai Guild=100=",
 			"the gates first, then the most room; the Shogun never named; the full one left out")
 		-- Once a minute per asker, ANSWER_MAX askers a minute.
 		eq(R.OnRouteAsk("WHISPER", "Recruit1-Realm", "J1~1"), false)
@@ -36664,16 +36664,16 @@ test("1.1 join routing (Fern #20): the Join screen asks one member where to go, 
 				GetTime = function() return clock end
 				local out = {}
 				ns.Comm.WhisperOutside = function(to, msg) out[#out + 1] = to .. " " .. msg return true end
-				-- (1.1 review: the officers the answers name are among those /who found, Scap and Councily:
+				-- (1.1 review: the officers the answers name are among those /who found, Scap and Eldery:
 				-- only those are offered.)
 				R.OnFound({ { name = "Aaa-Realm", guild = "Bankai Guild II", level = 20, class = "MAGE" }, { name = "Bbb-Realm", guild = "Bankai Guild II", level = 21, class = "PRIEST" },
 					{ name = "Ccc-Realm", guild = "Bankai Guild R2", level = 22, class = "ROGUE" }, { name = "Ddd-Realm", guild = "Bankai Guild R1", level = 23, class = "MAGE" },
-					{ name = "Scap-Realm", guild = "Bankai Guild R2", level = 30, class = "WARRIOR" }, { name = "Councily-Realm", guild = "Bankai Guild II", level = 30, class = "WARRIOR" } })
+					{ name = "Scap-Realm", guild = "Bankai Guild R2", level = 30, class = "WARRIOR" }, { name = "Eldery-Realm", guild = "Bankai Guild II", level = 30, class = "WARRIOR" } })
 				eq(out[1], "Aaa J1~1", "one member asked where to go")
 				R.OnFound(R.found)
 				eq(#out, 1, "not again at once")
 				-- Only an answer from the member asked counts; a guild outside Bankai Guild never.
-				local answer = "J2~y~Bankai Guild R2~3600~Bankai Guild R2=700=Scap;Bankai Guild R1=900=Rcouncil/Rcap;Evil Guild=999=Bad;Bankai Guild II=500=Councily"
+				local answer = "J2~y~Bankai Guild R2~3600~Bankai Guild R2=700=Scap;Bankai Guild R1=900=Relder/Rcap;Evil Guild=999=Bad;Bankai Guild II=500=Eldery"
 				eq(R.OnRoute("Zzz-Realm", answer), false); eq(R.Route(), nil)
 				eq(R.OnRoute("Aaa-Realm", answer), true)
 				local route = R.Route()
@@ -36697,7 +36697,7 @@ test("1.1 join routing (Fern #20): the Join screen asks one member where to go, 
 				local guilds = R.Guilds()
 				eq(guilds[1].name, "Bankai Guild R2"); eq(guilds[2].name, "Bankai Guild R1"); eq(guilds[3].name, "Bankai Guild II")
 				assert(guilds[1].gates and guilds[2].free == 900, "with the route's word")
-				-- Asking the gates' guild: its Captain online first, and his addon asked first.
+				-- Asking the gates' guild: its Council member online first, and his addon asked first.
 				lines[at + 1].onClick()
 				eq(game.shown[1].which, "BANKAIGUILD_RECRUIT"); eq(game.shown[1].a, "Scap-Realm", "by the name /who gave"); eq(game.shown[1].b, "Bankai Guild R2")
 				eq(out[#out], "Scap J1~1", "the member about to be whispered is asked first")
@@ -36726,8 +36726,8 @@ test("1.1 join routing (Fern #20): the Join screen asks one member where to go, 
 				local bbb
 				for _, l in ipairs(lines) do if l.indent == 1 and Fern.Bare(l.text):find("^Bbb") then bbb = l end end
 				eq(Fern.Bare(bbb.right), L.RECRUIT_STATE_DNC); eq(bbb.onClick, nil)
-				eq(R.NextContact("Bankai Guild II").name, "Councily-Realm", "the route's officer, /who found")
-				R.asked.Councily = 1
+				eq(R.NextContact("Bankai Guild II").name, "Eldery-Realm", "the route's officer, /who found")
+				R.asked.Eldery = 1
 				eq(R.NextContact("Bankai Guild II").name, "Aaa-Realm", "then /who's, never Bbb")
 				for _, s in ipairs(w.sent) do error("nothing on the channel: " .. s) end
 			end)
@@ -36754,7 +36754,7 @@ test("1.1 join requests (Fern #20): an officer gets a recruit's request with Inv
 			local invited = {}
 			C_GuildInfo = { Invite = function(name) invited[#invited + 1] = name end }
 			ns.Roster.byName = { ["Mate-Realm"] = 3 }
-			ns.Roster.online = { { name = "Councily", rankIndex = 0 }, { name = "Tester", rankIndex = 1 } }
+			ns.Roster.online = { { name = "Eldery", rankIndex = 0 }, { name = "Tester", rankIndex = 1 } }
 			-- The recruit's whisper, then its J3.
 			R.OnWhisper("Hi! I'd love to join Bankai Guild.", "Newbie-Realm")
 			eq(R.OnJoinRequest("WHISPER", "Newbie-Realm", "J3~Bankai Guild II~12~MAGE"), true)
@@ -36797,8 +36797,8 @@ test("1.1 join requests (Fern #20): an officer gets a recruit's request with Inv
 			lines = V.Build("census")
 			eq(Fern.Find(lines, L.JOIN_INVITE:format("Bankai Guild II")), nil); eq(Fern.Find(lines, L.JOIN_DECLINE), nil)
 			eq(R.Decline(R.requests[1]), false); eq(R.Accept(R.requests[1]), false)
-			Fern.Find(lines, L.JOIN_POINT:format("Councily")).onClick()
-			eq(w.said[2].to, "Fourth"); eq(w.said[2].text, L.JOIN_POINT_TEXT:format("Councily"))
+			Fern.Find(lines, L.JOIN_POINT:format("Eldery")).onClick()
+			eq(w.said[2].to, "Fourth"); eq(w.said[2].text, L.JOIN_POINT_TEXT:format("Eldery"))
 			-- Many at once: REQUEST_LINES chat lines a minute, the rest in the Census.
 			local before = #w.printed
 			for k = 1, R.REQUEST_LINES + 3 do R.OnJoinRequest("WHISPER", "Crowd" .. k .. "-Realm", "J3~Bankai Guild II~5~MAGE") end
@@ -36850,7 +36850,7 @@ test("1.1 join routing (Fern #20): with the gamepad UI the request opens in Bank
 end)
 
 -- (1.1 review, Fern #20) A recruit's census answer only names what the census confirms.
-test("1.1 join routing (Fern #20): one forged report names no guild and nobody to whisper; a Council member or Captain is named when two senders name them", function()
+test("1.1 join routing (Fern #20): one forged report names no guild and nobody to whisper; an Elder or Council member is named when two senders name them", function()
 	local R, D, V, L = ns.Recruit, ns.Data, ns.Views, ns.L
 	local savedOff = ns.db.recruitsOff
 	Fern.Census(function(w)
@@ -36859,28 +36859,28 @@ test("1.1 join routing (Fern #20): one forged report names no guild and nobody t
 		ns.Comm.loginAt = now - 1000
 		ns.db.recruitsOff = nil
 		ns.Acts.Gates = function() return nil end
-		ns.Roster.online = { { name = "Councily", rankIndex = 0 } }
+		ns.Roster.online = { { name = "Eldery", rankIndex = 0 } }
 		Fern.Heard(Fern.RouteGuilds(now))
 		local function Answer(asker)
 			eq(R.OnRouteAsk("WHISPER", asker, "J1~1"), true, asker)
 			return w.sent[#w.sent]:match("^WHISPER %S+ (.*)$")
 		end
-		-- One modified client, the only sender of a made-up guild: 999 free slots, its "Council and
-		-- Captain online" the players it wants whispered.
+		-- One modified client, the only sender of a made-up guild: 999 free slots, its "Elder and
+		-- Council member online" the players it wants whispered.
 		eq(D.Receive(Codec.DecodeReport("R2~Bankai Guild Fake~1~1~Victim~1~1~~~0,0,0,0,0,0,0~~Victim2:1:0"), "Forger-Realm"), true)
 		assert(V.DisputeMark(ns.rdb.guilds["Bankai Guild Fake"]) ~= "", "the census marks it")
 		-- Two senders who disagree on a guild's size (800 and 1): out too.
-		eq(Fern.Report("Bankai Guild Split", "Spcouncil", "", "Splita-Realm", 800), true)
-		eq(Fern.Report("Bankai Guild Split", "Spcouncil", "", "Splitb-Realm", 1), true)
+		eq(Fern.Report("Bankai Guild Split", "Spelder", "", "Splita-Realm", 800), true)
+		eq(Fern.Report("Bankai Guild Split", "Spelder", "", "Splitb-Realm", 1), true)
 		eq(D.Dispute(ns.rdb.guilds["Bankai Guild Split"]).disputed, true)
 		local msg = Answer("Recruit1-Realm")
 		eq(msg:find("Fake", 1, true), nil, msg); eq(msg:find("Victim", 1, true), nil, msg); eq(msg:find("Split", 1, true), nil, msg)
 		local route = R.ParseRoute(msg)
 		eq(route.list[1].name, "Bankai Guild R1", "the most room the census confirms first")
-		eq(table.concat(route.list[1].contacts, "/"), "Rcouncil/Rcap", "named by both senders")
+		eq(table.concat(route.list[1].contacts, "/"), "Relder/Rcap", "named by both senders")
 		-- A declined recruit is not sent there either (since Konig's review of 1.1, to no guild but the gates').
 		eq(R.DeclineText({}), L.JOIN_DECLINE_TEXT_PLAIN:format("Bankai Guild II"))
-		-- A Captain only one sender names (lists cut at MAX_OFFICERS leave the officers out of the
+		-- A Council member only one sender names (lists cut at MAX_OFFICERS leave the officers out of the
 		-- picture both senders agree on): not named; one both name is.
 		local function Officers(last)
 			local list = {}
@@ -36888,7 +36888,7 @@ test("1.1 join routing (Fern #20): one forged report names no guild and nobody t
 			list[#list + 1] = last
 			return table.concat(list, ",")
 		end
-		local big = "R2~Bankai Guild Big~50~9~Bcouncil~0~1~~~0,0,0,0,0,0,0~~"
+		local big = "R2~Bankai Guild Big~50~9~Belder~0~1~~~0,0,0,0,0,0,0~~"
 		eq(D.Receive(Codec.DecodeReport(big .. Officers("Bofc30:0:0")), "Biga-Realm"), true)
 		eq(D.Receive(Codec.DecodeReport(big .. Officers("Bsneak:1:0")), "Bigb-Realm"), true)
 		eq(ns.rdb.guilds["Bankai Guild Big"].officers[Codec.MAX_OFFICERS].name, "Bsneak", "the row holds the second report")
@@ -36896,10 +36896,10 @@ test("1.1 join routing (Fern #20): one forged report names no guild and nobody t
 		route = R.ParseRoute(Answer("Recruit2-Realm"))
 		eq(route.list[1].name, "Bankai Guild Big")
 		eq(table.concat(route.list[1].contacts, "/"), "Bofc1", "never the one a single sender names")
-		-- A Council member right after login (the census still rebuilding, Data.CROWN_AFTER): not yet.
+		-- An Elder right after login (the census still rebuilding, Data.CROWN_AFTER): not yet.
 		ns.Comm.loginAt = now - 10
 		route = R.ParseRoute(Answer("Recruit3-Realm"))
-		eq(table.concat(route.byName["Bankai Guild R1"].contacts, "/"), "Rcap/Rcap3", "its Captains online, not yet its Council")
+		eq(table.concat(route.byName["Bankai Guild R1"].contacts, "/"), "Rcap/Rcap3", "its Council online, not yet its Elder")
 	end)
 	ns.db.recruitsOff = savedOff
 	R.ResetForTests()
@@ -37027,18 +37027,18 @@ test("1.1 join routing (Fern #20): do not contact holds under load: past ANSWER_
 	if not ok then error(err, 0) end
 end)
 
--- (1.1 review, Fern #39) The Council of a guild that went quiet.
-test("1.1 a Council member away (Fern #39): a guild that stopped reporting while its Council was online counts his days from its last report", function()
+-- (1.1 review, Fern #39) The Elder of a guild that went quiet.
+test("1.1 an Elder away (Fern #39): a guild that stopped reporting while its Elder was online counts his days from its last report", function()
 	local L, M = ns.L, ns.Members
-	local savedWarn, savedCan, savedWarned, savedNow = ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.councilWarned, ns.Now
+	local savedWarn, savedCan, savedWarned, savedNow = ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.elderWarned, ns.Now
 	local ok, err = pcall(function()
 		Fern.Census(function(w)
-			ns.db.warnDays, ns.rdb.councilWarned = 3, nil
+			ns.db.warnDays, ns.rdb.elderWarned = 3, nil
 			local now = os.time()
 			ns.Shogun.CanCommand = function() return true end
 			ns.Comm.loginAt = now - 1000
 			ns.rdb.guilds = {}
-			-- A small guild where only its Council runs the addon: every report of his says he is online.
+			-- A small guild where only its Elder runs the addon: every report of his says he is online.
 			-- His last one came five days ago.
 			ns.Now = function() return now - 5 * 86400 end
 			eq(ns.Data.Receive(Codec.DecodeReport("R2~Bankai Guild Zq~20~1~Zorq~1~1~~~0,0,0,0,0,0,0~~"), "Zorq-Realm"), true)
@@ -37047,46 +37047,46 @@ test("1.1 a Council member away (Fern #39): a guild that stopped reporting while
 			ns.rdb.guilds["Bankai Guild Two"] = { total = 10, online = 1, zones = {}, t = now - 2 * 86400, leader = "Tl", leaderOnline = true, leaderDays = 0, officers = {} }
 			-- Reporting still: online is online.
 			ns.rdb.guilds["Bankai Guild Live"] = { total = 10, online = 1, zones = {}, t = now - 60, leader = "Ll", leaderOnline = true, leaderDays = 0, officers = {} }
-			eq(M.CheckCouncil(now), 1)
-			eq(w.printed[#w.printed], L.COUNCIL_AWAY_CROWN:format("Zorq", "Bankai Guild Zq", 5))
+			eq(M.CheckElders(now), 1)
+			eq(w.printed[#w.printed], L.ELDER_AWAY_CROWN:format("Zorq", "Bankai Guild Zq", 5))
 			-- Two days quiet: named once he crosses three.
-			eq(M.CheckCouncil(now + 86400 - 60), 0)
-			eq(M.CheckCouncil(now + 86400 + 60), 1)
-			eq(w.printed[#w.printed], L.COUNCIL_AWAY_CROWN:format("Tl", "Bankai Guild Two", 3))
+			eq(M.CheckElders(now + 86400 - 60), 0)
+			eq(M.CheckElders(now + 86400 + 60), 1)
+			eq(w.printed[#w.printed], L.ELDER_AWAY_CROWN:format("Tl", "Bankai Guild Two", 3))
 			-- Its reports come back: not away, and a new crossing names him again.
 			ns.rdb.guilds["Bankai Guild Two"].t = now + 86400 + 120
-			eq(M.CheckCouncil(now + 86400 + 180), 0)
-			eq(ns.rdb.councilWarned["Bankai Guild Two"], nil)
+			eq(M.CheckElders(now + 86400 + 180), 0)
+			eq(ns.rdb.elderWarned["Bankai Guild Two"], nil)
 			eq(#w.sent, 0, "nothing sent")
 		end)
 	end)
-	ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.councilWarned, ns.Now = savedWarn, savedCan, savedWarned, savedNow
+	ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.elderWarned, ns.Now = savedWarn, savedCan, savedWarned, savedNow
 	if not ok then error(err, 0) end
 end)
 
--- 1.2.1 review: the Crown's "Council away" line aged an old report even while /who saw the Council online.
-test("1.2.1 a Council member away: a Council member /who sees online in his guild this quarter-hour is not named away, whatever an old report said", function()
+-- 1.2.1 review: the Crown's "Elder away" line aged an old report even while /who saw the Elder online.
+test("1.2.1 an Elder away: an Elder /who sees online in his guild this quarter-hour is not named away, whatever an old report said", function()
 	local L, M = ns.L, ns.Members
-	local savedWarn, savedCan, savedWarned = ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.councilWarned
+	local savedWarn, savedCan, savedWarned = ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.elderWarned
 	local ok, err = pcall(function()
 		Fern.Census(function(w)
-			ns.db.warnDays, ns.rdb.councilWarned = 3, nil
+			ns.db.warnDays, ns.rdb.elderWarned = 3, nil
 			local now = os.time()
 			ns.Shogun.CanCommand = function() return true end
 			ns.Comm.loginAt = now - 1000
 			ns.rdb.guilds = {
-				-- Two days quiet, his Council offline 3 days then.
-				["Bankai Guild Far"] = { total = 50, online = 0, zones = {}, t = now - 2 * 86400, leader = "Farcouncil", leaderOnline = false, leaderDays = 3, officers = {} },
+				-- Two days quiet, his Elder offline 3 days then.
+				["Bankai Guild Far"] = { total = 50, online = 0, zones = {}, t = now - 2 * 86400, leader = "Farelder", leaderOnline = false, leaderDays = 3, officers = {} },
 			}
-			ns.Who.sweep = { started = GetTime(), list = { { name = "Farcouncil", guild = "Bankai Guild Far", level = 20, class = "WARRIOR" } } }
-			eq(M.CheckCouncil(now), 0, "seen online now")
+			ns.Who.sweep = { started = GetTime(), list = { { name = "Farelder", guild = "Bankai Guild Far", level = 20, class = "WARRIOR" } } }
+			eq(M.CheckElders(now), 0, "seen online now")
 			-- The round grows old: the report's word again.
 			ns.Who.sweep.started = GetTime() - 3600
-			eq(M.CheckCouncil(now), 1)
-			eq(w.printed[#w.printed], L.COUNCIL_AWAY_CROWN:format("Farcouncil", "Bankai Guild Far", 5))
+			eq(M.CheckElders(now), 1)
+			eq(w.printed[#w.printed], L.ELDER_AWAY_CROWN:format("Farelder", "Bankai Guild Far", 5))
 		end)
 	end)
-	ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.councilWarned = savedWarn, savedCan, savedWarned
+	ns.db.warnDays, ns.Shogun.CanCommand, ns.rdb.elderWarned = savedWarn, savedCan, savedWarned
 	if not ok then error(err, 0) end
 end)
 
@@ -37107,11 +37107,11 @@ test("1.1 census marks (Fern #30): an honest guild that grows or shrinks between
 				clock = t
 				local n = size(t - start)
 				if t >= nextA then
-					eq(Fern.Report(guild, "Council" .. short, "Capt" .. short .. ":1:0", "Aye" .. short .. "-Realm", n), true)
+					eq(Fern.Report(guild, "Elder" .. short, "Capt" .. short .. ":1:0", "Aye" .. short .. "-Realm", n), true)
 					nextA = t + 170
 				end
 				if t >= nextB then
-					eq(Fern.Report(guild, "Council" .. short, "Capt" .. short .. ":1:0", "Bee" .. short .. "-Realm", n), true)
+					eq(Fern.Report(guild, "Elder" .. short, "Capt" .. short .. ":1:0", "Bee" .. short .. "-Realm", n), true)
 					nextB = t + 600
 				end
 				local d = D.Dispute(ns.rdb.guilds[guild])
@@ -37126,22 +37126,22 @@ test("1.1 census marks (Fern #30): an honest guild that grows or shrinks between
 		eq(Run("Bankai Guild Fast", function(s) return 1000 - math.min(60, math.floor(s / 3)) end, 30), 0, "60 removed one per REMOVE_GAP")
 		-- A forged size: marked, the pair farthest apart named.
 		ns.rdb.guilds = {}
-		eq(Fern.Report("Bankai Guild Zee", "Zcouncil", "Zcap:1:0", "Zeea-Realm", 830), true)
+		eq(Fern.Report("Bankai Guild Zee", "Zelder", "Zcap:1:0", "Zeea-Realm", 830), true)
 		clock = clock + 170
-		eq(Fern.Report("Bankai Guild Zee", "Zcouncil", "Zcap:1:0", "Zeec-Realm", 1), true)
+		eq(Fern.Report("Bankai Guild Zee", "Zelder", "Zcap:1:0", "Zeec-Realm", 1), true)
 		local d = D.Dispute(ns.rdb.guilds["Bankai Guild Zee"])
 		eq(d.disputed, true); eq(d.sizes[1].n, 1); eq(d.sizes[1].sender, "Zeec-Realm"); eq(d.sizes[2].n, 830)
 		-- More than a guild can change between two reports ten minutes apart (1,000 and 700).
 		ns.rdb.guilds = {}
-		eq(Fern.Report("Bankai Guild Yew", "Ycouncil", "", "Yewa-Realm", 1000), true)
+		eq(Fern.Report("Bankai Guild Yew", "Yelder", "", "Yewa-Realm", 1000), true)
 		clock = clock + 600
-		eq(Fern.Report("Bankai Guild Yew", "Ycouncil", "", "Yewb-Realm", 700), true)
+		eq(Fern.Report("Bankai Guild Yew", "Yelder", "", "Yewb-Realm", 700), true)
 		eq(D.Dispute(ns.rdb.guilds["Bankai Guild Yew"]).sizes[1].n, 700)
 		-- ...but not 1,000 and 800 (200 in ten minutes is within 20 a minute and 5%).
 		ns.rdb.guilds = {}
-		eq(Fern.Report("Bankai Guild Elm", "Ecouncil", "", "Elma-Realm", 1000), true)
+		eq(Fern.Report("Bankai Guild Elm", "Eelder", "", "Elma-Realm", 1000), true)
 		clock = clock + 600
-		eq(Fern.Report("Bankai Guild Elm", "Ecouncil", "", "Elmb-Realm", 800), true)
+		eq(Fern.Report("Bankai Guild Elm", "Eelder", "", "Elmb-Realm", 800), true)
 		local e = D.Dispute(ns.rdb.guilds["Bankai Guild Elm"])
 		eq(e and e.sizes, nil)
 	end)
@@ -37252,7 +37252,7 @@ do
 		end)
 	end)
 
-	test("1.1 first-open page (#11): the Bankai Guild chats off (never answered, or No): this client neither sends nor shows [Bankai Guild], [Captains] or [Council], keeps nothing, and a companion hears nothing", function()
+	test("1.1 first-open page (#11): the Bankai Guild chats off (never answered, or No): this client neither sends nor shows [Bankai Guild], [Council] or [Elders], keeps nothing, and a companion hears nothing", function()
 		local savedFire = ns.Fire
 		local heard = {}
 		-- (What BankaiGuildBridge passes to a companion: every CHAT_LINE.)
@@ -37286,7 +37286,7 @@ do
 						RowOf(page, "chat").no:Click()
 						eq(ns.db.addonChat, false)
 						WithLane(function(sent)
-							eq(select(2, Chan.Send("C", "hello captains", 3.1e12)), "off"); eq(#sent, 0)
+							eq(select(2, Chan.Send("C", "hello council", 3.1e12)), "off"); eq(#sent, 0)
 						end)
 						eq(printed[#printed], ns.L.CHAT_OFF)
 						eq((Chan.Receive("CHANNEL", "Member2", Msg("A", MY_GUILD, 8310, "still off"), 9200)), false)
@@ -38043,7 +38043,7 @@ do
 		end)
 	end)
 
-	test("1.1 block terms (#31): a writ, a decree's words and a Vox Populi question the filter hits stay folded (no parchment, no alert, words hidden), and a click on the Decrees tab shows them", function()
+	test("1.1 block terms (#31): a writ, a decree's words and a Poll question the filter hits stay folded (no parchment, no alert, words hidden), and a click on the Decrees tab shows them", function()
 		Clean(function()
 			F.Add("treason")
 			WithThrone(function(w, K)
@@ -38063,19 +38063,19 @@ do
 					LineWith(lines, ns.L.WRIT_FROM:format(ns.ShogunName(SHOGUN))).onClick()
 					eq(#opened, 1, "a click reads it"); eq(opened[1].text, "Treason is afoot in the south")
 					assert(Texts(ns.Views.Build("decrees")):find("Treason is afoot", 1, true), "then its words show")
-					-- A Vox Populi question: no window, no line in chat, until a click.
-					ns.db.voxOff = true
+					-- A Poll question: no window, no line in chat, until a click.
+					ns.db.pollOff = true
 					K.HandleCommand("CHANNEL", SHOGUN, "T1~V~88~Bankai Guild~60~1~Is treason fine?~Yes~No")
 					assert(not Printed(w, "Is treason fine?"), "not in chat")
-					assert(ns.Vox.HiddenQuestion(), "held")
+					assert(ns.Poll.HiddenQuestion(), "held")
 					lines = ns.Views.Build("decrees")
-					local vox = LineWith(lines, ns.L.FILTER_VOX_HIDDEN)
-					assert(vox, "the Decrees tab offers it")
-					vox.onClick()
+					local poll = LineWith(lines, ns.L.FILTER_POLL_HIDDEN)
+					assert(poll, "the Decrees tab offers it")
+					poll.onClick()
 					assert(Printed(w, "Is treason fine?"), "a click shows it, to vote while it is open")
-					eq(ns.Vox.HiddenQuestion(), nil)
+					eq(ns.Poll.HiddenQuestion(), nil)
 					-- An answer can hit it too.
-					ns.Vox.Reset()
+					ns.Poll.Reset()
 					w.clock = w.clock + 120
 					K.HandleCommand("CHANNEL", SHOGUN, "T1~V~89~Bankai Guild~60~1~Who is loyal?~Treason~Loyalty")
 					assert(not Printed(w, "Who is loyal?"), "an answer hit: hidden")
@@ -38304,7 +38304,7 @@ do
 			"FILTER_SHARED_ON", "FILTER_SHARED_OFF", "FILTER_NOT_EDITOR", "FILTER_SHARED_ADDED", "FILTER_SHARED_REMOVED",
 			"FILTER_SHARED_ALREADY", "FILTER_SHARED_FULL", "FILTER_HIDDEN_LINES", "FILTER_SHOWING_LINES", "FILTER_HIDDEN_MARK",
 			"FILTER_TIP_TITLE", "FILTER_TIP", "FILTER_WORDS_HIDDEN", "FILTER_WORDS_HIDDEN_SHORT", "FILTER_WRIT_HIDDEN",
-			"FILTER_VOX_HIDDEN", "ACTS_TERMS", "HELP_FILTER" }) do
+			"FILTER_POLL_HIDDEN", "ACTS_TERMS", "HELP_FILTER" }) do
 			local en, br = rawget(ns.L, key), rawget(pt.L, key)
 			assert(type(en) == "string" and en ~= "", "English " .. key)
 			assert(type(br) == "string" and br ~= "" and br ~= en, "pt-BR " .. key)
@@ -39439,7 +39439,7 @@ end)
 
 test("1.1 the Shogun's week: an officer's click opens the game's calendar and names the day (mouse and keyboard, out of combat); otherwise how to open it", function()
 	WithWeek(function(w, W, K, B)
-		AsCaptain()
+		AsCouncilMember()
 		local SHOGUN = ns.ShogunCharacter() .. "-Realm"
 		K.HandleCommand("CHANNEL", SHOGUN, "T1~D~501~Bankai Guild~" .. (4 * 86400 + 90 * 60 - 15) .. "~1~~Raid night")
 		local toggled = 0
@@ -40018,13 +40018,13 @@ end)
 			local before = ns.Hop.Crowd(1453, 7, w.clock)
 			ns.Hop.HandleAsk("CHANNEL", "Spammer Guy-Realm", "LQ~42~1453~7")
 			eq(ns.Hop.Crowd(1453, 7, w.clock), before, "his ask is not even heard")
-			-- Vox Populi: the Shogun's question; his vote is not counted, not even as a voter; his question as a Hand shows nowhere.
+			-- Poll: the Shogun's question; his vote is not counted, not even as a voter; his question as a Hand shows nowhere.
 			AsShogun()
-			assert(ns.Vox.Ask("Raid tonight? Yes / No"))
+			assert(ns.Poll.Ask("Raid tonight? Yes / No"))
 			local id = tonumber(LastSent(w):match("^T1~V~(%d+)"))
-			ns.Vox.HandleVote("WHISPER", "Spammer Guy-Realm", ("Y1~%d~1~Bankai Guild Zeus"):format(id))
-			ns.Vox.HandleVote("WHISPER", "Good Guy-Realm", ("Y1~%d~2~Bankai Guild Zeus"):format(id))
-			local poll = ns.Vox.State()
+			ns.Poll.HandleVote("WHISPER", "Spammer Guy-Realm", ("Y1~%d~1~Bankai Guild Zeus"):format(id))
+			ns.Poll.HandleVote("WHISPER", "Good Guy-Realm", ("Y1~%d~2~Bankai Guild Zeus"):format(id))
+			local poll = ns.Poll.State()
 			eq(poll.voters + poll.others, 1, "one vote: the good guy's")
 			eq(poll.votes["Spammer Guy-Realm"], nil)
 			-- The court: his request is not queued.
@@ -40042,9 +40042,9 @@ end)
 		end)
 	end)
 
-	test("1.1 net-off (#32): a Hand the moderators hid calls the army in vain (agenda, roll call, Vox, gates); the Shogun's calls always show", function()
+	test("1.1 net-off (#32): a Hand the moderators hid calls the army in vain (agenda, roll call, Poll, gates); the Shogun's calls always show", function()
 		WithNetoff(function(w, K)
-			AsCouncil()
+			AsElder()
 			K.HandleCommand("CHANNEL", SHOGUN, "T1~H~1~Bankai Guild~Hand Guy-Realm")
 			eq(K.IsHandName("Hand Guy-Realm"), true)
 			Off("Hand Guy-Realm", "fake agendas")
@@ -40053,7 +40053,7 @@ end)
 			K.HandleCommand("CHANNEL", "Hand Guy-Realm", "T1~S~8~Bankai Guild II")
 			eq(#w.popups, 0, "no roll call popup")
 			K.HandleCommand("CHANNEL", "Hand Guy-Realm", "T1~V~9~Bankai Guild II~60~1~Fake?~A~B")
-			eq(select(3, ns.Vox.State()), nil, "no Vox window")
+			eq(select(3, ns.Poll.State()), nil, "no Poll window")
 			eq(K.IsHandName("Hand Guy-Realm"), true, "his place on the Shogun's list is the Shogun's: not touched")
 			-- The Shogun's own call.
 			K.HandleCommand("CHANNEL", SHOGUN, "T1~A~10~Bankai Guild~1800~Stormwind~Real raid")
@@ -40061,14 +40061,14 @@ end)
 		end)
 	end)
 
-	test("1.1.6 net-off: a guild master the moderators took off asks his guild in vain (Vox Populi), and his guild's clients drop his question", function()
+	test("1.1.6 net-off: a guild master the moderators took off asks his guild in vain (Poll), and his guild's clients drop his question", function()
 		WithNetoff(function(w, K)
-			local V = ns.Vox
+			local V = ns.Poll
 			local savedRoster = ns.Roster.byName
 			local ok, err = pcall(function()
 				ns.Roster.byName = { ["Zed-Realm"] = 0, ["Mate-Realm"] = 3 }
 				Off("Zed-Realm", "fake polls")
-				AsCouncil()
+				AsElder()
 				local sent = #w.sent
 				eq(V.Ask("Raid tonight?", nil, "G"), nil)
 				assert(Printed(w, "fake polls"), "says why")
@@ -40082,7 +40082,7 @@ end)
 				ns.me = "Mate-Realm"
 				eq(M.Blocks("Y3~E~9~2~1~1"), false, "held for whoever is off alone")
 				V.HandleGuild("GUILD", "Zed-Realm", "Y3~V~9~60~1~Fake?~A~B")
-				eq(select(3, V.State()), nil, "no Vox window")
+				eq(select(3, V.State()), nil, "no Poll window")
 			end)
 			ns.Roster.byName = savedRoster
 			if not ok then error(err, 0) end
@@ -40215,7 +40215,7 @@ end)
 			local ok, err = pcall(function()
 				Off("Spammer Guy-Realm", "flooding")
 				assert(Printed(w, "flooding"), "told why, once")
-				-- /bg, a decree, a hop ask, a Vox vote: refused with the reason.
+				-- /bg, a decree, a hop ask, a Poll vote: refused with the reason.
 				local okSend, why = ns.Channels.Send("A", "hello?")
 				eq(okSend, false); eq(why, "netoff")
 				GetGuildInfo = function() return "Bankai Guild II", "Officer", 1 end
@@ -40431,14 +40431,14 @@ end)
 		end)
 	end)
 
-	test("1.1 net-off (#33): while a guild is off, every client stops showing its census, map, hop, decrees, Vox and chats; the rest of the army stays; back on, it returns", function()
+	test("1.1 net-off (#33): while a guild is off, every client stops showing its census, map, hop, decrees, Poll and chats; the rest of the army stays; back on, it returns", function()
 		WithNetoff(function(w, K)
 			AsSoldier("Watcher")
 			local D = ns.Data
 			ns.rdb.guilds["Bankai Guild Zeus"].zones = { m1429 = 40 }
 			local s = D.Summary()
 			eq(s.total, 1400); eq(s.zones.m1429, 40)
-			-- A report of Zeus names its Council (Zed) for the hop's checks below.
+			-- A report of Zeus names its Elder (Zed) for the hop's checks below.
 			GuildOff("Bankai Guild Zeus", "spam guild")
 			s = D.Summary()
 			eq(s.total, 1300, "its size leaves the army's total")
@@ -40451,7 +40451,7 @@ end)
 			eq(D.Receive(r, "Zed-Realm"), false)
 			eq(ns.rdb.guilds["Bankai Guild Zeus"].total, 100, "the kept row is not replaced")
 			eq(D.KnownRank("Zed-Realm", "Bankai Guild Zeus"), nil)
-			-- Chats, layers, hop, Vox.
+			-- Chats, layers, hop, Poll.
 			local C = ns.Channels
 			local n = 0
 			local function Line(sender, guild)
@@ -40469,12 +40469,12 @@ end)
 			ns.Hop.HandleAsk("CHANNEL", "Zeus Member-Realm", "LQ~42~1453~7")
 			eq(ns.Hop.Crowd(1453, 7, w.clock), before, "the ask of a member of a guild off the network is not heard")
 			ns.Hop.HandleAsk("CHANNEL", "Zed-Realm", "LQ~43~1453~7")
-			eq(ns.Hop.Crowd(1453, 7, w.clock), before, "nor its Council's (named by its census report)")
+			eq(ns.Hop.Crowd(1453, 7, w.clock), before, "nor its Elder's (named by its census report)")
 			AsShogun()
-			assert(ns.Vox.Ask("Raid tonight? Yes / No"))
+			assert(ns.Poll.Ask("Raid tonight? Yes / No"))
 			local id = tonumber(LastSent(w):match("^T1~V~(%d+)"))
-			ns.Vox.HandleVote("WHISPER", "Zeus Member-Realm", ("Y1~%d~1~Bankai Guild Zeus"):format(id))
-			local poll = ns.Vox.State()
+			ns.Poll.HandleVote("WHISPER", "Zeus Member-Realm", ("Y1~%d~1~Bankai Guild Zeus"):format(id))
+			local poll = ns.Poll.State()
 			eq(poll.voters + poll.others, 0, "its votes don't count")
 			-- Back on: its census and chats return (its next report).
 			AsSoldier("Watcher")
@@ -40489,7 +40489,7 @@ end)
 			AsSoldier("Member Of Two")
 			GuildOff("Bankai Guild II", "not an Bankai Guild guild")
 			assert(Printed(w, "Bankai Guild II") and Printed(w, "not an Bankai Guild guild"), "told why")
-			-- Chat, decrees, hop, Vox: refused with the reason; the backstop holds each message type.
+			-- Chat, decrees, hop, Poll: refused with the reason; the backstop holds each message type.
 			local okSend, why = ns.Channels.Send("A", "hello?")
 			eq(okSend, false); eq(why, "netoff")
 			for _, msg in ipairs({ "M1~A~Bankai Guild II~1~~x", "D1~ARMS~1~1~1~Bankai Guild II~1~x", "L1~1453~7~3~Bankai Guild II", "LQ~1~1453~7",
@@ -40802,16 +40802,16 @@ end)
 		end)
 	end)
 
-	test("1.1 alt links (#21): the alt never acts on its own: one vote per player in Vox Populi, and none of its main's powers", function()
+	test("1.1 alt links (#21): the alt never acts on its own: one vote per player in Poll, and none of its main's powers", function()
 		WithAlts(function(w, K)
 			AsSoldier("Watcher")
 			Pair("Voter Main", "Voter Alt", w.clock, "Bankai Guild Zeus", "Bankai Guild Zeus")
 			AsShogun()
-			assert(ns.Vox.Ask("Raid tonight? Yes / No"))
+			assert(ns.Poll.Ask("Raid tonight? Yes / No"))
 			local id = tonumber(LastSent(w):match("^T1~V~(%d+)"))
-			ns.Vox.HandleVote("WHISPER", "Voter Main-Realm", ("Y1~%d~1~Bankai Guild Zeus"):format(id))
-			ns.Vox.HandleVote("WHISPER", "Voter Alt-Realm", ("Y1~%d~1~Bankai Guild Zeus"):format(id))
-			local poll = ns.Vox.State()
+			ns.Poll.HandleVote("WHISPER", "Voter Main-Realm", ("Y1~%d~1~Bankai Guild Zeus"):format(id))
+			ns.Poll.HandleVote("WHISPER", "Voter Alt-Realm", ("Y1~%d~1~Bankai Guild Zeus"):format(id))
+			local poll = ns.Poll.State()
 			eq(poll.voters + poll.others, 1, "one vote for the player")
 			-- A Hand's alt is no Hand, and gives no net-off word.
 			AsSoldier("Watcher")
@@ -40941,7 +40941,7 @@ end)
 		ns.Who.lastSend, ns.Who.lastPlain = 0, 0
 		if not ok then error(err, 0) end
 	end
-	-- The Throne's scene with Council and Captains online the census confirms (two senders each), no
+	-- The Throne's scene with Elders and Council online the census confirms (two senders each), no
 	-- key yet; joining a channel counted, not done.
 	local function WithKeys(fn)
 		WithNetoff(function(w, K)
@@ -40966,7 +40966,7 @@ end)
 				G["Bankai Guild Zeus"] = Vouched({ total = 100, online = 9, zones = {}, t = w.clock, leader = "Zed", leaderOnline = true, realm = "Realm",
 					officers = { { name = "Zeus Cap", online = true, days = 0 }, { name = "Zeus Sleeper", online = false, days = 2 } } }, "W3-Realm", "W4-Realm")
 				G["Bankai Guild II"] = Vouched({ total = 300, online = 3, zones = {}, t = w.clock, leader = "Ceo", leaderOnline = false, realm = "Realm" }, "W5-Realm", "W6-Realm")
-				-- ...and listed Bankai Guild Zeus's Council and Captain online in it (Ceo is offline).
+				-- ...and listed Bankai Guild Zeus's Elder and Council member online in it (Ceo is offline).
 				ns.Who.Reset()
 				WhoLists({ { "Zed", "Bankai Guild Zeus" }, { "Zeus Cap", "Bankai Guild Zeus" } })
 				fn(w, K)
@@ -40991,7 +40991,7 @@ end)
 		return out
 	end
 
-	test("1.1 key rotation (#8): the Shogun (or his Steward) rotates; his addon makes a key nobody sees and whispers it to the Council and Captains online, never on the channel", function()
+	test("1.1 key rotation (#8): the Shogun (or his Steward) rotates; his addon makes a key nobody sees and whispers it to the Elders and Council online, never on the channel", function()
 		WithKeys(function(w, K)
 			-- Not the Shogun nor his Steward: a soldier, a Hand.
 			AsSoldier("Watcher")
@@ -41017,7 +41017,7 @@ end)
 			-- is anyone's word).
 			eq(rot.picking, true); eq(#w.whispered, 0, "nothing sent while he picks")
 			eq(KY.Start(), true)
-			-- By whisper to the Council and Captains the census confirms online, other guilds only.
+			-- By whisper to the Elders and Council the census confirms online, other guilds only.
 			eq(Whispered(w, "K3~"), "Zed-Realm,Zeus Cap-Realm")
 			for _, x in ipairs(w.whispered) do eq(x.msg, ("K3~%d~%s"):format(rot.at, rot.key)) end
 			-- Online as a recent report says only (a whisper to someone gone shows the Shogun the game's error line).
@@ -41044,7 +41044,7 @@ end)
 		end)
 	end)
 
-	test("1.1 key rotation (#8): the Shogun's Steward rotates for him: a Council member takes his whisper and tells him, his Throne counts it; a Hand's or anyone else's whisper is still refused", function()
+	test("1.1 key rotation (#8): the Shogun's Steward rotates for him: an Elder takes his whisper and tells him, his Throne counts it; a Hand's or anyone else's whisper is still refused", function()
 		WithKeys(function(w, K)
 			K.HandleCommand("CHANNEL", SHOGUN, "T1~H~1~Bankai Guild~Hand Guy-Realm")
 			WithSteward(function()
@@ -41056,8 +41056,8 @@ end)
 				assert(Whispered(w, "K3~"):find("Zed-Realm", 1, true), Whispered(w, "K3~"))
 				for _, x in ipairs(w.sent) do assert(not x.msg:find(rot.key, 1, true), "sent " .. x.dist .. ": " .. x.msg) end
 				local msg = ("K3~%d~%s"):format(rot.at, rot.key)
-				-- A Council member's client: a Hand's whisper, or anyone's, is refused; the Steward's is taken.
-				AsCouncil()
+				-- An Elder's client: a Hand's whisper, or anyone's, is refused; the Steward's is taken.
+				AsElder()
 				KY.HandleKey("WHISPER", "Hand Guy-Realm", msg)
 				KY.HandleKey("WHISPER", "Faker-Realm", msg)
 				eq(ns.rdb.realmKey, nil, "only the Shogun or his Steward")
@@ -41077,9 +41077,9 @@ end)
 		end)
 	end)
 
-	test("1.1 key rotation (#8): a Council member takes the Shogun's key from his pinned name alone, by whisper, tells him, hands it to his guild over guild chat and moves; nothing else carries it", function()
+	test("1.1 key rotation (#8): an Elder takes the Shogun's key from his pinned name alone, by whisper, tells him, hands it to his guild over guild chat and moves; nothing else carries it", function()
 		WithKeys(function(w, K)
-			AsCouncil()
+			AsElder()
 			local at = w.clock
 			-- Not the Shogun's name, not a whisper, dated far ahead: refused.
 			KY.HandleKey("WHISPER", "Faker-Realm", ("K3~%d~newarmykey01"):format(at))
@@ -41142,7 +41142,7 @@ end)
 
 	test("1.1 key rotation (#8): a guildmate who logs in later asks, and an officer holding a newer key answers over guild chat; clients before 1.1 ignore K3, K4 and K5", function()
 		WithKeys(function(w, K)
-			AsCaptain()
+			AsCouncilMember()
 			ns.Roster.Scan()
 			ns.rdb.realmKey, ns.rdb.keyEpoch = "armykey00001", { key = ns.Comm.Hash36("armykey00001"), at = w.clock }
 			-- A guildmate holding nothing newer asks: answered, once a minute at most.
@@ -41188,7 +41188,7 @@ end)
 			eq(KY.Clear(), false, "a member cannot clear it")
 			eq(ns.rdb.realmKey, "wrongguildkey")
 
-			AsCaptain()
+			AsCouncilMember()
 			w.sent, w.printed = {}, {}
 			eq(KY.Clear(), true)
 			eq(ns.rdb.realmKey, nil, "back on the public channel")
@@ -41219,7 +41219,7 @@ end)
 		end)
 	end)
 
-	test("1.1 key rotation (#8): the Shogun's Throne: rotate, how far it got, late Council handed it, then he moves with his guild after the grace (or now)", function()
+	test("1.1 key rotation (#8): the Shogun's Throne: rotate, how far it got, late Elders handed it, then he moves with his guild after the grace (or now)", function()
 		WithKeys(function(w, K)
 			AsShogun()
 			K.Show("home")
@@ -41247,7 +41247,7 @@ end)
 			KY.HandleAck("WHISPER", "Zeus Cap-Realm", ("K4~%d~Bankai Guild Zeus"):format(rot.at - 1))
 			KY.HandleAck("CHANNEL", "Zeus Cap-Realm", ("K4~%d~Bankai Guild Zeus"):format(rot.at))
 			assert(Page((K.Build())):find(ns.L.KEY_ROTATING:format(2, 1, 1), 1, true), Page((K.Build())))
-			-- A Council member who comes online meanwhile (and the Shogun's /who sees him in his guild): handed it on
+			-- An Elder who comes online meanwhile (and the Shogun's /who sees him in his guild): handed it on
 			-- the next round; the others not again before RESEND.
 			ns.rdb.guilds["Bankai Guild II"].leaderOnline = true
 			WhoLists({ { "Ceo", "Bankai Guild II" } })
@@ -41593,13 +41593,13 @@ end)
 			eq(#w.whispered, 0, "nothing before he hands it out")
 			K.Show("home")
 			local page = Page((K.Build()))
-			-- (Konig's later review: its two "Council" are none his /who saw in it, so 0 get the key.)
+			-- (Konig's later review: its two "Elders" are none his /who saw in it, so 0 get the key.)
 			assert(page:find("<Bankai Guild Spies>  0 · " .. ns.L.KEY_GUILD_CENSUS .. " · " .. ns.L.KEY_GUILD_WAITING:format(2), 1, true), page)
 			assert(page:find("<Bankai Guild Zeus>  2 · " .. ns.L.KEY_GUILD_SEEN, 1, true), page)
 			eq(KY.Start(), true)
 			eq(Whispered(w, "K3~"), "Zed-Realm,Zeus Cap-Realm", "the guild his /who saw, not the made-up one")
 			-- He checks it himself (or unchecks one): from the next round. (Before Konig's later review
-			-- the census's two "Council" were whispered then; now only whom his /who sees in it.)
+			-- the census's two "Elders" were whispered then; now only whom his /who sees in it.)
 			KY.Toggle("Bankai Guild Spies")
 			w.clock = w.clock + 60
 			KY.Tick()
@@ -41636,7 +41636,7 @@ end)
 
 	test("1.1 key rotation (#8) review: '/bk key rotate' is never a key: an officer (or the Shogun before the restart a new file needs) is told, and his guild keeps its channel; /bk help shows it to the Shogun alone", function()
 		WithKeys(function(w, K)
-			for _, who in ipairs({ AsCaptain, AsCouncil }) do
+			for _, who in ipairs({ AsCouncilMember, AsElder }) do
 				who()
 				w.printed = {}
 				SlashCmdList.BANKAIGUILD("key rotate")
@@ -41701,7 +41701,7 @@ end)
 		end)
 	end)
 
-	test("1.1 key rotation (#8) review: the Shogun's rounds never overflow the send queue (his other messages keep their place), a whisper counts once it left, and every Council and Captain picked gets it before he moves", function()
+	test("1.1 key rotation (#8) review: the Shogun's rounds never overflow the send queue (his other messages keep their place), a whisper counts once it left, and every Elder and Council member picked gets it before he moves", function()
 		local whisper = ns.Comm.Whisper -- Comm's own (WithThrone's recorder stands in below)
 		WithKeys(function(w, K)
 			AsShogun()
@@ -41712,16 +41712,16 @@ end)
 				for _ = 1, 100 do ns.Comm.Pump() end -- (whatever earlier tests left waiting)
 				out = {}
 				ns.Comm.Whisper = whisper
-				-- 66 guilds his /who saw, each with its Council and a Captain online (his /who listed them in
+				-- 66 guilds his /who saw, each with its Elder and a Council member online (his /who listed them in
 				-- it): 132 whispers.
 				local names, rows = {}, { { "Zed", "Bankai Guild Zeus" }, { "Zeus Cap", "Bankai Guild Zeus" } }
 				for i = 1, 66 do
 					local guild = "Bankai Guild " .. Letters(i)
-					ns.rdb.guilds[guild] = Vouched({ total = 10, online = 2, zones = {}, t = w.clock, leader = "Council " .. Letters(i), leaderOnline = true,
+					ns.rdb.guilds[guild] = Vouched({ total = 10, online = 2, zones = {}, t = w.clock, leader = "Elder " .. Letters(i), leaderOnline = true,
 						realm = "Realm", officers = { { name = "Cap " .. Letters(i), online = true, days = 0 } } }, "Wa" .. i .. "-Realm", "Wb" .. i .. "-Realm")
 					ns.rdb.seen[guild] = { online = 2, t = w.clock }
-					names["Council " .. Letters(i) .. "-Realm"], names["Cap " .. Letters(i) .. "-Realm"] = true, true
-					rows[#rows + 1] = { "Council " .. Letters(i), guild }
+					names["Elder " .. Letters(i) .. "-Realm"], names["Cap " .. Letters(i) .. "-Realm"] = true, true
+					rows[#rows + 1] = { "Elder " .. Letters(i), guild }
 					rows[#rows + 1] = { "Cap " .. Letters(i), guild }
 				end
 				WhoLists(rows)
@@ -41804,7 +41804,7 @@ end)()
 ---------------------------------------------------------------------------
 -- 1.1: the dues (Dues.lua, Fern's #34-#37): one fixed amount a week to the Treasurer, each gift
 -- in his book stamped with its week, every guild's standing for the Shogun, his Steward and the
--- Treasurer, each guild's own for its Captains, by whisper alone; never on the channel.
+-- Treasurer, each guild's own for its Council, by whisper alone; never on the channel.
 ---------------------------------------------------------------------------
 do
 	local D = ns.Dues
@@ -41812,8 +41812,8 @@ do
 
 	-- Runs fn(w, K, T, mail, trade) on the Throne's world (WithThrone) with the dues fresh, the
 	-- Treasurer's roster empty (his guild's members are named by each test), <Bankai Guild II>'s
-	-- census naming Cap its Captain (as two of its reporters say), and every stand-in put back.
-	-- Our own guild's roster, as the server gives it: Nm(1)..Nm(rosterSize), the first its Council, the
+	-- census naming Cap its Council member (as two of its reporters say), and every stand-in put back.
+	-- Our own guild's roster, as the server gives it: Nm(1)..Nm(rosterSize), the first its Elder, the
 	-- next five its officers (names of letters alone, as the game's are).
 	local rosterSize = 12
 	local function Nm(i) return "Member" .. string.char(96 + math.floor((i - 1) / 26) + 1) .. string.char(96 + (i - 1) % 26 + 1) end
@@ -41831,7 +41831,7 @@ do
 				GetGuildRosterInfo = function(i)
 					if i > rosterSize then return nil end
 					local rank = i == 1 and 0 or (i <= 6 and 1 or 3)
-					return Nm(i) .. "-Realm", ({ [0] = "Council", [1] = "Officer", [3] = "Soldier" })[rank], rank, 20
+					return Nm(i) .. "-Realm", ({ [0] = "Elder", [1] = "Officer", [3] = "Soldier" })[rank], rank, 20
 				end
 				GetServerTime = nil -- (the server's clock is the test's: ns.Now)
 				w.census = function()
@@ -42045,14 +42045,14 @@ do
 		end)
 	end)
 
-	test("1.1 dues (#37): the Shogun and the Treasurer see every guild (members, paid this week, gold in, percent); a Captain his own guild alone (name, last payment, gold this week, above or below), by whisper", function()
+	test("1.1 dues (#37): the Shogun and the Treasurer see every guild (members, paid this week, gold in, percent); a Council member his own guild alone (name, last payment, gold this week, above or below), by whisper", function()
 		WithDues(function(w, K, T, mail)
 			AsTreasurer()
 			local week = D.Week()
 			Mail(mail, Nm(7), 10000, D.Note(week, "Bankai Guild II"))
 			w.clock = w.clock + 3600
 			Mail(mail, Nm(8), 5000, D.Note(week, "Bankai Guild II"))
-			Mail(mail, Nm(10), 12000, "gold for Bankai Guild") -- (no note: found by his Captain's roster)
+			Mail(mail, Nm(10), 12000, "gold for Bankai Guild") -- (no note: found by his Council member's roster)
 			Mail(mail, "Zed", 10000, D.Note(week, "Bankai Guild Zeus"))
 			-- The Treasurer's own page: every guild, from his books.
 			D.Open()
@@ -42111,9 +42111,9 @@ do
 			assert(Row(lines, Nm(7)) and Row(lines, Nm(8)), text)
 			assert(not Row(lines, "Zed"), "another guild's player")
 
-			-- A Captain of <Bankai Guild II> (another client): his own guild alone, every member of his roster.
+			-- A Council member of <Bankai Guild II> (another client): his own guild alone, every member of his roster.
 			D.Reset()
-			AsCaptain()
+			AsCouncilMember()
 			T.HandleReport("CHANNEL", TREASURER, tb)
 			D.Open()
 			text = Page(T)
@@ -42127,7 +42127,7 @@ do
 			PumpAll()
 			answer = Whispers(w, "FA", before)
 			assert(#answer >= 1)
-			AsCaptain()
+			AsCouncilMember()
 			for _, x in ipairs(answer) do
 				eq(x.to, "Cap-Realm"); D.HandleGuild("WHISPER", TREASURER, x.msg)
 				assert(not x.msg:find("#", 1, true), "no player with no guild on his payment in a guild's list: " .. x.msg)
@@ -42147,7 +42147,7 @@ do
 			PumpAll()
 			local fd = Whispers(w, "FD~", b2)
 			assert(#fd >= 1, "answered")
-			AsCaptain()
+			AsCouncilMember()
 			for _, x in ipairs(fd) do eq(x.to, "Cap-Realm"); D.HandleCodes("WHISPER", TREASURER, x.msg) end
 			text, lines = Page(T)
 			assert(not text:find(ns.L.DUES_CODES_WAIT, 1, true), text)
@@ -42168,7 +42168,7 @@ do
 		end)
 	end)
 
-	test("1.1 dues (#37): the Treasurer's addon answers only the Shogun, his Steward, and a guild's own Captains; each asker once every 5 minutes; answers from anyone else are dropped", function()
+	test("1.1 dues (#37): the Treasurer's addon answers only the Shogun, his Steward, and a guild's own Council; each asker once every 5 minutes; answers from anyone else are dropped", function()
 		WithDues(function(w, K, T, mail)
 			AsTreasurer()
 			local week = D.Week()
@@ -42181,8 +42181,8 @@ do
 				return #w.whispered - before
 			end
 			eq(Asked("Soldier-Realm", "FQ~" .. week .. "~Bankai Guild II~0"), 0, "a soldier")
-			eq(Asked("Cap-Realm", "FQ~" .. week .. "~Bankai Guild Zeus~0"), 0, "a Captain, another guild")
-			eq(Asked("Cap-Realm", "FQ~" .. week .. "~*~0"), 0, "a Captain, every guild")
+			eq(Asked("Cap-Realm", "FQ~" .. week .. "~Bankai Guild Zeus~0"), 0, "a Council member, another guild")
+			eq(Asked("Cap-Realm", "FQ~" .. week .. "~*~0"), 0, "a Council member, every guild")
 			eq(Asked("Cap-Realm", "FQ~" .. (week - 2) .. "~Bankai Guild II~0"), 0, "a week too old")
 			D.HandleAsk("CHANNEL", "Cap-Realm", "FQ~" .. week .. "~Bankai Guild II~0")
 			eq(#D.Outbox(), 0, "only a whisper")
@@ -42194,17 +42194,17 @@ do
 			ns.IsSteward = function(name) return name == "Test Steward-Realm" end
 			assert(Asked("Test Steward-Realm", "FQ~" .. week .. "~*~0") > 0, "his Steward, every guild")
 			assert(Asked(SHOGUN, "FQ~" .. week .. "~Bankai Guild Zeus~0") > 0, "the Shogun, any guild")
-			-- A guild's Council (the census's).
-			assert(Asked("Ceo-Realm", "FQ~" .. week .. "~Bankai Guild II~0") > 0, "its Council")
+			-- A guild's Elder (the census's).
+			assert(Asked("Ceo-Realm", "FQ~" .. week .. "~Bankai Guild II~0") > 0, "its Elder")
 			-- Without his yes to sharing the treasury, his addon answers nobody.
 			ns.db.keeperShares = { [TREASURER:lower()] = false }
 			w.clock = w.clock + D.ANSWER_GAP
 			eq(Asked(SHOGUN, "FQ~" .. week .. "~*~0"), 0, "kept private")
 			ns.db.keeperShares = nil
-			-- An answer reaches a Captain only from the Treasurer, and only his own guild's.
+			-- An answer reaches a Council member only from the Treasurer, and only his own guild's.
 			local msgs = D.GuildMessages(D.Ledger(), "Bankai Guild II", 7)
 			local zeus = D.GuildMessages(D.Ledger(), "Bankai Guild Zeus", 8)
-			AsCaptain()
+			AsCouncilMember()
 			for _, m in ipairs(msgs) do D.HandleGuild("WHISPER", "Pyralis Faker-Realm", m) end
 			for _, m in ipairs(zeus) do D.HandleGuild("WHISPER", TREASURER, m) end
 			for _, m in ipairs(msgs) do D.HandleGuild("CHANNEL", TREASURER, m) end
@@ -42221,7 +42221,7 @@ do
 			local _, _, detail = T.Build()
 			eq(T.mode, "summary", "back to the summary"); eq(detail ~= ns.L.DUES_DETAIL, true)
 			-- A summary (every guild) is the Shogun's and his Steward's alone.
-			AsCaptain()
+			AsCouncilMember()
 			for _, m in ipairs(D.SummaryMessages(D.Ledger(), 9)) do D.HandleSummary("WHISPER", TREASURER, m) end
 			AsShogun()
 			D.Open()
@@ -42246,7 +42246,7 @@ do
 					assert(#m <= 250, #m .. " bytes")
 					assert(m:find("^FA~%d+~%d+~[0-9a-z]+~[0-9a-z]+~[0-9a-z%-]+~1~[0-9a-z]+~Bankai Guild II~"), m)
 				end
-				AsCaptain()
+				AsCouncilMember()
 				for _, m in ipairs(msgs) do D.HandleGuild("WHISPER", TREASURER, m) end
 				D.Open()
 				local text, lines = Page(T, Nm(40):lower())
@@ -42257,7 +42257,7 @@ do
 				AsTreasurer()
 				local full = D.GuildMessages(D.Ledger(), "Bankai Guild II", 4)
 				assert(#full >= 2, "several whispers")
-				AsCaptain()
+				AsCouncilMember()
 				for _, m in ipairs(full) do assert(m:find("~0~[0-9a-z]+~Bankai Guild II~"), m); D.HandleGuild("WHISPER", TREASURER, m) end
 				text, lines = Page(T, Nm(40):lower())
 				assert(not text:find(ns.L.DUES_CUT, 1, true), text)
@@ -42269,7 +42269,7 @@ do
 				AsTreasurer()
 				Mail(mail, Nm(45), 10000, D.Note(week, "Bankai Guild II"))
 				full = D.GuildMessages(D.Ledger(), "Bankai Guild II", 5)
-				AsCaptain()
+				AsCouncilMember()
 				D.HandleGuild("WHISPER", TREASURER, full[1])
 				text, lines = Page(T, Nm(41):lower())
 				assert(text:find(ns.L.DUES_RECEIVING:format(1, #full), 1, true), text)
@@ -42363,7 +42363,7 @@ do
 			local r = ns.rdb.treasuryReports and ns.rdb.treasuryReports[TREASURER]
 			assert(r, "taken"); eq(r.donors, 3); eq(#r.weekNames, 0)
 			-- The lists went by whisper, each to whoever asked alone: the Shogun every guild, the
-			-- Captain his own (its payers, never the Treasurer's guildmates).
+			-- Council member his own (its payers, never the Treasurer's guildmates).
 			assert(#w.whispered >= 2)
 			for _, x in ipairs(w.whispered) do
 				if x.to == SHOGUN then assert(x.msg:find("^FS~"), x.msg)
@@ -42582,10 +42582,10 @@ do
 		assert(ns.L.DUES_SEND_TIP:find("never moves gold", 1, true))
 	end)
 
-	-- A Captain of <Bankai Guild II> (Cap, rank 1) with the Treasurer's list of his guild: Nm(7) paid the
+	-- A Council member of <Bankai Guild II> (Cap, rank 1) with the Treasurer's list of his guild: Nm(7) paid the
 	-- amount, Nm(8) half of it, Nm(9) to Nm(12) nothing. fn(removed): the names the game was asked
 	-- to remove (C_GuildInfo.Uninvite), `can`: what CanGuildRemove says.
-	local function WithCaptainList(w, T, mail, fn)
+	local function WithCouncilMemberList(w, T, mail, fn)
 		local saved = { can = CanGuildRemove, info = C_GuildInfo, uninvite = GuildUninvite, scan = ns.Roster.RequestScan }
 		local removed, state = {}, { can = true }
 		CanGuildRemove = function() return state.can end
@@ -42598,7 +42598,7 @@ do
 			Mail(mail, Nm(7), 10000, D.Note(week, "Bankai Guild II"))
 			Mail(mail, Nm(8), 5000, D.Note(week, "Bankai Guild II"))
 			local msgs = D.GuildMessages(D.Ledger(), "Bankai Guild II", 11)
-			AsCaptain()
+			AsCouncilMember()
 			for _, m in ipairs(msgs) do D.HandleGuild("WHISPER", TREASURER, m) end
 			D.Open()
 			fn(removed, state)
@@ -42612,9 +42612,9 @@ do
 		return out
 	end
 
-	test("1.1 dues (#34): a Captain filters his roster to who is under the amount this week, picks one name, and one click is the game's own removal of that one member", function()
+	test("1.1 dues (#34): a Council member filters his roster to who is under the amount this week, picks one name, and one click is the game's own removal of that one member", function()
 		WithDues(function(w, K, T, mail)
-			WithCaptainList(w, T, mail, function(removed)
+			WithCouncilMemberList(w, T, mail, function(removed)
 				local text, lines = Page(T)
 				-- The filter: only those under the amount (Nm(8) with half of it, and the ten who paid nothing).
 				local filter = Row(lines, ns.L.DUES_FILTER_UNPAID:format(11))
@@ -42665,7 +42665,7 @@ do
 
 	test("1.1 dues (#34): no removal without the rank's right, a whole list, a click, or in another guild; nothing on a timer or at the weekly reset", function()
 		WithDues(function(w, K, T, mail)
-			WithCaptainList(w, T, mail, function(removed, state)
+			WithCouncilMemberList(w, T, mail, function(removed, state)
 				local lines = select(2, Page(T))
 				Row(lines, Nm(9) .. " ").onClick()
 				eq(#RemoveLines(select(2, Page(T))), 1)
@@ -42679,14 +42679,14 @@ do
 				AsTreasurer()
 				Mail(mail, Nm(9), 10000, D.Note(D.Week(), "Bankai Guild II"))
 				local msgs = D.GuildMessages(D.Ledger(), "Bankai Guild II", 12)
-				AsCaptain()
+				AsCouncilMember()
 				for _, m in ipairs(msgs) do D.HandleGuild("WHISPER", TREASURER, m) end
 				eq(D.Remove({ key = Nm(9):lower(), name = Nm(9) }), false); eq(#removed, 0)
 				assert(Printed(w, ns.L.DUES_REMOVE_PAID:format(Nm(9))))
 				eq(D.Remove({ key = "zed", name = "Zed" }), false, "not on our roster: another guild's")
 				eq(#removed, 0)
 				-- A list still coming (or none yet): nobody is under the amount, nobody removable.
-				D.Reset(); AsCaptain(); D.Open()
+				D.Reset(); AsCouncilMember(); D.Open()
 				lines = select(2, Page(T))
 				eq(Row(lines, ns.L.DUES_FILTER_UNPAID:format(0)) ~= nil, true, "nobody under the amount: the list isn't here")
 				Row(lines, Nm(11) .. " ").onClick()
@@ -42704,7 +42704,7 @@ do
 				local alone = {}
 				LoadAlone(alone)
 				alone.on.LOGIN()
-				AsCaptain()
+				AsCouncilMember()
 				w.clock = w.clock + 7 * 86400
 				assert(#alone.timers >= 2, "its timers")
 				for _, f in ipairs(alone.timers) do f() end
@@ -42715,7 +42715,7 @@ do
 
 	test("1.1 dues (#34): with the gamepad UI the question is Bankai Guild's own window, never the game's popup; its lines in both languages", function()
 		WithDues(function(w, K, T, mail)
-			WithCaptainList(w, T, mail, function(removed)
+			WithCouncilMemberList(w, T, mail, function(removed)
 				local lines = select(2, Page(T))
 				Row(lines, Nm(9) .. " ").onClick()
 				local savedPad, savedShow = ns.GamepadUI, ns.Dialog.Show
@@ -42761,7 +42761,7 @@ do
 			local savedChat = CHAT_LINES
 			local ok, err = pcall(function()
 				-- <Bankai Guild II> pays; <Bankai Guild Zeus> never does. Weeks go by: the Shogun's page, the
-				-- Treasurer's, the Captains' asks answered, every timer of the dues at each reset.
+				-- Treasurer's, the Council's asks answered, every timer of the dues at each reset.
 				AsTreasurer()
 				local alone = {}
 				LoadAlone(alone)
@@ -42779,20 +42779,20 @@ do
 					Zeus(); w.census()
 				end
 				eq(D.Ledger(D.Week() - 1).guilds["bankaiguild zeus"], nil, "it paid nothing")
-				-- Still an Bankai Guild guild, counted in the army, its Council its Council, its Captain its Captain.
+				-- Still an Bankai Guild guild, counted in the army, its Elder its Elder, its Council member its Council member.
 				eq(ns.IsFederation("Bankai Guild Zeus"), true)
 				local counted
 				for _, e in ipairs(ns.Data.Summary().guilds) do if e.name == "Bankai Guild Zeus" then counted = e.counted end end
 				eq(counted, true, "in the army's total")
 				eq(ns.Data.KnownRank("Zed-Realm", "Bankai Guild Zeus"), 0); eq(ns.Data.KnownRank("Zeta-Realm", "Bankai Guild Zeus"), 1)
-				-- Their lines reach everyone as before, [Council] and [Captains] too.
+				-- Their lines reach everyone as before, [Elders] and [Council] too.
 				AsShogun()
 				CHAT_LINES = {}
-				eq((Chan.Receive("CHANNEL", "Zed-Realm", Msg("L", "Bankai Guild Zeus", 901, "still here"), 1000)), true, "its Council's [Council] line")
-				eq((Chan.Receive("CHANNEL", "Zeta-Realm", Msg("C", "Bankai Guild Zeus", 902, "me too"), 1001)), true, "its Captain's [Captains] line")
+				eq((Chan.Receive("CHANNEL", "Zed-Realm", Msg("L", "Bankai Guild Zeus", 901, "still here"), 1000)), true, "its Elder's [Elders] line")
+				eq((Chan.Receive("CHANNEL", "Zeta-Realm", Msg("C", "Bankai Guild Zeus", 902, "me too"), 1001)), true, "its Council member's [Council] line")
 				-- On their own clients: the Crown's decrees, the channels, the Treasury tab (the button,
 				-- never a lock), as for any guild.
-				GetGuildInfo = function() return "Bankai Guild Zeus", "Council", 0 end
+				GetGuildInfo = function() return "Bankai Guild Zeus", "Elder", 0 end
 				ns.me = "Zed-Realm"
 				eq(ns.Decree.CanSend("ROYAL"), true, "his Royal decree")
 				eq(Chan.CanUse("L"), true)
@@ -42875,7 +42875,7 @@ do
 
 	test("1.1 dues review (#37): a new amount starts at the next weekly reset: who paid this week's amount stays above it, nobody turns removable, last week keeps its own", function()
 		WithDues(function(w, K, T, mail)
-			WithCaptainList(w, T, mail, function(removed)
+			WithCouncilMemberList(w, T, mail, function(removed)
 				local week = D.Week()
 				-- Member7 paid the 1 gold in force; the Shogun sets 2 gold the same week.
 				AsShogun()
@@ -42896,7 +42896,7 @@ do
 				local led = D.Ledger()
 				eq(led.amount, 10000); eq(led.guilds["bankaiguild ii"].paid, 1)
 				local msgs = D.GuildMessages(led, "Bankai Guild II")
-				AsCaptain()
+				AsCouncilMember()
 				for _, m in ipairs(msgs) do D.HandleGuild("WHISPER", TREASURER, m) end
 				local lines
 				text, lines = Page(T, Nm(7):lower())
@@ -42926,7 +42926,7 @@ do
 
 	test("1.1 dues review (#34): a mail the Treasurer hasn't taken shows as not in his book yet; the page and the confirm say mail counts once taken; a removal needs his list of the last 10 minutes", function()
 		WithDues(function(w, K, T, mail)
-			WithCaptainList(w, T, mail, function(removed)
+			WithCouncilMemberList(w, T, mail, function(removed)
 				local week = D.Week()
 				-- His mail character's own client marks its book as it plays; anyone else's marks nothing.
 				AsTreasurer()
@@ -42942,7 +42942,7 @@ do
 				AsTreasurer()
 				eq(D.MailKept(), w.clock - 2 * 86400)
 				local msgs = D.GuildMessages(D.Ledger(), "Bankai Guild II")
-				AsCaptain()
+				AsCouncilMember()
 				for _, m in ipairs(msgs) do D.HandleGuild("WHISPER", TREASURER, m) end
 				-- Member9 pressed Send on his dues mail to the mail character: it waits there, not taken.
 				local text, lines = Page(T)
@@ -42981,7 +42981,7 @@ do
 				D.HandleAsk("WHISPER", "Cap-Realm", fq.msg)
 				local same = Whispers(w, "FU~", before)
 				eq(#same, 1); eq(#Whispers(w, "FA~", before), 0, "not the list again")
-				AsCaptain()
+				AsCouncilMember()
 				D.HandleSame("WHISPER", TREASURER, same[1].msg)
 				eq(#RemoveLines(select(2, Page(T))), 1)
 				StaticPopupDialogs.BANKAIGUILD_DUES_REMOVE.OnAccept(nil, ask.data)
@@ -42993,7 +42993,7 @@ do
 				eq(D.MailKept(), nil)
 				msgs = D.GuildMessages(D.Ledger(), "Bankai Guild II")
 				assert(msgs[1]:find("^FA~%d+~%d+~[0-9a-z]+~[0-9a-z]+~%-~"), msgs[1])
-				AsCaptain()
+				AsCouncilMember()
 				for _, m in ipairs(msgs) do D.HandleGuild("WHISPER", TREASURER, m) end
 				D.Open()
 				assert(Page(T):find(ns.L.DUES_MAIL_COUNTS, 1, true))
@@ -43001,11 +43001,11 @@ do
 		end)
 	end)
 
-	test("1.1 dues review (#36/#37): a player who paid with no guild on it is in no guild's list; a Captain hears only about the members he asks for, no more than his guild counts", function()
+	test("1.1 dues review (#36/#37): a player who paid with no guild on it is in no guild's list; a Council member hears only about the members he asks for, no more than his guild counts", function()
 		WithDues(function(w, K, T, mail)
 			AsTreasurer()
 			local week = D.Week()
-			Mail(mail, "Zed", 10000, "for the fund")          -- (<Bankai Guild Zeus>'s Council: no note)
+			Mail(mail, "Zed", 10000, "for the fund")          -- (<Bankai Guild Zeus>'s Elder: no note)
 			Mail(mail, "Zeta", 25000)                          -- (no subject)
 			Mail(mail, Nm(10), 12000, "gold for Bankai Guild")      -- (<Bankai Guild II>: no note)
 			Mail(mail, Nm(7), 10000, D.Note(week, "Bankai Guild II"))
@@ -43027,12 +43027,12 @@ do
 			D.Reset()
 			local _, id2, u2 = D.GuildMessages(D.Ledger(), "Bankai Guild II")
 			eq(id2, id, "the same list"); assert(u2 ~= u, "another session's secret")
-			-- The Captain of <Bankai Guild II> asks about his roster's members missing from his list.
+			-- The Council member of <Bankai Guild II> asks about his roster's members missing from his list.
 			local before = #w.whispered
 			D.HandleAsk("WHISPER", "Cap-Realm", "FQ~" .. week .. "~Bankai Guild II~0")
 			PumpAll()
 			local fa = Whispers(w, "FA~", before)
-			AsCaptain()
+			AsCouncilMember()
 			for _, x in ipairs(fa) do D.HandleGuild("WHISPER", TREASURER, x.msg) end
 			before = #w.whispered
 			D.Open()
@@ -43056,7 +43056,7 @@ do
 			local body = fd[1].msg:match("~([^~]*)$")
 			assert(body:find("^" .. D.Code(Nm(10):lower()) .. ":"), body)
 			assert(not body:find(D.Code("zed"), 1, true) and not body:find(D.Code("zeta"), 1, true), body)
-			-- Once every minute per Captain; never a soldier's ask, nor another guild's Captain's.
+			-- Once every minute per Council member; never a soldier's ask, nor another guild's Council member's.
 			before = #w.whispered
 			for _, x in ipairs(fc) do D.HandleCodeAsk("WHISPER", "Cap-Realm", (x.msg:gsub("^(FC~%d+~[^~]+~)%d+", "%199998"))) end
 			PumpAll()
@@ -43081,8 +43081,8 @@ do
 			for i, p in ipairs(pieces) do D.HandleCodeAsk("WHISPER", "Cap-Realm", ("FC~%d~Bankai Guild II~7~%d~%d~%s"):format(week, i, #pieces, p)) end
 			PumpAll()
 			eq(#Whispers(w, "FD~", before), 0, "more than its members")
-			-- The Captain's page: Member10 above (found by his code), the others asked about below.
-			AsCaptain()
+			-- The Council member's page: Member10 above (found by his code), the others asked about below.
+			AsCouncilMember()
 			D.HandleCodes("WHISPER", TREASURER, fd[1].msg)
 			local text, lines = Page(T)
 			assert(Row(lines, Nm(10) .. " ").right:find(ns.L.DUES_ABOVE, 1, true), text)
@@ -43091,7 +43091,7 @@ do
 			AsTreasurer()
 			Mail(mail, "Stranger", 10000, "hi")
 			local newer = D.GuildMessages(D.Ledger(), "Bankai Guild II")
-			AsCaptain()
+			AsCouncilMember()
 			for _, m in ipairs(newer) do D.HandleGuild("WHISPER", TREASURER, m) end
 			w.clock = w.clock + D.CODE_GAP
 			before = #w.whispered
@@ -43108,13 +43108,13 @@ do
 			rosterSize = 200
 			local week = D.Week()
 			for i = 11, 60 do Mail(mail, Nm(i), 10000, D.Note(week, "Bankai Guild II")) end
-			AsCaptain()
+			AsCouncilMember()
 			D.HandleSame("WHISPER", TREASURER, "FU~1~" .. week .. "~Bankai Guild II~0~-") -- (his addon heard)
 			D.Open()
 			local asks, lists, same, pieces = 0, 0, 0, nil
 			for _ = 1, 60 do
 				local before = #w.whispered
-				AsCaptain()
+				AsCouncilMember()
 				Page(T)
 				local fq = Whispers(w, "FQ~", before)
 				asks = asks + #fq
@@ -43126,7 +43126,7 @@ do
 				local fa, fu = Whispers(w, "FA~", b2), Whispers(w, "FU~", b2)
 				if #fa > 0 then lists = lists + 1; pieces = #fa end
 				same = same + #fu
-				AsCaptain()
+				AsCouncilMember()
 				for _, x in ipairs(fa) do D.HandleGuild("WHISPER", TREASURER, x.msg) end
 				for _, x in ipairs(fu) do D.HandleSame("WHISPER", TREASURER, x.msg) end
 				w.clock = w.clock + 60
@@ -43140,7 +43140,7 @@ do
 			Mail(mail, Nm(61), 10000, D.Note(week, "Bankai Guild II"))
 			w.clock = w.clock + D.ASK_EVERY
 			w.census()
-			AsCaptain()
+			AsCouncilMember()
 			local before = #w.whispered
 			Page(T)
 			local fq = Whispers(w, "FQ~", before)
@@ -43229,12 +43229,12 @@ do
 		AL.Reset()
 		if not ok then error(err, 0) end
 	end
-	-- The Captain of <Bankai Guild II>'s page, from the list the Treasurer's addon whispers him now.
-	local function CaptainPage(w, T)
+	-- The Council member of <Bankai Guild II>'s page, from the list the Treasurer's addon whispers him now.
+	local function CouncilMemberPage(w, T)
 		AsTreasurer()
 		w.census()
 		local msgs = D.GuildMessages(D.Ledger(), "Bankai Guild II")
-		AsCaptain()
+		AsCouncilMember()
 		for _, m in ipairs(msgs) do D.HandleGuild("WHISPER", TREASURER, m) end
 		D.Open()
 		return Page(T)
@@ -43245,7 +43245,7 @@ do
 		return table.concat(out, " ")
 	end
 
-	test("1.1.5 dues (Fern's #21): a payment made from a confirmed alt counts for its main: his line on the Captain's, the Treasurer's and the Shogun's page, one payer in his guild's count; the alt's own line stays its own", function()
+	test("1.1.5 dues (Fern's #21): a payment made from a confirmed alt counts for its main: his line on the Council member's, the Treasurer's and the Shogun's page, one payer in his guild's count; the alt's own line stays its own", function()
 		WithDues(function(w, K, T, mail)
 			WithLinks(function()
 				AsTreasurer()
@@ -43258,15 +43258,15 @@ do
 				-- Not linked: two payers, neither at the amount (as before 1.1.5).
 				local g = D.Ledger().guilds["bankaiguild ii"]
 				eq(g.payers, 2); eq(g.paid, 0); eq(g.copper, 10000)
-				local text, lines = CaptainPage(w, T)
+				local text, lines = CouncilMemberPage(w, T)
 				assert(Row(lines, main .. " ").right:find(ns.L.DUES_BELOW, 1, true), text)
 				-- Linked, each saying so from its own client: one player, who paid the amount.
 				Link(main, alt, w.clock)
 				AsTreasurer()
 				g = D.Ledger().guilds["bankaiguild ii"]
 				eq(g.payers, 1, "one player"); eq(g.paid, 1, "his characters' gold together"); eq(g.copper, 10000, "the gold in once")
-				-- The Captain's page: the main above with his alt's gold, the alt named; the alt's line its own.
-				text, lines = CaptainPage(w, T)
+				-- The Council member's page: the main above with his alt's gold, the alt named; the alt's line its own.
+				text, lines = CouncilMemberPage(w, T)
 				local m, a = Row(lines, main .. " "), Row(lines, alt .. " ")
 				assert(m and a, text)
 				assert(m.right:find(ns.L.DUES_ABOVE, 1, true) and m.right:find(T.Coins(10000), 1, true), m.right)
@@ -43315,7 +43315,7 @@ do
 			WithLinks(function()
 				AsTreasurer()
 				local week = D.Week()
-				-- The main in <Bankai Guild II> (his Captain's roster); his alt trades the Treasurer from
+				-- The main in <Bankai Guild II> (his Council member's roster); his alt trades the Treasurer from
 				-- <Bankai Guild Zeus> (the game's word on the other side of the trade).
 				local main, alt, alt2 = Who(7), "Far Cousin", "Near Cousin"
 				Claim(main, w.clock, "M", "Bankai Guild II", alt .. "," .. alt2)
@@ -43332,7 +43332,7 @@ do
 				eq(led.guilds["bankaiguild zeus"].payers, 2); eq(led.guilds["bankaiguild zeus"].paid, 1, "the alts' own, in their own guild")
 				eq(led.guilds["bankaiguild ii"].payers, 1); eq(led.guilds["bankaiguild ii"].paid, 0, "nothing of it in his main's guild")
 				eq(led.guilds["bankaiguild ii"].copper, 5000)
-				local text, lines = CaptainPage(w, T)
+				local text, lines = CouncilMemberPage(w, T)
 				local m = Row(lines, main .. " ")
 				assert(m.right:find(ns.L.DUES_BELOW, 1, true) and m.right:find(T.Coins(5000), 1, true), m.right)
 				assert(not text:find(alt, 1, true), "another guild's player: " .. text)
@@ -43378,9 +43378,9 @@ do
 				local main, alt = Who(7), Who(11)
 				Mail(mail, alt, 5000, D.Note(week, "Bankai Guild II"))
 				Mail(mail, main, 5000, D.Note(week, "Bankai Guild II"))
-				-- His line on the Captain's page, and his guild's payers and paid, as they are now.
+				-- His line on the Council member's page, and his guild's payers and paid, as they are now.
 				local function Now()
-					local _, lines = CaptainPage(w, T)
+					local _, lines = CouncilMemberPage(w, T)
 					AsTreasurer()
 					local g = D.Ledger().guilds["bankaiguild ii"]
 					local right = Row(lines, main .. " ").right
@@ -43435,7 +43435,7 @@ do
 				eq(g.copper, 10000, "the gold in once"); eq(g.payers, 1, "one player"); eq(g.paid, 1)
 				-- The page drawn twice: the main's line holds each alt's gold once; each alt's its own.
 				for i = 1, 2 do
-					local text, lines = CaptainPage(w, T)
+					local text, lines = CouncilMemberPage(w, T)
 					local m = Row(lines, main .. " ")
 					assert(m.right:find(T.Coins(10000), 1, true) and m.right:find(ns.L.DUES_ABOVE, 1, true), i .. ": " .. m.right)
 					assert(m.text:find(ns.L.DUES_WITH_ALTS:format(alt1 .. ", " .. alt2), 1, true), m.text)
@@ -43450,14 +43450,14 @@ do
 				end
 				g = D.Ledger().guilds["bankaiguild ii"]
 				eq(g.copper, 6000); eq(g.payers, 1); eq(g.paid, 0)
-				local _, lines = CaptainPage(w, T)
+				local _, lines = CouncilMemberPage(w, T)
 				local m = Row(lines, main .. " ")
 				assert(m.right:find(T.Coins(6000), 1, true) and m.right:find(ns.L.DUES_BELOW, 1, true), m.right)
 			end)
 		end)
 	end)
 
-	-- A removal asked from the Captain's page, the game's removal stood in for: fn(removed).
+	-- A removal asked from the Council member's page, the game's removal stood in for: fn(removed).
 	local function WithRemoval(fn)
 		local saved = { can = CanGuildRemove, info = C_GuildInfo }
 		local removed = {}
@@ -43492,8 +43492,8 @@ do
 				eq(led.players[D.Key(alt)].g, "Bankai Guild II")
 				local g = led.guilds["bankaiguild ii"]
 				eq(g.copper, 10000); eq(g.payers, 2, "two payers: the alt's gold is not its main's there"); eq(g.paid, 0)
-				-- The Captain's page: the main under the amount with his own gold, nobody named with him, removable.
-				local text, lines = CaptainPage(w, T)
+				-- The Council member's page: the main under the amount with his own gold, nobody named with him, removable.
+				local text, lines = CouncilMemberPage(w, T)
 				local m = Row(lines, main .. " ")
 				assert(m and m.right:find(ns.L.DUES_BELOW, 1, true) and m.right:find(T.Coins(5000), 1, true), text)
 				assert(not m.text:find(alt, 1, true), m.text)
@@ -43516,7 +43516,7 @@ do
 					AsTreasurer()
 					g = D.Ledger().guilds["bankaiguild ii"]
 					eq(g.payers, 1, "one player"); eq(g.paid, 1)
-					text, lines = CaptainPage(w, T)
+					text, lines = CouncilMemberPage(w, T)
 					m = Row(lines, main .. " ")
 					assert(m.right:find(ns.L.DUES_ABOVE, 1, true) and m.text:find(ns.L.DUES_WITH_ALTS:format(alt), 1, true), text)
 					AsTreasurer()
@@ -43553,12 +43553,12 @@ do
 				eq(led.players[D.Key(main)].g, "Bankai Guild II", "(the ledger still places his gold by the game's older word)")
 				local g = led.guilds["bankaiguild ii"]
 				eq(g.copper, 10000); eq(g.payers, 2, "two payers: his alt's gold is not his there"); eq(g.paid, 0)
-				-- The Treasurer's page of <Bankai Guild II>: his line his own gold alone; the Captain's has no line of his.
+				-- The Treasurer's page of <Bankai Guild II>: his line his own gold alone; the Council member's has no line of his.
 				D.Open("Bankai Guild II")
 				local text, lines = Page(T)
 				local m = Row(lines, main .. " ")
 				assert(m and m.right:find(ns.L.DUES_BELOW, 1, true) and not m.text:find(alt, 1, true), text)
-				text, lines = CaptainPage(w, T)
+				text, lines = CouncilMemberPage(w, T)
 				assert(not Row(lines, main .. " "), text)
 				assert(Row(lines, alt .. " ").right:find(T.Coins(5000), 1, true), text)
 				assert(Row(lines, "<Bankai Guild II>").right:find(ns.L.DUES_OWN_COUNT:format(0, 12, T.Coins(10000)), 1, true), text)
@@ -43624,7 +43624,7 @@ do
 		end)
 	end)
 
-	test("1.1.5 dues review (Fern's #21): a payment counts once on the Captain's count too: an alt that paid the amount alone keeps its own line and clears its main's, and the count says one player at the amount, as the Shogun's table does", function()
+	test("1.1.5 dues review (Fern's #21): a payment counts once on the Council member's count too: an alt that paid the amount alone keeps its own line and clears its main's, and the count says one player at the amount, as the Shogun's table does", function()
 		WithDues(function(w, K, T, mail)
 			WithLinks(function()
 				AsTreasurer()
@@ -43634,7 +43634,7 @@ do
 				Mail(mail, alt, 10000, D.Note(week, "Bankai Guild II"))
 				local g = D.Ledger().guilds["bankaiguild ii"]
 				eq(g.payers, 1); eq(g.paid, 1)
-				local text, lines = CaptainPage(w, T)
+				local text, lines = CouncilMemberPage(w, T)
 				assert(Row(lines, main .. " ").right:find(ns.L.DUES_ABOVE, 1, true), "with his alt's gold: " .. text)
 				assert(Row(lines, alt .. " ").right:find(ns.L.DUES_ABOVE, 1, true), "its own gold: " .. text)
 				local head = Row(lines, "<Bankai Guild II>")
@@ -43646,12 +43646,12 @@ do
 				Mail(mail, Nm(8), 10000, D.Note(week, "Bankai Guild II"))
 				g = D.Ledger().guilds["bankaiguild ii"]
 				eq(g.payers, 2); eq(g.paid, 2)
-				text, lines = CaptainPage(w, T)
+				text, lines = CouncilMemberPage(w, T)
 				assert(Row(lines, "<Bankai Guild II>").right:find(ns.L.DUES_OWN_COUNT:format(2, 12, T.Coins(10000)), 1, true), text)
 				-- The link taken apart: each character its own again (three at the amount, nobody counted with another).
 				w.clock = w.clock + 60
 				Claim(alt, w.clock, "-", "Bankai Guild II", "")
-				text, lines = CaptainPage(w, T)
+				text, lines = CouncilMemberPage(w, T)
 				head = Row(lines, "<Bankai Guild II>")
 				assert(head.right:find(ns.L.DUES_OWN_COUNT:format(3, 12, T.Coins(10000)), 1, true), head.right)
 				eq(head.tooltip, nil, "nobody counted with another")
@@ -43683,7 +43683,7 @@ do
 					D.MAX_PIECES = savedMax
 					local body = table.concat(msgs, "\n")
 					assert(body:find(main .. ":", 1, true) and not body:find(alt .. ":", 1, true), "the main's row on it, the alt's left out")
-					AsCaptain()
+					AsCouncilMember()
 					for _, x in ipairs(msgs) do D.HandleGuild("WHISPER", TREASURER, x) end
 					D.Open()
 					local text, lines = Page(T, "brand")
@@ -43707,7 +43707,7 @@ do
 					Claim(alt, w.clock, "A", "Bankai Guild II", main)
 					AsTreasurer()
 					local full = D.GuildMessages(D.Ledger(), "Bankai Guild II")
-					AsCaptain()
+					AsCouncilMember()
 					for _, x in ipairs(full) do D.HandleGuild("WHISPER", TREASURER, x) end
 					text, lines = Page(T, "brand")
 					assert(not text:find(ns.L.DUES_CUT, 1, true), text)
@@ -43762,7 +43762,7 @@ test("1.1 nameplates preview: what the census says while the preview shows is ea
 		local reports = ns.rdb.guilds
 		ns.Roster.byName = {}
 		w.internal("LOGIN")
-		-- (1.1.5: its guild master's bronze, where a Captain's silver was.)
+		-- (1.1.5: its guild master's bronze, where a Council member's silver was.)
 		w.add("nameplate1", BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0))
 		w.add("nameplate2", BorderUnit("Trader", "Stormwind Traders", "Veteran", 3))
 		eq(w.mark("nameplate1"), "bronze", "a guild master"); eq(w.mark("nameplate2"), nil)
@@ -44633,7 +44633,7 @@ end)
 ---------------------------------------------------------------------------
 
 do
--- Our rank (w.rank: 1 an officer), our roster (Offi a Captain, Council the guild master, Grunt a
+-- Our rank (w.rank: 1 an officer), our roster (Offi a Council member, Elder the guild master, Grunt a
 -- member), what goes out over GUILD (w.sent), the clock (w.clock) and the answers' delay (w.later).
 local function WithShare(fn)
 	local I = ns.Inspect
@@ -44646,7 +44646,7 @@ local function WithShare(fn)
 	ns.Now = function() return w.clock end
 	ns.Comm.Send = function(dist, msg) w.sent[#w.sent + 1] = dist .. " " .. msg end
 	GetGuildInfo = function(unit) if unit == nil or unit == "player" then return MY_GUILD, "Titan", w.rank end return nil end
-	ns.Roster.byName = { ["Offi-Realm"] = 1, ["Council-Realm"] = 0, ["Grunt-Realm"] = 3 }
+	ns.Roster.byName = { ["Offi-Realm"] = 1, ["Elder-Realm"] = 0, ["Grunt-Realm"] = 3 }
 	ns.Print = function(m) w.printed[#w.printed + 1] = m end
 	ns.Fire = function() end
 	I.after = function(_, _, f) w.later[#w.later + 1] = f end
@@ -44747,9 +44747,9 @@ test("1.1 patrol share (#29): an officer's addon takes another officer's finding
 		ns.db.patrolShare = true
 		eq(P["Hal"], nil, "a member's, a stranger's, the channel's, a non-officer's, or with sharing off")
 		-- Six entries a message at most.
-		I.HandleShare("GUILD", "Council-Realm", "U1~Aa:BankaiGuild Hera:N:0;Bb:BankaiGuild Hera:N:0;Cc:BankaiGuild Hera:N:0;Dd:BankaiGuild Hera:N:0;"
+		I.HandleShare("GUILD", "Elder-Realm", "U1~Aa:BankaiGuild Hera:N:0;Bb:BankaiGuild Hera:N:0;Cc:BankaiGuild Hera:N:0;Dd:BankaiGuild Hera:N:0;"
 			.. "Ee:BankaiGuild Hera:N:0;Ff:BankaiGuild Hera:N:0;Gg:BankaiGuild Hera:N:0")
-		eq(P["Ff"].by, "Council"); eq(P["Gg"], nil, "a seventh")
+		eq(P["Ff"].by, "Elder"); eq(P["Gg"], nil, "a seventh")
 		-- Our own newer inspection stays; an older word of ours is replaced.
 		Wears(I, "Ivy")
 		I.HandleShare("GUILD", "Offi-Realm", "U1~Ivy:BankaiGuild Zeus:N:1e")
@@ -44781,22 +44781,22 @@ test("1.1 patrol share (#29): an officer's addon asks after login; each officer 
 		-- A member's ask, or one over the channel: nothing.
 		I.HandleAsk("GUILD", "Grunt-Realm"); I.HandleAsk("CHANNEL", "Offi-Realm")
 		eq(#w.later, 0)
-		I.HandleAsk("GUILD", "Council-Realm")
+		I.HandleAsk("GUILD", "Elder-Realm")
 		I.HandleAsk("GUILD", "Offi-Realm") -- (one answer covers both)
 		eq(#w.later, 1, "a few seconds later")
 		w.run()
 		eq(table.concat(w.sent, "|"), "GUILD U1~Ivy:BankaiGuild Zeus:N:" .. ns.Codec.Base36(10), "ours, not the one another officer told us")
 		w.clock = w.clock + 60
-		I.HandleAsk("GUILD", "Council-Realm")
+		I.HandleAsk("GUILD", "Elder-Realm")
 		eq(#w.later, 0, "within 5 minutes")
 		w.clock = w.clock + I.SHARE_ANSWER_GAP
-		I.HandleAsk("GUILD", "Council-Realm")
+		I.HandleAsk("GUILD", "Elder-Realm")
 		eq(#w.later, 1)
 		-- Nothing of our own found: no answer.
 		ns.rdb.inspect = nil
 		w.later = {}
 		w.clock = w.clock + I.SHARE_ANSWER_GAP
-		I.HandleAsk("GUILD", "Council-Realm")
+		I.HandleAsk("GUILD", "Elder-Realm")
 		eq(#w.later, 0)
 	end)
 end)
@@ -44848,7 +44848,7 @@ test("1.1 patrol share (#29): the Shogun's untabarded list and the army's copy n
 			eq(K.IsShogun(), true); eq(I.MayShare(), true, "the Shogun is his guild's officer: he takes his officers' findings")
 			Caught(I, "Mine")
 			I.AddReported("Rep", ZEUS, "OTHER")
-			-- Offi (a Captain of his guild) tells him of a player nobody else inspected, and "corrects" the Shogun's own.
+			-- Offi (a Council member of his guild) tells him of a player nobody else inspected, and "corrects" the Shogun's own.
 			w.clock = w.clock + 30
 			I.HandleShare("GUILD", "Offi-Realm", "U1~Victim:BankaiGuild Hera:N:0;Mine:BankaiGuild Zeus:G:0;Rep:BankaiGuild Zeus:G:0")
 			local P = I.Players()
@@ -45220,7 +45220,7 @@ end
 ---------------------------------------------------------------------------
 
 do
--- Our guild's roster (Offi a Captain, Bob and Ann Smith members; we are an officer while w.rank is
+-- Our guild's roster (Offi a Council member, Bob and Ann Smith members; we are an officer while w.rank is
 -- 1), what goes out (w.sent: dist, message, logged; w.chunks), the server's clock (w.clock), the
 -- answers' delay (w.later), the dialogs opened (w.dialogs), the group's state and the items the
 -- client knows.
@@ -45309,7 +45309,7 @@ test("1.1 loot notes (#22): a guildmate's addon takes an officer's changes only 
 		-- A member's, the channel's, a note in someone else's name, a malformed one: nothing.
 		Lt.HandleLive("GUILD", "Bob-Realm", ("X1~N~Bob-Realm~b1~%s~%s~~~~Bob wins"):format(t, t))
 		Lt.HandleLive("CHANNEL", "Offi-Realm", ("X1~N~Offi-Realm~c1~%s~%s~~~~Channel note"):format(t, t))
-		Lt.HandleLive("GUILD", "Offi-Realm", ("X1~N~Council-Realm~d1~%s~%s~~~~In his name"):format(t, t))
+		Lt.HandleLive("GUILD", "Offi-Realm", ("X1~N~Elder-Realm~d1~%s~%s~~~~In his name"):format(t, t))
 		Lt.HandleLive("GUILD", "Offi-Realm", "X1~N~Offi-Realm~e1~zzzzzzzzz~1~~~~Bad times")
 		Lt.HandleLive("GUILD", "Offi-Realm", ("X1~N~Offi-Realm~f1~%s~%s~~~~"):format(t, t))
 		eq(#Lt.Notes(), 1, "only the officer's own note")
@@ -45623,7 +45623,7 @@ local function LootGuild(fn)
 		cns.IsMember = function() return true end
 		cns.Views = { ShowPage = function() end }
 		cns.Roster = { byName = g.byName, RankOf = function(n) return g.byName[ns.FullName(n)] end,
-			IsOfficer = function() return c.rank <= ns.CAPTAIN_RANK end }
+			IsOfficer = function() return c.rank <= ns.COUNCIL_MEMBER_RANK end }
 		local msgId = 0
 		cns.Comm = {
 			Handle = function() end, pieceHooks = {}, QueueSize = function() return 0 end,
@@ -47053,9 +47053,9 @@ test("1.1 sister guilds' banks (Fern): their treasurer's yes, whispered to the S
 			ns.After = After
 			ns.Comm.SendChunked = function(m) w.sent[#w.sent + 1] = { dist = "CHANNEL", msg = m } end
 			local SHOGUN = "Shobek Shobekler-Realm"
-			-- The Shogun names a Hand; the Council of Bankai Guild Zeus (the census confirms him) opens his guild's bank.
+			-- The Shogun names a Hand; the Elder of Bankai Guild Zeus (the census confirms him) opens his guild's bank.
 			AsShogun(); K.AddHand("Helper"); K.SendHands(true); local hands = LastSent(w)
-			AsCouncil()
+			AsElder()
 			K.HandleCommand("CHANNEL", SHOGUN, hands)
 			ns.rdb.bank = { t = w.clock, guild = "Bankai Guild Zeus", by = ns.me, money = 424242,
 				tabs = { { i = 1, name = "Secret Stash", items = { { id = 2589, n = 60, s = 3 } } }, { i = 2, name = "Other", items = {} } } }
@@ -47095,7 +47095,7 @@ test("1.1 sister guilds' banks (Fern): their treasurer's yes, whispered to the S
 			-- Nothing of it on the channel, and no tab's name anywhere.
 			for _, s in ipairs(w.sent) do assert(not s.msg:find("424242", 1, true) and not s.msg:find("2589", 1, true), "on the channel: " .. s.msg) end
 			for _, x in ipairs(w.whispered) do assert(not x.msg:find("Secret Stash", 1, true), "a tab's name: " .. x.msg) end
-			-- The Shogun's client: taken from the Council, the tabs as "Tab 1", in the Treasury tab and its search.
+			-- The Shogun's client: taken from the Elder, the tabs as "Tab 1", in the Treasury tab and its search.
 			local function Deliver(from) for _, m in ipairs(toShogun) do T.HandlePrivate("WHISPER", from, m) end end
 			AsShogun()
 			-- (1.1.5, in 1.2's order: "Guild treasuries" lists each authorized guild, a page of its
@@ -47104,7 +47104,7 @@ test("1.1 sister guilds' banks (Fern): their treasurer's yes, whispered to the S
 			local empty = Texts((T.Build()))
 			assert(empty:find(ns.L.TREASURY_GUILDS_NONE, 1, true), "authorized viewer, no snapshot: " .. empty)
 			Deliver("Faker Guy-Realm")
-			eq(#B.Sisters(), 0, "not a Council member or Captain of that guild")
+			eq(#B.Sisters(), 0, "not an Elder or Council member of that guild")
 			Deliver("Zed-Realm")
 			local s = B.Sisters()
 			eq(#s, 1); eq(s[1].guild, "Bankai Guild Zeus"); eq(s[1].money, 424242); eq(s[1].tabs[1].name, "Tab 1"); eq(s[1].tabs[1].items[1].s, 3)
@@ -47154,7 +47154,7 @@ test("1.1 sister guilds' banks (Fern): their treasurer's yes, whispered to the S
 			assert(not Texts((T.Build())):find("Bankai Guild Zeus", 1, true), "no guild leaked into an unauthorized view")
 			eq(T.Ask(true), false, "and a soldier's client never asks")
 			-- His no takes it back from the Shogun's screen.
-			AsCouncil(); ns.db.sisterBankShares = { ["zed-realm"] = true }
+			AsElder(); ns.db.sisterBankShares = { ["zed-realm"] = true }
 			B.HeardAsk(SHOGUN, true); Run()
 			w.whispered = {}
 			SlashCmdList.BANKAIGUILD("bank share off")
@@ -47164,12 +47164,12 @@ test("1.1 sister guilds' banks (Fern): their treasurer's yes, whispered to the S
 			AsShogun(); Deliver("Zed-Realm"); eq(#B.Sisters(), 1)
 			B.HandleSister("WHISPER", "Zed-Realm", back.msg)
 			eq(#B.Sisters(), 0, "withdrawn")
-			-- Not a Council member or an officer, or the Shogun's own guild: no question, no switch.
+			-- Not an Elder or an officer, or the Shogun's own guild: no question, no switch.
 			AsSoldier(); eq(B.SisterTreasurer(), false)
 			AsShogun(); eq(B.SisterTreasurer(), false)
 			B.SetSisterConsent(true); assert(Printed(w, ns.L.BANK_SISTER_ONLY), "told")
 			-- With the gamepad UI the question is Bankai Guild's own window, never the game's popup.
-			AsCouncil(); ns.db.sisterBankShares = nil
+			AsElder(); ns.db.sisterBankShares = nil
 			B.Reset()
 			WithUI(function()
 				WithGamepadUI(true, function(game)
@@ -49057,7 +49057,7 @@ do
 	end)
 end
 
-test("1.1 bank requests (Fern): a Council member or Captain asks for an item and a count, shown next to the bank; handing it over stays a trade or mail", function()
+test("1.1 bank requests (Fern): an Elder or Council member asks for an item and a count, shown next to the bank; handing it over stays a trade or mail", function()
 	WithThrone(function(w, K)
 		local T, B = ns.Treasury, ns.Bank
 		local mail = MailWorld()
@@ -49079,9 +49079,9 @@ test("1.1 bank requests (Fern): a Council member or Captain asks for an item and
 			assert(Printed(w, ns.L.BANK_REQUEST_ONLY), "told"); eq(#B.MyRequests(), 0)
 			AsTreasurer(); eq(B.MayRequest(), false); AsShogun(); eq(B.MayRequest(), false)
 			local faction = ns.faction
-			AsCouncil(); ns.faction = "Horde"; eq(B.MayRequest(), false, "the Horde has no treasury"); ns.faction = faction
-			-- The Council of Bankai Guild Zeus asks before any keeper is heard: it waits.
-			AsCouncil()
+			AsElder(); ns.faction = "Horde"; eq(B.MayRequest(), false, "the Horde has no treasury"); ns.faction = faction
+			-- The Elder of Bankai Guild Zeus asks before any keeper is heard: it waits.
+			AsElder()
 			local e = B.Request(2589, 10)
 			assert(e and Printed(w, ns.L.BANK_REQUEST_WAITING:format(T.ItemText(2589, 10))), "waits")
 			eq(#w.whispered, 0)
@@ -49104,13 +49104,13 @@ test("1.1 bank requests (Fern): a Council member or Captain asks for an item and
 			B.Request(2589, 0); B.Request(2589, 10000); B.RequestText("10 nothing known")
 			assert(Printed(w, ns.L.BANK_REQUEST_WHAT), "which item?")
 			eq(#B.MyRequests(), 3)
-			-- The Treasurer's client: a request from the Council (the census confirms him), shown next to
+			-- The Treasurer's client: a request from the Elder (the census confirms him), shown next to
 			-- the bank with what the bank holds; one from a stranger, or a fourth, is not.
 			AsTreasurer()
 			ns.rdb.bank = { t = w.clock, guild = "Bankai Guild", by = ns.me, money = 1, tabs = { { i = 1, name = "Mats", items = { { id = 2589, n = 200, s = 1 } } } } }
 			w.whispered = {}
 			B.HandleRequest("WHISPER", "Faker Guy-Realm", ("TN~%d~2589~10~Bankai Guild Zeus"):format(e.id))
-			eq(#B.Requests(), 0, "not the Council or a Captain of that guild")
+			eq(#B.Requests(), 0, "not the Elder or a Council member of that guild")
 			B.HandleRequest("WHISPER", "Zed-Realm", tn[1])
 			B.HandleRequest("WHISPER", "Zed-Realm", "TN~2~2770~5~Bankai Guild Zeus")
 			B.HandleRequest("WHISPER", "Zed-Realm", "TN~3~929~1~Bankai Guild Zeus")
@@ -49122,8 +49122,8 @@ test("1.1 bank requests (Fern): a Council member or Captain asks for an item and
 			local page = Texts(lines)
 			assert(page:find(ns.L.BANK_REQUESTS, 1, true) and page:find("Zed <Bankai Guild Zeus>: ", 1, true), page)
 			assert(page:find(ns.L.BANK_REQUEST_HOLDS:format(200), 1, true), "what the bank holds: " .. page)
-			-- The Council's client hears "seen".
-			AsCouncil()
+			-- The Elder's client hears "seen".
+			AsElder()
 			B.HandleAnswer("WHISPER", "Faker Guy-Realm", ("TO~%d~d"):format(e.id))
 			eq(B.MyRequests()[3].state, "sent", "only a keeper's answer counts")
 			B.HandleAnswer("WHISPER", TREASURER, ("TO~%d~o"):format(e.id))
@@ -49131,7 +49131,7 @@ test("1.1 bank requests (Fern): a Council member or Captain asks for an item and
 			for _, x in ipairs(B.MyRequests()) do if x.id == e.id then mine = x end end
 			eq(mine.state, "seen"); eq(B.StateText(mine), ns.L.BANK_REQUEST_STATE_SEEN:format("Pyralis Ashandar"))
 			-- He hands it over by mail: the book records the item given, and the request closes by
-			-- itself, the Council told, the Shogun (heard asking: his addon reads it) too.
+			-- itself, the Elder told, the Shogun (heard asking: his addon reads it) too.
 			AsTreasurer()
 			T.HandleAsk("CHANNEL", SHOGUN, "TA~Bankai Guild~1")
 			w.whispered = {}
@@ -49147,8 +49147,8 @@ test("1.1 bank requests (Fern): a Council member or Captain asks for an item and
 			eq(p.name, "BANKAIGUILD_BANK_REQUEST_ANSWER"); eq(p.data, "Zed-Realm#2")
 			StaticPopupDialogs.BANKAIGUILD_BANK_REQUEST_ANSWER.OnAlt(nil, p.data)
 			for _, x in ipairs(B.Requests()) do if x.id == 2 then eq(x.state, "declined") end end
-			-- The Council's client: done, told who did it.
-			AsCouncil()
+			-- The Elder's client: done, told who did it.
+			AsElder()
 			B.HandleAnswer("WHISPER", TREASURER, ("TO~%d~d"):format(e.id))
 			assert(Printed(w, ns.L.BANK_REQUEST_DONE:format(T.ItemText(2589, 10), "Pyralis Ashandar")), "told")
 			-- He takes one back: the keepers are told (count 0), their copy closes.
@@ -49181,8 +49181,8 @@ test("1.1 bank requests (Fern): a Council member or Captain asks for an item and
 			eq(#B.PublicRequests(), 1)
 			page = Texts((T.Build()))
 			assert(page:find(ns.L.BANK_REQUESTS, 1, true) and page:find("Zed <Bankai Guild Zeus>: ", 1, true), page)
-			-- A Council member who sees the bank: a click on an item asks for it (the count in a dialog).
-			AsCouncil()
+			-- An Elder who sees the bank: a click on an item asks for it (the count in a dialog).
+			AsElder()
 			for _, x in ipairs(B.MyRequests()) do if x.state == "sent" or x.state == "seen" then x.state = "done" end end
 			ns.rdb.bankReport = { t = w.clock, guild = "Bankai Guild", by = TREASURER, money = 1, tabs = { { name = "Mats", items = { { id = 2589, n = 200, s = 1 } } } } }
 			local grid
@@ -49332,12 +49332,12 @@ test("1.1 the clipboard backup keeps the other parts' toggles: alerts, camps, sh
 	for _, k in ipairs(keys) do saved[k] = ns.db[k] end
 	local ok, err = pcall(function()
 		ns.db.alertsAlways, ns.db.showCamps, ns.db.filterSharedOff, ns.db.recruitsOff = true, false, true, true
-		ns.db.soundOff = { court = true, vox = true }
+		ns.db.soundOff = { court = true, poll = true }
 		local text = Bk.Export()
 		for _, k in ipairs(keys) do ns.db[k] = nil end
 		Bk.Apply((Bk.Read(text)))
 		eq(ns.db.alertsAlways, true); eq(ns.db.showCamps, false); eq(ns.db.filterSharedOff, true); eq(ns.db.recruitsOff, true)
-		eq(ns.db.soundOff.court, true); eq(ns.db.soundOff.vox, true); eq(ns.db.soundOff.arms, nil)
+		eq(ns.db.soundOff.court, true); eq(ns.db.soundOff.poll, true); eq(ns.db.soundOff.arms, nil)
 		-- A made-up kind of sound is not taken.
 		ns.db.soundOff = nil
 		local d = Bk.Read(ForgedBackup({ v = 1, char = ns.me, faction = ns.faction, soundOff = { made_up = true, muster = true } }))
@@ -49676,7 +49676,7 @@ do
 
 	test("1.1.5 the Treasury tab in 1.2's order: each role's summary draws its sections as 1.2's does (the balance, the bank, the week, the dues, the controls, the lists, the guild treasuries; the early supporters folded, last)", function()
 		WithLayout(function(w, K, T, B)
-			-- <Elfcore>'s bank as last seen, the early supporters' list, a Captain's request held.
+			-- <Elfcore>'s bank as last seen, the early supporters' list, a Council member's request held.
 			ns.rdb.bank = { t = w.clock, guild = "Bankai Guild", by = TREASURER, money = 5000,
 				tabs = { { i = 1, name = "Mats", items = { { id = 2589, n = 20, s = 1 }, { id = 2770, n = 5, s = 2 } } }, { i = 2, name = "Spare", items = {} } } }
 			ns.rdb.treasuryEarly = { at = w.clock - 100, names = { "Early One", "Early Two" } }
@@ -49713,8 +49713,8 @@ do
 			Flags(w, {})
 			AsSoldier()
 			eq(Sections(Summary()), "title, dues button")
-			-- A Council member the same: his dues' button and his guild's dues, nothing more.
-			AsCouncil()
+			-- An Elder the same: his dues' button and his guild's dues, nothing more.
+			AsElder()
 			eq(Sections(Summary()), "title, dues button, dues link")
 			-- The army with the Shogun's three switches: each block in 1.2's place.
 			Flags(w, ALL)
@@ -49732,12 +49732,12 @@ do
 			Flags(w, { ranking = true })
 			eq(Sections(Summary()), "title, dues button, ranking, early")
 			Flags(w, ALL)
-			-- A Council member: his guild's dues, his own requests and the line to ask, the bank's grid his to
+			-- An Elder: his guild's dues, his own requests and the line to ask, the bank's grid his to
 			-- click (an item asked for).
-			AsCouncil()
+			AsElder()
 			lines = Summary()
 			eq(Sections(lines), "title, balance, in/out, bank, week, kept by, dues button, dues link, ranking, items, book link, my requests, early")
-			assert(GridLine(lines) and GridLine(lines).onItem, "the Council's grid asks for an item")
+			assert(GridLine(lines) and GridLine(lines).onItem, "the Elder's grid asks for an item")
 			-- A keeper on the Shogun's list: no inline paragraphs any more (the title's tooltip has them).
 			ns.rdb.treasuryKeepers = { at = w.clock, names = { "Layout Keeper-Realm" } }
 			AsSoldier("Layout Keeper")
@@ -49884,12 +49884,12 @@ do
 			eq(T.ShowGuild("Bankai Guild Nobody"), false, "a guild with no snapshot here")
 			eq(T.mode, "guild", "(where it was)")
 			T.Show("summary")
-			-- A Council member's own bank (his to ask from): the same portrait, its grid's items clickable.
-			AsCouncil()
+			-- An Elder's own bank (his to ask from): the same portrait, its grid's items clickable.
+			AsElder()
 			lines = Summary()
 			eq(Portrait(lines, L.TREASURY_BANK), "by, gold, totals, open tab, grid, tab, gone")
-			assert(GridLine(lines).onItem and GridLine(lines).itemHint == L.BANK_REQUEST_CLICK, "a Council member's click on an item asks for it")
-			eq(Find(lines, "sister:BankaiGuild Zeus"), nil, "no guild treasuries for a Council member")
+			assert(GridLine(lines).onItem and GridLine(lines).itemHint == L.BANK_REQUEST_CLICK, "an Elder's click on an item asks for it")
+			eq(Find(lines, "sister:BankaiGuild Zeus"), nil, "no guild treasuries for an Elder")
 		end)
 	end)
 
@@ -50014,7 +50014,7 @@ do
 			assert(tip:find(L.TREASURY_GUILD_SHARED_BY:match("^[^%%]+"), 1, true), "the guild's page says who shared it: " .. tip)
 			text = Texts(page)
 			assert(text:find(L.TREASURY_GUILD_BOOK_UNAVAILABLE:sub(1, 30), 1, true) and not text:lower():find("polic", 1, true), text)
-			-- The Council's no (his snapshot gone): neither the page nor its title names the guild.
+			-- The Elder's no (his snapshot gone): neither the page nor its title names the guild.
 			B.Reset()
 			page, _, detail = T.Build()
 			eq(T.mode, "guild")
@@ -50024,7 +50024,7 @@ do
 		end)
 	end)
 
-	test("1.1.5 Treasury order review: the Shogun showing nothing, what gives a member the tab is drawn on it (a Hand's guild treasuries, a Council member's own requests); the bank's \"nothing yet\" keeps a gap before the week", function()
+	test("1.1.5 Treasury order review: the Shogun showing nothing, what gives a member the tab is drawn on it (a Hand's guild treasuries, an Elder's own requests); the bank's \"nothing yet\" keeps a gap before the week", function()
 		WithLayout(function(w, K, T, B)
 			local L = ns.L
 			Flags(w, {})
@@ -50050,9 +50050,9 @@ do
 			-- A soldier who is no Hand: his dues alone, as before.
 			AsSoldier()
 			eq(Sections(Summary()), "title, dues button")
-			-- A Council member: his dues alone until he asks the treasury; then the tab is there for it, and
+			-- An Elder: his dues alone until he asks the treasury; then the tab is there for it, and
 			-- his request in it (a click takes it back).
-			AsCouncil()
+			AsElder()
 			eq(Sections(Summary()), "title, dues button, dues link")
 			assert(B.Request(2589, 10), "his request")
 			eq(T.Visible(), true)
@@ -51490,7 +51490,7 @@ test("1.1 pinned line (Konig's review): two characters reporting a made-up guild
 		ns.rdb.guilds[G] = Vouched({ total = 12, online = 2, zones = {}, t = w.clock, leader = "Alt1", realm = "Realm" }, "Alt1-Realm", "Alt2-Realm")
 		AsSoldier()
 		local level, verified, rankIndex = C.VerifiedLevel("Alt1-Realm", G)
-		eq(level, 3, "the census makes him one of its Council"); eq(verified, true); eq(rankIndex, 0)
+		eq(level, 3, "the census makes him one of its Elders"); eq(verified, true); eq(rankIndex, 0)
 		-- His pin for the army: dropped on every client outside that guild, whatever the census says.
 		eq(select(2, C.HandlePin("CHANNEL", "Alt1-Realm", ("N1~7~%s~7200~0~Free gold at the bank, whisper me"):format(G))), "rank")
 		eq(C.Pin(), nil)
@@ -51508,7 +51508,7 @@ test("1.1 pinned line (Konig's review): a guild master's pin is his guild's, rea
 		ns.me = "Mate-Realm"
 		ns.Roster.byName = { ["Zed-Realm"] = 0, ["Mate-Realm"] = 3 }
 		eq(C.HandlePin("GUILD", "Zed-Realm", "N1~5~Bankai Guild Zeus~7200~0~Raid at nine"), true)
-		eq(C.Pin().rank, C.PIN_COUNCIL)
+		eq(C.Pin().rank, C.PIN_ELDER)
 		eq(C.Pin().dist, "GUILD")
 		-- The server's roster moves the guild to another master: Zed's next pin is dropped here.
 		C.ResetPin()
@@ -51574,7 +51574,7 @@ test("1.1 pinned line (Konig's review): a takedown sticks: a late repeat, or a s
 	PinBench(function(w, K, sent, C)
 		K.HandleCommand("CHANNEL", "Shobek Shobekler-Realm", "T1~H~5~Bankai Guild~Helper-Realm")
 		-- Zed, guild master of <Bankai Guild Zeus>, pins for his guild.
-		AsCouncil()
+		AsElder()
 		eq(C.SetPin("Raid at nine in Ashenvale"), true)
 		local first = sent[#sent].msg
 		local id = first:match("^N1~(%d+)~")
@@ -51637,7 +51637,7 @@ test("1.1 pinned line (Konig's review): the client that took a pin down says so 
 		eq(C.Pin(), nil)
 		-- Zed's own client, which had missed the first: the takedown said again reaches it, and it stops.
 		local down = sent[2].msg
-		AsCouncil()
+		AsElder()
 		C.ResetPin()
 		eq(C.SetPin("Raid at nine"), true)
 		local mine = C.Pin()
@@ -51682,7 +51682,7 @@ test("1.1 pinned line (Konig's review): the setter's pin survives his /reload, s
 		-- Another character of the account (ns.rdb is the realm group's) never takes it as his.
 		eq(C.SetPin("Muster again"), true)
 		C.ResetPin(true)
-		AsCouncil()
+		AsElder()
 		eq(C.RestorePin(), false)
 		eq(C.Pin(), nil)
 		-- Saved variables edited, or its time over: not restored.
@@ -51819,7 +51819,7 @@ test("1.1 pinned line (Konig's review): net-off hides a pin and stops its setter
 		eq(C.Pin(), nil, "hidden with his guild")
 		w.clock = w.clock + 60
 		eq(select(2, C.HandlePin("GUILD", "Zed-Realm", "N1~23~Bankai Guild Zeus~7200~0~Raid at eleven")), "netoff")
-		AsCouncil()
+		AsElder()
 		C.ResetPin()
 		assert(M.SelfOff(), "his guild is off")
 		eq(select(2, C.SetPin("Raid at eleven")), "netoff")
@@ -52050,7 +52050,7 @@ test("1.1 pinned line (Konig's review, 2): after a /reload that kept nothing (th
 		eq(select(2, C.HandlePin("CHANNEL", SHOGUN, blind)), "nothing")
 		eq(C.Pin().text, "A Hand's line")
 		-- A guild master's goes over his guild.
-		AsCouncil()
+		AsElder()
 		C.ResetPin()
 		eq(C.TakeDownPin(), true)
 		eq(sent[#sent].dist, "GUILD"); eq(sent[#sent].msg, "N1~0~Bankai Guild Zeus~0~0~")
@@ -52532,7 +52532,7 @@ end -- (the pinned line's review)
 			NoWords(function()
 				C_ChatInfo = nil
 				w.internal("LOGIN")
-				-- (1.1.5: a guild master's bronze and a Raider's star, where a Captain's silver and a Raider's
+				-- (1.1.5: a guild master's bronze and a Raider's star, where a Council member's silver and a Raider's
 				-- bronze were.)
 				local capt = BorderUnit("Zeusy", "Bankai Guild Zeus", "Zeus", 0)
 				local axe = BorderUnit("Axe", "Bankai Guild Gale", "Raider", 4)
@@ -52819,7 +52819,7 @@ do
 			local ok, err = pcall(function()
 				local joined = 0
 				ns.Comm.JoinChannel = function() joined = joined + 1 end
-				AsCaptain() -- (an officer: his restore took the text's key, and his client hands it to his guild)
+				AsCouncilMember() -- (an officer: his restore took the text's key, and his client hands it to his guild)
 				ns.rdb.realmKey, ns.rdb.keyEpoch, ns.rdb.keyRetired = "ourrealkey1", nil, nil
 				-- "Paste this to fix your settings": a text carrying the sender's key.
 				local forged = ForgedBackup({ v = 1, char = ns.me, faction = ns.faction, key = "attackerkey", settings = { sound = false } })
@@ -52899,7 +52899,7 @@ do
 				CanGuildInvite = function() return true end
 				ns.Roster.byName = {}
 				-- Two made-up characters report a made-up guild with 999 free slots, and agree.
-				local fake = "R2~Bankai Guild Fake~1~1~Fakecouncil~1~1~~~0,0,0,0,0,0,0~~"
+				local fake = "R2~Bankai Guild Fake~1~1~Fakeelder~1~1~~~0,0,0,0,0,0,0~~"
 				eq(D.Receive(Codec.DecodeReport(fake), "Forgera-Realm"), true)
 				eq(D.Receive(Codec.DecodeReport(fake), "Forgerb-Realm"), true)
 				eq(D.Dispute(ns.rdb.guilds["Bankai Guild Fake"]), nil, "two senders agree: the census does not mark it")
@@ -53456,8 +53456,8 @@ do
 				local After, Run = Queued()
 				ns.After = After
 				ns.db.sisterBankShares, ns.db.sisterBankSent = nil, nil
-				-- The Council of Bankai Guild Zeus (the census confirms him) says yes; the Shogun's addon asks after its login.
-				AsCouncil()
+				-- The Elder of Bankai Guild Zeus (the census confirms him) says yes; the Shogun's addon asks after its login.
+				AsElder()
 				ns.rdb.bank = { t = w.clock, guild = "Bankai Guild Zeus", by = ns.me, money = 424242,
 					tabs = { { i = 1, name = "Stash", items = { { id = 2589, n = 60, s = 1 } } } } }
 				B.SetSisterConsent(true)
@@ -53474,11 +53474,11 @@ do
 					eq(#B.Sisters(), 1, "the Shogun holds it")
 				end
 				Holds()
-				-- Longer than NO_WITHIN later (his addon asks every 15 minutes; the Council's heard none of
-				-- them, offline meanwhile), the Council says no: the Shogun was heard too long ago for it to go
+				-- Longer than NO_WITHIN later (his addon asks every 15 minutes; the Elder's heard none of
+				-- them, offline meanwhile), the Elder says no: the Shogun was heard too long ago for it to go
 				-- at once. (Konig's review of 1.1, again: 12 minutes later it went at his next ask alone;
 				-- within NO_WITHIN it now goes at once, tested with the review's second pass below.)
-				AsCouncil()
+				AsElder()
 				w.clock = w.clock + B.NoWithin() + 60
 				w.whispered = {}
 				B.SetSisterConsent(false)
@@ -53492,23 +53492,23 @@ do
 				-- Once a session: his asks after that cost nothing. (1.2.4, changed on purpose: a Hand's
 				-- addon asking afresh, after its login, is told too, once: a viewer's addon keeps a
 				-- guild's snapshot across logouts now, so an ask after a login may hold his.)
-				AsCouncil(); w.clock = w.clock + T.ASK_EVERY
+				AsElder(); w.clock = w.clock + T.ASK_EVERY
 				T.HandleAsk("CHANNEL", SHOGUN, "TA~Bankai Guild~1"); Run()
 				eq(#w.whispered, 1, "told once")
 				AsShogun(); K.AddHand("Helper"); K.SendHands(true); local hands = LastSent(w)
-				AsCouncil(); K.HandleCommand("CHANNEL", SHOGUN, hands)
+				AsElder(); K.HandleCommand("CHANNEL", SHOGUN, hands)
 				T.HandleAsk("CHANNEL", "Helper-Realm", "TA~Bankai Guild II~0"); Run()
 				eq(#w.whispered, 2, "an ask after a login: told too")
 				eq(w.whispered[2].to, "Helper-Realm"); eq(w.whispered[2].msg, "TS~Bankai Guild Zeus~0~0~")
 				T.HandleAsk("CHANNEL", "Helper-Realm", "TA~Bankai Guild II~1"); Run()
 				eq(#w.whispered, 2, "once")
-				-- The Council's addon reloads (its session's memory gone) while the Shogun still holds his bank
+				-- The Elder's addon reloads (its session's memory gone) while the Shogun still holds his bank
 				-- (sent before the no): remembered, the Shogun's next ask gets the no.
 				B.Reset(); Holds()
-				AsCouncil(); w.whispered = {}
+				AsElder(); w.whispered = {}
 				T.HandleAsk("CHANNEL", SHOGUN, "TA~Bankai Guild~1"); Run()
 				eq(#w.whispered, 1, "told after the reload"); eq(w.whispered[1].msg, "TS~Bankai Guild Zeus~0~0~")
-				-- The census no longer names him Council (his guild's reports stopped): his no still counts, from
+				-- The census no longer names him Elder (his guild's reports stopped): his no still counts, from
 				-- the one whose snapshot the Shogun holds; nobody else's does.
 				ns.rdb.guilds["Bankai Guild Zeus"] = nil
 				AsShogun()
@@ -53518,7 +53518,7 @@ do
 				eq(#B.Sisters(), 0, "his own no")
 				-- An officer who said no and never shared: nothing whispered, ever.
 				B.Reset()
-				AsCaptain(); ns.db.sisterBankShares = { ["cap-realm"] = false }
+				AsCouncilMember(); ns.db.sisterBankShares = { ["cap-realm"] = false }
 				w.whispered = {}
 				T.HandleAsk("CHANNEL", SHOGUN, "TA~Bankai Guild~1"); Run()
 				eq(#w.whispered, 0, "never shared: nothing to take back")
@@ -53541,8 +53541,8 @@ do
 			local ok, err = pcall(function()
 				local After, Run = Queued()
 				ns.After = After
-				-- The census as its reporters say it now (reports count 30 minutes): Zed the Council of
-				-- Bankai Guild Zeus, Cap a Captain of Bankai Guild II.
+				-- The census as its reporters say it now (reports count 30 minutes): Zed the Elder of
+				-- Bankai Guild Zeus, Cap a Council member of Bankai Guild II.
 				local function Census()
 					ns.rdb.guilds["Bankai Guild Zeus"] = Vouched({ total = 100, online = 9, zones = {}, t = w.clock, leader = "Zed", realm = "Realm" }, "W3-Realm", "W4-Realm")
 					ns.rdb.guilds["Bankai Guild II"] = Vouched({ total = 300, online = 3, zones = {}, t = w.clock, leader = "Ceo", realm = "Realm",
@@ -53559,9 +53559,9 @@ do
 					return n
 				end
 				Census()
-				-- The Council's own client: a request taken back and made again, six in the hour; the
+				-- The Elder's own client: a request taken back and made again, six in the hour; the
 				-- seventh waits, and he is told when it may go. No whisper for it.
-				AsCouncil()
+				AsElder()
 				T.Heard(TREASURER); T.MarkReader(TREASURER)
 				w.whispered = {}
 				for i = 1, B.REQUEST_NEW do
@@ -53997,7 +53997,7 @@ do
 				local After, Run = Queued()
 				ns.After = After
 				ns.db.sisterBankShares, ns.db.sisterBankSent, ns.db.sisterHeard = nil, nil, nil
-				-- The census as its reporters say it now (reports count 30 minutes): Zed the Council of Bankai Guild Zeus.
+				-- The census as its reporters say it now (reports count 30 minutes): Zed the Elder of Bankai Guild Zeus.
 				local function Census()
 					ns.rdb.guilds["Bankai Guild Zeus"] = Vouched({ total = 100, online = 9, zones = {}, t = w.clock, leader = "Zed", realm = "Realm" }, "W3-Realm", "W4-Realm")
 				end
@@ -54008,10 +54008,10 @@ do
 					for _, m in ipairs(pieces) do T.HandlePrivate("WHISPER", "Zed-Realm", m) end
 					eq(#B.Sisters(), 1, "the Shogun holds it")
 				end
-				-- The Council says yes; the Shogun's addon asks and holds his bank.
+				-- The Elder says yes; the Shogun's addon asks and holds his bank.
 				local function Share()
 					Census()
-					AsCouncil()
+					AsElder()
 					ns.rdb.bank = { t = w.clock, guild = "Bankai Guild Zeus", by = ns.me, money = 424242,
 						tabs = { { i = 1, name = "Stash", items = { { id = 2589, n = 60, s = 1 } } } } }
 					w.whispered = {} -- (what it sends at once, to a viewer heard lately, and what the ask gets)
@@ -54022,7 +54022,7 @@ do
 					assert(#pieces > 0, "whispered to the Shogun")
 					Hold()
 				end
-				-- A /reload of the Council's addon: its session's memory gone, its saved variables kept (the
+				-- A /reload of the Elder's addon: its session's memory gone, its saved variables kept (the
 				-- Shogun's client, in the same test, holds the bank again as before).
 				local function Reload()
 					local kept = ns.db.sisterHeard
@@ -54030,9 +54030,9 @@ do
 					ns.db.sisterHeard = kept
 					Hold()
 				end
-				-- The Council says no: what reaches the Shogun's screen at once.
+				-- The Elder says no: what reaches the Shogun's screen at once.
 				local function No()
-					AsCouncil()
+					AsElder()
 					w.whispered = {}
 					B.SetSisterConsent(false)
 					local told = 0
@@ -54046,18 +54046,18 @@ do
 					end
 					return told
 				end
-				-- 12 minutes after the Shogun's ask (his addon asks every 15), the Council says no, and may log
+				-- 12 minutes after the Shogun's ask (his addon asks every 15), the Elder says no, and may log
 				-- off before the next: the no goes at once.
 				Share()
 				w.clock = w.clock + T.AUDIENCE_FRESH + 60
 				eq(No(), 1, "told at once")
 				eq(#B.Sisters(), 0, "withdrawn from the Shogun's screen")
 				-- His next ask: nothing more (told once).
-				AsCouncil(); w.whispered = {}
+				AsElder(); w.whispered = {}
 				w.clock = w.clock + (T.ASK_EVERY - T.AUDIENCE_FRESH)
 				T.HandleAsk("CHANNEL", SHOGUN, "TA~Bankai Guild~1"); Run()
 				eq(#w.whispered, 0, "told once")
-				-- Heard before a /reload of the Council's addon, 17 minutes before the no: at once too.
+				-- Heard before a /reload of the Elder's addon, 17 minutes before the no: at once too.
 				w.clock = w.clock + T.RESET_GAP
 				Share()
 				w.clock = w.clock + 5 * 60
@@ -54065,21 +54065,21 @@ do
 				w.clock = w.clock + 12 * 60
 				eq(No(), 1, "told at once after the reload")
 				eq(#B.Sisters(), 0, "withdrawn")
-				-- Heard longer ago than that (the Council's addon was offline meanwhile and heard none of his
-				-- asks): not at once (he may be offline), at his next ask while the Council plays.
+				-- Heard longer ago than that (the Elder's addon was offline meanwhile and heard none of his
+				-- asks): not at once (he may be offline), at his next ask while the Elder plays.
 				w.clock = w.clock + T.RESET_GAP
 				Share()
 				w.clock = w.clock + B.NoWithin() + 60
 				Reload()
 				eq(No(), 0, "heard too long ago: not at once")
 				eq(#B.Sisters(), 1, "the limit both pages state: until his next ask")
-				AsCouncil(); w.whispered = {}
+				AsElder(); w.whispered = {}
 				T.HandleAsk("CHANNEL", SHOGUN, "TA~Bankai Guild~1"); Run()
 				eq(#w.whispered, 1, "his next ask: the no")
 				AsShogun(); B.HandleSister("WHISPER", "Zed-Realm", w.whispered[1].msg)
 				eq(#B.Sisters(), 0, "withdrawn")
 				-- The server says the Shogun is offline: he is no longer one to tell at once.
-				AsCouncil()
+				AsElder()
 				ns.db.sisterHeard = { [SHOGUN] = w.clock }
 				local savedErr = ERR_CHAT_PLAYER_NOT_FOUND_S
 				ERR_CHAT_PLAYER_NOT_FOUND_S = "No player named '%s' is currently playing."
@@ -54189,9 +54189,9 @@ do
 end
 ---------------------------------------------------------------------------
 -- 1.1 (Konig's review of the key rotation, #45): the Shogun's new key is whispered only to the
--- Council and Captains his own /who saw in their guild (the server's word), never to names the
+-- Elders and Council his own /who saw in their guild (the server's word), never to names the
 -- census alone gives (two characters on the leaked channel can report themselves a real guild's
--- Council and Captain).
+-- Elder and Council member).
 ---------------------------------------------------------------------------
 do
 	local KY = ns.Keys
@@ -54211,9 +54211,9 @@ do
 		return table.concat(out, ",")
 	end
 	-- The Shogun's client with a stand-in of the game's /who (WithWho: GetTime is its clock) and the
-	-- Throne (WithThrone). The census: <Bankai Guild Zeus>, its Council Zed and Captain Zeus Cap online;
+	-- Throne (WithThrone). The census: <Bankai Guild Zeus>, its Elder Zed and Council member Zeus Cap online;
 	-- <Bankai Guild II>, a real guild (his /who saw it), reported by two characters of the leaked
-	-- channel alone, each naming the other its Council or Captain (two senders: the census believes
+	-- channel alone, each naming the other its Elder or Council member (two senders: the census believes
 	-- them). A whisper leaves at once (Comm's queue says so: done(true)).
 	local function WithRotation(fn)
 		WithWho(function(server)
@@ -54246,7 +54246,7 @@ do
 		end)
 	end
 
-	test("1.1 key rotation, Konig's review: two characters who call themselves a real guild's Council and Captain in the census get no key; those the Shogun's own /who saw in their guild do", function()
+	test("1.1 key rotation, Konig's review: two characters who call themselves a real guild's Elder and Council member in the census get no key; those the Shogun's own /who saw in their guild do", function()
 		WithRotation(function(w, K, server)
 			AsShogun()
 			eq(ns.Data.KnownRank("Leaker One-Realm", "Bankai Guild II"), 0, "the census believes them")
@@ -54299,7 +54299,7 @@ do
 		end)
 	end)
 
-	test("1.1 key rotation, Konig's review: the Throne's /who line asks the server about the Council and Captains picked it has not seen, one search a click: their guild, then by name whom its answer did not list", function()
+	test("1.1 key rotation, Konig's review: the Throne's /who line asks the server about the Elders and Council picked it has not seen, one search a click: their guild, then by name whom its answer did not list", function()
 		WithRotation(function(w, K, server)
 			AsShogun()
 			ns.rdb.seen["Bankai Guild II"] = nil -- (the census alone names it: unchecked)
@@ -54397,7 +54397,7 @@ do
 			eq(Whispered(w), "Zed-Realm,Zeus Cap-Realm")
 			K.Show("home")
 			assert(Page((K.Build())):find(ns.L.KEY_ROTATING:format(2, 0, 0), 1, true), Page((K.Build())))
-			-- The census's two "Council" of Bankai Guild II and anyone else, with the right epoch: not counted.
+			-- The census's two "Elders" of Bankai Guild II and anyone else, with the right epoch: not counted.
 			KY.HandleAck("WHISPER", "Leaker One-Realm", ack)
 			KY.HandleAck("WHISPER", "Leaker Two-Realm", ack)
 			KY.HandleAck("WHISPER", "Some Soldier-Realm", ("K4~%d~Bankai Guild Made Up"):format(rot.at))
@@ -54437,7 +54437,7 @@ do
 			eq(KY.WHO_FRESH, 30 * 60, "the docs say 30 minutes")
 			for _, must in ipairs({ "confirms online and his own /who saw in that guild in the last 30 minutes", "a name the census alone gives gets nothing",
 				"on the Throne's /who line", "the census's Refresh searches", "whom his own /who saw in that guild (a whisper from the Shogun each)",
-				"whispers the key only to the Council and Captains his own /who saw in that very guild" }) do
+				"whispers the key only to the Elders and Council his own /who saw in that very guild" }) do
 				assert(doc:find(must, 1, true), path .. ": " .. must)
 			end
 			assert(not doc:find("The Shogun alone: not his Steward or a Hand", 1, true), path .. ": his Steward rotates too")
@@ -54446,8 +54446,8 @@ do
 end
 
 ---------------------------------------------------------------------------
--- 1.1 (Konig's review of the key rotation's /who, #45): what the Shogun's /who saw of the Council and
--- Captains is kept with the rotation (a /reload, a relog or Who.lua's forgetting past SEEN_MAX
+-- 1.1 (Konig's review of the key rotation's /who, #45): what the Shogun's /who saw of the Elders and
+-- Council is kept with the rotation (a /reload, a relog or Who.lua's forgetting past SEEN_MAX
 -- names no longer undoes it), and the Throne's /who line searches every guild picked before
 -- any name, each name at most once in WHO_FRESH.
 ---------------------------------------------------------------------------
@@ -54479,7 +54479,7 @@ do
 	end
 	-- The Shogun's client with a stand-in of the game's /who (WithWho: GetTime is its clock) and the
 	-- Throne (WithThrone; ns.Now, the server's clock here, is w.clock). The census: <Bankai Guild Zeus>,
-	-- its Council Zed and Captain Zeus Cap online (two senders: the census believes them), checked
+	-- its Elder Zed and Council member Zeus Cap online (two senders: the census believes them), checked
 	-- (his /who saw a guild of that name). A whisper leaves at once (done(true)).
 	local function WithShogun(fn)
 		WithWho(function(server)
@@ -54516,7 +54516,7 @@ do
 		KY.Rotation().queued = {}
 	end
 
-	test("1.1 key rotation, Konig's review: after a /reload during the hand-out, the Council and Captains the Shogun's /who saw (before he rotated, or since) whose whisper never left are whispered again, and he does not move while they wait", function()
+	test("1.1 key rotation, Konig's review: after a /reload during the hand-out, the Elders and Council the Shogun's /who saw (before he rotated, or since) whose whisper never left are whispered again, and he does not move while they wait", function()
 		WithShogun(function(w, K, server)
 			-- His /who before he rotates lists Zed in Bankai Guild Zeus (a full answer: not Zeus Cap).
 			eq(ns.Who.Search(true), true)
@@ -54558,7 +54558,7 @@ do
 		end)
 	end)
 
-	test("1.1 key rotation, Konig's review: the rotation's record of the Shogun's /who follows its newest answer: a Council member it later lists in another guild is no longer whispered, after a /reload too", function()
+	test("1.1 key rotation, Konig's review: the rotation's record of the Shogun's /who follows its newest answer: an Elder it later lists in another guild is no longer whispered, after a /reload too", function()
 		WithShogun(function(w, K, server)
 			eq(KY.Rotate(), true)
 			eq(ns.Who.Search(true), true)
@@ -54579,10 +54579,10 @@ do
 		end)
 	end)
 
-	test("1.1 key rotation, Konig's review: made-up Captains in a real guild's census don't keep the Throne's /who line from the next guild; each name is asked once", function()
+	test("1.1 key rotation, Konig's review: made-up Council in a real guild's census don't keep the Throne's /who line from the next guild; each name is asked once", function()
 		WithShogun(function(w, K, server)
 			-- <Bankai Guild II>: a real guild (his /who saw it), its census the two leakers' alone: they name
-			-- 8 made-up Captains online, and a big total so it sorts first.
+			-- 8 made-up Council online, and a big total so it sorts first.
 			local offs = { { name = "Leaker Two", online = true, days = 0 } }
 			for i = 1, 8 do offs[#offs + 1] = { name = "Ghost" .. string.char(96 + i), online = true, days = 0 } end
 			ns.rdb.guilds["Bankai Guild II"] = Vouched({ total = 900, online = 40, zones = {}, t = w.clock, leader = "Leaker One", leaderOnline = true, realm = "Realm",
@@ -54631,16 +54631,16 @@ do
 		end)
 	end)
 
-	test("1.1 key rotation, Konig's review, at the army's scale: his /who of 46 guilds of 50 players (more than Who.lua keeps) confirms every Council and Captain with one search a guild, and the census's later searches don't undo it", function()
+	test("1.1 key rotation, Konig's review, at the army's scale: his /who of 46 guilds of 50 players (more than Who.lua keeps) confirms every Elder and Council member with one search a guild, and the census's later searches don't undo it", function()
 		WithShogun(function(w, K, server)
 			local function Tag(i) return string.char(65 + math.floor(i / 26)) .. string.char(97 + i % 26) end
-			local council = { ["Bankai Guild Zeus"] = { "Zed", "Zeus Cap" } }
+			local elders = { ["Bankai Guild Zeus"] = { "Zed", "Zeus Cap" } }
 			for i = 1, 45 do
 				local guild = "Bankai Guild " .. Tag(i)
-				ns.rdb.guilds[guild] = Vouched({ total = 100, online = 60, zones = {}, t = w.clock, leader = "Council" .. Tag(i), leaderOnline = true, realm = "Realm",
+				ns.rdb.guilds[guild] = Vouched({ total = 100, online = 60, zones = {}, t = w.clock, leader = "Elder" .. Tag(i), leaderOnline = true, realm = "Realm",
 					officers = { { name = "Cap" .. Tag(i), online = true, days = 0 } } }, "Wa" .. i .. "-Realm", "Wb" .. i .. "-Realm")
 				ns.rdb.seen[guild] = { online = 60, t = w.clock }
-				council[guild] = { "Council" .. Tag(i), "Cap" .. Tag(i) }
+				elders[guild] = { "Elder" .. Tag(i), "Cap" .. Tag(i) }
 			end
 			eq(KY.Rotate(), true)
 			K.Show("home")
@@ -54651,17 +54651,17 @@ do
 				LineWith(K.Build(), ns.L.KEY_WHO_CONFIRM:sub(1, 12)).onClick()
 				eq(#server.sent, before + 1, "one search a click")
 				local guild = server.sent[#server.sent]:match('^g%-"(.*)"$')
-				assert(guild and council[guild], "click " .. click .. ", a guild's search: " .. server.sent[#server.sent])
+				assert(guild and elders[guild], "click " .. click .. ", a guild's search: " .. server.sent[#server.sent])
 				first, last = first or guild, guild
-				-- The server lists 50 at most: its Council and Captain, and 48 more.
-				local rows = { { council[guild][1], guild, 60, "WARRIOR" }, { council[guild][2], guild, 60, "MAGE" } }
+				-- The server lists 50 at most: its Elder and Council member, and 48 more.
+				local rows = { { elders[guild][1], guild, 60, "WARRIOR" }, { elders[guild][2], guild, 60, "MAGE" } }
 				for j = 3, 50 do rows[j] = { "S" .. click .. "x" .. j, guild, 30, "MAGE" } end
 				server.Answer(rows, 60)
 				server.Run(ns.Who.SETTLE)
 				listed = listed + #rows
 			end
 			assert(listed > ns.Who.SEEN_MAX, "more players than Who.lua keeps")
-			eq(ns.Who.SeenGuild(council[first][1]), nil, "Who.lua forgot the first guild's")
+			eq(ns.Who.SeenGuild(elders[first][1]), nil, "Who.lua forgot the first guild's")
 			-- Right after the last guild's answer, the census's own searches (his other clicks in the
 			-- window) list 2050 more: Who.lua forgets the last guild's too, the rotation does not.
 			for i = 1, 41 do
@@ -54672,8 +54672,8 @@ do
 				server.Answer(rows, 50)
 				server.Run(ns.Who.SETTLE)
 			end
-			eq(ns.Who.SeenGuild(council[last][1]), nil, "Who.lua forgot the last guild's")
-			eq(#KY.Targets(), 92, "every Council and Captain his /who listed in his guild")
+			eq(ns.Who.SeenGuild(elders[last][1]), nil, "Who.lua forgot the last guild's")
+			eq(#KY.Targets(), 92, "every Elder and Council member his /who listed in his guild")
 			eq(LineWith(K.Build(), ns.L.KEY_WHO_CONFIRM:sub(1, 12)), nil, "nobody left to look for")
 		end)
 	end)
@@ -54867,10 +54867,10 @@ do
 	end)
 
 	-- "es/fr/de: HELP_PIN still carries the old rule (the guild masters pin a line for the army), and
-	-- PIN_ADD_TIP there still speaks of Council's pins being outranked."
+	-- PIN_ADD_TIP there still speaks of Elders' pins being outranked."
 	test("1.1 pinned line (review of Konig's fixes): the Spanish, French and German help and army pin tooltip say who pins for whom (or are left out, and the English shows)", function()
 		local want = {
-			deDE = { help = { "der Shogun, seine Seneschalle und Hände für die Armee", "ein Gildenmeister für seine Gilde" }, tip = "über der eines Gildenmeisters", old = "Council" },
+			deDE = { help = { "der Shogun, seine Seneschalle und Hände für die Armee", "ein Gildenmeister für seine Gilde" }, tip = "über der eines Gildenmeisters", old = "Elders" },
 			esES = { help = { "el Shogun, sus Senescales y Manos para el ejército", "un maestro de hermandad para su hermandad" }, tip = "por delante de la de un maestro de hermandad", old = "Señores" },
 			frFR = { help = { "le Shogun, ses Sénéchaux et ses Mains pour l'armée", "un maître de guilde pour sa guilde" }, tip = "devant celle d'un maître de guilde", old = "Seigneurs" },
 		}
@@ -54893,7 +54893,7 @@ do
 			end
 			if s.PIN_ADD_TIP then
 				assert(s.PIN_ADD_TIP:find(lines.tip, 1, true), file .. " PIN_ADD_TIP: " .. s.PIN_ADD_TIP)
-				assert(not s.PIN_ADD_TIP:find(lines.old, 1, true), file .. " PIN_ADD_TIP still speaks of Council: " .. s.PIN_ADD_TIP)
+				assert(not s.PIN_ADD_TIP:find(lines.old, 1, true), file .. " PIN_ADD_TIP still speaks of Elders: " .. s.PIN_ADD_TIP)
 			end
 		end
 	end)
@@ -55150,8 +55150,8 @@ end
 		GetLocale = savedLocale
 		if not ok then error(err, 0) end
 		local keys = { "NETOFF_YOU", "NETOFF_YOU_BACK", "NETOFF_YOUR_GUILD", "NETOFF_GUILD_TIP", "NETOFF_GUILD_OFF" }
-		local en = { "week", "Board", "crafter", "pinned line", "elite border", "nameplate mark", "decrees", "hop", "Vox", "chat" }
-		local br = { "semana", "Mural", "artes", "linha fixada", "borda", "placa", "decretos", "saltos", "Vox", "chats" }
+		local en = { "week", "Board", "crafter", "pinned line", "elite border", "nameplate mark", "decrees", "hop", "Poll", "chat" }
+		local br = { "semana", "Mural", "artes", "linha fixada", "borda", "placa", "decretos", "saltos", "Poll", "chats" }
 		for _, key in ipairs(keys) do
 			for _, word in ipairs(en) do assert(ns.L[key]:find(word, 1, true), key .. " (English): " .. word) end
 			for _, word in ipairs(br) do assert(rawget(pt.L, key):find(word, 1, true), key .. " (pt-BR): " .. word) end
@@ -55179,16 +55179,16 @@ end
 		end)
 		for _, path in ipairs({ "README.md", "docs/CURSEFORGE.md" }) do
 			local doc = assert(ReadFile(ROOT .. path)):gsub("%s+", " ")
-			for _, must in ipairs({ "its Vox Populi votes, its Bankai Guild chats and pinned lines, and (1.1, Konig's review) its members' entries and signups on the Shogun's week, their flags and camps on the Board, and their listings, answers and recipe lists on the crafters' board",
+			for _, must in ipairs({ "its Poll votes, its Bankai Guild chats and pinned lines, and (1.1, Konig's review) its members' entries and signups on the Shogun's week, their flags and camps on the Board, and their listings, answers and recipe lists on the crafters' board",
 				"Every addon also drops its members' requests at court, and shows them with no elite border or nameplate mark" }) do
 				assert(doc:find(must, 1, true), path .. ": " .. must)
 			end
-			assert(not doc:find("its Vox Populi votes and its Bankai Guild chats: its own members' addons", 1, true), path .. ": the old list")
+			assert(not doc:find("its Poll votes and its Bankai Guild chats: its own members' addons", 1, true), path .. ": the old list")
 		end
 	end)
 end)()
 ---------------------------------------------------------------------------
--- 1.1, the review of Konig's fixes (the dues): a Captain's and the Shogun's dues pages go by the
+-- 1.1, the review of Konig's fixes (the dues): a Council member's and the Shogun's dues pages go by the
 -- Shogun's amount for the week as their own client holds it, never by the one the Treasurer's list
 -- came with (a list counted by another amount removes nobody, and the Shogun's table shows its
 -- counts of who paid as not known); the Treasurer's copy for Discord ranks the donors as his
@@ -55198,7 +55198,7 @@ do
 	local D, T = ns.Dues, ns.Treasury
 	local WEEK = 7 * 86400
 	local rosterSize = 12
-	-- <Bankai Guild II>'s roster as the server gives it (Cap's guild): Nm(1) its Council, Nm(2) to Nm(6) its
+	-- <Bankai Guild II>'s roster as the server gives it (Cap's guild): Nm(1) its Elder, Nm(2) to Nm(6) its
 	-- officers, the others soldiers (names of letters alone, as the game's are).
 	local function Nm(i) return "Squire" .. string.char(96 + math.floor((i - 1) / 26) + 1) .. string.char(96 + (i - 1) % 26 + 1) end
 	-- Runs fn(w, K, removed) on the Throne's world with the dues fresh, that roster, a rank that may
@@ -55218,7 +55218,7 @@ do
 				GetGuildRosterInfo = function(i)
 					if i > rosterSize then return nil end
 					local rank = i == 1 and 0 or (i <= 6 and 1 or 3)
-					return Nm(i) .. "-Realm", ({ [0] = "Council", [1] = "Officer", [3] = "Soldier" })[rank], rank, 20
+					return Nm(i) .. "-Realm", ({ [0] = "Elder", [1] = "Officer", [3] = "Soldier" })[rank], rank, 20
 				end
 				CanGuildRemove = function() return true end
 				C_GuildInfo = { Uninvite = function(name) removed[#removed + 1] = name end }
@@ -55270,7 +55270,7 @@ do
 		return n
 	end
 
-	test("1.1 dues, the review of Konig's fixes: the Shogun lowers the dues and the Treasurer's addon still counts the old amount: a Captain's page goes by the Shogun's, and that list removes nobody", function()
+	test("1.1 dues, the review of Konig's fixes: the Shogun lowers the dues and the Treasurer's addon still counts the old amount: a Council member's page goes by the Shogun's, and that list removes nobody", function()
 		WithLows(function(w, K, removed)
 			local SHOGUN, TREASURER = Names()
 			-- The Shogun lowered the dues from 10 gold to 5 from this week. The Treasurer's addon has met
@@ -55280,8 +55280,8 @@ do
 			Paid(7, 50000)
 			Paid(8, 100000)
 			local stale = D.GuildMessages(D.Ledger(), "Bankai Guild II")
-			-- The Captain's addon heard the Shogun: 5 gold this week (10 the week before).
-			AsCaptain()
+			-- The Council member's addon heard the Shogun: 5 gold this week (10 the week before).
+			AsCouncilMember()
 			Word(SHOGUN, 50000, w.clock - WEEK, 100000)
 			eq(D.Amount(), 50000)
 			for _, m in ipairs(stale) do D.HandleGuild("WHISPER", TREASURER, m) end
@@ -55312,14 +55312,14 @@ do
 			AsTreasurer()
 			Word(SHOGUN, 50000, w.clock - WEEK, 100000)
 			local agreed = D.GuildMessages(D.Ledger(), "Bankai Guild II")
-			AsCaptain()
+			AsCouncilMember()
 			for _, m in ipairs(agreed) do D.HandleGuild("WHISPER", TREASURER, m) end
 			text, lines = Page()
 			assert(not text:find(ns.L.DUES_AMOUNT_DIFFERS:sub(1, 30), 1, true), "nothing to say now: " .. text)
 			eq(#RemoveLines(lines), 1, "Nm(9), picked, on a list counted by the Shogun's amount")
 			eq(D.Remove({ key = Nm(9):lower(), name = Nm(9) }), true)
 			eq(#removed, 1); eq(removed[1], Nm(9) .. "-Realm")
-			-- The other way round (the Captain's addon has not heard the Shogun's 5 gold yet): his page
+			-- The other way round (the Council member's addon has not heard the Shogun's 5 gold yet): his page
 			-- goes by the 10 gold it holds, and the list counted by 5 removes nobody meanwhile.
 			Word(SHOGUN, 100000, w.clock - 2 * WEEK, 10000)
 			text, lines = Page()
@@ -55344,7 +55344,7 @@ do
 				assert(head, m)
 				forged[i] = head .. ns.Codec.Base36(D.MAX_AMOUNT) .. rest
 			end
-			AsCaptain()
+			AsCouncilMember()
 			for _, m in ipairs(forged) do D.HandleGuild("WHISPER", TREASURER, m) end
 			D.Open()
 			local text, lines = Page()
@@ -55473,7 +55473,7 @@ end
 -- 1.1 (a review of Konig's key rotation fixes, #45): with the gamepad UI the Shogun's click on the
 -- Throne's /who line searches a guild picked plainly, as the census's Refresh does there; an
 -- acknowledgement counts under the guild his client whispered its sender for; the rotate
--- question says what a Council member who logs in during the grace gets.
+-- question says what an Elder who logs in during the grace gets.
 ---------------------------------------------------------------------------
 do
 	local KY = ns.Keys
@@ -55518,7 +55518,7 @@ do
 		return lns.L, given
 	end
 	-- The Shogun's client with a stand-in of the game's /who (WithWho: GetTime is its clock) and the
-	-- Throne (WithThrone). The census: <Bankai Guild Zeus> (its Council Zed and Captain Zeus Cap online)
+	-- Throne (WithThrone). The census: <Bankai Guild Zeus> (its Elder Zed and Council member Zeus Cap online)
 	-- and <Bankai Guild Nyx> (Nyx and Nyx Cap), each vouched by two senders and checked (his /who saw
 	-- a guild of each name). A whisper leaves at once (done(true)).
 	local function WithShogun(fn)
@@ -55554,7 +55554,7 @@ do
 		end)
 	end
 
-	test("1.1 key rotation review, with the gamepad UI: the Shogun's click on the Throne's /who line searches a guild picked plainly (the answer in the game's Who list, nothing silenced) and its Council and Captains get the key; never quietly, never a name, never from a click on a guild", function()
+	test("1.1 key rotation review, with the gamepad UI: the Shogun's click on the Throne's /who line searches a guild picked plainly (the answer in the game's Who list, nothing silenced) and its Elders and Council get the key; never quietly, never a name, never from a click on a guild", function()
 		-- What the server lists for each guild's search (Nyx Cap logs in later).
 		local listed = {
 			["Bankai Guild Zeus"] = { { "Zed", "Bankai Guild Zeus", 60, "WARRIOR" }, { "Zeus Cap", "Bankai Guild Zeus", 60, "MAGE" }, { "Zeus Soldier", "Bankai Guild Zeus", 20, "PRIEST" } },
@@ -55603,7 +55603,7 @@ do
 					local both = { first, tostring(second) }
 					table.sort(both)
 					eq(table.concat(both, ","), "Bankai Guild Nyx,Bankai Guild Zeus", "the next click the other guild")
-					eq(Targets(), "Nyx-Realm,Zed-Realm,Zeus Cap-Realm", "the Council and Captains his /who listed in their guild")
+					eq(Targets(), "Nyx-Realm,Zed-Realm,Zeus Cap-Realm", "the Elders and Council his /who listed in their guild")
 					-- Nyx Cap is not in his guild's answer: never searched by name there; his guild again a
 					-- minute after its last search (he may have logged in since).
 					w.printed = {}
@@ -55724,14 +55724,14 @@ do
 		end
 	end)
 
-	test("1.1 key rotation review: the rotate question says a Council member or Captain who logs in during the grace gets nothing until the Shogun's /who sees him in his guild (English and pt-BR; Spanish, French and German show the English)", function()
+	test("1.1 key rotation review: the rotate question says an Elder or Council member who logs in during the grace gets nothing until the Shogun's /who sees him in his guild (English and pt-BR; Spanish, French and German show the English)", function()
 		local en, pt = ns.L, Loaded("ptBR")
 		assert(type(pt.KEY_ROTATE_CONFIRM) == "string" and pt.KEY_ROTATE_CONFIRM ~= en.KEY_ROTATE_CONFIRM, "pt-BR")
 		eq(select(2, pt.KEY_ROTATE_CONFIRM:gsub("%%[sd]", "")), 1, "pt-BR: the minutes")
 		eq(select(2, en.KEY_ROTATE_CONFIRM:gsub("%%[sd]", "")), 1, "English: the minutes")
-		assert(en.KEY_ROTATE_CONFIRM:find("A Council member or Captain who logs in meanwhile gets nothing until your /who sees him in his guild", 1, true), en.KEY_ROTATE_CONFIRM)
+		assert(en.KEY_ROTATE_CONFIRM:find("An Elder or Council member who logs in meanwhile gets nothing until your /who sees him in his guild", 1, true), en.KEY_ROTATE_CONFIRM)
 		assert(not en.KEY_ROTATE_CONFIRM:find("get it too", 1, true), "no longer that those who log in meanwhile get it")
-		assert(pt.KEY_ROTATE_CONFIRM:find("Um Conselho ou Capitão que entrar nesse meio-tempo não recebe nada até o seu /who vê-lo na guilda dele", 1, true), pt.KEY_ROTATE_CONFIRM)
+		assert(pt.KEY_ROTATE_CONFIRM:find("Um Ancião ou Membro do Conselho que entrar nesse meio-tempo não recebe nada até o seu /who vê-lo na guilda dele", 1, true), pt.KEY_ROTATE_CONFIRM)
 		assert(not pt.KEY_ROTATE_CONFIRM:find("também receberem", 1, true), pt.KEY_ROTATE_CONFIRM)
 		for code, file in pairs({ esES = "esES", frFR = "frFR", deDE = "deDE" }) do
 			local shown, given = Loaded(code, file)
@@ -55742,7 +55742,7 @@ do
 		-- The pages said it already.
 		for _, path in ipairs({ "README.md", "docs/CURSEFORGE.md" }) do
 			local doc = assert(ReadFile(ROOT .. path)):gsub("%s+", " ")
-			assert(doc:find("For 10 minutes his addon keeps handing it to Council and Captains who log in (once his /who saw them in their guild)", 1, true), path)
+			assert(doc:find("For 10 minutes his addon keeps handing it to Elders and Council who log in (once his /who saw them in their guild)", 1, true), path)
 		end
 	end)
 end
@@ -55945,7 +55945,7 @@ do
 		if not ok then error(err, 0) end
 	end
 
-	-- (1.1.5, the author's call: the borders' three tiers. Council and Captains were silver, Raiders and
+	-- (1.1.5, the author's call: the borders' three tiers. Elders and Council were silver, Raiders and
 	-- Veterans of our guild bronze until then; now a guild master is bronze, and they the star.)
 	test("1.1.5 marks by a name (Borders.MarkOfName): the Shogun gold; the High Council silver; guild masters bronze; any other member the star; nobody for net-off or outside Bankai Guild", function()
 		WithBorders(function(w)
@@ -55970,15 +55970,15 @@ do
 				eq(B.MarkOfName("Stranger-Realm", "Bankai Guild II"), nil, "not in our roster: nothing proves him one of ours (it was the star before the review)")
 				-- Another guild: the census, two senders naming him.
 				eq(B.MarkOfName("Zeusy-Realm", "Bankai Guild Zeus"), "bronze", "another guild's master, two senders")
-				eq(B.MarkOfName("Capt-Realm", "Bankai Guild Zeus"), "member", "another guild's Captain, two senders")
+				eq(B.MarkOfName("Capt-Realm", "Bankai Guild Zeus"), "member", "another guild's Council member, two senders")
 				ns.rdb.guilds["Bankai Guild Lone"] = Vouched({ guild = "Bankai Guild Lone", leader = "Loner", officers = { { name = "Lone Capt" } }, realm = "Realm",
 					t = ns.Now() }, "W1-Realm")
 				-- (Review of 1.1.1: it was the star before. A guild master one sender names has no rank from
 				-- the census (the Crown needs two), so Channels does not verify him either: no mark.)
 				eq(ns.Data.KnownRank("Loner-Realm", "Bankai Guild Lone"), nil, "(the census gives the master one sender names no rank)")
 				eq(B.MarkOfName("Loner-Realm", "Bankai Guild Lone"), nil, "one sender names him master: not proven, no mark")
-				eq(ns.Data.KnownRank("Lone Capt-Realm", "Bankai Guild Lone"), 1, "(the census's rank for a Captain one sender names)")
-				eq(B.MarkOfName("Lone Capt-Realm", "Bankai Guild Lone"), "member", "a Captain one sender names: a member")
+				eq(ns.Data.KnownRank("Lone Capt-Realm", "Bankai Guild Lone"), 1, "(the census's rank for a Council member one sender names)")
+				eq(B.MarkOfName("Lone Capt-Realm", "Bankai Guild Lone"), "member", "a Council member one sender names: a member")
 				-- Nobody outside Bankai Guild; nobody the moderators took off.
 				eq(B.MarkOfName("Joe-Realm", "Wanderers"), nil)
 				eq(B.MarkOfName("Joe-Realm", nil), nil)
@@ -56009,7 +56009,7 @@ do
 			AsSoldier()
 			w.printed = {}
 			eq(w.CW.Open("C"), nil)
-			eq(w.printed[1], L.CHAN_ONLY_CAPTAINS:format(L.CHAN_CAPTAINS), "a soldier asking for [Captains]"); eq(w.CW.IsShown(), false)
+			eq(w.printed[1], L.CHAN_ONLY_COUNCIL:format(L.CHAN_COUNCIL), "a soldier asking for [Council]"); eq(w.CW.IsShown(), false)
 			local f = w.CW.Open()
 			assert(f and f:IsShown(), "open"); eq(w.CW.Frame(), f); eq(w.CW.Tier(), "A")
 			local main = BankaiGuildFrame
@@ -56672,7 +56672,7 @@ do
 				ns.rdb.chat = { A = {
 					Line(T0, "Shobek Shobekler-Realm", "the shogun speaks", { guild = "Bankai Guild" }),
 					Line(T0 + 1000, "Sage Owl-Realm", "a councillor speaks"),
-					Line(T0 + 2000, "Zeusy-Realm", "a council speaks", { guild = "Bankai Guild Zeus" }),
+					Line(T0 + 2000, "Zeusy-Realm", "a elder speaks", { guild = "Bankai Guild Zeus" }),
 					Line(T0 + 3000, "Raider Guy-Realm", "a raider speaks"),
 					Line(T0 + 4000, "Vet Guy-Realm", "a veteran speaks"),
 					Line(T0 + 5000, "Plain Guy-Realm", "a member speaks", { class = "PA" }),
@@ -56692,7 +56692,7 @@ do
 					assert(not h:find(ns.CROWN_ICON, 1, true) and not h:find(ns.HIGH_COUNCIL_MARK, 1, true) and not h:find("|A:", 1, true)
 						and not h:find(STAR, 1, true), what .. ": no mark before the name: " .. h)
 				end
-				for _, text in ipairs({ "the shogun speaks", "a councillor speaks", "a council speaks", "a raider speaks", "a veteran speaks",
+				for _, text in ipairs({ "the shogun speaks", "a councillor speaks", "a elder speaks", "a raider speaks", "a veteran speaks",
 					"a member speaks", "the treasurer speaks", "a steward speaks", "a hand speaks" }) do
 					NoMark(Header(text), text)
 				end
@@ -56717,7 +56717,7 @@ do
 				-- Without Borders.lua (a client updated without a restart): the same.
 				ns.Borders = setmetatable({ missing = true }, { __index = function() return function() end end })
 				w.CW.Render()
-				h = Header("a council speaks")
+				h = Header("a elder speaks")
 				assert(h:find("Zeusy", 1, true) and not h:find("|A:", 1, true), h)
 			end)
 			ns.Roster.byName, GuildControlGetRankName, ns.Comm.loginAt = saved.byName, saved.rankName, saved.loginAt
@@ -57125,7 +57125,7 @@ do
 	-- box does, which the gamepad UI keeps: the key's tests below.)
 	test("1.1.1 Chat tab: its own box: Enter sends through Channels.Send and the cursor stays for the next line; a refusal keeps the text and the cursor, the privacy warning empties it and lets go; no slash command; an empty Enter or Escape lets go; Tab changes channel", function()
 		WithWindow(function(w)
-			AsCaptain()
+			AsCouncilMember()
 			local sent, answers = {}, {}
 			ns.Channels.Send = function(t, text)
 				sent[#sent + 1] = t .. " " .. text
@@ -57170,10 +57170,10 @@ do
 			eb:Fire("OnEscapePressed")
 			eq(eb.focused, false, "Escape lets go")
 			eb:Fire("OnTabPressed")
-			eq(w.CW.Tier(), "C", "Tab: the next channel"); assert(eb.label:GetText():find("[" .. L.CHAN_CAPTAINS .. "]:", 1, true))
-			eb:SetText("for captains")
+			eq(w.CW.Tier(), "C", "Tab: the next channel"); assert(eb.label:GetText():find("[" .. L.CHAN_COUNCIL .. "]:", 1, true))
+			eb:SetText("for council")
 			eb:Fire("OnEnterPressed")
-			eq(sent[5], "C for captains")
+			eq(sent[5], "C for council")
 			eb:Fire("OnTabPressed")
 			eq(w.CW.Tier(), "A", "and round")
 			-- Taken off by the moderators: their word in the hint (Send refuses, as ever).
@@ -57405,7 +57405,7 @@ do
 	-- it, else the dropdown button's file; every word of the strip inside the fonts' range.
 	test("Chat header search keeps typing space beside a long channel title", function()
 		WithWindow(function(w)
-			AsCaptain()
+			AsCouncilMember()
 			local saved = ns.L.CHAN_ALL
 			ns.L.CHAN_ALL = string.rep("Long channel title ", 20)
 			local ok, err = pcall(function()
@@ -57712,7 +57712,7 @@ do
 	-- the switch of the top row, "+N", and on that channel's line in its list, as they did on its pill.)
 	test("1.1.1 Chat tab: new lines show at the bottom while it follows; scrolled up, an \"N new\" pill; another channel's lines count on the channels' switch; nothing drawn while hidden, then at most every 0.2 s", function()
 		WithWindow(function(w)
-			AsCaptain()
+			AsCouncilMember()
 			local list = {}
 			for i = 1, 30 do list[i] = Line(T0 + i * 10, "Aa-Realm", "line " .. i) end
 			ns.rdb.chat = { A = list, C = {} }
@@ -57761,24 +57761,24 @@ do
 			w.CW.Render(); s:Settle()
 			eq(s:GetVerticalScroll(), s:GetVerticalScrollRange(), "after our own line")
 			-- Another channel: counted on the switch and on its line in the switch's list, until picked.
-			Arrive("C", "for captains")
-			Arrive("C", "again for captains")
+			Arrive("C", "for council")
+			Arrive("C", "again for council")
 			w.CW.Render()
-			eq(f.switch:IsShown(), true, "a Captain reads two channels: the switch")
+			eq(f.switch:IsShown(), true, "a Council member reads two channels: the switch")
 			eq(f.switch.text:GetText(), L.CHAN_ALL, "the channel shown"); eq(f.switch.count:GetText(), "+2")
 			f.switch:Fire("OnEnter")
 			local tip = table.concat(TipLines(), "\n")
-			assert(tip:find(L.CHATWIN_NEW_IN:format(L.CHAN_CAPTAINS, 2), 1, true), tip)
+			assert(tip:find(L.CHATWIN_NEW_IN:format(L.CHAN_COUNCIL, 2), 1, true), tip)
 			f.switch:Fire("OnLeave")
 			f.switch:Click()
 			eq(f.menu:IsShown(), true, "its list")
-			eq(f.menu.rows.C.text:GetText(), L.CHAN_CAPTAINS .. " (2)"); eq(f.menu.rows.A.text:GetText(), L.CHAN_ALL)
-			eq(f.menu.rows.L:IsShown(), false, "not a Council member's")
+			eq(f.menu.rows.C.text:GetText(), L.CHAN_COUNCIL .. " (2)"); eq(f.menu.rows.A.text:GetText(), L.CHAN_ALL)
+			eq(f.menu.rows.L:IsShown(), false, "not an Elder's")
 			eq(f.menu.rows.A.mark:IsShown(), true, "the one shown marked"); eq(f.menu.rows.C.mark:IsShown(), false)
 			f.menu.rows.C:Click()
 			eq(w.CW.Tier(), "C"); eq(f.menu:IsShown(), false, "picked: the list closes")
-			eq(f.switch.text:GetText(), L.CHAN_CAPTAINS); eq(f.switch.count:IsShown(), false)
-			assert(BubbleWith(f, "again for captains"))
+			eq(f.switch.text:GetText(), L.CHAN_COUNCIL); eq(f.switch.count:IsShown(), false)
+			assert(BubbleWith(f, "again for council"))
 			-- Muted in chat: its line in the list says the tab still shows it.
 			ns.db.chatMute = { C = true }
 			f.switch:Click()
@@ -57818,7 +57818,7 @@ do
 			eq(calls, 3, "then once")
 			-- Unread counts start again when it opens.
 			PickChannel(f, "A")
-			Arrive("C", "one more for captains")
+			Arrive("C", "one more for council")
 			w.CW.Render()
 			eq(f.switch.count:GetText(), "+1")
 			f:Hide()
@@ -58115,7 +58115,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 
 	test("1.1.1 Chat tab: a line of ours that did not leave (CHAT_SEND_FAILED) is a note in its channel, and a click puts it back in the box", function()
 		WithWindow(function(w)
-			AsCaptain()
+			AsCouncilMember()
 			ns.rdb.chat = { A = { Line(T0, "Aa-Realm", "hi") }, C = {} }
 			local f = w.CW.Open("A")
 			w.fire("CHAT_SEND_FAILED", "A", "moved", "my lost line", 0)
@@ -58133,11 +58133,11 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				assert(RowWith(f, L.CHATWIN_NOT_SENT:format(L[key])), why)
 			end
 			-- Another channel's: in that channel.
-			w.fire("CHAT_SEND_FAILED", "C", "moved", "for captains")
+			w.fire("CHAT_SEND_FAILED", "C", "moved", "for council")
 			w.CW.Render()
 			eq(#Visible(f.rows) - 2, 4, "four notes here (the kept row and a day row besides)")
 			PickChannel(f, "C")
-			assert(RowWith(f, moved), "the Captains' note")
+			assert(RowWith(f, moved), "the Council's note")
 			-- Nonsense: nothing.
 			w.fire("CHAT_SEND_FAILED", "X", "moved", "x"); w.fire("CHAT_SEND_FAILED", "A", "moved", nil); w.fire("CHAT_SEND_FAILED", "A", "moved", "")
 			PickChannel(f, "A")
@@ -58158,7 +58158,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 	-- are dropped at load. The window's dragging and docking have their own tests above.)
 	test("1.1.1 Chat tab: the channel last shown is kept and opened again; nothing of a place or size of its own, and the first build's are dropped at load", function()
 		WithWindow(function(w)
-			AsCaptain()
+			AsCouncilMember()
 			local f = w.CW.Open()
 			local main = w.CW.Window()
 			eq(f.grip, nil, "no resize grip"); eq(f.resizeBounds, nil)
@@ -58220,17 +58220,17 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				OnTab("A", "/bk talk")
 				SlashCmdList.BANKAIGUILD("talk")
 				eq(w.CW.IsShown(), false); eq(BankaiGuildFrame:IsShown(), false, "again: the window closes")
-				AsCouncil()
-				SlashCmdList.BANKAIGUILD("talk council")
-				OnTab("L", "/bk talk council")
-				SlashCmdList.BANKAIGUILD("falar capitães")
+				AsElder()
+				SlashCmdList.BANKAIGUILD("talk elders")
+				OnTab("L", "/bk talk elders")
+				SlashCmdList.BANKAIGUILD("falar conselho")
 				OnTab("C", "another channel: that one")
-				SlashCmdList.BANKAIGUILD("talk captains")
+				SlashCmdList.BANKAIGUILD("talk council")
 				eq(w.CW.IsShown(), false)
 				AsSoldier()
 				w.printed = {}
-				SlashCmdList.BANKAIGUILD("talk council")
-				eq(w.CW.IsShown(), false); eq(w.printed[1], L.CHAN_ONLY_COUNCIL:format(L.CHAN_COUNCIL))
+				SlashCmdList.BANKAIGUILD("talk elders")
+				eq(w.CW.IsShown(), false); eq(w.printed[1], L.CHAN_ONLY_ELDERS:format(L.CHAN_ELDERS))
 				-- The minimap button.
 				local UI = w.UI
 				Minimap = NewWidget("Frame", "Minimap", UIParent)
@@ -58281,8 +58281,8 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						w.CW.Close()
 					end)
 				end
-				-- A Captain whose Chat tab last showed [Captains]: there again.
-				AsCaptain()
+				-- A Council member whose Chat tab last showed [Council]: there again.
+				AsCouncilMember()
 				w.CW.Open("C"); w.CW.Close()
 				w.UI.SelectTab("realm")
 				eq(At(ns.Views.RealmLines(), L.CHATS_LINK), nil)
@@ -58309,22 +58309,22 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 			local saved = { windows = ns.db.chatWindows, intro = ns.db.chatTabIntro, info = GetChatWindowInfo, num = NUM_CHAT_WINDOWS,
 				frame2 = rawget(_G, "ChatFrame2") }
 			local ok, err = pcall(function()
-				AsCaptain()
+				AsCouncilMember()
 				SlashCmdList.BANKAIGUILDALL("")
 				eq(w.CW.IsShown(), true, "/bg alone opens it"); eq(w.CW.Tier(), "A")
 				eq(BankaiGuildFrame:IsShown(), true, "the Bankai Guild window"); eq(BankaiGuildFrame.tab, "chat", "on its Chat tab")
-				SlashCmdList.BANKAIGUILDCAPTAINS("  ")
-				eq(w.CW.IsShown(), true); eq(w.CW.Tier(), "C", "/bgc alone: the Captains' channel")
+				SlashCmdList.BANKAIGUILDCOUNCIL("  ")
+				eq(w.CW.IsShown(), true); eq(w.CW.Tier(), "C", "/bgc alone: the Council's channel")
 				eq(BankaiGuildFrame.tab, "chat")
-				SlashCmdList.BANKAIGUILDCAPTAINS("")
-				eq(w.CW.IsShown(), false, "again: it closes"); eq(BankaiGuildFrame:IsShown(), false, "the window with it")
-				-- The window on another tab: /bgl alone turns it to the Chat tab, on [Council].
-				AsCouncil()
-				w.UI.SelectTab("decrees")
 				SlashCmdList.BANKAIGUILDCOUNCIL("")
+				eq(w.CW.IsShown(), false, "again: it closes"); eq(BankaiGuildFrame:IsShown(), false, "the window with it")
+				-- The window on another tab: /bgl alone turns it to the Chat tab, on [Elders].
+				AsElder()
+				w.UI.SelectTab("decrees")
+				SlashCmdList.BANKAIGUILDELDERS("")
 				eq(BankaiGuildFrame.tab, "chat"); eq(w.CW.Tier(), "L"); eq(w.CW.IsShown(), true)
 				w.CW.Close()
-				AsCaptain()
+				AsCouncilMember()
 				-- The tab line with the real Channels.SetupTab: no tab made yet, so the Chat tab shows
 				-- how (its line's steps; the pointer with mouse and keyboard, none with the gamepad UI),
 				-- and the real SetupTab runs when the player has made it. (Changed on purpose, the review
@@ -58489,7 +58489,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				local k = "HELP_TAB_" .. tab
 				assert(lang[k] ~= english[k], code .. " translates " .. k)
 			end
-			for _, chan in ipairs({ "CHAN_ALL", "CHAN_CAPTAINS", "CHAN_COUNCIL" }) do
+			for _, chan in ipairs({ "CHAN_ALL", "CHAN_COUNCIL", "CHAN_ELDERS" }) do
 				assert(lang.HELP_TAB_CHAT:find("[" .. lang[chan] .. "]", 1, true), code .. ": the channel's name as the language has it, " .. lang[chan])
 			end
 		end
@@ -58556,7 +58556,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				"The click shows you where on the Chat tab, as its **Add an Bankai Guild tab to the game chat** line does",
 				"its canonical tail continues from the bottom of the window's left edge upward",
 				"Reading the right top-to-bottom and then the left bottom-to-top always gives the same tab order",
-				"| `/bk talk [bankaiguild\\|captains\\|council]` | open or close the Bankai Guild window on its Chat tab, on that channel" }) do
+				"| `/bk talk [bankaiguild\\|council\\|elders]` | open or close the Bankai Guild window on its Chat tab, on that channel" }) do
 				assert(flat:find(phrase, 1, true), path .. ": " .. phrase)
 			end
 			for _, gone in ipairs({ "340 x 300 to 900 x 1000", "Bankai Guild chat window", "the Treasury and then the author's Workshop",
@@ -58698,7 +58698,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					ns.rdb.chat = { A = {
 						Line(T0, "Plain Guy-Realm", "a guildmate speaks"),
 						Line(T0 + 100, "Stranger-Realm", "a stranger in our guild's name"),
-						Line(T0 + 200, "Lone Capt-Realm", "a captain his census names", { guild = "Bankai Guild Lone" }),
+						Line(T0 + 200, "Lone Capt-Realm", "a council member his census names", { guild = "Bankai Guild Lone" }),
 						Line(T0 + 300, "Stew Ard-Realm", "the shogun's steward", { guild = "Bankai Guild" }),
 						Line(T0 + 400, "Drifter-Realm", "a drifter's claim", { guild = "Bankai Guild Nowhere" }),
 					} }
@@ -58723,7 +58723,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					eq(ns.Borders.MarkOfName("Stranger-Realm", "Bankai Guild II"), nil)
 					-- (1.1.5, the author's call: the Chat tab's headers show no mark at all; the rule's star is
 					-- MarkOfName's, which the game's own chat asks. The headers had it until then.)
-					for _, text in ipairs({ "a guildmate speaks", "a captain his census names", "the shogun's steward" }) do
+					for _, text in ipairs({ "a guildmate speaks", "a council member his census names", "the shogun's steward" }) do
 						assert(not Header(text):find(STAR, 1, true), text .. ": no mark in the Chat tab")
 					end
 					eq(ns.Borders.MarkOfName("Plain Guy-Realm", "Bankai Guild II"), "member", "in our roster: the star")
@@ -58962,9 +58962,9 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				ns.Channels.Pin = function() return nil end
 				w.CW.Render()
 				eq(f.pin:IsShown(), false); eq(LinesTop(), -84, "no pin: no room kept"); eq(f.box:Anchor("TOPLEFT")[5], -56)
-				-- A Captain (two channels): the switch on the same row, left of the gear, the search box
+				-- A Council member (two channels): the switch on the same row, left of the gear, the search box
 				-- shorter; still no row of its own.
-				AsCaptain()
+				AsCouncilMember()
 				w.CW.Render()
 				eq(f.switch:IsShown(), true); eq(f.switch:Anchor("TOPRIGHT")[4], -50, "left of the gear (1.1.5: no '?' between)"); eq(f.switch:Anchor("TOPRIGHT")[5], -30)
 				eq(f.switch:GetHeight(), 20, "the search box's height")
@@ -59013,14 +59013,14 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 
 		test("1.1.1 Chat tab: the search box keeps the lines that hold its text (a writer, a guild, words; a hidden line by its writer alone), from the newest; No match; its x empties it; it stays with the tab for the session", function()
 			WithWindow(function(w)
-				AsCaptain()
+				AsCouncilMember()
 				ns.Filter.Hides = function(text) return text:find("badword", 1, true) ~= nil end
 				local list = {}
 				for i = 1, 20 do list[i] = Line(T0 + i * 10, "Filler-Realm", "filler line " .. i) end
 				list[#list + 1] = Line(T0 + 300, "Aa-Realm", "Hello from the gates")
 				list[#list + 1] = Line(T0 + 310, "Zed-Realm", "zeus speaks", { guild = "Bankai Guild Zeus" })
 				list[#list + 1] = Line(T0 + 320, "Hider-Realm", "a badword gates")
-				ns.rdb.chat = { A = list, C = { Line(T0, "Aa-Realm", "gates for captains"), Line(T0 + 5, "Bb-Realm", "other") } }
+				ns.rdb.chat = { A = list, C = { Line(T0, "Aa-Realm", "gates for council"), Line(T0 + 5, "Bb-Realm", "other") } }
 				local f = w.CW.Open("A")
 				local sb = f.search
 				eq(sb:IsShown(), true); eq(sb:GetText() or "", "")
@@ -59059,7 +59059,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				-- Another channel: the same search.
 				Search("gates")
 				PickChannel(f, "C")
-				eq(#Visible(f.bubbles), 1); assert(BubbleWith(f, "gates for captains"))
+				eq(#Visible(f.bubbles), 1); assert(BubbleWith(f, "gates for council"))
 				-- Kept with the tab for the session: the window closed and opened again.
 				w.CW.Close()
 				f = w.CW.Open("A")
@@ -59194,13 +59194,13 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 			for _, l in ipairs(list) do if l == text then n = n + 1 end end
 			return n
 		end
-		local SET = L.CHATTAB_SET:format("[" .. L.CHAN_ALL .. "], [" .. L.CHAN_CAPTAINS .. "], [" .. L.CHAN_COUNCIL .. "]")
+		local SET = L.CHATTAB_SET:format("[" .. L.CHAN_ALL .. "], [" .. L.CHAN_COUNCIL .. "], [" .. L.CHAN_ELDERS .. "]")
 		local HERE = L.CHATTAB_HERE:match("^(.-)%%s")
 
 		test("1.1.1 Chat tab: while the game chat has no Bankai Guild tab, a line adds one: the player's click shows Bankai Guild's pointer by the main chat tab and the steps; the game's chat windows are read until one named Bankai Guild is there, then the real SetupTab runs once and the pointer and the line go; nothing but reads on the game's chat", function()
 			WithWindow(function(w)
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					ns.Channels.Pin = function() return nil end
 					local f = w.CW.Open()
@@ -59267,7 +59267,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab: the Bankai Guild tab's line: an Bankai Guild window there already is taken at the click; the pointer's X leaves the game's word and the tab's own reading; none while the tab is open, the chats are off or this client has no Bankai Guild tab; the gamepad UI gets the steps and no pointer", function()
 			WithWindow(function(w)
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					-- A window named Bankai Guild the player made before (never chosen): the click takes it.
 					g.Make(4)
@@ -59324,7 +59324,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				-- The gamepad UI: no pointer (the game's chat tabs work otherwise there), the steps as
 				-- text in the line; found by the tab's own reading; no game popup.
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					WithGamepadUI(true, function(game)
 						w.CW.Close()
@@ -59352,12 +59352,12 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab: the Bankai Guild tab's line stays away from a player whose chats go to a window of his choosing, shows while the tab is chosen and not there, and its x puts it away for good (the pointer too); the settings' line still shows the steps", function()
 			WithWindow(function(w)
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					ns.Channels.Pin = function() return nil end
-					-- A window of his own, named otherwise: his [Captains] go there. No line.
+					-- A window of his own, named otherwise: his [Council] go there. No line.
 					rawset(g[5], "name", "Oly"); rawset(g[5], "shown", true)
-					eq(ns.Channels.ChooseWindow("Oly captains"), true)
+					eq(ns.Channels.ChooseWindow("Oly council"), true)
 					eq(ns.Channels.ChosenWindow("C"), "Oly"); eq(ns.Channels.ChosenWindow("A"), nil)
 					local f = w.CW.Open()
 					eq(ns.Channels.TabState(), "none")
@@ -59375,7 +59375,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					-- in his own window too: the line, the tab being his choice.
 					rawset(g[5], "shown", true)
 					eq(ns.Channels.ChooseWindow("tab"), true)
-					eq(ns.Channels.ChooseWindow("Oly council"), true)
+					eq(ns.Channels.ChooseWindow("Oly elders"), true)
 					eq(ns.Channels.TabState(), "waiting")
 					w.CW.Render()
 					eq(f.guide:IsShown(), true)
@@ -59449,7 +59449,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 			r:Fire("OnLeave")
 			return tip
 		end
-		local ALLH, CAPTH, COUNCILH = "[" .. L.CHAN_ALL .. "]", "[" .. L.CHAN_CAPTAINS .. "]", "[" .. L.CHAN_COUNCIL .. "]"
+		local ALLH, CAPTH, ELDERH = "[" .. L.CHAN_ALL .. "]", "[" .. L.CHAN_COUNCIL .. "]", "[" .. L.CHAN_ELDERS .. "]"
 
 		test("1.1.1 Chat tab: every line the history keeps shows, a channel's 100 (#15, the Realm tab's chats page's before)", function()
 			WithWindow(function(w)
@@ -59554,7 +59554,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab settings (the gear, where the Realm tab's chats page was): in place of the lines and back; the chats on or off; each channel muted in chat or not and its chat window, through /bk mute's and /bk chatwindow's own code; nothing but reads and AddMessage on the game's chat; the keyboard never taken", function()
 			WithWindow(function(w)
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					ns.Channels.Pin = function() return nil end
 					local asked = 0
@@ -59583,19 +59583,19 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					local before = asked
 					chats:Click()
 					eq(asked, before + 1, "the choice: the first-open page, Bankai Guild's own")
-					-- A Captain's two channels, not the Council's.
-					assert(Setting(f, ALLH) and Setting(f, CAPTH)); eq(Setting(f, COUNCILH), nil)
+					-- A Council member's two channels, not the Elders'.
+					assert(Setting(f, ALLH) and Setting(f, CAPTH)); eq(Setting(f, ELDERH), nil)
 					-- Muted in chat through /bk mute's code, said as it says it; again, shown there again.
 					local shown = Under(f, CAPTH, L.CHATSET_SHOWN)
-					assert(shown, "[Captains] shows in chat")
-					assert(TipOf(shown):find(L.CHATSET_MUTE_TIP:format("captains"), 1, true))
+					assert(shown, "[Council] shows in chat")
+					assert(TipOf(shown):find(L.CHATSET_MUTE_TIP:format("council"), 1, true))
 					w.printed = {}
 					shown:Click()
 					eq(ns.db.chatMute.C, true, "kept where /bk mute keeps it")
-					eq(w.printed[1], L.CHAN_MUTED:format(L.CHAN_CAPTAINS, "captains"))
+					eq(w.printed[1], L.CHAN_MUTED:format(L.CHAN_COUNCIL, "council"))
 					assert(Under(f, CAPTH, L.CHATSET_MUTED), "said muted"); assert(Under(f, ALLH, L.CHATSET_SHOWN), "[Bankai Guild] still shown")
 					Under(f, CAPTH, L.CHATSET_MUTED):Click()
-					eq(ns.db.chatMute.C, nil); eq(w.printed[2], L.CHAN_UNMUTED:format(L.CHAN_CAPTAINS))
+					eq(ns.db.chatMute.C, nil); eq(w.printed[2], L.CHAN_UNMUTED:format(L.CHAN_COUNCIL))
 					-- Its chat window through /bk chatwindow's code: the main one, then each open in order
 					-- (the combat log never), then the main one again; that channel alone.
 					local where = Under(f, ALLH, L.CHATSET_WHERE:format(L.CHATWIN_MAIN_NAME))
@@ -59612,7 +59612,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					eq(ns.Channels.ChosenWindow("A"), nil, "the main one again")
 					assert(Under(f, ALLH, L.CHATSET_WHERE:format(L.CHATWIN_MAIN_NAME)))
 					-- A window chosen and gone: said so; a click takes the first one open.
-					eq(ns.Channels.ChooseWindow("Oly captains"), true)
+					eq(ns.Channels.ChooseWindow("Oly council"), true)
 					g.Close(5)
 					w.CW.Render()
 					local gone = Under(f, CAPTH, L.CHATSET_WHERE:format('"Oly" ' .. L.CHATWIN_GONE_TAG))
@@ -59626,7 +59626,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					assert(BubbleWith(f, "hello"))
 					f.gear:Click(); eq(w.CW.SettingsShown(), true)
 					f.gear:Click(); eq(w.CW.SettingsShown(), false)
-					-- A channel asked for (/bk talk captains, /bgc alone) while they show: its lines.
+					-- A channel asked for (/bk talk council, /bgc alone) while they show: its lines.
 					f.gear:Click()
 					w.CW.Open("C")
 					eq(w.CW.SettingsShown(), false); eq(w.CW.Tier(), "C"); eq(f.scroll:IsShown(), true)
@@ -59661,16 +59661,16 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						-- (The tab's ChatWindow.lua is loaded apart: the addon's own events reach it here as
 						-- they reach it in the game.)
 						ns.Fire = function(name, ...) saved.fire(name, ...); w.fire(name, ...) end
-						AsCaptain()
+						AsCouncilMember()
 						ns.db.addonChat = true
 						ns.db.chatMute = {}
 						ns.Channels.Pin = function() return nil end
 						rawset(g[3], "name", "Guild"); rawset(g[3], "shown", true)
 						local f = w.CW.Open("A")
 						f.gear:Click()
-						assert(Under(f, CAPTH, L.CHATSET_SHOWN), "[Captains] shows in chat")
-						-- /bk mute captains, typed while they show: said muted, and its click shows it again.
-						SlashCmdList.BANKAIGUILD("mute captains")
+						assert(Under(f, CAPTH, L.CHATSET_SHOWN), "[Council] shows in chat")
+						-- /bk mute council, typed while they show: said muted, and its click shows it again.
+						SlashCmdList.BANKAIGUILD("mute council")
 						eq(ns.db.chatMute.C, true)
 						f:Fire("OnUpdate", 0.3)
 						local muted = Under(f, CAPTH, L.CHATSET_MUTED)
@@ -59678,9 +59678,9 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						muted:Click()
 						eq(ns.db.chatMute.C, nil, "its click does what it says")
 						assert(Under(f, CAPTH, L.CHATSET_SHOWN))
-						-- /bgc typed in the game's chat box unmutes [Captains], as ever (Channels.Send): said
+						-- /bgc typed in the game's chat box unmutes [Council], as ever (Channels.Send): said
 						-- shown again, the lines of [Bankai Guild] still the ones shown.
-						SlashCmdList.BANKAIGUILD("mute captains")
+						SlashCmdList.BANKAIGUILD("mute council")
 						f:Fire("OnUpdate", 0.3)
 						assert(Under(f, CAPTH, L.CHATSET_MUTED))
 						KeepSendGap(function()
@@ -59737,7 +59737,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				WithGameChat(function(g)
 					local saved = { canPin = ns.Channels.CanPin, scope = ns.Channels.PinScope, public = ns.Comm.IsPublic, officer = ns.Roster.IsOfficer }
 					local ok, err = pcall(function()
-						AsCaptain()
+						AsCouncilMember()
 						ns.db.addonChat = true
 						ns.Channels.Pin = function() return nil end
 						local dialogs = {}
@@ -59795,11 +59795,11 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						-- The pin's control, for whoever may pin (Channels.CanPin), through Bankai Guild's own dialog.
 						ns.Channels.CanPin = function() return false end
 						w.CW.Render()
-						eq(Setting(f, L.PIN_ADD), nil); eq(Setting(f, L.PIN_ADD_GUILD), nil, "a Captain: none")
-						AsCouncil()
+						eq(Setting(f, L.PIN_ADD), nil); eq(Setting(f, L.PIN_ADD_GUILD), nil, "a Council member: none")
+						AsElder()
 						ns.Channels.CanPin, ns.Channels.PinScope = function() return true end, function() return "guild" end
 						w.CW.Render()
-						assert(Setting(f, COUNCILH), "a Council member's three channels")
+						assert(Setting(f, ELDERH), "an Elder's three channels")
 						local pin = Under(f, L.PIN_LABEL, L.PIN_ADD_GUILD)
 						assert(pin, "a guild master's control"); eq(Setting(f, L.PIN_ADD), nil)
 						assert(TipOf(pin):find(L.PIN_ADD_GUILD_TIP, 1, true))
@@ -59836,7 +59836,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab settings: the choices saved before the update show as they were (a channel muted, a window chosen, the channel last shown, the Bankai Guild tab's line put away); nothing lost", function()
 			WithWindow(function(w)
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					ns.Channels.Pin = function() return nil end
 					rawset(g[5], "name", "Oly"); rawset(g[5], "isDocked", true)
@@ -59852,7 +59852,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					assert(Under(f, ALLH, L.CHATSET_MUTED), "[Bankai Guild] muted in chat")
 					assert(Under(f, CAPTH, L.CHATSET_SHOWN))
 					assert(Under(f, ALLH, L.CHATSET_WHERE:format(L.CHATWIN_MAIN_NAME)))
-					assert(Under(f, CAPTH, L.CHATSET_WHERE:format('"Oly"')), "[Captains] in its window")
+					assert(Under(f, CAPTH, L.CHATSET_WHERE:format('"Oly"')), "[Council] in its window")
 					eq(Under(f, CAPTH, L.CHATWIN_GONE_TAG), nil)
 					eq(ns.db.chatMute.A, true); eq(ns.db.chatWindows[ns.me].C, "Oly"); eq(ns.db.chatWin.noTabLine, true)
 				end)
@@ -59865,7 +59865,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.2 Chat tab settings with Chattynator: each channel's window goes through Chattynator's tabs by name (its combat log never, a tab called main is that tab), then the main window; its tip says so; the game's hidden windows never offered", function()
 			WithWindow(function(w)
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					ns.Channels.Pin = function() return nil end
 					rawset(g[3], "name", "Guild"); rawset(g[3], "shown", true) -- (the game's, hidden behind Chattynator's)
@@ -59915,7 +59915,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.2 Chat tab settings with Chattynator: the Bankai Guild tab's line: no pointer (the game's tabs are hidden; one shown before goes), its click sends the channels there and says Chattynator's steps, the line and the settings show them; the Chat tab reads its tabs while it shows and says it once when the tab is there", function()
 			WithWindow(function(w)
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					ns.Channels.Pin = function() return nil end
 					-- Before Chattynator answers: the game's way, its pointer by the game's chat tab.
@@ -59973,7 +59973,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.2 review: with Chattynator, the Bankai Guild tab made while the Chat tab is hidden: shown again after a line landed there and a channel was moved, the Chat tab chooses nothing and says nothing again; with no line there yet, it says so once, for the channels still going there", function()
 			WithWindow(function(w)
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					ns.Channels.Pin = function() return nil end
 					WithChattynatorAPI({ { "GENERAL", "GUILD" } }, function(c)
@@ -59985,7 +59985,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						table.insert(c.windows[1], "Bankai Guild") -- (made while the Bankai Guild window is closed)
 						ns.Channels.Frame("A") -- (a line lands there: the intro, and the hint)
 						eq(#c.calls, 1); eq(Count(w.printed, HINT), 1)
-						eq(ns.Channels.ChooseWindow("main captains"), true)
+						eq(ns.Channels.ChooseWindow("main council"), true)
 						f:Fire("OnUpdate", 1.1) -- (the Chat tab shown again)
 						eq(w.CW.Watching(), false, "the tab is there")
 						eq(Count(w.printed, SET), 0, "nothing said again"); eq(#c.calls, 1, "no second intro")
@@ -59998,7 +59998,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						w.CW.Render()
 						f.guide:Click()
 						eq(w.CW.Watching(), true); eq(ns.Channels.ChosenWindow("C"), "Bankai Guild")
-						eq(ns.Channels.ChooseWindow("main captains"), true)
+						eq(ns.Channels.ChooseWindow("main council"), true)
 						w.printed = {}
 						ns.Channels.Frame("A") -- (a line while it is awaited: the main window says so, once)
 						eq(w.printed[1], L.CHATTAB_WAITING)
@@ -60006,7 +60006,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						w.printed = {}
 						f:Fire("OnUpdate", 1.1)
 						eq(w.CW.Watching(), false)
-						eq(Count(w.printed, L.CHATTAB_SET:format(ALLH .. ", " .. COUNCILH)), 1, "said once, for the two")
+						eq(Count(w.printed, L.CHATTAB_SET:format(ALLH .. ", " .. ELDERH)), 1, "said once, for the two")
 						eq(Count(w.printed, SET), 0); eq(Count(w.printed, HINT), 1)
 						eq(#c.calls, 2); assert(c.calls[2][3]:find(HERE, 1, true), c.calls[2][3])
 						eq(ns.Channels.ChosenWindow("C"), nil, "kept where the player put it")
@@ -60044,7 +60044,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.2 review: two chat windows of one name (Chattynator's \"New tab\" twice, or the game's): a click on a channel's window goes through each name once, then back to the main window", function()
 			WithWindow(function(w)
 				WithGameChat(function(g)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					ns.Channels.Pin = function() return nil end
 					local f
@@ -60114,10 +60114,10 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				eq(#shown, 1, "one help 'i' on the Chat tab")
 				eq(shown[1], main.helpButton, "the window's own, left of the X")
 				eq(f.help, nil, "none of the tab's own")
-				-- A Captain (the channels' switch on the top row) and the settings (the gear): still one.
-				AsCaptain()
+				-- A Council member (the channels' switch on the top row) and the settings (the gear): still one.
+				AsCouncilMember()
 				w.CW.Render()
-				eq(f.switch:IsShown(), true); eq(#HelpIs(), 1, "a Captain's top row")
+				eq(f.switch:IsShown(), true); eq(#HelpIs(), 1, "a Council member's top row")
 				f.gear:Click()
 				eq(#HelpIs(), 1, "the settings")
 				f.gear:Click()
@@ -60158,7 +60158,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					eq(f.answers:IsShown(), false)
 					-- A High Councillor: the Answers button at the end of the box it fills, the box ending
 					-- before it. (Changed on purpose, 1.1.2's review: on the top row, left of the "?", it
-					-- left a Council member of the High Council a search box of 6 px in the default window.)
+					-- left an Elder of the High Council a search box of 6 px in the default window.)
 					ns.IsHighCouncillor = function(name) return name == ns.me end
 					w.CW.Render()
 					eq(f.answers:IsShown(), true)
@@ -60166,9 +60166,9 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					eq(a[4], -8, "the row's end, where the box's art ends"); eq(a[5], 9, "centred on the box")
 					eq(f.input:Anchor("BOTTOMRIGHT")[4], -18 - f.answers:GetWidth() - 4, "the box ends before it")
 					eq(f.search:Anchor("TOPRIGHT")[4], -50, "the search box as a soldier's (1.1.5: to the gear)")
-					-- A Council member of the High Council (three channels: the switch on the top row too): the search
-					-- box as long as a Council member's who is not on it.
-					AsCouncil()
+					-- An Elder of the High Council (three channels: the switch on the top row too): the search
+					-- box as long as an Elder's who is not on it.
+					AsElder()
 					w.CW.Render()
 					eq(f.switch:IsShown(), true); eq(f.answers:IsShown(), true)
 					local councilW = f.search:GetRight() - f.search:GetLeft()
@@ -60285,7 +60285,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab key: the game's Open chat key is bound to Bankai Guild's own button while the Chat tab shows, and taken off when it hides, the window closes, another tab is picked or the chats go off; / stays the game's", function()
 			WithWindow(function(w)
 				WithKeys(function(k)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					eq(k.Bound(), "", "nothing before the tab shows")
 					local f = w.CW.Open("A")
@@ -60330,7 +60330,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab key: no binding changed in combat; the tab opened in a fight is bound when it ends, closed in one the key goes back then; pressed meanwhile it opens nothing and says why, once a fight", function()
 			WithWindow(function(w)
 				WithKeys(function(k)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					k.combat = true
 					local f = w.CW.Open("A")
@@ -60396,7 +60396,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab key: the key is the player's own, read from the game (another key, two keys, changed in the game's Key Bindings while the tab shows); none bound, no binding", function()
 			WithWindow(function(w)
 				WithKeys(function(k)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					k.keys = { "CTRL-T" }
 					local f = w.CW.Open("A")
@@ -60440,7 +60440,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					local saved = { room = ns.Comm.ChatRoom, warned = ns.db.chatWarned }
 					local ok, err = pcall(KeepSendGap, function()
 						WithLane(function(sent)
-							AsCaptain()
+							AsCouncilMember()
 							ns.db.addonChat = true
 							ns.db.chatWarned = { A = true }
 							ns.Comm.ChatRoom = function() return 3 end
@@ -60511,7 +60511,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab key: with the gamepad UI nothing changes: no binding, the box a click only, and every Enter lets the keyboard go as before", function()
 			WithWindow(function(w)
 				WithKeys(function(k)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					local sent, answers = {}, {}
 					ns.Channels.Send = function(t, text)
@@ -60567,7 +60567,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab key review: a switch to the gamepad UI takes the key off at the switch, and under it no redraw, hiding, key press or Key Bindings change makes a binding call; back to mouse and keyboard it is bound at once; a switch in a fight waits for its end", function()
 			WithWindow(function(w)
 				WithKeys(function(k)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					local f = w.CW.Open("A")
 					eq(k.Bound(), "ENTER")
@@ -60654,7 +60654,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 		test("1.1.1 Chat tab key review: the fight's message and the / line's name the player's own key for the game's chat with / (Escape first, from the box), and leave it out when none is bound; with the gamepad UI the / line's is as before", function()
 			WithWindow(function(w)
 				WithKeys(function(k)
-					AsCaptain()
+					AsCouncilMember()
 					ns.db.addonChat = true
 					assert(not L.CHATWIN_KEY_LATER:find("/", 1, true), "no \"/\" written in the fight's message: " .. L.CHATWIN_KEY_LATER)
 					local function Fight()
@@ -60724,7 +60724,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 			WithWindow(function(w)
 				WithKeys(function(k)
 					local ok, err = pcall(function()
-						AsCaptain()
+						AsCouncilMember()
 						ns.db.addonChat = true
 						local f = w.CW.Open("A")
 						eq(k.Bound(), "ENTER")
@@ -60785,7 +60785,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 							__index = function(_, key) return function() calls[#calls + 1] = "ChatFrame1EditBox:" .. key end end,
 							__newindex = function(_, key) calls[#calls + 1] = "ChatFrame1EditBox." .. key .. " written" end })
 						LAST_ACTIVE_CHAT_EDIT_BOX, ACTIVE_CHAT_EDIT_BOX, CHAT_FOCUS_OVERRIDE = theirs, nil, nil
-						AsCaptain()
+						AsCouncilMember()
 						ns.db.addonChat = true
 						ns.Channels.Send = function() return true, "ok" end
 						local f = w.CW.Open("A")
@@ -60903,7 +60903,7 @@ end)()
 -- windows. (A function of its own: the main chunk is near LuaJIT's 200 locals.)
 ;(function()
 	local SEND_OK, SEND_REFUSED = 0, 9 -- (Enum.SendAddonMessageResult: 0 is success)
-	-- fn(w, C, Chan) as a Council member of Bankai Guild II, every channel warned, on the channel of realm key "key
+	-- fn(w, C, Chan) as an Elder of Bankai Guild II, every channel warned, on the channel of realm key "key
 	-- one" as #6. w.sent: what reached SendAddonMessageLogged ({ msg, dist, target }); w.printed:
 	-- ns.Print; w.fired: ns.Fire ({ name, ... }); w.dialogs: ns.ShowDialog; w.ids: channel name ->
 	-- number (GetChannelName); w.clock: GetTime; w.refuse: the game refuses the sends; w.main: the
@@ -60911,7 +60911,7 @@ end)()
 	local function WithChat(fn)
 		local saved = { name = GetChannelName, leave = LeaveChannelByName, join = JoinChannelByName, guild = GetGuildInfo,
 			time = GetTime, info = C_ChatInfo, default = DEFAULT_CHAT_FRAME,
-			slash = { SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCAPTAINS, SlashCmdList.BANKAIGUILDCOUNCIL },
+			slash = { SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCOUNCIL, SlashCmdList.BANKAIGUILDELDERS },
 			dialogs = { StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY, StaticPopupDialogs.BANKAIGUILD_PIN, StaticPopupDialogs.BANKAIGUILD_PIN_DOWN } }
 		local ok, err = pcall(function()
 			local cns = FreshComm()
@@ -60923,7 +60923,7 @@ end)()
 			cns.Fire = function(name, ...) w.fired[#w.fired + 1] = { name, ... } end
 			cns.ShowDialog = function(which, a, b, data) w.dialogs[#w.dialogs + 1] = { which = which, a = a, b = b, data = data } end
 			cns.Data = setmetatable({ ForgetVotes = function() end }, { __index = ns.Data }) -- (the shared census stays as it is)
-			GetGuildInfo = function() return MY_GUILD, "Council", 0 end
+			GetGuildInfo = function() return MY_GUILD, "Elder", 0 end
 			GetTime = function() return w.clock end
 			GetChannelName = function(name) return w.ids[name] or 0 end
 			LeaveChannelByName = function(name) w.ids[name] = nil end
@@ -60946,7 +60946,7 @@ end)()
 		end)
 		GetChannelName, LeaveChannelByName, JoinChannelByName, GetGuildInfo = saved.name, saved.leave, saved.join, saved.guild
 		GetTime, C_ChatInfo, DEFAULT_CHAT_FRAME = saved.time, saved.info, saved.default
-		SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCAPTAINS, SlashCmdList.BANKAIGUILDCOUNCIL = saved.slash[1], saved.slash[2], saved.slash[3]
+		SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCOUNCIL, SlashCmdList.BANKAIGUILDELDERS = saved.slash[1], saved.slash[2], saved.slash[3]
 		StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY, StaticPopupDialogs.BANKAIGUILD_PIN = saved.dialogs[1], saved.dialogs[2]
 		StaticPopupDialogs.BANKAIGUILD_PIN_DOWN = saved.dialogs[3]
 		if not ok then error(err, 0) end
@@ -61035,7 +61035,7 @@ end)()
 			Pumps(C)
 			eq(#Lines(w, 7), 0, "nothing on the new channel"); eq(#Lines(w), 1)
 			eq(#Chan.History("L"), 1, "the part that left is echoed")
-			eq(Said(w.printed, ns.L.CHAN_MOVED_PART:format("Council", 1, 3)), 1, "one notice, of the part that left")
+			eq(Said(w.printed, ns.L.CHAN_MOVED_PART:format("Elders", 1, 3)), 1, "one notice, of the part that left")
 			local f = Fired(w, "CHAT_SEND_FAILED")
 			eq(#f, 1, "once per line"); eq(f[1][3], "moved"); eq(f[1][4], Codec.SanitizeChat(text)); eq(f[1][5], 1, "one part had left")
 			eq(C.Stats().chatMoved, 2, "two parts dropped"); eq(Chan.Stats().moved, 1, "one line")
@@ -61079,14 +61079,14 @@ end)()
 			eq((Chan.Send("C", "refused")), true)
 			C.Pump()
 			eq(#Lines(w), 1, "tried"); eq(Fired(w, "CHAT_SEND_FAILED")[2][3], "failed")
-			eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Captains")), 1)
+			eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Council")), 1)
 			w.refuse = nil
 			w.clock = w.clock + 5
 			eq((Chan.Send("L", "left behind")), true)
 			w.ns.IsMember = function() return false end
 			C.CheckMembership()
 			eq(Fired(w, "CHAT_SEND_FAILED")[3][3], "left")
-			eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Council")), 1)
+			eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Elders")), 1)
 			eq(#Fired(w, "CHAT_SEND_FAILED"), 3)
 			eq(C.Stats().chatMoved, 0); eq(Chan.Stats().moved, 0); eq(Chan.Stats().sent, 0)
 		end)
@@ -61101,7 +61101,7 @@ end)()
 	-- GetChatWindowChannels answer what w[i].messages and w[i].channels hold. Every function of the
 	-- game's that makes, names, docks or sets up a chat window, opens the chat box or shows a popup,
 	-- and every method of a chat window but AddMessage, is a spy: w.unsafe lists what was called
-	-- (asked empty at the end). fn(w, printed) as a Council member of Bankai Guild II, ns.me "Tester-Realm", the
+	-- (asked empty at the end). fn(w, printed) as an Elder of Bankai Guild II, ns.me "Tester-Realm", the
 	-- chats on and every channel warned, nothing chosen.
 	local UNSAFE = { "FCF_OpenNewWindow", "FCF_NewChatWindow", "FCF_SetWindowName", "FCF_DockFrame", "FCF_SetWindowColor",
 		"FCF_SetWindowAlpha", "FCF_StartAlertFlash", "StaticPopup_Show", "ChatFrame_OpenChat", "ChatEdit_ActivateChat",
@@ -61169,7 +61169,7 @@ end)()
 		return (Chan.Receive("CHANNEL", sender, Msg(tier, MY_GUILD, recvId, text), recvAt))
 	end
 	-- The tab's legend: each channel's name in its colour (TIERS: gold, teal, purple).
-	local LEGEND = "|cffe6c45c[Bankai Guild]|r, |cff59d9d9[Captains]|r, |cffbf80ff[Council]|r"
+	local LEGEND = "|cffe6c45c[Bankai Guild]|r, |cff59d9d9[Council]|r, |cffbf80ff[Elders]|r"
 	local function Our(text) return "|c" .. ns.COLOR .. "Bankai Guild:|r " .. text end
 	local function Has(list, text)
 		local n = 0
@@ -61180,8 +61180,8 @@ end)()
 	test("1.1.1 Bankai Guild tab: FormatLine bare leaves out the channel's name and nothing else", function()
 		local full = Chan.FormatLine("C", "Bob-Other", "Bankai Guild II", "PA", "hi |Tx|t " .. ITEM)
 		local bare = Chan.FormatLine("C", "Bob-Other", "Bankai Guild II", "PA", "hi |Tx|t " .. ITEM, true)
-		assert(full:find("^%[Captains%] |Hplayer:Bob%-Other|h%["), full)
-		eq(full, "[Captains] " .. bare, "the rest byte for byte")
+		assert(full:find("^%[Council%] |Hplayer:Bob%-Other|h%["), full)
+		eq(full, "[Council] " .. bare, "the rest byte for byte")
 		assert(bare:find("^|Hplayer:Bob%-Other|h%["), bare)
 		assert(bare:find(" <Bankai Guild II>: hi ||Tx||t " .. ITEM, 1, true), "guild and sanitized text: " .. bare)
 		eq(Chan.FormatLine("L", "Bob-Other", "Bankai Guild II", nil, "x", false), Chan.FormatLine("L", "Bob-Other", "Bankai Guild II", nil, "x"))
@@ -61193,13 +61193,13 @@ end)()
 			ns.db.chatWindows = { ["Tester-Realm"] = { A = "Bankai Guild", C = "Officers" } }
 			ns.db.chatTabIntro = { ["Tester-Realm"] = true } -- (told already)
 			eq(Recv("A", "Member500", "army line"), true)
-			eq(Recv("C", "Member2", "captains line"), true)
-			eq(Recv("L", "Member1", "council line"), true)
+			eq(Recv("C", "Member2", "council line"), true)
+			eq(Recv("L", "Member1", "elders line"), true)
 			eq(#w[4].lines, 1); assert(w[4].lines[1]:find("^|Hplayer:Member500|h%["), w[4].lines[1])
 			assert(w[4].lines[1]:find(": army line$"), w[4].lines[1])
 			eq(w[4].colors[1][1], 0.90); eq(w[4].colors[1][2], 0.77); eq(w[4].colors[1][3], 0.36)
-			eq(#w[5].lines, 1); assert(w[5].lines[1]:find("^%[Captains%] |Hplayer:"), w[5].lines[1])
-			eq(#w[1].lines, 1); assert(w[1].lines[1]:find("^%[Council%] |Hplayer:"), w[1].lines[1])
+			eq(#w[5].lines, 1); assert(w[5].lines[1]:find("^%[Council%] |Hplayer:"), w[5].lines[1])
+			eq(#w[1].lines, 1); assert(w[1].lines[1]:find("^%[Elders%] |Hplayer:"), w[1].lines[1])
 			eq(w[1].colors[1][1], 0.75); eq(w[1].colors[1][3], 1.00)
 			-- Our own echo too.
 			WithLane(function() local ok, why = Chan.Send("A", "my own line", 5e12); eq(ok, true, tostring(why)) end)
@@ -61259,7 +61259,7 @@ end)()
 			w[4].messages = { "SAY", "GUILD", "WHISPER" }
 			local ok, state = Chan.SetupTab()
 			eq(ok, true); eq(state, "open")
-			eq(printed[#printed], ns.L.CHATTAB_SET:format("[Bankai Guild], [Captains], [Council]"))
+			eq(printed[#printed], ns.L.CHATTAB_SET:format("[Bankai Guild], [Council], [Elders]"))
 			eq(#w[4].lines, 2)
 			eq(w[4].lines[1], Our(ns.L.CHATTAB_HERE:format(LEGEND)))
 			eq(w[4].lines[2], Our(ns.L.CHATTAB_MIXED:format("Settings")))
@@ -61297,25 +61297,25 @@ end)()
 			eq(Chan.TabState(), "open")
 			SlashCmdList.BANKAIGUILD("chatwindow main")
 			eq(ns.db.chatWindows, nil); eq(Chan.TabState(), "none")
-			eq(printed[#printed], ns.L.CHATWIN_MAIN:format("[Bankai Guild], [Captains], [Council]"))
+			eq(printed[#printed], ns.L.CHATWIN_MAIN:format("[Bankai Guild], [Council], [Elders]"))
 			eq(Chan.ChooseWindow("ABA"), true); eq(Chan.TabState(), "open")
-			eq(printed[#printed - 0], ns.L.CHATTAB_SET:format("[Bankai Guild], [Captains], [Council]"))
+			eq(printed[#printed - 0], ns.L.CHATTAB_SET:format("[Bankai Guild], [Council], [Elders]"))
 			-- Another window by name: not the tab. One channel to the tab by name: the tab again.
 			eq(Chan.ChooseWindow("main"), true)
 			eq(Chan.ChooseWindow("5"), true); eq(Chan.TabState(), "none")
 			w[7].lines = {}
-			eq(Chan.ChooseWindow("Bankai Guild council"), true); eq(Chan.TabState(), "open")
+			eq(Chan.ChooseWindow("Bankai Guild elders"), true); eq(Chan.TabState(), "open")
 			eq(ns.db.chatWindows["Tester-Realm"].L, "bankaiguild", "as the game names it")
-			eq(printed[#printed], ns.L.CHATWIN_SET:format("[Council]", '"bankaiguild"'), "the main window: where they go")
+			eq(printed[#printed], ns.L.CHATWIN_SET:format("[Elders]", '"bankaiguild"'), "the main window: where they go")
 			eq(w[7].lines[1], Our(ns.L.CHATTAB_HERE:format(LEGEND)), "the tab: what it holds")
-			eq(Has(w[7].lines, ns.L.CHATWIN_SET:format("[Council]", '"bankaiguild"')), 0)
-			assert(Chan.WindowStatus():find('[Council] "bankaiguild"', 1, true), Chan.WindowStatus())
+			eq(Has(w[7].lines, ns.L.CHATWIN_SET:format("[Elders]", '"bankaiguild"')), 0)
+			assert(Chan.WindowStatus():find('[Elders] "bankaiguild"', 1, true), Chan.WindowStatus())
 		end)
 	end)
 
 	test("1.1.1 Bankai Guild tab: at login the saved list of characters told what their tab holds keeps [name] = true alone (or \"chatty\", Chattynator's tab, 1.1.2)", function()
 		local init
-		local saved = { slash = { SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCAPTAINS, SlashCmdList.BANKAIGUILDCOUNCIL },
+		local saved = { slash = { SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCOUNCIL, SlashCmdList.BANKAIGUILDELDERS },
 			dialogs = { StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY, StaticPopupDialogs.BANKAIGUILD_PIN, StaticPopupDialogs.BANKAIGUILD_PIN_DOWN } }
 		local ins = setmetatable({ On = function(name, fn) if name == "INIT" then init = fn end end,
 			Comm = setmetatable({ Handle = function() end }, { __index = ns.Comm }) }, { __index = ns })
@@ -61332,7 +61332,7 @@ end)()
 			init()
 			eq(ins.db.chatTabIntro, nil)
 		end)
-		SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCAPTAINS, SlashCmdList.BANKAIGUILDCOUNCIL = saved.slash[1], saved.slash[2], saved.slash[3]
+		SlashCmdList.BANKAIGUILDALL, SlashCmdList.BANKAIGUILDCOUNCIL, SlashCmdList.BANKAIGUILDELDERS = saved.slash[1], saved.slash[2], saved.slash[3]
 		StaticPopupDialogs.BANKAIGUILD_CHAT_PRIVACY, StaticPopupDialogs.BANKAIGUILD_PIN = saved.dialogs[1], saved.dialogs[2]
 		StaticPopupDialogs.BANKAIGUILD_PIN_DOWN = saved.dialogs[3]
 		if not ok then error(err, 0) end
@@ -61357,15 +61357,15 @@ end)()
 				eq(Chan.TabState(), "none")
 				local ok, state = Chan.SetupTab()
 				eq(ok, true); eq(state, "open")
-				eq(printed[#printed - 1], ns.L.CHATTAB_SET:format("[Bankai Guild], [Captains], [Council]"))
+				eq(printed[#printed - 1], ns.L.CHATTAB_SET:format("[Bankai Guild], [Council], [Elders]"))
 				eq(printed[#printed], ns.L.CHATTY_FILTER:format('"Bankai Guild"'), "the main window: its filter")
 				eq(#c.calls, 1); eq(c.calls[1][1], 2); eq(c.calls[1][2], 1)
 				eq(c.calls[1][3], Our(ns.L.CHATTAB_HERE:format(LEGEND)), "no word of the game's Settings (CHATTAB_MIXED)")
 				-- (Told in Chattynator's tab, "chatty": the game's tab, told apart, 1.1.2's review.)
 				eq(ns.db.chatTabIntro["Tester-Realm"], "chatty"); eq(Chan.TabState(), "open")
 				eq(Recv("A", "Member500", "army line"), true)
-				eq(Recv("C", "Member2", "captains line"), true)
-				eq(Recv("L", "Member1", "council line"), true)
+				eq(Recv("C", "Member2", "council line"), true)
+				eq(Recv("L", "Member1", "elders line"), true)
 				eq(#c.calls, 4, "no second intro")
 				for k, tier in ipairs({ "A", "C", "L" }) do
 					local call = c.calls[k + 1]
@@ -61464,14 +61464,14 @@ end)()
 				local toggled, sent = {}, {}
 				ns.ChatWindow = { Toggle = function(tier) toggled[#toggled + 1] = tostring(tier) end }
 				SlashCmdList.BANKAIGUILDALL("")
-				SlashCmdList.BANKAIGUILDCAPTAINS("   ")
-				SlashCmdList.BANKAIGUILDCOUNCIL(nil)
+				SlashCmdList.BANKAIGUILDCOUNCIL("   ")
+				SlashCmdList.BANKAIGUILDELDERS(nil)
 				eq(table.concat(toggled, ","), "A,C,L")
 				eq(#printed, 0, "nothing printed")
 				-- With text: the line, as before (the window is not touched).
 				Chan.Send = function(tier, text) sent[#sent + 1] = tier .. ":" .. tostring(text) end
 				SlashCmdList.BANKAIGUILDALL("hi")
-				SlashCmdList.BANKAIGUILDCOUNCIL(" raid at eight ")
+				SlashCmdList.BANKAIGUILDELDERS(" raid at eight ")
 				eq(table.concat(sent, ","), "A:hi,L: raid at eight "); eq(#toggled, 3)
 				Chan.Send = savedSend
 				-- No chat window on this client (or not a function): the usage line, as in 1.1.
@@ -61479,8 +61479,8 @@ end)()
 				SlashCmdList.BANKAIGUILDALL("")
 				eq(printed[#printed], ns.L.CHAN_USAGE:format("/bg", "Bankai Guild"))
 				ns.ChatWindow = { Toggle = true }
-				SlashCmdList.BANKAIGUILDCAPTAINS(" ")
-				eq(printed[#printed], ns.L.CHAN_USAGE:format("/bgc", "Captains"))
+				SlashCmdList.BANKAIGUILDCOUNCIL(" ")
+				eq(printed[#printed], ns.L.CHAN_USAGE:format("/bgc", "Council"))
 				eq(#toggled, 3)
 			end)
 			ns.ChatWindow, Chan.Send = savedWindow, savedSend
@@ -61499,7 +61499,7 @@ end)()
 	end
 	-- The strings of this part: their own in English and pt-BR, with the same format codes.
 	local KEYS = { "CHAN_MOVED", "CHAN_MOVED_PART", "CHATTAB_STEPS", "CHATTAB_SET", "CHATTAB_HERE", "CHATTAB_MIXED", "CHATTAB_WAITING",
-		"CHATTAB_SETTINGS", "CHATTAB_MAIN_TAB", "HELP_CHATWIN", "CHATWIN_USAGE", "HELP_CHAN_ALL", "HELP_CHAN_CAPTAINS", "HELP_CHAN_COUNCIL" }
+		"CHATTAB_SETTINGS", "CHATTAB_MAIN_TAB", "HELP_CHATWIN", "CHATWIN_USAGE", "HELP_CHAN_ALL", "HELP_CHAN_COUNCIL", "HELP_CHAN_ELDERS" }
 	test("1.1.1: the strings of the Bankai Guild tab and of #34 in English and pt-BR, with the same format codes", function()
 		local en, pt = LoadedL("enUS"), LoadedL("ptBR")
 		for _, k in ipairs(KEYS) do
@@ -61516,7 +61516,7 @@ end)()
 			assert(l.CHATWIN_USAGE:find("/bk chatwindow tab", 1, true) < l.CHATWIN_USAGE:find("<", 1, true), l.CHATWIN_USAGE)
 		end
 		-- (1.1.1, the chats inside the Bankai Guild window: alone, they open its Chat tab, no window of their own.)
-		for _, k in ipairs({ "HELP_CHAN_ALL", "HELP_CHAN_CAPTAINS", "HELP_CHAN_COUNCIL" }) do
+		for _, k in ipairs({ "HELP_CHAN_ALL", "HELP_CHAN_COUNCIL", "HELP_CHAN_ELDERS" }) do
 			assert(en[k]:find("; alone, opens the Chat tab$"), en[k])
 			assert(pt[k]:find("; sozinho, abre a aba Chat$"), pt[k])
 		end
@@ -61617,7 +61617,7 @@ end)()
 				eq(#Chan.History("L"), 0, "echoed:"); eq(Chan.Stats().sent, 0)
 				local f = Fired(w, "CHAT_SEND_FAILED")
 				eq(#f, 1); eq(f[1][2], "L"); eq(f[1][3], "failed"); eq(f[1][4], Codec.SanitizeChat(LONG)); eq(f[1][5], 0, "no part left:")
-				eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Council")), 1, "told once")
+				eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Elders")), 1, "told once")
 				-- The second part refused: the first stays sent, the third does not leave.
 				w.clock = w.clock + 5
 				eq((Chan.Send("L", LONG)), true)
@@ -61666,15 +61666,15 @@ end)()
 				NewKey(w, C, "key two", 7)
 				Pumps(C)
 				eq(#Lines(w), 1); eq(#Chan.History("L"), 1)
-				eq(Said(w.printed, ns.L.CHAN_MOVED_PART:format("Council", 1, 3)), 1, "what left, on which channel")
-				eq(Said(w.printed, ns.L.CHAN_MOVED:format("Council")), 0, "\"it was not sent to either channel\":")
+				eq(Said(w.printed, ns.L.CHAN_MOVED_PART:format("Elders", 1, 3)), 1, "what left, on which channel")
+				eq(Said(w.printed, ns.L.CHAN_MOVED:format("Elders")), 0, "\"it was not sent to either channel\":")
 				eq(Fired(w, "CHAT_SEND_FAILED")[1][5], 1)
 				-- A line of which nothing had left: the plain notice, as before.
 				w.clock = w.clock + 5
 				eq((Chan.Send("L", "nothing of it left")), true)
 				NewKey(w, C, "key three", 8)
 				Pumps(C)
-				eq(Said(w.printed, ns.L.CHAN_MOVED:format("Council")), 1)
+				eq(Said(w.printed, ns.L.CHAN_MOVED:format("Elders")), 1)
 			end)
 		end)
 
@@ -63585,7 +63585,7 @@ end)()
 
 	test("1.1.2 explanations: every tab and page has its '?', from the answer bank; where it counts, why its numbers can differ; the window's '?' opens the page shown", function()
 		local pages = { "join", "census/", "realm/tree", "realm/board", "realm/loot", "realm/members:7", "realm/members:30",
-			"realm/members:recruits", "chat/", "decrees/", "watch/tabards", "throne/home", "throne/hands", "vox/", "treasury/summary",
+			"realm/members:recruits", "chat/", "decrees/", "watch/tabards", "throne/home", "throne/hands", "poll/", "treasury/summary",
 			"treasury/book", "treasury/keepers", "treasury/dues", "watch/", "watch/judgments", "workshop/" }
 		for _, t in ipairs(ns.UI and ns.UI.TABS or {}) do pages[#pages + 1] = t.key .. "/" end
 		for _, page in ipairs(pages) do
@@ -63679,7 +63679,7 @@ end)()
 		end
 	end)
 
-	test("1.1.2 counts: a guild's row, a guild only /who saw, the Realm's online and Captains lines, and the Treasury's week each end their tooltip with why it can differ", function()
+	test("1.1.2 counts: a guild's row, a guild only /who saw, the Realm's online and Council lines, and the Treasury's week each end their tooltip with why it can differ", function()
 		WithUI(function()
 			LoadUI()
 			local lines = ns.Views.Build("census")
@@ -63717,18 +63717,18 @@ end)()
 			local t2 = Tooltip()
 			eq(A.WhyTip(t2, "no-such-answer"), false); eq(#t2.lines, 0)
 			eq(A.WhyTip(t2, "count-layer-sample"), true); eq(t2.lines[2], L.WHY_DIFFER); eq(t2.lines[3], A.Find("count-layer-sample").text)
-			-- The Realm: our guild opened, its Captains and Online now.
+			-- The Realm: our guild opened, its Council and Online now.
 			ns.Views.ExpandAll(true)
 			local realm = ns.Views.Build("realm")
 			local caps, online
 			for _, l in ipairs(realm) do
 				local text = tostring(l.text or "")
-				if not caps and text:find((L.CAPTAINS:gsub("%(%%d%)", "")), 1, true) and l.tooltip then caps = l end
+				if not caps and text:find((L.COUNCIL:gsub("%(%%d%)", "")), 1, true) and l.tooltip then caps = l end
 				if not online and l.tooltip and (text:find((L.MEMBERS_ONLINE:gsub("%(%%d%)", "")), 1, true) or text:find((L.MEMBERS_SEEN:gsub("%(%%d%)", "")), 1, true)) then online = l end
 			end
 			ns.Views.ExpandAll(false)
-			assert(caps, "a Captains line with a tooltip")
-			tt = Tooltip(); caps.tooltip(tt); assert(tt.Has(L.WHY_DIFFER), "Captains: why")
+			assert(caps, "a Council line with a tooltip")
+			tt = Tooltip(); caps.tooltip(tt); assert(tt.Has(L.WHY_DIFFER), "Council: why")
 			if online then tt = Tooltip(); online.tooltip(tt); assert(tt.Has(L.WHY_DIFFER), "online: why") end
 		end)
 	end)
@@ -63755,7 +63755,7 @@ end)()
 			"WORKSHOP_BUGASK_WAIT", "BUGASK_TITLE", "BUGASK_TEXT", "BUGASK_SEE", "BUGASK_HIDE", "BUGASK_SEND", "BUGASK_LATER",
 			"BUGASK_HELD", "COPY_SELECT_ALL", "ANSWERS_BTN", "ANSWERS_BTN_TIP", "ANSWERS_TITLE", "ANSWERS_HINT", "ANSWERS_ROW_TIP",
 			"ANSWERS_COPY_TITLE", "ANSWERS_BOX_GONE", "PAGE_HELP", "PAGE_HELP_TIP", "PAGE_HELP_TITLE", "PAGE_HELP_MORE", "WHY_DIFFER",
-			"CAPTAINS_TIP", "CAPTAINS_OWN_TIP", "HEADER_TIP", "HEADER_TIP_DIFFER", "SEEN_TIP", "MEMBERS_SEEN_TIP", "THRONE_INSPECT_TIP" }
+			"COUNCIL_TIP", "COUNCIL_OWN_TIP", "HEADER_TIP", "HEADER_TIP_DIFFER", "SEEN_TIP", "MEMBERS_SEEN_TIP", "THRONE_INSPECT_TIP" }
 		local function Codes(s) local out = {} for c in s:gmatch("%%%a") do out[#out + 1] = c end return table.concat(out) end
 		for _, k in ipairs(KEYS) do
 			assert(type(en[k]) == "string" and en[k] ~= "" and en[k] ~= k, k .. ": English")

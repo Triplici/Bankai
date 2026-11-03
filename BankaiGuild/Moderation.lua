@@ -5,14 +5,14 @@ local L = ns.L
 -- Steward's) or a High Councillor of the author's signed list gives a word, with a reason and the
 -- time, on one of two things:
 --   a character (c): every honest client hides that character on every addon surface: the chats
---     (and their history), the pinned line (Channels.Pin), decrees, layers and hop offers, Vox Populi (questions and votes), the
+--     (and their history), the pinned line (Channels.Pin), decrees, layers and hop offers, Poll (questions and votes), the
 --     court's queue, and (1.1, Konig's review) the Shogun's week (entries, sheets and signups), the
 --     Board (flags and camps), the crafters' board (listings, answers and recipe lists), and the
 --     elite borders and nameplate marks (Borders.lua). The names that character's player linked
 --     as alts (Alts.lua, confirmed on each character) are hidden with it. The rest of the guild,
 --     and the census, stay.
 --   a guild (g): while it is off, honest clients stop sending and showing that guild's census,
---     map, hop, decrees, Vox and addon channels, and the rest above: its members' own clients
+--     map, hop, decrees, Poll and addon channels, and the rest above: its members' own clients
 --     send none of them, and every client drops what still comes. Blizzard's guild chat and Guild
 --     window stay up (the guild's own addon messages over GUILD too, but its master's pinned line,
 --     hidden with its chats: Channels.Pin). One guild at a time: there
@@ -100,13 +100,13 @@ Moderation.EXILE_KEEP = 86400     -- a timed word, or its cancel, is kept this l
 Moderation.EXILE_REPEAT = 300     -- its giver's client repeats it this often until its time; its canceller's, the cancel until it goes
 Moderation.EXILE_MAX_KEPT = 50    -- timed words kept, one per guild
 -- What a client whose own character or guild is off stops sending (the receivers drop it anyway):
--- chat lines, decrees, layer announcements, hop asks, offers and answers, Vox votes; and (1.1,
+-- chat lines, decrees, layer announcements, hop asks, offers and answers, Poll votes; and (1.1,
 -- Konig's review) its signups to the Shogun's week (Y2), its flags and camps on the Board (G1), its
 -- crafter's listing, answers and recipe lists (W1, WA, WL), and the Throne's calls to the army,
 -- the week's entries among them (T1 of a kind in Shogun.HIDDEN_CALLS: its lists still go, and so
 -- does a setter's cancel of his own entry on the week, 1.1 review). (Its
 -- census report: Comm.Broadcast.) The guild's own hello and key over GUILD go on, but (1.1.6) not
--- a guild master's Vox question to his guild nor its results (Y3, as the Throne's T1~V and T1~E
+-- a guild master's Poll question to his guild nor its results (Y3, as the Throne's T1~V and T1~E
 -- in HIDDEN_CALLS).
 Moderation.BLOCKED = { M1 = true, D1 = true, L1 = true, LQ = true, LO = true, LR = true, LN = true, LX = true, LY = true, PS = true, Y1 = true, Y2 = true, G1 = true,
 	Y3 = true,

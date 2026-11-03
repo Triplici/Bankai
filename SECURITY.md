@@ -40,7 +40,7 @@ until you turn it on.
 - **Sender names can't be forged.** Blizzard's server stamps every message with its sender.
 - **The Shogun and the Treasurer are fixed characters.** Their commands count only when they
   come from those exact characters, so nobody else can issue them, whatever the census says.
-  Since 1.0.0 the Shogun's decrees and [Council] lines count by his name too, with no census.
+  Since 1.0.0 the Shogun's decrees and [Elders] lines count by his name too, with no census.
 - **The Shogun's Steward (1.0.0) is the author's signature.** The High Council's titles list,
   signed by the author's key like the council, can mark a character the Steward of his
   faction's Shogun (on the list's realm group). Every client takes from him, by his name, a list
@@ -63,23 +63,23 @@ until you turn it on.
 - **Ranks of other guilds come from the census**, the picture most senders agree on, and a
   census report is its sender's word: nothing the server tells an addon proves which guild a
   sender belongs to. So a few characters working together can, today (1.0.0):
-  - make one of them the Council of a made-up Bankai Guild guild with two characters, even two alts of
-    one account logged in one after the other: [Council] lines and his Calls to Arms and Musters
+  - make one of them the Elder of a made-up Bankai Guild guild with two characters, even two alts of
+    one account logged in one after the other: [Elders] lines and his Calls to Arms and Musters
     (raid warnings) on every client (since 1.2.3 never a Royal decree or a Tabard inspection:
     a guild master's reach his own guild alone);
-  - make Captains of a made-up guild with one report, and with six of them fill the army's
+  - make Council of a made-up guild with one report, and with six of them fill the army's
     flood guard (6 decrees a minute), so that every other decree a census rank vouches for is
     dropped for that minute;
-  - leave a real guild contested with two senders (its Council and officers lose their rank on
+  - leave a real guild contested with two senders (its Elder and officers lose their rank on
     every other client while they vote), or take its picture with three (its reporter and
     runner-up are two votes at most);
   - show other numbers for a guild with one report that copies its leader and officers (800
     members as 1, the Shogun offline), and add up to 1,000 soldiers to the army's total for a day
     with each made-up guild;
-  - have a made-up Captain's party invite accepted for a player who asked for a layer hop, and
+  - have a made-up Council member's party invite accepted for a player who asked for a layer hop, and
     put an innocent player on the Shogun's untabarded list with his inspection report.
 
-  What 1.0.0 hardened: the Shogun's decrees and [Council] lines need no census, nor the Hands'
+  What 1.0.0 hardened: the Shogun's decrees and [Elders] lines need no census, nor the Hands'
   for `<Elfcore>` (the word of the Shogun, or of the Steward whose own list names them); those,
   the Steward's and your own guild's officers' decrees never wait behind
   the flood guard; a decree speaks for one guild per sender, as the chats do, and its
@@ -104,8 +104,8 @@ until you turn it on.
   mixed-version realm would not enforce one authority boundary either. This limitation remains
   open until a complete, scalable distribution and revocation protocol, plus its client migration,
   is reviewed and deployed.
-- **Nothing on the channel is encrypted.** Everyone on it receives [Bankai Guild], [Captains] and
-  [Council]; the addon only decides what to show. Don't write anything there that must stay
+- **Nothing on the channel is encrypted.** Everyone on it receives [Bankai Guild], [Council] and
+  [Elders]; the addon only decides what to show. Don't write anything there that must stay
   secret.
 - **The channel is an ordinary WoW chat channel.** WoW hands its ownership to one of its members.
   Bankai Guild never uses that power. If someone locks the channel, the addon keeps retrying,

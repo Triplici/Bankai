@@ -1491,7 +1491,7 @@ test("1.2.5 the API leader presence: only what the Shogun's lines, his crown and
 	host.shogun.mapID, host.shogun.zoneUID = 1453, 9
 	host.layers[1453] = {
 		{ zoneUID = 9, count = 2, head = { name = "Crown Bearer", rank = 0, guild = World.SHOGUN_GUILD }, mine = false, lastSeen = 1 },
-		{ zoneUID = 4, count = 1, head = { name = "Far Captain", rank = 1, guild = World.GUILD }, mine = false, lastSeen = 1 },
+		{ zoneUID = 4, count = 1, head = { name = "Far Council member", rank = 1, guild = World.GUILD }, mine = false, lastSeen = 1 },
 	}
 	local shown = w:As(viewer, viewer.ns.Layers.ForMap, 1453)
 	eq(#shown, 2, "the Realm tab lists two layers")

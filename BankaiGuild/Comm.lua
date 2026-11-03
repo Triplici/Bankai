@@ -355,7 +355,7 @@ end
 --   C<id>:<n>:<of>: (pieces)
 --   Comm.lua Q1 | Positions P1 | Layers L0 L1 | Hop LN LO LQ LR LX | HopSightings LY | Decree D1 | Channels M1 | ChatRooms M2
 --   Inspect S1 U0 U1 | TabardsV2 U2 U3 U4 | Shogun T1 T2 T3 | Court T4 T5 | Acts T6 T7 | Treasury T8 TB TE TQ TR TX
---   Bank T9 | Vox Y1 Y3 | Loot X1 XQ XB | Crafters W0 W1 WA WL WQ WR
+--   Bank T9 | Poll Y1 Y3 | Loot X1 XQ XB | Crafters W0 W1 WA WL WQ WR
 --   Workshop HA HI HK HQ HR HS HT V1 V2 V3 V4 V5 V6 | Link DA DB DC DE DK DR DV DW
 --   Authority H2 H3
 --   GuildCharter GC (master's public card), QC (outsider's bounded ask), QD (corroborated Join card)
@@ -1795,7 +1795,7 @@ local function OnAddonMessage(prefix, text, dist, sender, target, zoneChannelID,
 	-- Realm key, only over GUILD (server-verified guildmates) and only from our officers.
 	if dist == "GUILD" and text:sub(1, 3) == "K1~" then
 		local rank = ns.Roster.RankOf(sender)
-		if rank and rank <= ns.CAPTAIN_RANK then
+		if rank and rank <= ns.COUNCIL_MEMBER_RANK then
 			local key = text:sub(4)
 			if key ~= "" and key ~= ns.rdb.realmKey then
 				-- 1.1 (Keys.lua): a key a newer one replaced here (the Shogun's rotation, an officer's

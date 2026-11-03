@@ -7,7 +7,7 @@
 local ns, test, eq = ...
 local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]roster%.lua$")) or "./"
 
-local RANKS = { "Council", "Captain", "Veteran", "Member", "Recruit" }
+local RANKS = { "Elder", "Council member", "Veteran", "Member", "Recruit" }
 local CLASSES = { "WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "SHAMAN", "MAGE", "WARLOCK", "DRUID" }
 local ZONES = { "Stormwind City", "Elwynn Forest", "Westfall", "The Stockade", "Duskwood" }
 local RACES = { { "Human", "Human" }, { "Dwarf", "Dwarf" }, { "NightElf", "Night Elf" }, { "Gnome", "Gnome" } }
@@ -41,7 +41,7 @@ local function World(roster, fn)
 	local saved = { GetGuildInfo, GetNumGuildMembers, GetGuildRosterInfo, GetGuildRosterLastOnline, GetPlayerInfoByGUID,
 		GuildControlGetNumRanks, GuildControlGetRankName }
 	local w = { roster = roster, clock = T0, last = 0, asked = {} }
-	GetGuildInfo = function() return "Bankai Guild II", "Captain", 1 end
+	GetGuildInfo = function() return "Bankai Guild II", "Council member", 1 end
 	GetNumGuildMembers = function()
 		local on = 0
 		for _, m in ipairs(w.roster) do if m.online then on = on + 1 end end
@@ -259,12 +259,12 @@ test("1.2.3 roster: an unchanged roster makes nothing new (the same rows, order 
 	end)
 end)
 
-test("1.2.3 roster: GetGuildRosterLastOnline is read for every member offline at every scan, as 1.2.2: one offline at two scans who logged in and out between them has his new hours at the next (his row, the inactive counts, the Council's leaderDays); one whose hours are the same keeps his row", function()
+test("1.2.3 roster: GetGuildRosterLastOnline is read for every member offline at every scan, as 1.2.2: one offline at two scans who logged in and out between them has his new hours at the next (his row, the inactive counts, the Elder's leaderDays); one whose hours are the same keeps his row", function()
 	World(Guild(20), function(w)
 		local c = Load("BankaiGuild/Roster.lua", w)
 		local R = c.Roster
-		local council = w.roster[1]
-		council.online, council.last = false, { 0, 1, 15, 0 }
+		local elder = w.roster[1]
+		elder.online, elder.last = false, { 0, 1, 15, 0 }
 		local offline = 0
 		for _, m in ipairs(w.roster) do if not m.online then offline = offline + 1 end end
 		local function Scan()
@@ -280,17 +280,17 @@ test("1.2.3 roster: GetGuildRosterLastOnline is read for every member offline at
 		r = Scan()
 		local before, kept = RowOf(c, away.name), RowOf(c, still.name)
 		-- Between this scan and the next, he logs in for his mail and out again (offline at both), the
-		-- Council too, and another one's hour ticks.
-		away.last, council.last, ticking.last = { 0, 0, 0, 0 }, { 0, 0, 0, 1 }, { 0, ticking.last[2], ticking.last[3], ticking.last[4] + 1 }
+		-- Elder too, and another one's hour ticks.
+		away.last, elder.last, ticking.last = { 0, 0, 0, 0 }, { 0, 0, 0, 1 }, { 0, ticking.last[2], ticking.last[3], ticking.last[4] + 1 }
 		r = Scan()
 		local row = RowOf(c, away.name)
 		eq(row.days, 0, "the hours of his visit, not the 62 days before it")
 		eq(row.online, false)
 		assert(row ~= before, "his row is new")
 		eq(before.days, 2 * 30 + 2 + 2 / 24, "the row a reader holds as it was")
-		eq(r.inactive7, inactive7 - 2, "he and the Council no longer 7 days away")
+		eq(r.inactive7, inactive7 - 2, "he and the Elder no longer 7 days away")
 		eq(r.inactive30, inactive30 - 2, "nor 30")
-		eq(r.leaderDays, 1 / 24, "the Council's hour, not his 45 days")
+		eq(r.leaderDays, 1 / 24, "the Elder's hour, not his 45 days")
 		eq(RowOf(c, ticking.name).days, 2 * 30 + 5 + 6 / 24, "the hour he gained")
 		eq(RowOf(c, still.name), kept, "the same hours: his row kept")
 		eq(w.last, offline, "every member offline read at every scan")
@@ -355,7 +355,7 @@ test("1.2.3 roster: a GUID the client gives no race for is asked again at the ne
 	end)
 end)
 
-test("roster: a moderator under a cover name (Cover.lua) is offline in the census we make of our roster: the online count, the officers' and the Council's online, their zone", function()
+test("roster: a moderator under a cover name (Cover.lua) is offline in the census we make of our roster: the online count, the officers' and the Elder's online, their zone", function()
 	if not ns.Cover then
 		assert(loadfile(ROOT .. "BankaiGuild/Locales/CoverText.lua"))("BankaiGuild", ns)
 		assert(loadfile(ROOT .. "BankaiGuild/Cover.lua"))("BankaiGuild", ns)
@@ -363,19 +363,19 @@ test("roster: a moderator under a cover name (Cover.lua) is offline in the censu
 	local saved = { covers = ns.rdb.covers, council = ns.rdb.council }
 	local ok, err = pcall(function()
 		local roster = Guild(10)
-		roster[1].online, roster[2].online = true, true -- the Council and an officer, online
+		roster[1].online, roster[2].online = true, true -- the Elder and an officer, online
 		World(roster, function(w)
 			local c = Load("BankaiGuild/Roster.lua", w)
 			local before = c.Roster.Scan()
 			eq(before.leaderOnline, true)
 			local online = before.online
-			-- The Council and the officer are councillors under a cover heard just now.
+			-- The Elder and the officer are councillors under a cover heard just now.
 			ns.rdb.council = { at = 1, names = { member001 = "Member001", member002 = "Member002" } }
 			ns.rdb.covers = { ["Member001-Realm"] = { alias = "Aldric Stonebrook", t = ns.Now() },
 				["Member002-Realm"] = { alias = "Bran Oakfield", t = ns.Now() } }
 			w.clock = w.clock + 60
 			local r = c.Roster.Scan()
-			eq(r.leaderOnline, false, "the Council offline")
+			eq(r.leaderOnline, false, "the Elder offline")
 			eq(r.leaderZone, nil, "no zone")
 			eq(r.online, online - 2, "two fewer online")
 			for _, o in ipairs(r.officers) do

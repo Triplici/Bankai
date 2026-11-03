@@ -244,12 +244,12 @@ local function KnownMember(sender, claimedGuild)
 	return rank ~= nil and source ~= "census"
 end
 
--- Someone else's tabard is reported only by an officer (captain or above) of a verified guild.
+-- Someone else's tabard is reported only by an officer (council member or above) of a verified guild.
 local function KnownOfficer(sender, claimedGuild)
 	if not KnownMember(sender, claimedGuild) then return false end
 	local rank = ns.Roster and ns.Roster.RankOf and ns.Roster.RankOf(sender)
 	if rank == nil and ns.Data and ns.Data.AuthorizedRank then rank = ns.Data.AuthorizedRank(sender, claimedGuild) end
-	return type(rank) == "number" and rank <= (ns.CAPTAIN_RANK or 1)
+	return type(rank) == "number" and rank <= (ns.COUNCIL_MEMBER_RANK or 1)
 end
 
 local function AcceptSequence(sender, lease, seq)

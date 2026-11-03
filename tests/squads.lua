@@ -11,7 +11,7 @@ local function World(fn)
 		C_ChatInfo = { SendAddonMessageLogged = function() end }
 		StaticPopupDialogs = {}
 		local c = setmetatable({ me = "Officer-Realm", db = { chatRooms = true }, rdb = { war = { centuries = { old = "preserved" } } },
-			CAPTAIN_RANK = 1, Roster = { byName = {} }, ViewAs = {}, War = {}, ChatRooms = {}, Comm = {}, Nominees = {}, PartyGuard = {} }, { __index = ns })
+			COUNCIL_MEMBER_RANK = 1, Roster = { byName = {} }, ViewAs = {}, War = {}, ChatRooms = {}, Comm = {}, Nominees = {}, PartyGuard = {} }, { __index = ns })
 		w.c = c
 		c.Fold = string.lower
 		c.FullName = function(name) return name:find("-", 1, true) and name or name .. "-Realm" end

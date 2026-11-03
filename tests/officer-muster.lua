@@ -6,8 +6,8 @@ local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]officer%
 -- army; another guild's master posts for his own guild alone, over GUILD.
 local function World(fn)
 	local w = { clock = 1800000000, now = 1000, guild = "Bankai Guild Ember", shogunGuild = "Bankai Guild Ember", map = 1429, member = true, logged = true,
-		roles = { ["Harbor Council-Realm"] = "council" }, sources = {}, links = {}, jobs = {}, handlers = {}, events = {}, hidden = {}, barred = {} }
-	local c = setmetatable({ me = "Harbor Council-Realm", realm = "Realm", group = "Realm", faction = "Alliance", db = {},
+		roles = { ["Harbor Elder-Realm"] = "elder" }, sources = {}, links = {}, jobs = {}, handlers = {}, events = {}, hidden = {}, barred = {} }
+	local c = setmetatable({ me = "Harbor Elder-Realm", realm = "Realm", group = "Realm", faction = "Alliance", db = {},
 		rdb = { guilds = {} }, L = setmetatable({}, { __index = ns.L }), RealmPages = {}, DecreePages = {} }, { __index = ns })
 	w.c = c
 	c.Now = function() return w.now end
@@ -26,14 +26,14 @@ local function World(fn)
 		IsHandName = function(name) return w.roles[c.FullName(name)] == "hand" end }
 	c.WatchChat = { Barred = function(_, name) return w.barred[name or c.me] == true end }
 	c.Moderation = { Hides = function(name) return w.hidden[name] and {} or nil end }
-	c.Roster = { MyRank = function() return w.roles[c.me] == "council" and 0 or 3 end,
-		IsOfficer = function() return w.roles[c.me] == "council" or w.roles[c.me] == "shogun" end,
-		RankOf = function(name) return w.roles[c.FullName(name)] == "council" and 0 or nil end }
+	c.Roster = { MyRank = function() return w.roles[c.me] == "elder" and 0 or 3 end,
+		IsOfficer = function() return w.roles[c.me] == "elder" or w.roles[c.me] == "shogun" end,
+		RankOf = function(name) return w.roles[c.FullName(name)] == "elder" and 0 or nil end }
 	c.Data = { ServerTime = function() return w.clock end, Summary = function() return { guilds = {} } end,
 		KnownRank = function() return nil end,
 		AuthorizedRank = function(name)
 			local role = w.roles[c.FullName(name)]
-			return role == "council" and 0 or (role == "captain" and 1 or nil), w.sources[name] or "roster"
+			return role == "elder" and 0 or (role == "councilMember" and 1 or nil), w.sources[name] or "roster"
 		end }
 	c.Zones = { NameForKey = function(key) return key == "m1429" and "Elwynn Forest" or "Westfall" end }
 	c.UI = { RefreshSoon = function() w.refreshes = (w.refreshes or 0) + 1 end }
@@ -68,7 +68,7 @@ local function World(fn)
 	end
 	function w.advance(seconds) w.clock, w.now = w.clock + seconds, w.now + seconds end
 	function w.word(by, seq, title, zone, at, group, faction)
-		w.roles[by] = w.roles[by] or "council"
+		w.roles[by] = w.roles[by] or "elder"
 		return ("OM~1~P~%s~%s~%d~%d~Bankai Guild Ember~%d~%s"):format(faction or "A", group or "Realm", seq or w.clock, at or w.clock, zone or 1429, title or "Gather")
 	end
 	function w.receive(by, msg, dist) return w.handlers.OM(dist or "CHANNEL", by, msg) end
@@ -107,20 +107,20 @@ test("Officer muster: zone observation count uses consent, fresh existing record
 	end)
 end)
 
-test("Officer muster: current Shogun, Steward, Hand and verified Council may post; captain, census role, preview and sanctions may not", function()
-	for _, role in ipairs({ "shogun", "steward", "hand", "council" }) do World(function(w, c)
+test("Officer muster: current Shogun, Steward, Hand and verified Elder may post; council member, census role, preview and sanctions may not", function()
+	for _, role in ipairs({ "shogun", "steward", "hand", "elder" }) do World(function(w, c)
 		w.roles[c.me] = role
 		eq(c.OfficerMuster.Post("Gather for patrol", 1429), true, role)
 		eq(#c.OfficerMuster.List(), 1); eq(#c.Chronicle.Entries(), 0, "one ending line, not a new beginning history")
 		local job = w.jobs[1]; eq(job.dist, "CHANNEL"); eq(job.logged, true); assert(#job.msg <= 255)
 		eq(job.opts.guard(), true)
-		w.roles[c.me] = "captain"; eq(job.opts.guard(), false, "queued authority is checked again")
+		w.roles[c.me] = "councilMember"; eq(job.opts.guard(), false, "queued authority is checked again")
 		c.OfficerMuster.Tick(); eq(#c.OfficerMuster.List(), 0)
 		eq(#c.Chronicle.Entries(), 0, "role loss removes quietly, without revealing inferred role history")
 	end) end
 	World(function(w, c)
-		w.roles[c.me] = "captain"; eq(c.OfficerMuster.Post("Denied", 1429), false)
-		w.roles[c.me], w.sources[c.me] = "council", "census"; eq(c.OfficerMuster.Post("Denied", 1429), false)
+		w.roles[c.me] = "councilMember"; eq(c.OfficerMuster.Post("Denied", 1429), false)
+		w.roles[c.me], w.sources[c.me] = "elder", "census"; eq(c.OfficerMuster.Post("Denied", 1429), false)
 		w.sources[c.me], w.preview = "signed", true; eq(c.OfficerMuster.Post("Denied", 1429), false)
 		w.preview, w.barred[c.me] = false, true; eq(c.OfficerMuster.Post("Denied", 1429), false)
 		w.barred[c.me] = false; eq(c.OfficerMuster.Post("Allowed", 1429), true)
@@ -129,10 +129,10 @@ end)
 
 test("Officer muster: exact faction and linked realm group, logged channel, valid title and zone are required before budgets", function()
 	World(function(w, c)
-		local M, by = c.OfficerMuster, "River Council-Realm"
+		local M, by = c.OfficerMuster, "River Elder-Realm"
 		eq(select(2, w.receive(by, w.word(by, 1, "Gather", 1429, w.clock, "Other"))), "scope")
 		eq(select(2, w.receive(by, w.word(by, 1, "Gather", 1429, w.clock, "Realm", "H"))), "scope")
-		eq(select(2, w.receive("River Council-Unlinked", w.word("River Council-Unlinked", 1))), "realm")
+		eq(select(2, w.receive("River Elder-Unlinked", w.word("River Elder-Unlinked", 1))), "realm")
 		eq(select(2, w.receive(by, w.word(by, 1), "WHISPER")), "shape")
 		w.logged = false; eq(select(2, w.receive(by, w.word(by, 1))), "unlogged"); w.logged = true
 		for _, title in ipairs({ "bad|title", "bad~title", "", string.rep("x", M.TITLE_MAX + 1) }) do
@@ -155,13 +155,13 @@ end)
 
 test("Officer muster: repeat never renews expiry; withdrawal and reload preserve one attributed ending even after Chronicle eviction", function()
 	World(function(w, c)
-		local M, by = c.OfficerMuster, "River Council-Realm"
+		local M, by = c.OfficerMuster, "River Elder-Realm"
 		local msg = w.word(by, 1, "River patrol")
 		eq(w.receive(by, msg), true)
 		local row = M.List()[1]; w.advance(100)
 		eq(select(2, w.receive(by, msg)), "repeat"); eq(row.at + M.LIFE, 1800001200)
 		local ending = w.endWord(row.seq, row.at)
-		eq(w.receive("Another Council-Realm", ending), false, "only the server-stamped poster can close that call")
+		eq(w.receive("Another Elder-Realm", ending), false, "only the server-stamped poster can close that call")
 		eq(w.receive(by, ending), true); eq(#c.Chronicle.Entries(), 1)
 		local entry = c.Chronicle.Entries()[1]; eq(entry.by, by); eq(entry.words, "River patrol")
 		assert(loadfile(ROOT .. "BankaiGuild/OfficerMuster.lua"))("BankaiGuild", c)
@@ -242,8 +242,8 @@ test("Officer muster: queued post and ending guards reject membership, guild, ro
 		eq(guard(), true)
 		w.member = false; eq(guard(), false); w.member = true
 		w.guild = "Bankai Guild Willow"; eq(guard(), false); w.guild = "Bankai Guild Ember"
-		w.roles[c.me] = "captain"; eq(guard(), false); w.roles[c.me] = "council"
-		local me = c.me; c.me = "Other Council-Realm"; eq(guard(), false); c.me = me
+		w.roles[c.me] = "councilMember"; eq(guard(), false); w.roles[c.me] = "elder"
+		local me = c.me; c.me = "Other Elder-Realm"; eq(guard(), false); c.me = me
 		c.group = "Other"; M.List(); eq(guard(), false)
 		c.group = "Realm"; M.List(); eq(guard(), false, "returning to a scope cannot revive a job from its detached store")
 	end) end
@@ -305,7 +305,7 @@ test("Officer muster: actual Decrees page row renderer edits and clicks in mouse
 					end
 					assert(choose and post); choose:Click(); eq(#w.jobs, 0, "rendering and editing never publish")
 					post:Click(); eq(#w.jobs, 1); eq(M.List()[1].title, "Rendered patrol")
-					w.roles[c.me] = "captain"; post:Click(); eq(#w.jobs, 1, "stale visible actions recheck the current role")
+					w.roles[c.me] = "councilMember"; post:Click(); eq(#w.jobs, 1, "stale visible actions recheck the current role")
 					ns.Views.Render(content, M.Lines()); eq(#M.List(), 0); eq(#c.Chronicle.Entries(), 0)
 					if gamepad then eq(#game.shown, 0, "no native popup under the gamepad UI") end
 				end)
@@ -420,7 +420,7 @@ test("Officer muster (1.2.3): another guild's master posts for his own guild alo
 		for _, line in ipairs(M.Lines()) do texts[#texts + 1] = tostring(line.text) end
 		local all = table.concat(texts, "\n")
 		assert(all:find(c.L.OFFICER_MUSTER_GUILD_ONLY:format("Bankai Guild Ember"), 1, true), all)
-		assert(all:find(c.L.OFFICER_MUSTER_BY_GUILD:format("Harbor Council", "Bankai Guild Ember"), 1, true), all)
+		assert(all:find(c.L.OFFICER_MUSTER_BY_GUILD:format("Harbor Elder", "Bankai Guild Ember"), 1, true), all)
 		-- Its repeat and its ending go over GUILD too.
 		w.advance(M.REPEAT); M.Tick()
 		eq(w.jobs[#w.jobs].dist, "GUILD", "its repeat")
@@ -440,8 +440,8 @@ test("Officer muster (1.2.3): another guild's master posts for his own guild alo
 			w.roles[by] = role
 			eq(w.receive(by, w.word(by, 1)), true, role)
 		end
-		local by = "Throne Council-Realm"
-		w.roles[by] = "council"
+		local by = "Throne Elder-Realm"
+		w.roles[by] = "elder"
 		eq(w.receive(by, ("OM~1~P~A~Realm~%d~%d~Bankai Guild~1429~For the army"):format(w.clock, w.clock)), true, "the Shogun's guild's master")
 		eq(#M.List(), 4)
 	end)
@@ -450,7 +450,7 @@ end)
 test("Officer muster (1.2.3): over GUILD only our own guild's master naming our guild; an ending counts on its call's distribution", function()
 	World(function(w, c)
 		w.shogunGuild = "Bankai Guild"
-		local M, by = c.OfficerMuster, "Ember Council-Realm"
+		local M, by = c.OfficerMuster, "Ember Elder-Realm"
 		-- Our guild's master (our roster): his guild muster.
 		eq(w.receive(by, w.word(by, 1, "Guild gathering"), "GUILD"), true)
 		local row = M.List()[1]
@@ -462,22 +462,22 @@ test("Officer muster (1.2.3): over GUILD only our own guild's master naming our 
 		eq(w.receive(by, ending, "GUILD"), true); eq(#M.List(), 0)
 		-- Nobody else over GUILD: an officer, a master as only the census or the signed list has him,
 		-- one naming another guild.
-		local captain = "Ember Captain-Realm"
-		w.roles[captain] = "captain"
-		eq(select(2, w.receive(captain, w.word(captain, 1), "GUILD")), "role", "an officer")
+		local councilMember = "Ember Council member-Realm"
+		w.roles[councilMember] = "councilMember"
+		eq(select(2, w.receive(councilMember, w.word(councilMember, 1), "GUILD")), "role", "an officer")
 		for _, source in ipairs({ "census", "signed" }) do
 			local other = "Ember " .. source .. "-Realm"
 			w.sources[other] = source
 			eq(select(2, w.receive(other, w.word(other, 1), "GUILD")), "role", source)
 		end
-		local stranger = "Willow Council-Realm"
-		w.roles[stranger] = "council"
+		local stranger = "Willow Elder-Realm"
+		w.roles[stranger] = "elder"
 		eq(select(2, w.receive(stranger, ("OM~1~P~A~Realm~%d~%d~Bankai Guild Willow~1429~Gather"):format(w.clock, w.clock), "GUILD")), "role",
 			"another guild's, over our GUILD")
 		-- A guild muster ends quietly once its poster is no longer our master.
 		w.advance(M.GAP)
 		eq(w.receive(by, w.word(by, w.clock, "Again"), "GUILD"), true)
-		w.roles[by] = "captain"; c.Fire("DATA_CHANGED")
+		w.roles[by] = "councilMember"; c.Fire("DATA_CHANGED")
 		eq(#M.List(), 0); eq(#c.Chronicle.Entries(), 1, "one ending, the withdrawal's")
 	end)
 end)
@@ -503,7 +503,7 @@ test("Officer muster: while the quiet presence is on, his call is not repeated (
 	World(function(w, c)
 		local quiet = false
 		c.QuietPresence = function() return quiet end
-		w.roles[c.me] = "council"
+		w.roles[c.me] = "elder"
 		eq(c.OfficerMuster.Post("Gather for patrol", 1429), true)
 		eq(#w.jobs, 1)
 		quiet = true

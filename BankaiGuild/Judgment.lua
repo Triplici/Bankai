@@ -410,7 +410,7 @@ local function TakeCase(sender, id, guild, target, cats, reporters, lines, findi
 	if not IsShogun() then return false, "shogun" end
 	local who = ns.FullName(sender)
 	local rank = who ~= ns.me and ns.Data and ns.Data.AuthorizedRank and ns.Data.AuthorizedRank(who, guild) or nil
-	if who ~= ns.me and not (type(rank) == "number" and rank <= (ns.CAPTAIN_RANK or 1)) then return Refuse(who, id, "rank") end
+	if who ~= ns.me and not (type(rank) == "number" and rank <= (ns.COUNCIL_MEMBER_RANK or 1)) then return Refuse(who, id, "rank") end
 	if Same(target, who) or ns.IsShogunCharacter(target) then return Refuse(who, id, "target") end
 	local s = ShogunStore(true)
 	if not s then return false, "store" end

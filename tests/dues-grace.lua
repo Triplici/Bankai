@@ -104,7 +104,7 @@ test("Dues grace: native three-week paid, first missing tolerance, second notice
 	w:Trade(t, other, { bGives = 10000 }); Close(w, t, first + 2)
 	local second = Progress(w, t, p); eq(second.kept, 0); eq(second.misses, 2)
 	w:As(t, function()
-		eq(t.ns.DuesGrace.captainPolicy, "gm", "the approved notice goes to the current native GM after the payer")
+		eq(t.ns.DuesGrace.councilMemberPolicy, "gm", "the approved notice goes to the current native GM after the payer")
 		assert(t.ns.DuesGrace.Pump())
 		eq(t.ns.DuesGrace.Pump(), false, "enqueueing does not advance the payer phase")
 	end)
@@ -267,7 +267,7 @@ end)
 test("Dues grace: corrected or removed queued week, preview, changed guild and consent cancellation invalidate actual transport", function()
 	for _, change in ipairs({ "week", "paid", "preview", "guild", "consent" }) do
 		local w, t, shogun, p = Setup(); local week = TwoMisses(w, t)
-		w:As(t, function() t.ns.DuesGrace.captainPolicy = "gm"; assert(t.ns.DuesGrace.Pump()) end)
+		w:As(t, function() t.ns.DuesGrace.councilMemberPolicy = "gm"; assert(t.ns.DuesGrace.Pump()) end)
 		w:As(t, function()
 			if change == "week" then t.ns.rdb.duesGrace.weeks[week] = nil
 			elseif change == "paid" then

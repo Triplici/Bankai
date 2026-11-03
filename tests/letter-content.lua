@@ -219,7 +219,7 @@ test("Version letter content: both languages explain the guild, 99 soldiers, Chu
 		end
 		local old = cns.L.LETTER_1_2_0
 		assert(old:find("99", 1, true) and old:find("High Council", 1, true), locale .. ": actual squad leaders and cap")
-		assert(old:find("Vox Populi", 1, true) and old:find("30", 1, true), locale .. ": retained polls")
+		assert(old:find("Poll", 1, true) and old:find("30", 1, true), locale .. ": retained polls")
 		assert(old:find(locale == "enUS" and "duels only" or "somente para duelos", 1, true), locale .. ": level band does not apply to Bones")
 		assert(old:find(locale == "enUS" and "not a finished new departmental workflow" or "não a um novo fluxo departamental pronto", 1, true), locale .. ": limited departments not advertised as finished")
 		assert(cns.L.LETTER_1_2_2:find("Players", 1, true) and cns.L.LETTER_1_2_2:find("Everyone", 1, true), locale .. ": actual table audiences")

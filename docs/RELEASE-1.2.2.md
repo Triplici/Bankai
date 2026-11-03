@@ -26,7 +26,7 @@ A correction release: mostly fixes for the stutter and the problems the last upd
 ## Security
 
 - Only the author, the Shogun and the High Council can send **Ask to update**. Asks from anyone else are ignored.
-- Layer hops: **Always invite**, **For Bankai Guild!** and auto-accept now act only for your own guild roster, the Shogun, his Steward and Hands, and signed Council and Captains. They no longer act for a census rank or a guild a player only claims. Officers of other guilds can still be invited with a click.
+- Layer hops: **Always invite**, **For Bankai Guild!** and auto-accept now act only for your own guild roster, the Shogun, his Steward and Hands, and signed Elders and Council. They no longer act for a census rank or a guild a player only claims. Officers of other guilds can still be invited with a click.
 - Signed leadership lists are only accepted once every part is in and verified, and only while they are valid. Old or expired lists can no longer lock a client out.
 - `/bk status` and `/bk bug` no longer show your sealed channel's name, and a key typed with `/bk key` never appears in errors, the log or a report.
 - The crafting fee desk now books a fee mail only when the seller's own word or the desk's check names that fee, so a made-up buyer cannot claim it.
@@ -34,7 +34,7 @@ A correction release: mostly fixes for the stutter and the problems the last upd
 
 ## New in this update
 
-- Clicking **[Bankai Guild]**, **[Captains]** or **[Council]** in game chat opens the chat box for that channel, just like **[Party]**.
+- Clicking **[Bankai Guild]**, **[Council]** or **[Elders]** in game chat opens the chat box for that channel, just like **[Party]**.
 - **Report to Bankai Guild**: right-click another player's line in the Chat tab, or their name on it, to report any line from the last day. Your report also reaches the Shogun and the High Council.
 - **Toggle Bankai Guild** in the game's Key Bindings (under AddOns) lets you choose your own key. The built-in shortcut is now Shift + your guild key (Shift-J by default), used only while that key is free.
 - The Skyborn race room is open to both factions.

@@ -167,7 +167,7 @@ test("privacy: recipient permission is checked when a dues answer actually sends
 		local allowed = true
 		ns.Roster.RankOf = function() return allowed and 1 or 3 end
 		local ok, err = pcall(function()
-			D.HandleAsk("WHISPER", "Captain-Realm", "FQ~" .. D.Week() .. "~Bankai Guild~0")
+			D.HandleAsk("WHISPER", "Council member-Realm", "FQ~" .. D.Week() .. "~Bankai Guild~0")
 			assert(ns.Comm.QueueSize() > 0)
 			allowed = false
 			w.step(5)

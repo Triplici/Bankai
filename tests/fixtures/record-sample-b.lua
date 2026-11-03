@@ -21,7 +21,7 @@ BankaiGuildRecordDB = {
 			["head"] = "d50c51179f068b5bffa0a396a70f33f037f941e6659c4eb0771cbc20cfb8dbf0",
 			["id"] = "Player-0000-0000000B:1792505100",
 			["lines"] = {
-				"S|1|1792505100|Witness Second-ClassicBetaPvP|Player-0000-0000000B|Bankai Guild Example|2|Captain|Alliance|ClassicBetaPvP|ClassicBetaPvP|1.2.5.1|||16001|1.60.1.70450|enUS", -- [1]
+				"S|1|1792505100|Witness Second-ClassicBetaPvP|Player-0000-0000000B|Bankai Guild Example|2|Council member|Alliance|ClassicBetaPvP|ClassicBetaPvP|1.2.5.1|||16001|1.60.1.70450|enUS", -- [1]
 				"E|1792505100|1792505098|Bankai Guild Third|420|96|12|Sample Herald-ClassicBetaPvP", -- [2]
 				"M|1|Leader Example-ClassicBetaPvP|Player-0000-00000001|WARRIOR|60", -- [3]
 				"M|2|Witness Example-ClassicBetaPvP|Player-0000-0000000A|PALADIN|42", -- [4]

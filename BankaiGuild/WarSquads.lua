@@ -56,7 +56,7 @@ local function Officer(name)
 	name = Member(name)
 	if not name then return false end
 	local rank = ns.Roster.RankOf(name)
-	if rank and rank <= ns.CAPTAIN_RANK then return true end
+	if rank and rank <= ns.COUNCIL_MEMBER_RANK then return true end
 	if ns.War and ns.War.IsWarCouncillor and ns.War.IsWarCouncillor(name) then return true end
 	local n = ns.Nominees
 	return n and n.IsCorrespondent and n.IsCorrespondent(name, Guild(), "Department of War") == true or false
