@@ -317,6 +317,7 @@ test("1.2.4 the Realm's guild header: a long guild and Elder give way to its onl
 end)
 
 test("1.2.4 Recruiting and the zones: as many free slots, or soldiers in a zone, the higher average level first; its average level after its free slots", function()
+	ns.Views.SHOW_RECRUITING = true -- (Recruiting is off the Realm since 11-03: these test it as it comes back)
 	local zones = { m1453 = 20 }
 	WithGuilds({
 		["Bankai Guild Q"] = Report(600, 25, { zones = zones }),
@@ -366,6 +367,7 @@ end)
 -- guilds carry their average level after their count, so their right text grew; at a third of the
 -- row, as other rows keep theirs, a long guild name cut the average level off.
 test("1.2.4's review: a long guild name gives way to Recruiting's free slots and average level, and a zone's count and average level, kept whole up to half the row", function()
+	ns.Views.SHOW_RECRUITING = true -- (Recruiting is off the Realm since 11-03: these test it as it comes back)
 	WithUI(function()
 		WithGuilds({
 			["Bankai Guild Brotherhood Ages"] = Report(600, 45, { zones = { m1453 = 20 } }), -- (24 letters, the longest a guild's name)

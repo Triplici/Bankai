@@ -2496,6 +2496,8 @@ local function RealmLines(s, q)
 			onClick = function() Views.raceShown = Views.raceShown + Views.RACE_PAGE; ns.Fire("DATA_CHANGED") end }
 	end
 
+	-- Recruiting (the guild's call, 11-03: trimmed off the Realm; true brings it back).
+	if Views.SHOW_RECRUITING then
 	local open = Views.OpenGuilds(s)
 	-- (1.1.2's review: free slots are 1000 less the size of each guild's last report.)
 	lines[#lines + 1] = { header = true, text = L.RECRUITING, tooltip = function(tt)
@@ -2559,6 +2561,7 @@ local function RealmLines(s, q)
 			tt:AddLine(L.NOCONTACT_TIP, 1, 1, 1, true)
 		end,
 	}
+	end
 
 	local mapID = ns.Layers.CurrentMap()
 	local zone = mapID and ns.Zones.NameForKey("m" .. mapID) or "?"
@@ -3056,6 +3059,7 @@ local STATUS_TEXT = {
 }
 
 Views.RACE_MAX, Views.RACE_PAGE = 100, 25 -- the level race: its top 100, 25 at a time
+Views.SHOW_RECRUITING = false -- the Realm's Recruiting section (and the gates' line in it)
 Views.RECRUIT_SHOWN = 5 -- guilds with room shown in the Realm's Recruiting, the rest on a click (1.1)
 Views.raceShown = Views.RACE_PAGE
 Views.INSPECT_ROWS = 200 -- inspected players listed on the Tabards page

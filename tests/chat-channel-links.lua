@@ -97,7 +97,7 @@ end
 
 local function Link(tier, label) return "|Haddon:BankaiGuild:chan:" .. tier .. "|h[" .. label .. "]|h" end
 
-test("1.2.1 chat channel links: [Bankai Guild], [Council] and [Elders] are links only where this client may write there (its rank, the chats on, not off them nor timed out), plain before the login's hook and with the gamepad UI", function()
+test("1.2.1 chat channel links: [Bankai Guild] and [Council] are links only where this client may write there (its rank, the chats on, not off them nor timed out), plain before the login's hook and with the gamepad UI", function()
 	WithLinks(function(w)
 		local C, L = w.C, ns.L
 		local A, CA, LO = "[" .. L.CHAN_ALL .. "]", "[" .. L.CHAN_COUNCIL .. "]", "[" .. L.CHAN_ELDERS .. "]"
@@ -108,8 +108,9 @@ test("1.2.1 chat channel links: [Bankai Guild], [Council] and [Elders] are links
 		eq(table.concat(w.hooks, ","), "SetItemRef", "one post-hook, on SetItemRef")
 		w.Login()
 		eq(#w.hooks, 1, "once a session")
-		-- An Elder writes in all three; a Council member in [Bankai Guild] and [Council]; a member in [Bankai Guild] alone.
-		eq(C.Tag("A"), Link("A", L.CHAN_ALL)); eq(C.Tag("C"), Link("C", L.CHAN_COUNCIL)); eq(C.Tag("L"), Link("L", L.CHAN_ELDERS))
+		-- An Elder and a Council member write in [Bankai Guild] and [Council]; a member in [Bankai Guild] alone.
+		-- ([Elders] was retired 11-03: no link for anyone, a guild master included.)
+		eq(C.Tag("A"), Link("A", L.CHAN_ALL)); eq(C.Tag("C"), Link("C", L.CHAN_COUNCIL)); eq(C.Tag("L"), LO, "[Elders] retired")
 		w.rank = 1
 		eq(C.Tag("A"), Link("A", L.CHAN_ALL)); eq(C.Tag("C"), Link("C", L.CHAN_COUNCIL)); eq(C.Tag("L"), LO, "no [Elders] link for a Council member")
 		w.rank = 3
@@ -171,7 +172,7 @@ test("1.2.1 chat channel links: a line shown in the game's chat carries the link
 	end)
 end)
 
-test("1.2.1 chat channel links: a left click opens the chat box with /bg, /bgc or /bgl, in the window clicked; right-click, Shift, a channel closed since and the gamepad UI open nothing", function()
+test("1.2.1 chat channel links: a left click opens the chat box with /bg or /bgc, in the window clicked; right-click, Shift, a channel closed since and the gamepad UI open nothing", function()
 	WithLinks(function(w)
 		local L = ns.L
 		w.Login()
@@ -181,7 +182,6 @@ test("1.2.1 chat channel links: a left click opens the chat box with /bg, /bgc o
 		eq(box.frame, w.frame, "the box of the window clicked")
 		eq(w.refs[#w.refs].link, "addon:BankaiGuild:chan:A", "the game's own handling first, as for any link")
 		eq(w.Click("addon:BankaiGuild:chan:C").text, "/bgc ")
-		eq(w.Click("addon:BankaiGuild:chan:L").text, "/bgl ")
 		-- A window without a box of its own (Chattynator's): the game picks the box.
 		local other = w.Click("addon:BankaiGuild:chan:A", "LeftButton", { name = "a window of another addon" })
 		eq(other.text, "/bg "); eq(other.frame, nil)
@@ -192,9 +192,11 @@ test("1.2.1 chat channel links: a left click opens the chat box with /bg, /bgc o
 		w.shift = nil
 		eq(#w.printed, 0)
 		-- A link printed while he could write, clicked once he can't: nothing opens, he is told why.
-		w.rank = 1
-		eq(w.Click("addon:BankaiGuild:chan:L"), nil, "demoted since: no box")
-		eq(w.printed[1], L.CHAN_ONLY_ELDERS:format(L.CHAN_ELDERS), "told in Send's words")
+		w.rank = 3
+		eq(w.Click("addon:BankaiGuild:chan:C"), nil, "demoted since: no box")
+		eq(w.printed[1], L.CHAN_ONLY_COUNCIL:format(L.CHAN_COUNCIL), "told in Send's words")
+		w.rank = 0
+		eq(w.Click("addon:BankaiGuild:chan:L"), nil, "an old [Elders] link (retired 11-03): no box, a guild master included")
 		w.timeout = "until later"
 		eq(w.Click("addon:BankaiGuild:chan:A"), nil, "timed out since")
 		eq(w.printed[1], "timed out: until later", "told by the moderators' own words (WatchChat.TellTimeout)")
@@ -217,7 +219,7 @@ test("1.2.1 chat channel links: the chat box is opened with the game's ChatFrame
 		local L = ns.L
 		local A = "[" .. L.CHAN_ALL .. "]"
 		w.Login()
-		w.rank = 0 -- (an Elder: writes in all three)
+		w.rank = 0 -- (an Elder: writes in both)
 		-- The loadDeprecationFallbacks setting off (Deprecated_ChatFrame.lua:4): no ChatFrame_OpenChat,
 		-- ChatFrameUtil.OpenChat still there (ChatFrameUtil.lua:433).
 		ChatFrame_OpenChat = nil
@@ -230,9 +232,9 @@ test("1.2.1 chat channel links: the chat box is opened with the game's ChatFrame
 		eq(w.Click("addon:BankaiGuild:chan:C").via, "ChatFrameUtil.OpenChat", "ChatFrameUtil.OpenChat first")
 		-- A ChatFrameUtil without OpenChat: the global, with the same text and window.
 		ChatFrameUtil = {}
-		eq(w.C.Tag("L"), Link("L", L.CHAN_ELDERS))
-		local old = w.Click("addon:BankaiGuild:chan:L")
-		eq(old and old.text, "/bgl "); eq(old.via, "ChatFrame_OpenChat"); eq(old.frame, w.frame)
+		eq(w.C.Tag("C"), Link("C", L.CHAN_COUNCIL))
+		local old = w.Click("addon:BankaiGuild:chan:C")
+		eq(old and old.text, "/bgc "); eq(old.via, "ChatFrame_OpenChat"); eq(old.frame, w.frame)
 		-- Neither: no chat box to open, so the plain name, and a link printed before opens nothing
 		-- and says nothing.
 		ChatFrame_OpenChat = nil

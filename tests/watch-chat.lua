@@ -2610,7 +2610,7 @@ test("watch: chat moderation: strikes: chats only: during a pause no power, game
 	end)
 end)
 
-test("watch: chat moderation: strikes: every way a line leaves is covered: the three chats, the privacy warning's Send, the Guild room (the game's send never called), a role room, a Church room, a provider's room (its send never called), a pin; a reply's quote alone goes without it; CanWrite while paused", function()
+test("watch: chat moderation: strikes: every way a line leaves is covered: the two chats, the privacy warning's Send, the Guild room (the game's send never called), a role room, a Church room, a provider's room (its send never called), a pin; a reply's quote alone goes without it; CanWrite while paused", function()
 	World(function(w)
 		local G, A, B, D, Y1 = Standard(w)
 		local Au, K, Co, Mo = Team(w)
@@ -2628,7 +2628,8 @@ test("watch: chat moderation: strikes: every way a line leaves is covered: the t
 		end
 		eq(Refused(B, B.C.Send, "A", "a " .. WORD).where, "A")
 		eq(Refused(A, A.C.Send, "C", "a " .. WORD).where, "C")
-		eq(Refused(G, G.C.Send, "L", "a " .. WORD).where, "L")
+		-- ([Elders] retired 11-03: its line is refused on rank before any word is read.)
+		local _, whyL = w.As(G, G.C.Send, "L", "a " .. WORD); eq(whyL, "rank")
 		-- The privacy warning: a struck line never reaches it; its Send runs every check again.
 		Fresh(B)
 		B.ns.db.chatWarned = {}

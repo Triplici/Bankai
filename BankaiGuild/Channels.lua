@@ -4,7 +4,8 @@ local L = ns.L
 -- Chat channels of the federation, carried as M1 messages on the hidden Bankai Guild channel:
 --   [Bankai Guild]  /bg   every member of every Bankai Guild guild
 --   [Council] /bgc  rank 0-1 of any Bankai Guild guild
---   [Elders]    /bgl  the Crown: guild masters and the officers of <Elfcore>
+--   ([Elders], /bgl, was retired 11-03: guild masters read and write [Council], as their rank reaches it.
+--   Its tier stays defined so old saved lines and a stray M1~L~ from an old client are refused cleanly.)
 -- Higher ranks also use the channels below theirs. Every addon client receives every line
 -- (nothing is encrypted): each client shows a line only when its own rank is high enough
 -- and the sender's rank is verified, never taken from the message. No WoW channel number.
@@ -28,9 +29,9 @@ local NOTICE_WAIT = 10           -- ...a few seconds after the first line held, 
 local TIERS = {
 	A = { level = 1, label = "CHAN_ALL",      slash = "/bg",  word = "bankaiguild",  deny = "MEMBERS_ONLY",       color = { 0.90, 0.77, 0.36 } },
 	C = { level = 2, label = "CHAN_COUNCIL", slash = "/bgc", word = "council", deny = "CHAN_ONLY_COUNCIL", color = { 0.35, 0.85, 0.85 } },
-	L = { level = 3, label = "CHAN_ELDERS",    slash = "/bgl", word = "elders",    deny = "CHAN_ONLY_ELDERS",    color = { 0.75, 0.50, 1.00 } },
+	L = { level = 3, label = "CHAN_ELDERS",    slash = "/bgl", word = "elders",    deny = "CHAN_ONLY_ELDERS",    color = { 0.75, 0.50, 1.00 }, retired = true },
 }
-Channels.TIERS, Channels.ORDER = TIERS, { "A", "C", "L" }
+Channels.TIERS, Channels.ORDER = TIERS, { "A", "C" }
 Channels.HISTORY = HISTORY
 
 local stats = { sent = 0, shown = 0, hidden = 0, bad = 0, dup = 0, rate = 0, flood = 0, forged = 0, unverified = 0, rank = 0, ignored = 0,
@@ -119,7 +120,7 @@ end
 
 function Channels.CanUse(tier)
 	local t = TIERS[tier]
-	return t ~= nil and Channels.MyLevel() >= t.level
+	return t ~= nil and not t.retired and Channels.MyLevel() >= t.level
 end
 
 -- The level a sender really has, and whether it was verified. Our own guild: from our
@@ -509,7 +510,7 @@ local function Mixed(i)
 	return i ~= nil and (Registers(GetChatWindowMessages, i) or Registers(GetChatWindowChannels, i))
 end
 
--- "[Bankai Guild], [Council], [Elders]", each in its channel's colour: the tab's legend.
+-- "[Bankai Guild], [Council]", each in its channel's colour: the tab's legend.
 local function Legend()
 	local parts = {}
 	for _, tier in ipairs(Channels.ORDER) do
@@ -1269,7 +1270,7 @@ function Channels.Admit(sender, guild, text, now, o)
 	local level = o.level
 	if o.tier then
 		local t = TIERS[o.tier]
-		if not t then return false, "tier" end
+		if not t or t.retired then return false, "tier" end
 		level = level or t.level
 		-- Above our rank: not shown, not kept, not logged.
 		if Channels.MyLevel() < t.level then
@@ -2041,7 +2042,7 @@ end
 local WORDS = {
 	all = "A", a = "A", bankaiguild = "A", todos = "A",
 	council = "C", councilMember = "C", c = "C", capitaes = "C", ["conselho"] = "C",
-	elders = "L", elder = "L", l = "L", anciaos = "L",
+	elders = "C", elder = "C", anciaos = "C", -- ([Elders] retired: guild masters talk in [Council])
 }
 function Channels.TierForWord(w)
 	return WORDS[(tostring(w or ""):lower():gsub("^%s+", ""):gsub("%s+$", ""))]
@@ -2155,16 +2156,15 @@ local slashDone = false
 ns.Gate.Hooks("slash", { key = "channels", leftover = function() return slashDone end, install = function() -- gp:slash
 	if slashDone then return end
 	slashDone = true
-	SLASH_BANKAIGUILDALL1, SLASH_BANKAIGUILDCOUNCIL1, SLASH_BANKAIGUILDELDERS1 = "/bg", "/bgc", "/bgl"
+	SLASH_BANKAIGUILDALL1, SLASH_BANKAIGUILDCOUNCIL1 = "/bg", "/bgc"
 	SlashCmdList.BANKAIGUILDALL = Slash("A", "slash /bg")
 	SlashCmdList.BANKAIGUILDCOUNCIL = Slash("C", "slash /bgc")
-	SlashCmdList.BANKAIGUILDELDERS = Slash("L", "slash /bgl")
 end })
 
 ---------------------------------------------------------------------------
 -- 1.2.1 (the author's ask): the channel's name before a line in the game's chat, [Bankai Guild],
 -- [Council] or [Elders], is a link, as the game's own [Party], [Guild] or [1. General] are: a
--- left click opens the game's chat box with /bg, /bgc or /bgl in it, the cursor after it, ready
+-- left click opens the game's chat box with /bg or /bgc in it, the cursor after it, ready
 -- for the line. Only where this client may write in that channel now (Channels.CanWrite: a
 -- member of its rank, the chats on, not taken off them nor timed out): elsewhere the plain name,
 -- as before. At the click it is asked again, and a channel closed since says why instead.
@@ -2239,7 +2239,7 @@ local function ChatOpener() -- gp:chat-box
 end
 
 -- Whether tier's name is a link on a line printed now: the hook in place, the gate allowing it and
--- the chat box, /bg, /bgc and /bgl registered, the game's chat box there to open, and the channel
+-- the chat box, /bg and /bgc registered, the game's chat box there to open, and the channel
 -- this client's to write in.
 function Channels.TagLinked(tier)
 	return tagHooked and slashDone and ns.Gate.Allowed("chat-links") and ChatOpener() ~= nil

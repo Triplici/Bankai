@@ -556,7 +556,7 @@ end
 ---------------------------------------------------------------------------
 
 function ArenaHome.TabVisible()
-	return ns.IsMember() and not ns.Arena.Off()
+	return not ns.Arena.Closed() and ns.IsMember() and not ns.Arena.Off()
 end
 
 -- The live switch in words, the test build and the sim for the banners.

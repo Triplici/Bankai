@@ -814,7 +814,7 @@
         "Where's the Bankai Guild chat?",
         "How do I open the Chat tab?"
       ],
-      "answer": "Open the Bankai Guild window's Chat tab, or type /bg, /bgc or /bgl with nothing after it (Shift-click on the minimap button works too). Every line shows whole, with search, and a box at the bottom: Enter sends, Tab changes channel.",
+      "answer": "Open the Bankai Guild window's Chat tab, or type /bg or /bgc with nothing after it (Shift-click on the minimap button works too). Every line shows whole, with search, and a box at the bottom: Enter sends, Tab changes channel.",
       "in_game": "Type /bg alone (or Shift-click the minimap button) for the Chat tab. Enter sends, Tab changes channel.",
       "notes": "The Chat tab is a direct top-level destination; the duplicate Realm shortcut was removed in 1.1.4.",
       "sources": [
@@ -879,8 +879,8 @@
         "Who can read [Council]?",
         "Is Bankai Guild chat private?"
       ],
-      "answer": "/bg for [Bankai Guild] (everyone), /bgc for [Council] (Council and up), /bgl for [Elders]. The chats stay off until you say yes (/bk chat on). They aren't private: anyone on the channel can read all three, so never share passwords.",
-      "in_game": "Talk with /bg, /bgc and /bgl. /bk chat on turns chats on. Not private: never share passwords there.",
+      "answer": "/bg for [Bankai Guild] (everyone), /bgc for [Council] (Council and guild masters). The chats stay off until you say yes (/bk chat on). They aren't private: anyone on the channel can read both, so never share passwords.",
+      "in_game": "Talk with /bg and /bgc. /bk chat on turns chats on. Not private: never share passwords there.",
       "sources": [
         "README.md:254-262,371-380"
       ]

@@ -1866,7 +1866,17 @@ local function Help()
 		if s.usage then print("  " .. s.usage) end
 	end
 end
+-- The Games are closed for now (the guild's call, 11-03): no Games tab (ArenaHome.TabVisible), and
+-- no game command (/bka, /bk arena, bones, lottery...) opens anything. The engine still loads, so
+-- opening them later is one line: ns.GAMES_OPEN = true (in Core.lua). (Read at each call, so the
+-- offline harness's world opens them for its tests.)
+function Arena.Closed() return ns.GAMES_OPEN ~= true end
+
 function Arena.RunSlash(rest)
+	if Arena.Closed() then
+		ns.Print(L.ARENA_CLOSED)
+		return false, "closed"
+	end
 	rest = tostring(rest or ""):gsub("^%s+", ""):gsub("%s+$", "")
 	local sub, args = rest:match("^(%S*)%s*(.-)$")
 	sub = (sub or ""):lower()
@@ -1897,7 +1907,7 @@ function Arena.StatusLines(lines)
 		local ok, v = pcall(memory, name)
 		return ok and tonumber(v) or 0
 	end
-	lines[#lines + 1] = L.ARENA_STATUS_MEMORY:format(Kb("Bankai Guild"), Kb(Arena.COMPANION), uiLoaded and L.ARENA_UI_OPEN or L.ARENA_UI_CLOSED)
+	lines[#lines + 1] = L.ARENA_STATUS_MEMORY:format(Kb(ADDON), Kb(Arena.COMPANION), uiLoaded and L.ARENA_UI_OPEN or L.ARENA_UI_CLOSED)
 end
 if type(ns.statusLines) == "table" then
 	table.insert(ns.statusLines, function(lines) Arena.StatusLines(lines) end)

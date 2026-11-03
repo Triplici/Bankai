@@ -387,14 +387,13 @@ WoW channel number to join). Each channel is exclusive to a rank:
 |---|---|---|
 | **[Bankai Guild]** | `/bg <text>` | every member of every Bankai Guild guild |
 | **[Council]** | `/bgc <text>` | the Council (rank 1) and Elders of every Bankai Guild guild |
-| **[Elders]** | `/bgl <text>` | the Elders (every guild master, the Shogun included) and the officers of `<Elfcore>` (their lines show to `<Elfcore>`'s own members, and to everyone for the Hands the Shogun's list or a Steward's own names, 1.0.0) |
 
-- Higher ranks also use the channels below theirs: an Elder writes in all three.
-- `/bk mute council` (or `bankaiguild`, `elders`) hides a channel in chat; the same command shows it again.
+- Higher ranks also use the channels below theirs: an Elder writes in both. (The old [Elders] channel, `/bgl`, was retired: guild masters talk in [Council].)
+- `/bk mute council` (or `bankaiguild`) hides a channel in chat; the same command shows it again.
 - **The Bankai Guild tab (1.1.1).** One click in the Chat tab's settings (the gear), or
-  `/bk chatwindow tab` (`aba` works too), sends the three channels to a tab of your chat named
+  `/bk chatwindow tab` (`aba` works too), sends the two channels to a tab of your chat named
   "Bankai Guild". There each line comes without the channel's name, in its channel's colour: gold for
-  [Bankai Guild], teal for [Council], purple for [Elders] (the tab's first line gives that legend).
+  [Bankai Guild], teal for [Council] (the tab's first line gives that legend).
   You make the tab yourself with the game's menu, as the click tells you: right-click the General
   tab, Create New Window, and name it Bankai Guild; the lines land there as soon as it exists, in the
   main window until then. The click shows you where on the Chat tab, as its **Add an Bankai Guild tab
@@ -409,7 +408,7 @@ WoW channel number to join). Each channel is exclusive to a rank:
   `/bk chatwindow tab` says it again). The main window keeps Bankai Guild's own notices and the
   pinned line's announcements. `/bk chatwindow main` brings the channels back to the main
   window.
-- `/bk chatwindow <number or name>` shows the three channels in another chat window of yours
+- `/bk chatwindow <number or name>` shows the two channels in another chat window of yours
   (make it in the game first: right-click a chat tab, Create New Window), by name or by number;
   `/bk chatwindow Officers council` moves one channel only, and `/bk chatwindow main` brings
   them back. In a window named anything but Bankai Guild the lines keep the channel's name (name the
@@ -420,7 +419,7 @@ WoW channel number to join). Each channel is exclusive to a rank:
 - **Chattynator (1.1.2, from hypertectonic's pull request #47).** With the Chattynator chat
   addon, its tabs are your chat windows: the game's own windows are hidden behind them, so
   Bankai Guild leaves those out and picks Chattynator's tabs instead. `/bk chatwindow tab` (or the
-  Chat tab's settings) sends the three channels to a Chattynator tab named Bankai Guild, without the
+  Chat tab's settings) sends the two channels to a Chattynator tab named Bankai Guild, without the
   channel's name, and says how to make it: in Chattynator, click the + after its tabs, rename
   the new tab Bankai Guild (right-click it, Rename tab), then right-click it, Tab Settings, and under
   Addons tick Bankai Guild. `/bk chatwindow <name>` picks any other tab of Chattynator's by its
@@ -542,10 +541,9 @@ says public or sealed. It only tells: nothing is sent and nothing changes.
 
 ### The Chat tab (1.1.1)
 The Bankai Guild chats in a tab of the Bankai Guild window, **Chat**, right after the Realm, like the chat
-pane of the Guild & Communities window. Click the tab, type `/bk talk` (or `/bg`, `/bgc` or
-`/bgl` with nothing after it), or Shift-click the minimap button: each opens the Bankai Guild window
-on its Chat tab, on that channel. `/bk talk elders`
-opens it on [Elders]; the same command again closes the window.
+pane of the Guild & Communities window. Click the tab, type `/bk talk` (or `/bg` or `/bgc`
+with nothing after it), or Shift-click the minimap button: each opens the Bankai Guild window
+on its Chat tab, on that channel; the same command again closes the window.
 When the side column of the new look runs out of room, its canonical tail continues from the
 bottom of the window's left edge upward. Reading the right top-to-bottom and then the left
 bottom-to-top always gives the same tab order; changing role or debug view never rearranges it.
@@ -2293,9 +2291,9 @@ Other limits:
 | `/bk approved` · `/bk approved paste` | the guilds of Shobek's Bankai Guild the author's signed list makes Bankai Guild guilds (their names don't say Bankai Guild), and whether yours is one; paste that signed list (the first member of such a guild: his addon then passes it to the guild) |
 | `/bk church` · `/bk church status` · `/bk church name <Name>` · `/bk church register <Name>` | the Missionary Church of Bankai Guild's tab; its status in a window you can copy from; name a missionary of your network; register a recruit you brought |
 | `/bk arms [text]` · `/bk muster [text]` | send a decree (`test` = local preview) |
-| `/bg <text>` · `/bgc <text>` · `/bgl <text>` | write in [Bankai Guild], [Council] or [Elders]; alone (`/bg`, `/bgc`, `/bgl`): open the Chat tab on that channel (1.1.1) |
+| `/bg <text>` · `/bgc <text>` | write in [Bankai Guild] or [Council]; alone (`/bg`, `/bgc`): open the Chat tab on that channel (1.1.1) |
 | `/bk all <text>` · `/bk council <text>` · `/bk elders <text>` | the same, as `/bk` commands |
-| `/bk mute bankaiguild` · `/bk mute council` · `/bk mute elders` | hide or show a channel in chat |
+| `/bk mute bankaiguild` · `/bk mute council` | hide or show a channel in chat |
 | `/bk pin <text>` · `/bk pin off` · `/bk pin` | the Shogun, his Stewards and Hands: pin one line for the army on top of the Bankai Guild chats and the Realm (2 hours); a guild master: one for his own guild. Take it down, or see what is pinned |
 | `/bk chatwindow tab` · `/bk chatwindow <number or name> [bankaiguild\|council\|elders]` · `/bk chatwindow main` | the Bankai Guild chats in a chat tab named Bankai Guild (without the channel's name; it says how to make the tab), in another chat window (with Chattynator, one of its tabs, by name), or back in the main one |
 | `/bk treasurer on\|off` | a keeper of the treasury (the Treasurer, the Shogun, a character he named) shares his book and the guild bank, or keeps them private (1.1: what the Shogun hides goes only to the Shogun, his Steward and the keepers, by whisper) |
@@ -2309,7 +2307,7 @@ Other limits:
 | `/bk profile [Name]` | a player's profile in the Bankai Guild window, yours (**My profile**) with no name |
 | `/bk letters [version]` | the version letters (1.1.5): every one, newest first, a click opens one; with a version, that letter |
 | `/bk chat on\|off` | the Bankai Guild chats on this client; off, nothing is sent or shown (1.1: off until you say yes) |
-| `/bk talk [bankaiguild\|council\|elders]` | open or close the Bankai Guild window on its Chat tab, on that channel; also `/bg`, `/bgc` or `/bgl` with nothing after it, or Shift-click the minimap button (1.1.1) |
+| `/bk talk [bankaiguild\|council]` | open or close the Bankai Guild window on its Chat tab, on that channel; also `/bg` or `/bgc` with nothing after it, or Shift-click the minimap button (1.1.1) |
 | `/bk inspection on\|off` | take part in the Shogun's Royal Inspection when sampled (a 2-minute patrol reported to him), or not (1.1: not until you say yes) |
 | `/bk issuereporter hide\|show` | hide Blizzard's Issue Reporter box (beta clients) at every login, or show it again (also a "Hide" button on it) |
 | `/bk helpme [text]` (or **Ask a High Councillor** on the Realm tab) | ask the High Council (the moderators) for help: it goes by whisper to up to three of them online who take requests |

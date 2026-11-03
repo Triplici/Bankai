@@ -2,7 +2,7 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- The Bankai Guild chats in the Bankai Guild window (1.1.1): its Chat tab, right after the Realm (UI.lua's
--- TABS). The three chats ([Bankai Guild], [Council], [Elders]) like the chat pane of the Guild &
+-- TABS). The three chats ([Bankai Guild], [Council]) like the chat pane of the Guild &
 -- Communities window: the tabs' search box where the other tabs show the army's counts, and on
 -- that row, right of it, a small switch of the channels (only for a rank that reads more than
 -- one: most players read [Bankai Guild] alone, and a row of its own for one lone channel took the
@@ -16,7 +16,7 @@ local L = ns.L
 -- The first 1.1.1 build had it in a window of its own; the author wanted it inside the Bankai Guild
 -- window. UI.lua hands this file the window in use and where each part goes in its look
 -- (ChatWindow.Attach), and the old window's calls stay as the ways to the tab: Open, Toggle and
--- Close (/bg, /bgc or /bgl alone, /bk talk and the minimap button's Shift-click) open the
+-- Close (/bg or /bgc alone, /bk talk and the minimap button's Shift-click) open the
 -- Bankai Guild window on its Chat tab, on the channel asked for, and close it. The
 -- Realm tab's "Bankai Guild chats" page it replaces is gone (the author's call): what that page offered
 -- and the tab did not (the Bankai Guild tab's state, the chats on or off with what that means, the

@@ -207,7 +207,7 @@ ns.Locale({ "esES", "esMX" }, {
 	HELP_TAB_DECREES = "llamadas a las armas, reuniones y decretos reales para todo el ejército.",
 	HELP_TAB_HERALDRY = "la patrulla de tabardos: quién lleva los colores de Bankai Guild y quién no.",
 	HELP_TAB_CRAFTERS = "quién puede fabricar un objeto, las profesiones publicadas y un susurro a un artesano.",
-	HELP_TAB_CHAT = "los chats de Bankai Guild, [Bankai Guild], [Consejo] y [Señores]: cada línea entera, y una caja para escribir (Intro envía).",
+	HELP_TAB_CHAT = "los chats de Bankai Guild, [Bankai Guild] y [Consejo]: cada línea entera, y una caja para escribir (Intro envía).",
 	HELP_ALL_COMMANDS = "/bk help lista todos los comandos en el chat.",
 	HELP_PRIVACY = "Privacidad:",
 	HELP_LINKS = "Enlaces:",

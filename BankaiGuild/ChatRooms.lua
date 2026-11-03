@@ -2,7 +2,7 @@ local ADDON, ns = ...
 local L = ns.L
 
 -- Logical rooms on the Chat page. They are deliberately not extra Channels tiers:
--- [Bankai Guild], [Council] and [Elders] keep their public wire, consent, chat-window routing and
+-- [Bankai Guild] and [Council] keep their public wire, consent, chat-window routing and
 -- Chattynator integration unchanged. These rooms use a versioned whole message of their own:
 --
 --   M2~1~<room>~<id>~<class>~<guild>~<text>

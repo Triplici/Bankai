@@ -8,7 +8,7 @@ local L = ns.L
 -- (/bk filter shared off; used by default).
 -- Whole words only, any case and accent the search folds (ns.Fold), read as the line shows
 -- (Codec.SanitizeChat, then ns.Searchable: a link's text counts, its data doesn't). Only on addon
--- text: the [Bankai Guild], [Council] and [Elders] lines and the pinned line's words (Channels.lua), the
+-- text: the [Bankai Guild] and [Council] lines and the pinned line's words (Channels.lua), the
 -- Shogun's writs (Acts.lua: the player's own list alone, never the shared one, 1.1 review), a
 -- decree's words (Decree.lua) and Poll's question and answers (Poll.lua). Never a name, a
 -- guild, a census row, the treasury, or the game's own chat (Say, Trade, General: never read).

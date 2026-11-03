@@ -6273,7 +6273,7 @@ test("whispers, invites and /who go to the name the server finds (Forever: never
 end)
 
 test("slash commands reach the right channel", function()
-	eq(SLASH_BANKAIGUILDALL1, "/bg"); eq(SLASH_BANKAIGUILDCOUNCIL1, "/bgc"); eq(SLASH_BANKAIGUILDELDERS1, "/bgl")
+	eq(SLASH_BANKAIGUILDALL1, "/bg"); eq(SLASH_BANKAIGUILDCOUNCIL1, "/bgc"); eq(SLASH_BANKAIGUILDELDERS1, nil) -- ([Elders] retired 11-03)
 	local savedTime, clock = GetTime, 50000
 	GetTime = function() return clock end
 	local ok, err = pcall(function()
@@ -6288,18 +6288,17 @@ test("slash commands reach the right channel", function()
 				end
 				Run(SlashCmdList.BANKAIGUILDALL, "hi", "M1~A~")
 				Run(SlashCmdList.BANKAIGUILDCOUNCIL, "hi", "M1~C~")
-				Run(SlashCmdList.BANKAIGUILDELDERS, "hi", "M1~L~")
 				Run(SlashCmdList.BANKAIGUILD, "all hi", "M1~A~")
 				Run(SlashCmdList.BANKAIGUILD, "council hi", "M1~C~")
-				Run(SlashCmdList.BANKAIGUILD, "elders hi", "M1~L~")
+				Run(SlashCmdList.BANKAIGUILD, "elders hi", "M1~C~") -- (the guild masters' channel is [Council] now)
 			end)
 		end)
 		ns.db.chatMute = nil
 		AsRank(0, function()
 			SlashCmdList.BANKAIGUILD("mute elders")
-			eq(ns.db.chatMute.L, true)
+			eq(ns.db.chatMute.C, true)
 			SlashCmdList.BANKAIGUILD("mute elders")
-			eq(ns.db.chatMute.L, nil)
+			eq(ns.db.chatMute.C, nil)
 			SlashCmdList.BANKAIGUILD("mute bankaiguild")
 			eq(ns.db.chatMute.A, true)
 			SlashCmdList.BANKAIGUILD("mute bankaiguild")
@@ -6308,6 +6307,20 @@ test("slash commands reach the right channel", function()
 	end)
 	GetTime = savedTime
 	if not ok then error(err, 0) end
+end)
+
+-- 11-03 (the guild's call): [Elders] retired. Its tier stays defined so an old client's line is
+-- refused cleanly: no one may use it, it is in no list, and a line on it is never shown or kept.
+test("the retired [Elders] channel: no one uses it, it is listed nowhere, its lines are refused", function()
+	local C = ns.Channels
+	eq(table.concat(C.ORDER, ","), "A,C")
+	AsRank(0, function()
+		eq(C.CanUse("L"), false, "not even a guild master")
+		eq(C.CanUse("C"), true, "a guild master writes in [Council]")
+		eq(C.TierForWord("elders"), "C")
+		local ok, why = C.Admit("Elder Someone-Realm", "Bankai Guild", "hi", nil, { tier = "L" })
+		eq(ok, false); eq(why, "tier")
+	end)
 end)
 
 -- Comm.lua and Channels.lua loaded into a namespace of their own, like GuildFrame.lua above:
@@ -12759,7 +12772,7 @@ do
 			eq(Chan.ChooseWindow("bankaiguild"), true, "any case")
 			eq(ns.db.chatWindows["Tester-Realm"].A, "Bankai Guild", "stored as the game names it")
 			eq(ns.db.chatWindows["Tester-Realm"].C, "Bankai Guild"); eq(ns.db.chatWindows["Tester-Realm"].L, "Bankai Guild")
-			eq(printed[#printed], ns.L.CHATWIN_SET:format("[Bankai Guild], [Council], [Elders]", '"Bankai Guild"'))
+			eq(printed[#printed], ns.L.CHATWIN_SET:format("[Bankai Guild], [Council]", '"Bankai Guild"'))
 			-- (1.1.1: a window named Bankai Guild is the Bankai Guild tab: it says what it holds, the legend of
 			-- the channels' colours, where another window gets CHATWIN_SET.)
 			eq(Count(w[4].lines, (ns.L.CHATTAB_HERE:gsub("%%s.*$", ""))), 1, "the choice is said in that window too")
@@ -12874,7 +12887,7 @@ do
 		end)
 	end
 	local function Our(text) return "|c" .. ns.COLOR .. "Bankai Guild:|r " .. text end
-	local LEGEND = "|cffe6c45c[Bankai Guild]|r, |cff59d9d9[Council]|r, |cffbf80ff[Elders]|r"
+	local LEGEND = "|cffe6c45c[Bankai Guild]|r, |cff59d9d9[Council]|r"
 
 	-- (1.1.2, PR #47's test on 1.1.1: a tab named Bankai Guild is the Bankai Guild tab, whose first line says
 	-- what it holds, CHATTAB_HERE, where another tab gets CHATWIN_SET, and whose lines come without
@@ -31074,7 +31087,7 @@ do
 			eq(SlashCmdList.BANKAIGUILDALL, nil, "no /bg with the gamepad UI"); eq(SLASH_BANKAIGUILDALL1, nil); eq(SlashCmdList.BANKAIGUILDELDERS, nil)
 			style.now = 0
 			eq(cns.Gate.Install("slash"), true)
-			eq(SLASH_BANKAIGUILDALL1, "/bg"); eq(SLASH_BANKAIGUILDCOUNCIL1, "/bgc"); eq(SLASH_BANKAIGUILDELDERS1, "/bgl")
+			eq(SLASH_BANKAIGUILDALL1, "/bg"); eq(SLASH_BANKAIGUILDCOUNCIL1, "/bgc"); eq(SLASH_BANKAIGUILDELDERS1, nil) -- ([Elders] retired 11-03)
 			local all = SlashCmdList.BANKAIGUILDALL
 			all("hi")
 			eq(table.concat(sent, ","), "A hi")
@@ -35876,6 +35889,7 @@ test("1.1 census search (Fern #16): 'recruiting' lists every guild with room, th
 end)
 
 test("1.1 the Realm's Recruiting (Fern #16): five guilds, then every one on a click, and back", function()
+	ns.Views.SHOW_RECRUITING = true -- (Recruiting is off the Realm since 11-03: these test it as it comes back)
 	local V = ns.Views
 	Fern.Census(function(w)
 		local now = os.time()
@@ -35902,6 +35916,25 @@ test("1.1 the Realm's Recruiting (Fern #16): five guilds, then every one on a cl
 		eq(Fern.Bare(rows[#rows].text), ns.L.RECRUIT_SHOW_FEWER)
 		rows[#rows].onClick()
 		eq(#Recruiting(), V.RECRUIT_SHOWN + 1)
+	end)
+end)
+
+-- 11-03 (the guild's call): the Realm keeps its org chart and layers; Recruiting is off it.
+test("the Realm without Recruiting: no section and no do-not-contact line; the layers stay", function()
+	local V = ns.Views
+	Fern.Census(function(w)
+		local now = os.time()
+		ns.rdb.guilds["Bankai Guild R1"] = { total = 100, online = 1, zones = {}, t = now, leader = "L1", officers = {} }
+		V.SHOW_RECRUITING = false
+		local lines = V.RealmLines()
+		V.SHOW_RECRUITING = true
+		local layers = false
+		for _, l in ipairs(lines) do
+			local text = Fern.Bare(l.text or "")
+			assert(text ~= ns.L.RECRUITING and text ~= ns.L.NOCONTACT_LINE_OFF and text ~= ns.L.NOCONTACT_LINE_ON, text)
+			if l.header and text:find(Fern.Bare(ns.L.LAYERS_IN:format("")), 1, true) then layers = true end
+		end
+		assert(layers, "the layers' section stays")
 	end)
 end)
 
@@ -36015,6 +36048,7 @@ test("1.1 census marks (Fern #30): senders split on the ranks, a sender outvoted
 end)
 
 test("1.1 census marks (Fern #30): on the Census's row, the Realm's guild header and Recruiting, with the reason in the tooltip; the gates ask again on a marked guild", function()
+	ns.Views.SHOW_RECRUITING = true -- (Recruiting is off the Realm since 11-03: these test it as it comes back)
 	local V, L = ns.Views, ns.L
 	Fern.Census(function(w)
 		local now = os.time()
@@ -42808,17 +42842,17 @@ do
 				for _, e in ipairs(ns.Data.Summary().guilds) do if e.name == "Bankai Guild Zeus" then counted = e.counted end end
 				eq(counted, true, "in the army's total")
 				eq(ns.Data.KnownRank("Zed-Realm", "Bankai Guild Zeus"), 0); eq(ns.Data.KnownRank("Zeta-Realm", "Bankai Guild Zeus"), 1)
-				-- Their lines reach everyone as before, [Elders] and [Council] too.
+				-- Their lines reach everyone as before, [Council] too (an Elder's own, [Elders] retired 11-03).
 				AsShogun()
 				CHAT_LINES = {}
-				eq((Chan.Receive("CHANNEL", "Zed-Realm", Msg("L", "Bankai Guild Zeus", 901, "still here"), 1000)), true, "its Elder's [Elders] line")
+				eq((Chan.Receive("CHANNEL", "Zed-Realm", Msg("C", "Bankai Guild Zeus", 901, "still here"), 1000)), true, "its Elder's [Council] line")
 				eq((Chan.Receive("CHANNEL", "Zeta-Realm", Msg("C", "Bankai Guild Zeus", 902, "me too"), 1001)), true, "its Council member's [Council] line")
 				-- On their own clients: the Crown's decrees, the channels, the Treasury tab (the button,
 				-- never a lock), as for any guild.
 				GetGuildInfo = function() return "Bankai Guild Zeus", "Elder", 0 end
 				ns.me = "Zed-Realm"
 				eq(ns.Decree.CanSend("ROYAL"), true, "his Royal decree")
-				eq(Chan.CanUse("L"), true)
+				eq(Chan.CanUse("C"), true) -- (his channel since [Elders] was retired, 11-03)
 				eq(T.TabVisible(), true); eq(D.SendDues(), "closed", "a button that fills in a mail, nothing else")
 				-- Nobody blocked, no census entry touched by the dues' code.
 				for k in pairs(ns.db.blocked) do eq(blocked[k], true, k) end
@@ -57796,7 +57830,7 @@ do
 			f.switch:Click()
 			eq(f.menu:IsShown(), true, "its list")
 			eq(f.menu.rows.C.text:GetText(), L.CHAN_COUNCIL .. " (2)"); eq(f.menu.rows.A.text:GetText(), L.CHAN_ALL)
-			eq(f.menu.rows.L:IsShown(), false, "not an Elder's")
+			eq(f.menu.rows.L, nil, "no [Elders] row: retired 11-03")
 			eq(f.menu.rows.A.mark:IsShown(), true, "the one shown marked"); eq(f.menu.rows.C.mark:IsShown(), false)
 			f.menu.rows.C:Click()
 			eq(w.CW.Tier(), "C"); eq(f.menu:IsShown(), false, "picked: the list closes")
@@ -58245,15 +58279,15 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				eq(w.CW.IsShown(), false); eq(BankaiGuildFrame:IsShown(), false, "again: the window closes")
 				AsElder()
 				SlashCmdList.BANKAIGUILD("talk elders")
-				OnTab("L", "/bk talk elders")
-				SlashCmdList.BANKAIGUILD("falar conselho")
-				OnTab("C", "another channel: that one")
-				SlashCmdList.BANKAIGUILD("talk council")
+				OnTab("C", "/bk talk elders: [Council], the guild masters' channel since [Elders] was retired (11-03)")
+				SlashCmdList.BANKAIGUILD("falar todos")
+				OnTab("A", "another channel: that one")
+				SlashCmdList.BANKAIGUILD("talk all")
 				eq(w.CW.IsShown(), false)
 				AsSoldier()
 				w.printed = {}
 				SlashCmdList.BANKAIGUILD("talk elders")
-				eq(w.CW.IsShown(), false); eq(w.printed[1], L.CHAN_ONLY_ELDERS:format(L.CHAN_ELDERS))
+				eq(w.CW.IsShown(), false); eq(w.printed[1], L.CHAN_ONLY_COUNCIL:format(L.CHAN_COUNCIL))
 				-- The minimap button.
 				local UI = w.UI
 				Minimap = NewWidget("Frame", "Minimap", UIParent)
@@ -58341,11 +58375,13 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				eq(BankaiGuildFrame.tab, "chat")
 				SlashCmdList.BANKAIGUILDCOUNCIL("")
 				eq(w.CW.IsShown(), false, "again: it closes"); eq(BankaiGuildFrame:IsShown(), false, "the window with it")
-				-- The window on another tab: /bgl alone turns it to the Chat tab, on [Elders].
+				-- The window on another tab: /bgc alone turns it to the Chat tab, on [Council] (an Elder's
+				-- channel since [Elders] and /bgl were retired, 11-03).
 				AsElder()
 				w.UI.SelectTab("decrees")
-				SlashCmdList.BANKAIGUILDELDERS("")
-				eq(BankaiGuildFrame.tab, "chat"); eq(w.CW.Tier(), "L"); eq(w.CW.IsShown(), true)
+				eq(SlashCmdList.BANKAIGUILDELDERS, nil, "no /bgl")
+				SlashCmdList.BANKAIGUILDCOUNCIL("")
+				eq(BankaiGuildFrame.tab, "chat"); eq(w.CW.Tier(), "C"); eq(w.CW.IsShown(), true)
 				w.CW.Close()
 				AsCouncilMember()
 				-- The tab line with the real Channels.SetupTab: no tab made yet, so the Chat tab shows
@@ -58512,7 +58548,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				local k = "HELP_TAB_" .. tab
 				assert(lang[k] ~= english[k], code .. " translates " .. k)
 			end
-			for _, chan in ipairs({ "CHAN_ALL", "CHAN_COUNCIL", "CHAN_ELDERS" }) do
+			for _, chan in ipairs({ "CHAN_ALL", "CHAN_COUNCIL" }) do -- ([Elders] retired 11-03)
 				assert(lang.HELP_TAB_CHAT:find("[" .. lang[chan] .. "]", 1, true), code .. ": the channel's name as the language has it, " .. lang[chan])
 			end
 		end
@@ -58579,7 +58615,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 				"The click shows you where on the Chat tab, as its **Add an Bankai Guild tab to the game chat** line does",
 				"its canonical tail continues from the bottom of the window's left edge upward",
 				"Reading the right top-to-bottom and then the left bottom-to-top always gives the same tab order",
-				"| `/bk talk [bankaiguild\\|council\\|elders]` | open or close the Bankai Guild window on its Chat tab, on that channel" }) do
+				"| `/bk talk [bankaiguild\\|council]` | open or close the Bankai Guild window on its Chat tab, on that channel" }) do
 				assert(flat:find(phrase, 1, true), path .. ": " .. phrase)
 			end
 			for _, gone in ipairs({ "340 x 300 to 900 x 1000", "Bankai Guild chat window", "the Treasury and then the author's Workshop",
@@ -59217,7 +59253,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 			for _, l in ipairs(list) do if l == text then n = n + 1 end end
 			return n
 		end
-		local SET = L.CHATTAB_SET:format("[" .. L.CHAN_ALL .. "], [" .. L.CHAN_COUNCIL .. "], [" .. L.CHAN_ELDERS .. "]")
+		local SET = L.CHATTAB_SET:format("[" .. L.CHAN_ALL .. "], [" .. L.CHAN_COUNCIL .. "]")
 		local HERE = L.CHATTAB_HERE:match("^(.-)%%s")
 
 		test("1.1.1 Chat tab: while the game chat has no Bankai Guild tab, a line adds one: the player's click shows Bankai Guild's pointer by the main chat tab and the steps; the game's chat windows are read until one named Bankai Guild is there, then the real SetupTab runs once and the pointer and the line go; nothing but reads on the game's chat", function()
@@ -59272,7 +59308,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 					eq(w.CW.Watching(), false); eq(p:IsShown(), false, "the pointer goes")
 					eq(ns.Channels.TabState(), "open", "the real SetupTab ran")
 					local chosen = ns.db.chatWindows[ns.me]
-					eq(chosen.A, "Bankai Guild"); eq(chosen.C, "Bankai Guild"); eq(chosen.L, "Bankai Guild")
+					eq(chosen.A, "Bankai Guild"); eq(chosen.C, "Bankai Guild"); eq(chosen.L, nil, "[Elders] retired 11-03")
 					eq(Count(w.printed, SET), 1, "said once: " .. table.concat(w.printed, " / "))
 					eq(#g[6].lines, 1); assert(g[6].lines[1]:find(HERE, 1, true), g[6].lines[1])
 					-- Later words from the game, the timer: nothing more.
@@ -59822,7 +59858,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						AsElder()
 						ns.Channels.CanPin, ns.Channels.PinScope = function() return true end, function() return "guild" end
 						w.CW.Render()
-						assert(Setting(f, ELDERH), "an Elder's three channels")
+						eq(Setting(f, ELDERH), nil, "an Elder's two channels: [Elders] retired 11-03"); assert(Setting(f, CAPTH), "[Council] is his")
 						local pin = Under(f, L.PIN_LABEL, L.PIN_ADD_GUILD)
 						assert(pin, "a guild master's control"); eq(Setting(f, L.PIN_ADD), nil)
 						assert(TipOf(pin):find(L.PIN_ADD_GUILD_TIP, 1, true))
@@ -60014,7 +60050,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						eq(Count(w.printed, SET), 0, "nothing said again"); eq(#c.calls, 1, "no second intro")
 						eq(Count(w.printed, HINT), 1, "no second hint")
 						eq(ns.Channels.ChosenWindow("C"), nil, "the channel moved stays in the main window")
-						eq(ns.Channels.ChosenWindow("A"), "Bankai Guild"); eq(ns.Channels.ChosenWindow("L"), "Bankai Guild")
+						eq(ns.Channels.ChosenWindow("A"), "Bankai Guild"); eq(ns.Channels.ChosenWindow("L"), nil, "[Elders] retired 11-03")
 						-- Removed, the click again (all three sent there again), a channel moved, the tab
 						-- made, no line yet: the Chat tab says it once, for the two still going there.
 						c.windows[1][3] = nil
@@ -60029,7 +60065,7 @@ test("watch: chat moderation: the Chat tab: a deleted line keeps its greyed name
 						w.printed = {}
 						f:Fire("OnUpdate", 1.1)
 						eq(w.CW.Watching(), false)
-						eq(Count(w.printed, L.CHATTAB_SET:format(ALLH .. ", " .. ELDERH)), 1, "said once, for the two")
+						eq(Count(w.printed, L.CHATTAB_SET:format(ALLH)), 1, "said once, for the one still going there ([Elders] retired 11-03)")
 						eq(Count(w.printed, SET), 0); eq(Count(w.printed, HINT), 1)
 						eq(#c.calls, 2); assert(c.calls[2][3]:find(HERE, 1, true), c.calls[2][3])
 						eq(ns.Channels.ChosenWindow("C"), nil, "kept where the player put it")
@@ -61050,15 +61086,15 @@ end)()
 	test("1.1.1 #34: a three-part line whose first part left before the key change: that part shows, the rest is dropped, one notice", function()
 		WithChat(function(w, C, Chan)
 			local text = ("words that keep going "):rep(30)
-			eq((Chan.Send("L", text)), true)
+			eq((Chan.Send("C", text)), true)
 			eq(C.Stats().chatQueue, 3, "three parts waiting")
 			C.Pump()
 			eq(#Lines(w, 6), 1, "the first part left")
 			NewKey(w, C, "key two", 7)
 			Pumps(C)
 			eq(#Lines(w, 7), 0, "nothing on the new channel"); eq(#Lines(w), 1)
-			eq(#Chan.History("L"), 1, "the part that left is echoed")
-			eq(Said(w.printed, ns.L.CHAN_MOVED_PART:format("Elders", 1, 3)), 1, "one notice, of the part that left")
+			eq(#Chan.History("C"), 1, "the part that left is echoed")
+			eq(Said(w.printed, ns.L.CHAN_MOVED_PART:format("Council", 1, 3)), 1, "one notice, of the part that left")
 			local f = Fired(w, "CHAT_SEND_FAILED")
 			eq(#f, 1, "once per line"); eq(f[1][3], "moved"); eq(f[1][4], Codec.SanitizeChat(text)); eq(f[1][5], 1, "one part had left")
 			eq(C.Stats().chatMoved, 2, "two parts dropped"); eq(Chan.Stats().moved, 1, "one line")
@@ -61105,11 +61141,11 @@ end)()
 			eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Council")), 1)
 			w.refuse = nil
 			w.clock = w.clock + 5
-			eq((Chan.Send("L", "left behind")), true)
+			eq((Chan.Send("C", "left behind")), true)
 			w.ns.IsMember = function() return false end
 			C.CheckMembership()
 			eq(Fired(w, "CHAT_SEND_FAILED")[3][3], "left")
-			eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Elders")), 1)
+			eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Council")), 1)
 			eq(#Fired(w, "CHAT_SEND_FAILED"), 3)
 			eq(C.Stats().chatMoved, 0); eq(Chan.Stats().moved, 0); eq(Chan.Stats().sent, 0)
 		end)
@@ -61192,7 +61228,7 @@ end)()
 		return (Chan.Receive("CHANNEL", sender, Msg(tier, MY_GUILD, recvId, text), recvAt))
 	end
 	-- The tab's legend: each channel's name in its colour (TIERS: gold, teal, purple).
-	local LEGEND = "|cffe6c45c[Bankai Guild]|r, |cff59d9d9[Council]|r, |cffbf80ff[Elders]|r"
+	local LEGEND = "|cffe6c45c[Bankai Guild]|r, |cff59d9d9[Council]|r"
 	local function Our(text) return "|c" .. ns.COLOR .. "Bankai Guild:|r " .. text end
 	local function Has(list, text)
 		local n = 0
@@ -61217,13 +61253,12 @@ end)()
 			ns.db.chatTabIntro = { ["Tester-Realm"] = true } -- (told already)
 			eq(Recv("A", "Member500", "army line"), true)
 			eq(Recv("C", "Member2", "council line"), true)
-			eq(Recv("L", "Member1", "elders line"), true)
+			eq(Recv("L", "Member1", "elders line"), false, "[Elders] retired 11-03: shown nowhere")
 			eq(#w[4].lines, 1); assert(w[4].lines[1]:find("^|Hplayer:Member500|h%["), w[4].lines[1])
 			assert(w[4].lines[1]:find(": army line$"), w[4].lines[1])
 			eq(w[4].colors[1][1], 0.90); eq(w[4].colors[1][2], 0.77); eq(w[4].colors[1][3], 0.36)
 			eq(#w[5].lines, 1); assert(w[5].lines[1]:find("^%[Council%] |Hplayer:"), w[5].lines[1])
-			eq(#w[1].lines, 1); assert(w[1].lines[1]:find("^%[Elders%] |Hplayer:"), w[1].lines[1])
-			eq(w[1].colors[1][1], 0.75); eq(w[1].colors[1][3], 1.00)
+			eq(#w[1].lines, 0)
 			-- Our own echo too.
 			WithLane(function() local ok, why = Chan.Send("A", "my own line", 5e12); eq(ok, true, tostring(why)) end)
 			eq(#w[4].lines, 2); assert(w[4].lines[2]:find("^|Hplayer:"), w[4].lines[2]); assert(w[4].lines[2]:find("my own line", 1, true))
@@ -61245,7 +61280,7 @@ end)()
 			local ok, state = Chan.SetupTab()
 			eq(ok, true); eq(state, "waiting")
 			local mine = ns.db.chatWindows["Tester-Realm"]
-			eq(mine.A, "Bankai Guild"); eq(mine.C, "Bankai Guild"); eq(mine.L, "Bankai Guild")
+			eq(mine.A, "Bankai Guild"); eq(mine.C, "Bankai Guild"); eq(mine.L, nil, "[Elders] retired 11-03")
 			eq(printed[#printed], ns.L.CHATTAB_STEPS:format("General", "Create New Window", "Settings"), "the game's own words")
 			eq(ns.db.chatTabIntro, nil)
 			eq(Chan.TabState(), "waiting")
@@ -61282,7 +61317,7 @@ end)()
 			w[4].messages = { "SAY", "GUILD", "WHISPER" }
 			local ok, state = Chan.SetupTab()
 			eq(ok, true); eq(state, "open")
-			eq(printed[#printed], ns.L.CHATTAB_SET:format("[Bankai Guild], [Council], [Elders]"))
+			eq(printed[#printed], ns.L.CHATTAB_SET:format("[Bankai Guild], [Council]"))
 			eq(#w[4].lines, 2)
 			eq(w[4].lines[1], Our(ns.L.CHATTAB_HERE:format(LEGEND)))
 			eq(w[4].lines[2], Our(ns.L.CHATTAB_MIXED:format("Settings")))
@@ -61320,9 +61355,9 @@ end)()
 			eq(Chan.TabState(), "open")
 			SlashCmdList.BANKAIGUILD("chatwindow main")
 			eq(ns.db.chatWindows, nil); eq(Chan.TabState(), "none")
-			eq(printed[#printed], ns.L.CHATWIN_MAIN:format("[Bankai Guild], [Council], [Elders]"))
+			eq(printed[#printed], ns.L.CHATWIN_MAIN:format("[Bankai Guild], [Council]"))
 			eq(Chan.ChooseWindow("ABA"), true); eq(Chan.TabState(), "open")
-			eq(printed[#printed - 0], ns.L.CHATTAB_SET:format("[Bankai Guild], [Council], [Elders]"))
+			eq(printed[#printed - 0], ns.L.CHATTAB_SET:format("[Bankai Guild], [Council]"))
 			-- Another window by name: not the tab. One channel to the tab by name: the tab again.
 			eq(Chan.ChooseWindow("main"), true)
 			eq(Chan.ChooseWindow("5"), true); eq(Chan.TabState(), "none")
@@ -61380,7 +61415,7 @@ end)()
 				eq(Chan.TabState(), "none")
 				local ok, state = Chan.SetupTab()
 				eq(ok, true); eq(state, "open")
-				eq(printed[#printed - 1], ns.L.CHATTAB_SET:format("[Bankai Guild], [Council], [Elders]"))
+				eq(printed[#printed - 1], ns.L.CHATTAB_SET:format("[Bankai Guild], [Council]"))
 				eq(printed[#printed], ns.L.CHATTY_FILTER:format('"Bankai Guild"'), "the main window: its filter")
 				eq(#c.calls, 1); eq(c.calls[1][1], 2); eq(c.calls[1][2], 1)
 				eq(c.calls[1][3], Our(ns.L.CHATTAB_HERE:format(LEGEND)), "no word of the game's Settings (CHATTAB_MIXED)")
@@ -61388,17 +61423,17 @@ end)()
 				eq(ns.db.chatTabIntro["Tester-Realm"], "chatty"); eq(Chan.TabState(), "open")
 				eq(Recv("A", "Member500", "army line"), true)
 				eq(Recv("C", "Member2", "council line"), true)
-				eq(Recv("L", "Member1", "elders line"), true)
-				eq(#c.calls, 4, "no second intro")
-				for k, tier in ipairs({ "A", "C", "L" }) do
+				eq(Recv("L", "Member1", "elders line"), false, "[Elders] retired 11-03")
+				eq(#c.calls, 3, "no second intro")
+				for k, tier in ipairs({ "A", "C" }) do
 					local call = c.calls[k + 1]
 					assert(call[3]:find("^|Hplayer:Member"), "bare: " .. call[3])
 					local color = Chan.TIERS[tier].color
 					eq(call[4], color[1]); eq(call[5], color[2]); eq(call[6], color[3])
 				end
 				WithLane(function() local sent, why = Chan.Send("C", "my own line", 5e12 + 100); eq(sent, true, tostring(why)) end)
-				eq(#c.calls, 5); assert(c.calls[5][3]:find("^|Hplayer:"), c.calls[5][3])
-				assert(c.calls[5][3]:find("my own line", 1, true))
+				eq(#c.calls, 4); assert(c.calls[4][3]:find("^|Hplayer:"), c.calls[4][3])
+				assert(c.calls[4][3]:find("my own line", 1, true))
 				for _, call in ipairs(c.calls) do assert(call.source:find("BankaiGuild/Channels%.lua$"), call.source) end
 				eq(#w[4].lines, 0, "nothing in the game's hidden tab"); eq(#w[1].lines, 0)
 				eq(Has(printed, ns.L.CHATTAB_STEPS:sub(1, 20)), 0, "no word of the game's menu")
@@ -61430,11 +61465,11 @@ end)()
 				-- The player makes it in Chattynator, in a second window of its own.
 				c.windows[2] = { "Bankai Guild" }
 				eq(Chan.TabState(), "open")
-				eq(Recv("L", "Member1", "now in the tab"), true)
+				eq(Recv("C", "Member2", "now in the tab"), true)
 				eq(#c.calls, 2)
 				eq(c.calls[1][3], Our(ns.L.CHATTAB_HERE:format(LEGEND)), "the intro first")
 				eq(c.calls[1][1], 2); eq(c.calls[1][2], 1)
-				assert(c.calls[2][3]:find("^|Hplayer:Member1|h%["), c.calls[2][3])
+				assert(c.calls[2][3]:find("^|Hplayer:Member2|h%["), c.calls[2][3])
 				eq(#printed, n + 2); eq(printed[#printed], ns.L.CHATTY_FILTER:format('"Bankai Guild"'))
 				eq(Recv("C", "Member2", "no second intro"), true)
 				eq(#c.calls, 3); eq(#printed, n + 2)
@@ -61474,13 +61509,13 @@ end)()
 				eq(#c.calls, 3); eq(Has(printed, ns.L.CHATTY_FILTER:format('"Bankai Guild"')), 1)
 			end)
 			-- Chattynator off: the game's tab again, told again.
-			eq(Recv("L", "Member1", "the game's tab again"), true)
+			eq(Recv("C", "Member2", "the game's tab again"), true)
 			eq(#w[4].lines, 3); eq(w[4].lines[2], Our(ns.L.CHATTAB_HERE:format(LEGEND)))
 			eq(ns.db.chatTabIntro["Tester-Realm"], true)
 		end)
 	end)
 
-	test("1.1.1 /bg, /bgc, /bgl alone open the Bankai Guild window's Chat tab on that channel; without one, the usage line; with text, a line as before", function()
+	test("1.1.1 /bg and /bgc alone open the Bankai Guild window's Chat tab on that channel; without one, the usage line; with text, a line as before", function()
 		WithTabs(function(w, printed)
 			local savedWindow, savedSend = ns.ChatWindow, Chan.Send
 			local ok, err = pcall(function()
@@ -61488,14 +61523,14 @@ end)()
 				ns.ChatWindow = { Toggle = function(tier) toggled[#toggled + 1] = tostring(tier) end }
 				SlashCmdList.BANKAIGUILDALL("")
 				SlashCmdList.BANKAIGUILDCOUNCIL("   ")
-				SlashCmdList.BANKAIGUILDELDERS(nil)
-				eq(table.concat(toggled, ","), "A,C,L")
+				eq(SlashCmdList.BANKAIGUILDELDERS, nil, "no /bgl ([Elders] retired 11-03)")
+				eq(table.concat(toggled, ","), "A,C")
 				eq(#printed, 0, "nothing printed")
 				-- With text: the line, as before (the window is not touched).
 				Chan.Send = function(tier, text) sent[#sent + 1] = tier .. ":" .. tostring(text) end
 				SlashCmdList.BANKAIGUILDALL("hi")
-				SlashCmdList.BANKAIGUILDELDERS(" raid at eight ")
-				eq(table.concat(sent, ","), "A:hi,L: raid at eight "); eq(#toggled, 3)
+				SlashCmdList.BANKAIGUILDCOUNCIL(" raid at eight ")
+				eq(table.concat(sent, ","), "A:hi,C: raid at eight "); eq(#toggled, 2)
 				Chan.Send = savedSend
 				-- No chat window on this client (or not a function): the usage line, as in 1.1.
 				ns.ChatWindow = nil
@@ -61504,7 +61539,7 @@ end)()
 				ns.ChatWindow = { Toggle = true }
 				SlashCmdList.BANKAIGUILDCOUNCIL(" ")
 				eq(printed[#printed], ns.L.CHAN_USAGE:format("/bgc", "Council"))
-				eq(#toggled, 3)
+				eq(#toggled, 2)
 			end)
 			ns.ChatWindow, Chan.Send = savedWindow, savedSend
 			if not ok then error(err, 0) end
@@ -61557,7 +61592,7 @@ end)()
 			"A line still waiting to leave when the Bankai Guild channel changes (a new realm key",
 			"is not sent, to either channel, and you are told",
 			"| `/bk chatwindow tab` · `/bk chatwindow <number or name>",
-			"alone (`/bg`, `/bgc`, `/bgl`): open the Chat tab on that channel (1.1.1) |",
+			"alone (`/bg`, `/bgc`): open the Chat tab on that channel (1.1.1) |",
 		}
 		local pages = {}
 		for _, path in ipairs({ "README.md", "docs/CURSEFORGE.md" }) do
@@ -61629,7 +61664,7 @@ end)()
 		test("1.1.1 review: a part the game refuses keeps the rest of its line off the channel, and the event counts the parts that left", function()
 			WithChat(function(w, C, Chan)
 				-- The first part refused: nothing of the line leaves.
-				eq((Chan.Send("L", LONG)), true)
+				eq((Chan.Send("C", LONG)), true)
 				eq(C.Stats().chatQueue, 3)
 				w.refuse = true
 				PumpChat(w, C)
@@ -61637,13 +61672,13 @@ end)()
 				Pumps(C)
 				eq(#Lines(w), 1, "parts sent after the refused one:")
 				eq(C.Stats().chatQueue, 0, "the rest left the lane:")
-				eq(#Chan.History("L"), 0, "echoed:"); eq(Chan.Stats().sent, 0)
+				eq(#Chan.History("C"), 0, "echoed:"); eq(Chan.Stats().sent, 0)
 				local f = Fired(w, "CHAT_SEND_FAILED")
-				eq(#f, 1); eq(f[1][2], "L"); eq(f[1][3], "failed"); eq(f[1][4], Codec.SanitizeChat(LONG)); eq(f[1][5], 0, "no part left:")
-				eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Elders")), 1, "told once")
+				eq(#f, 1); eq(f[1][2], "C"); eq(f[1][3], "failed"); eq(f[1][4], Codec.SanitizeChat(LONG)); eq(f[1][5], 0, "no part left:")
+				eq(Said(w.printed, ns.L.CHAN_SEND_FAILED:format("Council")), 1, "told once")
 				-- The second part refused: the first stays sent, the third does not leave.
 				w.clock = w.clock + 5
-				eq((Chan.Send("L", LONG)), true)
+				eq((Chan.Send("C", LONG)), true)
 				PumpChat(w, C)
 				eq(#Lines(w), 2, "the first part left")
 				w.refuse = true
@@ -61652,14 +61687,14 @@ end)()
 				Pumps(C)
 				eq(#Lines(w), 3, "the third part was sent:")
 				eq(C.Stats().chatQueue, 0)
-				eq(#Chan.History("L"), 1, "the part that left is echoed"); eq(Chan.Stats().sent, 1)
+				eq(#Chan.History("C"), 1, "the part that left is echoed"); eq(Chan.Stats().sent, 1)
 				f = Fired(w, "CHAT_SEND_FAILED")
 				eq(#f, 2); eq(f[2][3], "failed"); eq(f[2][5], 1, "one part had left")
 				-- The next line goes out whole.
 				w.clock = w.clock + 5
-				eq((Chan.Send("L", "short and whole")), true)
+				eq((Chan.Send("C", "short and whole")), true)
 				Pumps(C)
-				eq(#Lines(w), 4); eq(#Chan.History("L"), 2); eq(#Fired(w, "CHAT_SEND_FAILED"), 2)
+				eq(#Lines(w), 4); eq(#Chan.History("C"), 2); eq(#Fired(w, "CHAT_SEND_FAILED"), 2)
 			end)
 		end)
 
@@ -61683,21 +61718,21 @@ end)()
 
 		test("1.1.1 review (#34): after a move, the notice for a line whose first part had left says so, and not that nothing was sent", function()
 			WithChat(function(w, C, Chan)
-				eq((Chan.Send("L", LONG)), true)
+				eq((Chan.Send("C", LONG)), true)
 				PumpChat(w, C)
 				eq(#Lines(w, 6), 1, "the first part left")
 				NewKey(w, C, "key two", 7)
 				Pumps(C)
-				eq(#Lines(w), 1); eq(#Chan.History("L"), 1)
-				eq(Said(w.printed, ns.L.CHAN_MOVED_PART:format("Elders", 1, 3)), 1, "what left, on which channel")
-				eq(Said(w.printed, ns.L.CHAN_MOVED:format("Elders")), 0, "\"it was not sent to either channel\":")
+				eq(#Lines(w), 1); eq(#Chan.History("C"), 1)
+				eq(Said(w.printed, ns.L.CHAN_MOVED_PART:format("Council", 1, 3)), 1, "what left, on which channel")
+				eq(Said(w.printed, ns.L.CHAN_MOVED:format("Council")), 0, "\"it was not sent to either channel\":")
 				eq(Fired(w, "CHAT_SEND_FAILED")[1][5], 1)
 				-- A line of which nothing had left: the plain notice, as before.
 				w.clock = w.clock + 5
-				eq((Chan.Send("L", "nothing of it left")), true)
+				eq((Chan.Send("C", "nothing of it left")), true)
 				NewKey(w, C, "key three", 8)
 				Pumps(C)
-				eq(Said(w.printed, ns.L.CHAN_MOVED:format("Elders")), 1)
+				eq(Said(w.printed, ns.L.CHAN_MOVED:format("Council")), 1)
 			end)
 		end)
 

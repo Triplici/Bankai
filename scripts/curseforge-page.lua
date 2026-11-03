@@ -66,7 +66,7 @@ M.CUTS = {
 -- page past the budget with the role rooms' section: /bk approved's row is the README's.)
 M.COMMANDS_TITLE = "Commands"
 M.COMMANDS = {
-	"/bk", "/bk realm", "/bk privacy", "/bk chat on\\|off", "/bg <text>", "/bk talk [bankaiguild\\|council\\|elders]",
+	"/bk", "/bk realm", "/bk privacy", "/bk chat on\\|off", "/bg <text>", "/bk talk [bankaiguild\\|council]",
 	"/bk mute bankaiguild", "/bk chatwindow tab", "/bk hop", "/bk lfg", "/bk week", "/bk craft [item or name]",
 	"/bk loot", "/bk helpme [text]", "/bk location on", "/bk borders on",
 	"/bk nameplates on", "/bk chatmarks on", "/bk block <name>", "/bk filter add\\|remove <word>",

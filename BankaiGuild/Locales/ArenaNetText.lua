@@ -106,7 +106,9 @@ L.RECORDS_SEAL_PROMPT = "Paste the signed seal (the line scripts/council-sign.py
 L.RECORDS_SEAL_TAKEN = "Bankai Guild: the seal is taken; it goes to the army now."
 L.RECORDS_SEAL_BAD = "Bankai Guild: that is no seal this client takes (its signature, its realm group, or an older one than held)."
 
+L.ARENA_CLOSED = "The Games are closed for now. The guild will open them later."
 if GetLocale and GetLocale() == "ptBR" then
+	L.ARENA_CLOSED = "Os Jogos estão fechados por enquanto. A guilda vai abri-los mais tarde."
 	L.ARENA_TEST_LINE = "Versão de teste da arena %d da %s · feita %s · expira %s · canal: %s · commit %s"
 	L.ARENA_TEST_LOGIN = "Versão de teste da arena %d do Bankai Guild: a arena funciona só na sua raide ou grupo, e nada conta. /bk arena status"
 	L.ARENA_TEST_EXPIRED = "Esta versão de teste da arena expirou: instale o Bankai Guild pelo CurseForge. O resto do Bankai Guild funciona como antes."
