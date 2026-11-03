@@ -1,0 +1,10 @@
+## Interface: 11509, 16001, 20506
+## Title: Elfcore Companion Bridge
+## Notes: Private, consent-gated handoff for the Elfcore Companion.
+## Author: Elfcore addon contributors
+## Version: 0.1.0
+## Dependencies: Elfcore
+## SavedVariables: ElfcoreCompanionDB
+## X-License: MIT
+
+Checkpoint.lua

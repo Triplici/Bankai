@@ -55,7 +55,7 @@ test("quiet presence: only the King, a High Councillor or the author turns it on
 		eq(M.IsIssuer(ns.me), true, "a signed issuer...")
 		eq(select(2, ns.SetQuietPresence(true, OWNER)), "authority", "...that is not the King, a councillor or the author")
 		K.IsStewardName = saved.steward
-		-- Outside an Olympus guild: no.
+		-- Outside an Elfcore guild: no.
 		ns.IsHighCouncillor = function(name) return name == ns.me end
 		IsInGuild = function() return false end
 		eq(select(2, ns.SetQuietPresence(true, OWNER)), "guild")
@@ -91,37 +91,37 @@ end)
 test("quiet presence: the transport holds every word that says we are online or where, and nothing else", function()
 	AsCouncillor(function()
 		local C = ns.Comm
-		local held = { "H1~1.2.5.1~Realm~p~z", "P1~1453~420~510~WA", "L1~1453~8~1~Olympus II", "L0~", "LO~42~0~0", "LN~42",
-			"LY~R~1~7~77~1453~8~2~5", "LY~X~1~7~77", "PS~R~1~7~Olympus II~1453~1~2~3~5~Target-Realm~nearby",
-			"PS~B~1~7~Olympus II~1453~1~2~3~5~Target-Realm~nearby", "PS~X~1~7~Target-Realm", "PS~W~1~7~Target-Realm",
-			"T1~P~5~Olympus~1453~420~510", "T1~Q~5~Olympus", "CG~1~S~1790000000~Olympus II,10,2,600,1790000000",
-			"V2~7~1.2.5.1~~E~~p~0~0~", "V4~1.2.5.1", "V8~7~1.2.5.1", "NK~1~p~M~-~Olympus II~-", "DV~1~OLK2.x", "DV~0", "DW~1", "DW~0",
+		local held = { "H1~1.2.5.1~Realm~p~z", "P1~1453~420~510~WA", "L1~1453~8~1~Elfcore II", "L0~", "LO~42~0~0", "LN~42",
+			"LY~R~1~7~77~1453~8~2~5", "LY~X~1~7~77", "PS~R~1~7~Elfcore II~1453~1~2~3~5~Target-Realm~nearby",
+			"PS~B~1~7~Elfcore II~1453~1~2~3~5~Target-Realm~nearby", "PS~X~1~7~Target-Realm", "PS~W~1~7~Target-Realm",
+			"T1~P~5~Elfcore~1453~420~510", "T1~Q~5~Elfcore", "CG~1~S~1790000000~Elfcore II,10,2,600,1790000000",
+			"V2~7~1.2.5.1~~E~~p~0~0~", "V4~1.2.5.1", "V8~7~1.2.5.1", "NK~1~p~M~-~Elfcore II~-", "DV~1~OLK2.x", "DV~0", "DW~1", "DW~0",
 			"ZQ~L1~H~-~0",
 			-- (Review: these said he was online, some where, while it was on.) An auditor's check of a
 			-- snapshot marks him as heard too; the court; the Wanted reviewer's lease, its No, a sighting
 			-- and its taking back; a councillor's help notice and "got it"; a keeper's donations; an
 			-- arbiter's availability; the tabard collector lease and its reports; a profile
 			-- presentation's words; a crafter's listing, unlisting, answer and recipe list.
-			"ZQ~L1~H~1a2b~3c", "T1~C~5~Olympus~1453~Stormwind City", "T1~Z~5~Olympus", "WS~R~1", "WS~R~0",
-			"WS~S~1~Olympus II~ab12~1790000000~1453~400~600~7~0A000001~Grom-Realm", "WS~X~1", "HA~1", "HA~0", "HK~1",
-			"TD~Olympus II~1~1790000000~1453", "TD~Olympus II~0~0~", "ZV~L1~f~-", "U2~2~abc~600~Olympus",
-			"U3~2~abc~1~60~Olympus II~G", "U4~2~abc~2~Grom-Realm~Horde Guild~60~O~Olympus II", "FX~2~G~s~1~1~1790000000~Olympus II~7",
-			"FX~2~S~s~1~2~1790000000~Olympus II~Issuer-Realm~7~caption", "FX~2~C~s~1~3~1790000000~Olympus II~7",
-			"W1~Olympus II~alch:Alchemy:300:300:5", "W0~", "WA~ab~Olympus II~Alchemy~300~1:2", "WL~alch~1/1~1:2" }
+			"ZQ~L1~H~1a2b~3c", "T1~C~5~Elfcore~1453~Stormwind City", "T1~Z~5~Elfcore", "WS~R~1", "WS~R~0",
+			"WS~S~1~Elfcore II~ab12~1790000000~1453~400~600~7~0A000001~Grom-Realm", "WS~X~1", "HA~1", "HA~0", "HK~1",
+			"TD~Elfcore II~1~1790000000~1453", "TD~Elfcore II~0~0~", "ZV~L1~f~-", "U2~2~abc~600~Elfcore",
+			"U3~2~abc~1~60~Elfcore II~G", "U4~2~abc~2~Grom-Realm~Horde Guild~60~O~Elfcore II", "FX~2~G~s~1~1~1790000000~Elfcore II~7",
+			"FX~2~S~s~1~2~1790000000~Elfcore II~Issuer-Realm~7~caption", "FX~2~C~s~1~3~1790000000~Elfcore II~7",
+			"W1~Elfcore II~alch:Alchemy:300:300:5", "W0~", "WA~ab~Elfcore II~Alchemy~300~1:2", "WL~alch~1/1~1:2" }
 		-- Reads, and what the player posts himself (a list he changed, a writ, his muster, his arrow
 		-- word), still go: their timed repeats are held in their modules (King.lua, Acts.lua, ...).
-		local passes = { "M1~A~Olympus II~1~~hello there", "Q1~", "K0~", "LQ~1~1453~8", "LR~1", "LX~1", "LY~Q~1~7~77~1453",
-			"PS~Q~1~7~Target-Realm", "PS~A~1~7~1453", "PS~C~1~7~Target-Realm", "CG~1~Q~1790000000", "T1~S~5~Olympus",
-			"V1~7~100", "V7~7", "ZQ~L1~R~-~0", "TA~Olympus II~1", "D1~ARMS~1~1~1~Olympus II~1~x",
-			"WQ~ab~t~flask", "WR~alch", "HR~a hand please", "T7~1", "T4~5~Olympus II", "T1~H~5~Olympus~", "T1~A~5~Olympus~1800~Gates~Muster",
-			"T1~W~5~Olympus~army~a writ", "OM~1~P~A~RealmGroup~1~1790000000~Olympus~1429~Gather", "K6~1~G~1~1790000000~",
+		local passes = { "M1~A~Elfcore II~1~~hello there", "Q1~", "K0~", "LQ~1~1453~8", "LR~1", "LX~1", "LY~Q~1~7~77~1453",
+			"PS~Q~1~7~Target-Realm", "PS~A~1~7~1453", "PS~C~1~7~Target-Realm", "CG~1~Q~1790000000", "T1~S~5~Elfcore",
+			"V1~7~100", "V7~7", "ZQ~L1~R~-~0", "TA~Elfcore II~1", "D1~ARMS~1~1~1~Elfcore II~1~x",
+			"WQ~ab~t~flask", "WR~alch", "HR~a hand please", "T7~1", "T4~5~Elfcore II", "T1~H~5~Elfcore~", "T1~A~5~Elfcore~1800~Gates~Muster",
+			"T1~W~5~Elfcore~army~a writ", "OM~1~P~A~RealmGroup~1~1790000000~Elfcore~1429~Gather", "K6~1~G~1~1790000000~",
 			"U1~x", "UP~x", "WC~x" }
 		for _, msg in ipairs(held) do eq(C.QuietHolds(msg), false, "off: " .. msg) end
 		Quiet(true)
 		for _, msg in ipairs(held) do eq(C.QuietHolds(msg), true, "held: " .. msg) end
 		for _, msg in ipairs(passes) do eq(C.QuietHolds(msg), false, "still goes: " .. msg) end
 		local st = C.Stats()
-		eq(st.quietPresence, true); assert(st.quietHeld >= #held, "counted in /oly status")
+		eq(st.quietPresence, true); assert(st.quietHeld >= #held, "counted in /elf status")
 		Quiet(false)
 		for _, msg in ipairs(held) do eq(C.QuietHolds(msg), false, "off again: " .. msg) end
 	end)
@@ -160,13 +160,13 @@ test("quiet presence: no hello, census report or census answer; what waited stay
 			Flush()
 			eq(#sent, 0, "nothing at all: " .. tostring(sent[1]))
 			local why
-			eq(C.Send("CHANNEL", "L1~1453~8~1~Olympus II", nil, nil, nil, function(_, w) why = w end), false)
+			eq(C.Send("CHANNEL", "L1~1453~8~1~Elfcore II", nil, nil, nil, function(_, w) why = w end), false)
 			eq(why, "quiet", "a presence word handed over is refused, and says why")
 			-- Reads and the player's own chat line still go.
 			cns.clock = cns.clock + 31 -- (past the newcomer's ask, which would hold ours back: Comm.AskCensus)
 			C.AskCensus()
 			eq(C.Send("CHANNEL", "PS~Q~1~7~Target-Realm"), true)
-			eq(C.SendChat("M1~A~Olympus II~1~~a line he typed"), true)
+			eq(C.SendChat("M1~A~Elfcore II~1~~a line he typed"), true)
 			Flush()
 			eq(Count("^CHANNEL Q1~$"), 1, "the census request (a read)")
 			eq(Count("^CHANNEL PS~Q~"), 1, "a sighting request (a read)")
@@ -191,7 +191,7 @@ test("quiet presence: no layer of ours, no hop offer, invite or answer; our own 
 	AsCouncillor(function()
 		local ok, err = pcall(function()
 			WithHop(function(w, H)
-				GetGuildInfo = function() return "Olympus II", "Officer", 1 end -- (officers announce their layer)
+				GetGuildInfo = function() return "Elfcore II", "Officer", 1 end -- (officers announce their layer)
 				local function Layers() local n = 0 for _, m in ipairs(w.sent) do if m:find("^CHANNEL L1~") then n = n + 1 end end return n end
 				-- An offer made before it begins: its request then gets nothing.
 				w.see(7)
@@ -275,7 +275,7 @@ test("quiet presence: no author presence, roll-call or version-check answer, nor
 			ns.Comm.SendChunked = function(payload, _, dist) sent[#sent + 1] = (dist or "CHANNEL") .. " " .. payload return true end
 			W.after = function(_, _, fn) fn() end
 			W.random = function(a, b) return a and b and a or 0 end
-			D.GlobalCensusPayload = function() return "CG~1~S~4000000000~Olympus II,10,2,600,4000000000" end
+			D.GlobalCensusPayload = function() return "CG~1~S~4000000000~Elfcore II,10,2,600,4000000000" end
 			ns.db.rollCall = true -- (the player's yes to the author's roll calls)
 			local author = ns.FullName(ns.AUTHOR, ns.AUTHOR_REALM)
 			local function Again()
@@ -306,12 +306,12 @@ end)
 test("quiet presence: a line on top of the Census and the Realm says so while it is on, in English and pt-BR, with what still goes", function()
 	AsCouncillor(function()
 		local L = ns.L
-		-- (Review: "other Olympus clients see you as offline" was untrue for a guild leader or officer,
+		-- (Review: "other Elfcore clients see you as offline" was untrue for a guild leader or officer,
 		-- whom the guildmates' census still shows online from the game's guild roster: the King first.)
-		eq(L.QUIET_PRESENCE_LINE, "Quiet presence: Olympus stops announcing you and where you are. Your guild roster, the census your guildmates build from it, /who and chat still show you.")
-		for _, words in ipairs({ "Olympus chat lines you type, what you post yourself and the records your client relays still go out",
+		eq(L.QUIET_PRESENCE_LINE, "Quiet presence: Elfcore stops announcing you and where you are. Your guild roster, the census your guildmates build from it, /who and chat still show you.")
+		for _, words in ipairs({ "Elfcore chat lines you type, what you post yourself and the records your client relays still go out",
 			"a guild leader or officer still shows online there, and your zone may show for up to 12 minutes",
-			"after a /reload, Olympus may say hello before that addon turns it on again" }) do
+			"after a /reload, Elfcore may say hello before that addon turns it on again" }) do
 			assert(L.QUIET_PRESENCE_TIP:find(words, 1, true), "the tooltip says: " .. words)
 		end
 		local function Has(lines)
@@ -335,12 +335,12 @@ test("quiet presence: a line on top of the Census and the Realm says so while it
 		GetLocale = function() return "ptBR" end
 		local ok, err = pcall(function()
 			local root = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]quiet%-presence%.lua$")) or "./"
-			assert(loadfile(root .. "Olympus/Locales.lua"))("Olympus", pt)
+			assert(loadfile(root .. "Elfcore/Locales.lua"))("Elfcore", pt)
 		end)
 		GetLocale = savedLocale
 		assert(ok, err)
-		eq(pt.L.QUIET_PRESENCE_LINE, "Presença silenciosa: o Olympus para de anunciar você e onde você está. A lista da guilda, o censo que seus colegas de guilda montam com ela, o /who e o chat ainda mostram você.")
-		assert(pt.L.QUIET_PRESENCE_TIP:find("linhas de chat do Olympus que você digitar, o que você mesmo publicar e os registros que seu cliente repassa ainda são enviados", 1, true))
+		eq(pt.L.QUIET_PRESENCE_LINE, "Presença silenciosa: o Elfcore para de anunciar você e onde você está. A lista da guilda, o censo que seus colegas de guilda montam com ela, o /who e o chat ainda mostram você.")
+		assert(pt.L.QUIET_PRESENCE_TIP:find("linhas de chat do Elfcore que você digitar, o que você mesmo publicar e os registros que seu cliente repassa ainda são enviados", 1, true))
 		assert(pt.L.QUIET_PRESENCE_TIP:find("um mestre ou oficial de guilda ainda aparece online lá", 1, true))
 		assert(pt.L.QUIET_PRESENCE_HELD and pt.L.QUIET_PRESENCE_HELD ~= L.QUIET_PRESENCE_HELD, "the held line in pt-BR")
 	end)

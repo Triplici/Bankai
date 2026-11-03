@@ -1,46 +1,46 @@
-# Olympus Companion Bridge
+# Elfcore Companion Bridge
 
-This is the private, passive handoff addon for the Olympus Companion. It depends on
-`Olympus`, has no UI or network transport, and declares exactly one SavedVariable:
-`OlympusCompanionDB`. The public Olympus package remains unchanged: `scripts/package.sh`
-packages `Olympus/` and `Olympus_Arena/`, but does not include this private bridge.
+This is the private, passive handoff addon for the Elfcore Companion. It depends on
+`Elfcore`, has no UI or network transport, and declares exactly one SavedVariable:
+`ElfcoreCompanionDB`. The public Elfcore package remains unchanged: `scripts/package.sh`
+packages `Elfcore/` and `Elfcore_Arena/`, but does not include this private bridge.
 
-For installation and updates, `Olympus/` and `Olympus_Arena/` are one inseparable Olympus release
+For installation and updates, `Elfcore/` and `Elfcore_Arena/` are one inseparable Elfcore release
 bundle. They always have the same owner and move through update, migration, staging, integrity
 verification, and rollback together. The Companion owns this sidecar independently of the selected
-Olympus-bundle manager. In CurseForge or another external-manager mode, that manager alone writes
-`Olympus/` and `Olympus_Arena/`, while the Companion may install and update only
-`OlympusCompanionBridge/` after the user's account is eligible for checkpoint features. In
-Companion-managed mode it updates the two Olympus bundle directories through one guarded,
+Elfcore-bundle manager. In CurseForge or another external-manager mode, that manager alone writes
+`Elfcore/` and `Elfcore_Arena/`, while the Companion may install and update only
+`ElfcoreCompanionBridge/` after the user's account is eligible for checkpoint features. In
+Companion-managed mode it updates the two Elfcore bundle directories through one guarded,
 recoverable bundle operation and manages the Bridge through its separate package. Manual mode
-offers one exact Olympus bundle and, when the account is eligible, the separate Bridge package
+offers one exact Elfcore bundle and, when the account is eligible, the separate Bridge package
 with an explanation of why it is needed.
 No mode edits an external manager's private state or silently removes its ownership.
 
 ## Private package
 
-The Bridge is never in the public Olympus package (`scripts/package.sh` ships `Olympus/` and
-`Olympus_Arena/` only). Its private, deterministic package script lives with the Companion app and
+The Bridge is never in the public Elfcore package (`scripts/package.sh` ships `Elfcore/` and
+`Elfcore_Arena/` only). Its private, deterministic package script lives with the Companion app and
 arrives with it.
 
 Packaging refuses dirty tracked source; missing, untracked, ignored, or extra Bridge files; unsafe
-TOC paths; executable or symlinked inputs; the main addon's `OlympusDB` SavedVariable; common
+TOC paths; executable or symlinked inputs; the main addon's `ElfcoreDB` SavedVariable; common
 SavedVariables/credential filenames; and recognizable private-key or token material. It stages
-from `HEAD`, never from a live WoW directory. In particular, neither `Olympus.lua` nor any account's
+from `HEAD`, never from a live WoW directory. In particular, neither `Elfcore.lua` nor any account's
 main SavedVariables, local credentials, or signing keys belong in this package. The SHA-256 file is
 an integrity checksum, not a signature; this script neither creates nor expects a signing key.
 
 This is packaging infrastructure only. It does not install or update the Bridge, enroll a user,
 deploy an artifact, publish it, or make the Companion updater live. `scripts/package.sh` remains
-the public two-folder `Olympus/` + `Olympus_Arena/` packager and does not include this Bridge.
+the public two-folder `Elfcore/` + `Elfcore_Arena/` packager and does not include this Bridge.
 
 ## Boundary
 
 At `PLAYER_LOGOUT` (also used by `/reload` and game exit), the bridge asks the additive
-`OlympusBridge.CENSUS_CHECKPOINT_API_VERSION == 1` API for a fresh, read-only census
+`ElfcoreBridge.CENSUS_CHECKPOINT_API_VERSION == 1` API for a fresh, read-only census
 snapshot. It copies only the documented allowlist into a new table. It never reads or
-writes `OlympusDB`, and the checkpoint contains no member, officer, reporter or council
-identity; no chat, keys, moderation records or settings; and no references to Olympus's
+writes `ElfcoreDB`, and the checkpoint contains no member, officer, reporter or council
+identity; no chat, keys, moderation records or settings; and no references to Elfcore's
 internal tables.
 
 The checkpoint contains only:
@@ -58,10 +58,10 @@ last good checkpoint.
 The SavedVariable has this versioned shape (question marks mean optional fields):
 
 ```text
-OlympusCompanionDB = {
-  schema = "olympus-companion-db", version = 1,
+ElfcoreCompanionDB = {
+  schema = "elfcore-companion-db", version = 1,
   checkpoint = {
-    schema = "olympus-census-checkpoint", version = 1,
+    schema = "elfcore-census-checkpoint", version = 1,
     key, previousKey?, capturedAt, capturedAtServer?, timeSource,
     scope = { realm, realmGroup, faction },
     summary = {
@@ -104,24 +104,24 @@ prevents an imported old checkpoint from resurrecting it.
 
 WoW does not continuously write SavedVariables while a character is online. The Lua
 table is finalized during `PLAYER_LOGOUT`, but the client writes
-`WTF/Account/<ACCOUNT>/SavedVariables/OlympusCompanionBridge.lua` only as part of
+`WTF/Account/<ACCOUNT>/SavedVariables/ElfcoreCompanionBridge.lua` only as part of
 `/reload`, logout or game exit. The desktop companion must wait for that write to finish,
 read a stable file, and keep the preceding valid checkpoint if parsing fails.
 
 ## Sections
 
-Besides the census checkpoint, Olympus offers versioned read-only sections through
-`OlympusBridge.RegisterSection(name, version, exporter, limits)` / `GetSection(name)`
-(`Olympus/Bridge.lua`, exporters in `Olympus/BridgeSections.lua` and `Olympus/BridgeAffairs.lua`).
-Olympus copies each into fresh plain tables within `OlympusBridge.SECTION_LIMITS` (or the larger
-limits a section asked for, never past `OlympusBridge.SECTION_MAX`). At logout this sidecar saves
-only the sections it knows, at version 1, under `OlympusCompanionDB.sections`: `guilds`,
+Besides the census checkpoint, Elfcore offers versioned read-only sections through
+`ElfcoreBridge.RegisterSection(name, version, exporter, limits)` / `GetSection(name)`
+(`Elfcore/Bridge.lua`, exporters in `Elfcore/BridgeSections.lua` and `Elfcore/BridgeAffairs.lua`).
+Elfcore copies each into fresh plain tables within `ElfcoreBridge.SECTION_LIMITS` (or the larger
+limits a section asked for, never past `ElfcoreBridge.SECTION_MAX`). At logout this sidecar saves
+only the sections it knows, at version 1, under `ElfcoreCompanionDB.sections`: `guilds`,
 `rankings`, `stats`, `wanted`, `self`, `realm`, `roster`, `church`, `games`, `profile`, `crafting`,
-`crafters`, `treasury`, `decrees`, `agenda`, `notices`, `watch` and `chatRooms` (a name Olympus
+`crafters`, `treasury`, `decrees`, `agenda`, `notices`, `watch` and `chatRooms` (a name Elfcore
 does not register is simply absent). `stats` is the census statistics page's figures
 (`docs/CENSUS-STATS.md`). A failing or unknown section is skipped and never blocks the census.
 
-The affairs' sections (`Olympus/BridgeAffairs.lua`), each nil before the Olympus Accord is accepted
+The affairs' sections (`Elfcore/BridgeAffairs.lua`), each nil before the Elfcore Accord is accepted
 and for a character who is no member:
 
 - `crafting`: the request board's open cards (100: item, quantity, guild, state; no requester, as
@@ -146,17 +146,17 @@ and for a character who is no member:
   dates); never a reporter, a note, an evidence line, a moderator's reason or a chat line;
 - `chatRooms`: the rooms this character is in, with member and unread counts; no chat text.
 
-What a section may carry: only what this character's own client already shows on Olympus's own
+What a section may carry: only what this character's own client already shows on Elfcore's own
 pages, to the audience that page has. Staff-only sections (`watch`) exist only on the clients whose
 page shows them; personal rows (`crafting.own`, the letters in `notices`) carry this character's
 own. The `self` section is `{ character = "Name-Realm", battleTag = "Name#1234", accord = 1,
-at = <server time>, guild = "Guild Name", olympus = true, roles = { "officer", "guildMaster",
+at = <server time>, guild = "Guild Name", elfcore = true, roles = { "officer", "guildMaster",
 "council", "crown", "author" }, tabs = { ... } }`: the player's own character and BattleTag as
-his own game gives them, current native Olympus guild, roles and actual tabs. It is named only after
-both the Olympus Accord and the separate Olympus Companion Accord are accepted. The BattleTag is
+his own game gives them, current native Elfcore guild, roles and actual tabs. It is named only after
+both the Elfcore Accord and the separate Elfcore Companion Accord are accepted. The BattleTag is
 staff-only display/linking data and never membership or witness authority. Before consent, after
-withdrawal, outside an Olympus guild or while the game cannot authenticate the tag, it is the
-anonymous revocation `{ olympus = false, roles = {}, tabs = {} }`, so the relay can remove a stale
+withdrawal, outside an Elfcore guild or while the game cannot authenticate the tag, it is the
+anonymous revocation `{ elfcore = false, roles = {}, tabs = {} }`, so the relay can remove a stale
 identity. It carries never another player's BattleTag (not the ones a moderation team client keeps).
 Never chat text or
 chat-strike lines, another player's private data, treasury items (numbers only, and

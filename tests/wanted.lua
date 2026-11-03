@@ -4,14 +4,14 @@ local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]wanted%.
 
 -- (1.2.3: Add, Send evidence, Review and Withdraw are gone; Sightings to is new. The old names stay
 -- here so that a dialog an older build defined is put back as it was.)
-local DIALOGS = { "OLYMPUS_WANTED_ADD", "OLYMPUS_WANTED_REMOVE", "OLYMPUS_WANTED_SEND", "OLYMPUS_WANTED_REVIEW",
-	"OLYMPUS_WANTED_WITHDRAW", "OLYMPUS_WANTED_PUBLISH", "OLYMPUS_WANTED_REVOKE", "OLYMPUS_WANTED_CORRECT",
-	"OLYMPUS_WANTED_REVIEWER", "OLYMPUS_WANTED_AVENGED" }
+local DIALOGS = { "ELFCORE_WANTED_ADD", "ELFCORE_WANTED_REMOVE", "ELFCORE_WANTED_SEND", "ELFCORE_WANTED_REVIEW",
+	"ELFCORE_WANTED_WITHDRAW", "ELFCORE_WANTED_PUBLISH", "ELFCORE_WANTED_REVOKE", "ELFCORE_WANTED_CORRECT",
+	"ELFCORE_WANTED_REVIEWER", "ELFCORE_WANTED_AVENGED" }
 
--- 1.2.4, the notices: Olympus's own windows as stand-ins that keep what they show (ns.Window: the
--- death's toast), Olympus's dialogs (Dialog.Show and Find: the avenged notice and the whisper
+-- 1.2.4, the notices: Elfcore's own windows as stand-ins that keep what they show (ns.Window: the
+-- death's toast), Elfcore's dialogs (Dialog.Show and Find: the avenged notice and the whisper
 -- windows its buttons open), the King's letter (HonorsNet's QueueLetter, LetterToSender and
--- LetterFrame) and the Olympus window's whisper window, profile and state (UI.WhisperText,
+-- LetterFrame) and the Elfcore window's whisper window, profile and state (UI.WhisperText,
 -- ShowPerson, IsShown), each kept in `into` (a test world, or a world's client).
 local function StandInFrame(kind)
 	local o = { kind = kind, shown = false, points = {} }
@@ -50,7 +50,7 @@ local function NoticeStandIns(c, into)
 		end,
 	}
 	-- (1.2.4 repair: QueueLetter's third argument, "show it now", kept in into.letterNow; the times a
-	-- letter waited for the Olympus window, WaitForWindow, in into.windowWaits.)
+	-- letter waited for the Elfcore window, WaitForWindow, in into.windowWaits.)
 	into.letterNow, into.windowWaits = into.letterNow or {}, into.windowWaits or 0
 	c.HonorsNet = { QueueLetter = function(key, _, now) into.letters[#into.letters + 1] = key into.letterNow[#into.letters] = now end,
 		LetterToSender = function() return into.kingLetter == true end, LetterFrame = function() return into.letterFrame end,
@@ -78,7 +78,7 @@ local function WithWanted(fn)
 	local ok, err = pcall(function()
 		-- (1.2.3: level 1 unless a test gives another, so a plain member's own death adds 1 point,
 		-- as one did before the bounty's weights; the bounty's own tests give the real levels.)
-		w.units.player = { name = "Olympian-Realm", guid = "Player-1-AA000001", faction = "Alliance", guild = "Olympus II", level = 1 }
+		w.units.player = { name = "Olympian-Realm", guid = "Player-1-AA000001", faction = "Alliance", guild = "Elfcore II", level = 1 }
 		UnitGUID = function(unit) return w.units[unit] and w.units[unit].guid end
 		-- (1.2.3: UnitLevel as the game gives it: -1 for "??", nil for no unit or no level given.)
 		UnitLevel = function(unit) return w.units[unit] and w.units[unit].level end
@@ -152,7 +152,7 @@ local function WithWanted(fn)
 		-- (1.2.0: evidence comes only from members: whoever whispers here claims a federation guild
 		-- the channel takes, unless named in w.strangers.)
 		w.strangers = {}
-		c.Moderation.GuildOf = function(name) if not w.strangers[c.Fold(c.FullName(name))] then return "Olympus II" end end
+		c.Moderation.GuildOf = function(name) if not w.strangers[c.Fold(c.FullName(name))] then return "Elfcore II" end end
 		c.Channels = setmetatable({ VerifiedLevel = function(name)
 			if w.strangers[c.Fold(c.FullName(name))] then return 0, false end
 			return 1, false
@@ -217,10 +217,10 @@ local function WithWanted(fn)
 			p.On, p.RegisterEvent, p.Fire = quiet, quiet, quiet
 			p.UI = { AddTab = quiet, Refresh = quiet, RefreshSoon = quiet, FirstTexture = c.UI.FirstTexture, ShowPerson = quiet }
 			p.RealmPages = {}
-			assert(loadfile(ROOT .. "Olympus/RankingRules.lua"))("Olympus", p)
+			assert(loadfile(ROOT .. "Elfcore/RankingRules.lua"))("Elfcore", p)
 			local mine = {}
 			for _, which in ipairs(DIALOGS) do mine[which] = StaticPopupDialogs[which] end
-			assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", p)
+			assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", p)
 			for _, which in ipairs(DIALOGS) do StaticPopupDialogs[which] = mine[which] end
 			p.Wanted.ResetForTests()
 			w.pub = p
@@ -284,7 +284,7 @@ local function WithWanted(fn)
 					overkill = -1, timestamp = at - 2.4, amount = 310 },
 			}
 		end
-		-- The rows this client put on the Olympus channel (WK, WV), in order.
+		-- The rows this client put on the Elfcore channel (WK, WV), in order.
 		function w.wire(prefix)
 			local out = {}
 			for _, m in ipairs(w.sent) do if m.dist == "CHANNEL" and m.text:sub(1, #prefix) == prefix then out[#out + 1] = m.text end end
@@ -292,8 +292,8 @@ local function WithWanted(fn)
 		end
 
 		c.RealmPages = {}
-		assert(loadfile(ROOT .. "Olympus/RankingRules.lua"))("Olympus", c)
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/RankingRules.lua"))("Elfcore", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		w.ns, w.Wanted = c, c.Wanted
 		c.Wanted.ResetForTests()
 		fn(w, c.Wanted, c)
@@ -365,7 +365,7 @@ test("wanted: top-level page, stock Orc icon, authority gate, normalized identit
 		assert(profile[1].text:find(ns.L.WANTED_BACK, 1, true))
 		assert(profile[1].onClick())
 		eq(W.PageId(), "list")
-		eq(w.profile, nil, "a Wanted target opens the bounty profile, not an Olympus person card")
+		eq(w.profile, nil, "a Wanted target opens the bounty profile, not an Elfcore person card")
 		eq(W.RemoveTarget("Grom-Realm"), false, "an ordinary member only reads")
 	end)
 end)
@@ -499,7 +499,7 @@ test("wanted: rejected combat rows cannot learn identity; distinct verified kill
 			"Player-1-CC000001", nil)
 		eq(ok, false); eq(why, "identities")
 		ok, why = w.kill(3, "Grom-Realm", targetGuid, "Outsider-Realm", "Player-1-CC000002")
-		eq(ok, false); eq(why, "olympus")
+		eq(ok, false); eq(why, "elfcore")
 		eq(W.Target("Grom-Realm").guid, nil, "a refused row did not pin its asserted GUID")
 
 		assert(w.kill(4, "Grom-Realm", targetGuid, c.me, w.units.player.guid))
@@ -592,7 +592,7 @@ test("wanted: bounded history, correction and reload preserve the checkpoint wit
 		t = W.Target("Collector-Realm")
 		eq(t.current, 2); eq(t.lifetimeKills, 2); eq(#t.victims, 2); eq(t.victimOverflow, 0)
 
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		assert(W.Prune())
 		t = W.Target("Collector-Realm")
@@ -678,7 +678,7 @@ test("wanted publication through real Comm: publish and repeat enter the guarded
 			c.Moderation.Blocks = function() return false end
 			c.Log, c.Every, c.After = function() end, function() end, function() end
 			c.SafeCall = function(_, fn, ...) return fn(...) end
-			assert(loadfile(ROOT .. "Olympus/Comm.lua"))("Olympus", c)
+			assert(loadfile(ROOT .. "Elfcore/Comm.lua"))("Elfcore", c)
 			w.listeners.LOGIN()
 			c.Comm.JoinChannel()
 			w.authority(c.me, "king")
@@ -784,7 +784,7 @@ test("1.2.4 wanted global: a slayer whose pick this client knows gets no frame f
 		eq(W.GlobalBorder("Second-Realm", "Player-1-DA000002"), "wanted-slayer-2")
 		eq(W.GlobalBorder("Second-Realm"), nil, "never by a name")
 		local hs = {}
-		assert(loadfile(ROOT .. "Olympus/Honors.lua"))("Olympus", hs)
+		assert(loadfile(ROOT .. "Elfcore/Honors.lua"))("Elfcore", hs)
 		eq(hs.Honors.ArtOf("wanted-slayer-1"), "skeletal-horse-gold", "the skeletal horse (the orc's wolf until 1.2.4)")
 		eq(hs.Honors.ArtOf("wanted-slayer-3"), "skeletal-horse-bronze")
 	end)
@@ -910,7 +910,7 @@ test("wanted global: deterministic issuer conflicts and a newer empty snapshot r
 	end)
 end)
 
-test("wanted: slayer rows alone open the normal Olympus person profile", function()
+test("wanted: slayer rows alone open the normal Elfcore person profile", function()
 	WithWanted(function(w, W)
 		local target, targetGuid = "ProfileTarget-Realm", "Player-1-BC000001"
 		assert(w.add(target, targetGuid))
@@ -1092,7 +1092,7 @@ test("wanted: native PARTY_KILL credits only our verified killing blow and close
 		assert(W.RemoveTarget(nil, guid)); w.advance(); eq(select(2, event(mine, guid)), "removed")
 		eq(W.Stats().accepted, before, "invalid, secret and removed identities never record a kill")
 		-- (1.2.3, changed on purpose, Daniel's "that list should never have existed": each native kill
-		-- this client counted went to the Olympus channel at once, for every member's client to count
+		-- this client counted went to the Elfcore channel at once, for every member's client to count
 		-- too; the removal went as the King's word. Before, nothing left this client by itself.)
 		-- (1.2.3, changed on purpose, Daniel's bounty: an own row goes as WK~2, what it is worth after the
 		-- GUIDs: the member's office and level, the Horde player's level.)
@@ -1109,7 +1109,7 @@ test("wanted: native PARTY_KILL unavailable registration cannot abort addon load
 			if name == "PARTY_KILL" then error("native event unavailable") end
 			return register(name, call)
 		end
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		assert(type(c.Wanted.CapturePartyKill) == "function")
 		assert(type(w.handlers.PLAYER_DEAD) == "function", "other supported capture remains registered")
 	end)
@@ -1405,7 +1405,7 @@ test("wanted controls: Frames (Publish, Revoke), Take off, Void and Sightings to
 		-- (1.2.3, changed on purpose, Daniel's bounty: an own row goes as WK~2, what it is worth after the
 		-- GUIDs: the member's office and level, the Horde player's level.)
 		eq(#w.wire("WK~2~"), 2, "both went to every member by themselves")
-		for _, gone in ipairs({ "OLYMPUS_WANTED_ADD", "OLYMPUS_WANTED_SEND", "OLYMPUS_WANTED_REVIEW", "OLYMPUS_WANTED_WITHDRAW" }) do
+		for _, gone in ipairs({ "ELFCORE_WANTED_ADD", "ELFCORE_WANTED_SEND", "ELFCORE_WANTED_REVIEW", "ELFCORE_WANTED_WITHDRAW" }) do
 			eq(StaticPopupDialogs[gone], nil, gone .. " is gone")
 		end
 
@@ -1413,8 +1413,8 @@ test("wanted controls: Frames (Publish, Revoke), Take off, Void and Sightings to
 		c.db.wantedSightings = true
 		eq(Shown(W), "WANTED_REVIEWER_BTN")
 		Press(W, "WANTED_REVIEWER_BTN")
-		eq(w.dialogs[#w.dialogs].which, "OLYMPUS_WANTED_REVIEWER")
-		local dialog = StaticPopupDialogs.OLYMPUS_WANTED_REVIEWER
+		eq(w.dialogs[#w.dialogs].which, "ELFCORE_WANTED_REVIEWER")
+		local dialog = StaticPopupDialogs.ELFCORE_WANTED_REVIEWER
 		local box = Box("old text")
 		dialog.OnShow({ editBox = box })
 		eq(box.text, "", "nobody chosen yet")
@@ -1445,9 +1445,9 @@ test("wanted controls: Frames (Publish, Revoke), Take off, Void and Sightings to
 		assert(all:find("ControlsSlayer", 1, true), all)
 		Press(W, "WANTED_PUBLISH_BTN")
 		local d = w.dialogs[#w.dialogs]
-		eq(d.which, "OLYMPUS_WANTED_PUBLISH")
+		eq(d.which, "ELFCORE_WANTED_PUBLISH")
 		assert(d.a:find("ControlsSlayer", 1, true), "the dialog names what will be signed")
-		StaticPopupDialogs.OLYMPUS_WANTED_PUBLISH.OnAccept({})
+		StaticPopupDialogs.ELFCORE_WANTED_PUBLISH.OnAccept({})
 		local published = w.sent[#w.sent]
 		eq(published.dist, "CHANNEL"); assert(published.text:find("^WY~2~"))
 		-- (1.2.3: his 101 points, his revenge's with his death's point: above.)
@@ -1455,8 +1455,8 @@ test("wanted controls: Frames (Publish, Revoke), Take off, Void and Sightings to
 		eq(w.prints[#w.prints], ns.L.WANTED_PUBLISHED)
 		eq(W.GlobalBorder(nil, "Player-1-CF000003"), "wanted-slayer-1")
 		Press(W, "WANTED_REVOKE_BTN")
-		eq(w.dialogs[#w.dialogs].which, "OLYMPUS_WANTED_REVOKE")
-		StaticPopupDialogs.OLYMPUS_WANTED_REVOKE.OnAccept({})
+		eq(w.dialogs[#w.dialogs].which, "ELFCORE_WANTED_REVOKE")
+		StaticPopupDialogs.ELFCORE_WANTED_REVOKE.OnAccept({})
 		assert(w.sent[#w.sent].text:find("~%-~"), "an empty top three")
 		eq(W.GlobalBorder(nil, "Player-1-CF000003"), nil)
 		Press(W, "WANTED_BACK_BTN")
@@ -1472,8 +1472,8 @@ test("wanted controls: Frames (Publish, Revoke), Take off, Void and Sightings to
 		assert(claimRow and claimRow.onClick, "a reviewer can void a live row (the closed cycle's claim)")
 		claimRow.onClick()
 		d = w.dialogs[#w.dialogs]
-		eq(d.which, "OLYMPUS_WANTED_CORRECT")
-		StaticPopupDialogs.OLYMPUS_WANTED_CORRECT.OnAccept({ editBox = Box("staged kill") }, d.data)
+		eq(d.which, "ELFCORE_WANTED_CORRECT")
+		StaticPopupDialogs.ELFCORE_WANTED_CORRECT.OnAccept({ editBox = Box("staged kill") }, d.data)
 		eq(W.Stats().corrected, 1)
 		eq(#W.Target(target).claims, 0, "the voided claim no longer closes the cycle"); eq(W.Target(target).current, 1)
 		eq(#W.Rankings().all, 0)
@@ -1481,8 +1481,8 @@ test("wanted controls: Frames (Publish, Revoke), Take off, Void and Sightings to
 		eq(#void, 1); assert(void[1]:find("~ControlsSlayer%-Realm~%x+~%d+$"), void[1])
 		Press(W, "WANTED_REMOVE_BTN")
 		d = w.dialogs[#w.dialogs]
-		eq(d.which, "OLYMPUS_WANTED_REMOVE"); eq(d.a, c.DisplayName(target))
-		StaticPopupDialogs.OLYMPUS_WANTED_REMOVE.OnAccept({}, d.data)
+		eq(d.which, "ELFCORE_WANTED_REMOVE"); eq(d.a, c.DisplayName(target))
+		StaticPopupDialogs.ELFCORE_WANTED_REMOVE.OnAccept({}, d.data)
 		eq(W.Target(target).active, false); eq(W.Target(target).current, 0, "nothing of his counts")
 		eq(#W.Targets(true), 0)
 		local off = w.wire("WV~T~1~")
@@ -1528,7 +1528,7 @@ test("wanted dialogs: with the gamepad UI, no Most Wanted box takes the keyboard
 					eq(box.focused, true, which .. ": mouse and keyboard, as always")
 				end
 			end
-			eq(table.concat(boxes, ","), "OLYMPUS_WANTED_CORRECT,OLYMPUS_WANTED_REVIEWER")
+			eq(table.concat(boxes, ","), "ELFCORE_WANTED_CORRECT,ELFCORE_WANTED_REVIEWER")
 		end)
 		C_InputInterfaceStyle, Enum.InputDeviceInterfaceType, GetCurrentKeyBoardFocus = saved.style, saved.kind, saved.focus
 		if not ok then error(err, 0) end
@@ -1568,11 +1568,11 @@ test("wanted labels: this client's boards say so, only a verified signed word sh
 
 		local pt, savedLocale = {}, GetLocale
 		GetLocale = function() return "ptBR" end
-		local okPt, errPt = pcall(function() assert(loadfile(ROOT .. "Olympus/Locales.lua"))("Olympus", pt) end)
+		local okPt, errPt = pcall(function() assert(loadfile(ROOT .. "Elfcore/Locales.lua"))("Elfcore", pt) end)
 		GetLocale = savedLocale
 		assert(okPt, errPt)
 		eq(rawget(pt.L, "WANTED_GLOBAL"), nil)
-		local src = assert(io.open(ROOT .. "Olympus/Locales.lua")):read("*a")
+		local src = assert(io.open(ROOT .. "Elfcore/Locales.lua")):read("*a")
 		local ptBlock = assert(src:match('%-%- 1%.2: Horde Most Wanted.-GetLocale%(%) == "ptBR" then(.-)\nend'), "the Most Wanted pt-BR block")
 		-- (1.2.3: the review's and Send evidence's lines are gone, with their buttons; every line
 		-- Wanted.lua names is checked in both languages by the 1.2.3 locale test below.)
@@ -1609,7 +1609,7 @@ local function ScopeOf(c)
 	return (raw:gsub(".", function(ch) return ("%02x"):format(ch:byte()) end)):sub(1, 16)
 end
 
-test("wanted 1.2.3 (no list): an ordinary member's own killing blow on a Horde player nobody listed makes his entry at once, the claim recorded (1.2.4: on the Most Wanted list only once he kills a member), and the row goes to the Olympus channel by itself", function()
+test("wanted 1.2.3 (no list): an ordinary member's own killing blow on a Horde player nobody listed makes his entry at once, the claim recorded (1.2.4: on the Most Wanted list only once he kills a member), and the row goes to the Elfcore channel by itself", function()
 	WithWanted(function(w, W, c)
 		w.manager = false -- an ordinary member: nobody listed anyone, and there is no store yet
 		eq(c.rdb.wanted, nil)
@@ -1629,7 +1629,7 @@ test("wanted 1.2.3 (no list): an ordinary member's own killing blow on a Horde p
 		local wire = w.sent[1].text
 		-- (1.2.3, changed on purpose, Daniel's bounty: an own row goes as WK~2, what it is worth after the
 		-- GUIDs: the member's office and level, the Horde player's level.)
-		assert(wire:find("^WK~2~" .. ScopeOf(c) .. "~Olympus II~%x+~%d+~%d+~P~1%.0d000001~1%.aa000001~M~1~0~Fresh Horde%-Realm$"), wire)
+		assert(wire:find("^WK~2~" .. ScopeOf(c) .. "~Elfcore II~%x+~%d+~%d+~P~1%.0d000001~1%.aa000001~M~1~0~Fresh Horde%-Realm$"), wire)
 		assert(not wire:find("Warsong", 1, true), "never where it happened")
 		-- The same death read again is not counted twice, nor a second entry.
 		eq(w.handlers.PARTY_KILL(w.units.player.guid, horde), false)
@@ -1743,7 +1743,7 @@ test("wanted 1.2.3 intake: a shared row counts only from a verified member, abou
 		local function Row(o)
 			o = o or {}
 			n = n + 1
-			return table.concat({ "WK", 1, o.scope or scope, o.guild or "Olympus II", o.digest or ("%016x"):format(0xa000 + n),
+			return table.concat({ "WK", 1, o.scope or scope, o.guild or "Elfcore II", o.digest or ("%016x"):format(0xa000 + n),
 				o.at or w.epoch, o.month or W.MonthNow(), o.kind or "S", o.horde or ("1.0f%06x"):format(0x41000 + n),
 				o.own or "1.cc000041", o.name or ("Shared" .. n .. "-Realm") }, "~")
 		end
@@ -1767,7 +1767,7 @@ test("wanted 1.2.3 intake: a shared row counts only from a verified member, abou
 		eq(Why(sender, Row({ at = w.epoch + W.GLOBAL_SKEW + 60 })), "stale")
 		eq(Why(sender, Row({ month = W.MonthNow() - W.MAX_MONTHS })), "shape")
 		w.strangers[c.Fold("Outsider-Realm")] = true
-		-- (1.2.4: the three refusals "olympus" was have their own reasons: "stranger", "hidden",
+		-- (1.2.4: the three refusals "elfcore" was have their own reasons: "stranger", "hidden",
 		-- "olympian"; tests/wanted-guilds.lua has them with the real Channels, Data and Roster.)
 		eq(Why("Outsider-Realm", Row({ own = "1.dd000041" })), "stranger", "a stranger's row")
 		c.Moderation.Hides = function(name) return c.Fold(name) == c.Fold(sender) end
@@ -1850,7 +1850,7 @@ test("wanted 1.2.3 marks: a reviewer's removal reaches every client (what the Ho
 		local sender = w.participant("Victimized-Realm", "Player-1-CC000051")
 		local slayer = w.participant("Avenger-Realm", "Player-1-CC000052")
 		local function Row(kind, horde, own, digest, at)
-			return table.concat({ "WK", 1, scope, "Olympus II", digest, at or w.epoch, W.MonthNow(), kind, horde, own,
+			return table.concat({ "WK", 1, scope, "Elfcore II", digest, at or w.epoch, W.MonthNow(), kind, horde, own,
 				"Abuser" .. horde:sub(-2) .. "-Realm" }, "~")
 		end
 		assert(K("CHANNEL", sender, Row("S", "1.0f000051", "1.cc000051", "00000000000000c1")))
@@ -1891,7 +1891,7 @@ test("wanted 1.2.3 marks: a reviewer's removal reaches every client (what the Ho
 		assert(Mark(king, ("WV~V~1~%s~%s~00000000000000c6~%d"):format(scope, sender, w.epoch)))
 		eq(select(2, K("CHANNEL", sender, Row("S", "1.0f000054", "1.cc000051", "00000000000000c6"))), "void")
 		-- Saved: after a reload the removal and the void still hold.
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		eq(W.Target(nil, "Player-1-0F000051").active, false); eq(#W.Rankings().all, 0)
 		eq(select(2, w.commHandlers.WK("CHANNEL", sender, Row("S", "1.0f000054", "1.cc000051", "00000000000000c6"))), "void")
@@ -1945,7 +1945,7 @@ test("wanted 1.2.3: a full Most Wanted never refuses a Horde killer: the least a
 		w.advance(W.DEATH_WINDOW + 1)
 		eq(select(2, w.handlers.PARTY_KILL(me, abusive)), "removed")
 		-- After a reload, the totals built again from the saved data: the same.
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		eq(W.Rankings().all[1].points, 1 + W.Bounty.SCORE.REVENGE, "the revenge too")
 		eq(#W.Targets(true), 4); eq(W.Target(nil, abusive).active, false)
@@ -1972,7 +1972,7 @@ test("wanted 1.2.3 regression: with the real cap, the 201st Horde killer of 200 
 		local t = assert(W.Target(nil, new), "the 201st killer enters (was refused: full)")
 		eq(t.current, 1); eq(#W.Targets(true), 200)
 		eq(W.Target(nil, first), nil, "the least active one made room")
-		eq(W.ShareState().log[#W.ShareState().log].ok, true, "counted, and noted so in /oly wanted status")
+		eq(W.ShareState().log[#W.ShareState().log].ok, true, "counted, and noted so in /elf wanted status")
 		-- The King takes ten off: they are kept off apart, and ten places are free.
 		w.authority(c.me, "king")
 		local off = {}
@@ -1997,7 +1997,7 @@ test("wanted 1.2.3 regression: one forged row naming a Horde player under a made
 		local scope = ScopeOf(c)
 		local forger = w.participant("Forger-Realm", "Player-1-CC000081")
 		local function Row(horde, name, digest)
-			return table.concat({ "WK", 1, scope, "Olympus II", digest, w.epoch, W.MonthNow(), "S", horde, "1.cc000081", name }, "~")
+			return table.concat({ "WK", 1, scope, "Elfcore II", digest, w.epoch, W.MonthNow(), "S", horde, "1.cc000081", name }, "~")
 		end
 		-- One verified member's row (a /run SendAddonMessage will do): his "death" to "Grom-Realm"
 		-- under a made-up GUID, which no client's game can check.
@@ -2055,7 +2055,7 @@ test("wanted 1.2.3 regression: one forged row naming a Horde player under a made
 		assert(relayed, tostring(row)); eq(row.victimName, "Faraway-Realm")
 		eq(W.Target(nil, "Player-1-0D000104").current, 1, "(was refused: ambiguous)")
 		-- And after a reload: his name still finds the real one.
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		eq(W.Target("Grom-Realm").guid, real); eq(W.Target("Thrall-Realm").guid, "Player-1-0D0000DD")
 	end)
@@ -2073,7 +2073,7 @@ test("wanted 1.2.3 regression: a reviewer's Take off cancels the points the entr
 		local rows, n = {}, 0
 		local function Say(from, own, kind, horde, name)
 			n = n + 1
-			local text = table.concat({ "WK", 1, scope, "Olympus II", ("%016x"):format(0xd000 + n), w.epoch, W.MonthNow(), kind, horde, own, name }, "~")
+			local text = table.concat({ "WK", 1, scope, "Elfcore II", ("%016x"):format(0xd000 + n), w.epoch, W.MonthNow(), kind, horde, own, name }, "~")
 			rows[#rows + 1] = { from, text }
 			local ok, e = w.commHandlers.WK("CHANNEL", from, text)
 			assert(ok, tostring(e))
@@ -2104,7 +2104,7 @@ test("wanted 1.2.3 regression: a reviewer's Take off cancels the points the entr
 			eq(#signable, 1); eq(signable[1].guid, "Player-1-CC000073", "nor in the top three a reviewer signs")
 		end
 		-- And after a reload, the totals built again from the base.
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		eq(#W.Rankings().all, 1); eq(W.Rankings().all[1].points, 1)
 	end)
@@ -2147,9 +2147,9 @@ test("wanted 1.2.3: the top three a reviewer signs is his own Slayers board, by 
 		w.olympian("Unbound-Realm") -- a verified member whose GUID this client cannot name
 		local function Pair(victim, own, slayer, slayerOwn, horde, base)
 			local prey = "Prey" .. horde:sub(-2) .. "-Realm"
-			assert(K("CHANNEL", victim, table.concat({ "WK", 1, scope, "Olympus II", ("%016x"):format(base), w.epoch, W.MonthNow(), "S", horde, own, prey }, "~")))
+			assert(K("CHANNEL", victim, table.concat({ "WK", 1, scope, "Elfcore II", ("%016x"):format(base), w.epoch, W.MonthNow(), "S", horde, own, prey }, "~")))
 			w.advance(10)
-			assert(K("CHANNEL", slayer, table.concat({ "WK", 1, scope, "Olympus II", ("%016x"):format(base + 1), w.epoch, W.MonthNow(), "P", horde, slayerOwn, prey }, "~")))
+			assert(K("CHANNEL", slayer, table.concat({ "WK", 1, scope, "Elfcore II", ("%016x"):format(base + 1), w.epoch, W.MonthNow(), "P", horde, slayerOwn, prey }, "~")))
 			w.advance(10)
 		end
 		local victim = w.participant("Prey Victim-Realm", "Player-1-CC000063")
@@ -2197,7 +2197,7 @@ test("wanted 1.2.3: our own row the channel did not take goes again after login,
 	end)
 end)
 
-test("wanted 1.2.3: /oly wanted status opens a copy window with this session's captures, what was shared and heard, and every refusal's reason; a death read again is one line", function()
+test("wanted 1.2.3: /elf wanted status opens a copy window with this session's captures, what was shared and heard, and every refusal's reason; a death read again is one line", function()
 	WithWanted(function(w, W, c)
 		local shown
 		c.UI.ShowCopy = function(title, text, action, opts) shown = { title = title, text = text, action = action, opts = opts } return true end
@@ -2217,7 +2217,7 @@ test("wanted 1.2.3: /oly wanted status opens a copy window with this session's c
 		for _, retry in ipairs(retries) do retry() end
 		local scope = ScopeOf(c)
 		local sender = w.participant("Sharer-Realm", "Player-1-CC000081")
-		w.commHandlers.WK("CHANNEL", sender, table.concat({ "WK", 1, scope, "Olympus II", "00000000000000d1", w.epoch, W.MonthNow(), "S",
+		w.commHandlers.WK("CHANNEL", sender, table.concat({ "WK", 1, scope, "Elfcore II", "00000000000000d1", w.epoch, W.MonthNow(), "S",
 			"1.0f000083", "1.cc000081", "Heard Horde-Realm" }, "~"))
 		w.commHandlers.WK("CHANNEL", "Stranger-Realm", "WK~1~garbage")
 		assert(W.Slash("status"))
@@ -2232,7 +2232,7 @@ test("wanted 1.2.3: /oly wanted status opens a copy window with this session's c
 		assert(text:find(ns.L.WANTED_STATUS_DEATH .. "  Status Horde-Realm  " .. ns.L.WANTED_STATUS_BOUNTY:format(1), 1, true), text)
 		assert(text:find(ns.L.WANTED_STATUS_DEATH .. "  Ally-Realm  " .. ns.L.WANTED_STATUS_REFUSAL:format("faction"), 1, true), text)
 		-- (1.2.4, changed on purpose: a member's row names the guild it speaks for after its sender.)
-		assert(text:find(ns.L.WANTED_STATUS_HEARD .. "  Heard Horde-Realm · Sharer-Realm <Olympus II>  " .. ns.L.WANTED_STATUS_BOUNTY:format(1), 1, true), text)
+		assert(text:find(ns.L.WANTED_STATUS_HEARD .. "  Heard Horde-Realm · Sharer-Realm <Elfcore II>  " .. ns.L.WANTED_STATUS_BOUNTY:format(1), 1, true), text)
 		local _, recaps = text:gsub("  " .. ns.L.WANTED_STATUS_DEATH .. "  ", "")
 		eq(recaps, 2, "the death read on PLAYER_DEAD and again by its retry is one line, its last answer")
 		assert(not text:find("Creature", 1, true), "a creature killed is no line")
@@ -2246,19 +2246,19 @@ test("wanted 1.2.3: /oly wanted status opens a copy window with this session's c
 		assert(printed:find(ns.L.WANTED_STATUS_LAST, 1, true), printed)
 		eq(W.Slash("nonsense"), false); eq(w.prints[#w.prints], ns.L.WANTED_STATUS_USAGE)
 	end)
-	-- /oly wanted reaches Wanted.lua (the harness's own namespace runs Core's stand-in: a client
-	-- updated without a restart is told to restart), and /oly help lists it.
+	-- /elf wanted reaches Wanted.lua (the harness's own namespace runs Core's stand-in: a client
+	-- updated without a restart is told to restart), and /elf help lists it.
 	local savedPrint, printed = ns.Print, nil
 	ns.Print = function(message) printed = message end
-	local ok, err = pcall(SlashCmdList.OLYMPUS, "wanted status")
+	local ok, err = pcall(SlashCmdList.ELFCORE, "wanted status")
 	ns.Print = savedPrint
 	if not ok then error(err, 0) end
 	eq(ns.Wanted.missing, true); eq(printed, ns.L.RESTART_NEEDED)
 	local lines, savedOut = {}, print
 	print = function(s) lines[#lines + 1] = tostring(s) end
-	SlashCmdList.OLYMPUS("help")
+	SlashCmdList.ELFCORE("help")
 	print = savedOut
-	assert(table.concat(lines, "\n"):find(ns.L.HELP_WANTED, 1, true), "in /oly help")
+	assert(table.concat(lines, "\n"):find(ns.L.HELP_WANTED, 1, true), "in /elf help")
 end)
 
 -- L's missing keys show the key itself on screen: every line Wanted.lua names is in English and
@@ -2271,7 +2271,7 @@ test("wanted last seen online (RH-09): a member's shared row dates it, this clie
 		local sender = w.participant("Herald-Realm", "Player-1-CC000091")
 		local horde = "Player-1-0F000091"
 		local function Row(kind, digest)
-			return table.concat({ "WK", 1, scope, "Olympus II", digest, w.epoch, W.MonthNow(), kind, "1.0f000091",
+			return table.concat({ "WK", 1, scope, "Elfcore II", digest, w.epoch, W.MonthNow(), kind, "1.0f000091",
 				"1.cc000091", "Prowler-Realm" }, "~")
 		end
 		-- (Daniel, 2026-10-20, changed on purpose: "ficou ruim last seen online em linha nova". The
@@ -2329,11 +2329,11 @@ test("wanted last seen online (RH-09): a member's shared row dates it, this clie
 		-- A third row folds the first two into his base (Checkpoint), then a reload: all still kept.
 		w.advance(W.DEATH_WINDOW + 1)
 		local other = w.participant("Crier-Realm", "Player-1-CC000092")
-		assert(H("CHANNEL", other, table.concat({ "WK", 1, scope, "Olympus II", "00000000000009a3", w.epoch, W.MonthNow(), "S",
+		assert(H("CHANNEL", other, table.concat({ "WK", 1, scope, "Elfcore II", "00000000000009a3", w.epoch, W.MonthNow(), "S",
 			"1.0f000093", "1.cc000092", "Lurker-Realm" }, "~")))
 		assert(W.Stats().checkpointed >= 1, "the rows were folded")
 		assert(c.rdb.wanted.targets["g:" .. horde].base.lastOnline == died, "his base keeps the time")
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		assert(W.Prune())
 		t = W.Target(nil, horde)
@@ -2350,7 +2350,7 @@ test("wanted last seen online on his row (2026-10-20): short and dim after the c
 		local horde = "Player-1-0F000095"
 		local at = w.epoch
 		assert(w.commHandlers.WK("CHANNEL", w.participant("Herald-Realm", "Player-1-CC000095"), table.concat({ "WK", 1, ScopeOf(c),
-			"Olympus II", "00000000000009b1", at, W.MonthNow(), "S", "1.0f000095", "1.cc000095", "Prowler-Realm" }, "~")))
+			"Elfcore II", "00000000000009b1", at, W.MonthNow(), "S", "1.0f000095", "1.cc000095", "Prowler-Realm" }, "~")))
 		local t = assert(W.Target(nil, horde))
 		local counts = c.L.WANTED_ROW_COUNTS:format(t.current, t.lifetimeKills)
 		local prefix = c.L.WANTED_LAST_ONLINE:gsub("%%s", "")
@@ -2403,8 +2403,8 @@ test("wanted last seen online on his row (2026-10-20): short and dim after the c
 		local pt, savedLocale = {}, GetLocale
 		GetLocale = function() return "ptBR" end
 		local ok, err = pcall(function()
-			assert(loadfile(ROOT .. "Olympus/Locales.lua"))("Olympus", pt)
-			assert(loadfile(ROOT .. "Olympus/Locales/RankingRulesText.lua"))("Olympus", pt)
+			assert(loadfile(ROOT .. "Elfcore/Locales.lua"))("Elfcore", pt)
+			assert(loadfile(ROOT .. "Elfcore/Locales/RankingRulesText.lua"))("Elfcore", pt)
 		end)
 		GetLocale = savedLocale
 		if not ok then error(err, 0) end
@@ -2413,7 +2413,7 @@ test("wanted last seen online on his row (2026-10-20): short and dim after the c
 		for _, lang in ipairs({ { "en", ns.L }, { "pt", pt.L } }) do
 			c.L = lang[2]
 			c.Ago = function(when) return lang[2].AGO_HOUR:format(math.floor((w.epoch - when) / 3600)) end
-			assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+			assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 			W = c.Wanted
 			assert(W.Load())
 			drawn[lang[1]] = List()
@@ -2421,7 +2421,7 @@ test("wanted last seen online on his row (2026-10-20): short and dim after the c
 		end
 		c.L = ns.L
 	end)
-	-- The list's width in the Olympus window as it opens (UI.lua's ListWidth: 338 wide, old look 296,
+	-- The list's width in the Elfcore window as it opens (UI.lua's ListWidth: 338 wide, old look 296,
 	-- HD 305), measured as the offline fonts do (6 px a byte, wider than the game's): the whole right
 	-- text stays, never cut.
 	extra.WithUI(function()
@@ -2442,14 +2442,14 @@ test("wanted last seen online on his row (2026-10-20): short and dim after the c
 end)
 
 test("wanted 1.2.3 locales: every line Wanted.lua names, and its buttons' labels and tips, are in English and pt-BR with the same arguments", function()
-	local f = assert(io.open(ROOT .. "Olympus/Wanted.lua"))
+	local f = assert(io.open(ROOT .. "Elfcore/Wanted.lua"))
 	local src = f:read("*a")
 	f:close()
 	local pt, savedLocale = {}, GetLocale
 	GetLocale = function() return "ptBR" end
 	local ok, err = pcall(function()
-		assert(loadfile(ROOT .. "Olympus/Locales.lua"))("Olympus", pt)
-		assert(loadfile(ROOT .. "Olympus/Locales/RankingRulesText.lua"))("Olympus", pt)
+		assert(loadfile(ROOT .. "Elfcore/Locales.lua"))("Elfcore", pt)
+		assert(loadfile(ROOT .. "Elfcore/Locales/RankingRulesText.lua"))("Elfcore", pt)
 	end)
 	GetLocale = savedLocale
 	if not ok then error(err, 0) end
@@ -2533,7 +2533,7 @@ local function WithWorld(fn)
 		end
 		GetFileIDFromPath = function() return nil end
 		GetTime = function() return world.epoch end
-		GetChannelName = function() return 7, "OlympusNet" end
+		GetChannelName = function() return 7, "ElfcoreNet" end
 		C_ChatInfo = { RegisterAddonMessagePrefix = function() end,
 			SendAddonMessage = function(_, text, dist, target)
 				world.queue[#world.queue + 1] = { from = current, text = text, dist = dist, to = target, raw = true }
@@ -2584,11 +2584,11 @@ local function WithWorld(fn)
 			-- (1.2.3: its own guild's roster; a member of another guild is verified only where
 			-- world.verified says so, as the census verifies officers.)
 			c.Roster = { Fresh = function() return true end,
-				RankOf = function(name) return world.olympians[Fold(name)] == (cl.guild or "Olympus II") and 3 or nil end }
+				RankOf = function(name) return world.olympians[Fold(name)] == (cl.guild or "Elfcore II") and 3 or nil end }
 			c.Channels = { VerifiedLevel = function(sender, guild)
 				local g = world.olympians[Fold(sender)]
 				if not g then return 0, false end
-				if g == guild and (g == (cl.guild or "Olympus II") or world.verified[Fold(sender)]) then return 1, true end
+				if g == guild and (g == (cl.guild or "Elfcore II") or world.verified[Fold(sender)]) then return 1, true end
 				return 1, false
 			end }
 			c.RegisterEvent = function(name, call) cl.events[name] = call end
@@ -2609,10 +2609,10 @@ local function WithWorld(fn)
 			local commLogin
 			if cl.realComm then
 				c.db.blocked = {}
-				world:As(cl, function() assert(loadfile(ROOT .. "Olympus/Comm.lua"))("Olympus", c) end)
+				world:As(cl, function() assert(loadfile(ROOT .. "Elfcore/Comm.lua"))("Elfcore", c) end)
 				commLogin = cl.listeners.LOGIN
 			end
-			world:As(cl, function() assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c) end)
+			world:As(cl, function() assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c) end)
 			cl.W = c.Wanted
 			-- As the game loads an addon: INIT (ADDON_LOADED) before the client knows the character's
 			-- name, LOGIN (PLAYER_LOGIN) once it does (Core.lua sets ns.me there).
@@ -2632,7 +2632,7 @@ local function WithWorld(fn)
 		function world:Client(name, guid, role, realComm, guild)
 			name = ns.FullName(name)
 			local seed = ns.Sign.SHA256("test seed " .. name)
-			guild = guild or "Olympus II"
+			guild = guild or "Elfcore II"
 			local cl = { name = name, guid = guid, member = true, db = {}, rdb = {}, prints = {}, seed = seed, realComm = realComm, guild = guild,
 				pk = realEd.PublicKey(seed), units = { player = { name = name, guid = guid, faction = "Alliance", guild = guild, level = 1 } } }
 			world.olympians[Fold(name)] = guild
@@ -2753,7 +2753,7 @@ local function WithChatSanctions(world, clients, fn)
 			-- The Wanted world owns role facts; reuse the real existing name parser, not a
 			-- permissive sanction stub or a fabricated PowersBarred result.
 			cl.ns.Moderation.CharName = ns.Moderation.CharName
-			world:As(cl, function() assert(loadfile(ROOT .. "Olympus/WatchChat.lua"))("Olympus", cl.ns) end)
+			world:As(cl, function() assert(loadfile(ROOT .. "Elfcore/WatchChat.lua"))("Elfcore", cl.ns) end)
 		end
 		fn()
 	end)
@@ -3337,14 +3337,14 @@ end)
 
 -- (1.2.4, changed on purpose, the author's report "nobody on the Most Wanted list": an ordinary
 -- member of another guild, whom no client can prove, counts at once on his own word as the
--- [Olympus] chat's member, Share.Member; before, every other client refused him and only a reviewer
+-- [Elfcore] chat's member, Share.Member; before, every other client refused him and only a reviewer
 -- of his own guild's relay carried his rows. The King still relays both rows, for clients before
 -- 1.2.4. tests/wanted-guilds.lua has this with the real Channels, Data and Roster.)
 test("wanted 1.2.4 world: a member of another guild whom this client cannot prove counts on his own word at once, the King's relay changes nothing here; a removal reaches a late login in the catch-up", function()
 	WithWorld(function(world)
-		local king = world:Client("Varrick-Realm", "Player-1-0A000081", "king", nil, "Olympus II")
-		local here = world:Client("Here-Realm", "Player-1-0A000082", nil, nil, "Olympus III")
-		local far = world:Client("Far-Realm", "Player-1-0A000083", nil, nil, "Olympus II")
+		local king = world:Client("Varrick-Realm", "Player-1-0A000081", "king", nil, "Elfcore II")
+		local here = world:Client("Here-Realm", "Player-1-0A000082", nil, nil, "Elfcore III")
+		local far = world:Client("Far-Realm", "Player-1-0A000083", nil, nil, "Elfcore II")
 		local horde = "Player-1-0B000081"
 		world:Hunt(nil, nil, "Distant-Realm", horde, far, far)
 		-- (1.2.3, changed on purpose, Daniel's revenge: Far killed the very Horde player who killed him,
@@ -3388,22 +3388,22 @@ end)
 
 -- A member's own row on the channel with what it is worth (WK~2), as a 1.2.3 client sends it.
 local function BountyRow(c, W, o)
-	return table.concat({ "WK", 2, ScopeOf(c), o.guild or "Olympus II", o.digest, o.at, o.month or W.MonthNow(), o.kind or "S",
+	return table.concat({ "WK", 2, ScopeOf(c), o.guild or "Elfcore II", o.digest, o.at, o.month or W.MonthNow(), o.kind or "S",
 		o.horde, o.own, o.worth or "M~40~0", o.name }, "~")
 end
 
 -- The real confirmed-alt and verified-owner readers, isolated from the arena's other actions.
 -- All scoring below still enters through the actual shared WK handler, never through a copy of it.
 local function BountyOwnerReaders(c)
-	assert(loadfile(ROOT .. "Olympus/Alts.lua"))("Olympus", c)
+	assert(loadfile(ROOT .. "Elfcore/Alts.lua"))("Elfcore", c)
 	c.Arena = setmetatable({ Action = function() end }, { __index = ns.Arena })
 	c.ArenaMoney = setmetatable({ Subscribe = function() end }, { __index = ns.ArenaMoney })
 	c.Backup, c.Wallet = { arenaChecks = {} }, { KnownKey = function() return nil end }
-	assert(loadfile(ROOT .. "Olympus/Debts.lua"))("Olympus", c)
+	assert(loadfile(ROOT .. "Elfcore/Debts.lua"))("Elfcore", c)
 end
 local function BountyLink(w, c, main, alt, yes)
-	c.Alts.Handle("CHANNEL", main, ("AL~%d~M~Olympus II~%s"):format(w.epoch, alt))
-	if yes then c.Alts.Handle("CHANNEL", alt, ("AL~%d~A~Olympus II~%s"):format(w.epoch, main)) end
+	c.Alts.Handle("CHANNEL", main, ("AL~%d~M~Elfcore II~%s"):format(w.epoch, alt))
+	if yes then c.Alts.Handle("CHANNEL", alt, ("AL~%d~A~Elfcore II~%s"):format(w.epoch, main)) end
 end
 
 test("wanted 1.2.4 owner gaps: reciprocal links join death cooldowns at Rebuild, one-sided offers and independent victims do not", function()
@@ -3477,7 +3477,7 @@ test("wanted 1.2.4 owner gaps: linked Slayers share level and revenge cooldowns,
 		eq(claim.points, 0, "switching to the linked Slayer cannot mint another level base")
 		assert(W.Stats().checkpointed > 0)
 		eq(stored.base.bounty.kill[W.Bounty.Who(alt)] ~= nil, true, "the original character key is retained")
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c); W = c.Wanted; assert(W.Prune())
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c); W = c.Wanted; assert(W.Prune())
 		t, claim = Row(main, "1.cc00f001", "P")
 		eq(claim.points, 0, "the confirmed-owner gap survives a fold and reload")
 		eq(claim.revenge, nil)
@@ -3589,7 +3589,7 @@ test("wanted 1.2.4 scoring migration: retained live evidence is rebuilt under sc
 		s.globalHeads = { legacy = { epoch = 1, seq = 1, pk64 = "old" } }
 		c.db.wantedPublisher = { last = { body = "WY~1~legacy", expires = w.epoch + 1000, issuer = c.me, scope = "legacy" } }
 
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		s = c.rdb.wanted
 		eq(s.scoreVersion, 2); eq(s.evidence[1].points, 6)
@@ -3659,7 +3659,7 @@ test("wanted 1.2.4 scoring migration: the actual retained ten-claim Hobo 534 and
 		c.me, w.units.player.name, w.units.player.guid = hobo, hobo, "Player-1-CC00BC01"
 		s.scoreVersion = 1
 
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		local after = W.Rankings().all
 		eq(after[1].name, socio); eq(after[1].points, 169)
@@ -3677,23 +3677,23 @@ test("wanted 1.2.4 scoring migration: the actual retained ten-claim Hobo 534 and
 		local shown, why = W.Bounty.Notices()
 		eq(shown, 0); eq(why, "ui"); assert(c.rdb.wanted.scoreMigrationLetter)
 		c.Window = window
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		eq(c.rdb.wanted.scoreMigrationLetter.old, 534, "the undisplayed note survived the reload")
 		w.advance(W.Bounty.NOTICE_LOGIN)
 		eq(W.Bounty.Notices(), 1)
-		local frame = assert(w.windows.OlympusWantedScoreMigration)
+		local frame = assert(w.windows.ElfcoreWantedScoreMigration)
 		eq(frame.shown, true); eq(frame.title.text, ns.L.WANTED_SCORE_MIGRATION_TITLE)
 		eq(frame.body.text, ns.L.WANTED_SCORE_MIGRATION_BODY:format(534, 30), "exact old and new totals, retained-history rule and signature")
 		assert(frame.body.text:find("\nFaladoriel Skylance\nThe Royal Dev$"), frame.body.text)
 		eq(c.rdb.wanted.scoreMigrationLetter, nil, "cleared only after the frame was shown")
 
 		-- Once shown, a reload cannot create it again.
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		w.advance(W.Bounty.NOTICE_LOGIN)
 		eq(W.Bounty.Notices(), 0); eq(c.rdb.wanted.scoreMigrationLetter, nil)
-		eq(w.windows.OlympusWantedScoreMigration, frame, "no second frame")
+		eq(w.windows.ElfcoreWantedScoreMigration, frame, "no second frame")
 	end)
 end)
 
@@ -3750,7 +3750,7 @@ test("wanted 1.2.4 scoring migration: proven checkpoint claims are recalculated,
 			months = { [month] = 77 }, monthAt = { [month] = w.epoch }, monthClaims = { [month] = 1 } }
 		s.scoreVersion = 1
 
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		s = c.rdb.wanted
 		local migrated = assert(W.Target(nil, horde)).claims[1]
@@ -3771,7 +3771,7 @@ test("wanted 1.2.4 scoring migration: a future score version fails closed withou
 		local s = c.rdb.wanted
 		s.scoreVersion, s.futureMarker = W.SCORE_VERSION + 1, { keep = true }
 		s.scoreMigrationLetter = { keep = true, version = W.SCORE_VERSION + 1 }
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		eq(W.Load(), false); eq(s.scoreVersion, 3); eq(s.futureMarker.keep, true)
 		eq(s.scoreMigrationLetter.keep, true, "future data is untouched")
@@ -3871,7 +3871,7 @@ test("wanted 1.2.4 bounty world: a 240 bounty dominates the level-60 base on eve
 			local r = world:As(cl, cl.W.Rankings).all[1]
 			eq(r.guid, slayer.guid, cl.name); eq(r.points, 246, cl.name .. ": the same Slayers' points on every client")
 		end
-		-- /oly wanted status, on a client that only heard it all: his bounty, the Slayer's points.
+		-- /elf wanted status, on a client that only heard it all: his bounty, the Slayer's points.
 		local status = world:As(watcher, watcher.W.StatusText)
 		assert(status:find(ns.L.WANTED_STATUS_SLAYER_ROW:format(1, ns.DisplayName(slayer.name), 246, 1), 1, true), status)
 		-- No exact level in the cycle (the King saw him as "??" too, a floor): the claim's own floor.
@@ -3929,7 +3929,7 @@ test("wanted 1.2.4 bounty: the revenge remains 100 once a claim while the kill l
 			horde = "1.0d00c002", own = "1.cc00c001", worth = "M~40~0", name = "Thrall-Realm" })))
 		local paid = W.Target(nil, thrall).claims[1]
 		eq(paid.slayer, other); eq(paid.revenge, nil, "his claim: our grudge is not his"); eq(paid.points, 40)
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		assert(W.Prune())
 		e = Kill(thrall, "Thrall-Realm", 40)
@@ -3965,7 +3965,7 @@ test("wanted 1.2.3 bounty: an office comes only from what the client trusts (the
 		-- client verifies from what it alone holds; the default counts only those every client
 		-- verifies the same way: the test after this one.)
 		B.LOCAL_OFFICES = true
-		local function Office(name, guild) return B.OfficeOf(name, guild or "Olympus II") end
+		local function Office(name, guild) return B.OfficeOf(name, guild or "Elfcore II") end
 		local function Named(...)
 			local set = {}
 			for _, name in ipairs({ ... }) do set[c.Fold(c.FullName(name))] = true end
@@ -3978,23 +3978,23 @@ test("wanted 1.2.3 bounty: an office comes only from what the client trusts (the
 		-- A guild master: on his own client the game's own rank; elsewhere Data.AuthorizedRank, never a
 		-- census report alone (it gives no rank then) nor an officer's rank.
 		eq(Office(c.me), "M")
-		w.units.player.rank = 0; eq(Office(c.me), "G", "rank 0 in an Olympus guild, as the game says")
-		eq(Office(c.me, "Not A Guild"), "M", "no Olympus guild, no guild master")
+		w.units.player.rank = 0; eq(Office(c.me), "G", "rank 0 in an Elfcore guild, as the game says")
+		eq(Office(c.me, "Not A Guild"), "M", "no Elfcore guild, no guild master")
 		w.units.player.rank = 1; eq(Office(c.me), "M", "a guild officer's rank is no office")
 		local ranks = {}
 		c.Data.AuthorizedRank = function(name, guild) return ranks[c.Fold(c.FullName(name)) .. "@" .. guild] end
 		eq(Office("Master-Realm"), "M", "no authorized rank (one census report)")
-		ranks[c.Fold(c.FullName("Master-Realm")) .. "@Olympus II"] = 0
+		ranks[c.Fold(c.FullName("Master-Realm")) .. "@Elfcore II"] = 0
 		eq(Office("Master-Realm"), "G")
 		w.authority("Master-Realm", "council"); eq(Office("Master-Realm"), "H", "a guild master who is a councillor: the highest")
 		eq(B.DeathPoints(Office("Master-Realm"), 58), 108)
 		-- Where no King is pinned: the master of the King's guild (Borders' rule).
 		c.KingCharacter = function() return nil end
-		c.IsKingGuild = function(guild) return guild == "Olympus" end
-		ranks[c.Fold(c.FullName("Founder-Realm")) .. "@Olympus"] = 0
-		eq(Office("Founder-Realm", "Olympus"), "K")
+		c.IsKingGuild = function(guild) return guild == "Elfcore" end
+		ranks[c.Fold(c.FullName("Founder-Realm")) .. "@Elfcore"] = 0
+		eq(Office("Founder-Realm", "Elfcore"), "K")
 		c.KingCharacter = function() return "Someone" end
-		eq(Office("Founder-Realm", "Olympus"), "G", "a King pinned: the master is a guild master")
+		eq(Office("Founder-Realm", "Elfcore"), "G", "a King pinned: the master is a guild master")
 		-- A centurion or a correspondent from his master's own list (a stale list gives nobody).
 		local roles = {}
 		c.Nominees = { RoleOf = function(name) return roles[c.Fold(c.FullName(name))] end }
@@ -4075,7 +4075,7 @@ end)
 
 -- 1.2.4, the author's report on the preview: "3 kills that seem to be of the same person, and only
 -- 18 points", and "many with 0 points, 0 kills: with 0 points and 0 kills he should not be on the
--- Most Wanted list". The tab's row, its tooltip, his page, the API's rows and /oly wanted status.
+-- Most Wanted list". The tab's row, its tooltip, his page, the API's rows and /elf wanted status.
 local function WantedRow(W, guid)
 	for _, line in ipairs((W.Build())) do if line.id == "wanted:g:" .. guid then return line end end
 	return nil
@@ -4086,7 +4086,7 @@ local function TipText(line)
 	return table.concat(tip.lines, "\n")
 end
 
-test("wanted 1.2.4 (the author's report: 3 kills of the same member, 18 points): the kills count as the points do: the same member killed again by the same Horde player within 10 minutes is one kill on the tab's row, its tooltip, his page and /oly wanted status, after a reload too; the deaths in between stay on his page, marked as not counted", function()
+test("wanted 1.2.4 (the author's report: 3 kills of the same member, 18 points): the kills count as the points do: the same member killed again by the same Horde player within 10 minutes is one kill on the tab's row, its tooltip, his page and /elf wanted status, after a reload too; the deaths in between stay on his page, marked as not counted", function()
 	WithWanted(function(w, W, c)
 		w.manager = false
 		w.units.player.level = 18
@@ -4124,13 +4124,13 @@ test("wanted 1.2.4 (the author's report: 3 kills of the same member, 18 points):
 		assert(kills, "his page: one kill")
 		eq(counted, 1, "the death that counted, +18"); eq(again, 2, "the two in between: again, not counted")
 		W.Back()
-		-- /oly wanted status: his bounty row, and each death in between said so.
+		-- /elf wanted status: his bounty row, and each death in between said so.
 		local status = W.StatusText()
 		assert(status:find(ns.L.WANTED_STATUS_BOUNTY_ROW:format(c.DisplayName("Camper-Realm"), 18, 1), 1, true), status)
 		local _, told = status:gsub(ns.L.WANTED_STATUS_AGAIN:format(10):gsub("%p", "%%%0"), "")
 		eq(told, 2, status)
 		-- After a reload: the same (the totals are built again from the saved rows).
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		t = W.Target(nil, camper)
 		eq(t.current, 18); eq(t.lifetimeKills, 1)
@@ -4159,7 +4159,7 @@ test("wanted 1.2.4 (the author's report: 3 kills of the same member, 18 points):
 	end)
 end)
 
-test("wanted 1.2.4 (the author's report: many on Most Wanted with 0 points and 0 kills): a Horde player a member killed who killed none of ours is not wanted: off the tab's list and /oly wanted status's count, while his entry keeps the claim and its Slayer's points; he is listed the moment he kills a member, and stays listed for his kill once his bounty is claimed", function()
+test("wanted 1.2.4 (the author's report: many on Most Wanted with 0 points and 0 kills): a Horde player a member killed who killed none of ours is not wanted: off the tab's list and /elf wanted status's count, while his entry keeps the claim and its Slayer's points; he is listed the moment he kills a member, and stays listed for his kill once his bounty is claimed", function()
 	WithWanted(function(w, W, c)
 		w.manager = false
 		w.units.player.level = 40
@@ -4205,7 +4205,7 @@ test("wanted 1.2.4 (the author's report: many on Most Wanted with 0 points and 0
 		eq(W.Target(nil, prey).current, 0)
 		eq(RowCounts(WantedRow(W, prey)), ns.L.WANTED_ROW_COUNTS:format(0, 1), "0 points and 1 kill: listed")
 		-- After a reload: the same list.
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; assert(W.Load())
 		assert(WantedRow(W, prey), "still listed")
 		eq(WantedRow(W, "Player-1-0D00E202"), nil, "still not")
@@ -4237,7 +4237,7 @@ test("wanted 1.2.3 bounty: old rows count as they always did (a WK~1 row: 1 a de
 		local scope = ScopeOf(c)
 		local old = w.participant("Oldclient-Realm", "Player-1-CC00F001")
 		local function V1(o)
-			return table.concat({ "WK", 1, scope, "Olympus II", o.digest, o.at or w.epoch, W.MonthNow(), o.kind or "S", o.horde, "1.cc00f001", o.name }, "~")
+			return table.concat({ "WK", 1, scope, "Elfcore II", o.digest, o.at or w.epoch, W.MonthNow(), o.kind or "S", o.horde, "1.cc00f001", o.name }, "~")
 		end
 		assert(K("CHANNEL", old, V1({ digest = "00000000000f0001", horde = "1.0d00f001", name = "Legacy-Realm" })))
 		eq(W.Target(nil, "Player-1-0D00F001").current, 1, "1 a death")
@@ -4263,7 +4263,7 @@ test("wanted 1.2.3 bounty: old rows count as they always did (a WK~1 row: 1 a de
 			if e.targetKey == "g:" .. saved then e.office, e.ml, e.hl, e.hf = nil, nil, nil, nil end
 			if e.targetKey == "g:" .. broken then e.office = "Z" end
 		end
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		assert(W.Prune())
 		eq(W.Target(nil, saved).current, 1, "a saved row without what it is worth: 1")
@@ -4271,7 +4271,7 @@ test("wanted 1.2.3 bounty: old rows count as they always did (a WK~1 row: 1 a de
 	end)
 end)
 
-test("wanted 1.2.3 earlier deaths: at login the death recaps the game still holds count once each, through the live death's own gate (a creature's, one inside an instance, one counted already: none), shared like a live death, and the member is told once in an Olympus copy window, never the game's popups", function()
+test("wanted 1.2.3 earlier deaths: at login the death recaps the game still holds count once each, through the live death's own gate (a creature's, one inside an instance, one counted already: none), shared like a live death, and the member is told once in an Elfcore copy window, never the game's popups", function()
 	WithWanted(function(w, W, c)
 		w.manager = false
 		w.units.player.level = 40
@@ -4329,7 +4329,7 @@ test("wanted 1.2.3 earlier deaths: at login the death recaps the game still hold
 			local kb = W.Bounty.KillingBlow(recaps[n])
 			assert(c.rdb.wanted.recapsRead[kb.key], "recap " .. n .. " marked read")
 		end
-		-- One notice: an Olympus copy window, opened by itself (it takes no keyboard), never the
+		-- One notice: an Elfcore copy window, opened by itself (it takes no keyboard), never the
 		-- game's popups; the deaths in their order, each its killer, his level, the time, the points.
 		eq(#shown, 1); eq(#w.dialogs, 0, "no popup")
 		eq(shown[1].title, ns.L.WANTED_EARLIER_TITLE); eq(shown[1].opts.auto, true); eq(shown[1].opts.key, "wanted-earlier")
@@ -4340,14 +4340,14 @@ test("wanted 1.2.3 earlier deaths: at login the death recaps the game still hold
 			os.date("%H:%M", math.floor(recaps[7][1].timestamp)), 40)
 		eq(text, table.concat({ ns.L.WANTED_EARLIER_INTRO, "", rowEarly, rowLater, "", ns.L.WANTED_EARLIER_END }, "\n"))
 		eq(c.rdb.wanted.earlierNotice, nil, "shown: gone")
-		-- /oly wanted status says what was read: the three by a player (the creature's is no line).
+		-- /elf wanted status says what was read: the three by a player (the creature's is no line).
 		local status = W.StatusText()
 		assert(status:find(ns.L.WANTED_STATUS_EARLIER_LINE:format(3, 2), 1, true), status)
 		assert(status:find("  " .. ns.L.WANTED_STATUS_EARLIER .. "  Later Ganker-Realm  " .. ns.L.WANTED_STATUS_BOUNTY:format(40), 1, true), status)
 		assert(status:find("  " .. ns.L.WANTED_STATUS_EARLIER .. "  Battle-Realm  " .. ns.L.WANTED_STATUS_REFUSAL:format("instance"), 1, true), status)
 		-- The next login, and after a reload: nothing more, no notice.
 		assert(W.Load()); Fire("wanted earlier deaths")
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		assert(W.Load()); Fire("wanted earlier deaths")
 		eq(#shown, 1); eq(#w.wire("WK~2~") - before, 2); eq(W.Target(nil, early).current, 40)
@@ -4387,7 +4387,7 @@ test("wanted 1.2.3 earlier deaths: their notice waits out combat, an instance, a
 		eq(shown, 0, "the privacy page to ask: it waits")
 		eq(Fire("wanted earlier notice"), W.Bounty.NOTICE_TICK); eq(shown, 0)
 		-- A /reload meanwhile: it is saved, and still waits.
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		timers = {}
 		assert(W.Load())
@@ -4670,21 +4670,21 @@ end)
 
 test("wanted office provenance: deterministic mode counts the same on every client; the old local-office option demonstrates why it must not feed shared scores", function()
 	WithWorld(function(world)
-		local master = world:Client("Master-Realm", "Player-1-0A0000F1", nil, nil, "Olympus II")
-		local mate = world:Client("Mate-Realm", "Player-1-0A0000F2", nil, nil, "Olympus II")
-		local other = world:Client("Faraway-Realm", "Player-1-0A0000F3", nil, nil, "Olympus III")
+		local master = world:Client("Master-Realm", "Player-1-0A0000F1", nil, nil, "Elfcore II")
+		local mate = world:Client("Mate-Realm", "Player-1-0A0000F2", nil, nil, "Elfcore II")
+		local other = world:Client("Faraway-Realm", "Player-1-0A0000F3", nil, nil, "Elfcore III")
 		master.units.player.level, master.units.player.rank = 40, 0
 		world.verified[ns.Fold(master.name)] = true -- (the other guild's client verifies him as a member)
 		local everyone = { master, mate, other }
 		local function Manifest(signed)
 			for _, cl in ipairs(everyone) do
 				cl.ns.Authority = { Role = function(name)
-					if signed and ns.Fold(ns.FullName(name)) == ns.Fold(master.name) then return "Olympus II", 0, "signed" end
+					if signed and ns.Fold(ns.FullName(name)) == ns.Fold(master.name) then return "Elfcore II", 0, "signed" end
 				end }
 				-- (His guild's roster, as Data.AuthorizedRank reads it, ranks him on his guildmates' clients
 				-- alone; the census ranks nobody for the other guild's.)
 				cl.ns.Data.AuthorizedRank = function(name, guild)
-					if cl.guild == "Olympus II" and guild == "Olympus II" and ns.Fold(ns.FullName(name)) == ns.Fold(master.name) then return 0, "roster" end
+					if cl.guild == "Elfcore II" and guild == "Elfcore II" and ns.Fold(ns.FullName(name)) == ns.Fold(master.name) then return 0, "roster" end
 				end
 			end
 		end
@@ -4779,7 +4779,7 @@ test("wanted 1.2.3 repair: corpse camping and a Horde friend killed in a loop no
 			horde = "1.0d00b302", own = "1.cc00b301", worth = "M~60~60", name = "Friendly-Realm" })))
 		eq(W.Target(nil, alt).claims[#W.Target(nil, alt).claims].points, 6)
 		-- After a reload, built again from the rows: our gap holds.
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		assert(W.Prune())
 		w.advance(W.DEATH_WINDOW + 1)
@@ -4850,11 +4850,11 @@ end
 -- The avenged notices a client was shown (Dialog.Show's), in order.
 local function AvengedShown(into)
 	local out = {}
-	for _, f in ipairs(into.shownDialogs) do if f.which == "OLYMPUS_WANTED_AVENGED" then out[#out + 1] = f end end
+	for _, f in ipairs(into.shownDialogs) do if f.which == "ELFCORE_WANTED_AVENGED" then out[#out + 1] = f end end
 	return out
 end
 
-test("wanted 1.2.4 notices: at each own death to a Horde player, a toast at the death: Olympus's own window at the bottom of the screen (the release popup is at its top), no button, no mouse, off the escape list, his name and the points his bounty grew by; once a death (the recap's retries, a second reading); 'again' inside the corpse-camping gap; nothing for a death that does not count; in both input modes, never a game popup", function()
+test("wanted 1.2.4 notices: at each own death to a Horde player, a toast at the death: Elfcore's own window at the bottom of the screen (the release popup is at its top), no button, no mouse, off the escape list, his name and the points his bounty grew by; once a death (the recap's retries, a second reading); 'again' inside the corpse-camping gap; nothing for a death that does not count; in both input modes, never a game popup", function()
 	WithWanted(function(w, W, c)
 		w.manager = false
 		w.units.player.level = 40
@@ -4871,10 +4871,10 @@ test("wanted 1.2.4 notices: at each own death to a Horde player, a toast at the 
 			C_DeathRecap = { HasRecapEvents = function() return ready end, GetRecapEvents = function() return rows end }
 			w.dead = true
 			w.handlers.PLAYER_DEAD()
-			eq(w.windows.OlympusWantedToast, nil, "nothing before the recap")
+			eq(w.windows.ElfcoreWantedToast, nil, "nothing before the recap")
 			ready = true
 			Fire("wanted death recap")
-			local f = assert(w.windows.OlympusWantedToast, "the toast")
+			local f = assert(w.windows.ElfcoreWantedToast, "the toast")
 			eq(f.shown, true, "at the death, the player still dead: no wait for the release")
 			eq(f.text.text, ns.L.WANTED_DEATH_TOAST:format(name, 40), "his name and what this death added (a member of level 40)")
 			eq(W.Target(nil, ganker).current, 40)
@@ -4926,7 +4926,7 @@ test("wanted 1.2.4 notices: at each own death to a Horde player, a toast at the 
 	end)
 end)
 
-test("wanted 1.2.4 notices: a death avenged: another member's own kill of that Horde player, reaching this client, brings one notice in Olympus's own dialog (who slew him, his guild, the Horde player, how many times he had killed this member); Thank writes the thanks in Olympus's whisper window and sends nothing, Whisper opens that window empty, See his profile and keeps the dialog; nothing for a kill before the death, a stranger's or a hidden sender's row, a second avenger, the member's own kill, or after a reload", function()
+test("wanted 1.2.4 notices: a death avenged: another member's own kill of that Horde player, reaching this client, brings one notice in Elfcore's own dialog (who slew him, his guild, the Horde player, how many times he had killed this member); Thank writes the thanks in Elfcore's whisper window and sends nothing, Whisper opens that window empty, See his profile and keeps the dialog; nothing for a kill before the death, a stranger's or a hidden sender's row, a second avenger, the member's own kill, or after a reload", function()
 	WithWanted(function(w, W, c)
 		w.manager, w.dead = false, false
 		w.units.player.level = 40
@@ -4970,24 +4970,24 @@ test("wanted 1.2.4 notices: a death avenged: another member's own kill of that H
 			local shown = AvengedShown(w)
 			eq(#shown, 1, "one notice")
 			local d = shown[1]
-			eq(d.a, ns.L.WANTED_AVENGED:format(c.DisplayName(avenger), "Olympus II", c.DisplayName("Avenged Ganker-Realm"),
+			eq(d.a, ns.L.WANTED_AVENGED:format(c.DisplayName(avenger), "Elfcore II", c.DisplayName("Avenged Ganker-Realm"),
 				ns.L.WANTED_AVENGED_TIMES:format(2)), "who, his guild, the Horde player, twice")
 			eq(d.def.button1, ns.L.WANTED_AVENGED_THANK); eq(d.def.button2, ns.L.WANTED_AVENGED_CLOSE)
 			eq(d.def.button3, ns.L.WANTED_AVENGED_WHISPER); eq(d.def.extra.label, ns.L.WANTED_AVENGED_SEE)
 			eq(d.def.hasEditBox, nil, "no edit box")
 			eq(#w.dialogs, 0, "never through the game's popups (ns.ShowDialog)")
 			eq(c.rdb.wanted.mine[ganker], nil, "his deaths closed")
-			-- Thank: Olympus's whisper window with the words in it; nothing sent until the player's own Send.
+			-- Thank: Elfcore's whisper window with the words in it; nothing sent until the player's own Send.
 			d.def.OnAccept(d, d.data)
 			eq(#w.whispers, 1); eq(w.whispers[1].name, c.TellName(avenger)); eq(w.whispers[1].text, ns.L.WANTED_THANK_TEXT)
 			eq(#w.sent, sentBefore, "nothing sent")
-			-- Whisper: that window, empty (Olympus's own dialog in both input modes).
+			-- Whisper: that window, empty (Elfcore's own dialog in both input modes).
 			d.def.OnAlt(d, d.data)
 			local box = w.shownDialogs[#w.shownDialogs]
-			eq(box.which, "OLYMPUS_WHISPER"); eq(box.a, c.TellName(avenger)); eq(box.data, c.TellName(avenger))
-			-- See: his Olympus profile; the dialog stays (Dialog.lua's extra button answers nothing).
+			eq(box.which, "ELFCORE_WHISPER"); eq(box.a, c.TellName(avenger)); eq(box.data, c.TellName(avenger))
+			-- See: his Elfcore profile; the dialog stays (Dialog.lua's extra button answers nothing).
 			d.def.extra.onClick(d, d.data)
-			eq(w.profile.name, "Avenger Hand"); eq(w.profile.realm, "Realm"); eq(w.profile.guild, "Olympus II"); eq(w.profile.source, "addon")
+			eq(w.profile.name, "Avenger Hand"); eq(w.profile.realm, "Realm"); eq(w.profile.guild, "Elfcore II"); eq(w.profile.source, "addon")
 			eq(#w.sent, sentBefore, "still nothing sent")
 			d.shown, box.shown = false, false
 			-- A second avenger finds nothing open.
@@ -5008,7 +5008,7 @@ test("wanted 1.2.4 notices: a death avenged: another member's own kill of that H
 			eq(#w.letters, 1, "his letter instead")
 			eq(c.rdb.wanted.mine[ganker], nil)
 			-- A reload: nothing again.
-			assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+			assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 			W = c.Wanted
 			assert(W.Load())
 			eq(#AvengedShown(w), 1); eq(#w.letters, 1)
@@ -5018,7 +5018,7 @@ test("wanted 1.2.4 notices: a death avenged: another member's own kill of that H
 	end)
 end)
 
-test("wanted 1.2.4 notices: the avenged notice waits out combat, an instance, a death, the privacy page (shown or waiting), the update letter and the King's letter, saved across a reload, then shows once, one at a time; with the gamepad UI it waits for the Olympus window and chat says so once; five at most wait, the oldest go", function()
+test("wanted 1.2.4 notices: the avenged notice waits out combat, an instance, a death, the privacy page (shown or waiting), the update letter and the King's letter, saved across a reload, then shows once, one at a time; with the gamepad UI it waits for the Elfcore window and chat says so once; five at most wait, the oldest go", function()
 	WithWanted(function(w, W, c)
 		w.manager, w.dead = false, false
 		w.units.player.level = 40
@@ -5041,7 +5041,7 @@ test("wanted 1.2.4 notices: the avenged notice waits out combat, an instance, a 
 		local first = Hunt(1)
 		eq(#AvengedShown(w), 0, "in combat: it waits"); eq(Waits(), 1, "saved")
 		-- A reload meanwhile: still waiting, tried again NOTICE_LOGIN after the login.
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		Clear()
 		assert(W.Load())
@@ -5061,7 +5061,7 @@ test("wanted 1.2.4 notices: the avenged notice waits out combat, an instance, a 
 		assert(shown[1].a:find(c.DisplayName(first), 1, true))
 		eq(Fire("wanted notices"), nil, "and done"); eq(Waits(), 0)
 		shown[1].shown = false
-		-- With the gamepad UI nothing of Olympus opens by itself: it waits for the Olympus window.
+		-- With the gamepad UI nothing of Elfcore opens by itself: it waits for the Elfcore window.
 		GamepadStyle(true)
 		local function Said() local k = 0 for _, p in ipairs(w.prints) do if p == ns.L.WANTED_AVENGED_WAITING then k = k + 1 end end return k end
 		Hunt(2)
@@ -5070,7 +5070,7 @@ test("wanted 1.2.4 notices: the avenged notice waits out combat, an instance, a 
 		eq(Said(), 1, "once")
 		w.windowOpen = true
 		Fire("wanted notices")
-		eq(#AvengedShown(w), 2, "the Olympus window open: shown")
+		eq(#AvengedShown(w), 2, "the Elfcore window open: shown")
 		AvengedShown(w)[2].shown = false
 		GamepadStyle(false)
 		w.windowOpen = nil
@@ -5196,11 +5196,11 @@ test("wanted 1.2.4 notices: the Slayer letter, the King's letter at this member'
 		assert(w.handlers.PARTY_KILL(me, "Player-1-0D00E306"))
 		Settle()
 		eq(#w.letters, 4, "the King: no letter")
-		eq(w.windows.OlympusWantedToast.text.text, ns.L.WANTED_LETTER_TOAST:format(Name("Royal Ganker-Realm"), 5))
+		eq(w.windows.ElfcoreWantedToast.text.text, ns.L.WANTED_LETTER_TOAST:format(Name("Royal Ganker-Realm"), 5))
 		w.kingLetter = nil
 		-- Once: a reload sends none again; the words still read from the key alone.
 		w.units.target = nil
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted
 		assert(W.Load())
 		eq(#w.letters, 4); eq(W.LetterText(key), text)
@@ -5230,8 +5230,8 @@ test("wanted 1.2.4 notices world: the killer's client knows the whole bounty at 
 			world.epoch = world.epoch + 60
 		end
 		Die(online); Die(away)
-		eq(online.windows.OlympusWantedToast.text.text, ns.L.WANTED_DEATH_TOAST:format(name, 40), "the toast on his own client")
-		eq(king.windows.OlympusWantedToast, nil, "on nobody else's")
+		eq(online.windows.ElfcoreWantedToast.text.text, ns.L.WANTED_DEATH_TOAST:format(name, 40), "the toast on his own client")
+		eq(king.windows.ElfcoreWantedToast, nil, "on nobody else's")
 		world:Offline(away)
 		-- The slayer kills him: the whole bounty (40 + 30) on his client at the kill.
 		slayer.units.target = { name = "Ganker-Realm", guid = horde, faction = "Horde", level = 60 }
@@ -5245,7 +5245,7 @@ test("wanted 1.2.4 notices world: the killer's client knows the whole bounty at 
 		-- The member online is told at once; the King and the slayer are not.
 		local told = AvengedShown(online)
 		eq(#told, 1)
-		local words = ns.L.WANTED_AVENGED:format(ns.DisplayName(slayer.name), "Olympus II", name, "")
+		local words = ns.L.WANTED_AVENGED:format(ns.DisplayName(slayer.name), "Elfcore II", name, "")
 		eq(told[1].a, words)
 		eq(#AvengedShown(king), 0); eq(#AvengedShown(slayer), 0)
 		-- The one offline logs in: the King's catch-up answer brings the kill, and his notice. (A
@@ -5275,7 +5275,7 @@ end)
 -- 1.2.4 repair, the notices' review: the rows come in any order (a member's own death heard after
 -- the kill that avenged it, a death before the kill heard after it), a member offline at the kill
 -- asks for it at his next login (W7), and with the gamepad UI the Slayer letter waits, saved, for
--- the Olympus window. Each of these fails on v124/notices.
+-- the Elfcore window. Each of these fails on v124/notices.
 ---------------------------------------------------------------------------
 
 test("wanted 1.2.4 repair: a death heard after the kill that avenged it (its recap ready only at a retry): the toast says he was slain already, never 'we will avenge you'; the avenged notice names that kill's slayer, with this member's earlier death to him counted, once; nothing stays open, so a kill on him days later tells nobody", function()
@@ -5313,7 +5313,7 @@ test("wanted 1.2.4 repair: a death heard after the kill that avenged it (its rec
 		-- The recap at the retry: his second death, before that kill.
 		ready = true
 		eq(Fire("wanted death recap"), 0.3)
-		local toast = assert(w.windows.OlympusWantedToast)
+		local toast = assert(w.windows.ElfcoreWantedToast)
 		eq(toast.text.text, ns.L.WANTED_DEATH_TOAST_SLAIN:format(name), "slain already: never 'we will avenge you'")
 		local t = W.Target(nil, ganker)
 		eq(#t.claims, 1); eq(t.claims[1].bounty, 80, "both deaths in the claim that paid them"); eq(t.claims[1].points, 86)
@@ -5324,7 +5324,7 @@ test("wanted 1.2.4 repair: a death heard after the kill that avenged it (its rec
 		Fire("wanted notices")
 		local shown = AvengedShown(w)
 		eq(#shown, 1)
-		eq(shown[1].a, ns.L.WANTED_AVENGED:format(c.DisplayName(avenger), "Olympus II", name, ns.L.WANTED_AVENGED_TIMES:format(2)))
+		eq(shown[1].a, ns.L.WANTED_AVENGED:format(c.DisplayName(avenger), "Elfcore II", name, ns.L.WANTED_AVENGED_TIMES:format(2)))
 		shown[1].shown = false
 		-- Three days later another member kills him: nothing was left open, nobody is told.
 		w.advance(3 * 86400)
@@ -5346,7 +5346,7 @@ test("wanted 1.2.4 repair: a death heard after the kill that avenged it (its rec
 		while Fire("wanted death recap") do end -- (the first death's retries left too: theirs do nothing now)
 		w.dead = false
 		eq(c.rdb.wanted.mine[own], nil); eq(#c.rdb.wanted.avenged, 0, "his own kill: no notice")
-		eq(w.windows.OlympusWantedToast.text.text, ns.L.WANTED_DEATH_TOAST_SLAIN:format(c.DisplayName("Self Ganker-Realm")))
+		eq(w.windows.ElfcoreWantedToast.text.text, ns.L.WANTED_DEATH_TOAST_SLAIN:format(c.DisplayName("Self Ganker-Realm")))
 	end)
 end)
 
@@ -5369,7 +5369,7 @@ test("wanted 1.2.4 repair: a death the earlier deaths' reader adds at the next l
 		local function Login()
 			C_DeathInfo = nil
 			C_DeathRecap = { HasRecapEvents = function(id) return id == nil or id == 1 end, GetRecapEvents = function() return rows end }
-			assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+			assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 			W = c.Wanted
 			Clear()
 			assert(W.Load())
@@ -5394,7 +5394,7 @@ test("wanted 1.2.4 repair: a death the earlier deaths' reader adds at the next l
 		Fire("wanted notices")
 		local shown = AvengedShown(w)
 		eq(#shown, 1, "told at the next login")
-		eq(shown[1].a, ns.L.WANTED_AVENGED:format(c.DisplayName(avenger), "Olympus II", c.DisplayName("Unread Ganker-Realm"), ""))
+		eq(shown[1].a, ns.L.WANTED_AVENGED:format(c.DisplayName(avenger), "Elfcore II", c.DisplayName("Unread Ganker-Realm"), ""))
 		shown[1].shown = false
 		w.advance(3 * 86400)
 		assert(Kill(later, "1.cc00e502", "1.0d00e501", "Unread Ganker-Realm"))
@@ -5503,7 +5503,7 @@ test("wanted 1.2.4 counted kills: repeated deaths trimmed from the victim histor
 		eq(t.victimOverflow, 2); eq(t.victimKillOverflow, 1, "one counted and one repeat trimmed")
 		eq(W.Stats().checkpointed, 1, "the earlier deaths folded")
 		assert(TipText(assert(WantedRow(W, camper))):find(ns.L.WANTED_REPEATS:format(4, 1, 10), 1, true), "the whole cycle, including its overflow")
-		assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+		assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 		W = c.Wanted; W.MAX_VICTIMS = 2; assert(W.Load())
 		t = W.Target(nil, camper)
 		eq(t.victimOverflow, 2); eq(t.victimKillOverflow, 1)
@@ -5519,7 +5519,7 @@ test("wanted 1.2.4 counted kills: repeated deaths trimmed from the victim histor
 	end)
 end)
 
-test("wanted 1.2.4 repair: with the gamepad UI the Slayer letter stays saved in Wanted until the Olympus window is open and nothing is in the way (a /reload keeps it; an instance with the window open, it waits), then shows at once; chat is told it waits; with the mouse it shows as it goes", function()
+test("wanted 1.2.4 repair: with the gamepad UI the Slayer letter stays saved in Wanted until the Elfcore window is open and nothing is in the way (a /reload keeps it; an instance with the window open, it waits), then shows at once; chat is told it waits; with the mouse it shows as it goes", function()
 	WithWanted(function(w, W, c)
 		w.manager, w.dead = false, false
 		w.units.player.level = 45
@@ -5537,7 +5537,7 @@ test("wanted 1.2.4 repair: with the gamepad UI the Slayer letter stays saved in 
 			eq(#w.letters, 0, "the window closed: it waits"); eq(#c.rdb.wanted.slayerLetters, 1, "saved in Wanted")
 			assert(w.windowWaits >= 1, "chat told (HonorsNet.WaitForWindow)")
 			-- A /reload before the window opened: still there.
-			assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+			assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 			W = c.Wanted
 			Clear()
 			assert(W.Load())
@@ -5653,7 +5653,7 @@ test("wanted 1.2.4 repair, the avenged ask (W7): its answers come from several c
 		eq(Fire("wanted avenged settle"), W.Bounty.ASK_SETTLE)
 		local shown = AvengedShown(w)
 		eq(#shown, 1, "one notice")
-		eq(shown[1].a, ns.L.WANTED_AVENGED:format(c.DisplayName(first), "Olympus II", c.DisplayName("Raced Ganker-Realm"), ""), "the first kill after his death")
+		eq(shown[1].a, ns.L.WANTED_AVENGED:format(c.DisplayName(first), "Elfcore II", c.DisplayName("Raced Ganker-Realm"), ""), "the first kill after his death")
 		eq(c.rdb.wanted.mine[ganker], nil)
 		-- Past the settle, a claim avenges at once again.
 		local other = "Player-1-0D00EA02"
@@ -5717,7 +5717,7 @@ test("wanted 1.2.4 repair, the avenged ask (W7) answered: a member's client answ
 		eq(select(2, A("CHANNEL", asker, Ask(ganker))), "rate", "ASK_PER")
 		w.advance(W.Bounty.ASK_WINDOW)
 		c.Moderation.Hides = function(name) return c.Fold(name) == c.Fold(asker) end
-		eq(select(2, A("CHANNEL", asker, Ask(ganker))), "olympus", "a hidden asker")
+		eq(select(2, A("CHANNEL", asker, Ask(ganker))), "elfcore", "a hidden asker")
 		c.Moderation.Hides = nil
 		-- A reviewer's client: the other member's row too, as his relay.
 		w.authority(c.me, "council")
@@ -5767,7 +5767,7 @@ test("wanted 1.2.4 repair, the avenged ask (W7) world: a member offline when his
 		eq(#world:As(away, away.W.Target, nil, horde).claims, 1, "the kill, from the slayer's own client")
 		local told = AvengedShown(away)
 		eq(#told, 1, "told who avenged him")
-		eq(told[1].a, ns.L.WANTED_AVENGED:format(ns.DisplayName(slayer.name), "Olympus II", name, ""))
+		eq(told[1].a, ns.L.WANTED_AVENGED:format(ns.DisplayName(slayer.name), "Elfcore II", name, ""))
 		eq(#AvengedShown(third), 0); eq(#AvengedShown(slayer), 0)
 		told[1].shown = false
 		-- Another login: nothing open, no ask, nothing again.
@@ -5781,11 +5781,11 @@ end)
 
 -- Daniel's test build: the game's "blocked from an action" pop-up at every login came from
 -- Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") (taint.log, Wanted.lua). On Forever the
--- combat log events are restricted: no Olympus file may register them, however it is written.
-test("Most Wanted: no Olympus file registers a restricted combat log event (Forever blocks the addon at login)", function()
+-- combat log events are restricted: no Elfcore file may register them, however it is written.
+test("Most Wanted: no Elfcore file registers a restricted combat log event (Forever blocks the addon at login)", function()
 	local RESTRICTED = { "COMBAT_LOG_EVENT_UNFILTERED", "COMBAT_LOG_EVENT" }
 	local found = {}
-	for _, dir in ipairs({ "Olympus", "Olympus_Arena" }) do
+	for _, dir in ipairs({ "Elfcore", "Elfcore_Arena" }) do
 		local p = io.popen('find "' .. ROOT .. dir .. '" -name "*.lua"')
 		for path in p:lines() do
 			local f = io.open(path, "rb")

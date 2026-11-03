@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Olympus Link keys (Ed25519), made on your own computer. Needs python3 "cryptography".
+"""Elfcore Link keys (Ed25519), made on your own computer. Needs python3 "cryptography".
 
   python3 scripts/link-keys.py backend                        # the Worker's signing key
   python3 scripts/link-keys.py confirmer <id> <c|p> --character <Name-Realm> [--owner <discord id>] [--username <name>] [--bootstrap] [--days <n>]
@@ -13,7 +13,7 @@
 
 "backend" prints a fresh seed for the Worker secret LINK_BACKEND_SEED and its public key, which
 goes in the Worker var LINK_BACKEND_PUBLIC and in the addon (ns.LINK_BACKEND_KEYS, Link.lua).
-"confirmer" prints a confirmer's seed (they type "/oly discord key <id> <seed>" in game), its
+"confirmer" prints a confirmer's seed (they type "/elf discord key <id> <seed>" in game), its
 public key, and how to register it: with the Worker's POST /api/link/keys (it answers the
 certificate), or the SQL for D1 (web/worker/schema.sql). <id>: 6 to 16 of a-z and 0-9, never
 reused (12 hex digits are the council authority's keys); c: a High Councillor, p: a drawn
@@ -24,7 +24,7 @@ Discord id (one active key per Discord account); --bootstrap: a councillor key t
 owner has linked a character; --days: how long its certificate lasts (365 for a councillor, 90
 for a player).
 "cert" signs a key's certificate with the backend key: the line the confirmer types in game
-("/oly discord cert <certificate>") and the SQL that records its end in D1. <public key>: 64 hex
+("/elf discord cert <certificate>") and the SQL that records its end in D1. <public key>: 64 hex
 or 43 base64url. A player key (p) gets its certificate only once the Worker counts it for every
 code still open (7 days old and its owner's Discord account 30 days old, a day and 5 minutes
 before): --created (the key's "created" in D1) and --owner (its owner_discord_id) say when, and
@@ -41,17 +41,17 @@ key for its characters, and the confirmer keys it owns, whose ids stay on the re
 only; its limits, under a keyed hash, stay until their window ends; take its role away yourself).
 
 "ca" makes the council authority, once, on the author's computer: a fresh seed written to
-dist/LinkCA.lua (ns.LINK_CA_SEED; OLYMPUS_LINK_CA_OUT gives another path), readable by its owner
+dist/LinkCA.lua (ns.LINK_CA_SEED; ELFCORE_LINK_CA_OUT gives another path), readable by its owner
 alone, never printed, and its public key printed for the addon (ns.LINK_CA_KEYS, Link.lua) and
 the Worker (LINK_CA_PUBLIC). Like dist/CouncilList.lua, the file goes to the author's own game
-only: copy it into Interface/AddOns/Olympus/ on his computer and add a line "LinkCA.lua" at the
-end of Olympus.toc there (never in the repository, the public zip or a chat). His client then
+only: copy it into Interface/AddOns/Elfcore/ on his computer and add a line "LinkCA.lua" at the
+end of Elfcore.toc there (never in the repository, the public zip or a chat). His client then
 certifies, in game and by itself, the keys the High Councillors' addons make (tier c, a year),
-but only with ns.LINK_COUNCIL_AUTHORITY = true in Olympus/Link.lua: it ships false (Konig's
+but only with ns.LINK_COUNCIL_AUTHORITY = true in Elfcore/Link.lua: it ships false (Konig's
 review), and then every key, a High Councillor's too, is one "confirmer" makes.
 "ca" refuses to replace a file that exists: a new authority is a rotation (its public key next to
 the old one in the addon and the Worker, then the new file, then every councillor's certificate
-renewed by "/oly discord key new"). "ca public" prints the file's public key again.
+renewed by "/elf discord key new"). "ca public" prints the file's public key again.
 
 Nothing else is written to disk: every other seed is printed once. Keep them out of the
 repository, chats, issues and screenshots. The backend seed lives only in the Worker's secrets
@@ -70,7 +70,7 @@ except ImportError:
 KEY_ID = re.compile(r"^[a-z0-9]{6,16}$")
 CA_KEY_ID = re.compile(r"^[0-9a-f]{12}$")  # a council authority's key: the first 12 hex of SHA-256 of it
 FORBIDDEN = re.compile(r"[|~;,\x00-\x1f\x7f]")
-CA_OUT = os.environ.get("OLYMPUS_LINK_CA_OUT") or os.path.join("dist", "LinkCA.lua")
+CA_OUT = os.environ.get("ELFCORE_LINK_CA_OUT") or os.path.join("dist", "LinkCA.lua")
 DISCORD_ID = re.compile(r"^[0-9]{5,25}$")
 USERNAME = re.compile(r"^[a-z0-9_.]{2,32}$")
 SEED = re.compile(r"^[A-Za-z0-9_-]{43}$")
@@ -151,7 +151,7 @@ def certificate(signer, key_id, pub_hex, tier, exp, character):
     over the UTF-8 bytes of everything before it: the key, for that one character."""
     payload = "OLK2.%s.%s.%s.%d.%s" % (key_id, b64url(bytes.fromhex(pub_hex)), tier, exp, character)
     cert = payload + "." + b64url(signer.sign(payload.encode("utf-8")))
-    for line in ("/oly discord cert " + cert, "DV~1~" + cert):
+    for line in ("/elf discord cert " + cert, "DV~1~" + cert):
         assert len(line.encode()) < CHAT_LINE_MAX, "a certificate line longer than the chat's 255 bytes"
     return cert
 
@@ -184,7 +184,7 @@ def cert_from(kind, created, owner):
 
 def backend():
     seed, pub = fresh()
-    print("Olympus Link backend key (made just now, shown once)")
+    print("Elfcore Link backend key (made just now, shown once)")
     print()
     print("Seed, for the Worker secret LINK_BACKEND_SEED (paste it when wrangler asks):")
     print("  " + b64url(seed))
@@ -246,18 +246,18 @@ def confirmer(args):
     # A player key counts 8 days from now at the soonest: its certificate comes then.
     cert = certificate(signer, key_id, pub, kind, exp, character) if signer and kind == "c" else None
     owner_sql = sql_text(owner) if owner else "'REPLACE_WITH_DISCORD_ID'"
-    print("Olympus Link confirmer key %s (%s, for %s, made just now, shown once)" % (key_id, "councillor" if kind == "c" else "player", character))
+    print("Elfcore Link confirmer key %s (%s, for %s, made just now, shown once)" % (key_id, "councillor" if kind == "c" else "player", character))
     print()
     print("For the confirmer only, privately: the line%s to type in the game, on %s (kept for that character):" % ("s" if cert else "", character))
-    print("  /oly discord key %s %s" % (key_id, b64url(seed)))
+    print("  /elf discord key %s %s" % (key_id, b64url(seed)))
     if cert:
-        print("  /oly discord cert %s" % cert)
+        print("  /elf discord cert %s" % cert)
     elif kind == "c":
-        print("  and the \"/oly discord cert ...\" line the Worker answers when you register the key (below).")
+        print("  and the \"/elf discord cert ...\" line the Worker answers when you register the key (below).")
     else:
-        print("  and, once the key counts (below), its \"/oly discord cert ...\" line: send both together then.")
+        print("  and, once the key counts (below), its \"/elf discord cert ...\" line: send both together then.")
     print()
-    print("Public key (\"/oly discord key\" in game shows the same one):")
+    print("Public key (\"/elf discord key\" in game shows the same one):")
     print("  " + pub)
     print()
     body = {"key_id": key_id, "public_key": pub, "owner_discord_id": owner or "REPLACE_WITH_DISCORD_ID", "character": character, "kind": kind}
@@ -351,10 +351,10 @@ def cert(args):
         sys.exit("The backend seed is needed: --backend-seed-file <path>, or LINK_BACKEND_SEED_FILE or LINK_BACKEND_SEED.")
     exp = t + days * 86400
     c = certificate(signer, key_id, pub, tier, exp, character)
-    print("Olympus Link certificate of key %s (%s, for %s, until %s UTC)" % (key_id, "councillor" if tier == "c" else "player", character, day(exp)))
+    print("Elfcore Link certificate of key %s (%s, for %s, until %s UTC)" % (key_id, "councillor" if tier == "c" else "player", character, day(exp)))
     print()
-    print("For the confirmer (after their \"/oly discord key\" line): type this in the game, on %s:" % character)
-    print("  /oly discord cert %s" % c)
+    print("For the confirmer (after their \"/elf discord key\" line): type this in the game, on %s:" % character)
+    print("  /elf discord cert %s" % c)
     print()
     guard = " AND created = %d AND owner_discord_id = %s" % (created, sql_text(owner)) if tier == "p" else ""
     print("D1 (the draw counts a key while its certificate lasts). Rotating (the key's first certificate, when")
@@ -400,20 +400,20 @@ def ca(args):
         os.makedirs(os.path.dirname(CA_OUT), exist_ok=True)
     fd = os.open(CA_OUT, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "w", encoding="ascii") as f:
-        f.write("-- Local only: the Olympus Link council authority's seed (scripts/link-keys.py ca). The author's own\n")
-        f.write("-- game only (Interface/AddOns/Olympus/, and \"LinkCA.lua\" at the end of Olympus.toc there): never\n")
+        f.write("-- Local only: the Elfcore Link council authority's seed (scripts/link-keys.py ca). The author's own\n")
+        f.write("-- game only (Interface/AddOns/Elfcore/, and \"LinkCA.lua\" at the end of Elfcore.toc there): never\n")
         f.write("-- commit, publish, share or show this file. The addon never prints, logs or sends it.\n")
         f.write("local _, ns = ...\nns.LINK_CA_SEED = \"%s\"\n" % b64url(seed))
-    print("Olympus Link council authority (made just now): %s written, readable by you alone." % CA_OUT)
+    print("Elfcore Link council authority (made just now): %s written, readable by you alone." % CA_OUT)
     print()
-    print("Its public key, for the addon's ns.LINK_CA_KEYS (Olympus/Link.lua) and the Worker var LINK_CA_PUBLIC:")
+    print("Its public key, for the addon's ns.LINK_CA_KEYS (Elfcore/Link.lua) and the Worker var LINK_CA_PUBLIC:")
     print("  " + pub)
     print()
-    print("Copy %s to your own game only: Interface/AddOns/Olympus/LinkCA.lua on your computer, and add the" % CA_OUT)
-    print("line LinkCA.lua at the end of Olympus.toc there (like CouncilList.lua). Never in the repository, the")
+    print("Copy %s to your own game only: Interface/AddOns/Elfcore/LinkCA.lua on your computer, and add the" % CA_OUT)
+    print("line LinkCA.lua at the end of Elfcore.toc there (like CouncilList.lua). Never in the repository, the")
     print("public zip, a chat or a screenshot; keep a copy in a password manager. Your client then certifies the")
     print("High Councillors' own keys by itself, whenever one of their addons hears you (a year each), but only")
-    print("with ns.LINK_COUNCIL_AUTHORITY = true in Olympus/Link.lua: it ships false, and then the bot's keeper")
+    print("with ns.LINK_COUNCIL_AUTHORITY = true in Elfcore/Link.lua: it ships false, and then the bot's keeper")
     print("makes every key (\"confirmer\"), a High Councillor's too.")
 
 

@@ -205,7 +205,7 @@ ns.GAMEPAD = {
 		why = "The layer hop's group: the helper's addon invites a vouched guest (InviteUnit) and either side leaves after the hop (LeaveParty), from Elfcore's own messages and timers; neither is protected, and the game's group frames follow from its own events. (1.2: a match's group the same way, ArenaMatch.lua: the invite inside the player's click, the leave at the match's end.)" },
 
 	-- 1.2 (the Blood Arena and its boards), registered with the audit at the 1.1.6 merge.
-	{ id = "arena-clicks", kind = "restricted", files = { "ArenaMatch.lua", "ArenaTourney.lua", "Core.lua", "FarkleTable.lua", "Lottery.lua", "Elfcore_Arena/Games/Farkle.lua", "Elfcore_Arena/Games/Bicho.lua" },
+	{ id = "arena-clicks", kind = "restricted", files = { "ArenaMatch.lua", "ArenaTourney.lua", "Core.lua", "FarkleTable.lua", "Lottery.lua", "Elfcore_Arena/Games/Farkle.lua" },
 		guard = "click", toPad = "stays", toMouse = "nothing", safe = "off",
 		why = "The Arena's restricted calls, each from the player's click on an Elfcore button or his typed command: the dice, the draws and the Lottery's prize (RandomRoll), a table's sit (DoEmote), a table's party invite (InviteUnit), a player blocked (C_FriendList.AddIgnore), a whisper he wrote or a fixed matchmaking line (ns.SayTo: SendChatMessage, restricted to a hardware event). The companion's practice games roll the same way (RandomRoll, not restricted): Bones's throw from its button, and the practice Lottery's five prizes in turn from its Draw button's click." },
 	{ id = "map-waypoint", kind = "map-state", files = { "ArenaMatch.lua" },

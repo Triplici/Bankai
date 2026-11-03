@@ -14,11 +14,11 @@ local groups = {
 		"tabards-v2.lua", "ui-look-wave1.lua", "wallet-release.lua" },
 }
 local files = {
-	["Olympus/InnkeeperArrow.lua"] = "bones", ["Olympus/ArenaPlaces.lua"] = "bones",
-	["Olympus_Arena/FarkleBoard.lua"] = "bones", ["Olympus_Arena/Games/Farkle.lua"] = "bones",
-	["Olympus_Arena/Locales/FarkleText.lua"] = "bones",
-	["Olympus/Watch.lua"] = "watch", ["Olympus/WatchChat.lua"] = "watch", ["Olympus/ViewAs.lua"] = "watch",
-	["Olympus/ChatStrikes.lua"] = "watch", ["tests/chat-strikes.lua"] = "watch",
+	["Elfcore/InnkeeperArrow.lua"] = "bones", ["Elfcore/ArenaPlaces.lua"] = "bones",
+	["Elfcore_Arena/FarkleBoard.lua"] = "bones", ["Elfcore_Arena/Games/Farkle.lua"] = "bones",
+	["Elfcore_Arena/Locales/FarkleText.lua"] = "bones",
+	["Elfcore/Watch.lua"] = "watch", ["Elfcore/WatchChat.lua"] = "watch", ["Elfcore/ViewAs.lua"] = "watch",
+	["Elfcore/ChatStrikes.lua"] = "watch", ["tests/chat-strikes.lua"] = "watch",
 	["tests/innkeeper-arrow.lua"] = "bones", ["tests/watch-council-view.lua"] = "watch",
 }
 -- Test-only changes may use their whole mapped dependency group. Shared fixtures/harness fall back.

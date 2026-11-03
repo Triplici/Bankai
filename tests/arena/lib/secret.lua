@@ -13,13 +13,13 @@
 --
 -- Limits (stated where it matters): a truth test (`if v`) and a secret used as a table key cannot
 -- be trapped, and type(v) is "cdata" here where the client says "number" or "string".
-local cached = package.loaded["olympus-test-secret"]
+local cached = package.loaded["elfcore-test-secret"]
 if cached then return cached end
 
 local ffi = require("ffi")
-ffi.cdef("typedef struct { int olympus_secret; } olympus_secret_t;")
+ffi.cdef("typedef struct { int elfcore_secret; } elfcore_secret_t;")
 local function Boom() error("a secret value was used (compared, computed, joined or indexed)", 2) end
-local T = ffi.metatype("olympus_secret_t", {
+local T = ffi.metatype("elfcore_secret_t", {
 	__eq = Boom, __lt = Boom, __le = Boom, __concat = Boom, __tostring = Boom, __len = Boom, __unm = Boom,
 	__add = Boom, __sub = Boom, __mul = Boom, __div = Boom, __mod = Boom, __pow = Boom,
 	__index = Boom, __newindex = Boom, __call = Boom,
@@ -39,5 +39,5 @@ function M.Any(t, seen)
 	end
 	return false
 end
-package.loaded["olympus-test-secret"] = M
+package.loaded["elfcore-test-secret"] = M
 return M

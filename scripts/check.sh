@@ -13,10 +13,10 @@ printf 'Checking Lua syntax...\n'
 check_tmp=$(mktemp -d)
 trap 'rm -rf "$check_tmp"' EXIT
 lua_files="$check_tmp/lua-files"
-lua_dirs=(Olympus tests)
-[ -d Olympus_Arena ] && lua_dirs+=(Olympus_Arena) # (1.2: the Olympus Arena module)
-[ -d OlympusCompanionBridge ] && lua_dirs+=(OlympusCompanionBridge)
-[ -d OlympusSiteAggregate ] && lua_dirs+=(OlympusSiteAggregate)
+lua_dirs=(Elfcore tests)
+[ -d Elfcore_Arena ] && lua_dirs+=(Elfcore_Arena) # (1.2: the Elfcore Arena module)
+[ -d ElfcoreCompanionBridge ] && lua_dirs+=(ElfcoreCompanionBridge)
+[ -d ElfcoreSiteAggregate ] && lua_dirs+=(ElfcoreSiteAggregate)
 find "${lua_dirs[@]}" -type f -name '*.lua' -print0 > "$lua_files"
 while IFS= read -r -d '' file; do
 	# Compile to a listing without executing addon code or writing bytecode files.
@@ -38,15 +38,15 @@ fi
 printf 'Checking files listed in addon TOCs...\n'
 luajit - <<'LUA'
 local failed = false
--- (1.2: the Olympus Arena module, Olympus_Arena/Olympus_Arena.toc, when the folder is there.)
+-- (1.2: the Elfcore Arena module, Elfcore_Arena/Elfcore_Arena.toc, when the folder is there.)
 for _, pair in ipairs({
-	{ "Olympus", "Olympus/Olympus.toc" },
-	{ "Olympus_Arena", "Olympus_Arena/Olympus_Arena.toc" },
-	{ "OlympusCompanionBridge", "OlympusCompanionBridge/OlympusCompanionBridge.toc" },
-	{ "OlympusSiteAggregate", "OlympusSiteAggregate/OlympusSiteAggregate.toc" },
+	{ "Elfcore", "Elfcore/Elfcore.toc" },
+	{ "Elfcore_Arena", "Elfcore_Arena/Elfcore_Arena.toc" },
+	{ "ElfcoreCompanionBridge", "ElfcoreCompanionBridge/ElfcoreCompanionBridge.toc" },
+	{ "ElfcoreSiteAggregate", "ElfcoreSiteAggregate/ElfcoreSiteAggregate.toc" },
 }) do
 	local toc = io.open(pair[2], "r")
-	if not toc and pair[1] == "Olympus" then
+	if not toc and pair[1] == "Elfcore" then
 		io.stderr:write("Cannot read " .. pair[2] .. "\n")
 		os.exit(1)
 	end
@@ -88,7 +88,7 @@ printf 'Checking local/global name collisions...\n'
 bash scripts/lint-globals.sh
 
 # 1.1.5: the gamepad gate's static audit. Every place the addon reaches into the game's own UI is
-# registered in Olympus/GamepadRegistry.lua, tagged in the code and behind the gate; it compiles
+# registered in Elfcore/GamepadRegistry.lua, tagged in the code and behind the gate; it compiles
 # the addon's files to read them and runs none of them.
 if [ -f scripts/gamepad-audit.lua ]; then
 	printf 'Checking the gamepad gate...\n'
@@ -117,7 +117,7 @@ if command -v python3 >/dev/null 2>&1; then
 	bash tests/records-seal-roundtrip.sh
 fi
 
-# Max's border textures (Olympus/media/borders): the offline tests check the .tga files
+# Max's border textures (Elfcore/media/borders): the offline tests check the .tga files
 # themselves; with Pillow installed, also that they are what scripts/make-borders.py builds
 # from his PNGs in media/borders/src (the script changes nothing with --check).
 if [ -f scripts/make-borders.py ]; then
@@ -129,7 +129,7 @@ if [ -f scripts/make-borders.py ]; then
 	fi
 fi
 
-# Bone Throw's textures (Olympus_Arena/media/farkle, 1.2): what scripts/make-farkle-art.py builds
+# Bone Throw's textures (Elfcore_Arena/media/farkle, 1.2): what scripts/make-farkle-art.py builds
 # from the PNGs in media/farkle/src (the script changes nothing with --check).
 if [ -f scripts/make-farkle-art.py ]; then
 	printf "Checking Bone Throw's textures against their PNG sources...\n"
@@ -140,10 +140,10 @@ if [ -f scripts/make-farkle-art.py ]; then
 	fi
 fi
 
-# Olympus Link's vectors, sample, draw and inbox, shared with the page's and the Worker's tests:
+# Elfcore Link's vectors, sample, draw and inbox, shared with the page's and the Worker's tests:
 # checked again with Python's "cryptography" wherever it is installed (the script changes nothing).
 if [ -f tests/fixtures/make-link-vectors.py ]; then
-	printf "Checking Olympus Link's shared vectors...\n"
+	printf "Checking Elfcore Link's shared vectors...\n"
 	if command -v python3 >/dev/null 2>&1 && python3 -c 'import cryptography' >/dev/null 2>&1; then
 		PYTHONDONTWRITEBYTECODE=1 python3 tests/fixtures/make-link-vectors.py --check
 	else

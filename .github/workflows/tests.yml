@@ -27,7 +27,7 @@ jobs:
       - name: Run repository checks
         run: bash scripts/check.sh
 
-      # Olympus Link's page, core, reference Worker and tools (web/test). The D1 tests skip
+      # Elfcore Link's page, core, reference Worker and tools (web/test). The D1 tests skip
       # themselves without node:sqlite (Node 22.13 or newer): here that stops the job instead.
       - name: Install Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -38,5 +38,5 @@ jobs:
       - name: Check node:sqlite
         run: node -e "require('node:sqlite')"
 
-      - name: Run the Olympus Link web tests
+      - name: Run the Elfcore Link web tests
         run: node --test web/test/*.test.mjs

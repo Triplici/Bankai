@@ -1,14 +1,14 @@
 	local _, test, eq, extra = ...
 	local ROOT = assert(extra and extra.ROOT, "site aggregate test root")
-	local FILE = ROOT .. "OlympusSiteAggregate/SiteAggregate.lua"
+	local FILE = ROOT .. "ElfcoreSiteAggregate/SiteAggregate.lua"
 
 	local function Base(now)
 		return {
-			schema = "olympus-census-checkpoint", version = 1,
+			schema = "elfcore-census-checkpoint", version = 1,
 			capturedAt = now - 100000, capturedAtServer = now, timeSource = "server",
 			scope = { realm = "ClassicBetaPvP", realmGroup = "ClassicBetaPvP+ClassicBetaPvP2", faction = "Alliance" },
 			guilds = { {
-				name = "Olympus II", members = 900, online = 200, fresh = true, counted = true,
+				name = "Elfcore II", members = 900, online = 200, fresh = true, counted = true,
 				observedAt = now - 100010, observedAtServer = now - 10,
 				provenance = { source = "roster", disputed = false, reporters = 1,
 					reporter = "PRIVATE REPORTER", guid = "Player-PRIVATE", key = "PRIVATE KEY" },
@@ -21,20 +21,20 @@
 
 	local function With(fn)
 		local saved = {
-			bridge = OlympusBridge, aggregate = OlympusSiteAggregate, command = OlympusSiteAggregateCommand,
-			compat = OlympusSiteAggregateCompatibility196,
-			slash = SlashCmdList, slashName = SLASH_OLYMPUSSITEAGGREGATE1,
+			bridge = ElfcoreBridge, aggregate = ElfcoreSiteAggregate, command = ElfcoreSiteAggregateCommand,
+			compat = ElfcoreSiteAggregateCompatibility196,
+			slash = SlashCmdList, slashName = SLASH_ELFCORESITEAGGREGATE1,
 			frame = CreateFrame, inGuild = IsInGuild, guild = GetGuildInfo, server = GetServerTime,
 			chat = DEFAULT_CHAT_FRAME,
 		}
-		local state = { now = 1900000000, guild = "Olympus II", inGuild = true, messages = {}, bridgeCalls = 0,
+		local state = { now = 1900000000, guild = "Elfcore II", inGuild = true, messages = {}, bridgeCalls = 0,
 			slash = {} }
 		state.checkpoint = Base(state.now)
 		local onEvent, events, frame = nil, {}, nil
-		OlympusSiteAggregate = nil
-		OlympusSiteAggregateCommand = nil
-		OlympusSiteAggregateCompatibility196 = nil
-		SlashCmdList, SLASH_OLYMPUSSITEAGGREGATE1 = state.slash, nil
+		ElfcoreSiteAggregate = nil
+		ElfcoreSiteAggregateCommand = nil
+		ElfcoreSiteAggregateCompatibility196 = nil
+		SlashCmdList, SLASH_ELFCORESITEAGGREGATE1 = state.slash, nil
 		CreateFrame = function()
 			frame = {
 				RegisterEvent = function(_, event) events[event] = true end,
@@ -50,7 +50,7 @@
 			return state.now
 		end
 		DEFAULT_CHAT_FRAME = { AddMessage = function(_, line) state.messages[#state.messages + 1] = line end }
-		OlympusBridge = {
+		ElfcoreBridge = {
 			CENSUS_CHECKPOINT_API_VERSION = 1,
 			GetCensusCheckpoint = function()
 				state.bridgeCalls = state.bridgeCalls + 1
@@ -62,25 +62,25 @@
 			-- The client's order: the file runs, the previous session's SavedVariables are
 			-- restored, then ADDON_LOADED fires for this addon.
 			assert(loadfile(FILE))()
-			OlympusSiteAggregate = { stale = "must be withdrawn at load" }
-			state.restored = OlympusSiteAggregate
+			ElfcoreSiteAggregate = { stale = "must be withdrawn at load" }
+			state.restored = ElfcoreSiteAggregate
 			state.onEvent, state.events = function(_, ...) return onEvent(frame, ...) end, events
-			state.onEvent(nil, "ADDON_LOADED", "Olympus")
-			eq(OlympusSiteAggregate, state.restored, "another addon's load leaves it alone")
-			state.onEvent(nil, "ADDON_LOADED", "OlympusSiteAggregate")
+			state.onEvent(nil, "ADDON_LOADED", "Elfcore")
+			eq(ElfcoreSiteAggregate, state.restored, "another addon's load leaves it alone")
+			state.onEvent(nil, "ADDON_LOADED", "ElfcoreSiteAggregate")
 			fn(state)
 		end)
-		OlympusBridge, OlympusSiteAggregate = saved.bridge, saved.aggregate
-		OlympusSiteAggregateCommand, OlympusSiteAggregateCompatibility196 = saved.command, saved.compat
-		SlashCmdList, SLASH_OLYMPUSSITEAGGREGATE1 = saved.slash, saved.slashName
+		ElfcoreBridge, ElfcoreSiteAggregate = saved.bridge, saved.aggregate
+		ElfcoreSiteAggregateCommand, ElfcoreSiteAggregateCompatibility196 = saved.command, saved.compat
+		SlashCmdList, SLASH_ELFCORESITEAGGREGATE1 = saved.slash, saved.slashName
 		CreateFrame, IsInGuild, GetGuildInfo, GetServerTime, DEFAULT_CHAT_FRAME = saved.frame, saved.inGuild, saved.guild, saved.server, saved.chat
 		if not ok then error(err, 0) end
 	end
 
 	local function Export()
-		assert(type(OlympusSiteAggregateCommand) == "function", "the gated slash command target")
-		OlympusSiteAggregateCommand("export")
-		return OlympusSiteAggregate
+		assert(type(ElfcoreSiteAggregateCommand) == "function", "the gated slash command target")
+		ElfcoreSiteAggregateCommand("export")
+		return ElfcoreSiteAggregate
 	end
 
 	local function Contains(value, needle, seen)
@@ -97,20 +97,20 @@
 
 	test("site aggregate: only an explicit export writes a fresh server-clock own-roster allowlist", function()
 		With(function(s)
-			eq(OlympusSiteAggregate, nil, "a prior session's value is withdrawn once its SavedVariables load")
+			eq(ElfcoreSiteAggregate, nil, "a prior session's value is withdrawn once its SavedVariables load")
 			eq(s.events.ADDON_LOADED, nil, "the load listener is released after its own addon")
 			eq(s.bridgeCalls, 0, "loading performs no census read")
-			eq(s.slash.OLYMPUSSITEAGGREGATE, nil, "the sidecar cannot bypass Core's gamepad slash gate")
-			eq(SLASH_OLYMPUSSITEAGGREGATE1, nil, "Core alone owns the compatibility alias")
-			eq(OlympusSiteAggregateCompatibility196, nil, "Prepare is not exposed to another addon")
-			OlympusSiteAggregateCommand("")
-			eq(OlympusSiteAggregate, nil); eq(s.bridgeCalls, 0, "help does not prepare")
+			eq(s.slash.ELFCORESITEAGGREGATE, nil, "the sidecar cannot bypass Core's gamepad slash gate")
+			eq(SLASH_ELFCORESITEAGGREGATE1, nil, "Core alone owns the compatibility alias")
+			eq(ElfcoreSiteAggregateCompatibility196, nil, "Prepare is not exposed to another addon")
+			ElfcoreSiteAggregateCommand("")
+			eq(ElfcoreSiteAggregate, nil); eq(s.bridgeCalls, 0, "help does not prepare")
 			local out = assert(Export())
 			eq(s.bridgeCalls, 1)
-			eq(out.schema, "olympus-site-aggregate"); eq(out.version, 1); eq(out.producer, "1.3.2-site.1")
+			eq(out.schema, "elfcore-site-aggregate"); eq(out.version, 1); eq(out.producer, "1.3.2-site.1")
 			eq(out.capturedAt, s.now)
 			eq(out.realmGroup, "ClassicBetaPvP+ClassicBetaPvP2"); eq(out.faction, "Alliance")
-			eq(out.guild.name, "Olympus II"); eq(out.guild.observedAt, s.now - 10)
+			eq(out.guild.name, "Elfcore II"); eq(out.guild.observedAt, s.now - 10)
 			eq(out.guild.characters, 900); eq(out.guild.online, 200)
 			-- The fixed .198 parser requires exactly these seven keys and producer. In particular,
 			-- expiry is enforced by its source-age/review lifecycle, not an additive root field.
@@ -152,7 +152,7 @@
 		local function Refused(change, label)
 			With(function(s)
 				change(s, s.checkpoint.guilds[1])
-				OlympusSiteAggregate = { armed = true }
+				ElfcoreSiteAggregate = { armed = true }
 				eq(Export(), nil, label)
 			end)
 		end
@@ -175,7 +175,7 @@
 		With(function(s)
 			s.checkpoint.scope.faction = "Horde"
 			eq(Export(), nil)
-			assert(s.messages[#s.messages]:find("Only the Alliance Olympus", 1, true), "a Horde guild is told why")
+			assert(s.messages[#s.messages]:find("Only the Alliance Elfcore", 1, true), "a Horde guild is told why")
 		end)
 		Refused(function(s) s.checkpoint.scope.realmGroup = "bad|group" end, "bad scope")
 		Refused(function(s) s.checkpoint.guilds[2] = s.checkpoint.guilds[1] end, "duplicate own row")
@@ -186,15 +186,15 @@
 
 	test("site aggregate: exact guild scope is canonical, and a guild change withdraws the pending export", function()
 		With(function(s)
-			s.guild = "OLYMPUS II"
+			s.guild = "ELFCORE II"
 			local out = assert(Export())
-			eq(out.guild.name, "Olympus II")
+			eq(out.guild.name, "Elfcore II")
 			assert(s.events.PLAYER_GUILD_UPDATE and s.events.GUILD_ROSTER_UPDATE, "membership events registered")
 			s.onEvent(nil, "GUILD_ROSTER_UPDATE")
-			assert(OlympusSiteAggregate, "a same-guild roster refresh keeps it")
-			s.guild = "Olympus III"
+			assert(ElfcoreSiteAggregate, "a same-guild roster refresh keeps it")
+			s.guild = "Elfcore III"
 			s.onEvent(nil, "PLAYER_GUILD_UPDATE")
-			eq(OlympusSiteAggregate, nil, "a changed guild withdraws it")
+			eq(ElfcoreSiteAggregate, nil, "a changed guild withdraws it")
 			assert(s.messages[#s.messages]:find("guild changed", 1, true))
 		end)
 	end)
@@ -202,10 +202,10 @@
 	test("site aggregate: clear is explicit and no other command creates or uploads a value", function()
 		With(function(s)
 			assert(Export())
-			OlympusSiteAggregateCommand("clear")
-			eq(OlympusSiteAggregate, nil)
+			ElfcoreSiteAggregateCommand("clear")
+			eq(ElfcoreSiteAggregate, nil)
 			local calls = s.bridgeCalls
-			OlympusSiteAggregateCommand("publish")
-			eq(OlympusSiteAggregate, nil); eq(s.bridgeCalls, calls, "unknown commands do no work")
+			ElfcoreSiteAggregateCommand("publish")
+			eq(ElfcoreSiteAggregate, nil); eq(s.bridgeCalls, calls, "unknown commands do no work")
 		end)
 	end)

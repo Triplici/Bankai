@@ -1,4 +1,4 @@
-# Olympus Link's draw (decision 4), shared by the addon (Link.Rank, Link.Drawn) and the Worker.
+# Elfcore Link's draw (decision 4), shared by the addon (Link.Rank, Link.Drawn) and the Worker.
 # A "p" key's place for code R: the first 8 lowercase hex of SHA-256(R~keyId). At issuance the
 # Worker takes M = max(20, ceil(3% of the active "p" keys)) and T = the place at index M of the sorted
 # places, counting from 0 ("ffffffff" with M keys or fewer, "00000000" in mode c); a key is drawn

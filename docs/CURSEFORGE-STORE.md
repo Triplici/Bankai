@@ -1,79 +1,79 @@
-# Olympus
+# Elfcore
 
-**The whole Olympus army in one window, inside World of Warcraft: Forever.**
+**The whole Elfcore army in one window, inside World of Warcraft: Forever.**
 
-Olympus is Asmongold's guild for *World of Warcraft: Forever*: Alliance, PvP ruleset, a
+Elfcore is Asmongold's guild for *World of Warcraft: Forever*: Alliance, PvP ruleset, a
 place to find dungeon groups, organize raids, share class knowledge and build the guild
 together. It grew past **10,000 members during the beta**. A WoW guild caps at 1,000
-members, so Olympus is really a *realm* of many Olympus guilds. In game each player
-only ever sees the roster of their own guild. Nobody could tell how many Olympus guilds
+members, so Elfcore is really a *realm* of many Elfcore guilds. In game each player
+only ever sees the roster of their own guild. Nobody could tell how many Elfcore guilds
 exist, who leads them, or where the army is.
 
-This addon answers exactly that. It adds up every Olympus guild live, in a window that
+This addon answers exactly that. It adds up every Elfcore guild live, in a window that
 looks like Blizzard's Guild window and docks right next to it.
 
-![The whole army at a glance: every Olympus guild, live](https://raw.githubusercontent.com/dnl-gentile/olympus-addon/main/docs/olympus-1.jpg)
+![The whole army at a glance: every Elfcore guild, live](https://raw.githubusercontent.com/dnl-gentile/elfcore-addon/main/docs/elfcore-1.jpg)
 
-![Where the army stands: soldiers per zone on the world map](https://raw.githubusercontent.com/dnl-gentile/olympus-addon/main/docs/olympus-5.jpg)
+![Where the army stands: soldiers per zone on the world map](https://raw.githubusercontent.com/dnl-gentile/elfcore-addon/main/docs/elfcore-5.jpg)
 
 > **Status:** built for WoW: Forever and running on the Forever beta (1.60.1), where the
-> census already adds up reports from many Olympus guilds. Also tested on Classic Era (1.15)
-> and Anniversary (2.5). Please report anything that looks wrong (`/oly bug`).
+> census already adds up reports from many Elfcore guilds. Also tested on Classic Era (1.15)
+> and Anniversary (2.5). Please report anything that looks wrong (`/elf bug`).
 
 ---
 
-**Horde too.** Olympus guilds on the Horde side use the same addon. The factions can't see
+**Horde too.** Elfcore guilds on the Horde side use the same addon. The factions can't see
 each other's guilds, so each one gets its own census, channels, decrees and untabarded list: the
-addon picks yours from your character. On the Horde, the Crown is every Horde Olympus guild
-master and the officers of the Horde guild named exactly "Olympus", if there is one.
+addon picks yours from your character. On the Horde, the Crown is every Horde Elfcore guild
+master and the officers of the Horde guild named exactly "Elfcore", if there is one.
 
 ## Recent versions
 
 - **1.3.3**: Deliberate site export: an optional Site Aggregate folder writes a masked own-guild count for the
-  Olympus website on /oly site export and /reload, never uploads, and empties at the next logout or reload.
+  Elfcore website on /elf site export and /reload, never uploads, and empties at the next logout or reload.
 - **1.3.2**: Correction: explicitly approximate Census people counts, preserve accepted Treasury rows,
   fix full-suite ordering regressions and export consented Companion identity evidence.
 - **1.3.0**: Shared durable records and rankings; Church catch-up; Wanted and Slayers pagination,
   rebalanced history and recent map sightings; the current Legate structure; safer Watch records;
   Companion exports after the Accord; and integrated Arena, Bones and chat fixes.
 
-Every version's notes are in the [GitHub releases](https://github.com/dnl-gentile/olympus-addon/releases). This page is the short one for CurseForge: the [README](https://github.com/dnl-gentile/olympus-addon#olympus) has every section in full.
+Every version's notes are in the [GitHub releases](https://github.com/dnl-gentile/elfcore-addon/releases). This page is the short one for CurseForge: the [README](https://github.com/dnl-gentile/elfcore-addon#elfcore) has every section in full.
 
 ## Who can use it
 
-**Only members of a guild with "Olympus" in its name**, however it was spelled: OLYMPVS the Roman way, Olimpus, Olmps, Olympuz, Olympos, Olimpo and other misspellings count too (Olympia or Olympic do not), and a guild against Olympus ("ANTI OLYMPUS", "Olympus Haters") does not. The check is fixed in the code and
-cannot be switched off with a command. Outside an Olympus guild the addon joins no channel
+**Only members of a guild with "Elfcore" in its name**, however it was spelled: OLYMPVS the Roman way, Olimpus, Olmps, Olympuz, Olympos, Olimpo and other misspellings count too (Olympia or Olympic do not), and a guild against Elfcore ("ANTI ELFCORE", "Elfcore Haters") does not. The check is fixed in the code and
+cannot be switched off with a command. Outside an Elfcore guild the addon joins no channel
 and hears nothing of the army, but for the author's signed list below, over its own guild.
-The only thing it offers there is the **Join Olympus**
+The only thing it offers there is the **Join Elfcore**
 screen described below, and its own few addon whispers are the only ones it sends or hears
 there (1.1: which guild to ask, the answer, and your request, each to or from the one member
-concerned). Using it requires accepting its terms, the Olympus Accord, which shares your BattleTag with Olympus's staff only.
+concerned). Using it requires accepting its terms, the Elfcore Accord, which shares your BattleTag with Elfcore's staff only.
 
-**Approved guilds (1.1).** A guild of Asmon's Olympus whose name the rule leaves out (it leaves
-Olympian and Olympia out on purpose) counts as an Olympus guild once the author names it in his
+**Approved guilds (1.1).** A guild of Asmon's Elfcore whose name the rule leaves out (it leaves
+Olympian and Olympia out on purpose) counts as an Elfcore guild once the author names it in his
 signed list: the same list, signed with the same key on his own computer, that names the High
 Council and the King's Steward, for one faction and realm group. No census vote counts, and nobody
 else can add one. A few ship with the addon itself, so their members have nothing to paste: since
-1.1, the Alliance's `<OLYMPIAN>`, and since 1.1.5 its `<OLYMPIANS>` too (only a new version takes one of those off). Its members' addons, no Olympus members
+1.1, the Alliance's `<ELF>`, and since 1.1.5 its `<ELVES>` too (only a new version takes one of those off). Its members' addons, no Elfcore members
 until they hold that list, take it over their own guild alone (the list only: nothing else is
-read, and they send nothing). The first of them pastes it with `/oly approved paste`, or a click
-on the Join Olympus screen's last line (the author
+read, and they send nothing). The first of them pastes it with `/elf approved paste`, or a click
+on the Join Elfcore screen's last line (the author
 or a High Councillor hands out the signed text; it is checked like any list, so it can't be forged
-or changed), and his addon passes it to his guild every 5 minutes. `/oly approved` lists the
+or changed), and his addon passes it to his guild every 5 minutes. `/elf approved` lists the
 approved guilds of your faction. A newer signed list without a guild ends it on every client.
 
-**Removed guilds (1.1.5).** A guild the High Council removed from Olympus is no Olympus guild,
+**Removed guilds (1.1.5).** A guild the High Council removed from Elfcore is no Elfcore guild,
 whatever its name: its census, chats and marks are gone and its members' addon shows the Join
-Olympus screen. Its way back is an appeal to the council: once the author names it in his signed
+Elfcore screen. Its way back is an appeal to the council: once the author names it in his signed
 approved list, it counts again, with no new version. Until a player updates, the council's
 [net-off](#net-off-11-the-moderators-hide-a-character-or-take-a-guild-off-the-network) word takes
 such a guild off the network live.
 
-### Not in Olympus yet?
+### Not in Elfcore yet?
 First it asks the obvious question: *"<Your Guild>? Disband immediately. What are you
-doing?"* Then it helps you get in. The **Join Olympus** screen uses the game's own `/who` to
-find Olympus members online, groups them by guild, and whispers one of them a ready-made
-request that you can edit ("Hi! I'd love to join Olympus. Does <Olympus II> have room for
+doing?"* Then it helps you get in. The **Join Elfcore** screen uses the game's own `/who` to
+find Elfcore members online, groups them by guild, and whispers one of them a ready-made
+request that you can edit ("Hi! I'd love to join Elfcore. Does <Elfcore II> have room for
 one more?"). No answer? **Try someone else** picks a member you have not asked yet. Replies
 are highlighted. It is rate limited, so nobody gets spammed.
 
@@ -86,7 +86,7 @@ once `/who` found one of its members (the gates once a second member's answer ag
 is asked), the guilds found with `/who` too, and a click asks one of those officers that `/who`
 found in that guild, or another member it found there. Just before, their addon is asked
 whether they take recruit whispers (again if it never answered): a member who set **do not
-contact** (`/oly nocontact on`) is never offered, however many recruits ask him, and the
+contact** (`/elf nocontact on`) is never offered, however many recruits ask him, and the
 question closes before anything is sent. It stays **one whisper per click**, in your
 own words (no dues line), 20 seconds apart. With it goes your request to the same member, so an
 officer's addon shows it with **Invite** and **Decline** instead of a raw whisper. Members on
@@ -95,7 +95,7 @@ versions before 1.1 just get the whisper, as before.
 ## What it does
 
 ### Census: the army at a glance
-- Every Olympus guild in one list: **Guild · Members · Online · Avg lvl · Lord**. Columns sort by
+- Every Elfcore guild in one list: **Guild · Members · Online · Avg lvl · Lord**. Columns sort by
   clicking, like the Guild window.
 - **Total soldiers** and **online now** across the whole realm.
 - **Where the army stands**: top zones ("Stormwind City 742") and totals per continent
@@ -106,9 +106,9 @@ versions before 1.1 just get the whisper, as before.
   after login: N guilds heard so far* for about 3 minutes, while every guild's reporter answers.
   The beta often loads an empty save: the army is not gone, and no `/reload` is needed. The line
   only waits: it asks nothing (no `/who`) and opens nothing.
-- **An update line** (1.1): when the author's own addon says on the Olympus channel that a newer
+- **An update line** (1.1): when the author's own addon says on the Elfcore channel that a newer
   version than yours is out (he marks it once CurseForge lists it, never a build he is still
-  trying), a line at the foot of the Census, one line in chat once a session and `/oly status`
+  trying), a line at the foot of the Census, one line in chat once a session and `/elf status`
   say so. It is yours alone: nothing is sent and nobody is whispered.
 - **Marked rows** (1.1): a warning mark on a guild whose senders disagree (on its Lord or
   Captains, or on its size, by more than 5 members or 5% plus the 20 a minute a guild may gain or
@@ -116,13 +116,13 @@ versions before 1.1 just get the whisper, as before.
   sender stands behind. Its tooltip says which and who: check before calling a muster or opening
   the gates on it (the gates ask again, with the reason). A marked row can still be right, and
   the mark changes nothing that counts. Your own guild (your roster) is never marked.
-- **Asking to join** (1.1): a recruit who asked you from the Join Olympus screen shows on top of
+- **Asking to join** (1.1): a recruit who asked you from the Join Elfcore screen shows on top of
   the Census, with their whisper. An officer (the game's guild invite permission) answers with
   **Invite** (the game's own guild invite) or **Decline** (one whisper pointing to the gates'
   guild while the King's gates are open, else naming your guild alone: never a guild the census
   lists for its room, which two made-up characters could report), one click each; anyone else
   can point them to an officer online. **Dismiss** sends nothing. In the Realm's Recruiting, one
-  click (or `/oly nocontact`) sets your **do not contact** flag.
+  click (or `/elf nocontact`) sets your **do not contact** flag.
 - **Search the census** (1.1): a guild, a Lord, a Captain, a player of a guild's top five or one
   seen online (the player shows under the guild's row), or a zone ("Stormwind": its soldiers
   and its guilds, most first). Type **recruiting** (or `free 50`) for every guild with room,
@@ -139,32 +139,32 @@ versions before 1.1 just get the whisper, as before.
 - The **King**, then every guild's **Lord** (guild master) and **Captains** (the officer rank
   right below the guild master).
   Each shows level, class and online or *offline 3d*. Long absences show in red
-  (`/oly warndays <days>`, 3 by default). **A Lord away** (1.1): when a Lord crosses that, one
+  (`/elf warndays <days>`, 3 by default). **A Lord away** (1.1): when a Lord crosses that, one
   chat line, once per absence: to his own guild's officers from their roster, and to the King,
   his Steward and his Hands for every guild's Lord, by the census's word (a guild that stopped
   reporting included, counted from its last report even when that showed him online). Never a
   popup, and nothing is done to anyone.
-- The **Treasurer of Olympus** (Pyralis Ashandar, chosen by Asmongold's chat) right under
+- The **Treasurer of Elfcore** (Pyralis Ashandar, chosen by Asmongold's chat) right under
   the King, with a gold coin next to his name wherever he shows, his tooltip and his lines in
-  the Olympus chats included. Only
-  that exact character of the guild OLYMPUS gets it: look-alikes don't.
+  the Elfcore chats included. Only
+  that exact character of the guild ELFCORE gets it: look-alikes don't.
 - **Members online** under each guild: your own guild's from your roster, any other's from
   `/who`. Opening a guild searches `/who` for that guild alone (up to 50 of its players).
   Click a name to whisper, invite or `/who` them.
 - The **ranks** of each guild with how many members hold them.
 - **Inactive members**: offline 7+ and 30+ days, per guild. Your own guild's line (or
-  `/oly inactive`) opens the list by name (1.1): members offline 7, 14 or 30 days and more,
+  `/elf inactive`) opens the list by name (1.1): members offline 7, 14 or 30 days and more,
   with rank, class, level and last online, from your own roster, longest away first. A rank
   that may remove members (as in the game's Guild window: ranks below yours) removes **one
   person per click**, after a question that shows their rank and days away, a few seconds
   apart. There is no kick-all, and nothing is sent.
-- **Mentors** (1.1): a Lord opens **Recruits and their mentors** on that page (or `/oly recruits`):
+- **Mentors** (1.1): a Lord opens **Recruits and their mentors** on that page (or `/elf recruits`):
   his guild's lowest rank and whoever joined since he logged in. He clicks a recruit who is
   online, then one of his Captains, and says yes: **one whisper to each** from that click, the
   Captain told who to look after, the recruit told who to ask. The pair shows on his list (his
   client's alone); nothing goes on the channel.
-- **Legates and correspondents** (1.1.5): a guild master of an Olympus guild (not the King's)
-  has a tab of his own in the Throne's place, **Guild** (or `/oly nominees`), laid out as the
+- **Legates and correspondents** (1.1.5): a guild master of an Elfcore guild (not the King's)
+  has a tab of his own in the Throne's place, **Guild** (or `/elf nominees`), laid out as the
   King's Hands page: **+ Name a legate** (his target, or a name he types), his list (a click
   takes a title back, asked first), and a line per High Council department to name its
   correspondent. Since 1.2.4, up to 25
@@ -177,12 +177,12 @@ versions before 1.1 just get the whisper, as before.
   honours remain round the portrait underneath the separate badge. Offices count only while
   verified in the guild. Existing appointees receive this explanation once; a real office or
   department change explains the new badge again.
-  His own client sends the list on the Olympus channel; every addon takes it from that guild's
+  His own client sends the list on the Elfcore channel; every addon takes it from that guild's
   master alone (proven as for his bronze wings: your roster for your own guild, two census senders
   for another), retains accepted bounded lists across logouts and offline periods, and drops the
-  duty when a verified removal or change of guild master is seen. `/oly nominees legate <name>`
-  (the old `centurion` spelling remains an alias), `/oly nominees correspondent
-  <department number> <name>` and `/oly nominees remove <name>` do it in chat.
+  duty when a verified removal or change of guild master is seen. `/elf nominees legate <name>`
+  (the old `centurion` spelling remains an alias), `/elf nominees correspondent
+  <department number> <name>` and `/elf nominees remove <name>` do it in chat.
   A confirmed correspondent also sees a **Guild** workspace for their own department. War and
   Justice duties apply only to their own guild, checked against its fresh roster and its current
   guild master's nomination; neither title grants federal powers. Artisanry links to its existing
@@ -201,16 +201,16 @@ versions before 1.1 just get the whisper, as before.
 - **Recruiting**: the guilds that still have free slots, so new players go where there is room
   (the five with the most, then every one on a click, 1.1).
   When the King opens **the gates** of a guild, it tops the list: send new recruits there.
-- **Layers** of your zone, named after the highest ranked Olympus member on each one
+- **Layers** of your zone, named after the highest ranked Elfcore member on each one
   ("Asmongold's layer"), with how many members are there.
 
 ### Layer hop: join the King's layer without begging in chat
 While Asmongold is online, the top of the Census and the Realm shows **"Ask invite for Asmon
-Layer"** with his crown. One click (or `/oly hop`) and the addon does the asking:
+Layer"** with his crown. One click (or `/elf hop`) and the addon does the asking:
 
 - You must already be in his zone (a layer is read per zone): if you are not, the line says
   where he is and nothing is asked.
-- It asks the Olympus players on his layer who can invite (alone, or leading a group with a
+- It asks the Elfcore players on his layer who can invite (alone, or leading a group with a
   free seat). Only a handful answer, picked at random on each player's side, so a crowd of
   askers is spread over many players instead of flooding one.
 - It picks one of them, favouring players outside a group and with fewer recent invites. They
@@ -220,53 +220,53 @@ Layer"** with his crown. One click (or `/oly hop`) and the addon does the asking
   lead a party or raid of their own, it also covers that group until it ends (1.1.5, GitHub
   issue #50: the window came back with every request there). That group's permission is never
   saved: a later group asks first again, after a `/reload` the window asks once more, and
-  `/oly layerauto off` ends it at once.
+  `/elf layerauto off` ends it at once.
 - The invite is accepted for you when that player is one the addon can vouch for (a member of
   your own guild, the King, his Steward or Hands, or, once the author's signed list is on, a Lord
-  or Captain of `<Olympus>` it names; never a census rank); anyone else's, and every invite
+  or Captain of `<Elfcore>` it names; never a census rank); anyone else's, and every invite
   while Blizzard's gamepad UI is on, waits for your click in the game's own invite window. The
   game moves you to the layer, and the addon takes you out of the group as soon as it sees the
   move (or offers a **Leave group** button if it can't tell).
 
 Players alone on the King's layer are asked once per login: **"Asmon is online and you are on
 his layer. May the addon invite the players who want to join, and take them out of the group
-once they are there?"** with **For Olympus!**, **Can't right now** and **Invite manually**, and
-a **Don't ask me again** box. With For Olympus! the addon invites on its own (only while you
+once they are there?"** with **For Elfcore!**, **Can't right now** and **Invite manually**, and
+a **Don't ask me again** box. With For Elfcore! the addon invites on its own (only while you
 are alone or with its guests, never into a group of your friends) and lets each guest go after
 90 seconds: the guest's addon leaves the group, since only a click may remove someone.
 
 Any other layer in the Realm tab's layer list works the same way: click it. Everyone who
-shares their zone and layer (`/oly location on`) and said yes to layer help (1.1: the
-first-open page, or `/oly layerhelp on`) helps: a player who keeps them private is never asked, since an offer would tell the asker where they are. `/oly layerhelp
-off` stops the requests, `/oly layerhelp on` also forgets the answer to the King's layer
-window, `/oly layerauto on` invites them without the window. Helpers must be in the same zone
+shares their zone and layer (`/elf location on`) and said yes to layer help (1.1: the
+first-open page, or `/elf layerhelp on`) helps: a player who keeps them private is never asked, since an offer would tell the asker where they are. `/elf layerhelp
+off` stops the requests, `/elf layerhelp on` also forgets the answer to the King's layer
+window, `/elf layerauto on` invites them without the window. Helpers must be in the same zone
 as the layer they are on, and the King himself is never asked.
 
-*Continued in the README: [Layer hop: join the King's layer without begging in chat](https://github.com/dnl-gentile/olympus-addon#layer-hop-join-the-kings-layer-without-begging-in-chat).*
+*Continued in the README: [Layer hop: join the King's layer without begging in chat](https://github.com/dnl-gentile/elfcore-addon#layer-hop-join-the-kings-layer-without-begging-in-chat).*
 
 ### Person details
-Click any Lord, Captain, racer or inspected player. Their profile opens in the Olympus window, at
-its size, with the census facts Olympus knows: level, class, zone, rank and status. **Back**
+Click any Lord, Captain, racer or inspected player. Their profile opens in the Elfcore window, at
+its size, with the census facts Elfcore knows: level, class, zone, rank and status. **Back**
 returns to the same list or Realm subpage, one opened from another first; **Whisper**,
 **Invite** and **Who** stay on it (offline: **Who** alone). It is not the Blood Arena
-companion's profile, and opening it sends no query. `/oly profile Name` (or `Name-Realm`) opens
-one by name. Yours is **My profile** (1.2.4: `/oly profile`, the Realm, the Games tab, the Games
+companion's profile, and opening it sends no query. `/elf profile Name` (or `Name-Realm`) opens
+one by name. Yours is **My profile** (1.2.4: `/elf profile`, the Realm, the Games tab, the Games
 window's **Edit my profile**): **Look** (frame, title, nickname, emblem; one not released yet in
 grey), **Icons**, **Who sees what**, **Letters** (the King's), and you as others see you.
-Any soldier can reach the Lord of another Olympus guild in two clicks.
+Any soldier can reach the Lord of another Elfcore guild in two clicks.
 
-*Continued in the README: [Person details](https://github.com/dnl-gentile/olympus-addon#person-details).*
+*Continued in the README: [Person details](https://github.com/dnl-gentile/elfcore-addon#person-details).*
 
 ### Right-click a player (1.1.2)
 Right-click a player (the target frame, party and raid frames, a name in chat, the Who list, the
-friends list, a community roster) and the game's menu gets an **Olympus** part at the bottom:
-- **Their version**: "Olympus 1.1.1 (out of date)", "up to date" or "not seen yet", and under it
+friends list, a community roster) and the game's menu gets an **Elfcore** part at the bottom:
+- **Their version**: "Elfcore 1.1.1 (out of date)", "up to date" or "not seen yet", and under it
   where it came from and when. Guildmates show up by themselves (their addon says hello to your
   guild), and so does a known version on the person card. Opening the menu sends nothing.
 - **Check version**: for anyone else, one tiny addon whisper that their addon answers with its
   version and nothing else (a player once every 2 minutes, 6 a minute). Only 1.1.2 and newer
-  answer, so no answer in 10 seconds can mean no Olympus, an older one, a dungeon or raid, or no
-  Olympus guild (outside one the addon sends nothing). The author's check is his roll call to that
+  answer, so no answer in 10 seconds can mean no Elfcore, an older one, a dungeon or raid, or no
+  Elfcore guild (outside one the addon sends nothing). The author's check is his roll call to that
   player alone, which every version since 0.9.9 answers, and only after their yes to his roll calls.
 - **Ask to update** (1.2.1: the author, the King and the High Council only; others' asks are
   dropped), when they are behind the newest version your addon knows: nothing goes before you
@@ -275,16 +275,16 @@ friends list, a community roster) and the game's menu gets an **Olympus** part a
   and the safe next step. For an older one, confirming opens a whisper you send with the ask. One
   ask per player a day, 5 an hour;
   they see one a day at most, **Don't remind me** hides them for 7 days (on the beta, which forgets
-  addon data at login, these last until you log out), and a player they block (`/oly block`) or
+  addon data at login, these last until you log out), and a player they block (`/elf block`) or
   ignore, or one the moderators took off, never gets through. The notice never names a version the
   author has not released. The author's pick sends his usual update window, naming the version he
-  marked as out (`/oly released`).
-- **Tell them about Olympus**, when their addon did not answer: a whisper with a short invite and
-  the CurseForge link (to get it, or update an old one) opens in Olympus's own window, for you to
+  marked as out (`/elf released`).
+- **Tell them about Elfcore**, when their addon did not answer: a whisper with a short invite and
+  the CurseForge link (to get it, or update an old one) opens in Elfcore's own window, for you to
   edit and send yourself. The click sends nothing.
 - **Ask for a bug report** (the author alone, on a player running 1.1.2 or newer): their addon
-  opens a window of its own, never a game popup, saying the author asks for their Olympus bug
-  report, with **See what is sent** (the exact text, the same as `/oly bug`), **Send** and **Not
+  opens a window of its own, never a game popup, saying the author asks for their Elfcore bug
+  report, with **See what is sent** (the exact text, the same as `/elf bug`), **Send** and **Not
   now**. Send goes to him alone, in game; Not now sends nothing; an ask from anyone else is
   ignored. On his side the report he asked for opens by itself in a window you can copy from (the
   sender and time on top, **Select all**), and stays in the Workshop's list; chat gets one short
@@ -294,66 +294,66 @@ friends list, a community roster) and the game's menu gets an **Olympus** part a
   day. The Forever beta, which forgets addon data at every login, still loses them at each logout
   or `/reload`. No other player's addon keeps any, and the Workshop's copy for Discord says only
   how many came, never who sent them or what they say. His version checks and his
-  `/oly status` open in copy windows too. A window that opens by itself takes no keyboard, waits
+  `/elf status` open in copy windows too. A window that opens by itself takes no keyboard, waits
   until a fight is over, and never covers a report he is reading.
 - In a dungeon, a raid or a match the game holds addon messages: the lines that send show greyed
   and say why. Not on yourself, enemies, offline names or Battle.net friends, and only while you
-  are in an Olympus guild. It uses the game's own way for addons to add to its menus (a client
+  are in an Elfcore guild. It uses the game's own way for addons to add to its menus (a client
   without it gets no lines); no Blizzard function is replaced, and nothing opens the game's chat
   box.
 
-*Continued in the README: [Right-click a player (1.1.2)](https://github.com/dnl-gentile/olympus-addon#right-click-a-player-112).*
+*Continued in the README: [Right-click a player (1.1.2)](https://github.com/dnl-gentile/elfcore-addon#right-click-a-player-112).*
 
 ### Decrees
 | Decree | Who | What happens |
 |---|---|---|
-| **Call to arms!** | The Crown, the High Council, the King's Hands | Alarm for every Olympus guild: raid warning, sound, red marker at the caller's position for 5 min |
+| **Call to arms!** | The Crown, the High Council, the King's Hands | Alarm for every Elfcore guild: raid warning, sound, red marker at the caller's position for 5 min |
 | **Muster here** | The Crown, the High Council, the King's Hands | Rally point: horn marker on the map for 30 min, soft alert |
 | **Royal decree** | The Crown, the High Council | A proclamation with free text, as a raid warning to the whole army |
 | **Tabard inspection** | The Crown, the High Council | Announces an inspection at the caller's position: wear your colors |
 
-*Continued in the README: [Decrees](https://github.com/dnl-gentile/olympus-addon#decrees).*
+*Continued in the README: [Decrees](https://github.com/dnl-gentile/elfcore-addon#decrees).*
 
 ### Channels
-Chat for the whole federation, carried by the addon over its hidden Olympus channel (no
+Chat for the whole federation, carried by the addon over its hidden Elfcore channel (no
 WoW channel number to join). Each channel is exclusive to a rank:
 
 | Channel | Command | Who reads and writes |
 |---|---|---|
-| **[Olympus]** | `/ol <text>` | every member of every Olympus guild |
-| **[Captains]** | `/olc <text>` | the Captains (rank 1) and Lords of every Olympus guild |
-| **[Lords]** | `/oll <text>` | the Lords (every guild master, the King included) and the officers of `<Olympus>` (their lines show to `<Olympus>`'s own members, and to everyone for the Hands the King's list or a Steward's own names, 1.0.0) |
+| **[Elfcore]** | `/ef <text>` | every member of every Elfcore guild |
+| **[Captains]** | `/efc <text>` | the Captains (rank 1) and Lords of every Elfcore guild |
+| **[Lords]** | `/efl <text>` | the Lords (every guild master, the King included) and the officers of `<Elfcore>` (their lines show to `<Elfcore>`'s own members, and to everyone for the Hands the King's list or a Steward's own names, 1.0.0) |
 
-*Continued in the README: [Channels](https://github.com/dnl-gentile/olympus-addon#channels).*
+*Continued in the README: [Channels](https://github.com/dnl-gentile/elfcore-addon#channels).*
 
 ### The Chat tab (1.1.1)
-The Olympus chats in a tab of the Olympus window, **Chat**, right after the Realm, like the chat
-pane of the Guild & Communities window. Click the tab, type `/oly talk` (or `/ol`, `/olc` or
-`/oll` with nothing after it), or Shift-click the minimap button: each opens the Olympus window
-on its Chat tab, on that channel. `/oly talk lords`
+The Elfcore chats in a tab of the Elfcore window, **Chat**, right after the Realm, like the chat
+pane of the Guild & Communities window. Click the tab, type `/elf talk` (or `/ef`, `/efc` or
+`/efl` with nothing after it), or Shift-click the minimap button: each opens the Elfcore window
+on its Chat tab, on that channel. `/elf talk lords`
 opens it on [Lords]; the same command again closes the window.
 When the side column of the new look runs out of room, its canonical tail continues from the
 bottom of the window's left edge upward. Reading the right top-to-bottom and then the left
 bottom-to-top always gives the same tab order; changing role or debug view never rearranges it.
 
-*Continued in the README: [The Chat tab (1.1.1)](https://github.com/dnl-gentile/olympus-addon#the-chat-tab-111).*
+*Continued in the README: [The Chat tab (1.1.1)](https://github.com/dnl-gentile/elfcore-addon#the-chat-tab-111).*
 
 #### Role rooms (1.2.4)
 **Roles**, after Guild: the rooms of the roles you hold, each line a logged whisper to each member.
 
-*Continued in the README: [Role rooms (1.2.4)](https://github.com/dnl-gentile/olympus-addon#role-rooms-124).*
+*Continued in the README: [Role rooms (1.2.4)](https://github.com/dnl-gentile/elfcore-addon#role-rooms-124).*
 
 ### The Board: who is looking for a group, and where (1.1)
-The Realm tab links **the Board** (or `/oly lfg`): who in Olympus wants a group right now, from
+The Realm tab links **the Board** (or `/elf lfg`): who in Elfcore wants a group right now, from
 what each player chose to share, and the King's week.
 
-- **The King's week** (`/oly week`): the King's Agenda for the next 7 days, by day, with your own
-  guild's events from the game's calendar among them, so nobody books the army twice. Olympus
+- **The King's week** (`/elf week`): the King's Agenda for the next 7 days, by day, with your own
+  guild's events from the game's calendar among them, so nobody books the army twice. Elfcore
   can't write into the game's calendar: an officer's click opens it on the right day's month and
   says which day to right-click for the guild event. Your client keeps the week across a
   `/reload` or a login, so it shows while the King is offline.
   **Heraldry and guild agendas (1.2.4).** The signed High Council's Heraldry holders and the author
-  also schedule for Olympus, alongside the King's existing verified Steward and Hands. **Schedule
+  also schedule for Elfcore, alongside the King's existing verified Steward and Hands. **Schedule
   for your guild** belongs to its own master and verified Heraldry correspondent: a day and hour,
   or `30 Guild gathering`. Entries and signup counts reach that guild alone. Saved entries keep
   their audience, and a roster still loading keeps them hidden until it confirms the issuer.
@@ -367,43 +367,43 @@ what each player chose to share, and the King's week.
   that same guild while its setter still has that duty.
 - **Raise a flag** with one click: **Dungeon**, **Raid**, **PvP** or **Layer**, plus a short
   note if you want one (40 bytes at most). A box says first what goes out: your name, level,
-  class and guild, the flag and the note, to every Olympus player of your realm and faction.
+  class and guild, the flag and the note, to every Elfcore player of your realm and faction.
   The note goes the way chat does (the game's servers keep it, so abuse can be reported); on the
   King's screen no note shows.
-- **Your zone shows on your card only while you share it** (`/oly location on`); otherwise the
+- **Your zone shows on your card only while you share it** (`/elf location on`); otherwise the
   card says the zone is hidden. Never your position.
 - **A click on someone's card whispers them.** Nothing invites anyone, queues or forms a group.
-- One flag each, an hour at most; a click on yours, or `/oly lfg off`, lowers it at once.
-- **Camps**: drop one where you stand (`/oly camp [note]`) so the army reuses a fire already up.
-  Its zone only, never your spot; it needs `/oly location on` and ends by itself after 30
+- One flag each, an hour at most; a click on yours, or `/elf lfg off`, lowers it at once.
+- **Camps**: drop one where you stand (`/elf camp [note]`) so the army reuses a fire already up.
+  Its zone only, never your spot; it needs `/elf location on` and ends by itself after 30
   minutes. The Board lists them by zone, and the world map shows one badge per zone with how
-  many (mouse and keyboard only; `/oly camps off` hides them). **Bones can be played at a tavern
+  many (mouse and keyboard only; `/elf camps off` hides them). **Bones can be played at a tavern
   or at a camp** (1.1.6): grouped, within about 10 yards, at the same inn or by your camp.
 
 ### Net-off (1.1): the moderators hide a character or take a guild off the network
 The King, his Steward, a Hand (the King's list or a Steward's) or a High Councillor of the
 author's signed list can hide one character for the whole army: **Hide a character** on the
-**Decrees** tab (the name or your target, then the reason), or `/oly netoff Name: reason`. Every
-addon then hides that character on every Olympus surface: their [Olympus], [Captains] and
-[Lords] lines (and the lines the Olympus chats kept), their pinned line, their decrees, their layer and hop offers,
+**Decrees** tab (the name or your target, then the reason), or `/elf netoff Name: reason`. Every
+addon then hides that character on every Elfcore surface: their [Elfcore], [Captains] and
+[Lords] lines (and the lines the Elfcore chats kept), their pinned line, their decrees, their layer and hop offers,
 their Vox Populi votes and questions, their requests at court, and (1.1, Konig's review) their
 signups to the King's week, their flags and camps on the Board (the camps' map badges too),
 their listing, answers and recipe lists as a crafter, and their elite border and nameplate mark
-(they show as no Olympus player). The names their player already linked as alts are hidden with
+(they show as no Elfcore player). The names their player already linked as alts are hidden with
 them (alt links, below). The rest of their guild, and
 the census, are not touched: one name stops the spam.
 
-*Continued in the README: [Net-off (1.1): the moderators hide a character or take a guild off the network](https://github.com/dnl-gentile/olympus-addon#net-off-11-the-moderators-hide-a-character-or-take-a-guild-off-the-network).*
+*Continued in the README: [Net-off (1.1): the moderators hide a character or take a guild off the network](https://github.com/dnl-gentile/elfcore-addon#net-off-11-the-moderators-hide-a-character-or-take-a-guild-off-the-network).*
 
 ### Alt links (1.1): one player, counted once
 One player in three guilds used to swell the army by three and look like three donors. Link your
 alts and the census counts people:
 
-*The list is in the README, with the rest of this section: [Alt links (1.1): one player, counted once](https://github.com/dnl-gentile/olympus-addon#alt-links-11-one-player-counted-once).*
+*The list is in the README, with the rest of this section: [Alt links (1.1): one player, counted once](https://github.com/dnl-gentile/elfcore-addon#alt-links-11-one-player-counted-once).*
 
 ### The Throne (the King and his Hands)
 A tab with a crown that only the King sees: the guild master of the guild named exactly
-"Olympus" (of his faction), and on the Alliance that very character, Asmongold Asmongler: the
+"Elfcore" (of his faction), and on the Alliance that very character, Asmongold Asmongler: the
 addon knows him by name, like the Treasurer. It opens on **the Throne Room** (the queue of
 his court while it is open, and the army's key), and holding court takes him there. Since 1.1.5
 the Treasury has its own tab alone, and under the Throne Room are **the King's guild's Legates**:
@@ -411,7 +411,7 @@ up to 25 explicitly appointed members, named by the King or real High Council. A
 does not automatically appoint a group leader. Each Legate organizes an agreed group of up to
 40 including themselves in the War Room. Each of his tools lives where it belongs:
 
-*The list is in the README, with the rest of this section: [The Throne (the King and his Hands)](https://github.com/dnl-gentile/olympus-addon#the-throne-the-king-and-his-hands).*
+*The list is in the README, with the rest of this section: [The Throne (the King and his Hands)](https://github.com/dnl-gentile/elfcore-addon#the-throne-the-king-and-his-hands).*
 
 ### The King's Steward (1.0.0)
 The King's right hand, so that he needn't set everything up himself: a character the author
@@ -426,27 +426,27 @@ King's name he:
   switches (every keeper is told so before he shares his book);
 - uses every tool of a Hand: the Agenda, Summon the Lords, the Royal Inspection, Vox Populi and
   the gates;
-- sends the **Crown's decrees** for `<Olympus>` (Royal decrees, Tabard inspections, Calls to Arms,
-  Musters), whatever his own rank: every client takes them by his name, `<Olympus>`'s own
+- sends the **Crown's decrees** for `<Elfcore>` (Royal decrees, Tabard inspections, Calls to Arms,
+  Musters), whatever his own rank: every client takes them by his name, `<Elfcore>`'s own
   members' too, and they never wait behind the flood guard, like the King's. For the other
   guilds his [Lords] lines are the Crown's, as the Hands' are.
 
-*Continued in the README: [The King's Steward (1.0.0)](https://github.com/dnl-gentile/olympus-addon#the-kings-steward-100).*
+*Continued in the README: [The King's Steward (1.0.0)](https://github.com/dnl-gentile/elfcore-addon#the-kings-steward-100).*
 
 ### The Treasury (its keepers, the King, and the army when the King says so)
 A tab with a coin for the treasury's keepers, for the King, and for every member once the King
 shows the army something of it (1.1: for every member on the Treasurer's realms, with the dues' button
 alone until then).
 
-*Continued in the README: [The Treasury (its keepers, the King, and the army when the King says so)](https://github.com/dnl-gentile/olympus-addon#the-treasury-its-keepers-the-king-and-the-army-when-the-king-says-so).*
+*Continued in the README: [The Treasury (its keepers, the King, and the army when the King says so)](https://github.com/dnl-gentile/elfcore-addon#the-treasury-its-keepers-the-king-and-the-army-when-the-king-says-so).*
 
 ### Tabards: tabard inspection and the untabarded list
-- **Patrol**: walk through the crowd and the addon inspects nearby Olympus members level 15
+- **Patrol**: walk through the crowd and the addon inspects nearby Elfcore members level 15
   and up, one by one (about 28 yards). Younger players are never flagged. It records who wears a tabard, who wears the wrong one and who
   wears none. Players it could not see properly are never accused.
-- **Mark** a player (with a note: `/oly mark complained about the rule`) or a whole guild.
+- **Mark** a player (with a note: `/elf mark complained about the rule`) or a whole guild.
 - **Gear seen** (1.1, officers): target a player in range (about 28 yards) and click **Inspect
-  gear** on the Tabards tab (or type `/oly gear`). The addon inspects him once, in turn with every
+  gear** on the Tabards tab (or type `/elf gear`). The addon inspects him once, in turn with every
   other inspection (one at a time, never in combat), and keeps what he wears in your saved
   variables, under **Gear seen**: a click shows his items in their slots, each with its own
   tooltip. A Captain can check a raid signup's last-seen gear days later without pulling him
@@ -458,11 +458,11 @@ alone until then).
   for the day's findings once a session: after its login, or at his yes if that came later. Each
   officer's Tabards page shows them with his own, the officer who found each in its tooltip, for a
   day (his own later inspection of that player replaces it). Nothing is inspected more or sooner for
-  it, nothing goes on the Olympus channel, and only officers (the guild master and the rank right
+  it, nothing goes on the Elfcore channel, and only officers (the guild master and the rank right
   below, by each addon's own roster) send or keep it. The King's untabarded list stays his: another
   officer's finding never joins it, never rides in a Royal Inspection's report and never replaces
   what the King saw himself. Off until you say yes (officers get its line on the first-open page, or
-  `/oly patrolshare on`); `/oly patrolshare off` stops it.
+  `/elf patrolshare on`); `/elf patrolshare off` stops it.
 - Per guild: *"5 of 20 with problems"*.
 - **Untabarded** (the "Wall of Shame" before 0.9.2): the players the Royal Inspection found
   without the colors are on the King's list, which only he sees. He alone can let the army see
@@ -474,25 +474,25 @@ alone until then).
 
 ### Loot notes (1.1)
 Loot arguments restart every raid because nobody kept last week's decision: the **Loot notes** of
-your guild keep it (on the Realm tab, or `/oly loot`).
+your guild keep it (on the Realm tab, or `/elf loot`).
 
-*Continued in the README: [Loot notes (1.1)](https://github.com/dnl-gentile/olympus-addon#loot-notes-11).*
+*Continued in the README: [Loot notes (1.1)](https://github.com/dnl-gentile/elfcore-addon#loot-notes-11).*
 
 ### Crafters tab (1.1.4)
 "Who can make this?" is a chat scroll: the top-level **Crafters** tab turns it into one
-whisper to a named crafter (`/oly craft`).
-- When you open one of your professions, Olympus reads it (its skill, and the recipes you know:
+whisper to a named crafter (`/elf craft`).
+- When you open one of your professions, Elfcore reads it (its skill, and the recipes you know:
   their recipe and item ids, never a specialization tree) and asks once, in a window of its own,
-  whether to list it. With your yes the board of every Olympus player of your realm and faction
-  shows you: your name, guild, that profession and its skill. `/oly crafter off` takes you off at
-  once; `/oly crafter on` lists every profession read again.
-- **Ask who can make an item**: shift-click it after `/oly craft` (or type part of its name). The
+  whether to list it. With your yes the board of every Elfcore player of your realm and faction
+  shows you: your name, guild, that profession and its skill. `/elf crafter off` takes you off at
+  once; `/elf crafter on` lists every profession read again.
+- **Ask who can make an item**: shift-click it after `/elf craft` (or type part of its name). The
   crafters listed who know its recipe answer by whisper, their addons by themselves; the page shows
   who can, with their skill and the item, and a click whispers one of them. (From 1.2 the tab's
   **Ask who can make an item...** button opens the request page instead: see below.)
 - A crafter's row opens a whisper to him and, on a click, the recipes he listed (hover one for the
   item). Search the board by crafter, guild or profession.
-- It stays light on the Olympus channel and on your own messages: your listing goes once at login,
+- It stays light on the Elfcore channel and on your own messages: your listing goes once at login,
   every 45 minutes, and after a change (a profession listed or taken off 2 minutes after the last
   at the soonest, a skill up 10 minutes), so about 1.3 an hour while you play and 6 at most while
   you level. Your recipes go a part each 6 seconds (10 messages a minute at most), to two players
@@ -503,20 +503,20 @@ whisper to a named crafter (`/oly craft`).
 
 ### Crafting requests (1.2)
 On the **Crafters** tab, **Ask who can make an item...** opens the request page: search an item
-(your own recipes, the recipe lists other crafters sent you, the answers to your `/oly craft` ask,
+(your own recipes, the recipe lists other crafters sent you, the answers to your `/elf craft` ask,
 and gathered herbs, ores and leathers) or paste its link, choose the quantity and the details, and
 publish the request to the board.
-- The request is a card on the board of every Olympus player of your realm and faction: the item and
+- The request is a card on the board of every Elfcore player of your realm and faction: the item and
   quantity, your guild, who brings the materials, a price reference and your details. It only ever
   says open, taken, cancelled or expired: never who took it, the terms or how it ended.
 - A listed crafter who makes it, or for a gathered material a player whose own Herbalism, Mining or
   Skinning skill shows it (read on his client, sent nowhere), sees it marked and hears it once. The
   first claim to reach the requester wins; everything after it (the terms, the delivery, the
   request's chat) is a logged whisper between the two of them, and on the guild-mediated rail with
-  the treasury keeper who holds the goods and the gold. Olympus fills a mail or says what to send:
+  the treasury keeper who holds the goods and the gold. Elfcore fills a mail or says what to send:
   you press Trade or Send.
-- Once a claim wins, Olympus opens the request's own chat on both players' Chat tab, with the
-  Olympus window in front. It waits as Olympus's other windows do: in an instance or Busy until you
+- Once a claim wins, Elfcore opens the request's own chat on both players' Chat tab, with the
+  Elfcore window in front. It waits as Elfcore's other windows do: in an instance or Busy until you
   are out (its line waits on the Decrees tab), in a fight until it ends, and while you are typing
   in the Chat tab's box until you send or leave it; by then it opens only if the deal is still
   open. It stays while the deal is open; once the deal is over you may remove it, and the
@@ -525,7 +525,7 @@ publish the request to the board.
   the board, in gold, by 3 days after the sale the buyer confirmed (a sale the buyer never confirmed
   and nobody disputed owes it all the same, 3 days after the delivery the seller recorded or the
   trade both addons saw). He mails it to the guild's fee receiver (the Treasurer's mail character)
-  titled "Olympus craft fee" and the request (his sale's line fills the mail). Late, he is warned and
+  titled "Elfcore craft fee" and the request (his sale's line fills the mail). Late, he is warned and
   takes no new requests until it is paid; a fee mail that comes back is owed again. Both parties'
   addons tell the Treasurer's characters of the sale. The Treasurer, the King, the High Council and
   the author see the debtors, the most overdue first, each with his step on the guild's ladder (late,
@@ -534,7 +534,7 @@ publish the request to the board.
   a buyer's price above the seller's, waits apart until the Treasurer confirms it. Nothing here
   removes anyone. There is no guarantee fund yet.
 
-### The Missionary Church of Olympus (1.1.6)
+### The Missionary Church of Elfcore (1.1.6)
 
 **Guild fullness (1.2.4).** The correspondents' ranking counts the current correspondent's own
 management of that guild, not invitation points. Every new appointment starts afresh, including
@@ -559,7 +559,7 @@ that history unknown. A predecessor's proof, a person's former appointment and a
 guild aggregate cannot score the new management. Ordinary presence with an unchanged appointment
 does not reset its own proven streak. No new honour, gold rule or public/general-channel feed is added.
 
-*Continued in the README: [The Missionary Church of Olympus (1.1.6)](https://github.com/dnl-gentile/olympus-addon#the-missionary-church-of-olympus-116).*
+*Continued in the README: [The Missionary Church of Elfcore (1.1.6)](https://github.com/dnl-gentile/elfcore-addon#the-missionary-church-of-elfcore-116).*
 
 ### World map
 - Soldiers per zone on zone and continent maps, and per continent on the world map (none with
@@ -568,41 +568,41 @@ does not reset its own proven streak. No new honour, gold rule or public/general
   crown where he stands; the Board's camps (1.1) one fire badge per zone, with how many. Over a
   zone's circle they move just outside its edge, top right first, so its number stays readable;
   several around one circle each take a place of their own.
-- The round **Olympus** button in the bottom left corner of the map switches markers
+- The round **Elfcore** button in the bottom left corner of the map switches markers
   (army per zone, decrees, camps) on and off.
 - Every zone of the game counts, not only Azeroth's (1.1): on TBC Anniversary Outland's zones
   get their circles, and Outland's total shows on the map above Azeroth and Outland. A zone a
   new patch adds is found by itself the first time a guildmate stands in it; one the addon still
-  can't place shows as plain text in the census, and `/oly status` (and `/oly bug`) lists its
+  can't place shows as plain text in the census, and `/elf status` (and `/elf bug`) lists its
   name under "zones without a map id".
 
-### Olympus Link: your Discord role (1.0.0, optional)
-Prove to the Olympus bot on Discord that a character is yours, and the bot gives you your role.
-It is the one part of Olympus that goes outside the game, and only if you choose to link a
+### Elfcore Link: your Discord role (1.0.0, optional)
+Prove to the Elfcore bot on Discord that a character is yours, and the bot gives you your role.
+It is the one part of Elfcore that goes outside the game, and only if you choose to link a
 character (or to confirm other players' links, below): no password, no Battle.net login, and
 nothing is sent before you say yes.
 
-Not open yet: the addon carries it, but `/oly discord` says it is not open until the Olympus bot
+Not open yet: the addon carries it, but `/elf discord` says it is not open until the Elfcore bot
 is ready and its key is in the addon. Until then no addon makes, keeps, announces or uses a
 confirmer key.
 
-1. **Get a code** from the Olympus bot on Discord (its `/verify` command, in the Olympus server:
+1. **Get a code** from the Elfcore bot on Discord (its `/verify` command, in the Elfcore server:
    only you see the reply). It is good for 24 hours. Keep it to yourself, and don't show it (or
-   the Olympus Link window) on a stream.
-2. **Type `/oly discord <code>`** in the game's chat. The addon checks the bot's signature on the
+   the Elfcore Link window) on a stream.
+2. **Type `/elf discord <code>`** in the game's chat. The addon checks the bot's signature on the
    code, then asks whether to link this character to the Discord account the code names (the
    bot's word: nobody can change it). **Cancel** sends nothing.
 3. **Players confirm in game**, by addon whisper, that this character asked: a High Councillor
    online, or, when none is, verified players drawn for your code (three of them must confirm).
    Each signs with a key of its own, for its character, which the bot certified. Every confirmer,
    High Councillors included, gets a key from the bot's keeper, made on a computer, and types it
-   in the game with `/oly discord key <id> <key>`, then its certificate with
-   `/oly discord cert <certificate>`; no addon makes a key of its own (the author's council
+   in the game with `/elf discord key <id> <key>`, then its certificate with
+   `/elf discord cert <certificate>`; no addon makes a key of its own (the author's council
    authority, which could certify keys made in game, is off). Once the bot is ready, a
-   confirmer's addon says so on the Olympus channel every 5 minutes and signs other players'
-   requests by itself (`/oly discord key off` stops it).
-4. **The proof reaches the bot.** The **Olympus Link** window shows a QR code and the same link
-   in a copy box. Open the Olympus Link page, https://dnl-gentile.github.io/olympus-addon/ (a
+   confirmer's addon says so on the Elfcore channel every 5 minutes and signs other players'
+   requests by itself (`/elf discord key off` stops it).
+4. **The proof reaches the bot.** The **Elfcore Link** window shows a QR code and the same link
+   in a copy box. Open the Elfcore Link page, https://dnl-gentile.github.io/elfcore-addon/ (a
    static page on the project's GitHub Pages): point your phone's camera at the code, share the
    game's window with the page, or paste the link, then sign in with Discord there (Discord's own
    sign-in page, which tells the bot who you are on Discord) and the page sends the proof to the
@@ -614,25 +614,25 @@ the proof rides after the `#` of the link, which a browser never sends to any se
 loads its fonts from Google Fonts. The bot keeps which character (name, realm, guild and
 faction) is linked to which Discord account, and a record of each proof it received (for 90
 days). A linked character never moves to another Discord account by a new link: the bot refuses
-it. **Delete my link**, at the foot of the Olympus Link page (signed in with Discord), takes the
+it. **Delete my link**, at the foot of the Elfcore Link page (signed in with Discord), takes the
 role away and deletes what the bot keeps about your account, except how many codes and links you
-used today, counted for a day at most. The Olympus bot is Fernmelder's; how it checks a proof
-is on [GitHub](https://github.com/dnl-gentile/olympus-addon) (the README and `web/FERN.md`).
-`/oly discord show` opens the window again, `/oly discord status` lists every character of your
-account, `/oly discord forget` drops this character's request and proof.
+used today, counted for a day at most. The Elfcore bot is Fernmelder's; how it checks a proof
+is on [GitHub](https://github.com/dnl-gentile/elfcore-addon) (the README and `web/FERN.md`).
+`/elf discord show` opens the window again, `/elf discord status` lists every character of your
+account, `/elf discord forget` drops this character's request and proof.
 
 ### Everywhere
 - **Copy**: every tab produces a ready-to-paste text for Discord.
 - **Version letters** (1.1.5): after the addon updates, once a version, a short letter on
-  parchment, in a window like the Olympus window's, says what changed in that version, in the
+  parchment, in a window like the Elfcore window's, says what changed in that version, in the
   dev's own words. It waits until the privacy page is closed, and never opens in combat, in a
-  dungeon or outside an Olympus guild. Without saved history the letter stays quiet and unread.
+  dungeon or outside an Elfcore guild. Without saved history the letter stays quiet and unread.
   If the beta forgets saved data, it cannot detect updates; manual history stays available
-  without repeat login popups. With retained data, updates can show once. The Olympus window's help button
+  without repeat login popups. With retained data, updates can show once. The Elfcore window's help button
   (the **i** left of the X) keeps every letter: **Version letters** on its page lists them,
-  newest first, and a click opens one; `/oly letters` (or `/oly letters 1.1.4`) does too. Nothing
+  newest first, and a click opens one; `/elf letters` (or `/elf letters 1.1.4`) does too. Nothing
   is sent: which letters you saw is kept on your computer, for your account.
-- **What this client saw** (1.1, the Decrees tab and `/oly log`): a log of the acts your addon
+- **What this client saw** (1.1, the Decrees tab and `/elf log`): a log of the acts your addon
   took while you were online (decrees, the gates opening and closing, pardons, the King's
   visibility switches for the treasury and the untabarded list, and the shared block terms'
   edits), each with the sender's name as the server stamped it, the newest 300. So "who opened the gates" has an answer after the message
@@ -641,9 +641,9 @@ account, `/oly discord forget` drops this character's request and proof.
   a state caught up on after a later login are not written. On the King's screen, while the
   council's names are hidden there (his stream), every sender but the King shows cut short, and
   the shared terms' words too, as everywhere on his screen. Kept on your computer only, never
-  sent, never in `/oly bug`; a record, not proof (anyone can edit their own saved files). The
-  Decrees tab lists it with a search box and a copy; `/oly log [n | word | copy | clear]` in chat.
-- **Backup** (1.1): `/oly backup` puts one text in the copy box (keepers also have **Copy a
+  sent, never in `/elf bug`; a record, not proof (anyone can edit their own saved files). The
+  Decrees tab lists it with a search box and a copy; `/elf log [n | word | copy | clear]` in chat.
+- **Backup** (1.1): `/elf backup` puts one text in the copy box (keepers also have **Copy a
   backup of your book and settings** on the Treasury tab): this character's book of the treasury
   (its opening, its 500 lines and its sums of all time, each giver's weeks of the dues and each
   week's amount with them; on the Treasurer's characters his mail
@@ -653,14 +653,14 @@ account, `/oly discord forget` drops this character's request and proof.
   (this month's and last month's Bones games, the newest 400, and your newest 200 duels; never
   the other player's: a Bones game's comes back when your addon asks him, a duel's from his
   repeats or the clerk's carousel). Keep it in a text file: when the beta wipes the saved
-  variables, `/oly restore` opens a box to paste it back, says what it restores and waits for
+  variables, `/elf restore` opens a box to paste it back, says what it restores and waits for
   your yes. Clipboard
   only: nothing is uploaded or sent anywhere (a keeper's book goes out afterwards as it always
   does). A book goes back only into that character's (merged with what it wrote since, nothing
   counted twice), a text that was cut or changed is refused, and it never holds your yeses to
   sharing (the addon asks them again). It never holds or sets the channel key, on anyone's
   character: a text someone else made would move your guild to another channel (your officers
-  hand the key out in game as ever, or `/oly key`); the confirm says a key in a text is left out,
+  hand the key out in game as ever, or `/elf key`); the confirm says a key in a text is left out,
   and warns when it is one your guild replaced. The players it would block are named one by one
   in the confirm (30 at most) and added only on your yes.
 - **Search**: a box on top of the Census (guilds, Lords, Captains, players, zones, recruiting),
@@ -670,65 +670,65 @@ account, `/oly discord forget` drops this character's request and proof.
   for you, a page of guilds at a time), with an **x** to empty it. Each tab keeps its text until
   you log out or `/reload`; a guild clicked in the Census opens in the Realm with its box emptied.
   It only changes what the list shows: **Copy** still gives everything, and nothing is sent.
-- The window opens from `/oly`, the minimap button, or the round button in your guild window:
+- The window opens from `/elf`, the minimap button, or the round button in your guild window:
   the old Guild tab or the new Guild & Communities window, whichever one you use.
   Shift-click the minimap button for the Chat tab (1.1.1, above).
 - Next to Forever's Guild & Communities window it takes that window's look: icon tabs down
   the right side, its rows, column headers, buttons and member card. When the tabs do not all fit
   down that side, the canonical tail continues from the bottom of the left edge upward. Reading
   the right top-to-bottom and then the left bottom-to-top always gives the same tab order.
-- **Blizzard's gamepad mode** (Forever's controller interface): Olympus asks its questions in
+- **Blizzard's gamepad mode** (Forever's controller interface): Elfcore asks its questions in
   windows of its own instead of the game's popups, which Blizzard's gamepad code blocks (and
   freezes) when an addon opens one. With mouse and keyboard, the game's popups as always.
   Since 0.9.8 it also leaves the game's own frames alone there: no quiet `/who` on its own
-  (**Refresh** and **Find Olympus online** still search, and so does the King's click on his
+  (**Refresh** and **Find Elfcore online** still search, and so does the King's click on his
   Throne's /who line for his key rotation, 1.1: the answer shows in the game's
   Who list), and the Issue Reporter is the game's to show. Since 0.9.9 it leaves the world map
   alone there too: no zone counts, decrees, crown or guildmate dots on it (the minimap keeps
   the crown and the dots), because each of those went through the map library into the gamepad
-  map's own state; since 1.1.5 its continent totals and Olympus button go too, the gamepad map
+  map's own state; since 1.1.5 its continent totals and Elfcore button go too, the gamepad map
   being the game's alone. If the game still says it blocked
-  Olympus, a `/reload` clears it; to tell us what it was, open the Olympus window, press its
+  Elfcore, a `/reload` clears it; to tell us what it was, open the Elfcore window, press its
   help button (left of the X), then **Report a bug**.
-  **The gamepad gate (1.1.5).** Every way Olympus reaches into the game's own windows is listed in
+  **The gamepad gate (1.1.5).** Every way Elfcore reaches into the game's own windows is listed in
   one place and asks one gate before it acts, so a new feature can't reach them with the gamepad
-  UI on by accident. With the gamepad UI on, Olympus registers no typed command (`/oly`,
-  `/olympus`, `/ol`, `/olc`, `/oll`): the game's chat box runs a command's function and then
+  UI on by accident. With the gamepad UI on, Elfcore registers no typed command (`/elf`,
+  `/elfcore`, `/ef`, `/efc`, `/efl`): the game's chat box runs a command's function and then
   closes itself in that function's name, which is the very call the gamepad UI refuses. Nor does
   it put its round button in the game's guild windows, where the gamepad cursor would select it.
-  Open Olympus with the minimap button (it shows there even when `/oly minimap` hid it), and use
+  Open Elfcore with the minimap button (it shows there even when `/elf minimap` hid it), and use
   its window (its help button: **Report a bug**). Switched to the gamepad UI in the middle of a
-  session (Options, Gamepad), Olympus steps back from the game's windows on the next frame: its
+  session (Options, Gamepad), Elfcore steps back from the game's windows on the next frame: its
   marks, borders and buttons there hide, its tooltip lines and menu lines stop, and what the game
   keeps until a `/reload` (the commands typed with mouse and keyboard among it) is told once, in
-  Olympus's own window, with a **Reload** button. Back to mouse and keyboard, it all comes back
+  Elfcore's own window, with a **Reload** button. Back to mouse and keyboard, it all comes back
   without a `/reload`.
 - English and Portuguese in full, and since 1.1 Spanish, French and German for the main
   screens, the alerts and decrees, the Join screen and its whisper, the chats and the privacy
   questions (the rest in English; the pages' **?** explanations and the Answers of 1.1.2 are in
   English too). It follows the game language, and only the text on your
-  screen changes: nothing sent between players does. `/oly status` shows the language in use.
+  screen changes: nothing sent between players does. `/elf status` shows the language in use.
 
-### Other addons: the Olympus API (1.2.4)
+### Other addons: the Elfcore API (1.2.4)
 
-Another addon can read, with your permission, what Olympus already shows you: the Wanted list
+Another addon can read, with your permission, what Elfcore already shows you: the Wanted list
 and its bounties, the public rankings (the Slayers, the Church's top three, the games the King
 made public, the donors' top three while he shows the Treasury's ranking), your own frame and
-title, your Olympus guild, rank and role, and the King's presence as his lines and the Realm tab
+title, your Elfcore guild, rank and role, and the King's presence as his lines and the Realm tab
 show it (online, the zone they name, his crown while he shares it, whether you are on his layer,
-and his zone's layers with their "~N with Olympus" counts while you are there). The King's
+and his zone's layers with their "~N with Elfcore" counts while you are there). The King's
 presence, the player-sighting searches and the profile presentation below are reserved for addons
-the Olympus team has authorized; any other addon is asked only about the rest. An addon that asks gets its own line on the privacy
+the Elfcore team has authorized; any other addon is asked only about the rest. An addon that asks gets its own line on the privacy
 page and nothing until your **Yes** there or the page's deliberate **Authorize all** action
-(`/oly privacy` changes it at any time; **Keep current choices** grants nothing). Ordinary reads
+(`/elf privacy` changes it at any time; **Keep current choices** grants nothing). Ordinary reads
 send nothing. A compatible addon can also let an authorized player start a short exact-name
 last-seen search, maintain a bounded set of exact-name searches while a visible tool session the
 player started remains on, or start a five-minute hostile-area search for one selected zone or
-micro-map, which may be widened to labelled not-hostile players outside Olympus guilds (or with
+micro-map, which may be widened to labelled not-hostile players outside Elfcore guilds (or with
 none), never the observer's group. Its visible Start declares selected/configured names and any included list source. A
 handle has one area at a time: current map or an owned exact-result map until its row expires, then cancel
 and wait 60 seconds to rotate. Its UI shows map/position and Stop/Off; it never opens the map or
-resumes after No or `/reload` automatically. Olympus sends each exact **Name-Realm** sought, or the
+resumes after No or `/reload` automatically. Elfcore sends each exact **Name-Realm** sought, or the
 selected map ID, to the network.
 Members who separately enabled **Guild tools: player sightings** may answer privately from a
 current target, nameplate or mouseover observation or one their client kept only in memory after
@@ -741,39 +741,39 @@ point for the visible unit, or the same identity as a party or raid unit, the re
 target point. Otherwise it carries the observer's nearby encounter point, rounded to 0.1% of the
 map. The kind, observation time, expiry and layer are labelled, so this is last-seen information,
 not continuous tracking. Requests and answers expire, and turning either permission off cancels or
-withdraws them. On an explicit action the requester can show sanitized area rows with Olympus-owned
-world-map pins; they clear on cancellation, expiry, permission revocation or `/reload`. Olympus
+withdraws them. On an explicit action the requester can show sanitized area rows with Elfcore-owned
+world-map pins; they clear on cancellation, expiry, permission revocation or `/reload`. Elfcore
 can also host one bounded profile presentation. A current signed issuer or the addon's author opens it; an admitted
-member may enable only Olympus's fixed style and pre-approved caption on themself. It accepts no target, asset path or arbitrary text,
-and **No** closes that addon's state. Olympus
-never gives another addon the census, other players' private data or Olympus's keys; each addon gets
+member may enable only Elfcore's fixed style and pre-approved caption on themself. It accepts no target, asset path or arbitrary text,
+and **No** closes that addon's state. Elfcore
+never gives another addon the census, other players' private data or Elfcore's keys; each addon gets
 its own bounded copy. What that addon then does with a copy is up to it, so authorize only addons
 you trust. After the update it loads once the game restarts (not on a `/reload`).
 
-*Continued in the README: [Other addons: the Olympus API (1.2.4)](https://github.com/dnl-gentile/olympus-addon#other-addons-the-olympus-api-124).*
+*Continued in the README: [Other addons: the Elfcore API (1.2.4)](https://github.com/dnl-gentile/elfcore-addon#other-addons-the-elfcore-api-124).*
 
 ## Install
 
-**Easiest:** install **Olympus Guild** from the CurseForge app or WowUp. It installs in the
+**Easiest:** install **Elfcore Guild** from the CurseForge app or WowUp. It installs in the
 right place and keeps it updated. For Forever, pick the Forever (beta) installation of the
 game in the app, not Classic Era.
 
 **By hand:**
-1. Download `Olympus-x.y.z.zip` from the **Files** tab here (or [GitHub Releases](https://github.com/dnl-gentile/olympus-addon/releases)).
+1. Download `Elfcore-x.y.z.zip` from the **Files** tab here (or [GitHub Releases](https://github.com/dnl-gentile/elfcore-addon/releases)).
 2. Open your World of Warcraft folder. On Windows it is usually
    `C:\Program Files (x86)\World of Warcraft\` (on Mac: `/Applications/World of Warcraft/`).
 3. Open the folder of the game version you play. For the **Forever beta** it is the one with
    *beta* in its name (for example `_classic_beta_`); Classic Era is `_classic_era_`, TBC
    Anniversary is `_anniversary_`.
 4. Go into `Interface\AddOns\` (create `Interface` and `AddOns` if they don't exist) and
-   extract the zip there, so you end up with `...\Interface\AddOns\Olympus\Olympus.toc`.
+   extract the zip there, so you end up with `...\Interface\AddOns\Elfcore\Elfcore.toc`.
    Careful: Windows' *Extract All* adds a folder named after the zip
-   (`AddOns\Olympus-0.8.1\Olympus\...`). If that happens, move the `Olympus` folder up into
-   `AddOns`; the game only loads it from `AddOns\Olympus\`.
-   From 1.3.3 the zip holds three folders: `Olympus`, `Olympus_Arena` (the Blood Arena's screens,
-   loaded only when you open the arena) and `OlympusSiteAggregate` (the deliberate, no-upload
+   (`AddOns\Elfcore-0.8.1\Elfcore\...`). If that happens, move the `Elfcore` folder up into
+   `AddOns`; the game only loads it from `AddOns\Elfcore\`.
+   From 1.3.3 the zip holds three folders: `Elfcore`, `Elfcore_Arena` (the Blood Arena's screens,
+   loaded only when you open the arena) and `ElfcoreSiteAggregate` (the deliberate, no-upload
    website reporter). All three go in `AddOns`, and all three move up if *Extract All* added a
-   folder. Keep them together and update them together; both additional folders need Olympus enabled.
+   folder. Keep them together and update them together; both additional folders need Elfcore enabled.
 5. **Restart the game.** If the addon list says *out of date*, tick **Load out of date AddOns**.
 
 The addon only shows **live data**: guilds appear as soon as one of their members with the
@@ -783,21 +783,21 @@ addon is online (give it a few minutes). There is no demo mode any more.
 have at least one install, the more complete the census gets.
 
 ### For officers: seal the channel (recommended)
-Type once, with a secret the Olympus officers agree on:
+Type once, with a secret the Elfcore officers agree on:
 ```
-/oly key <secret>
+/elf key <secret>
 ```
 Your guildmates with the addon receive it automatically through guild chat. From then on
-the Olympus channel has a name and password derived from the secret, and outsiders can't
-find or join it. Share the same secret with the officers of the other Olympus guilds
+the Elfcore channel has a name and password derived from the secret, and outsiders can't
+find or join it. Share the same secret with the officers of the other Elfcore guilds
 (for example in the officers' Discord), so all guilds meet on the same sealed channel.
 Since 1.1 the King (or his Steward, for him) can also rotate the army's key from the Throne: his new key reaches the
 Lords and Captains online of the guilds he picks whom his own /who saw in them by whisper, and
-their guilds over guild chat, never on the Olympus channel.
+their guilds over guild chat, never on the Elfcore channel.
 
 If a guild was accidentally given a different private key and lost the shared census and
-Olympus chat, one of its current officers can use `/oly key off`. The recovery instruction stays
-inside Blizzard's guild channel, returns updated guildmates to the public Olympus channel, and
+Elfcore chat, one of its current officers can use `/elf key off`. The recovery instruction stays
+inside Blizzard's guild channel, returns updated guildmates to the public Elfcore channel, and
 retires the old private key so a delayed message cannot split them again.
 
 ## How it works
@@ -809,15 +809,15 @@ retires the old private key so a delayed message cannot split them again.
    computes the same answer.
    Each realm of WoW: Forever has a hidden channel of its own, so a guild with members on
    several realms elects one reporter on each realm (since 1.0.0).
-3. The reporter sends a compact summary of its guild about every 3 minutes on the hidden Olympus channel.
+3. The reporter sends a compact summary of its guild about every 3 minutes on the hidden Elfcore channel.
 4. Every client adds up all the summaries: that is the census.
 
 The addon itself talks only in game, through the game's own addon messages: it has no server of
-its own, and nothing it sends leaves the game. One exception is Olympus Link (above), and
-only when you choose to link a character: it uses a website (the Olympus Link page, on the
-project's GitHub Pages) and the Olympus bot on Discord. A confirmer (a key from the bot's keeper)
+its own, and nothing it sends leaves the game. One exception is Elfcore Link (above), and
+only when you choose to link a character: it uses a website (the Elfcore Link page, on the
+project's GitHub Pages) and the Elfcore bot on Discord. A confirmer (a key from the bot's keeper)
 signs other players' requests by itself once the bot is ready, and those signatures reach the bot
-in their proofs. The other is the Olympus Companion app, only if you install it (Privacy, below).
+in their proofs. The other is the Elfcore Companion app, only if you install it (Privacy, below).
 
 **Realms vs layers.** A realm (ClassicBetaPvP, ClassicBetaPvP2...) is a separate world
 with its own guilds; layers are copies of a zone *inside* one realm. Guilds on the same
@@ -832,19 +832,19 @@ window shows which realms you are counting.
 ## Privacy
 
 The addon itself talks only through the game's own addon messages: it has no server of its own,
-and what it sends stays in the game. One exception is Olympus Link, and only when you choose
-to link a character, or to confirm other players' links: a link's proof goes to the Olympus bot
-on Discord, through the Olympus Link page on GitHub Pages (where you sign in with Discord) or a
+and what it sends stays in the game. One exception is Elfcore Link, and only when you choose
+to link a character, or to confirm other players' links: a link's proof goes to the Elfcore bot
+on Discord, through the Elfcore Link page on GitHub Pages (where you sign in with Discord) or a
 High Councillor's watcher. A confirmer, a High Councillor too, is someone who typed in a key the
 bot's keeper made them (no addon makes or announces a key by itself, and the author's council
-authority is off): once the bot is ready, their addon says so on the Olympus channel every 5
+authority is off): once the bot is ready, their addon says so on the Elfcore channel every 5
 minutes and signs other players' requests by itself, and their character's name and signature
-reach the bot in those players' proofs, until `/oly discord key off`. The other is the Olympus
+reach the bot in those players' proofs, until `/elf discord key off`. The other is the Elfcore
 Companion app, only if you install it: its own bridge addon takes your character's name and
-BattleTag and the Olympus and guild chat lines your client shows to Olympus's server, for its staff
+BattleTag and the Elfcore and guild chat lines your client shows to Elfcore's server, for its staff
 alone (the Companion's rows below). Your name is on every message (the game adds it). What goes where:
 
-*The table is in the README, with the rest of this section: [Privacy](https://github.com/dnl-gentile/olympus-addon#privacy).*
+*The table is in the README, with the rest of this section: [Privacy](https://github.com/dnl-gentile/elfcore-addon#privacy).*
 
 ## Security and trust
 
@@ -859,24 +859,24 @@ the same answer, and each addon answers him once every 4 minutes at most, howeve
 He can also ask a player on an old version to update: a fixed window with the two version
 numbers and nothing else. Only his character on his realm group
 can do either: every addon checks the sender's name, which nobody else can carry. Since 1.1
-a roll call is answered only after the player's yes (the first-open page, or `/oly rollcall on`),
-and `/oly rollcall off` refuses both. Since 1.1 your addon also reads the released version his addon
-announces on the channel (his presence): newer than yours, the Census, `/oly status` and one chat
+a roll call is answered only after the player's yes (the first-open page, or `/elf rollcall on`),
+and `/elf rollcall off` refuses both. Since 1.1 your addon also reads the released version his addon
+announces on the channel (his presence): newer than yours, the Census, `/elf status` and one chat
 line a session tell you to update. That is local to your client, sends nothing, and shows
-whatever `/oly rollcall` says. He runs a new build on his own PC before it is published, so his
-presence names only the version he marked as out with `/oly released [version]` (his character
+whatever `/elf rollcall` says. He runs a new build on his own PC before it is published, so his
+presence names only the version he marked as out with `/elf released [version]` (his character
 only; the Workshop tab shows it) once CurseForge lists it, never the build he runs, and never one
-newer than that build; addons before 1.1 read none of it. The addon's error catcher keeps only Olympus's own errors (for
-`/oly bug`), never another addon's. For the store's screenshots he has a photo mode (`/oly
-photo`, his character only): on his own screen it fades everything but Olympus and the world
-map to invisible, and gives every frame its look back on the second `/oly photo` or a
+newer than that build; addons before 1.1 read none of it. The addon's error catcher keeps only Elfcore's own errors (for
+`/elf bug`), never another addon's. For the store's screenshots he has a photo mode (`/elf
+photo`, his character only): on his own screen it fades everything but Elfcore and the world
+map to invisible, and gives every frame its look back on the second `/elf photo` or a
 `/reload`. Never in combat, not with the gamepad UI, not on a screen of more than 1000 frames
 (it says so and leaves them as they are), and nothing is sent to anyone.
-To check the elite borders his own rank doesn't carry, `/oly borders test <tier>` (his
+To check the elite borders his own rank doesn't carry, `/elf borders test <tier>` (his
 character only) shows one of the borders round his own portrait, and on his target frame when he
 targets himself, and its nameplate mark after his own name on his player frame and on every
-friendly player's nameplate (`/oly borders test member`: the member's star alone), on his screen
-alone until `/oly borders test off` or a `/reload`. It follows the borders' and the marks' own
+friendly player's nameplate (`/elf borders test member`: the member's star alone), on his screen
+alone until `/elf borders test off` or a `/reload`. It follows the borders' and the marks' own
 rules (none with the gamepad UI, made out of combat), and nothing is sent.
 
 The addon is plain Lua running on each player's computer, so anyone can edit their own
@@ -884,7 +884,7 @@ copy. No addon can prevent that. What this one does is check what every copy sen
 few characters working together can still reach is said plainly further down
 ([What colluding characters can reach](#what-colluding-characters-can-reach)):
 
-*The list is in the README, with the rest of this section: [Security and trust](https://github.com/dnl-gentile/olympus-addon#security-and-trust).*
+*The list is in the README, with the rest of this section: [Security and trust](https://github.com/dnl-gentile/elfcore-addon#security-and-trust).*
 
 ### What colluding characters can reach
 
@@ -893,7 +893,7 @@ sender belongs to: a census report is its sender's word. So a few characters wor
 can still reach the following today (1.0.0); each outcome was checked against this version's
 code.
 
-*The list is in the README, with the rest of this section: [What colluding characters can reach](https://github.com/dnl-gentile/olympus-addon#what-colluding-characters-can-reach).*
+*The list is in the README, with the rest of this section: [What colluding characters can reach](https://github.com/dnl-gentile/elfcore-addon#what-colluding-characters-can-reach).*
 
 ## Built for a crowd of thousands
 
@@ -914,33 +914,33 @@ code.
 
 | Command | |
 |---|---|
-| `/oly` | open or close the window |
-| `/oly realm` · `/oly decrees` · `/oly tabard` | open a tab |
-| `/oly loot` | your guild's loot notes and points on the Realm tab (its officers write them; not a bid window) |
-| `/oly craft [item or name]` · `/oly crafter on\|off` | who can make it (the top-level Crafters tab: shift-click an item after `/oly craft`); list your professions read so far, or take them off |
-| `/ol <text>` · `/olc <text>` · `/oll <text>` | write in [Olympus], [Captains] or [Lords]; alone (`/ol`, `/olc`, `/oll`): open the Chat tab on that channel (1.1.1) |
-| `/oly mute olympus` · `/oly mute captains` · `/oly mute lords` | hide or show a channel in chat |
-| `/oly chatwindow tab` · `/oly chatwindow <number or name> [olympus\|captains\|lords]` · `/oly chatwindow main` | the Olympus chats in a chat tab named Olympus (without the channel's name; it says how to make the tab), in another chat window (with Chattynator, one of its tabs, by name), or back in the main one |
-| `/oly privacy` | the first-open page again: what the addon shares, and your Yes or No to each (1.1) |
-| `/oly chat on\|off` | the Olympus chats on this client; off, nothing is sent or shown (1.1: off until you say yes) |
-| `/oly talk [olympus\|captains\|lords]` | open or close the Olympus window on its Chat tab, on that channel; also `/ol`, `/olc` or `/oll` with nothing after it, or Shift-click the minimap button (1.1.1) |
-| `/oly helpme [text]` (or **Ask a High Councillor** on the Realm tab) | ask the High Council (the moderators) for help: it goes by whisper to up to three of them online who take requests |
-| `/oly discord <code>` · `/oly discord` | Olympus Link: link this character to your Discord account with the bot's code (or paste it in a box) |
-| `/oly hop` | ask for an invite to the King's layer (while he is online) |
-| `/oly lfg` · `/oly lfg dungeon\|raid\|pvp\|layer [note]` · `/oly lfg off` | the Board (1.1): who is looking for a group; raise your flag (a box with your note first) or lower it |
-| `/oly week` | the week on the Board and Decrees: army and own-guild Agenda entries for 7 days, alongside your guild's calendar; eligible schedulers see separate army and guild buttons ("Sat 20:00 Raid night") |
-| `/oly location on` · `/oly location off` | share (or not) your zone and layer on the Olympus channel |
-| `/oly borders on` · `/oly borders off` | elite borders round the portrait of your target, focus, party members and your own frame (Forever): the game's gold wings for the King, silver wings for the High Council and Max's bronze wings for Olympus guild masters (none for a character or guild the moderators took off, net-off). Legates and correspondents use separate verified office shields instead of the old wingless bronze role frame; signed High Council departments use the same shield family without replacing silver, and earned honours remain. Since 1.1.5 the old rank borders (gold for Lords, silver for Captains, bronze for Raiders and Veterans) are gone, and any other member has the nameplate star alone. On by default, hidden with the gamepad UI. Off, the nameplate marks go too |
-| `/oly nameplates on` · `/oly nameplates off` | a small mark left of the name on friendly players' nameplates (Forever; friendly nameplates show with Shift+V): the game's gold elite mark for the King, silver for the High Council, bronze for guild masters, the verified Legate or department shield for an appointee, and a star for any other member of an Olympus guild (none for a character or a guild the moderators took off, net-off); on by default, hidden with the gamepad UI and with `/oly borders off` |
-| `/oly chatmarks on` · `/oly chatmarks off` | 1.1.5: the verified mark before a player's name in the game's own chat (channels, say, yell, emote, party, raid, instance and whispers; guild and officer chat the office marks alone, never the star): the King's gold dragon, a High Councillor's silver then their icon, a guild master's bronze, the Legate or department shield for an appointee, and the star for any other member your addon can check. Olympus's own lines carry none. Through the game's own name filter, so the name's link, right-click and /r stay the game's; on by default, hidden with the gamepad UI, and a councillor's on the King's screen while the council's names are hidden |
-| `/oly block <name>` | ignore a player |
-| `/oly filter add\|remove <word>` · `/oly filter` | block terms: hide, on your screen, lines of addon text (Olympus chats, writs, decrees, Vox) with a word; the list (1.1) |
-| `/oly alt add Name` · `/oly alt remove Name` · `/oly alt` | link a character of this account as your alt (log it and say yes there), take a link apart, or see your links: the census and the treasury count you once (1.1) |
-| `/oly sound` · `/oly sound on\|off` | every alert sound on or off |
-| `/oly bug` | copyable bug report (also: the help button left of the window's X, then **Report a bug**) |
-| `/oly status` | diagnostics in chat (1.0.0: whom your addon knows as the King's Steward, and the lists of Hands it holds, whose each is; 1.1.2: the author's in a copy window) |
+| `/elf` | open or close the window |
+| `/elf realm` · `/elf decrees` · `/elf tabard` | open a tab |
+| `/elf loot` | your guild's loot notes and points on the Realm tab (its officers write them; not a bid window) |
+| `/elf craft [item or name]` · `/elf crafter on\|off` | who can make it (the top-level Crafters tab: shift-click an item after `/elf craft`); list your professions read so far, or take them off |
+| `/ef <text>` · `/efc <text>` · `/efl <text>` | write in [Elfcore], [Captains] or [Lords]; alone (`/ef`, `/efc`, `/efl`): open the Chat tab on that channel (1.1.1) |
+| `/elf mute elfcore` · `/elf mute captains` · `/elf mute lords` | hide or show a channel in chat |
+| `/elf chatwindow tab` · `/elf chatwindow <number or name> [elfcore\|captains\|lords]` · `/elf chatwindow main` | the Elfcore chats in a chat tab named Elfcore (without the channel's name; it says how to make the tab), in another chat window (with Chattynator, one of its tabs, by name), or back in the main one |
+| `/elf privacy` | the first-open page again: what the addon shares, and your Yes or No to each (1.1) |
+| `/elf chat on\|off` | the Elfcore chats on this client; off, nothing is sent or shown (1.1: off until you say yes) |
+| `/elf talk [elfcore\|captains\|lords]` | open or close the Elfcore window on its Chat tab, on that channel; also `/ef`, `/efc` or `/efl` with nothing after it, or Shift-click the minimap button (1.1.1) |
+| `/elf helpme [text]` (or **Ask a High Councillor** on the Realm tab) | ask the High Council (the moderators) for help: it goes by whisper to up to three of them online who take requests |
+| `/elf discord <code>` · `/elf discord` | Elfcore Link: link this character to your Discord account with the bot's code (or paste it in a box) |
+| `/elf hop` | ask for an invite to the King's layer (while he is online) |
+| `/elf lfg` · `/elf lfg dungeon\|raid\|pvp\|layer [note]` · `/elf lfg off` | the Board (1.1): who is looking for a group; raise your flag (a box with your note first) or lower it |
+| `/elf week` | the week on the Board and Decrees: army and own-guild Agenda entries for 7 days, alongside your guild's calendar; eligible schedulers see separate army and guild buttons ("Sat 20:00 Raid night") |
+| `/elf location on` · `/elf location off` | share (or not) your zone and layer on the Elfcore channel |
+| `/elf borders on` · `/elf borders off` | elite borders round the portrait of your target, focus, party members and your own frame (Forever): the game's gold wings for the King, silver wings for the High Council and Max's bronze wings for Elfcore guild masters (none for a character or guild the moderators took off, net-off). Legates and correspondents use separate verified office shields instead of the old wingless bronze role frame; signed High Council departments use the same shield family without replacing silver, and earned honours remain. Since 1.1.5 the old rank borders (gold for Lords, silver for Captains, bronze for Raiders and Veterans) are gone, and any other member has the nameplate star alone. On by default, hidden with the gamepad UI. Off, the nameplate marks go too |
+| `/elf nameplates on` · `/elf nameplates off` | a small mark left of the name on friendly players' nameplates (Forever; friendly nameplates show with Shift+V): the game's gold elite mark for the King, silver for the High Council, bronze for guild masters, the verified Legate or department shield for an appointee, and a star for any other member of an Elfcore guild (none for a character or a guild the moderators took off, net-off); on by default, hidden with the gamepad UI and with `/elf borders off` |
+| `/elf chatmarks on` · `/elf chatmarks off` | 1.1.5: the verified mark before a player's name in the game's own chat (channels, say, yell, emote, party, raid, instance and whispers; guild and officer chat the office marks alone, never the star): the King's gold dragon, a High Councillor's silver then their icon, a guild master's bronze, the Legate or department shield for an appointee, and the star for any other member your addon can check. Elfcore's own lines carry none. Through the game's own name filter, so the name's link, right-click and /r stay the game's; on by default, hidden with the gamepad UI, and a councillor's on the King's screen while the council's names are hidden |
+| `/elf block <name>` | ignore a player |
+| `/elf filter add\|remove <word>` · `/elf filter` | block terms: hide, on your screen, lines of addon text (Elfcore chats, writs, decrees, Vox) with a word; the list (1.1) |
+| `/elf alt add Name` · `/elf alt remove Name` · `/elf alt` | link a character of this account as your alt (log it and say yes there), take a link apart, or see your links: the census and the treasury count you once (1.1) |
+| `/elf sound` · `/elf sound on\|off` | every alert sound on or off |
+| `/elf bug` | copyable bug report (also: the help button left of the window's X, then **Report a bug**) |
+| `/elf status` | diagnostics in chat (1.0.0: whom your addon knows as the King's Steward, and the lists of Hands it holds, whose each is; 1.1.2: the author's in a copy window) |
 
-*Every command in the README: [Commands](https://github.com/dnl-gentile/olympus-addon#commands).*
+*Every command in the README: [Commands](https://github.com/dnl-gentile/elfcore-addon#commands).*
 
 ## Reporting a bug
 
@@ -952,22 +952,22 @@ only once he answers, and you are told when he got it.
 Since 1.1.2 the author can also ask you for it from the right-click menu: your addon shows you
 the exact text first, in a window of its own, and sends nothing without your **Send**.
 
-Type `/oly bug` (or press **Report a bug**), copy the text and open an issue on [GitHub](https://github.com/dnl-gentile/olympus-addon/issues). Errors are
-also saved in `WTF/Account/<ACCOUNT>/SavedVariables/Olympus.lua`.
+Type `/elf bug` (or press **Report a bug**), copy the text and open an issue on [GitHub](https://github.com/dnl-gentile/elfcore-addon/issues). Errors are
+also saved in `WTF/Account/<ACCOUNT>/SavedVariables/Elfcore.lua`.
 
 ## Credits
 
 - **Asmongold** and his team (Daily Dose of Asmongold, Max, Heuto, Fernmelder and the High
-  Council), for making Olympus the army's addon and for the ideas.
+  Council), for making Elfcore the army's addon and for the ideas.
 - **Security reviews:** Konig, bjess9 (jess), lordjumper and Fadirstave, who read the code and
   showed what an attacker could do.
-- **Code and ideas:** RoyLeviGit (Olympus chats in their own chat window), Artz (hiding the
+- **Code and ideas:** RoyLeviGit (Elfcore chats in their own chat window), Artz (hiding the
   Issue Reporter), bjess9 (CI and the shared checks), hypertectonic (Chattynator's tabs),
   Bernardo Costa / Costafitness (exact layer-hop confirmation and stale-request regressions,
   adapted from PR #51), and Rick-laboratory (bounded transport, cancellation and admission
   regressions, adapted from PR #52).
 - **Feature requests:** Fernmelder, whose 39 posts became 1.1 (the Fernmelder release);
-  shenanigans_ (the nameplate marks), Valdericht (`<OLYMPIAN>`), Pyralis Ashandar (taking
+  shenanigans_ (the nameplate marks), Valdericht (`<ELF>`), Pyralis Ashandar (taking
   donations) and Zeal (what the King hides stays off the channel).
 - **Art:** Max (the bronze elite borders, drawn over the game's own; the winged one remains the guild masters').
 - **Reports from the field:** Riukensei and PartyRockAce (the gamepad UI; PartyRockAce's report
@@ -978,12 +978,12 @@ also saved in `WTF/Account/<ACCOUNT>/SavedVariables/Olympus.lua`.
 
 ## License
 
-MIT. Not made or endorsed by Blizzard Entertainment. The Olympus emblem belongs to its owners
+MIT. Not made or endorsed by Blizzard Entertainment. The Elfcore emblem belongs to its owners
 and is used for the community.
 
-*Sources for the Olympus description: the Olympus Discord welcome message,
+*Sources for the Elfcore description: the Elfcore Discord welcome message,
 [Prism on X](https://x.com/fwprism/status/2101809316382847172) (10K+ members in the beta),
-[Dexerto](https://www.dexerto.com/world-of-warcraft/asmongold-responds-as-wow-forever-players-want-him-banned-over-massive-olympus-guild-3411199/).*
+[Dexerto](https://www.dexerto.com/world-of-warcraft/asmongold-responds-as-wow-forever-players-want-him-banned-over-massive-elfcore-guild-3411199/).*
 
 
-Source code: https://github.com/dnl-gentile/olympus-addon
+Source code: https://github.com/dnl-gentile/elfcore-addon

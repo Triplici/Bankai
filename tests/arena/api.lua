@@ -1,4 +1,4 @@
--- 1.2.4: the Olympus API for other addons (Olympus/API.lua, docs/API.md) on the test world: the
+-- 1.2.4: the Elfcore API for other addons (Elfcore/API.lua, docs/API.md) on the test world: the
 -- privacy page's line for each addon, what a granted addon reads (copies of the pages' own rows,
 -- field by field), its callbacks, and what never leaves. Every name is invented.
 local H = ...
@@ -34,27 +34,27 @@ end
 
 -- API.lua (and its words) loaded into the client as the TOC loads it, after the boards it reads:
 -- with Wanted.lua too (the core's board, which the world's clients do not load), its tab kept off
--- the harness's window. The global OlympusAPI is the client's (c.OlympusAPI), the host's put back.
+-- the harness's window. The global ElfcoreAPI is the client's (c.ElfcoreAPI), the host's put back.
 -- The invented partner addons that exercise the reserved features (API.lua's Reserved) are
 -- authorized on that client's copy of the list, as the shipped list authorizes the real one; any
 -- other invented name is an ordinary addon. partners = false keeps the list as it ships.
 -- (1.2.5.1: QuietTool and OtherTool drive the quiet presence, a reserved feature too.)
 local PARTNERS = { "MapPins", "BountyBoard", "QuietTool", "OtherTool" }
 local function LoadAPI(w, c, wanted, partners)
-	local was = rawget(_G, "OlympusAPI")
+	local was = rawget(_G, "ElfcoreAPI")
 	w:As(c, function()
 		if wanted ~= false then
 			local ui = rawget(c.ns, "UI")
 			rawset(c.ns, "UI", { AddTab = function() end })
-			assert(loadfile(H.ADDON_DIR .. "Wanted.lua"))("Olympus", c.ns)
+			assert(loadfile(H.ADDON_DIR .. "Wanted.lua"))("Elfcore", c.ns)
 			rawset(c.ns, "UI", ui)
 		end
-		assert(loadfile(H.ADDON_DIR .. "Locales/APIText.lua"))("Olympus", c.ns)
-		assert(loadfile(H.ADDON_DIR .. "API.lua"))("Olympus", c.ns)
+		assert(loadfile(H.ADDON_DIR .. "Locales/APIText.lua"))("Elfcore", c.ns)
+		assert(loadfile(H.ADDON_DIR .. "API.lua"))("Elfcore", c.ns)
 	end)
-	c.OlympusAPI = rawget(_G, "OlympusAPI")
-	rawset(_G, "OlympusAPI", was)
-	assert(c.OlympusAPI and c.OlympusAPI ~= was, "the client's own OlympusAPI")
+	c.ElfcoreAPI = rawget(_G, "ElfcoreAPI")
+	rawset(_G, "ElfcoreAPI", was)
+	assert(c.ElfcoreAPI and c.ElfcoreAPI ~= was, "the client's own ElfcoreAPI")
 	local API = c.ns.API
 	if partners ~= false and type(API.AuthorizedKey) == "function" then
 		for _, name in ipairs(PARTNERS) do API.AUTHORIZED[w:As(c, API.AuthorizedKey, name)] = true end
@@ -130,18 +130,18 @@ local function SightingHost(c)
 			id = id, target = target, phase = "waiting", createdAt = 100 + id, expiresAt = 700 + id,
 			rawSecret = "transport-only-state", targetGUID = "Player-4002-TARGET",
 			results = {
-				{ target = target, reporter = "Scout One-Emberfall", guild = "Olympus", at = 110 + id,
+				{ target = target, reporter = "Scout One-Emberfall", guild = "Elfcore", at = 110 + id,
 					mapID = 1415, x = 401, y = 522, layer = 3, guid = "Player-4001-OBSERVER", rawSecret = "row-only-state" },
-				{ target = target, observer = "Scout One-Emberfall", observerGuild = "Olympus", seenAt = 111 + id,
+				{ target = target, observer = "Scout One-Emberfall", observerGuild = "Elfcore", seenAt = 111 + id,
 					receivedAt = 115 + id, expiresAt = 1011 + id,
 					mapID = 1415, x = 402, y = 523, layer = 3, kind = "exact-unit", accuracyYards = 0 },
-				{ target = target, observer = "Scout Two-Emberfall", observerGuild = "Olympus", seenAt = 112 + id,
+				{ target = target, observer = "Scout Two-Emberfall", observerGuild = "Elfcore", seenAt = 112 + id,
 					receivedAt = "invalid-time", expiresAt = math.huge,
 					mapID = 1415, x = 403, y = 524, layer = 4, kind = "exact-group", accuracyYards = 0 },
 				-- Invalid coordinates are discarded rather than clamped into an apparently valid report.
-				{ target = target, observer = "Bad Row-Emberfall", observerGuild = "Olympus", seenAt = 113 + id,
+				{ target = target, observer = "Bad Row-Emberfall", observerGuild = "Elfcore", seenAt = 113 + id,
 					mapID = 1415, x = 1001, y = 524, layer = 4, rawSecret = "invalid-row-secret" },
-				{ target = target, observer = "False Precision-Emberfall", observerGuild = "Olympus", seenAt = 114 + id,
+				{ target = target, observer = "False Precision-Emberfall", observerGuild = "Elfcore", seenAt = 114 + id,
 					mapID = 1415, x = 404, y = 525, layer = 4, kind = "exact-group", accuracyYards = 5 },
 			},
 		}
@@ -160,16 +160,16 @@ local function SightingHost(c)
 			id = id, mode = "area", scope = scope or "hostile", mapID = mapID, phase = "waiting",
 			createdAt = 100 + id, expiresAt = 700 + id, rawSecret = "area-transport-secret",
 			results = {
-				{ target = "Enemy One-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Olympus",
+				{ target = "Enemy One-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Elfcore",
 					seenAt = 110 + id, receivedAt = 112 + id, expiresAt = 900 + id,
 					mapID = mapID, x = 410, y = 520, layer = 3, kind = "nearby", rawSecret = "area-row-secret" },
-				{ target = "Enemy Exact-Emberfall", reporter = "Hidden Scout Two-Emberfall", observerGuild = "Olympus",
+				{ target = "Enemy Exact-Emberfall", reporter = "Hidden Scout Two-Emberfall", observerGuild = "Elfcore",
 					seenAt = 111 + id, receivedAt = 113 + id, expiresAt = 901 + id,
 					mapID = mapID, x = 411, y = 521, layer = 4, kind = "exact-unit", accuracyYards = 0 },
-				{ target = "Wrong Map-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Olympus",
+				{ target = "Wrong Map-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Elfcore",
 					seenAt = 112 + id, expiresAt = 902 + id, mapID = mapID + 1, x = 412, y = 522, layer = 3 },
 				-- A not-hostile row: only an "outsiders" session may show it.
-				{ target = "Passing Stranger-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Olympus",
+				{ target = "Passing Stranger-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Elfcore",
 					seenAt = 113 + id, receivedAt = 114 + id, expiresAt = 903 + id, mapID = mapID, x = 413, y = 523,
 					layer = 3, kind = "nearby", hostile = false },
 			}
@@ -311,7 +311,7 @@ local function Line(w, c, key)
 	return nil
 end
 
-print("The Olympus API (1.2.4)")
+print("The Elfcore API (1.2.4)")
 
 test("1.2.4 the API: donor fixture overrides preserve the actual Treasury and native Dues tickers", function()
 	local w, cast = Setup()
@@ -328,10 +328,10 @@ test("1.2.4 the API: donor fixture overrides preserve the actual Treasury and na
 	end)
 end)
 
-test("1.2.4 the API: VERSION and Has; Register only for an installed addon, once a session, never Olympus's own name; an unregistered addon has no way in", function()
+test("1.2.4 the API: VERSION and Has; Register only for an installed addon, once a session, never Elfcore's own name; an unregistered addon has no way in", function()
 	local w, cast, viewer, API = Setup()
 	SurfaceHost(viewer)
-	local O = viewer.OlympusAPI
+	local O = viewer.ElfcoreAPI
 	eq(O.VERSION, 1)
 	eq(O.SURFACE_LIMIT, 1)
 	eq(API.VERSION, 1)
@@ -343,15 +343,15 @@ test("1.2.4 the API: VERSION and Has; Register only for an installed addon, once
 	eq(w:As(viewer, O.Has, "census"), false, "no census feature"); eq(w:As(viewer, O.Has, nil), false)
 	-- The global itself is read-only: an addon cannot replace Register for the others.
 	local ok = pcall(function() O.Register = function() end end)
-	eq(ok, false, "OlympusAPI is read-only")
+	eq(ok, false, "ElfcoreAPI is read-only")
 	eq(getmetatable(O), false, "its metatable is locked")
 	-- Nothing but Register gives a way in: no data function on the global.
 	eq(O.GetWanted, nil); eq(O.GetRankings, nil); eq(O.GetProfile, nil); eq(O.On, nil); eq(O.RegisterSurface, nil); eq(O.UI, nil)
-	eq(w:As(viewer, function() return rawget(_G, "OlympusUI") end), nil, "no second UI global")
+	eq(w:As(viewer, function() return rawget(_G, "ElfcoreUI") end), nil, "no second UI global")
 	local h, why = w:As(viewer, O.Register, "MissingAddon")
 	eq(h, nil); eq(why, "unknown", "a name the game has not installed")
-	eq(select(2, w:As(viewer, O.Register, "Olympus")), "self")
-	eq(select(2, w:As(viewer, O.Register, "olympus_arena")), "self")
+	eq(select(2, w:As(viewer, O.Register, "Elfcore")), "self")
+	eq(select(2, w:As(viewer, O.Register, "elfcore_arena")), "self")
 	eq(select(2, w:As(viewer, O.Register, 42)), "name")
 	eq(select(2, w:As(viewer, O.Register, "")), "name")
 	eq(select(2, w:As(viewer, O.Register, "Bad|cffName")), "name")
@@ -380,7 +380,7 @@ end)
 
 test("1.2.5 the API sightings: capability detection, explicit permission, sanitized copies, owner isolation, callbacks, cancellation and revocation", function()
 	local w, cast, viewer, API = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	rawset(viewer.ns, "PlayerSightings", nil)
 	eq(w:As(viewer, O.Has, "network.sightings"), false, "no transport: no advertised capability")
 	local host = SightingHost(viewer)
@@ -412,7 +412,7 @@ test("1.2.5 the API sightings: capability detection, explicit permission, saniti
 	eq(state.mode, "player")
 	eq(Keys(state.sightings[1]), "kind,layer,mapID,observer,observerGuild,seenAt,target,x,y")
 	eq(state.sightings[1].kind, "nearby"); eq(state.sightings[1].observer, "Scout One-Emberfall")
-	eq(state.sightings[1].observerGuild, "Olympus"); eq(state.sightings[1].mapID, 1415)
+	eq(state.sightings[1].observerGuild, "Elfcore"); eq(state.sightings[1].mapID, 1415)
 	eq(state.sightings[1].x, 401); eq(state.sightings[1].y, 522); eq(state.sightings[1].layer, 3)
 	eq(state.sightings[2].kind, "exact-unit"); eq(state.sightings[2].accuracyYards, 0)
 	eq(state.sightings[2].receivedAt, 122); eq(state.sightings[2].expiresAt, 1018)
@@ -449,7 +449,7 @@ test("1.2.5 the API sightings: capability detection, explicit permission, saniti
 	eq(Do(w, viewer, a, "On", "SIGHTING_CHANGED", function(_, row) toldA[#toldA + 1] = row end), true)
 	eq(Do(w, viewer, b, "On", "SIGHTING_CHANGED", function(_, row) toldB[#toldB + 1] = row end), true)
 	host.sessions["7"].results[#host.sessions["7"].results + 1] = {
-		target = "Tracked Name-Emberfall", observer = "Scout Three-Emberfall", observerGuild = "Olympus",
+		target = "Tracked Name-Emberfall", observer = "Scout Three-Emberfall", observerGuild = "Elfcore",
 		seenAt = 200, mapID = 1415, x = 405, y = 526, layer = 5,
 	}
 	w:As(viewer, function() viewer.ns.Fire("PLAYER_SIGHTINGS_CHANGED", 7) end)
@@ -530,7 +530,7 @@ end)
 
 test("1.2.5 the API profile presentation: bounded owners, sanitized session events and active revoke cleanup", function()
 	local w, cast, viewer, API = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	rawset(viewer.ns, "ProfileEffects", nil)
 	eq(w:As(viewer, O.Has, "network.profile-effects"), false, "no host module: no advertised capability")
 	local host = ProfileEffectsHost(viewer)
@@ -600,10 +600,10 @@ end)
 
 -- 1.2.5.1, the quiet presence (Core.lua, Comm.QUIET_WORDS): self only, for the session; only the
 -- King, a High Councillor (a current signed issuer) or the author may turn it on, with the player's
--- Yes, in an Olympus guild, through an addon the Olympus team authorized (a reserved feature); the
+-- Yes, in an Elfcore guild, through an addon the Elfcore team authorized (a reserved feature); the
 -- handle that turned it on owns it; QUIET_PRESENCE_CHANGED; a No and a /reload end it. On the world's clients, with their own King, Workshop and Wallet: no crown, author
 -- presence or auditor hello leaves while it is on, and each goes again once it is off.
-test("1.2.5.1 the API quiet presence: the King, a councillor or the author alone, with a Yes, in an Olympus guild; its owner, its event; a No and a /reload end it", function()
+test("1.2.5.1 the API quiet presence: the King, a councillor or the author alone, with a Yes, in an Elfcore guild; its owner, its event; a No and a /reload end it", function()
 	local w, cast = W3.New({ more = {
 		{ "councillor", N.councillor, { guild = World.KING_GUILD } },
 		{ "author", N.author },
@@ -614,7 +614,7 @@ test("1.2.5.1 the API quiet presence: the King, a councillor or the author alone
 		if not rawget(c.ns, "API") then LoadAPI(w, c, false) end
 		name = name or "QuietTool"
 		Install(c, name, "Quiet Tool")
-		local h = assert(w:As(c, c.OlympusAPI.Register, name), "a handle for " .. name)
+		local h = assert(w:As(c, c.ElfcoreAPI.Register, name), "a handle for " .. name)
 		return h, "api:" .. name:lower()
 	end
 	local function Yes(c, key, on) w:As(c, c.ns.Consent.Choose, key, on ~= false) end
@@ -632,8 +632,8 @@ test("1.2.5.1 the API quiet presence: the King, a councillor or the author alone
 
 	local hk, kingKey = Tool(king)
 	local API = king.ns.API
-	eq(w:As(king, king.OlympusAPI.Has, "presence.quiet"), true)
-	eq(w:As(king, king.OlympusAPI.Has, "QUIET_PRESENCE_CHANGED"), true)
+	eq(w:As(king, king.ElfcoreAPI.Has, "presence.quiet"), true)
+	eq(w:As(king, king.ElfcoreAPI.Has, "QUIET_PRESENCE_CHANGED"), true)
 	local ok, why = Do(w, king, hk, "SetQuietPresence", true)
 	eq(ok, false); eq(why, "pending", "nothing before the player's Yes")
 	eq(select(2, Do(w, king, hk, "GetQuietPresence")), "pending")
@@ -652,7 +652,7 @@ test("1.2.5.1 the API quiet presence: the King, a councillor or the author alone
 	eq(Do(w, king, hk, "GetQuietPresence").on, true, "each read is a fresh copy")
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, 1); eq(told[1].on, true); eq(Keys(told[1]), "on,since")
-	-- (A reserved feature, 2026-10-19) An addon the Olympus team has not authorized gets
+	-- (A reserved feature, 2026-10-19) An addon the Elfcore team has not authorized gets
 	-- "unauthorized", even on the King's own client with his Yes: it can neither turn it on nor off,
 	-- read it nor hear of it.
 	local crier, crierKey = Tool(king, "TownCrier")
@@ -718,7 +718,7 @@ test("1.2.5.1 the API quiet presence: the King, a councillor or the author alone
 		eq(ok, false); eq(why, "authority", c.name)
 		eq(Do(w, c, h, "GetQuietPresence").on, false)
 	end
-	-- Outside an Olympus guild, even a councillor may not.
+	-- Outside an Elfcore guild, even a councillor may not.
 	cast.councillor.guild = nil -- (World:Client's guild = false gives the default guild)
 	eq(select(2, Do(w, cast.councillor, hc, "SetQuietPresence", true)), "guild")
 	cast.councillor.guild = World.KING_GUILD
@@ -744,7 +744,7 @@ test("1.2.5.1 the API quiet presence on the world: no court, list repeat, treasu
 	local function Tool(c)
 		LoadAPI(w, c, false)
 		Install(c, "QuietTool", "Quiet Tool")
-		local h = assert(w:As(c, c.OlympusAPI.Register, "QuietTool"), "a handle")
+		local h = assert(w:As(c, c.ElfcoreAPI.Register, "QuietTool"), "a handle")
 		w:As(c, c.ns.Consent.Choose, "api:quiettool", true)
 		return h
 	end
@@ -761,7 +761,7 @@ test("1.2.5.1 the API quiet presence on the world: no court, list repeat, treasu
 	w:As(king, function()
 		local on, login = king.ns.On, {}
 		rawset(king.ns, "On", function(event, fn) if event == "LOGIN" then login[#login + 1] = fn else on(event, fn) end end)
-		local ok, err = pcall(function() assert(loadfile(H.ADDON_DIR .. "Court.lua"))("Olympus", king.ns) end)
+		local ok, err = pcall(function() assert(loadfile(H.ADDON_DIR .. "Court.lua"))("Elfcore", king.ns) end)
 		rawset(king.ns, "On", on)
 		assert(ok, err)
 		for _, fn in ipairs(login) do fn() end
@@ -847,7 +847,7 @@ test("1.2.5.1 the API quiet presence on the world: no court, list repeat, treasu
 		local raw = {}
 		king.globals.C_ChatInfo.SendAddonMessage = function(_, msg) raw[#raw + 1] = msg return 0 end
 		king.globals.GetChannelName = function() return 5 end
-		rawset(king.ns.Comm, "ChannelName", function() return "OlympusTest" end)
+		rawset(king.ns.Comm, "ChannelName", function() return "ElfcoreTest" end)
 		eq(Do(w, king, hk, "SetQuietPresence", true), true)
 		w:Fire(king, "PLAYER_LOGOUT")
 		eq(#raw, 0, "no word at logout while it is on: " .. tostring(raw[1]))
@@ -868,17 +868,17 @@ test("1.2.5.1 the API quiet presence: its permission line, docs/API.md, the READ
 	-- not true for a guild leader or officer, whom the guildmates' census still shows online from the
 	-- game's guild roster; the line now names what stops and what still shows.)
 	for _, word in ipairs({ "turn on a quiet presence for this session", "only for the King, a High Councillor or the addon's author",
-		"Olympus stops sending on its own the words that announce you online or say where you are",
-		"other Olympus clients age you out as after a logout", "your guild roster, the census your guildmates build from it",
+		"Elfcore stops sending on its own the words that announce you online or say where you are",
+		"other Elfcore clients age you out as after a logout", "your guild roster, the census your guildmates build from it",
 		"a guild leader or officer still shows online there, and your zone may for up to 12 minutes", "/who and chat still show you",
-		"Olympus chat lines you type and what you post yourself still go out", "a /reload or logout ends it",
+		"Elfcore chat lines you type and what you post yourself still go out", "a /reload or logout ends it",
 		"cannot enable the presentation or the quiet presence" }) do
 		assert(head:find(word, 1, true), "the line says: " .. word)
 	end
 	for _, word in ipairs({ "ligar uma presença silenciosa nesta sessão", "só para o Rei, um membro do Alto Conselho ou o autor do addon",
 		"as palavras que anunciam você online ou dizem onde você está", "o censo que seus colegas de guilda montam com ela",
 		"um mestre ou oficial de guilda ainda aparece online lá", "o /who e o chat ainda mostrarão você",
-		"as linhas de chat do Olympus que você digitar e o que você mesmo publicar ainda serão enviados",
+		"as linhas de chat do Elfcore que você digitar e o que você mesmo publicar ainda serão enviados",
 		"não pode ativar a apresentação nem a presença silenciosa" }) do
 		assert(tail:find(word, 1, true), "the pt-BR line says: " .. word)
 	end
@@ -887,14 +887,14 @@ test("1.2.5.1 the API quiet presence: its permission line, docs/API.md, the READ
 	local doc = Read(H.ROOT .. "docs/API.md")
 	for _, word in ipairs({ '"presence.quiet"', "handle:SetQuietPresence(on)", "handle:GetQuietPresence()", "QUIET_PRESENCE_CHANGED",
 		'`false, "authority"`', '`false, "guild"`', '`false, "owner"`', '`false, "quiet"`', "No word says it went quiet",
-		"Olympus chat lines he types", "the census\nstill shows a guild leader or officer online", "for up to 12 minutes",
+		"Elfcore chat lines he types", "the census\nstill shows a guild leader or officer online", "for up to 12 minutes",
 		"PLAYER_GUILD_UPDATE", "It is never saved", "{ on = true, since = 1792000000 }" }) do
 		assert(doc:find(word, 1, true), "docs/API.md: " .. word)
 	end
 	for _, path in ipairs({ "README.md", "docs/CURSEFORGE.md" }) do
-		local section = Read(H.ROOT .. path):match("\n### Other addons: the Olympus API %(1%.2%.4%)\n(.-)\n##")
+		local section = Read(H.ROOT .. path):match("\n### Other addons: the Elfcore API %(1%.2%.4%)\n(.-)\n##")
 		for _, word in ipairs({ "quiet presence for the King, a High Councillor or the addon's", "age\nhim out as after a logout",
-			"a guild leader or officer still shows online there", "Olympus chat lines he types and what he posts himself still go\nout",
+			"a guild leader or officer still shows online there", "Elfcore chat lines he types and what he posts himself still go\nout",
 			"A line on top of the Census and the\nRealm says so" }) do
 			assert(section and section:find(word, 1, true), path .. ": " .. word)
 		end
@@ -905,7 +905,7 @@ end)
 test("1.2.5 the API area sightings: hostile-area shape, privacy, ownership, host map pins and cancellation", function()
 	local w, cast, viewer, API = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	local host = SightingHost(viewer)
 	Install(viewer, "MapPins", "Map Pins")
 	Install(viewer, "BountyBoard", "Bounty Board")
@@ -985,7 +985,7 @@ test("1.2.5 the API area sightings: hostile-area shape, privacy, ownership, host
 	-- Map ownership is a lifecycle subscription of its own. The consuming addon did not register a
 	-- SIGHTING_CHANGED callback, but the host must still redraw pins after the transport event.
 	host.sessions["7"].results[#host.sessions["7"].results + 1] = {
-		target = "Enemy New-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Olympus",
+		target = "Enemy New-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Elfcore",
 		seenAt = 120, receivedAt = 121, expiresAt = future,
 		mapID = 1453, x = 420, y = 530, layer = 3, kind = "nearby",
 	}
@@ -1005,7 +1005,7 @@ test("1.2.5 the API area sightings: hostile-area shape, privacy, ownership, host
 	eq(rawget(firstFrame, "row"), nil, "empty refresh wipes copied row data from the reusable frame")
 	eq(rawget(secondFrame, "row"), nil); eq(rawget(thirdFrame, "row"), nil)
 	host.sessions["7"].results[1] = {
-		target = "Enemy Return-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Olympus",
+		target = "Enemy Return-Emberfall", observer = "Hidden Scout-Emberfall", observerGuild = "Elfcore",
 		seenAt = 122, receivedAt = 123, expiresAt = future,
 		mapID = 1453, x = 470, y = 580, layer = 3, kind = "nearby",
 	}
@@ -1134,7 +1134,7 @@ local function PinSetup()
 		return after(seconds, where, function() tick.fired = true return fn() end)
 	end
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	SightingHost(viewer)
 	Install(viewer, "MapPins", "Map Pins")
 	Install(viewer, "BountyBoard", "Bounty Board")
@@ -1147,7 +1147,7 @@ local function PinSetup()
 	return w, viewer, a, b, pins, tip, state
 end
 
-test("1.2.5.1 the API sighting pins: coloured world-map and minimap dots, Olympus's own tooltip, no world map with the gamepad UI, gone with the permission", function()
+test("1.2.5.1 the API sighting pins: coloured world-map and minimap dots, Elfcore's own tooltip, no world map with the gamepad UI, gone with the permission", function()
 	local w, viewer, a, b, pins, tip, state = PinSetup()
 	local C = viewer.Consent
 	local now = w:As(viewer, viewer.ns.Now)
@@ -1218,7 +1218,7 @@ test("1.2.5.1 the API sighting pins: coloured world-map and minimap dots, Olympu
 	W3.NoErrors(w)
 end)
 
--- Review of the sighting pins (2026-10-20): Olympus showed each dot itself after adding it, so a
+-- Review of the sighting pins (2026-10-20): Elfcore showed each dot itself after adding it, so a
 -- reused minimap frame given a row in another zone (or one the library could not place) stood on
 -- the minimap where its old row had been, with the new row's colour and tooltip.
 test("1.2.5.1 the API sighting pins: the library alone shows a minimap dot, no stale dot from a reused frame, an unknown map neither drawn nor counted, unchanged rows not placed again", function()
@@ -1241,7 +1241,7 @@ test("1.2.5.1 the API sighting pins: the library alone shows a minimap dot, no s
 	-- In an instance the library has no position: a re-added dot stays hidden.
 	viewer.instance = true
 	eq(select(2, Do(w, viewer, a, "SetSightingPins", { here })), 1)
-	eq(slot1.hidden, true, "never shown by Olympus itself")
+	eq(slot1.hidden, true, "never shown by Elfcore itself")
 	viewer.instance = nil
 	-- A map the library does not know: not drawn, not counted, its frame left for the next row.
 	eq(Do(w, viewer, a, "ClearSightingPins"), true)
@@ -1314,10 +1314,10 @@ test("1.2.5.1 the API sighting pins: dots fade and go by themselves while nobody
 	W3.NoErrors(w)
 end)
 
--- Review of the sighting pins (2026-10-20): while Olympus hides locations from a player (a
+-- Review of the sighting pins (2026-10-20): while Elfcore hides locations from a player (a
 -- moderator's timeout, a hold), the guildmates' dots, the crown and the Wanted pins go; these
 -- dots stayed and could be set again.
-test("1.2.5.1 the API sighting pins: none while Olympus hides locations from this player, and those up go at once", function()
+test("1.2.5.1 the API sighting pins: none while Elfcore hides locations from this player, and those up go at once", function()
 	local w, viewer, a, b, pins, tip, state = PinSetup()
 	local now = w:As(viewer, viewer.ns.Now)
 	local row = { target = "Enemy One-Emberfall", category = "hostile", mapID = 1453, x = 410, y = 520, seenAt = now - 30,
@@ -1355,7 +1355,7 @@ end)
 test("1.2.5 the API area sightings: a partial host reports unavailable without spending quota", function()
 	local w, cast, viewer, API = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	local host = SightingHost(viewer)
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
@@ -1378,7 +1378,7 @@ end)
 test("1.2.5 the API area scope: hostile by default, outsiders on request with labelled rows, refused when unknown or unsupported", function()
 	local w, cast, viewer, API = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	local host = SightingHost(viewer)
 	eq(w:As(viewer, O.Has, "network.sightings.area-scope"), true, "the wider scope is feature-detected")
 	Install(viewer, "MapPins", "Map Pins")
@@ -1461,7 +1461,7 @@ end
 test("1.2.5 the API leader presence: only what the King's lines, his crown and the Realm tab's layers show; nothing while barred; consent, guild and rate gates", function()
 	local w, cast, viewer, API = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	rawset(viewer.ns, "Hop", { missing = true }) -- (Core.lua's stand-in for a file not loaded yet)
 	Install(viewer, "MapPins", "Map Pins")
 	local a = w:As(viewer, O.Register, "MapPins")
@@ -1485,7 +1485,7 @@ test("1.2.5 the API leader presence: only what the King's lines, his crown and t
 	eq(p.name, "The Crown"); eq(p.online, true); eq(p.otherRealm, false); eq(p.onYourLayer, false)
 
 	-- His layer announced in the viewer's zone, his crown shared: the zone, the crown's point in
-	-- thousandths, and the Realm tab's layers with their "~N with Olympus" counts.
+	-- thousandths, and the Realm tab's layers with their "~N with Elfcore" counts.
 	Crown(w, cast.king, 0.42, 0.51)
 	local at = assert(w:As(viewer, viewer.ns.King.Location), "the viewer's own crown")
 	host.king.mapID, host.king.zoneUID = 1453, 9
@@ -1502,13 +1502,13 @@ test("1.2.5 the API leader presence: only what the King's lines, his crown and t
 	eq(p.position.mapID, 1453); eq(p.position.x, 420); eq(p.position.y, 510); eq(p.position.seenAt, at.t)
 	eq(#p.layers, 2)
 	for i, layer in ipairs(p.layers) do
-		eq(Keys(layer), "leader,name,olympus,yours")
+		eq(Keys(layer), "leader,name,elfcore,yours")
 		eq(layer.name, w:As(viewer, viewer.ns.Layers.Name, shown[i]), "the name the Realm tab shows")
-		eq(layer.olympus, shown[i].count, "its ~N with Olympus")
+		eq(layer.elfcore, shown[i].count, "its ~N with Elfcore")
 		eq(layer.leader, shown[i].zoneUID == 9)
 		eq(layer.yours, false)
 	end
-	eq(p.layers[1].olympus, 2); eq(p.layers[1].leader, true); eq(p.layer, p.layers[1].name)
+	eq(p.layers[1].elfcore, 2); eq(p.layers[1].leader, true); eq(p.layer, p.layers[1].name)
 	eq(p.layers[1].name, viewer.ns.L.LAYER_OF:format("Crown Bearer"))
 	host.onLayer = true
 	eq(Do(w, viewer, a, "GetLeaderPresence").onYourLayer, true, "the line 'on the King's layer'")
@@ -1545,11 +1545,11 @@ test("1.2.5 the API leader presence: only what the King's lines, his crown and t
 
 	-- A fresh copy each call.
 	p = assert(Do(w, viewer, a, "GetLeaderPresence"))
-	p.layers[1].olympus, p.position.x = 999, 1
+	p.layers[1].elfcore, p.position.x = 999, 1
 	local again = Do(w, viewer, a, "GetLeaderPresence")
-	eq(again.layers[1].olympus, 2); eq(again.position.x, 420)
+	eq(again.layers[1].elfcore, 2); eq(again.position.x, 420)
 
-	-- Outside an Olympus guild, nothing; past the rate, busy.
+	-- Outside an Elfcore guild, nothing; past the rate, busy.
 	viewer.guild = nil
 	eq(select(2, Do(w, viewer, a, "GetLeaderPresence")), "guild")
 	viewer.guild = World.GUILD
@@ -1562,7 +1562,7 @@ end)
 test("1.2.5 the API LEADER_CHANGED: once per real change, after a burst settles, on the crown's expiry, never without a Yes", function()
 	local w, cast, viewer, API = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	local host = LeaderHost(viewer)
 	host.king = { name = "The Crown", realm = viewer.ns.realm }
 	Install(viewer, "MapPins", "Map Pins")
@@ -1607,7 +1607,7 @@ test("1.2.5 the API LEADER_CHANGED: once per real change, after a burst settles,
 	w:As(viewer, function() viewer.ns.Fire("LAYERS_CHANGED") end)
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, count + 2, "one call for the burst")
-	eq(told[#told].layers[1].olympus, 2)
+	eq(told[#told].layers[1].elfcore, 2)
 
 	-- A crown that stops coming leaves the map with no event of its own: told when it expires.
 	local K = viewer.ns.King
@@ -1635,14 +1635,14 @@ test("1.2.5 the API LEADER_CHANGED: once per real change, after a burst settles,
 end)
 
 -- (Daniel, 2026-10-19) The leader's presence and the sightings searches answer only the addons the
--- Olympus team authorized, and so do the quiet presence and the profile presentation (the same
+-- Elfcore team authorized, and so do the quiet presence and the profile presentation (the same
 -- rule, agreed with the authorized client's team): a consenting ordinary addon gets "unauthorized"
 -- from each of their methods, cannot listen to their events and is asked only about what it can
 -- read, while the rest of the API is unchanged for it.
 test("1.2.5.1 the API reserved features: an addon that is not authorized gets \"unauthorized\" from every leader, sightings, quiet presence and profile-presentation method, none of their events, and a privacy line without them", function()
 	local w, cast, viewer, API = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	local sightings = SightingHost(viewer)
 	local leader = LeaderHost(viewer)
 	local profile = ProfileEffectsHost(viewer)
@@ -1667,7 +1667,7 @@ test("1.2.5.1 the API reserved features: an addon that is not authorized gets \"
 	w:As(viewer, C.Choose, "api:towncrier", true)
 	eq(Do(w, viewer, crier, "Status"), "granted")
 
-	-- (Its No above already ran Olympus's own revoke cleanup for its empty profile owner: a close and a
+	-- (Its No above already ran Elfcore's own revoke cleanup for its empty profile owner: a close and a
 	-- disable that hold nothing. From here on nothing it calls reaches the host.)
 	local profileBefore = #profile.calls
 	for _, call in ipairs(profile.calls) do
@@ -1797,7 +1797,7 @@ test("1.2.5.1 the API reserved features: the list as it ships names nobody (one 
 	for e in pairs(API.RESERVED_EVENTS) do assert(events[e], "a real event: " .. e) end
 	-- The public page says it without naming any addon.
 	local doc = Read(H.ROOT .. "docs/API.md")
-	for _, word in ipairs({ "addons the Olympus team has authorized", '"unauthorized"' }) do
+	for _, word in ipairs({ "addons the Elfcore team has authorized", '"unauthorized"' }) do
 		assert(doc:find(word, 1, true), "docs/API.md: " .. word)
 	end
 	W3.NoErrors(w)
@@ -1806,7 +1806,7 @@ end)
 test("1.2.5 the API area rotation: one live map, one minute, and only current or owned fresh exact-result maps", function()
 	local w, cast, viewer = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	local host = SightingHost(viewer)
 	Install(viewer, "MapPins", "Map Pins")
 	Install(viewer, "BountyBoard", "Bounty Board")
@@ -1825,10 +1825,10 @@ test("1.2.5 the API area rotation: one live map, one minute, and only current or
 		end
 	end
 	raw.results[#raw.results + 1] = { target = raw.target, observer = "Scout Three-Emberfall",
-		observerGuild = "Olympus", seenAt = w.clock, expiresAt = w.clock + 600,
+		observerGuild = "Elfcore", seenAt = w.clock, expiresAt = w.clock + 600,
 		mapID = 84, x = 500, y = 500, layer = 3, kind = "nearby" }
 	raw.results[#raw.results + 1] = { target = raw.target, observer = "Scout Four-Emberfall",
-		observerGuild = "Olympus", seenAt = w.clock - 20, expiresAt = w.clock - 1,
+		observerGuild = "Elfcore", seenAt = w.clock - 20, expiresAt = w.clock - 1,
 		mapID = 1429, x = 500, y = 500, layer = 3, kind = "exact-unit", accuracyYards = 0 }
 	assert(Do(w, viewer, a, "GetPlayerSearch", exact.id), "the handle reads and owns the fresh exact evidence")
 	local exactRows, withdrawn = {}, {}
@@ -1908,7 +1908,7 @@ end)
 test("1.2.5 the API retained exact-result map proofs stay bounded per handle", function()
 	local w, cast, viewer, API = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	local host = SightingHost(viewer)
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
@@ -1935,7 +1935,7 @@ end)
 test("1.2.5 the API area sightings: a reused transport id never enters a stale handle's map frames", function()
 	local w, cast, viewer, API = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	local host = SightingHost(viewer)
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
@@ -1993,7 +1993,7 @@ end)
 test("1.2.5 the API area sightings: a map-library false return leaves no partial host pins", function()
 	local w, cast, viewer = Setup()
 	viewer.mapID = 1453
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	local host = SightingHost(viewer)
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
@@ -2043,7 +2043,7 @@ end)
 
 test("1.2.5 the API guild-tools route: named profiles and neutral sections stay host-owned", function()
 	local w, _, viewer = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
 	rawset(viewer.ns, "Watch", nil)
@@ -2110,7 +2110,7 @@ test("1.2.5 the API guild-tools route: named profiles and neutral sections stay 
 	w:As(viewer, C.Choose, "api:mappins", false)
 	selected = nil
 	eq(Do(w, viewer, api, "OpenGuildTools", "reports"), true,
-		"a data No does not disable Olympus's own accessible page")
+		"a data No does not disable Elfcore's own accessible page")
 	eq(selected, "watch"); eq(page, "reports")
 	local pageCalls = 0
 	viewer.ns.Watch.PageId = function() pageCalls = pageCalls + 1 error("host state unavailable") end
@@ -2132,7 +2132,7 @@ end)
 test("1.2.4 the API: one shared UI surface, opaque ownership, retry after rejection, and lifecycle calls routed to its owner", function()
 	local w, cast, viewer = Setup()
 	local host = SurfaceHost(viewer)
-	local O = viewer.OlympusAPI
+	local O = viewer.ElfcoreAPI
 	Install(viewer, "MapPins", "Map Pins")
 	Install(viewer, "BountyBoard", "Bounty Board")
 	local first = w:As(viewer, O.Register, "MapPins")
@@ -2184,7 +2184,7 @@ end)
 test("1.2.4 the API: UI surfaces work while data consent is pending or refused; data reads remain blocked", function()
 	local w, cast, viewer = Setup()
 	SurfaceHost(viewer)
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
 	eq(Do(w, viewer, api, "Status"), "pending")
@@ -2206,7 +2206,7 @@ end)
 
 test("1.2.4 the API: nothing before a deliberate authorization nor after No; Keep current choices grants nothing and Authorize all grants visible pending lines", function()
 	local w, cast, viewer, API = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	-- Every line the page had shown already (the player closed it): no question waits.
 	w:As(viewer, function() C.Show() C.Hide() end)
 	eq(w:As(viewer, C.Waiting), false)
@@ -2252,7 +2252,7 @@ test("1.2.4 the API: nothing before a deliberate authorization nor after No; Kee
 	Install(viewer, "MapPins", "Map Pins")
 	LoadAPI(w, viewer)
 	PlantWanted(w, viewer)
-	api = w:As(viewer, viewer.OlympusAPI.Register, "MapPins")
+	api = w:As(viewer, viewer.ElfcoreAPI.Register, "MapPins")
 	eq(Do(w, viewer, api, "Status"), "granted", "kept for the account")
 	eq(w:As(viewer, viewer.Consent.Answer, "api:mappins"), true)
 	eq(w:As(viewer, viewer.Consent.Waiting), false, "asked once, for good")
@@ -2263,9 +2263,9 @@ test("1.2.4 the API: nothing before a deliberate authorization nor after No; Kee
 	W3.NoErrors(w)
 end)
 
-test("1.2.4 the API: a granted addon gets copies of exactly what the pages show: the Wanted rows, the Slayers boards, the donors' and the Church's top three, the published games; its own profile; outside an Olympus guild, only that", function()
+test("1.2.4 the API: a granted addon gets copies of exactly what the pages show: the Wanted rows, the Slayers boards, the donors' and the Church's top three, the published games; its own profile; outside an Elfcore guild, only that", function()
 	local w, cast, viewer, API = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
 	w:As(viewer, C.Choose, "api:mappins", true)
@@ -2322,11 +2322,11 @@ test("1.2.4 the API: a granted addon gets copies of exactly what the pages show:
 	-- The King's own: his role.
 	LoadAPI(w, cast.king, false)
 	Install(cast.king, "MapPins", "Map Pins")
-	local kapi = w:As(cast.king, cast.king.OlympusAPI.Register, "MapPins")
+	local kapi = w:As(cast.king, cast.king.ElfcoreAPI.Register, "MapPins")
 	w:As(cast.king, cast.king.Consent.Choose, "api:mappins", true)
 	eq(Do(w, cast.king, kapi, "GetProfile").role, "king")
 	eq(Do(w, cast.king, kapi, "GetProfile").rankIndex, 0)
-	-- Outside an Olympus guild: that he is in none, and nothing else.
+	-- Outside an Elfcore guild: that he is in none, and nothing else.
 	viewer.guild = nil
 	p = Do(w, viewer, api, "GetProfile")
 	eq(Keys(p), "member"); eq(p.member, false)
@@ -2349,7 +2349,7 @@ end)
 -- on it any more, and the API reads the tab's list.)
 test("1.2.4 the API: GetWanted lists what the Wanted tab lists: a Horde player with 0 points and 0 kills (one a member killed who killed none of ours) is left out, though his entry and its claim stay", function()
 	local w, cast, viewer, API = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
 	w:As(viewer, C.Choose, "api:mappins", true)
@@ -2369,7 +2369,7 @@ end)
 test("1.2.4 the API Lottery privacy: even an older ArenaHome exposing a public Lottery word cannot export saved winners", function()
 	local w, cast, viewer = Setup()
 	Install(viewer, "MapPins", "Map Pins")
-	local api = w:As(viewer, viewer.OlympusAPI.Register, "MapPins")
+	local api = w:As(viewer, viewer.ElfcoreAPI.Register, "MapPins")
 	w:As(viewer, viewer.Consent.Choose, "api:mappins", true)
 	viewer.db.lotteryWinners = { L = { old = { at = w.clock - 10, rows = { { name = N.bettor3, beast = 7, amount = 25000 } } } } }
 	-- This is the verified old ArenaHome contract, whose per-game publish word exposed Lottery.
@@ -2380,9 +2380,9 @@ test("1.2.4 the API Lottery privacy: even an older ArenaHome exposing a public L
 	W3.NoErrors(w)
 end)
 
-test("1.2.4 the API: every table is the addon's own copy: changing it changes nothing of Olympus's, nor what the next call or another addon gets", function()
+test("1.2.4 the API: every table is the addon's own copy: changing it changes nothing of Elfcore's, nor what the next call or another addon gets", function()
 	local w, cast, viewer, API = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	Install(viewer, "MapPins", "Map Pins")
 	Install(viewer, "BountyBoard", "Bounty Board")
 	local a = w:As(viewer, O.Register, "MapPins")
@@ -2401,7 +2401,7 @@ test("1.2.4 the API: every table is the addon's own copy: changing it changes no
 	r.donors.all[1] = "Mallory"
 	local p = Do(w, viewer, a, "GetProfile")
 	p.guild, p.role, p.frame = "Other", "king", "donor-top-1"
-	-- Olympus's own: as before.
+	-- Elfcore's own: as before.
 	local t = viewer.rdb.wanted.targets["g:" .. HORDE.guid]
 	eq(t.current, 42); eq(t.name, HORDE.name); eq(t.guid, HORDE.guid)
 	local s = viewer.rdb.wanted.slayers["g:" .. SECRET.slayerGuid]
@@ -2423,7 +2423,7 @@ end)
 
 test("1.2.4 the API: rate-limited per addon (RATE_MAX calls a RATE_WINDOW), the others unaffected; Status and On cost nothing", function()
 	local w, cast, viewer, API = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	Install(viewer, "MapPins", "Map Pins")
 	Install(viewer, "BountyBoard", "Bounty Board")
 	local a = w:As(viewer, O.Register, "MapPins")
@@ -2441,7 +2441,7 @@ test("1.2.4 the API: rate-limited per addon (RATE_MAX calls a RATE_WINDOW), the 
 	w:Run(API.RATE_WINDOW)
 	assert(type(Do(w, viewer, a, "GetWanted")) == "table", "the next window")
 	-- (Review of 1.2.4) An addon polling past the rate window after window: still that one line, not
-	-- one a window (they filled the log's ring and the last lines /oly bug copies).
+	-- one a window (they filled the log's ring and the last lines /elf bug copies).
 	for window = 1, 6 do
 		local busy = 0
 		for _ = 1, API.RATE_MAX + 5 do
@@ -2466,7 +2466,7 @@ end)
 
 test("1.2.4 the API: callbacks fire on a change, once a burst settles, only when what the call returns changed, never in combat nor for an addon without a Yes; an erroring callback is contained, logged, dropped after three errors", function()
 	local w, cast, viewer, API = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	Install(viewer, "MapPins", "Map Pins")
 	Install(viewer, "BountyBoard", "Bounty Board")
 	Install(viewer, "Quiet", "Quiet")
@@ -2499,11 +2499,11 @@ test("1.2.4 the API: callbacks fire on a change, once a burst settles, only when
 	eq(got[1].event, "WANTED_CHANGED"); eq(got[1].rows[1].bounty, -1, "the addon's own copy, changed by it")
 	eq(#good, 1); eq(good[1][1].bounty, 50, "the other addon's copy: untouched by the first")
 	eq(bad, 1); eq(quiet, 0, "nothing without a Yes")
-	eq(t.current, 50, "Olympus's own: untouched")
+	eq(t.current, 50, "Elfcore's own: untouched")
 	local failed = 0
 	for _, l in ipairs(viewer.log) do if l:find("api: BountyBoard's WANTED_CHANGED callback failed", 1, true) then failed = failed + 1 end end
 	eq(failed, 1, "the error in the log, with the addon's name")
-	eq(#viewer.errors, 0, "never Olympus's error report")
+	eq(#viewer.errors, 0, "never Elfcore's error report")
 	eq(#rankings, 1, "the Slayers boards are told too (a Wanted change)")
 	eq(rankings[1].slayers.all[1].points, 75)
 	-- The same rows again: nothing to tell.
@@ -2555,7 +2555,7 @@ end)
 
 test("1.2.4 the API: no secret ever comes back: not the realm key nor the sealed channel's name, the account key, a victim, a place, who added or took off an entry, a member's GUID", function()
 	local w, cast, viewer, API = Setup()
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	viewer.rdb.realmKey = "rk-Secret-0123456789"
 	local channel = "Oly" .. H.ns.Comm.Hash36(viewer.rdb.realmKey)
 	w:As(viewer, viewer.ns.Debts.MyKey)
@@ -2603,7 +2603,7 @@ test("1.2.4 the API: read-only by its source: no send, no message, no window, no
 		"RegisterEvent", "ns.Every", "SetCVar", "ns.Print", "_G[", "hooksecurefunc" }) do
 		eq(src:find(word, 1, true), nil, "API.lua uses " .. word)
 	end
-	local toc, at, n = Read(H.ADDON_DIR .. "Olympus.toc"), {}, 0
+	local toc, at, n = Read(H.ADDON_DIR .. "Elfcore.toc"), {}, 0
 	for line in toc:gmatch("[^\r\n]+") do n = n + 1; at[line] = n end
 	assert(at["API.lua"], "API.lua in the TOC")
 	for _, f in ipairs({ "Consent.lua", "Wanted.lua", "Roster.lua", "King.lua" }) do assert(at[f] < at["API.lua"], "after " .. f) end
@@ -2638,7 +2638,7 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 	do
 		local k = "API_CONSENT_TEXT_BASIC"
 		local basic = assert(src:match("\nL%." .. k .. ' = "(.-)"\n'), k)
-		for _, word in ipairs({ "what Olympus shows you", "Never your location or the King's", "Authorize all", "Keep current choices",
+		for _, word in ipairs({ "what Elfcore shows you", "Never your location or the King's", "Authorize all", "Keep current choices",
 			"addons you trust", "No, Keep current choices, or no answer: it receives nothing." }) do
 			assert(basic:find(word, 1, true), k .. " says: " .. word)
 		end
@@ -2660,12 +2660,12 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 		for _, word in ipairs({ "short host-owned profile-presentation session", "pre-approved caption", "quiet presence" }) do
 			assert(full:find(word, 1, true), "API_CONSENT_TEXT still says: " .. word)
 		end
-		for _, word in ipairs({ "sessão curta de apresentação de perfil controlada pelo Olympus", "legenda pré-aprovada", "presença silenciosa" }) do
+		for _, word in ipairs({ "sessão curta de apresentação de perfil controlada pelo Elfcore", "legenda pré-aprovada", "presença silenciosa" }) do
 			assert(ptFull:find(word, 1, true), "API_CONSENT_TEXT (pt-BR) still says: " .. word)
 		end
 	end
 	for _, word in ipairs({ "Seen nearby", "Exact last-seen point", "Visto nas proximidades", "Ponto exato do último avistamento",
-		"Not hostile, outside Olympus's guilds", "Não hostil, fora das guildas do Olympus" }) do
+		"Not hostile, outside Elfcore's guilds", "Não hostil, fora das guildas do Elfcore" }) do
 		assert(src:find(word, 1, true), "the map tooltip says: " .. word)
 	end
 	for _, word in ipairs({ "exact-name last-seen search", "target, nameplate or mouseover observation",
@@ -2673,10 +2673,10 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 		"A visible Start must declare", "any list source it includes", "at least 60 seconds after the previous area start",
 		"show the selected map and rotation position", "never open the world map automatically",
 		"stop on Off, permission loss or UI reload",
-		"at most 48 distinct hostile players", "Olympus-owned world-map pins",
+		"at most 48 distinct hostile players", "Elfcore-owned world-map pins",
 		"target's native observed-unit or matching party/raid-unit point", "observer's nearby encounter point",
 		"at most 64 observations", "only in memory", "up to 15 minutes", "Authorize all",
-		"short host-owned profile-presentation session", "current signed issuer", "single fixed Olympus-owned style",
+		"short host-owned profile-presentation session", "current signed issuer", "single fixed Elfcore-owned style",
 		"cannot choose a target, texture, atlas, colour, layout or arbitrary message", "pre-approved caption",
 		"every 10 seconds", "about 32 seconds",
 		"Keep current choices", "last-seen information, not continuous tracking",
@@ -2689,26 +2689,26 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 		"Um Iniciar visível precisa declarar", "qualquer fonte de lista que incluir", "esperar pelo menos 60 segundos",
 		"mostrar o mapa selecionado e a posição na rotação", "nunca abrir o mapa-múndi automaticamente",
 		"parar ao Desligar, perder a permissão ou recarregar a interface",
-		"no máximo 48 jogadores hostis distintos", "marcadores do mapa-múndi pertencentes ao Olympus",
+		"no máximo 48 jogadores hostis distintos", "marcadores do mapa-múndi pertencentes ao Elfcore",
 		"ponto nativo do alvo observado ou da unidade correspondente no grupo ou raide", "ponto próximo do encontro",
-		"sessão curta de apresentação de perfil controlada pelo Olympus", "emissor assinado atual",
-		"único estilo fixo do Olympus", "não poderá escolher alvo, textura, atlas, cor, layout ou mensagem arbitrária",
+		"sessão curta de apresentação de perfil controlada pelo Elfcore", "emissor assinado atual",
+		"único estilo fixo do Elfcore", "não poderá escolher alvo, textura, atlas, cor, layout ou mensagem arbitrária",
 		"legenda pré-aprovada", "a cada 10 segundos", "cerca de 32 segundos",
 		"no máximo 64 observações", "só na memória", "por até 15 minutos", "Autorizar tudo",
 		"Manter escolhas atuais", "último avistamento, não rastreamento contínuo",
 		"nenhuma ação protegida", "censo", "chaves" }) do
 		assert(src:find(word, 1, true), "the pt-BR line says: " .. word)
 	end
-	-- Its promises are Olympus's own: ordinary reads are passive, while the separately described,
+	-- Its promises are Elfcore's own: ordinary reads are passive, while the separately described,
 	-- explicit search or visible user-started session is the only network action. What the other
 	-- addon does with copies is its own.
 	eq(head:find("it sends nothing for you", 1, true), nil, "no promise for the other addon")
 	eq(tail:find("ele não envia nada por você", 1, true), nil, "no promise for the other addon (pt-BR)")
-	for _, word in ipairs({ "what Olympus shows you", "what that addon then does with the copies is up to that addon", "addons you trust",
+	for _, word in ipairs({ "what Elfcore shows you", "what that addon then does with the copies is up to that addon", "addons you trust",
 		"No, Keep current choices, or no answer: it receives nothing, starts no search and cannot enable the presentation" }) do
 		assert(head:find(word, 1, true), "the line says: " .. word)
 	end
-	for _, word in ipairs({ "o que o Olympus mostra a você", "o que esse addon fizer depois com as cópias é responsabilidade dele",
+	for _, word in ipairs({ "o que o Elfcore mostra a você", "o que esse addon fizer depois com as cópias é responsabilidade dele",
 		"em que você confia", "Não, Manter escolhas atuais ou sem resposta: ele não recebe nada, não inicia busca e não pode ativar a apresentação" }) do
 		assert(tail:find(word, 1, true), "the pt-BR line says: " .. word)
 	end
@@ -2727,11 +2727,11 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 	local api = Read(H.ADDON_DIR .. "API.lua")
 	for m in api:gmatch("\nfunction METHODS%.(%u%a+)%(") do assert(doc:find(":" .. m .. "(", 1, true), "docs/API.md: " .. m) end
 	for e in api:match("API%.EVENTS = (%b{})"):gmatch('"([%u_]+)"') do assert(doc:find(e, 1, true), "docs/API.md: " .. e) end
-	for _, f in ipairs({ "OlympusAPI.VERSION", "OlympusAPI.SURFACE_LIMIT", "OlympusAPI.Has", "OlympusAPI.Register", "## OptionalDeps: Olympus", "/oly privacy" }) do
+	for _, f in ipairs({ "ElfcoreAPI.VERSION", "ElfcoreAPI.SURFACE_LIMIT", "ElfcoreAPI.Has", "ElfcoreAPI.Register", "## OptionalDeps: Elfcore", "/elf privacy" }) do
 		assert(doc:find(f, 1, true), "docs/API.md: " .. f)
 	end
 	for _, word in ipairs({ '"ui.surface"', "one client-owned page", "availableWhenLocked", 'style = "old" or "hd"',
-		"OlympusAPI.SURFACE_LIMIT", '"surface-full"', "works while the answer is pending or refused",
+		"ElfcoreAPI.SURFACE_LIMIT", '"surface-full"', "works while the answer is pending or refused",
 		"contains no addon name, consent key or", "expiry is enforced locally by each client",
 		"x = 520, y = 375", 'kind = "exact-group"', "accuracyYards = 0",
 		"receivedAt = 1792000125", "expiresAt = 1792001023", "must stop alerts and sharing",
@@ -2770,7 +2770,7 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 	local sections = {}
 	for _, path in ipairs({ "README.md", "docs/CURSEFORGE.md" }) do
 		local page = Read(H.ROOT .. path)
-		local s = page:match("\n### Other addons: the Olympus API %(1%.2%.4%)\n(.-)\n##")
+		local s = page:match("\n### Other addons: the Elfcore API %(1%.2%.4%)\n(.-)\n##")
 		assert(s and s ~= "", path .. ": the section")
 		assert(s:find("docs/API.md", 1, true), path .. ": its link")
 		-- The public pages make the same distinction as the permission line: passive ordinary reads,
@@ -2786,7 +2786,7 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 			"encounter point, rounded", "not continuous tracking", "at most 64", "only in memory",
 			"Authorize all", "Keep current choices", "Requests and answers expire", "up to it", "authorize only addons",
 			"while he shows the Treasury's ranking",
-			"one such page per session", "data handles still work", "data answer is pending or refused", "hosting it grants no Olympus data" }) do
+			"one such page per session", "data handles still work", "data answer is pending or refused", "hosting it grants no Elfcore data" }) do
 			assert(s:find(word, 1, true), path .. ": " .. word)
 		end
 		local privacy = page:match("\n%*%*What waits for your yes%.%*%*(.-)\n\n")
@@ -2830,7 +2830,7 @@ end
 -- Honors.FRAMES_SHIPPED), without the Wanted boards (so every name in a return is a donor's).
 test("1.2.4 the API: the donors' top three only while the King shows the army the Treasury's ranking, never by the staff's view; the month's only in a build that wears its koi (1.2.4 does)", function()
 	local w, cast, viewer, API = Setup({ wanted = false, world = { compliance = "shipped" } })
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	eq(w:As(viewer, viewer.ns.Honors.FrameShipped, { family = "donor-month" }), true, "1.2.4 wears the koi")
 	eq(w:As(viewer, viewer.ns.Honors.FrameShipped, { family = "donor-top" }), true)
 	eq(w:As(viewer, viewer.ns.Treasury.PublicShows, "ranking"), false, "the King's switch: off until he turns it")
@@ -2858,7 +2858,7 @@ test("1.2.4 the API: the donors' top three only while the King shows the army th
 	-- The King sees the ranking on his own Treasury tab: his addon gets no more (never a staff view).
 	LoadAPI(w, cast.king, false)
 	Install(cast.king, "MapPins", "Map Pins")
-	local kapi = w:As(cast.king, cast.king.OlympusAPI.Register, "MapPins")
+	local kapi = w:As(cast.king, cast.king.ElfcoreAPI.Register, "MapPins")
 	w:As(cast.king, cast.king.Consent.Choose, "api:mappins", true)
 	eq(w:As(cast.king, cast.king.ns.Treasury.MaySee, "ranking"), true, "his tab shows it")
 	eq(Do(w, cast.king, kapi, "GetRankings", "donors"), nil, "his addon: no donors either")
@@ -2873,7 +2873,7 @@ test("1.2.4 the API: the donors' top three only while the King shows the army th
 	eq(Keys(d), "all,month", "the month's too: its koi is worn")
 	eq(table.concat(d.month, ","), table.concat(word.month or {}, ","))
 	eq(table.concat(d.all, ","), table.concat(word.all, ","))
-	-- A listener is told when the switch turns (Olympus's TREASURY_CHANGED), and when it turns back:
+	-- A listener is told when the switch turns (Elfcore's TREASURY_CHANGED), and when it turns back:
 	-- then no name again.
 	w:Run(API.DISPATCH_DELAY)
 	eq(#told, base + 1, "told of the switch"); eq(table.concat(told[base + 1].donors.all, ","), table.concat(word.all, ","))
@@ -2910,7 +2910,7 @@ test("1.2.4 the API: an account updating from 1.2.2 is asked about an addon by i
 		Install(viewer, "MapPins", "Map Pins")
 		LoadAPI(w, viewer, false)
 		-- The other addon registers as it loads, before the login's wait is over.
-		local api = w:As(viewer, viewer.OlympusAPI.Register, "MapPins")
+		local api = w:As(viewer, viewer.ElfcoreAPI.Register, "MapPins")
 		assert(type(api) == "table", "its handle")
 		return api, viewer.Consent
 	end
@@ -2946,7 +2946,7 @@ test("1.2.4 the API: docs/API.md's title example shows the player's title on his
 	local title = w:As(viewer, viewer.ns.HonorsNet.TitleText, "donor-top-3")
 	assert(type(title) == "string" and title ~= "", "his title's words")
 	Install(viewer, "MapPins", "Map Pins")
-	local api = w:As(viewer, viewer.OlympusAPI.Register, "MapPins")
+	local api = w:As(viewer, viewer.ElfcoreAPI.Register, "MapPins")
 	local function Load()
 		local shown = {}
 		local frame = { title = { SetText = function(_, text) shown[#shown + 1] = text end } }
@@ -2963,14 +2963,14 @@ test("1.2.4 the API: docs/API.md's title example shows the player's title on his
 	W3.NoErrors(w)
 end)
 
--- 1.2.5.1: the Olympus Accord (Accord.lua). Until this account accepted it the player is no member
--- (ns.IsMember): a granted addon reads what it reads outside an Olympus guild ("guild", member =
+-- 1.2.5.1: the Elfcore Accord (Accord.lua). Until this account accepted it the player is no member
+-- (ns.IsMember): a granted addon reads what it reads outside an Elfcore guild ("guild", member =
 -- false), and the contract stays (CONSENT_VERSION 9). Accepting it (Accord.lua's ACCORD_CHANGED,
 -- fired here as the Accord fires it) tells every data event's listeners once the burst settles.
-test("accord: the API before the Olympus Accord is accepted reads as outside an Olympus guild; once it is, WANTED, RANKINGS and PROFILE listeners are told", function()
+test("accord: the API before the Elfcore Accord is accepted reads as outside an Elfcore guild; once it is, WANTED, RANKINGS and PROFILE listeners are told", function()
 	local w, cast, viewer, API = Setup()
 	eq(API.CONSENT_VERSION, 9, "the contract unchanged")
-	local O, C = viewer.OlympusAPI, viewer.Consent
+	local O, C = viewer.ElfcoreAPI, viewer.Consent
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")
 	w:As(viewer, C.Choose, "api:mappins", true)

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Olympus Link's shared test vectors (0.9.10), made with Python's "cryptography".
+"""Elfcore Link's shared test vectors (0.9.10), made with Python's "cryptography".
 
     python3 tests/fixtures/make-link-vectors.py          # rewrite the files below
     python3 tests/fixtures/make-link-vectors.py --check  # verify them, change nothing
 
-The addon's tests (tests/run.lua) and the Olympus Link page's and Worker's (web/test) read these
+The addon's tests (tests/run.lua) and the Elfcore Link page's and Worker's (web/test) read these
 same files, so both sides sign, parse and check the same bytes.
 
 tests/fixtures/ed25519-vectors.txt: name, seed, public key, message, signature (hex; "-" for
 an empty message). rfc8032-*: RFC 8032 section 7.1. python-*: Ed25519PrivateKey from the fixed
-seeds below. lua-*: made by the addon's Olympus/Ed25519.lua; kept as they are, checked here.
+seeds below. lua-*: made by the addon's Elfcore/Ed25519.lua; kept as they are, checked here.
 
 tests/fixtures/link-sample.txt: key=value lines. The bot's codes (OLC2, with the draw threshold
 T), the confirmers' certificates (OLK2, each for one character: signed by the backend key, or a
@@ -22,9 +22,9 @@ tests/fixtures/link-draw.txt: the draw of decision 4 for two sets of keys: each 
 lowest, as the Worker and the page draw them.
 
 tests/fixtures/link-inbox.lua: a watcher's SavedVariables as the addon writes its inbox,
-OlympusDB.discord.inbox[R][sender] = { bundle, from, t, keep }, holding the sample's links.
+ElfcoreDB.discord.inbox[R][sender] = { bundle, from, t, keep }, holding the sample's links.
 
-The lua-* lines of ed25519-vectors.txt are the addon's own (Olympus/Ed25519.lua; lua-ca-cert is
+The lua-* lines of ed25519-vectors.txt are the addon's own (Elfcore/Ed25519.lua; lua-ca-cert is
 the certificate the addon's council authority makes, which tests/run.lua makes again byte for
 byte): kept as they are here, and checked.
 
@@ -95,7 +95,7 @@ RFC8032 = [
 
 def seed(label):
     """A throwaway seed: SHA-256 of a public label."""
-    return hashlib.sha256(("olympus-link-test:" + label).encode()).digest()
+    return hashlib.sha256(("elfcore-link-test:" + label).encode()).digest()
 
 
 def key(label):
@@ -118,7 +118,7 @@ def sha256hex(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-# The formats (Olympus/Link.lua, web/WORKER.md).
+# The formats (Elfcore/Link.lua, web/WORKER.md).
 def token_payload(R, username, exp, mode, T):
     return "OLC2.%s.%s.%d.%s.%s" % (R, username, exp, mode, T)
 
@@ -192,12 +192,12 @@ R = "7K3M9QX2TB"
 USERNAME = "some.player"
 TOKEN_EXP = 1800000000
 CERT_EXP = 1830000000
-GUILD, FACTION, NONCE = "Olympus II", "Alliance", "0123456789abcdef"
+GUILD, FACTION, NONCE = "Elfcore II", "Alliance", "0123456789abcdef"
 
 PYTHON = [
     ("python-empty", "vector-a", b""),
     ("python-token", "vector-b", token_payload(R, USERNAME, TOKEN_EXP, "a", "ffffffff").encode()),
-    ("python-oly4", "vector-c", ("OLY4~" + NAME + "~Olympus II~r~Alliance~0123456789abcdef~7K3M9QX2TB~0011223344556677~1799990100~council01~"
+    ("python-oly4", "vector-c", ("OLY4~" + NAME + "~Elfcore II~r~Alliance~0123456789abcdef~7K3M9QX2TB~0011223344556677~1799990100~council01~"
                                  + COUNCILLORS["council01"]).encode()),
     ("python-oly4-accented", "vector-d", ("OLY4~" + ACCENTED + "~Ólympus Ørder~w~Horde~fedcba9876543210~ABCDEFGHJK~8899aabbccddeeff~1799990200~player01~"
                                           + PLAYERS["player01"]).encode()),
@@ -212,10 +212,10 @@ PYTHON = [
 
 def vector_lines(keep):
     out = [
-        "# Ed25519 vectors shared by the addon's tests (tests/run.lua) and the Olympus Link page's (web/test).",
+        "# Ed25519 vectors shared by the addon's tests (tests/run.lua) and the Elfcore Link page's (web/test).",
         "# name seed public-key message signature, in hex (\"-\": an empty message). Made and checked by",
         "# tests/fixtures/make-link-vectors.py: rfc8032-* are RFC 8032 section 7.1, python-* come from Python's",
-        "# \"cryptography\" with throwaway seeds, lua-* from the addon's Olympus/Ed25519.lua. Test keys only.",
+        "# \"cryptography\" with throwaway seeds, lua-* from the addon's Elfcore/Ed25519.lua. Test keys only.",
     ]
     for name, sd, pk, msg, sig in RFC8032:
         out.append(" ".join([name, sd, pk, msg or "-", sig]))
@@ -304,9 +304,9 @@ def make_sample():
 
 def sample_lines(v):
     lines = [
-        "# A sample Olympus Link (0.9.10): the bot's codes, confirmers' certificates and finished links, signed",
+        "# A sample Elfcore Link (0.9.10): the bot's codes, confirmers' certificates and finished links, signed",
         "# with throwaway test keys (made by tests/fixtures/make-link-vectors.py from public labels): never use",
-        "# them for anything real. key=value; *_seed are base64url (as /oly discord key takes them), *_pub hex.",
+        "# them for anything real. key=value; *_seed are base64url (as /elf discord key takes them), *_pub hex.",
         "# ca_seed, ca_pub: the council authority's key (the author's client; ns.LINK_CA_KEYS, LINK_CA_PUBLIC).",
         "# token_a (mode a) and token_c (mode c): OLC2.<R>.<username>.<exp>.<mode>.<T>.<sig>, signed by the",
         "#   backend key over all but the last field; token_a_T is T of the sample's three player keys.",
@@ -370,7 +370,7 @@ DRAW_CASES = [("thirty", "7K3M9QX2TB", 30), ("sevenhundred", "ABCDEFGHJK", 700)]
 
 def draw_lines():
     out = [
-        "# Olympus Link's draw (decision 4), shared by the addon (Link.Rank, Link.Drawn) and the Worker.",
+        "# Elfcore Link's draw (decision 4), shared by the addon (Link.Rank, Link.Drawn) and the Worker.",
         "# A \"p\" key's place for code R: the first 8 lowercase hex of SHA-256(R~keyId). At issuance the",
         "# Worker takes M = max(20, ceil(3% of the active \"p\" keys)) and T = the place at index M of the sorted",
         "# places, counting from 0 (\"ffffffff\" with M keys or fewer, \"00000000\" in mode c); a key is drawn",
@@ -422,13 +422,13 @@ def keep_until(bundle):
 def inbox_lines(v):
     entries = [(v["R"], v["requester"], v["bundle_council"], 1799990400), (v["R"], OTHER, v["bundle_impostor"], 1799990460)]
     out = [
-        "-- A watcher's SavedVariables (WTF/Account/<account>/SavedVariables/Olympus.lua) as the addon writes its",
-        "-- Olympus Link inbox (0.9.10): OlympusDB.discord.inbox[R][sender] = { bundle, from, t, keep }. One per",
+        "-- A watcher's SavedVariables (WTF/Account/<account>/SavedVariables/Elfcore.lua) as the addon writes its",
+        "-- Elfcore Link inbox (0.9.10): ElfcoreDB.discord.inbox[R][sender] = { bundle, from, t, keep }. One per",
         "-- sender (its latest), any number per code, 500 in all, each checked first; nothing another sender",
         "-- sent is dropped while its code can still be used (keep: until when, Link.KeepUntil).",
         "-- Made by tests/fixtures/make-link-vectors.py from link-sample.txt; tests/run.lua checks the addon keeps",
         "-- exactly this, and web/tools/read-inbox.mjs reads it. Throwaway test keys only.",
-        "OlympusDB = {",
+        "ElfcoreDB = {",
         "\t[\"discord\"] = {",
         "\t\t[\"inbox\"] = {",
     ]

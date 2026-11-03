@@ -1,7 +1,7 @@
 local ADDON, addon = ...
 
-local DB_SCHEMA = "olympus-companion-db"
-local CHECKPOINT_SCHEMA = "olympus-census-checkpoint"
+local DB_SCHEMA = "elfcore-companion-db"
+local CHECKPOINT_SCHEMA = "elfcore-census-checkpoint"
 local VERSION = 1
 local MAX_GUILDS = 256
 local MAX_SEEN = 256
@@ -413,17 +413,17 @@ local function FinalizeSource(source, previous)
 end
 
 local function CurrentDB()
-	if type(OlympusCompanionDB) ~= "table" or OlympusCompanionDB.schema ~= DB_SCHEMA or OlympusCompanionDB.version ~= VERSION then return nil end
-	return OlympusCompanionDB
+	if type(ElfcoreCompanionDB) ~= "table" or ElfcoreCompanionDB.schema ~= DB_SCHEMA or ElfcoreCompanionDB.version ~= VERSION then return nil end
+	return ElfcoreCompanionDB
 end
 
 local function ResetDB(checkpoint)
-	OlympusCompanionDB = { schema = DB_SCHEMA, version = VERSION }
-	if checkpoint then OlympusCompanionDB.checkpoint = checkpoint end
-	return OlympusCompanionDB
+	ElfcoreCompanionDB = { schema = DB_SCHEMA, version = VERSION }
+	if checkpoint then ElfcoreCompanionDB.checkpoint = checkpoint end
+	return ElfcoreCompanionDB
 end
 
--- Chat reaches this private SavedVariable only through Olympus's consent-gated recorder. Rows are
+-- Chat reaches this private SavedVariable only through Elfcore's consent-gated recorder. Rows are
 -- compact because the file shares the addon's 4 MiB read budget; text is last and may contain ~.
 -- A revoked/missing answer discards both the in-memory record and a previous session's copy.
 local CHAT_VERSION = 1
@@ -438,7 +438,7 @@ local function ClearChat()
 end
 
 local function CompanionAccepted()
-	local bridge = rawget(_G, "OlympusBridge")
+	local bridge = rawget(_G, "ElfcoreBridge")
 	if type(bridge) ~= "table" or type(bridge.CompanionAccepted) ~= "function" then return false end
 	local ok, accepted = pcall(bridge.CompanionAccepted)
 	return ok and accepted == true
@@ -465,7 +465,7 @@ end
 
 local function ChatRow(at, room, isSelf, author, text)
 	at = Whole(at, MAX_TIME)
-	room = CHAT_ROOMS[room] and room or nil -- the exact native Olympus/Captains/Lords lane
+	room = CHAT_ROOMS[room] and room or nil -- the exact native Elfcore/Captains/Lords lane
 	author = Plain(author, 64)
 	if author and author:find("~", 1, true) then author = nil end
 	text = ChatText(text)
@@ -500,7 +500,7 @@ end
 
 local chatObserved, consentObserved = false, false
 local function ObserveChat()
-	local bridge = rawget(_G, "OlympusBridge")
+	local bridge = rawget(_G, "ElfcoreBridge")
 	if type(bridge) ~= "table" then return end
 	if not chatObserved and type(bridge.RegisterChatRecorder) == "function" then
 		local ok, registered = pcall(bridge.RegisterChatRecorder, OnChatLine)
@@ -538,10 +538,10 @@ local function LoadDB()
 	return ResetDB(checkpoint)
 end
 
--- The sections this sidecar knows, at the version it knows (Bridge.lua's registry). Olympus has
+-- The sections this sidecar knows, at the version it knows (Bridge.lua's registry). Elfcore has
 -- already copied each into plain tables within its limits; an unknown name or version is skipped.
 -- (931: every tab's, companion/BRIDGE-SECTIONS.md: the realm's, the roster's, the Church's, the
--- games', the profile's, and the affairs' of Olympus/BridgeAffairs.lua.)
+-- games', the profile's, and the affairs' of Elfcore/BridgeAffairs.lua.)
 local KNOWN_SECTIONS = { guilds = 1, membership = 1, rankings = 1, self = 1, stats = 1, wanted = 1,
 	realm = 1, roster = 1, church = 1, games = 1, profile = 1,
 	crafting = 1, crafters = 1, treasury = 1, decrees = 1, agenda = 1, notices = 1, watch = 1, chatRooms = 1 }
@@ -562,7 +562,7 @@ end
 local function Finalize()
 	local db = CurrentDB() or LoadDB()
 	local previous = CopyFinal(db.checkpoint)
-	local bridge = rawget(_G, "OlympusBridge")
+	local bridge = rawget(_G, "ElfcoreBridge")
 	local sections = CopySections(bridge)
 	local chat = ChatRecord()
 	local function Keep(checkpoint)
@@ -593,7 +593,7 @@ frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:SetScript("OnEvent", function(_, event, name)
 	if event == "ADDON_LOADED" and name == ADDON then
-		local bridge = rawget(_G, "OlympusBridge")
+		local bridge = rawget(_G, "ElfcoreBridge")
 		if type(bridge) == "table" then bridge.COMPANION_ATTACHED = true end
 		ObserveChat()
 		LoadDB()

@@ -1,8 +1,8 @@
-OlympusCompanionDB = {
-	schema = "olympus-companion-db",
+ElfcoreCompanionDB = {
+	schema = "elfcore-companion-db",
 	version = 1,
 	checkpoint = {
-		schema = "olympus-census-checkpoint",
+		schema = "elfcore-census-checkpoint",
 		version = 1,
 		key = "ocp1-3a390fb4ea7bc11a",
 		previousKey = "ocp1-fedcba9876543210",
@@ -26,8 +26,8 @@ OlympusCompanionDB = {
 		},
 		guilds = {
 			{
-				key = "g1:alliance:classicbetapvp+classicbetapvp2:olympus alpha",
-				name = "Olympus Alpha",
+				key = "g1:alliance:classicbetapvp+classicbetapvp2:elfcore alpha",
+				name = "Elfcore Alpha",
 				members = 900,
 				online = 200,
 				fresh = true,
@@ -44,8 +44,8 @@ OlympusCompanionDB = {
 				},
 			},
 			{
-				key = "g1:alliance:classicbetapvp+classicbetapvp2:olympus beta",
-				name = "Olympus Beta",
+				key = "g1:alliance:classicbetapvp+classicbetapvp2:elfcore beta",
+				name = "Elfcore Beta",
 				members = 700,
 				online = 100,
 				fresh = true,
@@ -64,8 +64,8 @@ OlympusCompanionDB = {
 		},
 		seenOnly = {
 			{
-				key = "g1:alliance:classicbetapvp+classicbetapvp2:olympus seen",
-				name = "Olympus Seen",
+				key = "g1:alliance:classicbetapvp+classicbetapvp2:elfcore seen",
+				name = "Elfcore Seen",
 				online = 12,
 				capped = true,
 				observedAt = 1800000090,
@@ -73,8 +73,8 @@ OlympusCompanionDB = {
 		},
 		tombstones = {
 			{
-				key = "g1:alliance:classicbetapvp+classicbetapvp2:olympus retired",
-				name = "Olympus Retired",
+				key = "g1:alliance:classicbetapvp+classicbetapvp2:elfcore retired",
+				name = "Elfcore Retired",
 				removedAt = 1800000100,
 				removedAtServer = 1800000200,
 				lastObservedAt = 1799990000,

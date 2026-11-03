@@ -53,13 +53,13 @@ end
 
 local function Army()
 	return {
-		["Olympus Home"] = Report(100, 60, nil, { mine = true }),
-		["Olympus Agreed"] = Report(200, 60, { "Ann-Realm", "Bob-Realm" }),
-		["Olympus Lonely"] = Report(50, 60, { "Cid-Realm" }),
-		["Olympus Split"] = Report(60, 60, { "Dee-Realm", "Eve-Realm" }, { conflict = true }),
-		["Olympus Asleep"] = Report(80, 2 * 3600),
-		["Olympus Gone"] = Report(30, 2 * 86400),
-		["Olympus Banned"] = Report(40, 600),
+		["Elfcore Home"] = Report(100, 60, nil, { mine = true }),
+		["Elfcore Agreed"] = Report(200, 60, { "Ann-Realm", "Bob-Realm" }),
+		["Elfcore Lonely"] = Report(50, 60, { "Cid-Realm" }),
+		["Elfcore Split"] = Report(60, 60, { "Dee-Realm", "Eve-Realm" }, { conflict = true }),
+		["Elfcore Asleep"] = Report(80, 2 * 3600),
+		["Elfcore Gone"] = Report(30, 2 * 86400),
+		["Elfcore Banned"] = Report(40, 600),
 	}
 end
 
@@ -69,61 +69,61 @@ local function Find(list, name)
 end
 
 test("census clean: banned guilds apart, departed guilds tombstoned, each counted guild's confidence", function()
-	With({ guilds = Army(), banned = { ["Olympus Banned"] = true }, alts = { ["Olympus Home"] = 3 } }, function()
+	With({ guilds = Army(), banned = { ["Elfcore Banned"] = true }, alts = { ["Elfcore Home"] = 3 } }, function()
 		local s = D.Summary()
 		local c = C.Compute(s)
 		eq(s.characters, 100 + 200 + 50 + 60 + 80, "the census counts neither the banned guild nor the departed one")
-		eq(c.banned.guilds, 1); eq(c.banned.characters, 40); eq(c.banned.list[1].name, "Olympus Banned")
-		eq(c.departed.guilds, 1); eq(c.departed.list[1].name, "Olympus Gone"); eq(c.departed.list[1].members, 30)
+		eq(c.banned.guilds, 1); eq(c.banned.characters, 40); eq(c.banned.list[1].name, "Elfcore Banned")
+		eq(c.departed.guilds, 1); eq(c.departed.list[1].name, "Elfcore Gone"); eq(c.departed.list[1].members, 30)
 		eq(c.confidence.own, 100); eq(c.confidence.confirmed, 200); eq(c.confidence.single, 50)
 		eq(c.confidence.disputed, 60); eq(c.confidence.stale, 80); eq(c.confidence.relayed, 0)
 		eq(c.confirmedPeople, 300 - 3, "own and confirmed, their linked alts once")
 		eq(c.addonOnline, 5 + 10 + 2 + 3, "fresh reports only")
 		eq(c.excess, 0)
-		eq(Find(c.guilds, "Olympus Gone"), nil); eq(Find(c.guilds, "Olympus Banned"), nil)
-		eq(Find(c.guilds, "Olympus Asleep").status, "stale"); eq(Find(c.guilds, "Olympus Asleep").online, 0)
-		eq(c.guilds[1].name, "Olympus Agreed", "biggest first")
+		eq(Find(c.guilds, "Elfcore Gone"), nil); eq(Find(c.guilds, "Elfcore Banned"), nil)
+		eq(Find(c.guilds, "Elfcore Asleep").status, "stale"); eq(Find(c.guilds, "Elfcore Asleep").online, 0)
+		eq(c.guilds[1].name, "Elfcore Agreed", "biggest first")
 	end)
 end)
 
 test("census clean: a banned guild never heard is listed with its size unknown; a relay row gives one", function()
-	With({ guilds = Army(), banned = { ["Olympus Unheard"] = true, ["Olympus Relayed"] = true },
-		global = { ["olympus relayed"] = { name = "Olympus Relayed", total = 70, online = 5, avg10 = 400, observed = NOW - 300 } } }, function()
+	With({ guilds = Army(), banned = { ["Elfcore Unheard"] = true, ["Elfcore Relayed"] = true },
+		global = { ["elfcore relayed"] = { name = "Elfcore Relayed", total = 70, online = 5, avg10 = 400, observed = NOW - 300 } } }, function()
 		local c = C.Compute()
-		eq(Find(c.banned.list, "Olympus Unheard").known, false)
-		eq(Find(c.banned.list, "Olympus Relayed").members, 70)
+		eq(Find(c.banned.list, "Elfcore Unheard").known, false)
+		eq(Find(c.banned.list, "Elfcore Relayed").members, 70)
 		eq(c.banned.characters, 70)
 	end)
 end)
 
 test("census clean: a lone reporter's jump past the guild's reach is held back on the statistics only, until agreement or an hour", function()
-	local guilds = { ["Olympus Lonely"] = Report(100, 60, { "Cid-Realm" }) }
+	local guilds = { ["Elfcore Lonely"] = Report(100, 60, { "Cid-Realm" }) }
 	With({ guilds = guilds }, function(clock)
 		eq(C.Compute().excess, 0, "the first size is the last good one")
 		clock.now = NOW + 120
-		guilds["Olympus Lonely"] = Report(500, 0, { "Cid-Realm" })
-		guilds["Olympus Lonely"].t = clock.now
+		guilds["Elfcore Lonely"] = Report(500, 0, { "Cid-Realm" })
+		guilds["Elfcore Lonely"].t = clock.now
 		local c = C.Compute()
 		eq(c.outliers.guilds, 1); eq(c.outliers.list[1].reported, 500); eq(c.outliers.list[1].kept, 100)
 		eq(c.excess, 400)
-		eq(Find(c.guilds, "Olympus Lonely").status, "outlier")
+		eq(Find(c.guilds, "Elfcore Lonely").status, "outlier")
 		eq(D.Summary().total, 500, "the header's count is untouched")
 		-- Within its reach: 100 + max(25, 10) + 20 a minute for 2 minutes is 165.
-		guilds["Olympus Lonely"] = Report(160, 0, { "Cid-Realm" })
-		guilds["Olympus Lonely"].t = clock.now
+		guilds["Elfcore Lonely"] = Report(160, 0, { "Cid-Realm" })
+		guilds["Elfcore Lonely"].t = clock.now
 		eq(C.Compute().excess, 0, "a size within reach is taken")
-		guilds["Olympus Lonely"] = Report(600, 0, { "Cid-Realm" })
-		guilds["Olympus Lonely"].t = clock.now
+		guilds["Elfcore Lonely"] = Report(600, 0, { "Cid-Realm" })
+		guilds["Elfcore Lonely"].t = clock.now
 		eq(C.Compute().excess, 440)
 		clock.now = clock.now + C.OUTLIER_HOLD
-		guilds["Olympus Lonely"].t = clock.now
-		for _, v in pairs(guilds["Olympus Lonely"].vouch) do v.t = clock.now end
+		guilds["Elfcore Lonely"].t = clock.now
+		for _, v in pairs(guilds["Elfcore Lonely"].vouch) do v.t = clock.now end
 		eq(C.Compute().excess, 0, "held for an hour, it is the guild's size")
 	end)
-	local agreed = { ["Olympus Agreed"] = Report(100, 60, { "Ann-Realm", "Bob-Realm" }) }
+	local agreed = { ["Elfcore Agreed"] = Report(100, 60, { "Ann-Realm", "Bob-Realm" }) }
 	With({ guilds = agreed }, function()
 		C.Compute()
-		agreed["Olympus Agreed"] = Report(700, 30, { "Ann-Realm", "Bob-Realm" })
+		agreed["Elfcore Agreed"] = Report(700, 30, { "Ann-Realm", "Bob-Realm" })
 		eq(C.Compute().excess, 0, "two reporters agreeing take a jump at once")
 	end)
 end)
@@ -131,7 +131,7 @@ end)
 test("census clean: last good sizes older than Data.KEEP go at login", function()
 	With({ guilds = Army() }, function(clock)
 		C.Compute()
-		assert(ns.rdb.censusClean.sizes["olympus agreed"], "kept")
+		assert(ns.rdb.censusClean.sizes["elfcore agreed"], "kept")
 		clock.now = NOW + D.KEEP + 1
 		C.Prune()
 		eq(next(ns.rdb.censusClean.sizes), nil)
@@ -144,8 +144,8 @@ test("census stats section: the page's figures and series, the sanitized census 
 		HourSeries = function() return { { ago = 1 }, { t = NOW - 600, c = 490, p = 487, o = 41 } } end,
 		AverageLevel = function() return "40.0" end,
 	}
-	With({ guilds = Army(), banned = { ["Olympus Banned"] = true }, alts = { ["Olympus Home"] = 3 }, page = page }, function()
-		local section = assert(OlympusBridge.GetSection("stats"), "the section")
+	With({ guilds = Army(), banned = { ["Elfcore Banned"] = true }, alts = { ["Elfcore Home"] = 3 }, page = page }, function()
+		local section = assert(ElfcoreBridge.GetSection("stats"), "the section")
 		eq(section.version, 1)
 		local data, s = section.data, D.Summary()
 		eq(data.characters, s.characters); eq(data.people, s.total); eq(data.linkedAlts, s.alts); eq(data.online, s.online)
@@ -156,17 +156,17 @@ test("census stats section: the page's figures and series, the sanitized census 
 		eq(data.avgLevel, "40.0")
 		eq(data.registered, nil, "not counted yet"); eq(data.accounts, nil)
 		eq(data.confidence.disputed, 60)
-		eq(data.banned.list[1], "40~Olympus Banned")
-		eq(data.departed.list[1], ("30~%d~Olympus Gone"):format(NOW - 2 * 86400))
+		eq(data.banned.list[1], "40~Elfcore Banned")
+		eq(data.departed.list[1], ("30~%d~Elfcore Gone"):format(NOW - 2 * 86400))
 		eq(#data.days, 2, "a day without a sample is left out")
 		eq(data.days[2], ("%d~490~487~41"):format(NOW))
 		eq(data.hours[1], ("%d~490~487~41"):format(NOW - 600))
-		eq(data.guilds[1], "200~20~10~400~confirmed~Olympus Agreed")
+		eq(data.guilds[1], "200~20~10~400~confirmed~Elfcore Agreed")
 		eq(#data.guilds, 5)
 	end)
 	-- A build without the census page: the figures still go, without the series.
 	With({ guilds = Army() }, function()
-		local data = assert(OlympusBridge.GetSection("stats")).data
+		local data = assert(ElfcoreBridge.GetSection("stats")).data
 		eq(data.people, D.Summary().total)
 		eq(#data.days, 0); eq(#data.hours, 0); eq(data.avgLevel, nil)
 	end)
@@ -181,7 +181,7 @@ test("census stats section: validated people only from a moderation team client,
 		Count = function() return 3 end,
 	}
 	local ok, err = pcall(With, { guilds = Army() }, function()
-		local data = assert(OlympusBridge.GetSection("stats")).data
+		local data = assert(ElfcoreBridge.GetSection("stats")).data
 		eq(data.validated.battleTags, 2); eq(data.validated.characters, 3)
 		local function Holds(t, depth)
 			for k, v in pairs(t) do
@@ -191,7 +191,7 @@ test("census stats section: validated people only from a moderation team client,
 		end
 		eq(Holds(data.validated, 0), nil, "no tag or name")
 		team = false
-		eq(assert(OlympusBridge.GetSection("stats")).data.validated, nil, "any other client: none")
+		eq(assert(ElfcoreBridge.GetSection("stats")).data.validated, nil, "any other client: none")
 	end)
 	ns.Accord = saved
 	if not ok then error(err, 0) end

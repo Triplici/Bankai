@@ -1,4 +1,4 @@
--- 1.1.6, the Missionary Church of Olympus: a small world of clients for tests/church*.lua (not a test
+-- 1.1.6, the Missionary Church of Elfcore: a small world of clients for tests/church*.lua (not a test
 -- file itself: each Church test file loads it). Every client has its own namespace over the harness's
 -- (setmetatable, as tests/chat-rooms.lua builds its clients), its own saved data, roster, guild log
 -- and WoW globals (World:As swaps them), and loads the real Church files (and ChatRooms.lua) into it.
@@ -10,16 +10,16 @@ local ns, ROOT = ...
 local World = {}
 World.__index = World
 World.EPOCH = 1800000000
-World.GUILD = "Olympus Ember"
-World.GUILD2 = "Olympus Vale"
+World.GUILD = "Elfcore Ember"
+World.GUILD2 = "Elfcore Vale"
 World.AUTHOR = "Quill Scribe-Realm"
 World.KING = "Aldo Crown-Realm"
 World.HEAD = "Corin Ash-Realm"
 World.COUNCILLOR = "Brin Tallow-Realm"
 World.COUNCIL = assert(loadfile(ROOT .. "tests/fixtures/church-council.lua"))()
 -- The Church's words, into the harness's locale table, as the game loads Locales/ChurchText.lua.
-assert(loadfile(ROOT .. "Olympus/Locales/ChurchText.lua"))("Olympus", ns)
-assert(loadfile(ROOT .. "Olympus/Locales/ChurchFullnessText.lua"))("Olympus", ns)
+assert(loadfile(ROOT .. "Elfcore/Locales/ChurchText.lua"))("Elfcore", ns)
+assert(loadfile(ROOT .. "Elfcore/Locales/ChurchFullnessText.lua"))("Elfcore", ns)
 
 local GLOBALS = { "GetGuildInfo", "IsInGuild", "InCombatLockdown", "QueryGuildEventLog", "GetNumGuildEvents", "GetGuildEventInfo",
 	"UnitIsPlayer", "GetTime", "C_ChatInfo", "GetServerTime" }
@@ -137,7 +137,7 @@ function World:Client(name, opts)
 		Hash36 = ns.Comm.Hash36,
 		PeerCount = function() return cl.peers end,
 		ChannelReady = function() return true end,
-		ChannelName = function() return "OlympusNet" end,
+		ChannelName = function() return "ElfcoreNet" end,
 		DeliveredLogged = function() return true end,
 		Cancel = function() end, CancelQueued = function() return 0 end,
 	}
@@ -168,12 +168,12 @@ function World:Client(name, opts)
 		-- (1.2.3: ChatRooms.lua no longer defines a dialog in the game's global table, the race and class
 		-- rooms' request warning gone with them: nothing of the harness's to put back after it.)
 		w:As(cl, function()
-			assert(loadfile(ROOT .. "Olympus/RankingRules.lua"))("Olympus", c)
-			assert(loadfile(ROOT .. "Olympus/ChatRooms.lua"))("Olympus", c)
-			assert(loadfile(ROOT .. "Olympus/Church.lua"))("Olympus", c)
-			assert(loadfile(ROOT .. "Olympus/ChurchCount.lua"))("Olympus", c)
-			assert(loadfile(ROOT .. "Olympus/ChurchFullness.lua"))("Olympus", c)
-			if opts.view then assert(loadfile(ROOT .. "Olympus/ChurchView.lua"))("Olympus", c) end
+			assert(loadfile(ROOT .. "Elfcore/RankingRules.lua"))("Elfcore", c)
+			assert(loadfile(ROOT .. "Elfcore/ChatRooms.lua"))("Elfcore", c)
+			assert(loadfile(ROOT .. "Elfcore/Church.lua"))("Elfcore", c)
+			assert(loadfile(ROOT .. "Elfcore/ChurchCount.lua"))("Elfcore", c)
+			assert(loadfile(ROOT .. "Elfcore/ChurchFullness.lua"))("Elfcore", c)
+			if opts.view then assert(loadfile(ROOT .. "Elfcore/ChurchView.lua"))("Elfcore", c) end
 		end)
 		c.Church.after = function(seconds, _, fn) w:Later(cl, seconds, fn) end
 		c.ChurchCount.after = c.Church.after

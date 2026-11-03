@@ -10,8 +10,8 @@ local ns, test, eq = ...
 local ROOT = (debug.getinfo(1, "S").source:sub(2):match("^(.*)tests[/\\]wanted%-sightings%.lua$")) or "./"
 local L = ns.L
 
-local DIALOGS = { "OLYMPUS_WANTED_ADD", "OLYMPUS_WANTED_REMOVE", "OLYMPUS_WANTED_SEND", "OLYMPUS_WANTED_REVIEW",
-	"OLYMPUS_WANTED_WITHDRAW", "OLYMPUS_WANTED_PUBLISH", "OLYMPUS_WANTED_REVOKE", "OLYMPUS_WANTED_CORRECT", "OLYMPUS_BACKUP_RESTORE" }
+local DIALOGS = { "ELFCORE_WANTED_ADD", "ELFCORE_WANTED_REMOVE", "ELFCORE_WANTED_SEND", "ELFCORE_WANTED_REVIEW",
+	"ELFCORE_WANTED_WITHDRAW", "ELFCORE_WANTED_PUBLISH", "ELFCORE_WANTED_REVOKE", "ELFCORE_WANTED_CORRECT", "ELFCORE_BACKUP_RESTORE" }
 local GLOBALS = { "UnitGUID", "UnitIsPlayer", "UnitFactionGroup", "UnitCanAttack", "UnitIsPVP", "GetGuildInfo", "IsInInstance",
 	"C_Map", "CreateFrame", "UIParent", "GameTooltip", "C_InputInterfaceStyle", "issecretvalue", "GetRealZoneText",
 	"UnitIsDeadOrGhost", "C_DateAndTime", "C_DeathInfo", "C_DeathRecap", "GetFileIDFromPath", "C_ChatInfo", "ChatFrameUtil",
@@ -234,10 +234,10 @@ local function WithSightings(fn)
 			cl.handlers, cl.listeners, cl.events, cl.ns, cl.lib, cl.filters = {}, {}, {}, c, PinLib(cl), {}
 			world:As(cl, function()
 				-- (In the TOC's order: Comm.lua, Backup.lua and Consent.lua before Wanted.lua.)
-				if cl.realComm then assert(loadfile(ROOT .. "Olympus/Comm.lua"))("Olympus", c) end
-				if cl.realBackup then assert(loadfile(ROOT .. "Olympus/Backup.lua"))("Olympus", c) end
-				if cl.realConsent then assert(loadfile(ROOT .. "Olympus/Consent.lua"))("Olympus", c) end
-				assert(loadfile(ROOT .. "Olympus/Wanted.lua"))("Olympus", c)
+				if cl.realComm then assert(loadfile(ROOT .. "Elfcore/Comm.lua"))("Elfcore", c) end
+				if cl.realBackup then assert(loadfile(ROOT .. "Elfcore/Backup.lua"))("Elfcore", c) end
+				if cl.realConsent then assert(loadfile(ROOT .. "Elfcore/Consent.lua"))("Elfcore", c) end
+				assert(loadfile(ROOT .. "Elfcore/Wanted.lua"))("Elfcore", c)
 			end)
 			cl.W = c.Wanted
 			if cl.realConsent then
@@ -268,7 +268,7 @@ local function WithSightings(fn)
 			-- (1.2.0: sightings are off until a Yes; these members said Yes unless a test gives its own db.)
 			local cl = { name = name, guid = guid, member = o.member ~= false, manager = o.manager, db = o.db or { wantedSightings = true }, rdb = {}, prints = {},
 				realComm = o.realComm, realConsent = o.realConsent, realBackup = o.realBackup, crown = o.crown, wanted = o.wanted,
-				units = { player = { name = name, guid = guid, faction = "Alliance", guild = o.guild or "Olympus II" } },
+				units = { player = { name = name, guid = guid, faction = "Alliance", guild = o.guild or "Elfcore II" } },
 				map = 1429, x = 0.4123, y = 0.6789, online = true }
 			world.olympians[Fold(name)] = true
 			if o.role then world.authorities[Fold(name)] = o.role end
@@ -381,7 +381,7 @@ end
 local function PtLocale()
 	local pt, savedLocale = {}, GetLocale
 	GetLocale = function() return "ptBR" end
-	local ok, err = pcall(function() assert(loadfile(ROOT .. "Olympus/Locales.lua"))("Olympus", pt) end)
+	local ok, err = pcall(function() assert(loadfile(ROOT .. "Elfcore/Locales.lua"))("Elfcore", pt) end)
 	GetLocale = savedLocale
 	assert(ok, err)
 	return pt.L
@@ -405,7 +405,7 @@ test("wanted sightings 1.2.4: a 0-point 0-kill entry is never observed, sent, re
 		eq(ok, false); eq(why, "unlisted")
 		eq(#world:Pins(o), 0); eq(#world:Waiting(o), 0)
 		eq(next(world:As(o, o.W.PinFrames)), nil, "no target marker")
-		local wire = ("WS~S~1~Olympus II~0000000000000099~%d~1429~400~500~0~1.0a000099~Prey-Realm"):format(world.epoch)
+		local wire = ("WS~S~1~Elfcore II~0000000000000099~%d~1429~400~500~0~1.0a000099~Prey-Realm"):format(world.epoch)
 		ok, why = world:As(king, king.W.HandleSighting, "WHISPER", o.name, wire)
 		eq(ok, false); eq(why, "unlisted"); eq(#world:Pins(king), 0)
 		-- The member kills him: his claim stays on the ledger but does not make him wanted.
@@ -432,7 +432,7 @@ test("wanted sightings 1.2.4: a 0-point 0-kill entry is never observed, sent, re
 	end)
 end)
 
-test("wanted sightings (1.2.0): off until the member's own Yes, a line of its own on the privacy page that says what goes and to whom, asked until answered; its No, or /oly sightings off, stops collecting at once", function()
+test("wanted sightings (1.2.0): off until the member's own Yes, a line of its own on the privacy page that says what goes and to whom, asked until answered; its No, or /elf sightings off, stops collecting at once", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001", { db = {} })
 		local W = o.W
@@ -459,11 +459,11 @@ test("wanted sightings (1.2.0): off until the member's own Yes, a line of its ow
 			"until you choose one, nobody gets it", "seen nearby", "Nothing goes while you keep your zone and layer private",
 			-- (RH-09, changed on purpose: the time a wanted Horde player was last seen is now kept on
 			-- the member's own list, his "Last seen online"; the page says so, and that a No forgets it.)
-			"the King's only while his crown shows on the map", "Never anyone off the list", "never on the Olympus channel", "never in an instance",
+			"the King's only while his crown shows on the map", "Never anyone off the list", "never on the Elfcore channel", "never in an instance",
 			"Nothing saved but the time your client last saw each one, on your own Most Wanted list (never where, never sent)",
 			"Authorize all while it is pending",
 			"No stops it at once, forgets those times", "take your pins off his map", "before you logged out stays there until its 15 minutes are up",
-			"/oly sightings on|off" }) do
+			"/elf sightings on|off" }) do
 			assert(text:find(part, 1, true), "the page says: " .. part)
 		end
 		-- (Review: what reached a reviewer outlives a logout; the page no longer says it does not.)
@@ -482,7 +482,7 @@ test("wanted sightings (1.2.0): off until the member's own Yes, a line of its ow
 		world:Advance(W.SIGHT_GAP + 1)
 		local ok, why = world:See(o, "nameplate1", Horde("Grom-Realm", GROM))
 		eq(ok, false); eq(why, "off")
-		-- /oly sightings on | off, and alone.
+		-- /elf sightings on | off, and alone.
 		world:As(o, W.SightingsSlash, "on")
 		eq(o.db.wantedSightings, true); eq(o.prints[#o.prints], L.WANTED_SIGHTINGS_ON)
 		eq(world:As(o, item.pending), false, "a yes is an answer too")
@@ -496,10 +496,10 @@ test("wanted sightings (1.2.0): off until the member's own Yes, a line of its ow
 		world:As(o, W.SightingsSlash, "status")
 		eq(o.prints[#o.prints], L.WANTED_SIGHTINGS_OFF)
 	end)
-	-- /oly sightings reaches Wanted.lua; a client updated without a restart (no Wanted.lua yet) is told to restart.
+	-- /elf sightings reaches Wanted.lua; a client updated without a restart (no Wanted.lua yet) is told to restart.
 	local savedPrint, printed = ns.Print, nil
 	ns.Print = function(message) printed = message end
-	local ok, err = pcall(SlashCmdList.OLYMPUS, "sightings off")
+	local ok, err = pcall(SlashCmdList.ELFCORE, "sightings off")
 	ns.Print = savedPrint
 	if not ok then error(err, 0) end
 	eq(ns.Wanted.missing, true, "the harness's own namespace runs Core's stand-in")
@@ -518,9 +518,9 @@ test("wanted sightings (1.2.0): off until the member's own Yes, a line of its ow
 	end
 	local lines, savedOut = {}, print
 	print = function(s) lines[#lines + 1] = tostring(s) end
-	SlashCmdList.OLYMPUS("help")
+	SlashCmdList.ELFCORE("help")
 	print = savedOut
-	assert(table.concat(lines, "\n"):find(L.HELP_SIGHTINGS, 1, true), "in /oly help")
+	assert(table.concat(lines, "\n"):find(L.HELP_SIGHTINGS, 1, true), "in /elf help")
 end)
 
 test("wanted sightings on the real privacy page (Consent.lua): it opens by itself for a member who answered every other line, once a session; Authorize all turns the pending line on; an earlier No remains No", function()
@@ -556,7 +556,7 @@ test("wanted sightings on the real privacy page (Consent.lua): it opens by itsel
 	end)
 end)
 
-test("wanted sightings: only a listed Horde player (1.2.0: never just a hostile one flagged for PvP), as the game gives him, where this player stands (rounded) and his layer; never an Olympus guild's, a friendly one, a pet, ourselves, a secret value, nor in an instance, net-off or off a zone's map", function()
+test("wanted sightings: only a listed Horde player (1.2.0: never just a hostile one flagged for PvP), as the game gives him, where this player stands (rounded) and his layer; never an Elfcore guild's, a friendly one, a pet, ourselves, a secret value, nor in an instance, net-off or off a zone's map", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001", { manager = true })
 		o.layer = { mapID = 1429, zoneUID = 4242, t = world.epoch - 30 }
@@ -570,7 +570,7 @@ test("wanted sightings: only a listed Horde player (1.2.0: never just a hostile 
 		local cases = {
 			{ "unlisted", Horde("Calm-Realm", "Player-1-0A000011", { pvp = false }) },
 			{ "unlisted", Horde("Friendly-Realm", "Player-1-0A000012", { hostile = false }) },
-			{ "unlisted", Horde("Hordeolympian-Realm", "Player-1-0A000013", { guild = "Olympus Horde" }) },
+			{ "unlisted", Horde("Hordeolympian-Realm", "Player-1-0A000013", { guild = "Elfcore Horde" }) },
 			-- 1.2.0: hostile and flagged for PvP is not enough; only the wanted are sighted.
 			{ "unlisted", Horde("Flagged-Realm", "Player-1-0A00001A", { guild = "Bloodfang" }) },
 			{ "faction", Horde("Ally-Realm", "Player-1-0A000014", { faction = "Alliance" }) },
@@ -648,13 +648,13 @@ test("wanted sightings: each Horde player once per gap on one map (nothing more 
 		world:Pump()
 		local m = world.delivered[#world.delivered]
 		eq(m.dist, "WHISPER"); eq(world:Find(m.to), c2)
-		eq(m.msg, ("WS~S~1~Olympus II~%s~%d~1429~410~680~0~1.0a000001~Grom-Realm"):format(e.id, e.at),
+		eq(m.msg, ("WS~S~1~Elfcore II~%s~%d~1429~410~680~0~1.0a000001~Grom-Realm"):format(e.id, e.at),
 			"his name and GUID, the observer's spot and layer, the time, the guild: nothing else")
 		eq(#world:Pins(c2), 1)
 		eq(#world:Pins(king), 0, "the King gets none he was not chosen for"); eq(#world:Pins(c1), 0); eq(#world:Pins(plain), 0)
 		for _, d in ipairs(world.delivered) do assert(not (d.dist == "CHANNEL" and d.msg:find("^WS~S~")), "never on the channel") end
 		local got = world:Pins(c2)[1]
-		eq(got.observer, "Aldric-Realm"); eq(got.own, false); eq(got.x, 410); eq(got.y, 680); eq(got.guild, "Olympus II")
+		eq(got.observer, "Aldric-Realm"); eq(got.own, false); eq(got.x, 410); eq(got.y, 680); eq(got.guild, "Elfcore II")
 
 		-- The same Horde player again on this map within the gap: nothing new, and not even his
 		-- position asked again (review: nameplates come and go all through a fight).
@@ -805,7 +805,7 @@ test("wanted sightings: a reviewer takes a sighting only by whisper, fresh, from
 		local function Body(o)
 			o = o or {}
 			serial = serial + 1
-			return ("WS~S~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s"):format(o.v or "1", o.guild or "Olympus II", o.id or ("%016x"):format(serial),
+			return ("WS~S~%s~%s~%s~%s~%s~%s~%s~%s~%s~%s"):format(o.v or "1", o.guild or "Elfcore II", o.id or ("%016x"):format(serial),
 				o.at or world.epoch, o.map or 1429, o.x or 410, o.y or 680, o.layer or 0, o.guid or "1.0a000001", o.name or "Grom-Realm")
 		end
 		local function Take(sender, body, dist, cl)
@@ -816,13 +816,13 @@ test("wanted sightings: a reviewer takes a sighting only by whisper, fresh, from
 		world.olympians[world.Fold("Watcher-Realm")] = true
 		local ok, e = Take("Watcher-Realm", Body({ id = "00000000000000aa" }))
 		assert(ok, e)
-		eq(e.observer, "Watcher-Realm"); eq(e.guid, GROM); eq(e.name, "Grom-Realm"); eq(e.guild, "Olympus II"); eq(e.own, false)
+		eq(e.observer, "Watcher-Realm"); eq(e.guid, GROM); eq(e.name, "Grom-Realm"); eq(e.guild, "Elfcore II"); eq(e.own, false)
 		eq(Why("Watcher-Realm", Body({ id = "00000000000000aa" })), "replay", "once")
-		eq(Why("Stranger-Realm", Body()), "olympus", "nobody the Olympus chats would take")
+		eq(Why("Stranger-Realm", Body()), "elfcore", "nobody the Elfcore chats would take")
 		eq(Why("Watcher-Realm", Body({ guid = "1.0a00001a", name = "Flagged-Realm" })), "unlisted", "1.2.0: only the wanted")
 		world.olympians[world.Fold("Hiddenone-Realm")] = true
 		world.hidden[world.Fold("Hiddenone-Realm")] = { by = "Moderator-Realm" }
-		eq(Why("Hiddenone-Realm", Body()), "olympus", "a name the moderators took off")
+		eq(Why("Hiddenone-Realm", Body()), "elfcore", "a name the moderators took off")
 		eq(Why("Watcher-Realm", Body({ at = world.epoch - king.W.SIGHT_TTL - 1 })), "stale")
 		eq(Why("Watcher-Realm", Body({ at = world.epoch + 121 })), "stale")
 		for _, bad in ipairs({ Body({ v = "2" }), Body({ id = "abc" }), Body({ guid = "1.ZZ" }), Body({ guid = "Player-1-0A000001" }),
@@ -929,7 +929,7 @@ test("wanted sightings: a pin per Horde player where he was seen last, on the mi
 		eq(#world:Pins(king), 0, "nor a visible sighting")
 		eq(king.lib:Take(), "mini-, world-", "removed from both maps at once")
 		-- An older sighting arriving late does not move it back.
-		local late = ("WS~S~1~Olympus II~00000000000000bb~%d~1429~900~900~0~1.0a000001~Grom-Realm"):format(world.epoch - 300)
+		local late = ("WS~S~1~Elfcore II~00000000000000bb~%d~1429~900~900~0~1.0a000001~Grom-Realm"):format(world.epoch - 300)
 		world:As(king, king.W.HandleSighting, "WHISPER", o.name, late)
 		eq(#world:Pins(king), 0)
 		-- Fifteen minutes after the newest: gone, from both maps.
@@ -974,7 +974,7 @@ test("wanted sightings: with the gamepad UI none of these pins goes on the world
 	end)
 end)
 
-test("wanted sightings: none of these pins while this player is in an instance, back outside while fresh; none for a player outside Olympus; nothing collected inside", function()
+test("wanted sightings: none of these pins while this player is in an instance, back outside while fresh; none for a player outside Elfcore; nothing collected inside", function()
 	WithSightings(function(world)
 		local o = world:Client("Aldric-Realm", "Player-1-AB000001")
 		local king = world:Client("Kingly-Realm", "Player-1-AB0000F1", { role = "king" })
@@ -1001,7 +1001,7 @@ test("wanted sightings: none of these pins while this player is in an instance, 
 		king.lib:Take()
 		o.member = false
 		world:As(o, o.W.RefreshPins)
-		eq(o.lib:Take(), "mini-, world-", "no pins outside Olympus")
+		eq(o.lib:Take(), "mini-, world-", "no pins outside Elfcore")
 		world:Advance(king.W.SIGHT_TTL + 1)
 		world:As(king, king.W.RefreshPins)
 		eq(king.lib:Take(), "mini-, world-")
@@ -1108,7 +1108,7 @@ test("wanted sightings: a reviewer's own No stops what he takes too: his lease g
 		eq(world:Recipients(o), "")
 		eq(#world:Pins(king), 0)
 		local ok, why = world:As(king, king.W.HandleSighting, "WHISPER", o.name,
-			("WS~S~1~Olympus II~00000000000000cc~%d~1429~410~680~0~1.0a000003~Rexxar-Realm"):format(world.epoch))
+			("WS~S~1~Elfcore II~00000000000000cc~%d~1429~410~680~0~1.0a000003~Rexxar-Realm"):format(world.epoch))
 		eq(ok, false); eq(why, "reviewer", "he takes none")
 		eq(world:As(king, king.W.AnnounceReviewer), false)
 		local before = #world.delivered
@@ -1152,7 +1152,7 @@ test("wanted sightings: a member's No takes what reached his reviewer off that r
 end)
 
 test("wanted sightings: a backup carries the No, and only a No: after a wipe it comes back off and drops what waits at once; a yes in a text is never taken", function()
-	-- (Review: a wiped SavedVariables file turned sightings back on, and /oly restore could not
+	-- (Review: a wiped SavedVariables file turned sightings back on, and /elf restore could not
 	-- bring the No back.)
 	local Bk = ns.Backup
 	local saved, savedPrint = ns.db.wantedSightings, ns.Print
@@ -1225,7 +1225,7 @@ test("wanted sightings through the real Comm.lua: a sighting waits in its queue 
 		eq(#world.wire, 1)
 		local w = world.wire[1]
 		eq(w.dist, "WHISPER"); eq(world:Find(w.target), king)
-		eq(w.msg, ("WS~S~1~Olympus II~%s~%d~1429~410~680~0~1.0a000003~Rexxar-Realm"):format(e.id, e.at))
+		eq(w.msg, ("WS~S~1~Elfcore II~%s~%d~1429~410~680~0~1.0a000003~Rexxar-Realm"):format(e.id, e.at))
 		eq(world:As(o, o.W.Stats).sightSent, 1)
 		-- Its No now takes that one back, through the same Comm.
 		world:As(o, o.consent.set, false)
@@ -1244,8 +1244,8 @@ test("wanted sightings mixed versions: 1.1.4's Comm (what live clients run) igno
 		cns.After, cns.Every = function() end, function() end
 		cns.Now = function() return 100000 end
 		C_ChatInfo = { RegisterAddonMessagePrefix = function() end }
-		-- (tests/fixtures/comm-1.1.4.lua: `git show v1.1.4:Olympus/Comm.lua`, unchanged.)
-		assert(loadfile(ROOT .. "tests/fixtures/comm-1.1.4.lua"))("Olympus", cns)
+		-- (tests/fixtures/comm-1.1.4.lua: `git show v1.1.4:Elfcore/Comm.lua`, unchanged.)
+		assert(loadfile(ROOT .. "tests/fixtures/comm-1.1.4.lua"))("Elfcore", cns)
 		for _, fn in ipairs(login) do fn() end
 		-- The types 1.1.4 handles (Wanted is 1.2's: none of them).
 		local heard = {}
@@ -1257,11 +1257,11 @@ test("wanted sightings mixed versions: 1.1.4's Comm (what live clients run) igno
 		end
 		Deliver("CHANNEL", "Kingly-Realm", "WS~R~1")
 		Deliver("CHANNEL", "Kingly-Realm", "WS~R~0")
-		Deliver("WHISPER", "Aldric-Realm", "WS~S~1~Olympus II~0123456789abcdef~1800000000~1429~410~680~0~1.0a000001~Grom-Realm")
+		Deliver("WHISPER", "Aldric-Realm", "WS~S~1~Elfcore II~0123456789abcdef~1800000000~1429~410~680~0~1.0a000001~Grom-Realm")
 		Deliver("WHISPER", "Aldric-Realm", "WS~X~1")
 		-- (1.2.3: a member's own kill or death, a reviewer's relay of one, and his removal: none of
 		-- them is a type 1.1.4 handles either.)
-		Deliver("CHANNEL", "Aldric-Realm", "WK~1~0123456789abcdef~Olympus II~0123456789abcdef~1800000000~24321~S~1.0a000001~1.ab000001~Grom-Realm")
+		Deliver("CHANNEL", "Aldric-Realm", "WK~1~0123456789abcdef~Elfcore II~0123456789abcdef~1800000000~24321~S~1.0a000001~1.ab000001~Grom-Realm")
 		Deliver("CHANNEL", "Kingly-Realm", "WK~R~1~0123456789abcdef~Aldric-Realm~1~0123456789abcdef~1800000000~24321~S~1.0a000001~1.ab000001~Grom-Realm")
 		Deliver("CHANNEL", "Kingly-Realm", "WV~T~1~0123456789abcdef~1.0a000001~1800000000")
 		eq(#heard, 0, "no handler runs")
@@ -1272,7 +1272,7 @@ test("wanted sightings mixed versions: 1.1.4's Comm (what live clients run) igno
 	C_ChatInfo = saved
 	if not ok then error(err, 0) end
 	-- Comm.lua's list of types names the new one (the 1.1 message-type test reads it).
-	local f = assert(io.open(ROOT .. "Olympus/Comm.lua"))
+	local f = assert(io.open(ROOT .. "Elfcore/Comm.lua"))
 	local src = f:read("*a")
 	f:close()
 	assert(src:find("Wanted WS WY W4 W5, and 1.2.3's WK", 1, true))

@@ -59,22 +59,22 @@ test("1.2.1 the level race: one forged census row no longer wins a place, nor th
 	viewer.ns.HonorsNet.RACE_START = w.clock - 86400
 	Claim(w, alt, 60)
 	local after = viewer.ns.Honors.CONFIRM_AFTER + 2
-	-- One report of another sender (any guild named Olympus): no proof.
-	Report(w, viewer, "Olympus Fakers", cast.f1, alt.name, 60)
+	-- One report of another sender (any guild named Elfcore): no proof.
+	Report(w, viewer, "Elfcore Fakers", cast.f1, alt.name, 60)
 	w:Run(after)
 	eq(Place(viewer, 60), nil, "one census row")
 	-- His own report beside it: never his own proof.
-	Report(w, viewer, "Olympus Fakers", alt, alt.name, 60)
+	Report(w, viewer, "Elfcore Fakers", alt, alt.name, 60)
 	w:Run(after)
 	eq(Place(viewer, 60), nil, "his own report")
 	-- Another sender, of another guild: one sender in each, no proof.
-	Report(w, viewer, "Olympus Elsewhere", cast.f2, alt.name, 60)
+	Report(w, viewer, "Elfcore Elsewhere", cast.f2, alt.name, 60)
 	w:Run(after)
 	eq(Place(viewer, 60), nil, "two guilds, one sender each")
 	-- A second sender of the first guild: vouched (the census's own two-sender rule) at once; the
 	-- claim is older than CONFIRM_AFTER by now, so the place as soon as the race runs (1.2.1: RACE_SOON
 	-- after the census change, never inside the message's own handler).
-	Report(w, viewer, "Olympus Fakers", cast.f3, alt.name, 60)
+	Report(w, viewer, "Elfcore Fakers", cast.f3, alt.name, 60)
 	for _, c in pairs(viewer.ns.HonorsNet.Store().claims) do eq(c.vouched, true, "vouched at once") end
 	w:Run(viewer.ns.HonorsNet.RACE_SOON)
 	eq(Place(viewer, 60), alt.name)
@@ -96,8 +96,8 @@ test("1.2.1 the level race: a guildmate's claim is vouched by our own roster (th
 	eq(Place(viewer, 20), cast.mate.name, "our roster at 20")
 	-- A guildmate at 15 by our roster, two senders of another guild listing him at 40: nothing.
 	Claim(w, cast.liar, 40)
-	Report(w, viewer, "Olympus Fakers", cast.f1, cast.liar.name, 40)
-	Report(w, viewer, "Olympus Fakers", cast.f2, cast.liar.name, 40)
+	Report(w, viewer, "Elfcore Fakers", cast.f1, cast.liar.name, 40)
+	Report(w, viewer, "Elfcore Fakers", cast.f2, cast.liar.name, 40)
 	w:Run(after)
 	eq(Place(viewer, 40), nil, "another guild's census says nothing of one of ours")
 	for _, c in pairs(viewer.ns.HonorsNet.Store().claims) do
@@ -115,8 +115,8 @@ test("1.2.1 the level race: a place the server's word shows false goes (his unit
 	local after = viewer.ns.Honors.CONFIRM_AFTER + 2
 	-- Two forged senders of one guild win it for the level-12 alt.
 	Claim(w, alt, 60)
-	Report(w, viewer, "Olympus Fakers", cast.f1, alt.name, 60)
-	Report(w, viewer, "Olympus Fakers", cast.f2, alt.name, 60)
+	Report(w, viewer, "Elfcore Fakers", cast.f1, alt.name, 60)
+	Report(w, viewer, "Elfcore Fakers", cast.f2, alt.name, 60)
 	w:Run(after)
 	eq(Place(viewer, 60), alt.name)
 	-- A holder seen at or above it keeps it (the game's level for his unit).
@@ -142,8 +142,8 @@ test("1.2.1 the level race: a place the server's word shows false goes (his unit
 	eq(Place(viewer, 60), nil)
 	-- The next proven claim takes it.
 	Claim(w, cast.real, 60)
-	Report(w, viewer, "Olympus Shaw", cast.f1, cast.real.name, 60)
-	Report(w, viewer, "Olympus Shaw", cast.f2, cast.real.name, 60)
+	Report(w, viewer, "Elfcore Shaw", cast.f1, cast.real.name, 60)
+	Report(w, viewer, "Elfcore Shaw", cast.f2, cast.real.name, 60)
 	w:Run(after)
 	eq(Place(viewer, 60), cast.real.name, "the next one")
 	-- Our roster's word: a guildmate's place at 40 with his roster level 30, read too soon after the
@@ -191,8 +191,8 @@ test("1.2.1 the level race: a place won under a made-up GUID goes once his unit 
 	local A = viewer.ns.Arena
 	local fake = A.GK("Player-4099-0DEADBEEF")
 	Claim(w, alt, 60, fake)
-	Report(w, viewer, "Olympus Fakers", cast.f1, alt.name, 60)
-	Report(w, viewer, "Olympus Fakers", cast.f2, alt.name, 60)
+	Report(w, viewer, "Elfcore Fakers", cast.f1, alt.name, 60)
+	Report(w, viewer, "Elfcore Fakers", cast.f2, alt.name, 60)
 	w:Run(after)
 	eq(Place(viewer, 60), alt.name, "two senders: the place, under the made-up GUID")
 	-- Nothing of his in view (the game gives no one that GUID): kept.
@@ -219,8 +219,8 @@ test("1.2.1 the level race: a place won under a made-up GUID goes once his unit 
 	-- A unit in view at the milestone but under another GUID than his place's: the GUID was never
 	-- his, struck too.
 	Claim(w, cast.high, 40, A.GK("Player-4099-0CAFEBABE"))
-	Report(w, viewer, "Olympus Highs", cast.f1, cast.high.name, 40)
-	Report(w, viewer, "Olympus Highs", cast.f2, cast.high.name, 40)
+	Report(w, viewer, "Elfcore Highs", cast.f1, cast.high.name, 40)
+	Report(w, viewer, "Elfcore Highs", cast.f2, cast.high.name, 40)
 	w:Run(after)
 	eq(Place(viewer, 40), cast.high.name)
 	viewer.target = cast.high.name
@@ -231,8 +231,8 @@ test("1.2.1 the level race: a place won under a made-up GUID goes once his unit 
 	local real = w:Client("Lena Shaw", { level = 20 })
 	W3.Rules(w, real)
 	Claim(w, real, 20)
-	Report(w, viewer, "Olympus Shaw", cast.f1, real.name, 20)
-	Report(w, viewer, "Olympus Shaw", cast.f2, real.name, 20)
+	Report(w, viewer, "Elfcore Shaw", cast.f1, real.name, 20)
+	Report(w, viewer, "Elfcore Shaw", cast.f2, real.name, 20)
 	w:Run(after)
 	eq(Place(viewer, 20), real.name)
 	viewer.target = real.name
@@ -252,8 +252,8 @@ test("1.2.1 the level race: a place whose GUID the game gives another character 
 	local A = viewer.ns.Arena
 	-- Another character's GUID, which the game does not resolve here yet.
 	Claim(w, alt, 60, A.GK(cast.other.guid))
-	Report(w, viewer, "Olympus Fakers", cast.f1, alt.name, 60)
-	Report(w, viewer, "Olympus Fakers", cast.f2, alt.name, 60)
+	Report(w, viewer, "Elfcore Fakers", cast.f1, alt.name, 60)
+	Report(w, viewer, "Elfcore Fakers", cast.f2, alt.name, 60)
 	w:Run(after)
 	eq(Place(viewer, 60), alt.name)
 	-- The game names that GUID: Lena Shaw's, not his.
