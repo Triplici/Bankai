@@ -35925,7 +35925,7 @@ end)
 -- world turns both on (tests/world.lua); here they are off, as the addon ships.
 test("no Treasurer role: nobody is the Treasurer or his mail, and no dues; the Gates open nothing", function()
 	local savedRole, savedGates = ns.TREASURER_ROLE, ns.GATES_SHOWN
-	local savedFaction, savedSplit = ns.faction, ns.splitNames
+	local savedFaction, savedSplit, savedGuild, savedMe = ns.faction, ns.splitNames, GetGuildInfo, ns.me
 	local ok, err = pcall(function()
 		local treasurer = ns.FullName(ns.TREASURER, ns.TREASURER_REALM)
 		local mail = ns.FullName(ns.TREASURER_CHARACTERS[2], ns.TREASURER_REALM)
@@ -35949,6 +35949,7 @@ test("no Treasurer role: nobody is the Treasurer or his mail, and no dues; the G
 		eq(#shown, 0, "no Gates dialog"); eq(ns.Acts.Gates(), nil, "no gates opened")
 	end)
 	ns.TREASURER_ROLE, ns.GATES_SHOWN, ns.faction, ns.splitNames = savedRole, savedGates, savedFaction, savedSplit
+	GetGuildInfo, ns.me = savedGuild, savedMe -- (AsShogun's: the next tests are the tester again)
 	if not ok then error(err, 0) end
 end)
 
