@@ -35921,6 +35921,37 @@ test("1.1 the Realm's Recruiting (Fern #16): five guilds, then every one on a cl
 	end)
 end)
 
+-- 11-03 (the guild's call): no Treasurer role, and the Shogun's Gates off in the add-on. The test
+-- world turns both on (tests/world.lua); here they are off, as the addon ships.
+test("no Treasurer role: nobody is the Treasurer or his mail, and no dues; the Gates open nothing", function()
+	local savedRole, savedGates = ns.TREASURER_ROLE, ns.GATES_SHOWN
+	local savedFaction, savedSplit = ns.faction, ns.splitNames
+	local ok, err = pcall(function()
+		local treasurer = ns.FullName(ns.TREASURER, ns.TREASURER_REALM)
+		local mail = ns.FullName(ns.TREASURER_CHARACTERS[2], ns.TREASURER_REALM)
+		eq(ns.IsTreasurer(treasurer, "Bankai Guild") or ns.IsTreasurerCharacter(treasurer), true, "the test world's Treasurer")
+		ns.TREASURER_ROLE, ns.GATES_SHOWN = nil, nil
+		eq(ns.IsTreasurer(treasurer, "Bankai Guild"), false)
+		eq(ns.IsTreasurerCharacter(treasurer), false)
+		eq(ns.IsTreasurerMail(mail), false)
+		ns.faction, ns.splitNames = "Alliance", true
+		eq(ns.Dues.Available(), false, "no dues: they were paid to the Treasurer")
+		local shown = {}
+		local savedShow = ns.ShowDialog
+		ns.ShowDialog = function(name) shown[#shown + 1] = name end
+		local fine, e = pcall(function()
+			AsShogun()
+			ns.Acts.GatesClick("Bankai Guild II")
+			ns.Acts.OpenGates("Bankai Guild II")
+		end)
+		ns.ShowDialog = savedShow
+		if not fine then error(e, 0) end
+		eq(#shown, 0, "no Gates dialog"); eq(ns.Acts.Gates(), nil, "no gates opened")
+	end)
+	ns.TREASURER_ROLE, ns.GATES_SHOWN, ns.faction, ns.splitNames = savedRole, savedGates, savedFaction, savedSplit
+	if not ok then error(err, 0) end
+end)
+
 -- 11-03 (the guild's call): the Realm keeps its org chart and layers; Recruiting is off it.
 test("the Realm without Recruiting: no section and no do-not-contact line; the layers stay", function()
 	local V = ns.Views

@@ -668,8 +668,8 @@
         "Which guild should new players join?",
         "What are the Shogun's gates?"
       ],
-      "answer": "Recruiting on the Realm tab lists guilds with free slots, most first. When the Shogun opens the gates of a guild, it goes on top for two hours: send new recruits there.",
-      "in_game": "Recruiting (Realm tab) lists guilds with room. When the Shogun opens a guild's gates, it's on top for 2 hours: send recruits there.",
+      "answer": "Type recruiting (or free 50) in the box on top of the Census: every guild with free slots, most first. The Realm's Recruiting section and the Shogun's gates are off for now.",
+      "in_game": "Type recruiting in the Census search box for every guild with room. The Realm's Recruiting and the Shogun's gates are off for now.",
       "sources": [
         "README.md:160-162,667"
       ]
@@ -1109,7 +1109,7 @@
         "What's the Throne tab?"
       ],
       "answer": "The Shogun's own tab holds his Agenda, week, key rotation and Hold Court button. His other tools sit where they belong: the private court queue in The Watch, Summon the Elders and the gates on Realm, and writs in Decrees.",
-      "in_game": "The Shogun's tab has his Agenda, week, key rotation and Hold Court. Its private queue is in The Watch; Summon the Elders and gates are on Realm.",
+      "in_game": "The Shogun's tab has his Agenda, week, key rotation and Hold Court. Its private queue is in The Watch; Summon the Elders is on Realm.",
       "sources": [
         "README.md:739-831"
       ]
@@ -1165,7 +1165,7 @@
         "Who are the Hands of the Shogun?"
       ],
       "answer": "The Steward acts for the Shogun: he names Hands, manages the treasury's keepers and uses most of the Shogun's tools (not court, writs, pardons or his crown). Hands are players the Shogun or Steward names to run the roll call, Agenda, Poll, inspection and gates in his name.",
-      "in_game": "The Steward acts for the Shogun. Hands are players named to run his Agenda, Poll, roll call and gates.",
+      "in_game": "The Steward acts for the Shogun. Hands are players named to run his Agenda, Poll and roll call.",
       "sources": [
         "README.md:700-706,722-777,740-742"
       ]

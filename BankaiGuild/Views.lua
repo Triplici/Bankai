@@ -2506,7 +2506,7 @@ local function RealmLines(s, q)
 	end }
 	-- The gates the Shogun (or a Hand) opened: where new recruits go now (Acts.lua).
 	local gates = ns.Acts and ns.Acts.Gates and ns.Acts.Gates()
-	local commands = ns.Shogun and (ns.Shogun.CanCommand() or ns.Shogun.Preview())
+	local commands = ns.Acts and ns.Acts.GatesShown and ns.Acts.GatesShown() and ns.Shogun and (ns.Shogun.CanCommand() or ns.Shogun.Preview())
 	if gates then
 		local left = math.max(0, gates.at - ns.Now())
 		lines[#lines + 1] = {

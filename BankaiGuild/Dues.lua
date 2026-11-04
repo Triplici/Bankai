@@ -221,7 +221,8 @@ end
 -- The treasury is <Elfcore>'s, on the Treasurer's realm group (WoW: Forever's, whose names have
 -- a surname: ns.splitNames, as the Shogun's view of the treasury, Treasury.Visible), on the Alliance.
 function Dues.Available()
-	if ns.faction == "Horde" or not ns.splitNames or not ns.IsMember() then return false end
+	-- (11-03: the dues are paid to the Treasurer; no Treasurer role, no dues.)
+	if not ns.TREASURER_ROLE or ns.faction == "Horde" or not ns.splitNames or not ns.IsMember() then return false end
 	return ns.GroupOf(ns.realm or "") == ns.GroupOf(ns.TREASURER_REALM)
 end
 -- The Shogun, his Steward, the author's Shobek's view: the amount is theirs to set.

@@ -946,7 +946,7 @@ local function Protected()
 			out[#out + 1] = name
 		end
 	end
-	Add(ns.TREASURER)
+	if ns.TREASURER_ROLE then Add(ns.TREASURER) end
 	local pinned = ns.SHOGUN_CHARACTER
 	if type(pinned) == "table" then pinned = pinned[ns.faction or "Alliance"] end
 	Add(pinned)

@@ -5,6 +5,7 @@ ns.NAME = "Bankai Guild"
 ns.VERSION = "1.3.3"
 ns.PREFIX = "BANKAIGUILD"        -- addon message prefix (max 16 chars)
 -- ns.GAMES_OPEN = true        -- uncomment to show the Games tab and commands (ArenaNet.lua's Arena.Closed); hidden for now (Twee, 11-03)
+-- ns.GATES_SHOWN = true       -- uncomment to bring back the Shogun's Open the Gates (Acts.lua); off for now (11-03)
 ns.CHANNEL = "BankaiGuildNet"    -- hidden chat channel shared by every Bankai Guild guild (Alliance)
 ns.CHANNEL_HORDE = "BankaiGuildNetH" -- the Horde's: the two factions never see each other's guilds
 ns.ICON = "Interface\\AddOns\\BankaiGuild\\media\\logo64"
@@ -867,9 +868,15 @@ end
 -- character, in the guild named Bankai Guild. Look-alikes in other guilds exist: both must match,
 -- and his realm group (Forever's PvP realms), where only he carries that name.
 ns.TREASURER = "Unset0 Nobody" -- Bankai Guild: no Treasurer (unmatchable pin)
+-- 11-03 (the guild's call): no Treasurer role. ns.TREASURER_ROLE left unset turns it off: nobody
+-- is the Treasurer or his mail character, there are no weekly dues (paid to him, Dues.lua), and
+-- the treasury's keepers are the Shogun and the characters he names (Treasury.lua). The offline
+-- harness's world turns it on for its own tests (tests/world.lua).
+-- ns.TREASURER_ROLE = true
 ns.TREASURER_REALM = "ClassicBetaPvP"
 ns.COIN = "|TInterface\\MoneyFrame\\UI-GoldIcon:0|t "
 function ns.IsTreasurer(name, guild)
+	if not ns.TREASURER_ROLE then return false end
 	return type(name) == "string" and type(guild) == "string" and ns.ShortName(name) == ns.TREASURER and guild:lower() == "bankaiguild"
 		and OfGroup(name, ns.TREASURER_REALM)
 end
@@ -885,6 +892,7 @@ ns.TREASURER_CHARACTERS = { "Unset0 Nobody" }
 -- One of the Treasurer's pinned characters other than the Treasurer himself (his mail's): by
 -- its exact name on his realm group, in any guild or none.
 function ns.IsTreasurerMail(name)
+	if not ns.TREASURER_ROLE then return false end
 	if type(name) ~= "string" or name == "" then return false end
 	local short = ns.ShortName(name)
 	for _, pin in ipairs(ns.TREASURER_CHARACTERS) do
@@ -897,6 +905,7 @@ end
 -- takes his mail's. A whisper carries no guild, so ns.IsTreasurer (which needs one) is false for
 -- every whisper: the arena's fee receipts (ZF) and donor holders (ID) are checked with this.
 function ns.IsTreasurerCharacter(name)
+	if not ns.TREASURER_ROLE then return false end
 	if type(name) ~= "string" or name == "" then return false end
 	local short = ns.ShortName(name)
 	for _, pin in ipairs(ns.TREASURER_CHARACTERS or {}) do

@@ -375,6 +375,12 @@ function Acts.WritPrompt() ns.ShowDialog("BANKAIGUILD_WRIT") end
 -- Open the Gates
 ---------------------------------------------------------------------------
 
+-- 11-03 (the guild's call): the Gates are off in the add-on: no click opens them (their only way
+-- in is a guild's line in the Realm's Recruiting, itself off: Views.SHOW_RECRUITING). The code
+-- stays; ns.GATES_SHOWN = true (Core.lua) brings them back. Read at each call, so the offline
+-- harness's world turns them on for its own tests.
+function Acts.GatesShown() return ns.GATES_SHOWN == true end
+
 local gates                 -- { id, guild, by, at, mine, sentAt }
 local lastNews = -math.huge
 
@@ -391,6 +397,7 @@ local function SendGates()
 end
 
 function Acts.OpenGates(guild)
+	if not Acts.GatesShown() then return end
 	local preview = ns.Shogun.Preview()
 	if not ns.Shogun.CanCommand() and not preview then return ns.Print(L.THRONE_ONLY_SHOGUN) end
 	guild = ns.Shogun.CleanGuild(guild)
@@ -495,6 +502,7 @@ StaticPopupDialogs["BANKAIGUILD_GATES_CLOSE"] = {
 
 -- A guild's line in Recruiting, clicked: the Shogun and his Hands open (or close) its gates.
 function Acts.GatesClick(guild)
+	if not Acts.GatesShown() then return end
 	if not ns.Shogun.CanCommand() and not ns.Shogun.Preview() then return end
 	local g = Acts.Gates()
 	if g and g.guild == guild then

@@ -18,3 +18,11 @@ end
 -- The Games ship closed (Core.lua's ns.GAMES_OPEN, 11-03); the test world opens them so the arena's
 -- own tests run, and tests/arena/games-closed.lua closes them again on one client.
 ns.GAMES_OPEN = true
+
+-- The Treasurer role ships off (Core.lua's ns.TREASURER_ROLE, 11-03); the test world has one, so
+-- the treasury's and the dues' own tests run as written, and one test turns it off again.
+ns.TREASURER_ROLE = true
+
+-- The Shogun's Gates ship off (Acts.GatesShown, 11-03); the test world turns them on so their own
+-- tests run, and one test turns them off again.
+ns.GATES_SHOWN = true
