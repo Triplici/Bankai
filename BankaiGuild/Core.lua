@@ -1321,10 +1321,10 @@ function ns.IsApprovedGuild(guild)
 	if type(t) ~= "table" then t = nil end -- (the shipped ones count without a list)
 	local at = t and t.at
 	local m = approvedMemo
-	if not m or m.t ~= t or m.at ~= at or m.faction ~= ns.faction or m.me ~= ns.me or m.group ~= ns.group then
+	if not m or m.t ~= t or m.at ~= at or m.faction ~= ns.faction or m.me ~= ns.me or m.group ~= ns.group or m.list ~= ns.APPROVED_BUILTIN then
 		local set, any = {}, false
 		for _, name in ipairs(ns.ApprovedGuilds()) do set[ns.Fold(name)], any = true, true end
-		m = { t = t, at = at, faction = ns.faction, me = ns.me, group = ns.group, set = set, any = any, seen = {}, seenCount = 0 }
+		m = { t = t, at = at, faction = ns.faction, me = ns.me, group = ns.group, list = ns.APPROVED_BUILTIN, set = set, any = any, seen = {}, seenCount = 0 }
 		approvedMemo = m
 	end
 	if not m.any then return false end
