@@ -847,9 +847,10 @@ function ns.AlertsSlash(rest)
 	ns.Fire("DECREES_CHANGED")
 end
 
--- Council (officers) are rank index 1, right below the guild master, in every guild. It is
--- fixed so that senders and receivers always agree on who may send decrees.
-ns.COUNCIL_MEMBER_RANK = 1
+-- Council (officers) are rank indexes 1 and 2, the two right below the guild master, in every
+-- guild (11-04: the charters' third rank, BANKAI's Hatamoto and ELFCORE's Council, is "our guild
+-- officers"). It is fixed so that senders and receivers always agree on who may send decrees.
+ns.COUNCIL_MEMBER_RANK = 2
 
 -- What the army calls the Shogun on the lines and the crown made for him (Hop.lua, Shogun.lua),
 -- whatever his character's name in the census.
@@ -924,7 +925,7 @@ ns.CROWN_ICON = "Interface\\GroupFrame\\UI-Group-LeaderIcon"
 -- The Shogun's guild on each side: the guild master of this exact name is the Shogun, its officers
 -- are of the Crown. The Alliance's is <Elfcore>; the Horde's is set here once Shobek founds
 -- it (a guild name is one per realm, so it can't be "Bankai Guild" there).
-ns.SHOGUN_GUILD = { Alliance = "elfcore", Horde = "elfcore" } -- (the Horde's: <Mudhutters>, 0.9.4)
+ns.SHOGUN_GUILD = { Alliance = "elfcore" } -- (11-04: Alliance only, no Horde Shogun)
 function ns.IsShogunGuild(guild)
 	if type(guild) ~= "string" then return false end
 	local want = ns.SHOGUN_GUILD[ns.faction or "Alliance"]
@@ -1219,7 +1220,10 @@ ns.APPROVED_MAX = 20
 -- can hand the signed text counts as soon as its members update, with nothing to paste. Each
 -- faction's, any case; the signed list adds to them, and only a new release takes one off.
 -- <ELVES> beside <ELF> since 1.1.5 (the author's call: both are Bankai Guild).
-ns.APPROVED_BUILTIN = { Alliance = { "ELFCORE", "BANKAI" }, Horde = { "ELFCORE", "BANKAI" } } -- ELFCORE: the member guilds
+-- 11-04 (the owner's list): the member guilds, Alliance only. Any case counts ("ELFCORE" is
+-- "Elfcore"), but a letter that looks the same does not: "EIfcore" has a capital I, "BANKAl" a
+-- small L, each its own guild beside "Elfcore" and "BANKAI".
+ns.APPROVED_BUILTIN = { Alliance = { "Elfcore", "EIfcore", "Bankai", "Bankaii", "BANKAl", "Nightcore", "Elunecore", "Mooncore" }, Horde = {} }
 -- 1.1.5 (the High Council's call): guilds the council removed from Bankai Guild outright, whatever
 -- their name says, per faction. On 1.1.5 and newer they are no Bankai Guild guild: no census, no
 -- Bankai Guild chats, no marks, and their own members' addon shows the Join Bankai Guild screen. Their way

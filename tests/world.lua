@@ -26,3 +26,7 @@ ns.TREASURER_ROLE = true
 -- The Shogun's Gates ship off (Acts.GatesShown, 11-03); the test world turns them on so their own
 -- tests run, and one test turns them off again.
 ns.GATES_SHOWN = true
+
+-- The officers' cutoff ships at rank 2 (Core.lua, 11-04); the tests were written for rank 1 (their
+-- members are rank 2 and below), so the test world keeps it, and one test checks rank 2.
+ns.COUNCIL_MEMBER_RANK = 1

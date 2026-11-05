@@ -53,7 +53,9 @@ Who.QUERY = 'g-"Elfcore"'
 -- Guild names with Bankai Guild misspelled (ns.IsFederation takes them): the broad search can't
 -- see them, so a round ends with one search for each, one per click. The server matches any
 -- part of the name: "Olimp" finds Olimpus, Olimpvs and Bankai Guild, "Olmp" Olmpus, Olmpvs and Olmps.
-Who.VARIANTS = { "BANKAI" }
+-- (11-04: "Banka" finds Bankai, Bankaii and BANKAl; the "core" guilds each by name, so the search
+-- never pulls in every other guild with "core" in it.)
+Who.VARIANTS = { "Banka", "EIfcore", "Nightcore", "Elunecore", "Mooncore" }
 Who.lastSend = 0   -- GetTime() of our last search, 0 = none yet
 Who.lastPlain = 0  -- GetTime() of the last SendPlain, 0 = none yet
 

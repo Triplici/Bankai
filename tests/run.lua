@@ -35953,6 +35953,33 @@ test("no Treasurer role: nobody is the Treasurer or his mail, and no dues; the G
 	if not ok then error(err, 0) end
 end)
 
+-- 11-04 (the owner's list and rank): the shipped member guilds, Alliance only, and the officers'
+-- cutoff at rank 2 (BANKAI's Hatamoto, ELFCORE's Council). The test world keeps its own (tests/world.lua).
+test("the shipped guilds and officers: eight member guilds by exact name, Alliance only; rank 2 is an officer", function()
+	local f = assert(io.open(ROOT .. "BankaiGuild/Core.lua", "rb")); local core = f:read("*a"); f:close()
+	local approved = assert(load("return " .. core:match("\nns%.APPROVED_BUILTIN = (%b{})")))()
+	local shogunGuild = assert(load("return " .. core:match("\nns%.SHOGUN_GUILD = (%b{})")))()
+	eq(tonumber(core:match("\nns%.COUNCIL_MEMBER_RANK = (%d+)")), 2)
+	eq(shogunGuild.Alliance, "elfcore"); eq(shogunGuild.Horde, nil, "no Horde Shogun")
+	eq(#approved.Horde, 0, "no Horde member guilds")
+	local saved = { ns.APPROVED_BUILTIN, ns.SHOGUN_GUILD, ns.NameRule, ns.faction, ns.COUNCIL_MEMBER_RANK }
+	ns.APPROVED_BUILTIN, ns.SHOGUN_GUILD, ns.NameRule, ns.faction = approved, shogunGuild, nil, "Alliance"
+	local ok, err = pcall(function()
+		for _, g in ipairs({ "Elfcore", "ELFCORE", "EIfcore", "Bankai", "BANKAI", "Bankaii", "BANKAl", "Nightcore", "Elunecore", "Mooncore" }) do
+			eq(ns.IsFederation(g), true, g)
+		end
+		for _, g in ipairs({ "Hardcore", "Bankaiii", "Elfcores", "Moon core" }) do eq(ns.IsFederation(g), false, g) end
+		ns.faction = "Horde"
+		eq(ns.IsFederation("Elfcore"), false, "a Horde Elfcore is no member guild")
+		ns.faction = "Alliance"
+		ns.COUNCIL_MEMBER_RANK = 2
+		eq(ns.Channels.LevelOf("Bankai", 2), 2, "a Hatamoto reads and writes [Council]")
+		eq(ns.Channels.LevelOf("Bankai", 3), 1, "the rank below him does not")
+	end)
+	ns.APPROVED_BUILTIN, ns.SHOGUN_GUILD, ns.NameRule, ns.faction, ns.COUNCIL_MEMBER_RANK = saved[1], saved[2], saved[3], saved[4], saved[5]
+	if not ok then error(err, 0) end
+end)
+
 -- 11-03 (the guild's call): the Realm keeps its org chart and layers; Recruiting is off it.
 test("the Realm without Recruiting: no section and no do-not-contact line; the layers stay", function()
 	local V = ns.Views
