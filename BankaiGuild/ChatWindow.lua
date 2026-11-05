@@ -4331,6 +4331,9 @@ end
 -- Shown on that channel (or none named): the window closes. Shown on another: that one. Else:
 -- the window on the Chat tab.
 function ChatWindow.Toggle(want)
+	if ns.Channels and type(ns.Channels.Shown) == "function" and not ns.Channels.Shown() then -- (11-05: linked chat)
+		return ns.Print(L.CHAT_LINKED_INSTEAD)
+	end
 	if Shown() then
 		if want == nil or want == tier then
 			host:Hide()

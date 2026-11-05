@@ -30,7 +30,10 @@ local L = ns.L
 local Brief = {}
 ns.RoleBriefings = Brief
 
-Brief.LIVE = true -- (1.4.0, the launch: the author turned them on)
+-- (1.4.0, the launch: Olympus's author turned them on. 11-05, Bankai Guild: off. Their letters are
+-- Olympus's, in its ruler's voice for its launch: the maintainers preview them from the Workshop, and
+-- true sends them once they are Bankai Guild's own.)
+Brief.LIVE = false
 Brief.RULE = 1
 Brief.MAX = 48
 Brief.PAPER_WRAP = 48

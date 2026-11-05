@@ -2338,14 +2338,17 @@ test("gamepad pass 1: a whole session with the gamepad UI on from the login reac
 	local diff = Diff(before, Snapshot(C))
 	eq(#diff, 0, "the game's state written: " .. table.concat(diff, ", "))
 	eq(C.handler, C.gameHandler, "the game's own error handler")
-	-- Registered with the game: only the exempt post-hooks (Treasury.lua's "mail-hooks", Honor.lua's "emote-hook").
+	-- Registered with the game: only the exempt post-hooks (Treasury.lua's "mail-hooks", Honor.lua's
+	-- "emote-hook", 11-05: LinkedChat.lua's "linked-chat" on both of the game's sends, the global's and
+	-- C_ChatInfo's).
 	local kinds = {}
-	for _, cb in ipairs(C.callbacks) do kinds[#kinds + 1] = cb.kind .. " " .. tostring(cb.key or cb.tag or cb.script or "") end
+	for _, cb in ipairs(C.callbacks) do kinds[#kinds + 1] = cb.kind .. " " .. (cb.frame and "C_ChatInfo." or "") .. tostring(cb.key or cb.tag or cb.script or "") end
 	table.sort(kinds)
-	eq(table.concat(kinds, ", "), "hooksecurefunc AutoLootMailItem, hooksecurefunc DoEmote, hooksecurefunc SendMail, hooksecurefunc TakeInboxItem, hooksecurefunc TakeInboxMoney",
+	eq(table.concat(kinds, ", "), "hooksecurefunc AutoLootMailItem, hooksecurefunc C_ChatInfo.SendChatMessage, hooksecurefunc DoEmote, hooksecurefunc SendChatMessage, hooksecurefunc SendMail, hooksecurefunc TakeInboxItem, hooksecurefunc TakeInboxMoney",
 		"what is registered with the game")
 	GP.Covers("mail-hooks")
 	GP.Covers("emote-hook") -- (11-02: the honor board's /bow, Honor.lua, the same kind of post-hook)
+	GP.Covers("linked-chat") -- (11-05: the linked guild chat's post-hooks on the game's sends, read-only)
 end)
 
 test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the gate steps back on the next frame, every callback left with the game does nothing, the player is told once what a /reload clears", function()
@@ -2515,7 +2518,7 @@ test("gamepad pass 3: the gamepad UI and mouse and keyboard, back and forth thre
 	-- What can't be undone, registered once a session however many switches.
 	local count = {}
 	for _, cb in ipairs(C.callbacks) do
-		local key = cb.kind .. " " .. tostring(cb.key or cb.tag or cb.type or "") .. " " .. tostring(cb.script or "") .. " " .. tostring(cb.frame and (rawget(cb.frame, "name") or rawget(cb.frame, "path")) or "")
+		local key = cb.kind .. " " .. tostring(cb.key or cb.tag or cb.type or "") .. " " .. tostring(cb.script or "") .. " " .. tostring(cb.frame and (rawget(cb.frame, "name") or rawget(cb.frame, "path") or tostring(cb.frame)) or "")
 		count[key] = (count[key] or 0) + 1
 	end
 	for key, n in pairs(count) do eq(n, 1, "registered once: " .. key) end

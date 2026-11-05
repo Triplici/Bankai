@@ -6,6 +6,7 @@ ns.VERSION = "1.4.1"
 ns.PREFIX = "BANKAIGUILD"        -- addon message prefix (max 16 chars)
 -- ns.GAMES_OPEN = true        -- uncomment to show the Games tab and commands (ArenaNet.lua's Arena.Closed); hidden for now (Twee, 11-03)
 -- ns.GATES_SHOWN = true       -- uncomment to bring back the Shogun's Open the Gates (Acts.lua); off for now (11-03)
+-- ns.BANKAI_CHAT_SHOWN = true -- uncomment to bring back Bankai Guild's own chats (Channels.lua); the linked guild chat is its chat now (11-05)
 ns.CHANNEL = "BankaiGuildNet"    -- hidden chat channel shared by every Bankai Guild guild (Alliance)
 ns.CHANNEL_HORDE = "BankaiGuildNetH" -- the Horde's: the two factions never see each other's guilds
 ns.ICON = "Interface\\AddOns\\BankaiGuild\\media\\logo64"
@@ -1922,7 +1923,9 @@ end
 -- Data.AuthorizedRank, GuildCharter, Nominees, Decree, Bank). Nothing of the members is touched.
 -- These stand-ins answer while Verify.lua is not loaded (a client updated without a restart).
 ns.VERIFY_GATE = false
-ns.VERIFY_HOLD = true
+-- (11-05, Bankai Guild: off. Every member guild is exempt from verification anyway, Verify.Exempt;
+-- true holds an overdue guild master's powers again.)
+ns.VERIFY_HOLD = false
 function ns.GuildSanctioned() return true end
 function ns.MasterHeld() return false end
 -- In an Bankai Guild guild, Accord or not: where "not a member" meant "an outsider".
@@ -2626,6 +2629,7 @@ local function Help()
 	print(L.HELP_CMD_ARMS)
 	print(L.HELP_CHAN_ALL)
 	print(L.HELP_CHAN_COUNCIL)
+	print(L.GLINK_HELP)
 	print(L.HELP_CHAN_MUTE)
 	print(L.HELP_PIN)
 	print(L.HELP_CHATWIN)
@@ -2779,6 +2783,9 @@ local function Slash(input)
 		elseif cmd == "thanks" or cmd == "kudos" or cmd == "thank" then
 			-- 11-02: the honor boards' kudos (Honor.lua).
 			ns.Honor.Thank(rest)
+		elseif cmd == "glink" then
+			-- 11-05: the linked guild chat (LinkedChat.lua, Twee's Guild Link ported): state, on|off, rejoin, showchan.
+			ns.LinkedChat.Slash(rest)
 		elseif cmd == "bow" then
 			-- 11-02: the charter's /bow nudge after our killing blow on a player (Bow.lua): on|off, alone switched.
 			local w = rest:lower()

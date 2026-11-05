@@ -56,6 +56,9 @@
   fix full-suite ordering regressions and export consented Companion identity evidence.
 - v1.3.3 Deliberate site export: an optional Site Aggregate folder writes a masked own-guild count for the
   Bankai Guild website on /bk site export and /reload, never uploads, and empties at the next logout or reload.
+- v1.4.1 Olympus 1.4.1 merged in: the army's channel moves to the next lane by itself when the game refuses
+  it; the Board's group finder; Italian and Russian, fuller German, Spanish and French; Bankai Guild Link
+  as its own addon; newer game clients. Every module's TOC depends on BankaiGuild (it named "Bankai Guild").
 
 ## Next (after the base is proven in game)
 - **Compact reply cards after sending** - keep the existing reply composer, but render a sent reply in

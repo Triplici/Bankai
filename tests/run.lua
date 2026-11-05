@@ -167,6 +167,18 @@ for _, file in ipairs({ "Bootstrap", "Locales", "Locales/deDE", "Locales/esES", 
 	local chunk = assert(loadfile(ADDON_DIR .. file .. ".lua"))
 	chunk("BankaiGuild", ns)
 end
+-- (1.4.0) Bankai Guild Link is its own load-on-demand addon now (BankaiGuild_Link): loaded as
+-- LinkLoader.lua has the game load it, the namespace handed over for that one call, so the Link
+-- tests find ns.Link where the core's own Link.lua put it before.
+do
+	local own = {}
+	BankaiGuildLinkHandoff = ns
+	for line in io.lines(ROOT .. "BankaiGuild_Link/BankaiGuild_Link.toc") do
+		local file = line:gsub("\r$", ""):match("^([^#%s].-%.lua)$")
+		if file then assert(loadfile(ROOT .. "BankaiGuild_Link/" .. file:gsub("\\", "/")))("BankaiGuild_Link", own) end
+	end
+	BankaiGuildLinkHandoff = nil
+end
 ns.db = { guilds = {}, log = {}, errors = {}, blocked = {}, demo = false, showMap = true,
 	chatWarned = { A = true, C = true, L = true }, -- (0.9.1: the channel warnings already accepted; their own tests ask)
 	treasurerShares = true, -- (0.9.3: the Treasurer said yes; the question has its own test)

@@ -750,6 +750,8 @@ Consent.Register({
 })
 Consent.Register({
 	key = "chat", label = "CONSENT_CHAT", text = "CONSENT_CHAT_TEXT",
+	-- (11-05: Bankai Guild's own chats are off, the linked guild chat is its chat: no question for them.)
+	shown = function() return not (ns.Channels and type(ns.Channels.Shown) == "function") or ns.Channels.Shown() end,
 	get = function() return ns.db.addonChat end,
 	set = function(on) ns.Channels.SetChatOn(on) end,
 })

@@ -82,4 +82,12 @@ assert(ns.db.addonChat == true and ns.db.shareLocation == true, "privacy answers
 assert(ns.db.setupDue == true, "the setup page is due at the next load")
 assert(not Row("reset").text:find("SETTINGS_RESET_CONFIRM", 1, true), "back to its label")
 
+-- 11-05: with Bankai Guild's own chats off (Channels.Shown), the row is the linked guild chat's.
+local linked = true
+ns.Channels.Shown = function() return false end
+ns.LinkedChat = { Enabled = function() return linked end, SetEnabled = function(on) linked = on end }
+for _, line in ipairs((S.Lines())) do assert(line.setting ~= "/bk chat", "no row for the chats that are off") end
+Row("/bk glink").onClick(); assert(linked == false, "the linked chat off")
+Row("/bk glink").onClick(); assert(linked == true, "and on again")
+
 print("settings: ok")

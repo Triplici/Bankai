@@ -785,6 +785,7 @@ local GEOMETRY = {
 local function ChatTabVisible()
 	local C = ns.Channels
 	if not C or C.missing or type(C.CanUse) ~= "function" then return false end
+	if type(C.Shown) == "function" and not C.Shown() then return false end -- (11-05: linked chat instead)
 	for _, t in ipairs(C.ORDER or {}) do
 		if C.CanUse(t) then return true end
 	end
@@ -3306,6 +3307,7 @@ function UI.HelpText()
 		L.HELP_CHATS,
 		L.HELP_CHAN_ALL,
 		L.HELP_CHAN_COUNCIL,
+		L.GLINK_HELP,
 		L.HELP_CHATWIN,
 		"",
 		L.HELP_LINKS,

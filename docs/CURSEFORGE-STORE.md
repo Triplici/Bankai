@@ -29,13 +29,13 @@ master and the officers of the Horde guild named exactly "Bankai Guild", if ther
 
 ## Recent versions
 
+- **1.4.1**: Olympus 1.4.1 merged in: the army's channel moves to the next lane by itself when the game refuses
+  it; the Board's group finder; Italian and Russian, fuller German, Spanish and French; Bankai Guild Link
+  as its own addon; newer game clients. Every module's TOC depends on BankaiGuild (it named "Bankai Guild").
 - **1.3.3**: Deliberate site export: an optional Site Aggregate folder writes a masked own-guild count for the
   Bankai Guild website on /bk site export and /reload, never uploads, and empties at the next logout or reload.
 - **1.3.2**: Correction: explicitly approximate Census people counts, preserve accepted Treasury rows,
   fix full-suite ordering regressions and export consented Companion identity evidence.
-- **1.3.0**: Shared durable records and rankings; Church catch-up; Wanted and Slayers pagination,
-  rebalanced history and recent map sightings; the current Legate structure; safer Watch records;
-  Companion exports after the Accord; and integrated Arena, Bones and chat fixes.
 
 Every version's notes are in the [GitHub releases](https://github.com/dnl-gentile/bankai-addon/releases). This page is the short one for CurseForge: the [README](https://github.com/dnl-gentile/bankai-addon#bankaiguild) has every section in full.
 

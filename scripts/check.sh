@@ -97,8 +97,8 @@ if [ -f scripts/gamepad-audit.lua ]; then
 	luajit scripts/gamepad-audit.lua
 fi
 
-# 11-02: the Settings tab, The Way page and the /bow nudge, and the honor boards, each on its own.
-for t in settings way honor; do
+# 11-02: the Settings tab, The Way page and the /bow nudge, and the honor boards; 11-05: the linked guild chat. Each on its own.
+for t in settings way honor linked-chat; do
 	if [ -f "tests/$t.lua" ]; then
 		printf 'Checking %s...\n' "tests/$t.lua"
 		luajit "tests/$t.lua"

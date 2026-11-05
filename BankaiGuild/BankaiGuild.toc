@@ -24,6 +24,7 @@ Locales\ArenaLotteryText.lua
 Locales\ArenaMatchText.lua
 Locales\ComplianceText.lua
 Locales\ChurchText.lua
+Locales\LinkedChatText.lua
 Locales\ChurchFullnessText.lua
 Locales\WeeklyBriefText.lua
 Locales\RoleBriefingsText.lua
@@ -198,3 +199,4 @@ ArenaHome.lua
 Bow.lua
 Honor.lua
 Settings.lua
+LinkedChat.lua
