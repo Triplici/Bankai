@@ -98,8 +98,9 @@ end
 -- His name, on his realm group (Forever's PvP realms).
 local function IsAuthorName(name)
 	if type(name) ~= "string" then return false end
-	local short, listed = ns.ShortName(name), false
-	for _, pin in ipairs(type(ns.AUTHORS) == "table" and ns.AUTHORS or { ns.AUTHOR }) do
+	local short = ns.ShortName(name)
+	local listed = short == ns.AUTHOR
+	for _, pin in ipairs(type(ns.AUTHORS) == "table" and ns.AUTHORS or {}) do
 		if short == pin then listed = true break end
 	end
 	if not listed then return false end
