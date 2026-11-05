@@ -857,7 +857,10 @@ ns.COUNCIL_MEMBER_RANK = 2
 ns.SHOGUN_NAME = "Leader"
 -- The addon's author (Workshop.lua): his character on Forever. Names there are a first name
 -- and a surname, unique across the realm group; no Classic realm allows a space in a name.
-ns.AUTHOR = "Unset0 Nobody" -- Bankai Guild: set to the maintainer's character
+ns.AUTHOR = "Trip Trip" -- Bankai Guild's maintainer (11-04, the owner)
+-- Every character with the maintainer's tools (the Workshop, the views as another role), ns.AUTHOR
+-- first: the owner and Twee (11-04). Each one on ns.AUTHOR_REALM's realm group, like ns.AUTHOR.
+ns.AUTHORS = { "Trip Trip", "Twee Lala" }
 ns.AUTHOR_REALM = "ClassicBetaPvP" -- his realm group, where only he carries that name
 -- A name of the realm group of `realm` (a name without a realm is ours). Forever's names are
 -- one across a realm group only: the same name on another group is someone else.

@@ -7,6 +7,7 @@ local ns = ...
 ns.SHOGUN_CHARACTER = { Alliance = "Shobek Shobekler", Horde = "Duskmonkey Boneback" }
 ns.SHOGUN_GUILD = { Alliance = "bankai guild", Horde = "mudhutters" }
 ns.AUTHOR, ns.AUTHOR_REALM = "Faladoriel Skylance", "ClassicBetaPvP"
+ns.AUTHORS = { ns.AUTHOR } -- (the shipped addon names two: Core.lua)
 ns.TREASURER, ns.TREASURER_CHARACTERS = "Pyralis Ashandar", { "Pyralis Ashandar", "Pyralis Andarai" }
 ns.APPROVED_BUILTIN = { Alliance = { "ELF", "ELVES" } }
 ns.REMOVED_BUILTIN = { Alliance = { realm = ns.SHOGUN_REALM, "Bankai Guild Defense Force" } }

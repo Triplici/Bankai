@@ -116,6 +116,7 @@ function Cover.Taken(alias, holder)
 	local key = Lower(alias)
 	local function Same(name) return type(name) == "string" and Lower(ns.ShortName(name)) == key end
 	if Same(ns.me) or Same(ns.AUTHOR) then return true end
+	for _, pin in ipairs(type(ns.AUTHORS) == "table" and ns.AUTHORS or {}) do if Same(pin) then return true end end
 	for _, pin in pairs(ns.SHOGUN_CHARACTER or {}) do if Same(pin) then return true end end
 	local c = ns.rdb and ns.rdb.council
 	if type(c) == "table" and type(c.names) == "table" and c.names[key] then return true end

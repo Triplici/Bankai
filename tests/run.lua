@@ -35953,6 +35953,25 @@ test("no Treasurer role: nobody is the Treasurer or his mail, and no dues; the G
 	if not ok then error(err, 0) end
 end)
 
+-- 11-04 (the owner): the maintainers, Trip Trip and Twee Lala, each with the Workshop on his realm group.
+test("the maintainers: every name on ns.AUTHORS has the Workshop's tools, nobody else", function()
+	local f = assert(io.open(ROOT .. "BankaiGuild/Core.lua", "rb")); local core = f:read("*a"); f:close()
+	local shipped = assert(load("return " .. core:match("\nns%.AUTHORS = (%b{})")))()
+	eq(table.concat(shipped, ","), "Trip Trip,Twee Lala")
+	eq(core:match('\nns%.AUTHOR = "([^"]+)"'), "Trip Trip")
+	local saved = ns.AUTHORS
+	ns.AUTHORS = shipped
+	local ok, err = pcall(function()
+		local W = ns.Workshop
+		eq(W.IsAuthorName("Trip Trip-" .. ns.AUTHOR_REALM), true)
+		eq(W.IsAuthorName("Twee Lala-" .. ns.AUTHOR_REALM), true)
+		eq(W.IsAuthorName("Twee Lala-SomeOtherRealm"), false, "another realm group's Twee Lala")
+		eq(W.IsAuthorName("Trip-" .. ns.AUTHOR_REALM), false)
+	end)
+	ns.AUTHORS = saved
+	if not ok then error(err, 0) end
+end)
+
 -- 11-04 (the owner's list and rank): the shipped member guilds, Alliance only, and the officers'
 -- cutoff at rank 2 (BANKAI's Hatamoto, ELFCORE's Council). The test world keeps its own (tests/world.lua).
 test("the shipped guilds and officers: eight member guilds by exact name, Alliance only; rank 2 is an officer", function()

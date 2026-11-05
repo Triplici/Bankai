@@ -97,7 +97,12 @@ end
 
 -- His name, on his realm group (Forever's PvP realms).
 local function IsAuthorName(name)
-	if type(name) ~= "string" or ns.ShortName(name) ~= ns.AUTHOR then return false end
+	if type(name) ~= "string" then return false end
+	local short, listed = ns.ShortName(name), false
+	for _, pin in ipairs(type(ns.AUTHORS) == "table" and ns.AUTHORS or { ns.AUTHOR }) do
+		if short == pin then listed = true break end
+	end
+	if not listed then return false end
 	local realm = ns.RealmOf(ns.FullName(name))
 	return realm ~= nil and ns.GroupOf(realm) == ns.GroupOf(ns.AUTHOR_REALM)
 end
@@ -112,6 +117,10 @@ function Workshop.PracticeOperators()
 	if type(ns.AUTHOR) ~= "string" or ns.AUTHOR == "" then return {} end
 	local pinned = ns.FullName(ns.AUTHOR, ns.AUTHOR_REALM)
 	local names = { pinned }
+	for _, pin in ipairs(type(ns.AUTHORS) == "table" and ns.AUTHORS or {}) do
+		local full = ns.FullName(pin, ns.AUTHOR_REALM)
+		if full:lower() ~= pinned:lower() then names[#names + 1] = full end
+	end
 	-- Linked realms stamp their own suffix. Retain only a guarded presence identity;
 	-- an accepted caller's event writer mark must resolve on the receiving client too.
 	if authorName and IsAuthorName(authorName) and authorName:lower() ~= pinned:lower() then names[#names + 1] = authorName end
