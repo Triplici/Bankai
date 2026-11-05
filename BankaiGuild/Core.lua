@@ -535,13 +535,13 @@ function ns.MakeRoundButton(name, parent, size)
 	local bg = b:CreateTexture(nil, "BACKGROUND")
 	bg:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
 	bg:SetSize(20 * k, 20 * k)
-	bg:SetPoint("TOPLEFT", 6.5 * k, -6 * k) -- (half a unit right of LibDBIcon's 6: the owner's screenshots, 11-02)
+	bg:SetPoint("TOPLEFT", 6 * k, -5.5 * k) -- (LibDBIcon's 6, half a unit up: the owner's screenshots, 11-02 and 11-04)
 	-- The logo, a disc (the mask): centred on the dark disc behind it (LibDBIcon's square
 	-- icons sit 1.5 px off it, which the ring hides; a disc there shows a crescent).
 	local icon = b:CreateTexture(nil, "ARTWORK")
 	icon:SetTexture(ns.LOGO)
 	icon:SetSize(18 * k, 18 * k)
-	icon:SetPoint("TOPLEFT", 7.5 * k, -7 * k)
+	icon:SetPoint("TOPLEFT", 7 * k, -6.5 * k)
 	if icon.SetMask then pcall(icon.SetMask, icon, "Interface\\CharacterFrame\\TempPortraitAlphaMask") end
 	local ring = b:CreateTexture(nil, "OVERLAY")
 	ring:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")

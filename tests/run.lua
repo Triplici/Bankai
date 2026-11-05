@@ -10627,7 +10627,7 @@ test("the soldier count explains the census on hover; the minimap logo sits on i
 		local a = b.icon:Anchor("TOPLEFT")
 		-- (UP-12: the disc and the logo both moved onto the gold ring's centre, test below; the logo
 		-- still on the disc's centre, now (16, -16), where 0.9.0 had both on (17, -15).)
-		eq(a[4] .. " " .. a[5], "7.5 -7", "the logo's centre on the disc's (16.5, -16)") -- (half a unit right since 11-02, the owner's screenshots)
+		eq(a[4] .. " " .. a[5], "7 -6.5", "the logo's centre on the disc's (16, -15.5)") -- (back left and half a unit up on 11-04, the owner's screenshots)
 	end)
 end)
 
@@ -10643,9 +10643,9 @@ end)
 -- button: the minimap's (31), the world map's (30) and the guild windows' (26 and 22).
 test("UP-12 round buttons: the logo and its dark disc sit on the gold ring's centre at every size", function()
 	WithUI(function()
-		-- (of the ring's size, from its top left: measured, above; across moved half a unit right on 11-02,
-		-- from the owner's screenshots of the tree emblem in the ring)
-		local RING_X, RING_Y = 16.4 / 53, 15.9 / 53
+		-- (of the ring's size, from its top left: measured, above; the owner's screenshots of the tree
+		-- emblem in the ring moved it half a unit right on 11-02, then back and half a unit up on 11-04)
+		local RING_X, RING_Y = 16 / 53, 15.5 / 53
 		local function Centre(t)
 			local p = t:Anchor("TOPLEFT")
 			return p[4] + t.w / 2, p[5] - t.h / 2
