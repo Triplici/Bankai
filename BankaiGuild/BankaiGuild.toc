@@ -1,8 +1,8 @@
-## Interface: 11509, 16001, 20506
+## Interface: 11509, 11510, 16001, 16002, 16003, 16004, 16005, 16010, 16100, 20506, 20507
 ## Title: |cff4fd36bBankai Guild|r
 ## Notes: Live census of every Bankai Guild community guild: army size, leaders and where everyone is on the map.
 ## Author: Bankai Guild community (fork of the Olympus addon, MIT)
-## Version: 1.3.3
+## Version: 1.4.1
 ## SavedVariables: BankaiGuildDB, BankaiGuildRecordDB
 ## IconTexture: Interface\AddOns\BankaiGuild\media\logo64
 ## X-License: MIT
@@ -14,9 +14,6 @@ libs\HereBeDragons\HereBeDragons-2.0.lua
 libs\HereBeDragons\HereBeDragons-Pins-2.0.lua
 
 Locales.lua
-Locales\deDE.lua
-Locales\esES.lua
-Locales\frFR.lua
 Locales\ArenaNetText.lua
 Locales\ArenaMoneyText.lua
 Locales\ArenaMarketsText.lua
@@ -29,6 +26,7 @@ Locales\ComplianceText.lua
 Locales\ChurchText.lua
 Locales\ChurchFullnessText.lua
 Locales\WeeklyBriefText.lua
+Locales\RoleBriefingsText.lua
 Locales\GuildCharterText.lua
 Locales\MainKeyText.lua
 Locales\WatchCouncilText.lua
@@ -49,7 +47,13 @@ Locales\PlayerSightingsText.lua
 Locales\AccordText.lua
 Locales\RecordText.lua
 Locales\CensusStatsText.lua
+Locales\VerifyText.lua
 Locales\SelfTestText.lua
+Locales\deDE.lua
+Locales\esES.lua
+Locales\frFR.lua
+Locales\itIT.lua
+Locales\ruRU.lua
 Core.lua
 GamepadRegistry.lua
 Gamepad.lua
@@ -79,6 +83,7 @@ HopSightings.lua
 Poll.lua
 Court.lua
 Board.lua
+Groups.lua
 Week.lua
 Treasury.lua
 Dues.lua
@@ -101,7 +106,7 @@ Workshop.lua
 Versions.lua
 Ed25519.lua
 libs\QREncode\qrencode.lua
-Link.lua
+LinkLoader.lua
 ArmyExport.lua
 GuildCharter.lua
 Recruit.lua
@@ -121,6 +126,8 @@ ShogunArrow.lua
 Accord.lua
 Consent.lua
 Cover.lua
+PrivatePresence.lua
+Verify.lua
 WeeklyBrief.lua
 Carry.lua
 ChatRooms.lua
@@ -178,6 +185,7 @@ ArenaProfile.lua
 ProfileEdit.lua
 PlayerProfile.lua
 HonorsNet.lua
+RoleBriefings.lua
 ChatMarks.lua
 FarkleTable.lua
 InnkeeperGossip.lua

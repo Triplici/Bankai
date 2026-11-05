@@ -1,0 +1,11 @@
+## Interface: 11509, 11510, 16001, 16002, 16003, 16004, 16005, 16010, 16100, 20506, 20507
+## Title: Bankai Guild Link
+## Notes: Bankai Guild Link: a character's Discord role, proved by players in game. Loads on demand; needs Bankai Guild.
+## Author: Daniel Gentile
+## Version: 1.4.1
+## Dependencies: BankaiGuild
+## LoadOnDemand: 1
+
+Handoff.lua
+Locales\LinkText.lua
+Link.lua

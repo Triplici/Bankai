@@ -30632,7 +30632,14 @@ test("1.1 private companion bridge: its TOC has one separate SavedVariable and d
 		if value then variables[#variables + 1] = value end
 	end
 	eq(#variables, 1); eq(variables[1], "BankaiGuildCompanionDB")
-	assert(toc:find("## Dependencies: Bankai Guild", 1, true), "the private bridge depends on Bankai Guild")
+	assert(toc:find("## Dependencies: BankaiGuild", 1, true), "the private bridge depends on BankaiGuild (its folder's name)")
+	-- (11-04) Every module's dependency names the core's folder: a name the game has no addon by
+	-- ("Bankai Guild", with its space) keeps the module from loading at all.
+	for _, t in ipairs({ "BankaiGuild_Arena/BankaiGuild_Arena.toc", "BankaiGuild_Link/BankaiGuild_Link.toc",
+		"BankaiGuildSiteAggregate/BankaiGuildSiteAggregate.toc", "BankaiGuildCompanionBridge/BankaiGuildCompanionBridge.toc" }) do
+		local f = assert(io.open(ROOT .. t, "rb")); local text = f:read("*a"); f:close()
+		eq(text:match("## Dependencies: ([^\r\n]+)"), "BankaiGuild", t)
+	end
 	assert(not toc:find("BankaiGuildDB", 1, true), "it never declares the main database")
 	local readme = Read("BankaiGuildCompanionBridge/README.md")
 	for _, text in ipairs({ "does not continuously write SavedVariables", "`/reload`, logout or game exit", "LAN synchronization and encryption are deliberately not responsibilities of this Bridge" }) do

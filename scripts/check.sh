@@ -17,6 +17,7 @@ lua_dirs=(BankaiGuild tests)
 [ -d BankaiGuild_Arena ] && lua_dirs+=(BankaiGuild_Arena) # (1.2: the Bankai Guild Arena module)
 [ -d BankaiGuildCompanionBridge ] && lua_dirs+=(BankaiGuildCompanionBridge)
 [ -d BankaiGuildSiteAggregate ] && lua_dirs+=(BankaiGuildSiteAggregate)
+[ -d BankaiGuild_Link ] && lua_dirs+=(BankaiGuild_Link) # (1.4.0: the Link module, loaded on demand)
 find "${lua_dirs[@]}" -type f -name '*.lua' -print0 > "$lua_files"
 while IFS= read -r -d '' file; do
 	# Compile to a listing without executing addon code or writing bytecode files.
@@ -44,6 +45,7 @@ for _, pair in ipairs({
 	{ "BankaiGuild_Arena", "BankaiGuild_Arena/BankaiGuild_Arena.toc" },
 	{ "BankaiGuildCompanionBridge", "BankaiGuildCompanionBridge/BankaiGuildCompanionBridge.toc" },
 	{ "BankaiGuildSiteAggregate", "BankaiGuildSiteAggregate/BankaiGuildSiteAggregate.toc" },
+	{ "BankaiGuild_Link", "BankaiGuild_Link/BankaiGuild_Link.toc" },
 }) do
 	local toc = io.open(pair[2], "r")
 	if not toc and pair[1] == "BankaiGuild" then

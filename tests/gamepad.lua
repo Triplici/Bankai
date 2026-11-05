@@ -2768,6 +2768,37 @@ test("gamepad pass 6: the Arena's integrations: restricted calls from a click al
 	assert(loaded, "the companion asked for, with the gamepad UI on")
 	eq(A.loadedAddOns.BankaiGuild_Arena, true)
 	GP.Covers("load-companion")
+	-- 1.4.0: Bankai Guild Link, its own load-on-demand addon, asked for with the gamepad UI on too
+	-- (LinkLoader.lua, at the gamepad login itself): once a session, its handoff cleared at once. (The
+	-- model's game says it loaded; its files are not in this pass, so the module never took the handoff.)
+	eq(A.loadedAddOns.BankaiGuild_Link, true, "the Link module asked for, with the gamepad UI on")
+	eq(ns.LinkLoader.Why(), "nohost")
+	eq(rawget(_G, "BankaiGuildLinkHandoff"), nil, "the handoff cleared at once")
+	before = A.Mark()
+	ns.LinkLoader.Load()
+	eq(#A.Since(before), 0, "never asked again this session")
+	GP.Covers("load-link")
+	-- 1.4.0: a companion's group panel on the Board (Groups.lua's panel row): a frame of Bankai Guild's
+	-- own, made inside its own row, built once by the companion; nothing of the game's UI, in either mode.
+	local G, built = ns.Groups, 0
+	eq(G.RegisterPanel("test-companion", { label = "Group tool", build = function() built = built + 1 end,
+		allowed = function() return true end }), true)
+	local lines = {}
+	G.PanelLines(lines, "D")
+	local row
+	for _, l in ipairs(lines) do if l.id == "board-panel" then row = l end end
+	assert(row and type(row.panel) == "function", "the panel's row on the Board")
+	for _, pad in ipairs({ true, false }) do
+		A.Switch(pad); A.Advance(1)
+		before = A.Mark()
+		local host = A.env.CreateFrame("Frame", nil, A.env.UIParent)
+		row.panel(host, 300)
+		OnlyAllowed(A.Since(before), pad and "the group panel, gamepad UI" or "the group panel, mouse and keyboard")
+	end
+	eq(built, 1, "built once, then refreshed")
+	G.UnregisterPanel("test-companion")
+	A.Switch(true); A.Advance(1)
+	GP.Covers("board-panel")
 	Check(A.ledger, "the Arena")
 end)
 
