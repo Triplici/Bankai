@@ -136,11 +136,16 @@ What's new in version 1.4.0, for the march:
 The gates are open.]==]
 L.LETTER_1_4_0_SIGNED = "Your humble artificer, the Bankai Guild dev"
 L.LETTER_1_4_0_LINK = "https://bankai.roachcouncil.com/"
--- 1.4.1 (launch night: the army's channel, refused by WoW: Forever, moves to the next lane by itself).
--- The letter is the launch letter again, with the fix first: most of the army never saw 1.4.0's.
-L.LETTER_1_4_1_TITLE, L.LETTER_1_4_1_HEAD, L.LETTER_1_4_1_SIGNED, L.LETTER_1_4_1_LINK = L.LETTER_1_4_0_TITLE, L.LETTER_1_4_0_HEAD, L.LETTER_1_4_0_SIGNED, L.LETTER_1_4_0_LINK
-L.LETTER_1_4_1 = (L.LETTER_1_4_0:gsub("What's new in version 1%.4%.0, for the march:\n\n",
-	"What's new in version 1.4.1 (and 1.4.0), for the march:\n\n- {team} Launch night fix: the game refused the army's channel, so each guild saw only itself. Bankai Guild now moves to the next channel by itself the moment the game refuses it, and every updated addon meets there. Update, then close and reopen the game.\n", 1))
+-- 1.4.1, Bankai Guild's (11-05): what came in from Olympus 1.4.0 and 1.4.1, for Bankai Guild.
+L.LETTER_1_4_1_TITLE = "Bankai Guild 1.4.1"
+L.LETTER_1_4_1 = [==[Version 1.4.1.
+
+- {team} Chat fix: when the game refuses the Bankai Guild channel, the addon now moves to the next one by itself, and every updated addon meets there. If a friend sees an empty census, ask them to update and restart the game.
+- {star} The Board finds groups: list yours, apply to one, see who is looking.
+- {team} Italian and Russian, and fuller German, Spanish and French.
+- {guild} Bankai Guild Link (Discord roles) is its own addon now; nothing else needs it.
+- {star} Ready for the newer game clients, and messages wait out the game's limits instead of getting lost.
+]==]
 L.LETTER_1_3_3_TITLE = "Your guild on the website"
 L.LETTER_1_3_3 = [==[Version 1.3.3.
 
@@ -204,9 +209,15 @@ O que há de novo na versão 1.4.0, para a marcha:
 
 Os portões estão abertos.]==]
 	L.LETTER_1_4_0_SIGNED = "Seu humilde artífice, o dev do Bankai Guild"
-	L.LETTER_1_4_1_TITLE, L.LETTER_1_4_1_HEAD, L.LETTER_1_4_1_SIGNED, L.LETTER_1_4_1_LINK = L.LETTER_1_4_0_TITLE, L.LETTER_1_4_0_HEAD, L.LETTER_1_4_0_SIGNED, L.LETTER_1_4_0_LINK
-	L.LETTER_1_4_1 = (L.LETTER_1_4_0:gsub("O que há de novo na versão 1%.4%.0, para a marcha:\n\n",
-		"O que há de novo na versão 1.4.1 (e na 1.4.0), para a marcha:\n\n- {team} Correção da noite do lançamento: o jogo recusou o canal do exército, e cada guilda só via a si mesma. Agora o Bankai Guild muda para o próximo canal sozinho assim que o jogo recusa, e todo addon atualizado se encontra lá. Atualize, feche e abra o jogo.\n", 1))
+	L.LETTER_1_4_1_TITLE = "Bankai Guild 1.4.1"
+	L.LETTER_1_4_1 = [==[Versão 1.4.1.
+
+- {team} Correção do chat: quando o jogo recusa o canal do Bankai Guild, o addon agora passa sozinho para o próximo, e todo addon atualizado se encontra lá. Se um amigo vir o censo vazio, peça que atualize e reinicie o jogo.
+- {star} O Quadro encontra grupos: anuncie o seu, candidate-se a um, veja quem está procurando.
+- {team} Italiano e russo, e alemão, espanhol e francês mais completos.
+- {guild} O Bankai Guild Link (cargos do Discord) agora é um addon à parte; nada mais precisa dele.
+- {star} Pronto para os clientes mais novos do jogo, e as mensagens esperam os limites do jogo em vez de se perder.
+]==]
 	L.LETTER_1_3_3_TITLE = "Sua guilda no site"
 	L.LETTER_1_3_3 = [==[Versão 1.3.3.
 

@@ -158,8 +158,10 @@ end
 -- The guilds that need no verification, in this one place: the Shogun's guild. The guilds the
 -- author's signed list approves are not exempt (their guild masters verify too); to exempt them,
 -- add `or ns.IsApprovedGuild(guild)` here.
+-- (11-05, Bankai Guild: every member guild is the Shogun's or on the shipped list, so none waits on a
+-- verification: no 48-hour clock, nothing held from a guild master. Drop the second test to turn it on.)
 function Verify.Exempt(guild)
-	return ns.IsShogunGuild(guild) == true
+	return ns.IsShogunGuild(guild) == true or ns.IsApprovedGuild(guild) == true
 end
 
 -- A guild's census row, by its name in any case.
