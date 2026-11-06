@@ -318,12 +318,13 @@ test("Army QR: the lazy renderer rotates bounded rectangles and forgets frames w
 	end)
 end)
 
-test("Army QR: the shipped module has no storage, communication or upload path and loads after Link", function()
+test("Army QR: the shipped module has no storage, communication or upload path and loads after Link's loader", function()
 	local f = assert(io.open(ADDON_DIR .. "ArmyExport.lua", "rb")); local source = f:read("*a"); f:close()
 	for _, forbidden in ipairs({ "SavedVariables", "BankaiGuildDB", "SendAddonMessage", "SendChatMessage", "C_HTTP", "Upload" }) do
 		assert(not source:find(forbidden, 1, true), "forbidden export path: " .. forbidden)
 	end
 	assert(not source:find('SetScript("OnUpdate"', 1, true), "no permanent animation loop")
 	f = assert(io.open(ADDON_DIR .. "BankaiGuild.toc", "rb")); local toc = f:read("*a"); f:close()
-	assert(toc:find("Link.lua\nArmyExport.lua\nGuildCharter.lua", 1, true), "ArmyExport loads immediately after Link")
+	-- 1.4.1: Link.lua is its own addon (BankaiGuild_Link); ArmyExport keeps its place after the loader.
+	assert(toc:find("LinkLoader.lua\nArmyExport.lua\nGuildCharter.lua", 1, true), "ArmyExport loads immediately after the Link loader")
 end)

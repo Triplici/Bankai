@@ -502,13 +502,14 @@ test("1.2.3 honours: a pick 1.2.2 left on a frame not released, locked or not he
 	for _, h in ipairs(A.ns.HonorsNet.Holdings(A.name)) do held[#held + 1] = h.key end
 	eq(table.concat(held, ","), "donor-top-1,oracle-1", "the cornucopia and the raven")
 	eq(#A.ns.HonorsNet.QueuedLetters(), 2, "their letters")
-	-- The comet, not held (1.2.2 can't have put it there, but any frame not released is mended): the cornucopia.
+	-- An arena belt, not held (1.2.2 can't have put it there, but any frame not released is mended): the
+	-- cornucopia. (1.4.0: the comet this used is released now.)
 	local m = A.ns.ArenaProfile.Mine(true)
-	m.frame = "level-race-60"
+	m.frame = "arena-champion"
 	w:As(A, A.ns.Fire, "HONORS_CHANGED", A.name)
 	eq(x.Own().frame, "rank", "(1.2.2's case: his rank's frame)")
 	w:As(A, A.ns.HonorsNet.Refresh)
-	eq(x.Pick().frame, "donor-top-1", "the comet not held: the cornucopia")
+	eq(x.Pick().frame, "donor-top-1", "a belt not held: the cornucopia")
 	-- Locked on the raven, his title none, and the raven's letter answered Wear it before any refresh.
 	m.frame, m.title, m.locked = "oracle-1", nil, true
 	w:As(A, A.ns.HonorsNet.CloseLetter, false) -- (the cornucopia's letter, Later)

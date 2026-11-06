@@ -818,6 +818,8 @@ test("selftest: its lines in English and Portuguese, with the same codes; the TO
 	-- Arena's load tail, whose files the arena's own rules cover.)
 	assert(at["SelfTest.lua"] and at["ArenaMath.lua"], "both listed")
 	eq(at["SelfTest.lua"], at["ArenaMath.lua"] - 1, "the core's last file, before the Arena's load tail")
-	assert(toc:find("Locales\\SelfTestText.lua\nCore.lua", 1, true), "with the locales, before Core.lua")
+	-- With the locales (only the languages' files after it, 1.4.1), before Core.lua.
+	assert(at["Locales\\SelfTestText.lua"] and at["Locales\\SelfTestText.lua"] < at["Core.lua"], "with the locales, before Core.lua")
+	for i = at["Locales\\SelfTestText.lua"] + 1, at["Core.lua"] - 1 do assert(lines[i]:find("^Locales\\%a%a%u%u%.lua$"), "with the locales, before Core.lua: " .. lines[i]) end
 	assert(assert(io.open(ROOT .. "BankaiGuild/Core.lua")):read("*a"):find('StandIn("SelfTest", { "Slash" })', 1, true), "its stand-in")
 end)

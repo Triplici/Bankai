@@ -2141,9 +2141,16 @@ end)
 -- updated without a restart), else, where this client has no such tab, what to type (Channels.Send
 -- says it).
 -- (1.1.5: registered with /bk at login, with mouse and keyboard only: Core.lua's "slash".)
+-- 11-05 (the owner's call): Bankai Guild's own chats are off in the add-on: the guilds' own chat,
+-- linked across them, is its chat now (LinkedChat.lua). No Chat tab, and /bg, /bgc and /bk talk
+-- point there. The code stays; ns.BANKAI_CHAT_SHOWN = true (Core.lua) brings them back. Read at
+-- each call, so the offline harness's world shows them for its own tests.
+function Channels.Shown() return ns.BANKAI_CHAT_SHOWN == true end
+
 local function Slash(tier, where)
 	return function(msg)
 		if not ns.Gate.Allowed("slash") then return end
+		if not Channels.Shown() then return ns.Print(L.CHAT_LINKED_INSTEAD) end
 		local W = ns.ChatWindow
 		if tostring(msg or ""):match("^%s*$") and W and type(W.Toggle) == "function" then
 			ns.SafeCall(where, W.Toggle, tier)

@@ -1,10 +1,10 @@
-## Interface: 11509, 16001, 20506
+## Interface: 11509, 11510, 16001, 16002, 16003, 16004, 16005, 16010, 16100, 20506, 20507
 ## Title: |cff4fd36bBankai Guild|r Arena
 ## Notes: The Blood Arena's screens for Bankai Guild (fights, Farkle, the Lottery). Loads when you open the arena; needs Bankai Guild.
 ## Author: Bankai Guild community (fork of the Olympus addon, MIT)
-## Version: 1.3.3
+## Version: 1.4.1
 ## LoadOnDemand: 1
-## Dependencies: Bankai Guild
+## Dependencies: BankaiGuild
 ## SavedVariables: BankaiGuildArenaDB
 ## IconTexture: Interface\AddOns\BankaiGuild\media\logo64
 ## X-License: MIT

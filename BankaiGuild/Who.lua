@@ -368,7 +368,7 @@ function Who.SearchGuild(guild, own)
 	return sent
 end
 
--- Bankai Guild Link (0.9.10, Link.lua): a High Councillor's addon that could only sign a player's
+-- Bankai Guild Link (0.9.10; 1.4.0 its own addon, BankaiGuild_Link): a High Councillor's addon that could only sign a player's
 -- guild as claimed asks here for that player's /who. It goes quietly with a later Census
 -- Refresh, one name per click (never with the gamepad UI: no quiet search goes there); its
 -- answer tells the confirmer the guild the next time that player asks.

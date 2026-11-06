@@ -37,8 +37,8 @@ clean_source() {
 			*) printf 'package.sh refuses untracked or ignored addon file: %s\n' "$path" >&2; found=true ;;
 		esac
 	done < <(
-		git ls-files -z --others --exclude-standard -- BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate
-		git ls-files -z --others --ignored --exclude-standard -- BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate
+		git ls-files -z --others --exclude-standard -- BankaiGuild BankaiGuild_Arena BankaiGuild_Link BankaiGuildSiteAggregate
+		git ls-files -z --others --ignored --exclude-standard -- BankaiGuild BankaiGuild_Arena BankaiGuild_Link BankaiGuildSiteAggregate
 	)
 	if $found; then exit 1; fi
 }
@@ -56,7 +56,7 @@ sha256_file() {
 	fi
 }
 
-FOLDERS=(BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate)
+FOLDERS=(BankaiGuild BankaiGuild_Arena BankaiGuild_Link BankaiGuildSiteAggregate)
 
 MODE=release
 N=

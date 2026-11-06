@@ -360,6 +360,11 @@ end)
 -- asks listed that body as held, so no holder answered it again, no second validation ever came,
 -- and the result never counted (7 asks over an hour, 1 RV, count 0). It now asks for the
 -- validations alone (RA letter~w~day) with each ask of that day, and never gets the body again.
+local function Silence(holder, on)
+	local R = holder.ns.Records
+	R.realBar = R.realBar or R.Bar
+	R.Bar = on and function() return "never" end or R.realBar
+end
 local function ShortOfOne(w, id)
 	local a, b, c = w.clients[1], w.clients[2], w.clients[3]
 	local second = w:Player(N.bettor2)
@@ -372,12 +377,13 @@ local function ShortOfOne(w, id)
 	w:Logout(b)
 	local late = w:Player(N.bettor1)
 	c.ns.Records.random, late.ns.Records.random = function() return 0 end, function() return 0 end
-	-- The second holder is not drawn for this round's answer.
-	second.ns.Records.random, second.ns.Records.RELAYS = function() return 0.99 end, 0
+	-- The second holder relays nothing this round. (1.4.0 upstream: no draw any more, every holder
+	-- has a slot; R.Bar "never" is how a client keeps out of them, as the author's character does.)
+	Silence(second, true)
 	w:Run(c.ns.Records.DIGEST_EVERY + 120)
 	eq(Do(w, late, "Count", "b"), 0, "one holder's validation admits nothing")
 	eq(Do(w, late, "Pending", "b"), 1, "the body is here, waiting")
-	second.ns.Records.random, second.ns.Records.RELAYS = function() return 0 end, 3
+	Silence(second, false)
 	return c, second, late, day
 end
 local function WitnessAsks(w, from)
@@ -403,12 +409,11 @@ end)
 test("global records review: validations are heard in one session only; after a reload the waiting body is validated in the next session", function()
 	local w = Setup()
 	local c, second, late = ShortOfOne(w, "Kr13")
-	second.ns.Records.random, second.ns.Records.RELAYS = function() return 0.99 end, 0
+	Silence(second, true)
 	w:Logout(late) w:Login(late)
-	late.ns.Records.random = function() return 0 end
 	w:Run(15)
 	eq(Do(w, late, "Pending", "b"), 1, "the body survived the reload, waiting")
-	second.ns.Records.random, second.ns.Records.RELAYS = function() return 0 end, 3
+	Silence(second, false)
 	w:Run(c.ns.Records.DIGEST_EVERY + 120)
 	eq(Do(w, late, "Count", "b"), 1, "both holders' validations heard in this session")
 	eq(Do(w, late, "Pending", "b"), 0)
@@ -448,7 +453,12 @@ test("global records review: an answer declares the holder's key once and signs 
 	D.Sign = function(...) signs = signs + 1 return Sign(...) end
 	-- The late client holds none of that day's records: an ask with no prefixes.
 	assert(w:As(late, late.ns.Arena.Send, "RA", "L", "b~d~" .. late.ns.Arena.B36(d) .. "~", { dist = "CHANNEL" }))
-	w:Run(c.ns.Records.ANSWER_MIN + 1)
+	-- (1.4.0 upstream: a holder whose digest did not name that day answers at its fallback slot.)
+	local R = c.ns.Records
+	for _ = 1, R.FALLBACK_MIN + R.FALLBACK_SPREAD_MAX + R.DIGEST_WINDOW_MAX do
+		if Do(w, c, "OutSize") > 0 then break end
+		w:Run(1)
+	end
 	assert(Do(w, c, "OutSize") > 0, "the answer is on its way, a message at a time")
 	assert(signs <= 2, "the key once and at most the first validation so far, not 8 signatures: " .. signs)
 	w:Run(120)

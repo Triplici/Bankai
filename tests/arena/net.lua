@@ -1543,9 +1543,11 @@ test("1.2 the arena's foundation: Comm.Send passes done: results 3, 8, 11 and 12
 		C.Whisper("Nobody-Realm", "ZZ~w", nil, false, false, D("w"))
 		C.Send("GUILD", "ZZ~ok", "k", true, false, D("ok"))
 		-- The game's answers, in the order they leave (the urgent one first).
-		for _, r in ipairs({ 0, 3, 8, 11, 12 }) do results[#results + 1] = r end
+		-- (1.4.0, upstream's queue audit: 3, 8, 9 and 11 mean "not now" and keep the job in its place,
+		-- tried again below; any other answer ends it at once.)
+		for _, r in ipairs({ 0, 12, 7, 2, 12 }) do results[#results + 1] = r end
 		for _ = 1, 6 do C.Pump() end
-		eq(table.concat(done, ","), "ok:true:nil,g1:false:3,g2:false:8,g3:false:11,w:false:12", "urgent first")
+		eq(table.concat(done, ","), "ok:true:nil,g1:false:12,g2:false:7,g3:false:2,w:false:12", "urgent first")
 		-- Refused before the queue: done at once.
 		done = {}
 		C.Whisper("", "ZZ~x", nil, false, false, D("target"))
@@ -1569,6 +1571,14 @@ test("1.2 the arena's foundation: Comm.Send passes done: results 3, 8, 11 and 12
 		C.Send("GUILD", "ZZ~c", "same")
 		C.Pump()
 		eq(sent[#sent].msg, "ZZ~c"); eq(table.concat(done, ","), "b:true:nil")
+		-- A throttle (3): no done yet, the job waits in its place (and the pump with it).
+		done = {}
+		local before = #sent
+		C.Send("GUILD", "ZZ~later", nil, false, false, D("later"))
+		results[#results + 1] = 3
+		C.Pump()
+		eq(#sent, before + 1, "tried"); eq(sent[#sent].result, 3)
+		eq(#done, 0, "not now: the job kept"); eq(C.QueueSize(), 1, "still queued")
 	end)
 end)
 

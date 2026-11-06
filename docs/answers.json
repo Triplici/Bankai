@@ -1080,8 +1080,8 @@
         "What's net-off?",
         "Can moderators hide spammers?"
       ],
-      "answer": "Moderators can hide a character or take a guild off the network for everyone. Decrees lists who, why, by whom and when for every member, with a red reason line when it is you or your guild; authorized officers also see the section in The Watch.",
-      "in_game": "Moderators can hide a character or guild from the network. Decrees stays member-visible and shows your own reason; authorized officers also see net-off in The Watch.",
+      "answer": "Moderators can hide a character or take a guild off the network for everyone. The Watch lists who, why, by whom and when for the moderators and the guilds' officers; when it is you or your guild, a red line on Decrees gives you the reason.",
+      "in_game": "Moderators can hide a character or guild from the network. The list is in The Watch for staff; when it is you or your guild, a red line on Decrees gives your reason.",
       "sources": [
         "README.md:612-693"
       ]
@@ -1446,8 +1446,8 @@
         "How do I get my Discord role?",
         "What's /bk discord?"
       ],
-      "answer": "Bankai Guild Link will prove your character to the Bankai Guild bot on Discord for your role, but it isn't open yet: it needs a later addon update. Until then /bk discord just says it's not open.",
-      "in_game": "Bankai Guild Link (Discord roles) isn't open yet: it comes with a later update of the addon.",
+      "answer": "Bankai Guild Link, which proves your character to the Bankai Guild bot on Discord for your role, is not part of this addon: it is its own addon, BankaiGuild_Link, and it isn't open yet. Without it /bk discord just says it is not installed; everything else in Bankai Guild works without it.",
+      "in_game": "Bankai Guild Link (Discord roles) is its own addon, BankaiGuild_Link, and isn't open yet. Without it /bk discord says it is not installed.",
       "sources": [
         "README.md:1126-1135",
         "L.LINK_NOT_OPEN (Locales.lua:952)",

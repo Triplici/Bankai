@@ -3,7 +3,7 @@
 ## Notes: Private, consent-gated handoff for the Bankai Guild Companion.
 ## Author: Bankai Guild addon contributors
 ## Version: 0.1.0
-## Dependencies: Bankai Guild
+## Dependencies: BankaiGuild
 ## SavedVariables: BankaiGuildCompanionDB
 ## X-License: MIT
 

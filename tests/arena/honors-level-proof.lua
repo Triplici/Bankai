@@ -10,6 +10,16 @@ local W3 = assert(loadfile(H.ROOT .. "tests/arena/lib/fights-world.lua"))(H)
 
 local function HN(w, c) return W3.M(w, c, "HonorsNet") end
 
+-- (1.4.0, upstream's review High 7: a claim counts only with his crossing seen here, below the
+-- milestone then at or above it. These tests are about who vouches and what strikes a place, so the
+-- crossing is given: c seen below m on the viewer a moment before his claim.)
+local function Crossed(viewer, c, m)
+	local s = assert(viewer.ns.HonorsNet.Store(true))
+	s.lows = type(s.lows) == "table" and s.lows or {}
+	s.lows[m] = type(s.lows[m]) == "table" and s.lows[m] or {}
+	s.lows[m][viewer.ns.FullName(c.name):lower()] = viewer.ns.Now() - 1
+end
+
 -- An IL of c's for milestone m, as its client sends it (the claim's level is his word; gk: the
 -- GUID it gives, his own by default).
 local function Claim(w, c, m, gk)
@@ -57,6 +67,7 @@ test("1.2.1 the level race: one forged census row no longer wins a place, nor th
 		{ "f3", "Ivo Marsh" } } })
 	local viewer, alt = cast.spectator, cast.alt
 	viewer.ns.HonorsNet.RACE_START = w.clock - 86400
+	Crossed(viewer, alt, 60)
 	Claim(w, alt, 60)
 	local after = viewer.ns.Honors.CONFIRM_AFTER + 2
 	-- One report of another sender (any guild named Bankai Guild): no proof.
@@ -90,11 +101,13 @@ test("1.2.1 the level race: a guildmate's claim is vouched by our own roster (th
 	Info(w, viewer)
 	local after = viewer.ns.Honors.CONFIRM_AFTER + 2
 	-- His roster level is the server's: no census needed.
+	Crossed(viewer, cast.mate, 20)
 	Claim(w, cast.mate, 20)
 	w:As(viewer, viewer.ns.HonorsNet.RunRace)
 	w:Run(after)
 	eq(Place(viewer, 20), cast.mate.name, "our roster at 20")
 	-- A guildmate at 15 by our roster, two senders of another guild listing him at 40: nothing.
+	Crossed(viewer, cast.liar, 40)
 	Claim(w, cast.liar, 40)
 	Report(w, viewer, "Bankai Guild Fakers", cast.f1, cast.liar.name, 40)
 	Report(w, viewer, "Bankai Guild Fakers", cast.f2, cast.liar.name, 40)
@@ -114,6 +127,7 @@ test("1.2.1 the level race: a place the server's word shows false goes (his unit
 	viewer.ns.HonorsNet.RACE_START = w.clock - 86400
 	local after = viewer.ns.Honors.CONFIRM_AFTER + 2
 	-- Two forged senders of one guild win it for the level-12 alt.
+	Crossed(viewer, alt, 60)
 	Claim(w, alt, 60)
 	Report(w, viewer, "Bankai Guild Fakers", cast.f1, alt.name, 60)
 	Report(w, viewer, "Bankai Guild Fakers", cast.f2, alt.name, 60)
@@ -134,6 +148,7 @@ test("1.2.1 the level race: a place the server's word shows false goes (his unit
 	for _, c in pairs(s.claims) do assert(not (c.gk == gk and c.level == 60), "his claim gone") end
 	eq(net.Stats().struck, 1)
 	-- He claims it again: refused. A clerk's records naming him: refused.
+	Crossed(viewer, alt, 60)
 	Claim(w, alt, 60)
 	eq(net.Stats().refused.struck, 1)
 	local A = viewer.ns.Arena
@@ -141,6 +156,7 @@ test("1.2.1 the level race: a place the server's word shows false goes (his unit
 	eq(net.TakeRecords(cast.arbiter.name, "L", rest), false, "a clerk's record of a struck place")
 	eq(Place(viewer, 60), nil)
 	-- The next proven claim takes it.
+	Crossed(viewer, cast.real, 60)
 	Claim(w, cast.real, 60)
 	Report(w, viewer, "Bankai Guild Shaw", cast.f1, cast.real.name, 60)
 	Report(w, viewer, "Bankai Guild Shaw", cast.f2, cast.real.name, 60)
@@ -150,6 +166,7 @@ test("1.2.1 the level race: a place the server's word shows false goes (his unit
 	-- place (the roster may not have his level-up yet): kept; an hour on: struck.
 	local R = Roster(viewer, { { cast.mate, 40 } })
 	Info(w, viewer)
+	Crossed(viewer, cast.mate, 40)
 	Claim(w, cast.mate, 40)
 	w:As(viewer, net.RunRace)
 	w:Run(after)
@@ -190,6 +207,7 @@ test("1.2.1 the level race: a place won under a made-up GUID goes once his unit 
 	local after = viewer.ns.Honors.CONFIRM_AFTER + 2
 	local A = viewer.ns.Arena
 	local fake = A.GK("Player-4099-0DEADBEEF")
+	Crossed(viewer, alt, 60)
 	Claim(w, alt, 60, fake)
 	Report(w, viewer, "Bankai Guild Fakers", cast.f1, alt.name, 60)
 	Report(w, viewer, "Bankai Guild Fakers", cast.f2, alt.name, 60)
@@ -211,6 +229,7 @@ test("1.2.1 the level race: a place won under a made-up GUID goes once his unit 
 	-- Out of view again, he claims it under another made-up GUID: refused. A clerk's record of him
 	-- under a third: refused.
 	viewer.target = nil
+	Crossed(viewer, alt, 60)
 	Claim(w, alt, 60, A.GK("Player-4099-0BADF00D"))
 	eq(net.Stats().refused.struck, 1)
 	local rest = table.concat({ A.B36(60), A.GK("Player-4099-0FACADE0"), viewer.ns.ArenaFights.Wire(alt.name), A.B36(w.clock - 100) }, ":")
@@ -218,6 +237,7 @@ test("1.2.1 the level race: a place won under a made-up GUID goes once his unit 
 	eq(Place(viewer, 60), nil)
 	-- A unit in view at the milestone but under another GUID than his place's: the GUID was never
 	-- his, struck too.
+	Crossed(viewer, cast.high, 40)
 	Claim(w, cast.high, 40, A.GK("Player-4099-0CAFEBABE"))
 	Report(w, viewer, "Bankai Guild Highs", cast.f1, cast.high.name, 40)
 	Report(w, viewer, "Bankai Guild Highs", cast.f2, cast.high.name, 40)
@@ -230,6 +250,7 @@ test("1.2.1 the level race: a place won under a made-up GUID goes once his unit 
 	viewer.target = nil
 	local real = w:Client("Lena Shaw", { level = 20 })
 	W3.Rules(w, real)
+	Crossed(viewer, real, 20)
 	Claim(w, real, 20)
 	Report(w, viewer, "Bankai Guild Shaw", cast.f1, real.name, 20)
 	Report(w, viewer, "Bankai Guild Shaw", cast.f2, real.name, 20)
@@ -251,6 +272,7 @@ test("1.2.1 the level race: a place whose GUID the game gives another character 
 	local after = viewer.ns.Honors.CONFIRM_AFTER + 2
 	local A = viewer.ns.Arena
 	-- Another character's GUID, which the game does not resolve here yet.
+	Crossed(viewer, alt, 60)
 	Claim(w, alt, 60, A.GK(cast.other.guid))
 	Report(w, viewer, "Bankai Guild Fakers", cast.f1, alt.name, 60)
 	Report(w, viewer, "Bankai Guild Fakers", cast.f2, alt.name, 60)
@@ -273,11 +295,13 @@ test("1.2.1 the level race: a guildmate's claim our roster puts at the milestone
 	local after = viewer.ns.Honors.CONFIRM_AFTER + 2
 	local A = viewer.ns.Arena
 	-- A made-up GUID beside his roster level: no proof.
+	Crossed(viewer, cast.mate, 20)
 	Claim(w, cast.mate, 20, A.GK("Player-4099-0DEADBEEF"))
 	w:As(viewer, viewer.ns.HonorsNet.RunRace)
 	w:Run(after)
 	eq(Place(viewer, 20), nil, "a made-up GUID")
 	-- Another guildmate there under his own: the place.
+	Crossed(viewer, cast.mate2, 20)
 	Claim(w, cast.mate2, 20)
 	w:As(viewer, viewer.ns.HonorsNet.RunRace)
 	w:Run(after)

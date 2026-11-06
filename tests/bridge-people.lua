@@ -409,9 +409,10 @@ test("bridge people: wanted keeps its first 100 targets in the list's order, the
 		local d = Data("wanted")
 		eq(#d.targets, 100, "cut from the end")
 		eq(d.targets[1].place, 1); eq(d.targets[100].place, 100)
-		eq(d.targets[1].guid, "Player-4619-00000001")
+		-- (1.4.0 upstream: no GUID, the Companion's agreed shape; a target is his name on the list.)
+		eq(d.targets[1].guid, nil)
 		for _, t in ipairs(d.targets) do
-			for k in pairs(t) do assert(({ place = true, name = true, guid = true, bounty = true, kills = true, cycle = true })[k], k) end
+			for k in pairs(t) do assert(({ place = true, name = true, bounty = true, kills = true, cycle = true })[k], k) end
 		end
 		Never(d, "Victim"); Never(d, "A Mod")
 	end)

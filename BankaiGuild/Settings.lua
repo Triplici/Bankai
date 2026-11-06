@@ -93,8 +93,12 @@ function Settings.Lines()
 	if ns.Nameplates then
 		Toggle(lines, L.SETTINGS_NAMEPLATES, "/bk nameplates", ns.Nameplates.Enabled, ns.Nameplates.SetEnabled)
 	end
-	if ns.Channels then
-		Toggle(lines, L.SETTINGS_CHAT, "/bk chat", ns.Channels.ChatOn, ns.Channels.SetChatOn)
+	-- (11-05: the linked guild chat is Bankai Guild's chat while its own chats are off, Channels.Shown.)
+	local C = ns.Channels
+	if C and type(C.Shown) == "function" and not C.Shown() and ns.LinkedChat then
+		Toggle(lines, L.SETTINGS_GLINK, "/bk glink", ns.LinkedChat.Enabled, ns.LinkedChat.SetEnabled)
+	elseif C then
+		Toggle(lines, L.SETTINGS_CHAT, "/bk chat", C.ChatOn, C.SetChatOn)
 	end
 	if ns.Bow then
 		Toggle(lines, L.SETTINGS_BOW, "/bk bow", ns.Bow.Enabled, ns.Bow.SetEnabled)

@@ -2338,14 +2338,17 @@ test("gamepad pass 1: a whole session with the gamepad UI on from the login reac
 	local diff = Diff(before, Snapshot(C))
 	eq(#diff, 0, "the game's state written: " .. table.concat(diff, ", "))
 	eq(C.handler, C.gameHandler, "the game's own error handler")
-	-- Registered with the game: only the exempt post-hooks (Treasury.lua's "mail-hooks", Honor.lua's "emote-hook").
+	-- Registered with the game: only the exempt post-hooks (Treasury.lua's "mail-hooks", Honor.lua's
+	-- "emote-hook", 11-05: LinkedChat.lua's "linked-chat" on both of the game's sends, the global's and
+	-- C_ChatInfo's).
 	local kinds = {}
-	for _, cb in ipairs(C.callbacks) do kinds[#kinds + 1] = cb.kind .. " " .. tostring(cb.key or cb.tag or cb.script or "") end
+	for _, cb in ipairs(C.callbacks) do kinds[#kinds + 1] = cb.kind .. " " .. (cb.frame and "C_ChatInfo." or "") .. tostring(cb.key or cb.tag or cb.script or "") end
 	table.sort(kinds)
-	eq(table.concat(kinds, ", "), "hooksecurefunc AutoLootMailItem, hooksecurefunc DoEmote, hooksecurefunc SendMail, hooksecurefunc TakeInboxItem, hooksecurefunc TakeInboxMoney",
+	eq(table.concat(kinds, ", "), "hooksecurefunc AutoLootMailItem, hooksecurefunc C_ChatInfo.SendChatMessage, hooksecurefunc DoEmote, hooksecurefunc SendChatMessage, hooksecurefunc SendMail, hooksecurefunc TakeInboxItem, hooksecurefunc TakeInboxMoney",
 		"what is registered with the game")
 	GP.Covers("mail-hooks")
 	GP.Covers("emote-hook") -- (11-02: the honor board's /bow, Honor.lua, the same kind of post-hook)
+	GP.Covers("linked-chat") -- (11-05: the linked guild chat's post-hooks on the game's sends, read-only)
 end)
 
 test("gamepad pass 2: mouse and keyboard, then a switch to the gamepad UI: the gate steps back on the next frame, every callback left with the game does nothing, the player is told once what a /reload clears", function()
@@ -2515,7 +2518,7 @@ test("gamepad pass 3: the gamepad UI and mouse and keyboard, back and forth thre
 	-- What can't be undone, registered once a session however many switches.
 	local count = {}
 	for _, cb in ipairs(C.callbacks) do
-		local key = cb.kind .. " " .. tostring(cb.key or cb.tag or cb.type or "") .. " " .. tostring(cb.script or "") .. " " .. tostring(cb.frame and (rawget(cb.frame, "name") or rawget(cb.frame, "path")) or "")
+		local key = cb.kind .. " " .. tostring(cb.key or cb.tag or cb.type or "") .. " " .. tostring(cb.script or "") .. " " .. tostring(cb.frame and (rawget(cb.frame, "name") or rawget(cb.frame, "path") or tostring(cb.frame)) or "")
 		count[key] = (count[key] or 0) + 1
 	end
 	for key, n in pairs(count) do eq(n, 1, "registered once: " .. key) end
@@ -2768,6 +2771,37 @@ test("gamepad pass 6: the Arena's integrations: restricted calls from a click al
 	assert(loaded, "the companion asked for, with the gamepad UI on")
 	eq(A.loadedAddOns.BankaiGuild_Arena, true)
 	GP.Covers("load-companion")
+	-- 1.4.0: Bankai Guild Link, its own load-on-demand addon, asked for with the gamepad UI on too
+	-- (LinkLoader.lua, at the gamepad login itself): once a session, its handoff cleared at once. (The
+	-- model's game says it loaded; its files are not in this pass, so the module never took the handoff.)
+	eq(A.loadedAddOns.BankaiGuild_Link, true, "the Link module asked for, with the gamepad UI on")
+	eq(ns.LinkLoader.Why(), "nohost")
+	eq(rawget(_G, "BankaiGuildLinkHandoff"), nil, "the handoff cleared at once")
+	before = A.Mark()
+	ns.LinkLoader.Load()
+	eq(#A.Since(before), 0, "never asked again this session")
+	GP.Covers("load-link")
+	-- 1.4.0: a companion's group panel on the Board (Groups.lua's panel row): a frame of Bankai Guild's
+	-- own, made inside its own row, built once by the companion; nothing of the game's UI, in either mode.
+	local G, built = ns.Groups, 0
+	eq(G.RegisterPanel("test-companion", { label = "Group tool", build = function() built = built + 1 end,
+		allowed = function() return true end }), true)
+	local lines = {}
+	G.PanelLines(lines, "D")
+	local row
+	for _, l in ipairs(lines) do if l.id == "board-panel" then row = l end end
+	assert(row and type(row.panel) == "function", "the panel's row on the Board")
+	for _, pad in ipairs({ true, false }) do
+		A.Switch(pad); A.Advance(1)
+		before = A.Mark()
+		local host = A.env.CreateFrame("Frame", nil, A.env.UIParent)
+		row.panel(host, 300)
+		OnlyAllowed(A.Since(before), pad and "the group panel, gamepad UI" or "the group panel, mouse and keyboard")
+	end
+	eq(built, 1, "built once, then refreshed")
+	G.UnregisterPanel("test-companion")
+	A.Switch(true); A.Advance(1)
+	GP.Covers("board-panel")
 	Check(A.ledger, "the Arena")
 end)
 

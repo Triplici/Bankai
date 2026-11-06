@@ -699,6 +699,21 @@ Consent.Register({
 	get = function() return ns.db.shareLocation end,
 	set = function(on) ns.Layers.SetSharing(on) end,
 })
+-- This is a switch the player turns, not a first-run permission: false is its complete default and
+-- it is never included in Authorize all. Once on it stays on across logins until he turns it off
+-- (1.4.0, ns.SetPrivatePresence in Core.lua). It lives beside location in Privacy and My profile.
+Consent.Register({
+	key = "quietpresence", section = "profile", label = "CONSENT_PRIVATE_PRESENCE", text = "CONSENT_PRIVATE_PRESENCE_TEXT",
+	shown = function() return ns.QuietPresenceAllowed(ns.me) end,
+	get = function() return ns.QuietPresence() end,
+	pending = function() return false end,
+	set = function(on)
+		local ok, why = ns.SetPrivatePresence(on)
+		if ok then ns.Print(ns.QuietPresence() and L.PRIVATE_PRESENCE_ON or L.PRIVATE_PRESENCE_OFF)
+		elseif why == "owner" then ns.Print(L.PRIVATE_PRESENCE_OTHER_OWNER)
+		else ns.Print(L.PRIVATE_PRESENCE_ONLY) end
+	end,
+})
 Consent.Register({
 	key = "layerhelp", label = "CONSENT_LAYERHELP", text = "CONSENT_LAYERHELP_TEXT",
 	shown = function() return not IsShogun() end,
@@ -735,6 +750,8 @@ Consent.Register({
 })
 Consent.Register({
 	key = "chat", label = "CONSENT_CHAT", text = "CONSENT_CHAT_TEXT",
+	-- (11-05: Bankai Guild's own chats are off, the linked guild chat is its chat: no question for them.)
+	shown = function() return not (ns.Channels and type(ns.Channels.Shown) == "function") or ns.Channels.Shown() end,
 	get = function() return ns.db.addonChat end,
 	set = function(on) ns.Channels.SetChatOn(on) end,
 })

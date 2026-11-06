@@ -1,7 +1,13 @@
-local ADDON, ns = ...
+local _, own = ...; local ns = own.host; if not ns then return end
 local L = ns.L
 
--- Bankai Guild Link (0.9.10): a character's Discord role, proved by players in game.
+-- Bankai Guild Link (0.9.10): a character's Discord role, proved by players in game. (1.4.0: its own
+-- load-on-demand addon, BankaiGuild_Link, no longer part of the public Bankai Guild package. Bankai Guild's
+-- LinkLoader.lua loads it once its saved variables are read, before the login, and hands it the
+-- namespace for that call (Handoff.lua): its login and message handlers below are in place as when
+-- this file shipped in Bankai Guild's own folder. Bankai Guild's /bk discord comes here (Link.Slash), its
+-- /bk status line too (Link.StatusLine). It still uses Bankai Guild's Ed25519.lua, QR encoder
+-- (ns.QREncode), Comm, Who, Roster, Workshop and dialog helpers through that namespace.)
 -- The Bankai Guild bot on Discord gives a player a code: OLC2.<R>.<username>.<exp>.<mode>.<T>.<sig>,
 -- signed with the bot's Ed25519 key (ns.LINK_BACKEND_KEYS, Ed25519.lua checks it). /bk discord
 -- <code> checks that signature and the expiry, shows the Discord account the code belongs to, and
@@ -9,7 +15,7 @@ local L = ns.L
 -- this character asked: each proof is an Ed25519 signature made by a confirmer's addon with a key
 -- of its own, kept for one character (BankaiGuildDB.discord.keys[Name-Realm]), and certified for that
 -- character: OLK2, a signature on the key's public half, its tier and the character's name, by the
--- bot. The bot's keeper makes every key, a High Councillor's too (scripts/link-keys.py confirmer),
+-- bot. The bot's keeper makes every key, a High Councillor's too (tools/link-keys.py confirmer),
 -- typed in game with /bk discord key and /bk discord cert. (The council authority's path, where a
 -- councillor's addon makes its own key and the author's client certifies it by itself, is below,
 -- off unless the author turns it on: ns.LINK_COUNCIL_AUTHORITY, Konig's review.) Nothing of it is
@@ -67,20 +73,21 @@ local L = ns.L
 -- A confirmer's key never leaves BankaiGuildDB.discord.keys, nor the council authority's seed
 -- ns.LINK_CA_SEED: neither is ever printed, sent, logged, or written in /bk status and the bug report.
 
--- The Bankai Guild bot's public keys (64 hex digits each, from scripts/link-keys.py backend): a code
+-- The Bankai Guild bot's public keys (64 hex digits each, from tools/link-keys.py backend): a code
 -- or certificate signed by any of them is accepted, so two can be listed while the key changes.
 -- Anything that is not 64 hex digits is ignored: until the bot's key is pasted here, every code
 -- is refused, and no confirmer key is made, typed, announced or used, nor any certificate asked
 -- for, signed or typed (Link.BotReady).
 ns.LINK_BACKEND_KEYS = { "PASTE-THE-BOT-PUBLIC-KEY-HEX-HERE" }
--- The High Council's certificate authority (scripts/link-keys.py ca, on the author's computer):
+-- The High Council's certificate authority (tools/link-keys.py ca, on the author's computer):
 -- its public keys (64 hex digits each), whose certificates of tier c count for councillors' keys.
--- Its seed is only in dist/LinkCA.lua (ns.LINK_CA_SEED), copied to the author's own game and never
+-- Its seed is only in dist/LinkCA.lua (ns.LINK_CA_SEED), copied to the author's own game (into this
+-- module's folder, Interface/AddOns/BankaiGuild_Link/, at the end of BankaiGuild_Link.toc) and never
 -- published. Its certificates count, and councillors' addons make a key and ask for one, only
 -- with the author's switch below on and the bot's key pasted above.
-ns.LINK_CA_KEYS = {}
+ns.LINK_CA_KEYS = { "a84125fa433276244fda242a28d2e4208a5d6db26dcb529e3e87af61939e10a7" }
 -- The author's switch for the council authority's path (Konig's review): off. Off, every
--- confirmer's key, a High Councillor's too, is one the bot's keeper makes (scripts/link-keys.py
+-- confirmer's key, a High Councillor's too, is one the bot's keeper makes (tools/link-keys.py
 -- confirmer) and the bot certifies, typed in game with /bk discord key <id> <key> and
 -- /bk discord cert <certificate>: no addon makes a key of its own, asks the author's client for a
 -- certificate or signs one, and no addon takes the authority's certificates (the key that signs
@@ -91,9 +98,12 @@ ns.LINK_CA_KEYS = {}
 -- (Link.BotReady); the bot's keeper then sets LINK_CA_PUBLIC in the Worker too (web/WORKER.md,
 -- step 1b). Keys it made are dropped at login while it is off (Link.Resume).
 ns.LINK_COUNCIL_AUTHORITY = false
--- The Bankai Guild Link page, a static page on this repository's GitHub Pages (web/public/, its address
--- also in web/public/config.js as PAGE_URL): the QR code and the copy box open it with the link in
--- the #fragment only, which no server ever gets. The page sends the link to the bot's Worker.
+-- The Bankai Guild Link page, a static page (web/public/ of this repository, its address also in
+-- web/public/config.js as PAGE_URL), published so far on the public bankaiguild-addon repository's
+-- GitHub Pages (1.4.0: that repository no longer carries the page or its deploy workflow; where it
+-- is hosted from now on is the owner's call, and this address and PAGE_URL change together): the QR
+-- code and the copy box open it with the link in the #fragment only, which no server ever gets. The
+-- page sends the link to the bot's Worker.
 ns.LINK_SITE = "https://dnl-gentile.github.io/bankai-addon/"
 -- Whose watcher the texts name ("<name>'s watcher"); nil: "the bot's watcher".
 ns.LINK_WATCHER_OWNER = nil
@@ -1595,7 +1605,7 @@ end
 -- makes a key that only confirms Discord links, that the bot's keeper can revoke at once (the
 -- Worker's revocation lists, by key or by character) and that /bk discord key new replaces in
 -- game (it prints the old key's id: the keeper revokes that one at the bot). By default every
--- councillor's key is made from a real random source by the bot's keeper (scripts/link-keys.py
+-- councillor's key is made from a real random source by the bot's keeper (tools/link-keys.py
 -- confirmer, on a computer) and typed with /bk discord key <id> <key>.
 function Link.EntropySample()
 	local parts = {}

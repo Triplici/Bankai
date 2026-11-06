@@ -90,8 +90,13 @@ test("global census: a trusted holder restores normalized guild counts to a late
 	eq(s.characters, 987); eq(s.total, 987); eq(s.online, 73); eq(#s.guilds, 1)
 	eq(s.guilds[1].name, "Bankai Guild Dawn"); eq(s.guilds[1].g.relayed, true)
 	eq(s.guilds[1].g.leader, nil, "leadership is deliberately not relayed as census authority")
+	-- (1.4.0, upstream's witnesses: any member's snapshot is heard, but one person's rows are a
+	-- witness alone; nothing changes until two people's agree.)
 	late.ns.Church.IsLedgerRelay = function() return false end
-	eq(late.D.ReceiveGlobalCensus("CHANNEL", "Stranger-Realm", payload), false, "an untrusted snapshot is refused")
+	source.ns.Church.IsLedgerRelay = function() return false end
+	source.ns.rdb.guilds["Bankai Guild Dawn"].total = 555
+	late.D.ReceiveGlobalCensus("CHANNEL", "Stranger-Realm", assert(source.D.GlobalCensusPayload()))
+	eq(late.D.Summary().guilds[1].g.total, 987, "one stranger's word changes nothing")
 end)
 
 test("global census: an ordinary late client may ask a trusted holder for the public snapshot", function()
@@ -164,7 +169,11 @@ test("global census: a trusted holder's snapshot really reaches the transport's 
 		for _ = 1, #pieces * 2 do clock = clock + 2; C.Pump() end
 		eq(#sent, 1, "no piece after his trust went")
 		eq(C.QueueSize(), 0, "the rest dropped, not left waiting")
-		eq(holder.D.SendGlobalCensus(), false, "an untrusted client sends no snapshot")
+		-- (1.4.0: any member may answer with what it holds; one who is not a member sends nothing.)
+		local savedMember = holder.ns.IsMember
+		holder.ns.IsMember = function() return false end
+		eq(holder.D.SendGlobalCensus(), false, "an untrusted client, not a member, sends no snapshot")
+		holder.ns.IsMember = savedMember
 		eq(C.QueueSize(), 0)
 	end)
 	C_ChatInfo, GetChannelName, GetTime = saved.info, saved.channel, saved.time

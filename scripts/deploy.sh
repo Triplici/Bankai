@@ -11,7 +11,7 @@ cd "$(dirname "$0")/.."
 WOW_DIR="${WOW_DIR:-C:/Program Files (x86)/World of Warcraft}"
 WOW_FLAVOR="${WOW_FLAVOR:-_classic_era_}"
 TREE="${OLY_TREE:-.}"
-FOLDERS=(BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate)
+FOLDERS=(BankaiGuild BankaiGuild_Arena BankaiGuild_Link BankaiGuildSiteAggregate)
 for folder in "${FOLDERS[@]}"; do
 	[ -f "$TREE/$folder/$folder.toc" ] || { echo "no $folder/$folder.toc in $TREE" >&2; exit 1; }
 done

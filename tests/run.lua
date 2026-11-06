@@ -163,9 +163,21 @@ end
 -- Load addon files like WoW does: each gets (addonName, sharedTable)
 ---------------------------------------------------------------------------
 local ns = {}
-for _, file in ipairs({ "Bootstrap", "Locales", "Locales/deDE", "Locales/esES", "Locales/frFR", "Locales/DuesGraceText", "Locales/DuesRosterText", "Locales/JusticeResponseText", "Locales/CarryText", "Locales/CarryMergerText", "Locales/CampaignText", "Locales/GuildFinanceText", "Locales/RankingRulesText", "Locales/AccordText", "Core", "RankingRules", "GamepadRegistry", "Gamepad", "Diagnostics", "Dialog", "PlayerMenu", "Codec", "Sign", "Authority", "Zones", "Who", "Data", "Roster", "Comm", "Map", "Layers", "Hop", "Positions", "Decree", "Channels", "Filter", "Inspect", "Shogun", "HopSightings", "Poll", "Court", "Board", "Week", "Treasury", "Dues", "Bank", "Acts", "Loot", "War", "Crafters", "Chronicle", "Workshop", "Versions", "Ed25519", "libs/QREncode/qrencode", "Link", "ArmyExport", "Recruit", "PartyGuard", "AnswerBank", "Answers", "Views", "Accord", "Consent", "ChatRooms", "CraftRequests", "ViewAs", "TabardsV2", "Members", "Nominees", "CensusClean", "Bridge", "BridgeSections", "BridgePeople", "BridgeAffairs" }) do
+for _, file in ipairs({ "Bootstrap", "Locales", "Locales/deDE", "Locales/esES", "Locales/frFR", "Locales/DuesGraceText", "Locales/DuesRosterText", "Locales/JusticeResponseText", "Locales/CarryText", "Locales/CarryMergerText", "Locales/CampaignText", "Locales/GuildFinanceText", "Locales/RankingRulesText", "Locales/AccordText", "Core", "RankingRules", "GamepadRegistry", "Gamepad", "Diagnostics", "Dialog", "PlayerMenu", "Codec", "Sign", "Authority", "Zones", "Who", "Data", "Roster", "Comm", "Map", "Layers", "Hop", "Positions", "Decree", "Channels", "Filter", "Inspect", "Shogun", "HopSightings", "Poll", "Court", "Board", "Week", "Treasury", "Dues", "Bank", "Acts", "Loot", "War", "Crafters", "Chronicle", "Workshop", "Versions", "Ed25519", "libs/QREncode/qrencode", "LinkLoader", "ArmyExport", "Recruit", "PartyGuard", "AnswerBank", "Answers", "Views", "Accord", "Consent", "ChatRooms", "CraftRequests", "ViewAs", "TabardsV2", "Members", "Nominees", "CensusClean", "Bridge", "BridgeSections", "BridgePeople", "BridgeAffairs" }) do
 	local chunk = assert(loadfile(ADDON_DIR .. file .. ".lua"))
 	chunk("BankaiGuild", ns)
+end
+-- (1.4.0) Bankai Guild Link is its own load-on-demand addon now (BankaiGuild_Link): loaded as
+-- LinkLoader.lua has the game load it, the namespace handed over for that one call, so the Link
+-- tests find ns.Link where the core's own Link.lua put it before.
+do
+	local own = {}
+	BankaiGuildLinkHandoff = ns
+	for line in io.lines(ROOT .. "BankaiGuild_Link/BankaiGuild_Link.toc") do
+		local file = line:gsub("\r$", ""):match("^([^#%s].-%.lua)$")
+		if file then assert(loadfile(ROOT .. "BankaiGuild_Link/" .. file:gsub("\\", "/")))("BankaiGuild_Link", own) end
+	end
+	BankaiGuildLinkHandoff = nil
 end
 ns.db = { guilds = {}, log = {}, errors = {}, blocked = {}, demo = false, showMap = true,
 	chatWarned = { A = true, C = true, L = true }, -- (0.9.1: the channel warnings already accepted; their own tests ask)
@@ -30632,14 +30644,21 @@ test("1.1 private companion bridge: its TOC has one separate SavedVariable and d
 		if value then variables[#variables + 1] = value end
 	end
 	eq(#variables, 1); eq(variables[1], "BankaiGuildCompanionDB")
-	assert(toc:find("## Dependencies: Bankai Guild", 1, true), "the private bridge depends on Bankai Guild")
+	assert(toc:find("## Dependencies: BankaiGuild", 1, true), "the private bridge depends on BankaiGuild (its folder's name)")
+	-- (11-04) Every module's dependency names the core's folder: a name the game has no addon by
+	-- ("Bankai Guild", with its space) keeps the module from loading at all.
+	for _, t in ipairs({ "BankaiGuild_Arena/BankaiGuild_Arena.toc", "BankaiGuild_Link/BankaiGuild_Link.toc",
+		"BankaiGuildSiteAggregate/BankaiGuildSiteAggregate.toc", "BankaiGuildCompanionBridge/BankaiGuildCompanionBridge.toc" }) do
+		local f = assert(io.open(ROOT .. t, "rb")); local text = f:read("*a"); f:close()
+		eq(text:match("## Dependencies: ([^\r\n]+)"), "BankaiGuild", t)
+	end
 	assert(not toc:find("BankaiGuildDB", 1, true), "it never declares the main database")
 	local readme = Read("BankaiGuildCompanionBridge/README.md")
 	for _, text in ipairs({ "does not continuously write SavedVariables", "`/reload`, logout or game exit", "LAN synchronization and encryption are deliberately not responsibilities of this Bridge" }) do
 		assert(readme:find(text, 1, true), "bridge docs: " .. text)
 	end
 	local package = Read("scripts/package.sh")
-	assert(package:find("FOLDERS=(BankaiGuild BankaiGuild_Arena BankaiGuildSiteAggregate)", 1, true), "the public package always includes the complete Bankai Guild bundle")
+	assert(package:find("FOLDERS=(BankaiGuild BankaiGuild_Arena BankaiGuild_Link BankaiGuildSiteAggregate)", 1, true), "the public package always includes the complete Bankai Guild bundle")
 	assert(not package:find("BankaiGuildCompanionBridge", 1, true), "the private bridge is not in the public package")
 end)
 
@@ -34849,9 +34868,16 @@ end)
 
 test("1.1 languages: the Spanish, French and German files: every line an English one, its codes the English line's, all taken; each language's own lines on the screens", function()
 	local files = { deDE = "deDE", esES = "esES", esMX = "esES", frFR = "frFR" }
-	local english = LoadLocale("enUS").L
+	-- English as the TOC loads it before the languages: Locales.lua and every Locales\*Text.lua
+	-- (1.4.1: the languages translate the modules' words too, the arena's included).
+	local texts = {}
+	for f in assert(ReadFile(ADDON_DIR .. "BankaiGuild.toc")):gmatch("Locales\\(%w+Text)%.lua") do texts[#texts + 1] = f end
+	local english = LoadLocale("enUS", texts).L
 	for code, file in pairs(files) do
-		local lns, calls = LoadLocale(code, { file })
+		-- (As the TOC loads it: the modules' English first, then the language over it.)
+		local order = { unpack(texts) }
+		order[#order + 1] = file
+		local lns, calls = LoadLocale(code, order)
 		local call = calls[file]
 		assert(call and type(call.strings) == "table", file .. " calls ns.Locale")
 		local n = 0
@@ -34864,7 +34890,8 @@ test("1.1 languages: the Spanish, French and German files: every line an English
 			-- Formatted as the addon formats it: no error, whatever the arguments.
 			local args = {}
 			for spec in en:gsub("%%%%", ""):gmatch("%%[%-%d%.]*(%a)") do args[#args + 1] = (spec == "s") and "x" or 1 end
-			assert(pcall(string.format, v, unpack(args)), file .. " " .. k .. " formats")
+			-- (A line the addon never formats, its English unformattable too, e.g. "50% / 25%", is plain text.)
+			if pcall(string.format, en, unpack(args)) then assert(pcall(string.format, v, unpack(args)), file .. " " .. k .. " formats") end
 		end
 		assert(n >= 150, file .. ": " .. n .. " lines")
 		local report = lns.LocaleReport()
@@ -40396,9 +40423,10 @@ end)
 			assert(page:find(ns.L.NETOFF_TITLE, 1, true) and page:find("Spammer Guy", 1, true), page)
 			assert(not page:find(ns.L.NETOFF_ADD, 1, true), "no button for a soldier")
 			eq(lines[2].onClick, nil)
-			-- The Watch reuses this realm-wide section, but Decrees remains its member-visible surface.
+			-- 1.4.0 (upstream, the author): the realm-wide list is The Watch's alone; Decrees shows nobody
+			-- else's name, only the viewer's own notice (below).
 			local decrees = Page((ns.Views.Build("decrees")))
-			assert(decrees:find(ns.L.NETOFF_TITLE, 1, true) and decrees:find("Spammer Guy", 1, true), decrees)
+			assert(not decrees:find("Spammer Guy", 1, true), decrees)
 			-- The tooltip: reason, issuer, date.
 			local tip = { lines = {} }
 			function tip:AddLine(text) self.lines[#self.lines + 1] = tostring(text) end
@@ -40642,7 +40670,7 @@ end)
 			eq(ns.Comm.heldReport, true)
 			-- Its own row is gone from its own census too, and the Decrees tab says why.
 			for _, e in ipairs(ns.Data.Summary().guilds) do assert(e.name ~= "Bankai Guild II") end
-			assert(Page(M.Lines()):find(ns.L.NETOFF_YOUR_GUILD_SHORT, 1, true))
+			assert(Page(M.SelfLines()):find(ns.L.NETOFF_YOUR_GUILD_SHORT, 1, true), "1.4.0: Decrees shows his own notice alone (SelfLines)")
 			assert(ns.Moderation.StatusLine():find("your guild among them", 1, true))
 			-- Back on: told, and nothing held.
 			GuildBack("Bankai Guild II")
@@ -40846,7 +40874,14 @@ end)
 			-- A character of another realm keeps its realm.
 			A.Handle("CHANNEL", "Main Three-Realm", AL(t, "M", "Bankai Guild Zeus", "Alt Three-Other"))
 			A.Handle("CHANNEL", "Alt Three-Other", AL(t, "A", "Bankai Guild Zeus", "Main Three-Realm"))
+			-- (1.4.0: a character of another realm group counts nowhere here; with no group known, every one.)
+			local savedGroup = ns.group
+			ns.group = nil
 			eq(A.Linked("Main Three-Realm")[1], "Alt Three-Other")
+			ns.group = ns.GroupOf(ns.realm)
+			assert(ns.GroupOf("Other") ~= ns.group, "Other is of another group")
+			eq(A.Linked("Main Three-Realm")[1], nil, "Other is not of our realm group")
+			ns.group = savedGroup
 			-- The main takes it apart (a newer claim without it): unlinked; an older claim changes nothing.
 			A.Handle("CHANNEL", "Main Two-Realm", AL(t + 10, "-", "Bankai Guild Zeus", ""))
 			eq(A.Group("Alt Two-Realm"), nil)
@@ -41155,8 +41190,8 @@ end)
 			eq(rot.picking, true); eq(#w.whispered, 0, "nothing sent while he picks")
 			eq(KY.Start(), true)
 			-- By whisper to the Elders and Council the census confirms online, other guilds only.
-			eq(Whispered(w, "K3~"), "Zed-Realm,Zeus Cap-Realm")
-			for _, x in ipairs(w.whispered) do eq(x.msg, ("K3~%d~%s"):format(rot.at, rot.key)) end
+			eq(Whispered(w, "K8~"), "Zed-Realm,Zeus Cap-Realm")
+			for _, x in ipairs(w.whispered) do eq(x.msg, ("K8~%d~%s"):format(rot.at, rot.key)) end
 			-- Online as a recent report says only (a whisper to someone gone shows the Shogun the game's error line).
 			ns.rdb.guilds["Bankai Guild Zeus"].t = w.clock - KY.ONLINE_FRESH - 1
 			eq(#KY.Targets(), 0, "a report too old to say who is online")
@@ -41190,9 +41225,9 @@ end)
 				local rot = KY.Rotation()
 				eq(#w.whispered, 0, "nothing before the guilds are picked")
 				eq(KY.Start(), true)
-				assert(Whispered(w, "K3~"):find("Zed-Realm", 1, true), Whispered(w, "K3~"))
+				assert(Whispered(w, "K8~"):find("Zed-Realm", 1, true), Whispered(w, "K8~"))
 				for _, x in ipairs(w.sent) do assert(not x.msg:find(rot.key, 1, true), "sent " .. x.dist .. ": " .. x.msg) end
-				local msg = ("K3~%d~%s"):format(rot.at, rot.key)
+				local msg = ("K8~%d~%s"):format(rot.at, rot.key)
 				-- An Elder's client: a Hand's whisper, or anyone's, is refused; the Steward's is taken.
 				AsElder()
 				KY.HandleKey("WHISPER", "Hand Guy-Realm", msg)
@@ -41228,9 +41263,9 @@ end)
 			eq(ns.rdb.realmKey, "newarmykey01"); eq(KY.Epoch(), at); eq(w.joined, 1, "the new channel")
 			eq(Whispered(w, "K4~"), SHOGUN, "the Shogun is told")
 			eq(w.whispered[#w.whispered].msg, ("K4~%d~Bankai Guild Zeus"):format(at))
-			-- To his guild over guild chat: with its epoch, and alone for guildmates before 1.1.
-			local k3, k1 = Sent(w, "GUILD", "K3~"), Sent(w, "GUILD", "K1~")
-			eq(k3[1], ("K3~%d~newarmykey01"):format(at)); eq(k1[1], "K1~newarmykey01")
+			-- To his guild over guild chat: with its epoch, as K8 alone (1.4.0: no plain K1 for older clients).
+			local k8 = Sent(w, "GUILD", "K8~")
+			eq(k8[1], ("K8~%d~newarmykey01"):format(at)); eq(#Sent(w, "GUILD", "K1~"), 0, "no plain K1")
 			for _, x in ipairs(w.sent) do assert(x.dist ~= "CHANNEL", "nothing on the channel") end
 			-- The same again: no second move; an older key: kept out.
 			KY.HandleKey("WHISPER", SHOGUN, ("K3~%d~newarmykey01"):format(at))
@@ -41273,7 +41308,7 @@ end)
 			w.clock = w.clock + 60
 			cns.Comm.SetRealmKey("officers own key")
 			eq(ns.rdb.realmKey, "officers own key"); eq(KY.Epoch(), w.clock)
-			eq(Sent(w, "GUILD", "K3~")[1], ("K3~%d~officers own key~%s"):format(w.clock, ns.Comm.Hash36("plainkey001")), "with the key it replaces")
+			eq(Sent(w, "GUILD", "K8~")[1], ("K8~%d~officers own key~%s"):format(w.clock, ns.Comm.Hash36("plainkey001")), "with the key it replaces")
 		end)
 	end)
 
@@ -41284,26 +41319,26 @@ end)
 			ns.rdb.realmKey, ns.rdb.keyEpoch = "armykey00001", { key = ns.Comm.Hash36("armykey00001"), at = w.clock }
 			-- A guildmate holding nothing newer asks: answered, once a minute at most.
 			KY.HandleAsk("GUILD", "Member4-Realm", "K5~0")
-			eq(Sent(w, "GUILD", "K3~")[1], ("K3~%d~armykey00001"):format(w.clock))
+			eq(Sent(w, "GUILD", "K8~")[1], ("K8~%d~armykey00001"):format(w.clock))
 			KY.HandleAsk("GUILD", "Member5-Realm", "K5~0")
-			eq(#Sent(w, "GUILD", "K3~"), 1, "once a minute")
+			eq(#Sent(w, "GUILD", "K8~"), 1, "once a minute")
 			-- Holding it already: nothing; over the channel or a whisper: nothing.
 			w.clock = w.clock + 61
 			KY.HandleAsk("GUILD", "Member4-Realm", ("K5~%d"):format(w.clock - 61))
 			KY.HandleAsk("CHANNEL", "Member4-Realm", "K5~0")
 			KY.HandleAsk("WHISPER", "Member4-Realm", "K5~0")
-			eq(#Sent(w, "GUILD", "K3~"), 1)
+			eq(#Sent(w, "GUILD", "K8~"), 1)
 			-- Our own ask, after login.
 			KY.Ask()
 			eq(Sent(w, "GUILD", "K5~")[1], ("K5~%d"):format(w.clock - 61))
-			-- A guildmate's K0 (no key at all): K1 as ever, and K3 with it.
+			-- A guildmate's K0 (no key at all): 1.4.0: K8 alone, no plain K1.
 			local cns, Deliver = FreshComm()
 			cns.After = function(_, _, f) f() end
 			local out = {}
 			C_ChatInfo.SendAddonMessage = function(_, msg, dist) out[#out + 1] = dist .. " " .. msg return true end
 			Deliver("GUILD", "Member4-Realm", "K0~")
 			for _ = 1, 3 do cns.Comm.Pump() end
-			eq(out[1], "GUILD K1~armykey00001"); eq(out[2], ("GUILD K3~%d~armykey00001"):format(w.clock - 61))
+			eq(out[1], ("GUILD K8~%d~armykey00001"):format(w.clock - 61)); eq(out[2], nil, "no plain K1")
 			-- Clients of 0.9.8: K3 by whisper or over guild chat, K4, K5: dropped unread, nothing changes.
 			local old, OldDeliver = FreshComm(true)
 			ns.rdb.realmKey = "keepthiskey1"
@@ -41397,8 +41432,8 @@ end)
 			w.clock = w.clock + KY.GRACE
 			KY.Tick()
 			eq(ns.rdb.realmKey, rot.key); eq(KY.Epoch(), rot.at); eq(w.joined, 1)
-			eq(Sent(w, "GUILD", "K3~")[1], ("K3~%d~%s"):format(rot.at, rot.key))
-			eq(Sent(w, "GUILD", "K1~")[1], "K1~" .. rot.key)
+			eq(Sent(w, "GUILD", "K8~")[1], ("K8~%d~%s"):format(rot.at, rot.key))
+			eq(#Sent(w, "GUILD", "K1~"), 0, "no plain K1 (1.4.0)")
 			assert(Printed(w, ns.L.KEY_ROTATION_MOVED))
 			assert(Page((K.Build())):find(ns.L.KEY_ROTATED_AGO:format(ns.Ago(rot.movedAt), 1, 1), 1, true))
 			for _, x in ipairs(w.sent) do assert(x.dist ~= "CHANNEL" or not x.msg:find(rot.key, 1, true), "never on the channel") end
@@ -41734,13 +41769,13 @@ end)
 			assert(page:find("<Bankai Guild Spies>  0 · " .. ns.L.KEY_GUILD_CENSUS .. " · " .. ns.L.KEY_GUILD_WAITING:format(2), 1, true), page)
 			assert(page:find("<Bankai Guild Zeus>  2 · " .. ns.L.KEY_GUILD_SEEN, 1, true), page)
 			eq(KY.Start(), true)
-			eq(Whispered(w, "K3~"), "Zed-Realm,Zeus Cap-Realm", "the guild his /who saw, not the made-up one")
+			eq(Whispered(w, "K8~"), "Zed-Realm,Zeus Cap-Realm", "the guild his /who saw, not the made-up one")
 			-- He checks it himself (or unchecks one): from the next round. (Before Konig's later review
 			-- the census's two "Elders" were whispered then; now only whom his /who sees in it.)
 			KY.Toggle("Bankai Guild Spies")
 			w.clock = w.clock + 60
 			KY.Tick()
-			eq(Whispered(w, "K3~"), "Zed-Realm,Zeus Cap-Realm")
+			eq(Whispered(w, "K8~"), "Zed-Realm,Zeus Cap-Realm")
 			-- Dropped before handing out: nothing sent, and another rotation may start.
 			KY.Move()
 			w.whispered = {}
@@ -41765,7 +41800,7 @@ end)
 					assert(f and f:IsShown(), "our dialog")
 					eq(#w.whispered, 0, "nothing before his yes")
 					f.buttons[1]:Click()
-					eq(Whispered(w, "K3~"), "Zed-Realm,Zeus Cap-Realm")
+					eq(Whispered(w, "K8~"), "Zed-Realm,Zeus Cap-Realm")
 				end)
 			end)
 		end)
@@ -41832,7 +41867,7 @@ end)
 			-- The Shogun's rotation later (a newer epoch): taken, and an officer hands on what it replaced.
 			KY.HandleKey("WHISPER", SHOGUN, ("K3~%d~shogunsnewkey1"):format(w.clock))
 			eq(ns.rdb.realmKey, "shogunsnewkey1")
-			eq(KY.HandOutMessage(), ("K3~%d~shogunsnewkey1~%s"):format(w.clock, ns.Comm.Hash36("brandnewkey9")))
+			eq(KY.HandOutMessage(), ("K8~%d~shogunsnewkey1~%s"):format(w.clock, ns.Comm.Hash36("brandnewkey9")))
 			Deliver("GUILD", "Member3-Realm", "K1~brandnewkey9")
 			eq(ns.rdb.realmKey, "shogunsnewkey1", "the key the Shogun's replaced")
 		end)
@@ -41884,7 +41919,7 @@ end)
 				eq(KY.Rotation().moved, true, "he moved")
 				local got, others, missing = {}, 0, {}
 				for _, x in ipairs(out) do
-					if x.msg:sub(1, 3) == "K3~" and x.dist == "WHISPER" then got[x.to] = true end
+					if x.msg:sub(1, 3) == "K8~" and x.dist == "WHISPER" then got[x.to] = true end
 					if x.msg:sub(1, 7) == "T9~othe" then others = others + 1 end
 				end
 				for name in pairs(names) do if not got[ns.TellName(name)] and not got[name] then missing[#missing + 1] = name end end
@@ -54343,7 +54378,7 @@ do
 	end
 	local function Whispered(w)
 		local out = {}
-		for _, x in ipairs(w.whispered) do if x.msg:sub(1, 3) == "K3~" then out[#out + 1] = x.to end end
+		for _, x in ipairs(w.whispered) do if x.msg:sub(1, 3) == "K8~" then out[#out + 1] = x.to end end
 		table.sort(out)
 		return table.concat(out, ",")
 	end
@@ -54596,7 +54631,7 @@ do
 	end
 	local function Whispered(w)
 		local out = {}
-		for _, x in ipairs(w.whispered) do if x.msg:sub(1, 3) == "K3~" then out[#out + 1] = x.to end end
+		for _, x in ipairs(w.whispered) do if x.msg:sub(1, 3) == "K8~" then out[#out + 1] = x.to end end
 		table.sort(out)
 		return table.concat(out, ",")
 	end
@@ -55007,9 +55042,9 @@ do
 	-- PIN_ADD_TIP there still speaks of Elders' pins being outranked."
 	test("1.1 pinned line (review of Konig's fixes): the Spanish, French and German help and army pin tooltip say who pins for whom (or are left out, and the English shows)", function()
 		local want = {
-			deDE = { help = { "der Shogun, seine Seneschalle und Hände für die Armee", "ein Gildenmeister für seine Gilde" }, tip = "über der eines Gildenmeisters", old = "Elders" },
+			deDE = { help = { "der Shogun, seine Truchsesse und Hände für die Armee", "ein Gildenmeister für seine Gilde" }, tip = "über der eines Gildenmeisters", old = "Elders" },
 			esES = { help = { "el Shogun, sus Senescales y Manos para el ejército", "un maestro de hermandad para su hermandad" }, tip = "por delante de la de un maestro de hermandad", old = "Señores" },
-			frFR = { help = { "le Shogun, ses Sénéchaux et ses Mains pour l'armée", "un maître de guilde pour sa guilde" }, tip = "devant celle d'un maître de guilde", old = "Seigneurs" },
+			frFR = { help = { "le Shogun, ses Intendants et ses Mains pour l'armée", "un maître de guilde pour sa guilde" }, tip = "devant celle d'un maître de guilde", old = "Seigneurs" },
 		}
 		for file, lines in pairs(want) do
 			-- The file's lines, as a game in that language loads them after Locales.lua.
@@ -55590,10 +55625,8 @@ do
 		assert(ns.L.DUES_GUILD_ROW:format("300", "?", "1g", "?"):find("300 · ? · 1g · ?", 1, true))
 		assert(ns.L.DUES_GUILD_TIP:format("300", "?", "5g", "15g", 2):find("? paid 5g", 1, true))
 		assert(rawget(pt.L, "DUES_GUILD_TIP"):format("300", "?", "5g", "15g", 2):find("? pagaram 5g", 1, true))
-		for _, file in ipairs({ "esES", "frFR", "deDE" }) do
-			local s = assert(ReadFile(ADDON_DIR .. "Locales/" .. file .. ".lua"))
-			assert(not s:find("DUES_", 1, true), file .. ": the English dues lines show there")
-		end
+		-- 1.4.1: es/fr/de translate the dues lines too (upstream's full translations); their codes are
+		-- the English lines' ("1.1 languages").
 		for _, path in ipairs({ "README.md", "docs/CURSEFORGE.md" }) do
 			local doc = assert(ReadFile(ROOT .. path)):gsub("%s+", " ")
 			for _, must in ipairs({ "never by the amount the Treasurer's list came with",
@@ -55625,7 +55658,7 @@ do
 	end
 	local function Whispered(w)
 		local out = {}
-		for _, x in ipairs(w.whispered) do if x.msg:sub(1, 3) == "K3~" then out[#out + 1] = x.to end end
+		for _, x in ipairs(w.whispered) do if x.msg:sub(1, 3) == "K8~" then out[#out + 1] = x.to end end
 		table.sort(out)
 		return table.concat(out, ",")
 	end
@@ -55783,8 +55816,9 @@ do
 		for code, file in pairs({ esES = "esES", frFR = "frFR", deDE = "deDE" }) do
 			local shown, given = Loaded(code, file)
 			assert(type(given) == "table" and next(given), file .. ": its lines")
-			eq(given.KEY_WHO_GAMEPAD, nil, file .. ": no line of its own")
-			eq(shown.KEY_WHO_GAMEPAD, en.KEY_WHO_GAMEPAD, file .. ": the English shows")
+			-- 1.4.1: upstream's full translations give each language its own line.
+			assert(type(given.KEY_WHO_GAMEPAD) == "string" and given.KEY_WHO_GAMEPAD ~= en.KEY_WHO_GAMEPAD, file .. ": its own line")
+			eq(shown.KEY_WHO_GAMEPAD, given.KEY_WHO_GAMEPAD, file .. ": its own line shows")
 		end
 		for _, path in ipairs({ "README.md", "docs/CURSEFORGE.md" }) do
 			local doc = assert(ReadFile(ROOT .. path)):gsub("%s+", " ")
@@ -55873,8 +55907,9 @@ do
 		for code, file in pairs({ esES = "esES", frFR = "frFR", deDE = "deDE" }) do
 			local shown, given = Loaded(code, file)
 			assert(type(given) == "table" and next(given), file .. ": its lines")
-			eq(given.KEY_ROTATE_CONFIRM, nil, file .. ": no line of its own")
-			eq(shown.KEY_ROTATE_CONFIRM, en.KEY_ROTATE_CONFIRM, file .. ": the English shows")
+			-- 1.4.1: upstream's full translations give each language its own line.
+			assert(type(given.KEY_ROTATE_CONFIRM) == "string" and given.KEY_ROTATE_CONFIRM ~= en.KEY_ROTATE_CONFIRM, file .. ": its own line")
+			eq(shown.KEY_ROTATE_CONFIRM, given.KEY_ROTATE_CONFIRM, file .. ": its own line shows")
 		end
 		-- The pages said it already.
 		for _, path in ipairs({ "README.md", "docs/CURSEFORGE.md" }) do
@@ -57837,7 +57872,10 @@ do
 			for _, l in ipairs(Literals(src)) do
 				scanned = scanned + 1
 				local cp = FontsLack(l.text)
-				if cp and not (ALLOWED[path] and ALLOWED[path][cp]) then found[#found + 1] = ("%s:%d U+%04X"):format(path, l.line, cp) end
+				-- 1.4.1: Russian, read only where a Russian client's fonts draw it (its locale) or never
+				-- drawn (Week.lua's day names, a parse table for what a player types).
+				local cyrillic = cp and cp >= 0x0400 and cp <= 0x04FF and (path == "BankaiGuild/Locales/ruRU.lua" or path == "BankaiGuild/Week.lua")
+				if cp and not cyrillic and not (ALLOWED[path] and ALLOWED[path][cp]) then found[#found + 1] = ("%s:%d U+%04X"):format(path, l.line, cp) end
 			end
 		end
 		assert(scanned > 20000, "the strings read: " .. scanned)
@@ -63913,9 +63951,9 @@ end)()
 	end)
 
 	test("1.3.3: the version, the TOC's files in order, the new message types in Comm.lua's list", function()
-		eq(ns.VERSION, "1.3.3") -- the release has one identity in both folders
+		eq(ns.VERSION, "1.4.1") -- the release has one identity in both folders (1.4.1: the merge)
 		local toc = assert(ReadFile(ADDON_DIR .. "BankaiGuild.toc"))
-		assert(toc:find("## Version: 1.3.3", 1, true))
+		assert(toc:find("## Version: 1.4.1", 1, true))
 		eq(ns.Workshop.Newer("1.3.3", "1.3.2"), true, "the new patch is newer")
 		eq(ns.Workshop.Newer("1.3.2", "1.3.3"), false)
 		eq(ns.Workshop.Newer("1.3.4", "1.3.3"), true, "the next patch remains newer")
@@ -64358,7 +64396,7 @@ end)()
 	end
 
 	test("1.3.3 version letters: release identity agrees across both TOCs and localized letters; reading the old release does not hide the new letter", function()
-		eq(ns.VERSION, "1.3.3")
+		eq(ns.VERSION, "1.4.1")
 		for _, path in ipairs({ "BankaiGuild/BankaiGuild.toc", "BankaiGuild_Arena/BankaiGuild_Arena.toc" }) do
 			local toc = assert(ReadFile(ROOT .. path))
 			eq(toc:match("## Version:%s*(%S+)"), ns.VERSION, path)
@@ -64379,7 +64417,8 @@ end)()
 				assert(lns.Letters.Has("1.2.0"), code .. ": previous release letter retained")
 				assert(lns.Letters.Has("1.2.1"), code .. ": the published 1.2.1 letter retained")
 				assert(lns.Letters.Has("1.2.2"), code .. ": the published 1.2.2 letter retained")
-				assert(body:find("/bk site export", 1, true), code .. ": the site export")
+				local _, body133 = lns.Letters.Text("1.3.3")
+				assert(body133 and body133:find("/bk site export", 1, true), code .. ": 1.3.3's site export retained")
 				local correctionTitle, correctionBody = lns.Letters.Text("1.3.2")
 				assert(correctionTitle and correctionBody and correctionBody:find(code == "ptBR" and "estimativa" or "estimate", 1, true), code .. ": 1.3.2 estimate correction retained")
 				local majorTitle, majorBody = lns.Letters.Text("1.3.0")
@@ -64402,7 +64441,7 @@ end)()
 		end)
 		-- A reader of all previous published letters gets the new candidate's alone.
 		WithLetters(function(w)
-			ns.db.lettersRead = { ["1.2.0"] = true, ["1.2.1"] = true, ["1.2.2"] = true, ["1.2.3"] = true, ["1.2.4"] = true, ["1.2.5"] = true, ["1.2.5.1"] = true, ["1.3.0"] = true, ["1.3.2"] = true }
+			ns.db.lettersRead = { ["1.2.0"] = true, ["1.2.1"] = true, ["1.2.2"] = true, ["1.2.3"] = true, ["1.2.4"] = true, ["1.2.5"] = true, ["1.2.5.1"] = true, ["1.3.0"] = true, ["1.3.2"] = true, ["1.3.3"] = true }
 			ns.Consent.Show():Hide()
 			eq(w.Letters.Ask("update"), true, "a reader of the previous published letter gets the new one's")
 			eq(w.Letters.Frame().version, ns.VERSION)
@@ -64824,7 +64863,7 @@ end)()
 			eq(f.title:IsShown(), false); eq(f.body:IsShown(), false); eq(f.all:IsShown(), false)
 			local versions = Lt.Versions()
 			eq(#versions, #Lt.LIST, "a letter for every version listed")
-			eq(table.concat(versions, " "), "1.3.3 1.3.2 1.3.0 1.2.5.1 1.2.5 1.2.4 1.2.3 1.2.2 1.2.1 1.2.0 1.1.5 1.1.4 1.1.3 1.1.2 1.1.1 1.1.0", "newest first")
+			eq(table.concat(versions, " "), "1.4.1 1.3.3 1.3.2 1.3.0 1.2.5.1 1.2.5 1.2.4 1.2.3 1.2.2 1.2.1 1.2.0 1.1.5 1.1.4 1.1.3 1.1.2 1.1.1 1.1.0", "newest first")
 			for i, v in ipairs(versions) do
 				local r = f.rows[i]
 				eq(r:IsShown(), true); eq(r.version, v)

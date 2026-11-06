@@ -17,7 +17,11 @@ function W3.LevelRaceWorld(opts)
 		local net = c and c.ns and rawget(c.ns, "HonorsNet")
 		if type(net) == "table" and seen[c] ~= net then
 			seen[c] = net
-			if (c.compliance or w.compliance) ~= "shipped" then net.LEVEL_RACE_LAUNCHED = true end
+			if (c.compliance or w.compliance) ~= "shipped" then
+				net.LEVEL_RACE_LAUNCHED = true
+				-- (1.4.0: the race also needs a launch realm, ns.LaunchRealm; this world's is one.)
+				c.ns.LaunchRealm = function() return true end
+			end
 		end
 		return ...
 	end
