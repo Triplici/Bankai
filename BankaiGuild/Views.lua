@@ -1934,7 +1934,13 @@ function Views.SetRealmMode(mode, quiet)
 	return true
 end
 
+-- (11-05) Pages turned off unless ns.REALM_PAGES_SHOWN: no link, and opened by a command or button,
+-- the Realm itself shows.
+Views.OFF_PAGES = { loot = true, war = true, carry = true }
+local function PageOff(key) return Views.OFF_PAGES[key] == true and ns.REALM_PAGES_SHOWN ~= true end
+Views.PageOff = PageOff
 local function RealmPage(key)
+	if PageOff(key) then return nil end
 	for _, p in ipairs(ns.RealmPages or {}) do
 		if p.key == key then return p end
 	end
@@ -2299,7 +2305,7 @@ local function RealmLines(s, q)
 	-- close together with one gap after the last so the guilds stay in sight on the short list.
 	local links, trailing = {}, {}
 	for _, p in ipairs(not q and ns.RealmPages or {}) do
-		local link = p.Link and p.Link()
+		local link = not PageOff(p.key) and p.Link and p.Link()
 		if link then
 			local group = p.beforeBoard and links or trailing
 			group[#group + 1] = link

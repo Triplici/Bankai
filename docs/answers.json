@@ -947,12 +947,12 @@
       "topic": "features",
       "status": "current (1.1.6)",
       "questions": [
-        "What's the Way of the Grove?",
+        "What's the Dojo?",
         "How do I name a guide?",
         "Who are the Senseis?"
       ],
-      "answer": "The Grove brings new players in: the Twelve Senseis from the author's signed list (the one it marks is the Head), guides each Sensei names (and each guide may name more), and one correspondent per guild. Name a guide on the Grove tab or with a right-click.",
-      "in_game": "The Grove: a Head, the Twelve Senseis and their guides, who name more guides; one correspondent per guild. Name one on the Grove tab or right-click a player.",
+      "answer": "The Dojo brings new players in: the Twelve Senseis from the author's signed list (the one it marks is the Head), guides each Sensei names (and each guide may name more), and one correspondent per guild. Name a guide on the Dojo tab or with a right-click.",
+      "in_game": "The Dojo: a Head, the Twelve Senseis and their guides, who name more guides; one correspondent per guild. Name one on the Dojo tab or right-click a player.",
       "sources": [
         "README.md: The Missionary Church of Bankai Guild (1.1.6)"
       ]
@@ -962,9 +962,9 @@
       "topic": "features",
       "status": "current (1.1.6)",
       "questions": [
-        "How does the Grove count my recruits?",
+        "How does the Dojo count my recruits?",
         "Why is my recruit still pending?",
-        "How are Grove points made?"
+        "How are Dojo points made?"
       ],
       "answer": "Your guild's log shows the invite and the join; another player's addon confirms it (only yours: pending). Only players new to Bankai Guild count. 10 points each, 5 more if he stays 7 days, plus 25%, 10% and 5% of the points of three levels under you. Your own work counts most.",
       "in_game": "From your guild's log: pending until another player's addon confirms. New to Bankai Guild only. 10 points, +5 after 7 days, plus 25/10/5% of three levels under you.",

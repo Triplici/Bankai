@@ -30564,6 +30564,27 @@ test("companion identity export: real consent, native membership and the sidecar
 	if not ok then error(err, 0) end
 end)
 
+-- (11-05, the owner) The Decrees and The Watch tabs ship off (Core.lua's switches; the test world turns them on).
+test("11-05: the Decrees and The Watch tabs are off unless their switches are set; the help leaves Decrees out", function()
+	WithUI(function()
+		GetGuildInfo = function() return "Bankai Guild II", "Member", 4 end
+		local UI = LoadUI()
+		local saved = { ns.DECREES_SHOWN, ns.WATCH_SHOWN }
+		ns.DECREES_SHOWN, ns.WATCH_SHOWN = nil, nil
+		local ok, err = pcall(function()
+			local shown = {}
+			for _, key in ipairs(UI.CompanionTabs()) do shown[key] = true end
+			eq(shown.decrees, nil, "no Decrees tab"); eq(shown.watch, nil, "no Watch tab")
+			eq(shown.census, true); eq(shown.realm, true)
+		end)
+		ns.DECREES_SHOWN, ns.WATCH_SHOWN = saved[1], saved[2]
+		if not ok then error(err, 0) end
+		local shown = {}
+		for _, key in ipairs(UI.CompanionTabs()) do shown[key] = true end
+		eq(shown.decrees, true, "switched on: back")
+	end)
+end)
+
 test("companion identity export: the tab list uses this character's native access and fails closed outside Bankai Guild", function()
 	WithUI(function()
 		GetGuildInfo = function() return "Bankai Guild II", "Member", 4 end
@@ -36042,6 +36063,33 @@ test("the Realm without Recruiting: no section and no do-not-contact line; the l
 			if l.header and text:find(Fern.Bare(ns.L.LAYERS_IN:format("")), 1, true) then layers = true end
 		end
 		assert(layers, "the layers' section stays")
+	end)
+end)
+
+-- (11-05, the owner) Loot notes, the War Room and Carried history ship off; the week's kudos and bows
+-- moved from the Dojo to the Realm's Rankings page.
+test("11-05: the Realm links no Loot notes, War Room or Carried history, and opens none of them (the Rankings page: tests/honor.lua)", function()
+	local V = ns.Views
+	Fern.Census(function(w)
+		local now = os.time()
+		ns.rdb.guilds["Bankai Guild R1"] = { total = 100, online = 1, zones = {}, t = now, leader = "L1", officers = {} }
+		local saved = ns.REALM_PAGES_SHOWN
+		ns.REALM_PAGES_SHOWN = nil
+		local ok, err = pcall(function()
+			local text = {}
+			for _, l in ipairs(V.RealmLines()) do text[#text + 1] = Fern.Bare(l.text or "") end
+			local page = table.concat(text, "\n")
+			for _, word in ipairs({ "Loot notes", "War Room", ns.L.CARRY_TITLE }) do assert(not page:find(word, 1, true), word .. "\n" .. page) end
+			for _, key in ipairs({ "loot", "war", "carry" }) do
+				V.ShowPage(key); eq(V.PageShown(), nil, key .. " opens nothing")
+			end
+		end)
+		ns.REALM_PAGES_SHOWN = saved
+		if not ok then V.ShowPage(nil) error(err, 0) end
+		V.ShowPage("war"); eq(V.PageShown(), "war", "switched on: back"); V.ShowPage(nil)
+		local on = {}
+		for _, l in ipairs(V.RealmLines()) do on[#on + 1] = Fern.Bare(l.text or "") end
+		assert(table.concat(on, "\n"):find("War Room", 1, true), "switched on: the War Room's link again")
 	end)
 end)
 

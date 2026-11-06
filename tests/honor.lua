@@ -66,4 +66,18 @@ local lines = {}
 H.Lines(lines, function(s) return s end, function(s) return s end)
 assert(lines[1].text == "KUDOS_TITLE" and lines[2].text == "KUDOS_EMPTY" and lines[#lines].text == "KUDOS_HOW")
 
+-- (11-05) The Realm's Rankings page: a link for a member, the way back, then the boards.
+local page
+for _, p in ipairs(ns.RealmPages) do if p.key == "rankings" then page = p end end
+assert(page and page.Link and page.Lines, "the Rankings page is registered")
+local shown
+ns.Views = { ShowPage = function(key) shown = key end }
+local link = assert(page.Link(), "a member's link")
+assert(link.text:find("RANKINGS_TITLE", 1, true)); link.onClick(); assert(shown == "rankings")
+local pl = page.Lines()
+assert(pl[1].text:find("CHATS_BACK", 1, true) and pl[2].text == "RANKINGS_TITLE" and pl[3].text == "KUDOS_TITLE", "back, title, boards")
+pl[1].onClick(); assert(shown == nil, "back to the Realm")
+ns.IsMember = function() return false end
+assert(page.Link() == nil, "no link outside a Bankai Guild guild")
+
 print("honor: ok")

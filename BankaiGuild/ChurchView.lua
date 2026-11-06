@@ -787,11 +787,7 @@ function View.WayLines()
 		lines[#lines + 1] = { indent = 1, text = (you and Green(r[1]) or Gold(r[1])) .. "  " .. r[2],
 			right = you and Green(L.WAY_RANKS_YOU) or nil }
 	end
-	-- The week's kudos and bows (Honor.lua).
-	if ns.Honor and ns.Honor.Lines then
-		lines[#lines].gapAfter = true
-		ns.Honor.Lines(lines, Gold, Grey)
-	end
+	-- (11-05: the week's kudos and bows moved to the Realm's Rankings page, Honor.lua.)
 	return lines, L.CHURCH_TITLE, L.WAY_DETAIL
 end
 

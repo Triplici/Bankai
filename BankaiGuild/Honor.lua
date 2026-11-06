@@ -125,7 +125,7 @@ function Honor.Top(which, n)
 	return out
 end
 
--- The Way page's boards (ChurchView.lua, WayLines).
+-- The boards of the Realm's Rankings page (11-05: the Way's before).
 function Honor.Lines(lines, Gold, Grey)
 	local function Board(title, which, empty)
 		lines[#lines + 1] = { header = true, text = title,
@@ -141,6 +141,21 @@ function Honor.Lines(lines, Gold, Grey)
 	Board(L.BOWS_TITLE, "bows", L.BOWS_EMPTY)
 	lines[#lines + 1] = { indent = 1, text = Grey(L.KUDOS_HOW) }
 end
+
+-- The Realm's Rankings page: its link, and the boards under a way back.
+ns.RealmPages = ns.RealmPages or {}
+table.insert(ns.RealmPages, { key = "rankings", tip = "REALM",
+	Link = function()
+		if ns.IsMember() then return { text = "|cffffd200> " .. L.RANKINGS_TITLE .. "|r", onClick = function() ns.Views.ShowPage("rankings") end } end
+	end,
+	Lines = function()
+		local function Gold(s) return "|cffffd200" .. s .. "|r" end
+		local function Grey(s) return "|cff999999" .. s .. "|r" end
+		local lines = { { text = Gold(L.CHATS_BACK), onClick = function() ns.Views.ShowPage(nil) end, gapAfter = true },
+			{ header = true, text = L.RANKINGS_TITLE, gapAfter = true } }
+		Honor.Lines(lines, Gold, Grey)
+		return lines
+	end })
 
 -- (A post-hook: the emote is the game's own, read after it ran; GamepadRegistry.lua's "emote-hook".)
 if hooksecurefunc and DoEmote then -- gp:emote-hook

@@ -24,15 +24,15 @@ L.RANK_RULE_GUILD_TREASURY_ORDER = "Higher total comes first; ties use higher kn
 L.RANK_RULE_GUILD_TREASURY_EVIDENCE = "Each row uses the latest authorized snapshot held here. Pending item prices make its total an 'at least' amount. Missing guilds and unpriced items remain unknown."
 L.RANK_RULE_GUILD_TREASURY_VISIBILITY = "Only the existing private guild-treasury audience can see this ranking. It is not published to the army."
 
-L.RANK_RULE_CHURCH_TITLE = "Grove service ranking"
+L.RANK_RULE_CHURCH_TITLE = "Dojo service ranking"
 L.RANK_RULE_CHURCH_SCORE = "A confirmed recruit gives %d points. A recruit still in Bankai Guild after %d days gives %d more. A leader also receives %d%%, %d%% and %d%% of the own points earned at the first three levels below them; shares do not compound."
 L.RANK_RULE_CHURCH_ORDER = "Higher total score comes first; ties use higher own points, then name. Week, 30-day and all-time windows count only evidence dated in that window."
-L.RANK_RULE_CHURCH_EVIDENCE = "Only confirmed recruit and later-stay records held by the Grove books count. Missing records are unknown and do not create points."
-L.RANK_RULE_CHURCH_VISIBILITY = "The Grove audience sees the full ranking. The public page shows only opted-in rows while the authorized publication switch is open."
+L.RANK_RULE_CHURCH_EVIDENCE = "Only confirmed recruit and later-stay records held by the Dojo books count. Missing records are unknown and do not create points."
+L.RANK_RULE_CHURCH_VISIBILITY = "The Dojo audience sees the full ranking. The public page shows only opted-in rows while the authorized publication switch is open."
 
 L.RANK_RULE_CHURCH_FULLNESS_TITLE = "Guild fullness ranking"
 L.RANK_RULE_CHURCH_FULLNESS_ORDER = "More completed qualifying days come first. Ties use the higher average of the qualifying daily averages, then guild name."
-L.RANK_RULE_CHURCH_FULLNESS_VISIBILITY = "This is private to the Grove audience; it is not part of the public Grove ranking."
+L.RANK_RULE_CHURCH_FULLNESS_VISIBILITY = "This is private to the Dojo audience; it is not part of the public Dojo ranking."
 
 L.RANK_RULE_ARENA_TITLE = "Arena rating"
 L.RANK_RULE_ARENA_SCORE = "A fighter with no carried rating starts at %d. Between seasons, a retained rating moves halfway back toward %d. K=%d applies only while the fighter is unsettled and has fewer than %d rated fights; a settled fighter can therefore start outside %d and uses K=%d, or K=%d from rating %d. Each level of difference counts as %d rating points; the total expected-score gap is capped at %d."
@@ -93,15 +93,15 @@ if GetLocale and GetLocale() == "ptBR" then
 	L.RANK_RULE_GUILD_TREASURY_EVIDENCE = "Cada linha usa o snapshot autorizado mais recente guardado aqui. Precos pendentes tornam o total um valor minimo. Guildas ausentes e itens sem preco permanecem desconhecidos."
 	L.RANK_RULE_GUILD_TREASURY_VISIBILITY = "Somente o publico privado atual dos tesouros das guildas pode ver este ranking. Ele nao e publicado ao exercito."
 
-	L.RANK_RULE_CHURCH_TITLE = "Ranking de servico do Bosque"
+	L.RANK_RULE_CHURCH_TITLE = "Ranking de servico do Dojo"
 	L.RANK_RULE_CHURCH_SCORE = "Um recruta confirmado da %d pontos. Se ainda estiver no Bankai Guild depois de %d dias, da mais %d. Um lider tambem recebe %d%%, %d%% e %d%% dos pontos proprios ganhos nos tres primeiros niveis abaixo dele; as parcelas nao se acumulam sobre parcelas."
 	L.RANK_RULE_CHURCH_ORDER = "Maior pontuacao vem primeiro; empates usam mais pontos proprios e depois o nome. As janelas semanal, de 30 dias e historica contam apenas evidencias datadas no periodo."
-	L.RANK_RULE_CHURCH_EVIDENCE = "Somente registros confirmados de recrutamento e permanencia posterior guardados nos livros do Bosque contam. Registros ausentes sao desconhecidos e nao criam pontos."
-	L.RANK_RULE_CHURCH_VISIBILITY = "O publico do Bosque ve o ranking completo. A pagina publica mostra somente linhas autorizadas enquanto a publicacao estiver aberta."
+	L.RANK_RULE_CHURCH_EVIDENCE = "Somente registros confirmados de recrutamento e permanencia posterior guardados nos livros do Dojo contam. Registros ausentes sao desconhecidos e nao criam pontos."
+	L.RANK_RULE_CHURCH_VISIBILITY = "O publico do Dojo ve o ranking completo. A pagina publica mostra somente linhas autorizadas enquanto a publicacao estiver aberta."
 
 	L.RANK_RULE_CHURCH_FULLNESS_TITLE = "Ranking de lotacao das guildas"
 	L.RANK_RULE_CHURCH_FULLNESS_ORDER = "Mais dias completos qualificados vem primeiro. Empates usam a maior media das medias diarias qualificadas e depois o nome da guilda."
-	L.RANK_RULE_CHURCH_FULLNESS_VISIBILITY = "Este ranking e privado para o publico do Bosque; ele nao faz parte do ranking publico do Bosque."
+	L.RANK_RULE_CHURCH_FULLNESS_VISIBILITY = "Este ranking e privado para o publico do Dojo; ele nao faz parte do ranking publico do Dojo."
 
 	L.RANK_RULE_ARENA_TITLE = "Rating da Arena"
 	L.RANK_RULE_ARENA_SCORE = "Um lutador sem rating anterior comeca em %d. Entre temporadas, o rating mantido recua pela metade em direcao a %d. K=%d vale somente enquanto o lutador nao estiver estabelecido e tiver menos de %d lutas validas; um lutador estabelecido pode comecar fora de %d e usa K=%d, ou K=%d a partir do rating %d. Cada nivel de diferenca vale %d pontos de rating; a diferenca total da expectativa e limitada a %d."

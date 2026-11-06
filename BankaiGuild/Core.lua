@@ -7,6 +7,11 @@ ns.PREFIX = "BANKAIGUILD"        -- addon message prefix (max 16 chars)
 -- ns.GAMES_OPEN = true        -- uncomment to show the Games tab and commands (ArenaNet.lua's Arena.Closed); hidden for now (Twee, 11-03)
 -- ns.GATES_SHOWN = true       -- uncomment to bring back the Shogun's Open the Gates (Acts.lua); off for now (11-03)
 -- ns.BANKAI_CHAT_SHOWN = true -- uncomment to bring back Bankai Guild's own chats (Channels.lua); the linked guild chat is its chat now (11-05)
+-- (11-05, the owner) Turned off in the add-on, kept in the code: the Realm's Loot notes, War Room and
+-- Carried history pages (Views.lua), and the Decrees and Watch tabs (UI.lua). Set to bring them back.
+-- ns.REALM_PAGES_SHOWN = true
+-- ns.DECREES_SHOWN = true
+-- ns.WATCH_SHOWN = true
 ns.CHANNEL = "BankaiGuildNet"    -- hidden chat channel shared by every Bankai Guild guild (Alliance)
 ns.CHANNEL_HORDE = "BankaiGuildNetH" -- the Horde's: the two factions never see each other's guilds
 ns.ICON = "Interface\\AddOns\\BankaiGuild\\media\\logo64"

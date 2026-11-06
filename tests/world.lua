@@ -35,3 +35,4 @@ ns.COUNCIL_MEMBER_RANK = 1
 -- Bankai Guild's own chats ship off (Channels.Shown, 11-05: the linked guild chat instead); the test
 -- world shows them so their tests run, and the linked chat's tests turn them off again.
 ns.BANKAI_CHAT_SHOWN = true
+ns.REALM_PAGES_SHOWN, ns.DECREES_SHOWN, ns.WATCH_SHOWN = true, true, true -- (11-05: off in the shipped add-on; tested on)

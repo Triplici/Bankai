@@ -1233,7 +1233,8 @@ function Nominees.MainLines(lines)
 			lines[#lines + 1] = row
 		end
 	end
-	if IsMain(mine) or preview then
+	-- (11-05: no War Room button while that page is off, Views.PageOff.)
+	if (IsMain(mine) or preview) and not (ns.Views and ns.Views.PageOff and ns.Views.PageOff("war")) then
 		lines[#lines + 1] = Line(L.NOMINEES_MAIN_WAR, INK, { indent = 1,
 			onClick = not preview and function() if ns.War and ns.War.Show then ns.War.Show() end end or nil })
 	end

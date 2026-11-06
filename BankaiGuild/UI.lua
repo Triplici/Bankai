@@ -2387,6 +2387,9 @@ local function TabRules(locked, views)
 			end
 		end
 	end
+	-- (11-05, the owner) Decrees and The Watch are off for everyone, a preview too (Core.lua's switches).
+	if ns.DECREES_SHOWN ~= true then only.decrees = false end
+	if ns.WATCH_SHOWN ~= true then only.watch = false end
 	return only
 end
 
@@ -3289,7 +3292,7 @@ function UI.HelpText()
 		"  " .. L.TAB_CENSUS .. ": " .. L.HELP_TAB_CENSUS,
 		"  " .. L.TAB_REALM .. ": " .. L.HELP_TAB_REALM,
 		"  " .. L.TAB_CHAT .. ": " .. L.HELP_TAB_CHAT,
-		"  " .. L.TAB_DECREES .. ": " .. L.HELP_TAB_DECREES,
+		ns.DECREES_SHOWN == true and ("  " .. L.TAB_DECREES .. ": " .. L.HELP_TAB_DECREES) or false,
 		"  " .. L.TAB_CRAFTERS .. ": " .. L.HELP_TAB_CRAFTERS,
 		"  " .. L.HELP_TAB_OTHERS,
 		"",
@@ -3315,6 +3318,7 @@ function UI.HelpText()
 		"  " .. L.HELP_ISSUES .. ": " .. UI.LINKS.issues,
 		"  CurseForge: " .. UI.LINKS.curseforge,
 	}
+	for i = #lines, 1, -1 do if lines[i] == false then table.remove(lines, i) end end
 	helpText = table.concat(lines, "\n")
 	return helpText
 end
