@@ -70,9 +70,9 @@ test("1.1.6 exile: a High Councillor exiles a guild with notice; its members see
 			local printed = #w.printed
 			M.HandleTimed("CHANNEL", HC, s.msg)
 			eq(#w.printed, printed, "a repeat is no news"); eq(f:IsShown(), false)
-			-- Its line on the Decrees tab and The Watch's desk opens it again.
+			-- Its line on the Decrees tab (1.4.0: Moderation.SelfLines) opens it again.
 			local mine
-			for _, l in ipairs(M.Lines()) do if tostring(l.text):find(L.NETOFF_EXILE_YOURS_SHORT:format(date("%H:%M", p.when)), 1, true) then mine = l end end
+			for _, l in ipairs(M.SelfLines()) do if tostring(l.text):find(L.NETOFF_EXILE_YOURS_SHORT:format(date("%H:%M", p.when)), 1, true) then mine = l end end
 			assert(mine and mine.onClick, "our guild's line")
 			mine.onClick()
 			eq(f:IsShown(), true)

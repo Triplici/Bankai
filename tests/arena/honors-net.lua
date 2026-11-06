@@ -45,6 +45,13 @@ test("1.2 the fights part: the level race (the design: the first to 20, 40, 60):
 	local young, viewer = cast.young, cast.spectator
 	-- (The race starts at the 1.2 release, after the test world's clock: here, a day before it.)
 	viewer.ns.HonorsNet.RACE_START = w.clock - 86400
+	-- (1.4.0, upstream's review High 7: a claim needs its crossing seen, each sender having listed her
+	-- below the milestone first.)
+	for _, r in ipairs({ cast.reporter, cast.reporter2 }) do
+		W3.Report(viewer, "Bankai Guild Vale", r, { { name = "Brisa Vale", level = 19, class = "MA" } })
+		w:As(viewer, function() viewer.ns.Fire("DATA_CHANGED") end)
+		w:Run(5)
+	end
 	-- The weight rule's exemption: PLAYER_LEVEL_UP only where a milestone can still be reached.
 	eq(w:Events(young, true).PLAYER_LEVEL_UP, true)
 	eq(w:Events(viewer, true).PLAYER_LEVEL_UP, nil, "a level 60: none")

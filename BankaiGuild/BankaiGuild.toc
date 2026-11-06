@@ -158,6 +158,7 @@ BridgeSections.lua
 BridgePeople.lua
 BridgeAffairs.lua
 Record.lua
+LinkedChat.lua
 SelfTest.lua
 ArenaMath.lua
 Compliance.lua
@@ -199,4 +200,3 @@ ArenaHome.lua
 Bow.lua
 Honor.lua
 Settings.lua
-LinkedChat.lua

@@ -595,8 +595,9 @@ test("1.2.0 honours: the release wears the all-time donors' frames alone (1.2.3:
 	local families = {}
 	for family in pairs(SHIPPED or {}) do families[#families + 1] = family end
 	table.sort(families)
-	eq(table.concat(families, ","), "apostle,bones,donor-month,donor-top,guild,missionary,wanted-slayer",
-		"Honors.lua ships the donors', the owl's, the Church's, the Bones' and the slayers' frames alone")
+	-- (1.4.0, the owner's call upstream: the level race's comets are worn too, on launch realms.)
+	eq(table.concat(families, ","), "apostle,bones,donor-month,donor-top,guild,level-20,level-40,level-60,missionary,wanted-slayer",
+		"Honors.lua ships the donors', the owl's, the Church's, the Bones', the slayers' and the level race's frames")
 	Honors.FRAMES_SHIPPED = SHIPPED
 	local ok, err = pcall(function()
 		local inputs = Everything()
@@ -610,11 +611,11 @@ test("1.2.0 honours: the release wears the all-time donors' frames alone (1.2.3:
 		eq((Honors.Shown({ frame = "donor-top-1" }, held)), "donor-top-1", "the all-time donors' frame is worn")
 		eq((Honors.Shown({ frame = "missionary-1" }, held)), "missionary-1", "(1.2.3) the missionaries' crook is worn")
 		assert(Honors.Choose({}, held, "missionary-1"), "(1.2.3) the crook can be picked")
-		for _, key in ipairs({ "donor-month-1", "guild-top-leader", "apostle-2", "bones-3", "wanted-slayer-1" }) do
+		for _, key in ipairs({ "donor-month-1", "guild-top-leader", "apostle-2", "bones-3", "wanted-slayer-1", "level-race-60" }) do
 			eq((Honors.Shown({ frame = key }, held)), key, "(1.2.4) " .. key .. " is worn")
 			assert(Honors.Choose({}, held, key), "(1.2.4) " .. key .. " can be picked")
 		end
-		for _, key in ipairs({ "level-race-60", "oracle-1", "arena-champion", "arena-class-mage" }) do
+		for _, key in ipairs({ "oracle-1", "arena-champion", "arena-class-mage" }) do
 			eq((Honors.Shown({ frame = key }, held)), "rank", key .. ": his rank's frame instead")
 			eq(select(2, Honors.Choose({}, held, key)), "frame", key .. ": not offered to pick")
 		end
@@ -1583,9 +1584,8 @@ test("1.2.3 honours: as Honors.lua ships them, a newly earned frame not worn yet
 		eq(q.frame, "donor-top-1", "the cornucopia stays worn")
 		eq(q.title, "oracle-1", "the raven's title switches on")
 		eq(Honors.Shown(q, raven), "donor-top-1", "and shows")
-		-- The same for the comet and an arena belt.
-		for _, extra in ipairs({ { levels = { [60] = { { guid = "Player-1-A", name = "Aldric", t = 1 } } } },
-			{ belts = { { cat = "A", guid = "Player-1-A", name = "Aldric" } } } }) do
+		-- The same for an arena belt. (1.4.0: the comet is released now.)
+		for _, extra in ipairs({ { belts = { { cat = "A", guid = "Player-1-A", name = "Aldric" } } } }) do
 			extra.donors = all
 			local held = Honors.Holdings(ME, extra)
 			local r = Honors.Update(p, held, true)
@@ -1763,7 +1763,7 @@ test("1.2.3 honours: a pick 1.2.2 left on a frame not released (1.2.4: the raven
 		local cornucopia = Honors.Holdings(ME, { donors = { all = donors.all } })
 		eq(Keys(cornucopia), "donor-top-1")
 		local seen = Honors.Update(nil, cornucopia, true).seen
-		for _, key in ipairs({ "level-race-60", "oracle-1", "oracle-2", "arena-champion", "arena-champion-2", "arena-class-mage-3",
+		for _, key in ipairs({ "oracle-1", "oracle-2", "arena-champion", "arena-champion-2", "arena-class-mage-3", -- (1.4.0: the comet released)
 			"arena-race-nightelf" }) do
 			local p = Honors.Update({ frame = key, title = "donor-top-1", seen = seen }, cornucopia, true)
 			eq(p.frame, "donor-top-1", key .. ", not held: the cornucopia") eq(p.title, "donor-top-1")
@@ -1779,9 +1779,10 @@ test("1.2.3 honours: a pick 1.2.2 left on a frame not released (1.2.4: the raven
 		eq(l.frame, "donor-top-1") eq(l.title, "oracle-1", "his title as it was") eq(Honors.Shown(l, both), "donor-top-1")
 		-- With no released frame held: his rank's; but while the cornucopia waits for the donors' word
 		-- (remembered, its source not loaded: a login), as it is, and mended once it is in.
-		eq(Honors.Update({ frame = "level-race-60", seen = {} }, {}, true).frame, "rank")
-		local wait = Honors.Update({ frame = "level-race-60", seen = seen }, {}, { level = true })
-		eq(wait.frame, "level-race-60", "left for a later Update") eq(wait.seen["donor-top"].place, 1)
+		-- (1.4.0: the comet is released; an unreleased arena belt stands in.)
+		eq(Honors.Update({ frame = "arena-champion", seen = {} }, {}, true).frame, "rank")
+		local wait = Honors.Update({ frame = "arena-champion", seen = seen }, {}, { level = true })
+		eq(wait.frame, "arena-champion", "left for a later Update") eq(wait.seen["donor-top"].place, 1)
 		eq(Honors.Update(wait, cornucopia, true).frame, "donor-top-1")
 		-- A released frame not held, with its source not loaded: stays (a gap never undoes a pick).
 		eq(Honors.Update({ frame = "donor-top-1", seen = seen }, {}, nil).frame, "donor-top-1")

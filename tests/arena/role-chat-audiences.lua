@@ -21,6 +21,7 @@ local function WithRoles(fn)
 	c.ShogunCharacter = function() return "Crown Owl-Realm" end
 	c.IsShogunCharacter = function(name) return c.FullName(name) == c.ShogunCharacter() end
 	c.TREASURER = "Ledger Owl"
+	c.TreasurerName = function() return "Ledger Owl" end -- (1.3.4 upstream: ChatRooms reads the pin through ns.TreasurerName)
 	c.Treasury = { TreasurerPin = function(name) return c.FullName(name) == "Ledger Owl-Realm" and 1 or nil end }
 	c.IsHighCouncillor = function(name) return w.council[c.FullName(name)] == true end
 	c.CouncilTitle = function(name) return w.titles[c.FullName(name)] end

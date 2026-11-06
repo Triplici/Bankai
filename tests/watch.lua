@@ -424,7 +424,7 @@ test("watch: tab is Treasury > The Watch > Throne and reuses Court and Moderatio
 	local views = assert(io.open(ROOT .. "BankaiGuild/Views.lua", "rb")):read("*a")
 	local ui = assert(io.open(ROOT .. "BankaiGuild/UI.lua", "rb")):read("*a")
 	assert(not shogun:find("Court and ns.Court.HomeLines", 1, true), "Throne no longer renders the Court queue")
-	assert(views:find("ns.Moderation.Lines", 1, true), "Decrees keeps member-visible net-off and SelfOff disclosure")
+	assert(views:find("ns.Moderation.SelfLines", 1, true), "Decrees keeps the viewer's own net-off notice (1.4.0: the list is The Watch's)")
 	assert(ui:find('{ "COURT_BTN", function() ns.Court.Toggle()', 1, true), "Hold Court remains a Throne button")
 end)
 
@@ -2773,8 +2773,11 @@ test("watch: council reports (1.2.1): each end checks what it can; spoofed, repl
 		eq(select(1, ShogunTakes(HC2, "MR~1~Q~0")), true)
 		eq(#w.bus > 0, true, "the others' reports go to him")
 		for _, m in ipairs(w.bus) do
-			eq(m.target, HC2)
-			assert(not m.msg:find(HC2, 1, true) and not m.msg:find("Sage Alt", 1, true), "never his own case: " .. m.msg)
+			-- (1.4.0: the collector's receipt, op K, goes to each reporter.)
+			if not m.msg:find("^MR~1~K~") then
+				eq(m.target, HC2)
+				assert(not m.msg:find(HC2, 1, true) and not m.msg:find("Sage Alt", 1, true), "never his own case: " .. m.msg)
+			end
 		end
 		w.bus = {}
 		-- A councillor's own client refuses one about himself too.

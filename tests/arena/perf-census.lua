@@ -145,6 +145,10 @@ test("1.2.1 census news: two senders of a guild heard within one second both cou
 	-- The viewer's own census (the world shares the harness's Data otherwise).
 	w:As(viewer, function() assert(loadfile(H.ADDON_DIR .. "Data.lua"))("BankaiGuild", viewer.ns) end)
 	viewer.ns.HonorsNet.RACE_START = w.clock - 86400
+	-- (1.4.0: a claim counts only with its crossing seen here; given: she was seen at 19 a moment before.)
+	local st = assert(viewer.ns.HonorsNet.Store(true))
+	st.lows = type(st.lows) == "table" and st.lows or {}
+	st.lows[20] = { [viewer.ns.FullName(young.name):lower()] = viewer.ns.Now() - 1 }
 	w:Fire(young, "PLAYER_LEVEL_UP", 20)
 	w:Run(61)
 	local claim

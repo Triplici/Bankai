@@ -2639,7 +2639,7 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 		local k = "API_CONSENT_TEXT_BASIC"
 		local basic = assert(src:match("\nL%." .. k .. ' = "(.-)"\n'), k)
 		for _, word in ipairs({ "what Bankai Guild shows you", "Never your location or the Shogun's", "Authorize all", "Keep current choices",
-			"addons you trust", "No, Keep current choices, or no answer: it receives nothing." }) do
+			"addons you trust", "No, Keep current choices, or no answer: it receives nothing" }) do -- (1.4.0: "...and cannot act on your group.")
 			assert(basic:find(word, 1, true), k .. " says: " .. word)
 		end
 		for _, word in ipairs({ "Shogun's presence", "search", "crown", " layer", "presentation", "caption", "issuer",
@@ -2648,7 +2648,7 @@ test("1.2.4 the API: its words in English and pt-BR; docs/API.md names every met
 		end
 		local ptBasic = assert(tail:match("\n\tL%." .. k .. ' = "(.-)"\n'), k .. " (pt-BR)")
 		for _, word in ipairs({ "Nunca a sua localização nem a do Xogum", "Autorizar tudo", "Manter escolhas atuais",
-			"Não, Manter escolhas atuais ou sem resposta: ele não recebe nada." }) do
+			"Não, Manter escolhas atuais ou sem resposta: ele não recebe nada" }) do
 			assert(ptBasic:find(word, 1, true), k .. " (pt-BR) says: " .. word)
 		end
 		for _, word in ipairs({ "presença do Xogum", "busca", "coroa", "camada", "apresentação", "legenda", "emissor",
@@ -2969,7 +2969,7 @@ end)
 -- fired here as the Accord fires it) tells every data event's listeners once the burst settles.
 test("accord: the API before the Bankai Guild Accord is accepted reads as outside an Bankai Guild guild; once it is, WANTED, RANKINGS and PROFILE listeners are told", function()
 	local w, cast, viewer, API = Setup()
-	eq(API.CONSENT_VERSION, 9, "the contract unchanged")
+	eq(API.CONSENT_VERSION, 10, "the contract unchanged (1.4.0 upstream: 10, the Board's groups)")
 	local O, C = viewer.BankaiGuildAPI, viewer.Consent
 	Install(viewer, "MapPins", "Map Pins")
 	local api = w:As(viewer, O.Register, "MapPins")

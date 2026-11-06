@@ -70,12 +70,12 @@ test("1.2: a queued guarded whisper rechecks permission immediately before the r
 		C.Pump()
 		eq(#sent, 1); eq(done[2], "false:recipient-changed")
 		lease.recipient = "Old-Realm"
-		results[1] = 8
+		results[1] = 12 -- (1.4.0: a throttle, 8, now waits in the queue; an offline target ends the job)
 		C.Whisper("Old-Realm", "ZZ~retry", nil, nil, nil, function(ok, why)
 			done[#done + 1] = tostring(ok) .. ":" .. tostring(why)
 		end, guard)
 		C.Pump()
-		eq(sent[#sent].msg, "ZZ~retry"); eq(done[3], "false:8")
+		eq(sent[#sent].msg, "ZZ~retry"); eq(done[3], "false:12")
 	end)
 end)
 

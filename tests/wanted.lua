@@ -2848,14 +2848,17 @@ test("wanted relay: a late independently anchored peer recovers an unchanged wor
 		eq(accepted, false); eq(why, "replay")
 		local fresh = world:Client("Fresh-Realm", "Player-1-0A000004")
 		accepted, why = world:As(fresh, fresh.W.HandleGlobalRelay, "CHANNEL", council.name, "W5~2~" .. held)
-		eq(accepted, false); eq(why, "unanchored", "a relay cannot introduce the original key")
-		eq(fresh.rdb.wanted and fresh.rdb.wanted.globalDirectPins, nil)
+		-- (1.4.0, the owner's rule upstream: a client that never heard the issuer directly takes a
+		-- current reviewer's relay as its first pin; a direct pin is never rotated by a relay.)
+		eq(accepted, true, "a fresh client takes the relay: " .. tostring(why))
+		eq(fresh.rdb.wanted and fresh.rdb.wanted.globalDirectPins, nil, "no direct pin from a relay")
 		world:Load(late); world:Deliver()
 		eq(late.rdb.wanted.global.text, held, "persisted relayed word verifies again after reload")
 		eq(late.rdb.wanted.global.relay, council.name)
 		late.rdb.wanted.globalDirectPins = nil
 		world:Load(late); world:Deliver()
-		eq(world:As(late, late.W.GlobalSnapshot), nil, "a relayed saved word cannot reconstruct a missing independent pin")
+		-- (1.4.0: with no direct pin of the issuer here, the relayed word is its first pin and stands.)
+		assert(world:As(late, late.W.GlobalSnapshot), "a relayed saved word stands with no direct pin of its issuer")
 	end)
 end)
 
@@ -3262,8 +3265,10 @@ test("wanted world: a word replaced by a newer one is not repeated by its publis
 		local before = #world.log + 1
 		world:Run(shogun.W.GLOBAL_BURST * shogun.W.GLOBAL_BURST_GAP + shogun.W.GLOBAL_REPEAT_EVERY + 1)
 		eq(ShogunSent(before), false, "the Shogun repeats no replaced word")
-		eq(world:As(gamma, gamma.W.GlobalSnapshot), nil, "a later client never takes the older word")
-		eq(world:Border(gamma, alpha.guid), nil)
+		-- (1.4.0: a later client may take the newer word from a relay, never the older one.)
+		local g = world:As(gamma, gamma.W.GlobalSnapshot)
+		assert(g == nil or g.issuer == council.name, "a later client never takes the older word: " .. tostring(g and g.issuer))
+		eq(world:Border(gamma, alpha.guid), g and world:Border(beta, alpha.guid) or nil, "the newer word's frames, or none")
 		eq(world:Border(beta, beta.guid), "wanted-slayer-1", "the newer word holds where it was heard")
 
 		shogun = world:Load(shogun)
@@ -3272,7 +3277,8 @@ test("wanted world: a word replaced by a newer one is not repeated by its publis
 		before = #world.log + 1
 		world:Run(shogun.W.GLOBAL_LOGIN_REPEAT + shogun.W.GLOBAL_REPEAT_EVERY + 1)
 		eq(ShogunSent(before), false, "nor after his login")
-		eq(world:As(delta, delta.W.GlobalSnapshot), nil)
+		local d = world:As(delta, delta.W.GlobalSnapshot)
+		assert(d == nil or d.issuer == council.name, "nor the older word after his login: " .. tostring(d and d.issuer))
 
 		-- A word of his own published later is repeated as before.
 		assert(world:As(shogun, shogun.W.RevokeGlobal))

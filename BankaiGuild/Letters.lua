@@ -133,7 +133,8 @@ end
 -- carries 1.2.2's, the fixes before the Shogun's stream, and 1.2.0's): a version or a list.
 Letters.CATCH_UP = { ["1.2.1"] = "1.2.0", ["1.2.2"] = "1.2.0", ["1.2.3"] = { "1.2.2", "1.2.0" },
 	["1.2.4"] = { "1.2.3", "1.2.0" }, ["1.2.5"] = "1.2.4", ["1.2.5.1"] = "1.2.5", ["1.3.0"] = "1.2.5.1",
-	["1.3.2"] = { "1.3.0", "1.2.5.1" }, ["1.3.3"] = { "1.3.2", "1.3.0" } }
+	["1.3.2"] = { "1.3.0", "1.2.5.1" }, ["1.3.3"] = { "1.3.2", "1.3.0" },
+	["1.4.1"] = { "1.3.3", "1.3.2", "1.3.0" } } -- (Bankai Guild 1.4.1: no 1.4.0 letter of ours)
 
 -- A version's letter: its title and its text as the page shows them (its marks drawn), or nil when
 -- it has none.
