@@ -185,6 +185,10 @@ separate from the 16 addons that may register data handles.
 | `"ui.guild-tools"` | `handle:OpenGuildTools([section[, target]])`, which opens an authorized section of Bankai Guild's own Watch workspace without returning its records |
 | `"callbacks"`, and each event's name | `handle:On(...)` |
 | `"ui.surface"` | one page through `handle:RegisterSurface(...)` and its lifecycle methods |
+| `"groups"` | the Board's groups: `GetGroups`, `GetLooking`, `GetMyGroup` and their events |
+| `"groups.manage"` | the player's own group acted on as the Board's buttons do: `InviteApplicant`, `DeclineApplicant`, `SetMemberRole`, `InviteLooking`, `LowerListing`, `OpenGroup`, `OpenListingDialog`, `OpenFlagDialog` |
+| `"ui.board-groups"` | one companion panel in place of the Board's Your group: `RegisterGroupPanel` and its lifecycle methods |
+| `"unit.member"` | `handle:IsBankaiGuildMember(unit)` |
 
 **Reserved features.** `"leader"`, `"network.sightings"`, `"network.sightings.area-scope"`,
 `"network.profile-effects"` and `"presence.quiet"` are reserved for
@@ -723,6 +727,53 @@ Realm tab's "~N with Bankai Guild", a sample of Bankai Guild clients that share 
 (the game exposes none). While Bankai Guild hides locations from this player, only `name` and `online`
 remain. It never returns another member's name except as a layer name the Realm tab already shows,
 nor a population, the census or a movement history.
+
+### `handle:IsBankaiGuildMember(unit)`
+
+Whether the player a live unit token names is in a Bankai Guild guild, as this client counts Bankai
+Guild guilds: `true` or `false`, or `nil` and why. `unit` is one of the game's own tokens only:
+`player`, `target`, `focus`, `mouseover`, `party1`-`party4`, `raid1`-`raid40` or `nameplateN`, each
+alone or followed by `target` once (`targettarget`, `party1target`); never a name (`nil, "unit"`).
+It reads what the game shows for that unit now (`UnitExists`, `UnitIsPlayer`, `UnitFactionGroup`,
+`GetGuildInfo`) and Bankai Guild's guild rule, nothing else: no census, roster, sighting or
+sanction, and nothing is kept. `false` is a unit that is no player, or a player of a guild that is
+not Bankai Guild's; `nil, "unknown"` is a unit the game shows nothing for now, a player of the other
+faction, or one whose guild the game has not given. It needs the same permission and Bankai Guild
+guild checks as `GetWanted` and has its own budget (`nil, "busy"` past it).
+
+### Groups: `handle:GetGroups([kind])`, `handle:GetLooking([kind])` and `handle:GetMyGroup()`
+
+The Board's groups, as its sections show them, with the same permission, Bankai Guild guild and
+rate checks as `GetWanted`. `kind` is `"dungeon"`, `"raid"`, `"pvp"` or `"quest"` (`nil, "kind"`
+for anything else), or `nil` for every section in the strip's order. `GetGroups` returns the
+listings in the Board's order (ours first in its section); `GetLooking` the players looking (a
+player whose flag names two kinds is in both; no flag looks for a quest), counted by class and role
+as the sections count them, never their names; `GetMyGroup` the player's own listing, the
+applications to it while it is up and the others in his party or raid, as Your group shows them.
+Without the Board in this build: `nil, "unavailable"`. Their events are `GROUPS_CHANGED`,
+`LOOKING_CHANGED` and `MY_GROUP_CHANGED`.
+
+### The player's own group: `handle:InviteApplicant(name, role)`, `handle:DeclineApplicant(name)`, `handle:SetMemberRole(name, role)`, `handle:InviteLooking(name, role)` and `handle:LowerListing()`
+
+Each runs the Board's own button for it, with its checks (the invite is the game's own), after the
+player's Yes, in a Bankai Guild guild, out of combat and within a small rate of their own. They
+return `true`, or `false` and why (`"unknown"`, `"role"`, `"invited"`, `"not-leader"`, `"failed"`,
+or the usual permission answers). `role` is `"tank"`, `"healer"` or `"damage"`; `SetMemberRole`
+takes `nil` for none. `LowerListing` takes the player's listing down for everyone, as
+`/bk group off` does. Nothing is listed, applied for or written for the player.
+
+`handle:OpenGroup(id)` opens Bankai Guild's own card of a listing (`GetGroups`' `id`),
+`handle:OpenListingDialog([kind])` the listing composer (his own listing when he has one), and
+`handle:OpenFlagDialog([kind])` the flag dialog. The player lists, flags or applies himself there.
+
+### `handle:RegisterGroupPanel(spec)`
+
+One companion panel a session in place of the Board's Your group, as `RegisterSurface`'s page:
+`spec = { label = "...", build = function(frame) ... end, refresh = function(frame) ... end }`
+(`refresh` optional). It may be registered while the player's answer is pending; it shows only
+while it is Yes, and a switch on the Board brings Bankai Guild's own Your group back. It gives no
+data by itself. `handle:UnregisterGroupPanel()`, `handle:RefreshGroupPanel()` and
+`handle:IsGroupPanelShown()` follow it; each returns `false, "unregistered"` without a panel.
 
 ### `handle:On(event, fn)` and `handle:Off(event[, fn])`
 

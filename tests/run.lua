@@ -34874,7 +34874,10 @@ test("1.1 languages: the Spanish, French and German files: every line an English
 	for f in assert(ReadFile(ADDON_DIR .. "BankaiGuild.toc")):gmatch("Locales\\(%w+Text)%.lua") do texts[#texts + 1] = f end
 	local english = LoadLocale("enUS", texts).L
 	for code, file in pairs(files) do
-		local lns, calls = LoadLocale(code, { file })
+		-- (As the TOC loads it: the modules' English first, then the language over it.)
+		local order = { unpack(texts) }
+		order[#order + 1] = file
+		local lns, calls = LoadLocale(code, order)
 		local call = calls[file]
 		assert(call and type(call.strings) == "table", file .. " calls ns.Locale")
 		local n = 0
@@ -34887,7 +34890,8 @@ test("1.1 languages: the Spanish, French and German files: every line an English
 			-- Formatted as the addon formats it: no error, whatever the arguments.
 			local args = {}
 			for spec in en:gsub("%%%%", ""):gmatch("%%[%-%d%.]*(%a)") do args[#args + 1] = (spec == "s") and "x" or 1 end
-			assert(pcall(string.format, v, unpack(args)), file .. " " .. k .. " formats")
+			-- (A line the addon never formats, its English unformattable too, e.g. "50% / 25%", is plain text.)
+			if pcall(string.format, en, unpack(args)) then assert(pcall(string.format, v, unpack(args)), file .. " " .. k .. " formats") end
 		end
 		assert(n >= 150, file .. ": " .. n .. " lines")
 		local report = lns.LocaleReport()
