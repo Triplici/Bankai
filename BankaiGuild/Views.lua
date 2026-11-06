@@ -1500,7 +1500,7 @@ local function CensusRow(e)
 	local g = e.g
 	local leader = g.leader and ((g.leaderOnline and "|cff40ff40" or "|cff9d9d9d") .. Plain(g.leader) .. "|r") or Grey("?")
 	return {
-		cols = { (censusOpen[e.name] and "[-] " or "[+] ") .. Views.DisputeMark(g) .. VerifyMark(e.name) .. Plain(e.name), ns.FormatNumber(g.total), Green(ns.FormatNumber(g.online)), AvgCell(g), leader },
+		cols = { Views.DisputeMark(g) .. VerifyMark(e.name) .. Plain(e.name), ns.FormatNumber(g.total), Green(ns.FormatNumber(g.online)), AvgCell(g), leader },
 		dim = not e.fresh,
 		tooltip = GuildTooltip(e),
 		onClick = function()

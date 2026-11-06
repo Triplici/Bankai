@@ -20697,64 +20697,7 @@ local function CensusRow(main, name)
 	end
 end
 
-test("1.0.0 a guild clicked in the Census opens in the Realm with that guild in sight, its first rows under it", function()
-	WithUI(function()
-		local w, UI = ForeverWorld(true)
-		CommunitiesFrame:Show(); w.buttons[1]:Click()
-		local main = BankaiGuildFrameHD
-		ns.rdb.guilds = ManyGuilds()
-		-- (1.1: a sealed channel, so the public channel's warning is not above the Realm's tree: the
-		-- Board's, loot notes' and crafters' links are, and the guild window's list is short.)
-		local savedKey = ns.rdb.realmKey
-		ns.rdb.realmKey = "sealed"
-		ns.Views.ExpandAll(false)
-		UI.SelectTab("census")
-		local scroll = main.scroll
-		scroll:Settle()
-		local view = scroll:GetHeight()
-		-- The Census's last guild (the smallest), scrolled down to and clicked.
-		local row = CensusRow(main, "Bankai Guild 01")
-		assert(row, "Bankai Guild 01 in the Census")
-		scroll:SetVerticalScroll(Top(row) + row:GetHeight() - view)
-		assert(scroll:GetVerticalScroll() > 0, "the Census scrolled down to it")
-		row:Click()
-		DrawJumping(scroll)
-		eq(main.tab, "realm")
-		local opened = GuildRow(main, "Bankai Guild 01")
-		assert(opened and opened.line.text:find("^%[%-%] "), "opened in the Realm")
-		assert(Top(opened) > view, "low in the Realm's tree: out of sight from its top")
-		local at = scroll:GetVerticalScroll()
-		eq(at, math.min(Top(opened), scroll:GetVerticalScrollRange()), "the guild at the top of the list")
-		local below = main.views.realm.rows[Index(opened) + SHOW_BELOW]
-		assert((below.line.indent or 0) >= 1, "its own rows under it: " .. tostring(below.line.text))
-		assert(Top(opened) >= at and Top(below) + below:GetHeight() <= at + view, "the guild and its first rows in sight")
-		-- A guild the Realm shows from its top, first rows and all: the Realm stays at its top.
-		ns.Views.ExpandAll(false)
-		UI.Refresh()
-		local first
-		for _, r in ipairs(main.views.realm.rows) do
-			if r:IsShown() and type(r.line.text) == "string" and r.line.text:find("^%[%+%] ") then first = r break end
-		end
-		assert(Top(first) + (SHOW_BELOW + 1) * first:GetHeight() <= view, "the Realm's first guild and its first rows fit")
-		local name = first.line.text:match("<(Bankai Guild %d+)>")
-		UI.SelectTab("census")
-		scroll:Settle()
-		row = CensusRow(main, name)
-		scroll:SetVerticalScroll(math.max(0, Top(row) - 40))
-		row:Click()
-		DrawJumping(scroll)
-		eq(main.tab, "realm")
-		assert(GuildRow(main, name).line.text:find("^%[%-%] "), "opened")
-		eq(scroll:GetVerticalScroll(), 0, "in sight from the top: the Realm at its top")
-		-- Another tab and back (no guild clicked): the top, as before.
-		scroll:SetVerticalScroll(120)
-		UI.SelectTab("census"); UI.SelectTab("realm")
-		DrawJumping(scroll)
-		eq(scroll:GetVerticalScroll(), 0, "the Realm's tab: its top")
-		ns.Views.ExpandAll(false)
-		ns.rdb.realmKey = savedKey
-	end)
-end)
+-- (11-05: a Census guild row opens in place now, no longer in the Realm: the 11-05 Census test.)
 
 test("1.0.0 a click that redraws nothing is not kept: the player's own scrolling stays through the next report", function()
 	WithUI(function()
@@ -21334,33 +21277,7 @@ do
 		if not ok then error(err, 0) end
 	end)
 
-	test("1.0.0 search: a guild clicked in the Census opens in the Realm even when the Realm's box holds a search that misses it", function()
-		local saved = { guilds = ns.rdb.guilds }
-		local ok, err = pcall(Quiet, function(calls)
-			ns.rdb.guilds = SampleGuilds()
-			V.ExpandAll(false)
-			local opened
-			ns.UI.SelectTab = function(tab) opened = tab end
-			-- Typed in the Realm earlier: a Council member of <Elfcore>, nothing of <Bankai Guild II>.
-			V.SetFilter("realm", "capt")
-			eq(At(V.Build("realm"), "<Bankai Guild II>"), nil, "the search misses the guild about to be clicked")
-			V.SetFilter("census", "eldery")
-			local row
-			for _, l in ipairs(V.Build("census")) do if l.cols and Bare(l.cols[1]) == "Bankai Guild II" then row = l end end
-			assert(row and row.onClick, "the Census's row")
-			row.onClick()
-			eq(opened, "realm")
-			eq(V.Filter("realm"), "", "the Realm's box emptied for the guild clicked")
-			eq(V.Filter("census"), "eldery", "the Census's own search kept")
-			local lines = V.Build("realm")
-			eq(Box(lines).input.text, "")
-			assert(At(lines, "[-] " .. ns.Views.DisputeMark(ns.rdb.guilds["Bankai Guild II"]) .. "|cff40ff40<Bankai Guild II>"), "the guild clicked, opened: " .. Texts(lines))
-			assert(At(lines, L.RANKS) and At(lines, L.SHOGUN .. ": "), "the whole Realm, as with nothing typed")
-			eq(#calls, 0, "nothing sent")
-		end)
-		ns.rdb.guilds = saved.guilds
-		if not ok then error(err, 0) end
-	end)
+	-- (11-05: a Census guild row opens in place now, no longer in the Realm: the 11-05 Census test.)
 
 	test("1.0.0 search: the Realm's first letter opens a page of guilds, not all of them, the rest on a click; no member list made where nothing is found; names folded once", function()
 		local saved = { guilds = ns.rdb.guilds, guild = GetGuildInfo, online = ns.Roster.online, sweep = ns.Who.sweep, membersOf = V.MembersOf,
@@ -21801,45 +21718,7 @@ do
 		end)
 	end)
 
-	test("1.0.0 search: in the window, a guild clicked in the Census opens in the Realm with the Realm's box emptied, nothing focused (gamepad UI too)", function()
-		WithUI(function()
-			GetGuildInfo = function() return "Bankai Guild II" end
-			local focused = {}
-			Widget.SetFocus = function(self) focused[#focused + 1] = self end
-			local savedFocus = GetCurrentKeyBoardFocus
-			local ok, err = pcall(WithGamepadUI, true, function(game)
-				GetCurrentKeyBoardFocus = function() return { name = "ChatFrame1EditBox" } end
-				V.ClearFilters()
-				V.ExpandAll(false)
-				local UI = LoadUI()
-				UI.SelectTab("realm")
-				local main = BankaiGuildFrame
-				local reb = main.pageSearchHolders.realm.input
-				reb:SetText("capt"); reb:Fire("OnTextChanged", true)
-				UI.Refresh()
-				UI.SelectTab("census")
-				local row
-				for _, r in ipairs(main.views.census.rows) do
-					if r:IsShown() and r.line and r.line.cols and Bare(r.line.cols[1]) == "Bankai Guild II" then row = r end
-				end
-				assert(row, "the Census's row")
-				row:Click()
-				eq(main.tab, "realm")
-				eq(V.Filter("realm"), ""); eq(reb:GetText(), "", "the box shows it emptied"); eq(reb.clear:IsShown(), false)
-				local header
-				for _, r in ipairs(main.views.realm.rows) do
-					if r:IsShown() and r.line and (r.line.text or ""):find("[-] " .. ns.Views.DisputeMark(ns.rdb.guilds["Bankai Guild II"]) .. "|cff40ff40<Bankai Guild II>", 1, true) then header = r end
-				end
-				assert(header, "the guild clicked, opened in the Realm")
-				eq(#focused, 0, "no box focused"); eq(#game.shown, 0, "no game popup")
-			end)
-			GetCurrentKeyBoardFocus, Widget.SetFocus = savedFocus, nil
-			V.ClearFilters()
-			V.ExpandAll(false)
-			V.ClearFilters()
-			if not ok then error(err, 0) end
-		end)
-	end)
+	-- (11-05: a Census guild row opens in place now, no longer in the Realm: the 11-05 Census test.)
 
 	test("1.0.0 search: the locales have every new line, in Portuguese too", function()
 		local savedLocale, pt = GetLocale, {}
@@ -36079,13 +35958,13 @@ test("11-05: a Census guild row opens its guild master and officers in place; a 
 		end
 		local lines = V.Build("census")
 		local row = assert(RowOf(lines), "the guild's row")
-		assert(Fern.Bare(row.cols[1]):find("[+]", 1, true), "closed")
+		eq(Fern.Bare(lines[(select(2, RowOf(lines))) + 1] and lines[(select(2, RowOf(lines))) + 1].text or ""):find("Lead One", 1, true), nil, "closed")
 		eq(#w.tabs, 0)
 		row.onClick()
 		eq(#w.tabs, 0, "no jump to the Realm")
 		lines = V.Build("census")
 		local open, at = RowOf(lines)
-		assert(Fern.Bare(open.cols[1]):find("[-]", 1, true), "open")
+		assert(open, "open")
 		assert(Fern.Bare(lines[at + 1].text):find("Lead One", 1, true), "its guild master next")
 		assert(Fern.Bare(lines[at + 2].text):find(Fern.Bare(ns.L.COUNCIL:format(1)), 1, true), "then its officers")
 		assert(Fern.Bare(lines[at + 3].text):find("Offi Cer", 1, true))
