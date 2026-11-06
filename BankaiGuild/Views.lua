@@ -1492,21 +1492,49 @@ end
 
 -- A reported guild's row: its name, members, online and Elder; a click opens it in the Realm,
 -- whose box it empties: a search left there could miss that guild and show nothing of it.
+-- (11-05, the owner) A guild's row opens in place on the Census: its guild master and officers
+-- (the Elder and the Council its report names), each a click to his card.
+local censusOpen = {}
+Views.censusOpen = censusOpen
 local function CensusRow(e)
 	local g = e.g
 	local leader = g.leader and ((g.leaderOnline and "|cff40ff40" or "|cff9d9d9d") .. Plain(g.leader) .. "|r") or Grey("?")
 	return {
-		cols = { Views.DisputeMark(g) .. VerifyMark(e.name) .. Plain(e.name), ns.FormatNumber(g.total), Green(ns.FormatNumber(g.online)), AvgCell(g), leader },
+		cols = { (censusOpen[e.name] and "[-] " or "[+] ") .. Views.DisputeMark(g) .. VerifyMark(e.name) .. Plain(e.name), ns.FormatNumber(g.total), Green(ns.FormatNumber(g.online)), AvgCell(g), leader },
 		dim = not e.fresh,
 		tooltip = GuildTooltip(e),
 		onClick = function()
-			-- Opened in the Realm, and the Realm opens on it (UI.KeepPlace), whatever its box held.
-			Views.SetFilter("realm", "")
-			expanded[e.name] = true
-			ns.UI.SelectTab("realm", Views.GuildId(e.name))
+			censusOpen[e.name] = not censusOpen[e.name] or nil
+			ns.UI.Refresh()
 		end,
 	}
 end
+-- An open guild's leaders under its row.
+local function CensusLeaders(lines, e)
+	local g = e.g
+	if g.leader then
+		local on, days, dim, at = Views.PresenceNow(e, g.leader, g.leaderOnline, g.leaderDays)
+		local elder = { name = g.leader, realm = g.realm, class = g.leaderClass, level = g.leaderLevel, zone = g.leaderZone,
+			guild = e.name, rank = L.ELDER, online = on, days = days }
+		lines[#lines + 1] = { key = g.leader, player = g.leader, offline = not on, indent = 1,
+			text = CROWN .. Gold(L.ELDER) .. "  " .. ClassColored(g.leader, elder.class and ns.CLASS_FILES[elder.class]),
+			right = Presence(on, days, dim, at), onClick = function() ns.UI.ShowPerson(elder) end }
+	end
+	local officers = g.officers or {}
+	lines[#lines + 1] = { indent = 1, text = Gold(L.COUNCIL:format(#officers)) }
+	for _, o in ipairs(officers) do
+		local on, days, dim, at = Views.PresenceNow(e, o.name, o.online, o.days)
+		local person = { name = o.name, realm = g.realm, class = o.class, level = o.level, zone = o.zone, guild = e.name,
+			rank = L.COUNCIL_MEMBER, online = on, days = days }
+		lines[#lines + 1] = { key = o.name, player = o.name, offline = not on, indent = 2,
+			text = ASSIST .. ClassColored(o.name, o.class and ns.CLASS_FILES[o.class]),
+			right = (o.level and Grey(L.LEVEL_N:format(o.level)) .. "  " or "") .. Presence(on, days, dim, at),
+			onClick = function() ns.UI.ShowPerson(person) end }
+	end
+	if #officers == 0 then lines[#lines + 1] = { indent = 2, text = Grey(L.NONE_REPORTED) } end
+	lines[#lines].gapAfter = true
+end
+Views.CensusLeaders = CensusLeaders
 
 -- A guild seen with /who that nobody reports: grey, after every reported guild, and in no
 -- total (Data.Summary keeps them apart). Members, average level and Elder are unknown.
@@ -1791,7 +1819,10 @@ local function CensusLines(s, q)
 	PublicLines(lines)
 	local rebuilding = RebuildLines(lines)
 	local top = #lines
-	for _, e in ipairs(SortedGuilds(s.guilds)) do lines[#lines + 1] = CensusRow(e) end
+	for _, e in ipairs(SortedGuilds(s.guilds)) do
+		lines[#lines + 1] = CensusRow(e)
+		if censusOpen[e.name] then CensusLeaders(lines, e) end
+	end
 	if #lines == top and shoguns == 0 and not rebuilding then lines[#lines + 1] = { text = Grey(L.EMPTY) } end
 	for _, e in ipairs(s.seen or {}) do lines[#lines + 1] = SeenRow(e) end
 	if #(s.seen or {}) > 0 then
@@ -1939,6 +1970,12 @@ end
 Views.OFF_PAGES = { loot = true, war = true, carry = true }
 local function PageOff(key) return Views.OFF_PAGES[key] == true and ns.REALM_PAGES_SHOWN ~= true end
 Views.PageOff = PageOff
+-- (11-05, the owner) Links the Realm no longer shows unless ns.REALM_LINKS_SHOWN; their pages stay
+-- (their commands still open them): Your week in five lines, My profile, the guild charter, the
+-- Rankings and the Board.
+Views.OFF_LINKS = { personalbrief = true, myprofile = true, guildcharter = true, rankings = true, board = true }
+local function LinkOff(key) return Views.OFF_LINKS[key] == true and ns.REALM_LINKS_SHOWN ~= true end
+Views.LinkOff = LinkOff
 local function RealmPage(key)
 	if PageOff(key) then return nil end
 	for _, p in ipairs(ns.RealmPages or {}) do
@@ -2305,13 +2342,13 @@ local function RealmLines(s, q)
 	-- close together with one gap after the last so the guilds stay in sight on the short list.
 	local links, trailing = {}, {}
 	for _, p in ipairs(not q and ns.RealmPages or {}) do
-		local link = not PageOff(p.key) and p.Link and p.Link()
+		local link = not PageOff(p.key) and not LinkOff(p.key) and p.Link and p.Link()
 		if link then
 			local group = p.beforeBoard and links or trailing
 			group[#group + 1] = link
 		end
 	end
-	local board = not q and ns.Board and ns.Board.LinkLine and ns.Board.LinkLine()
+	local board = not q and not LinkOff("board") and ns.Board and ns.Board.LinkLine and ns.Board.LinkLine()
 	if board then links[#links + 1] = board end
 	for _, link in ipairs(trailing) do links[#links + 1] = link end
 	if #links > 0 then

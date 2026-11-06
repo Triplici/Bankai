@@ -36066,6 +36066,88 @@ test("the Realm without Recruiting: no section and no do-not-contact line; the l
 	end)
 end)
 
+-- (11-05, the owner) A Census guild row opens in place: its guild master and officers, each a click to
+-- his card; the Realm no longer links Your week, My profile, the charter, the Rankings or the Board.
+test("11-05: a Census guild row opens its guild master and officers in place; a second click closes it", function()
+	local V = ns.Views
+	Fern.Census(function(w)
+		local now = os.time()
+		ns.rdb.guilds["Bankai Guild R1"] = { total = 100, online = 1, zones = {}, t = now, leader = "Lead One", leaderOnline = true,
+			officers = { { name = "Offi Cer", level = 30, online = false, days = 2 } } }
+		local function RowOf(lines)
+			for i, l in ipairs(lines) do if l.cols and Fern.Bare(l.cols[1]):find("Bankai Guild R1", 1, true) then return l, i end end
+		end
+		local lines = V.Build("census")
+		local row = assert(RowOf(lines), "the guild's row")
+		assert(Fern.Bare(row.cols[1]):find("[+]", 1, true), "closed")
+		eq(#w.tabs, 0)
+		row.onClick()
+		eq(#w.tabs, 0, "no jump to the Realm")
+		lines = V.Build("census")
+		local open, at = RowOf(lines)
+		assert(Fern.Bare(open.cols[1]):find("[-]", 1, true), "open")
+		assert(Fern.Bare(lines[at + 1].text):find("Lead One", 1, true), "its guild master next")
+		assert(Fern.Bare(lines[at + 2].text):find(Fern.Bare(ns.L.COUNCIL:format(1)), 1, true), "then its officers")
+		assert(Fern.Bare(lines[at + 3].text):find("Offi Cer", 1, true))
+		lines[at + 3].onClick()
+		eq(w.persons[#w.persons].name, "Offi Cer"); eq(w.persons[#w.persons].guild, "Bankai Guild R1")
+		open.onClick()
+		local _, after = RowOf(V.Build("census"))
+		local closed = V.Build("census")[after + 1]
+		assert(not (closed and closed.text and Fern.Bare(closed.text):find("Lead One", 1, true)), "closed again")
+	end)
+end)
+
+test("11-05: the Realm links no Your week, My profile, guild charter, Rankings or Board unless switched on", function()
+	local V = ns.Views
+	Fern.Census(function(w)
+		local saved = ns.REALM_LINKS_SHOWN
+		ns.REALM_LINKS_SHOWN = nil
+		local ok, err = pcall(function()
+			for _, key in ipairs({ "personalbrief", "myprofile", "guildcharter", "rankings", "board" }) do eq(V.LinkOff(key), true, key) end
+			eq(V.LinkOff("loot"), false, "another page's link is not this switch's")
+			local text = {}
+			for _, l in ipairs(V.RealmLines()) do text[#text + 1] = Fern.Bare(l.text or "") end
+			local page = table.concat(text, "\n")
+			for _, word in ipairs({ ns.L.BRIEF_PERSONAL_TITLE, ns.L.MYPROFILE_LINK or "My profile" }) do assert(not page:find(word, 1, true), word) end
+		end)
+		ns.REALM_LINKS_SHOWN = saved
+		if not ok then error(err, 0) end
+		eq(V.LinkOff("board"), false, "switched on: back")
+	end)
+end)
+
+test("11-05: a guildmate's card adds the game's roster notes, his last login and his main or alts; nothing for another guild", function()
+	WithUI(function()
+	local UI = LoadUI()
+	local saved = { IsInGuild, GetGuildInfo, GetNumGuildMembers, GetGuildRosterInfo, GetGuildRosterLastOnline, ns.Alts }
+	IsInGuild = function() return true end
+	GetGuildInfo = function() return "Bankai Guild II", "Member", 3 end
+	GetNumGuildMembers = function() return 2 end
+	local roster = { { "Some One-Realm", "", "", true }, { "Alt Guy-Realm", "raid team A", "loot banned", false } }
+	GetGuildRosterInfo = function(i) local r = roster[i]; return r[1], "Member", 3, 20, "Warrior", "Elwynn", r[2], r[3], r[4] end
+	GetGuildRosterLastOnline = function() return 0, 0, 3, 4 end
+	ns.Alts = { Group = function() return { main = "Main Guy-Realm", members = { { name = "Main Guy-Realm" }, { name = "Alt Guy-Realm" } } } end }
+	local ok, err = pcall(function()
+		local rows = {}
+		UI.GuildmateRows({ name = "Alt Guy", guild = "Bankai Guild II" }, rows)
+		local text = table.concat(rows, "\n")
+		assert(text:find(ns.L.GUILDCARD_NOTE:format("raid team A"), 1, true), text)
+		assert(text:find(ns.L.GUILDCARD_OFFICER_NOTE:format("loot banned"), 1, true), text)
+		assert(text:find(ns.L.GUILDCARD_DAYS:format(3, 4), 1, true), text)
+		assert(text:find(ns.L.GUILDCARD_ALT_OF:format(ns.DisplayName("Main Guy-Realm")), 1, true), text)
+		rows = {}
+		UI.GuildmateRows({ name = "Main Guy", guild = "Bankai Guild II" }, rows)
+		assert(table.concat(rows, "\n"):find(ns.L.GUILDCARD_MAIN, 1, true), "his main, with its alts")
+		rows = {}
+		UI.GuildmateRows({ name = "Alt Guy", guild = "Another Guild" }, rows)
+		eq(#rows, 0, "another guild's: nothing")
+	end)
+	IsInGuild, GetGuildInfo, GetNumGuildMembers, GetGuildRosterInfo, GetGuildRosterLastOnline, ns.Alts = unpack(saved, 1, 6)
+	if not ok then error(err, 0) end
+	end)
+end)
+
 -- (11-05, the owner) Loot notes, the War Room and Carried history ship off; the week's kudos and bows
 -- moved from the Dojo to the Realm's Rankings page.
 test("11-05: the Realm links no Loot notes, War Room or Carried history, and opens none of them (the Rankings page: tests/honor.lua)", function()

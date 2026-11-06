@@ -12,6 +12,8 @@ ns.PREFIX = "BANKAIGUILD"        -- addon message prefix (max 16 chars)
 -- ns.REALM_PAGES_SHOWN = true
 -- ns.DECREES_SHOWN = true
 -- ns.WATCH_SHOWN = true
+-- (11-05) The Realm's links to Your week, My profile, the guild charter, the Rankings and the Board.
+-- ns.REALM_LINKS_SHOWN = true
 ns.CHANNEL = "BankaiGuildNet"    -- hidden chat channel shared by every Bankai Guild guild (Alliance)
 ns.CHANNEL_HORDE = "BankaiGuildNetH" -- the Horde's: the two factions never see each other's guilds
 ns.ICON = "Interface\\AddOns\\BankaiGuild\\media\\logo64"

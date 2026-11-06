@@ -3650,3 +3650,41 @@ end
 
 -- A /reload (or logging out) gives every alpha back first: another addon may save its frame's.
 ns.RegisterEvent("PLAYER_LOGOUT", function() if photo then PhotoOff() end end)
+
+-- (11-05, the owner) A guildmate's card: what the game's own roster says of him (his public note, the
+-- officer note when the game lets this character read it, when he was last online) and his
+-- confirmed main or alts (Alts.lua). Our own guild only: the game tells nothing of another's.
+function UI.GuildmateRows(p, rows)
+	local own = IsInGuild and IsInGuild() and GetGuildInfo("player")
+	if not own or type(p.guild) ~= "string" or p.guild ~= own or type(p.name) ~= "string" then return end
+	local want = ns.ShortName(p.name):lower()
+	for i = 1, (GetNumGuildMembers and GetNumGuildMembers() or 0) do
+		local name, _, _, _, _, _, note, officerNote, online = GetGuildRosterInfo(i)
+		if type(name) == "string" and ns.ShortName(name):lower() == want then
+			if type(note) == "string" and note ~= "" then rows[#rows + 1] = L.GUILDCARD_NOTE:format(ns.Codec.Plain(note)) end
+			if type(officerNote) == "string" and officerNote ~= "" then
+				rows[#rows + 1] = "|cffffd200" .. L.GUILDCARD_OFFICER_NOTE:format(ns.Codec.Plain(officerNote)) .. "|r"
+			end
+			if not online and GetGuildRosterLastOnline then
+				local y, mo, d, h = GetGuildRosterLastOnline(i)
+				local days = (tonumber(y) or 0) * 365 + (tonumber(mo) or 0) * 30 + (tonumber(d) or 0)
+				if y or mo or d or h then
+					rows[#rows + 1] = "|cff9d9d9d" .. L.GUILDCARD_LAST:format(days > 0 and L.GUILDCARD_DAYS:format(days, tonumber(h) or 0) or L.GUILDCARD_HOURS:format(tonumber(h) or 0)) .. "|r"
+				end
+			end
+			break
+		end
+	end
+	local A = ns.Alts
+	local g = type(A) == "table" and type(A.Group) == "function" and A.Group(ns.FullName(p.name, p.realm)) or nil
+	if g and type(g.main) == "string" then
+		if ns.ShortName(g.main):lower() ~= want then
+			rows[#rows + 1] = L.GUILDCARD_ALT_OF:format(ns.DisplayName(g.main))
+		else
+			local alts = {}
+			for _, m in ipairs(g.members or {}) do if ns.ShortName(m.name):lower() ~= want then alts[#alts + 1] = ns.DisplayName(m.name) end end
+			rows[#rows + 1] = L.GUILDCARD_MAIN .. (#alts > 0 and ("  " .. L.GUILDCARD_ALTS:format(table.concat(alts, ", "))) or "")
+		end
+	end
+end
+table.insert(UI.personRows, function(p, rows) UI.GuildmateRows(p, rows) end)
